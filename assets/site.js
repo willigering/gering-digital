@@ -26,14 +26,27 @@
   addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll,{passive:true});
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)onScroll()}).observe(hero);
   reduced.addEventListener('change',()=>{targetX=targetY=0;request()});fine.addEventListener('change',()=>{targetX=targetY=0;request()});onScroll();
-  // Pointer distance previews a turn; recent release speed sets 0–3 complete turns.
+  // Pointer distance previews a turn; recent release speed changes duration, never the one-turn limit.
   const phone=stage.querySelector('.phone'),spinControl=document.querySelector('.phone-spin-control');
+  const buildChassis=()=>{
+    const w=phone.offsetWidth,h=phone.offsetHeight,r=52,points=[];
+    // Clockwise rounded perimeter; each chord becomes a real face spanning the depth.
+    for(const [cx,cy,start] of [[w-r,r,-90],[w-r,h-r,0],[r,h-r,90],[r,r,180]]){
+      for(let step=0;step<=16;step++){const a=(start+step*90/16)*Math.PI/180;points.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}
+    }
+    const faces=points.map((point,index)=>{
+      const next=points[(index+1)%points.length],dx=next[0]-point[0],dy=next[1]-point[1],face=document.createElement('i');
+      face.style.width=`${Math.hypot(dx,dy)+.6}px`;face.style.left=`${(point[0]+next[0])/2}px`;face.style.top=`${(point[1]+next[1])/2}px`;
+      face.style.transform=`translate(-50%,-50%) rotateZ(${Math.atan2(dy,dx)}rad) rotateX(90deg)`;return face;
+    });phone.querySelector('.phone-volume').replaceChildren(...faces);
+  };
+  buildChassis();new ResizeObserver(buildChassis).observe(phone);
   let drag=null,spinning=false,spinFrame=0;
   const setSpin=angle=>phone.style.setProperty('--spin',`${angle}deg`);
   const resetSpin=()=>{cancelAnimationFrame(spinFrame);spinFrame=0;spinning=false;setSpin(0);phone.classList.remove('is-dragging');if(drag && phone.hasPointerCapture(drag.id))phone.releasePointerCapture(drag.id);drag=null};
   const settle=(start,turns,direction,speed)=>{
     if(reduced.matches){resetSpin();return}
-    spinning=true;const end=direction*360*Math.min(3,turns);
+    spinning=true;const end=direction*360*Math.min(1,turns);
     const duration=turns===0?380:Math.max(900,Math.min(2600,2600/(1+speed*.8)));
     const began=performance.now();
     const animate=now=>{const t=Math.min(1,(now-began)/duration),ease=1-Math.pow(1-t,3);setSpin(start+(end-start)*ease);if(t<1)spinFrame=requestAnimationFrame(animate);else resetSpin()};
@@ -54,7 +67,7 @@
     const last=drag.samples.at(-1),first=drag.samples[0],now=performance.now();
     const velocity=now-last.t>160?0:(last.x-first.x)/Math.max(16,last.t-first.t);
     const distance=e.clientX-drag.start,start=drag.angle;drag=null;phone.classList.remove('is-dragging');phone.releasePointerCapture(e.pointerId);
-    const speed=Math.abs(velocity),turns=Math.abs(distance)<12||speed<.12?0:speed<.65?1:speed<1.5?2:3;
+    const speed=Math.abs(velocity),turns=Math.abs(distance)<12?0:1;
     settle(start,turns,Math.sign(velocity||distance)||1,speed);
   });
   phone.addEventListener('pointercancel',resetSpin);

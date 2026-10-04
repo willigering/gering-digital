@@ -7,8 +7,11 @@
 .phone-brandbar>span{position:absolute;right:1px;top:50%;transform:translateY(-50%);font-size:12px;color:#d5c39a}/* Optically layered glass: soft window reflection, narrow edge highlight and a faint cool sheen. */
 .phone-screen:before{content:"";position:absolute;inset:0;z-index:10;pointer-events:none;border-radius:inherit;background:linear-gradient(112deg,rgba(231,247,255,.23),rgba(255,255,255,.08) 13%,rgba(255,255,255,.015) 30%,transparent 43%),linear-gradient(112deg,transparent 49%,rgba(225,243,255,.08) 50%,rgba(255,255,255,.02) 53%,transparent 59%),radial-gradient(ellipse at 16% 0%,rgba(198,227,245,.12),transparent 46%);opacity:.78;mix-blend-mode:screen;box-shadow:inset 1px 1px 2px rgba(228,247,255,.23),inset -1px -1px 2px rgba(255,220,153,.12)}
 .phone-screen:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:11;border-radius:inherit;background:linear-gradient(180deg,rgba(255,255,255,.065),transparent 22% 80%,rgba(113,172,207,.035));box-shadow:inset 0 0 0 1px rgba(202,224,239,.08)}
-.phone-frame{backface-visibility:hidden;transform:translateZ(6px)}
-.phone-back{position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg) translateZ(6px);border-radius:52px;background:radial-gradient(ellipse at 15% 8%,#334551,#111e27 45%,#070e14);border:2px solid #697b87;box-shadow:inset 1px 1px 2px #cbdce477,inset -3px -2px 8px #0009;display:grid;place-items:center;pointer-events:none}
+.phone-frame{backface-visibility:hidden;transform:translateZ(16px)}
+/* Solid rounded chassis: connected perimeter faces close the 32px metal sidewall. */
+.phone-volume{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
+.phone-volume i{position:absolute;display:block;height:32px;transform-origin:center;background:linear-gradient(180deg,#71828c 0%,#253a48 12%,#526672 45%,#344853 80%,#81919a 100%);backface-visibility:visible}
+.phone-back{position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg) translateZ(16px);border-radius:52px;background:radial-gradient(ellipse at 15% 8%,#334551,#111e27 45%,#070e14);border:2px solid #697b87;box-shadow:inset 1px 1px 2px #cbdce477,inset -3px -2px 8px #0009;display:grid;place-items:center;pointer-events:none}
 .phone-back>img{width:60px;opacity:.48;filter:grayscale(.3)}
 .phone-camera{position:absolute;top:26px;left:23px;width:88px;height:103px;border:1px solid #8093a14d;border-radius:23px;background:linear-gradient(145deg,#33414c,#101923);box-shadow:2px 3px 6px #0008;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}
 .phone-camera i{width:29px;height:29px;border-radius:50%;border:3px solid #53616a;background:radial-gradient(circle,#346279 0%,#0b1c2b 20%,#020509 35%,#14222d 50%,#020509 65%);box-shadow:0 0 0 1px #03080c}
