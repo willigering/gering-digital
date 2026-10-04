@@ -4,7 +4,7 @@
   const stage = document.querySelector('.hero-stage');
   const hero = document.querySelector('.hero');
   const layers = [...stage.querySelectorAll('[data-parallax]')];
-  let targetX=0,targetY=0,x=0,y=0,scroll=0,frame=0,visible=true;
+  let targetX=0,targetY=0,x=0,y=0,scroll=0,frame=0,visible=true,glassAngle=0;
   const paint = () => {
     frame=0;
     const enabled=!reduced.matches;
@@ -17,6 +17,7 @@
       el.style.setProperty('--y',`${enabled && fine.matches ? y*depth*75*mouseScale : 0}px`);
       el.style.setProperty('--s',`${enabled ? scroll*depth*(desktop?1:.38) : 0}px`);
     });
+    updateGlass();
     if(enabled && visible && (Math.abs(targetX-x)>.001 || Math.abs(targetY-y)>.001))request();
   };
   const request=()=>{if(!frame)frame=requestAnimationFrame(paint)};
@@ -42,14 +43,27 @@
   };
   buildChassis();new ResizeObserver(buildChassis).observe(phone);
   let drag=null,spinning=false,spinFrame=0;
-  const setSpin=angle=>phone.style.setProperty('--spin',`${angle}deg`);
+  // A stationary studio light reflected by a rotating surface: the highlight
+  // sweeps across the glass, strengthens at grazing angles and fades on the rear.
+  function updateGlass(){
+    const phoneElement=stage.querySelector('.phone');
+    const yaw=(glassAngle-15)*Math.PI/180,front=Math.cos(yaw),sweep=Math.sin(yaw);
+    const pointer=reduced.matches?0:x*7;
+    phoneElement.style.setProperty('--glass-x',`${48+sweep*65+pointer}%`);
+    phoneElement.style.setProperty('--glass-opacity',String(Math.max(0,front)*(.4+Math.abs(sweep)*.48)));
+    phoneElement.style.setProperty('--glass-light-x',`${18+sweep*105+pointer}%`);
+    phoneElement.style.setProperty('--glass-light-y',`${4+(reduced.matches?0:y*18)}%`);
+    phoneElement.style.setProperty('--glass-edge',String(Math.max(0,front)*(.3+Math.abs(sweep)*.55)));
+  }
+  const setSpin=angle=>{glassAngle=angle;phone.style.setProperty('--spin',`${angle}deg`);updateGlass()};
+  updateGlass();
   const resetSpin=()=>{cancelAnimationFrame(spinFrame);spinFrame=0;spinning=false;setSpin(0);phone.classList.remove('is-dragging');if(drag && phone.hasPointerCapture(drag.id))phone.releasePointerCapture(drag.id);drag=null};
   const settle=(start,turns,direction,speed)=>{
     if(reduced.matches){resetSpin();return}
     spinning=true;const end=direction*360*Math.min(1,turns);
     const duration=turns===0?380:Math.max(900,Math.min(2600,2600/(1+speed*.8)));
     const began=performance.now();
-    const animate=now=>{const t=Math.min(1,(now-began)/duration),ease=1-Math.pow(1-t,3);setSpin(start+(end-start)*ease);if(t<1)spinFrame=requestAnimationFrame(animate);else resetSpin()};
+    const animate=now=>{if(reduced.matches){resetSpin();return}const t=Math.min(1,(now-began)/duration),ease=1-Math.pow(1-t,3);setSpin(start+(end-start)*ease);if(t<1)spinFrame=requestAnimationFrame(animate);else resetSpin()};
     spinFrame=requestAnimationFrame(animate);
   };
   phone.addEventListener('pointerdown',e=>{

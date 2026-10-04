@@ -16,13 +16,13 @@
   },
   {
     "path": "style.css",
-    "bytes": 23485,
-    "sha256": "0d5d45fe747be49eb50921bd921e7a7bbe43f8ccecb4174283068e196e11e21a"
+    "bytes": 23467,
+    "sha256": "2403bd0681c74180f58e544c732a497bf59f2b30d4cd29302c532f4fc58efcdd"
   },
   {
     "path": "assets/site.js",
-    "bytes": 8320,
-    "sha256": "55ad2e4dc18783d7349716c7f7a3c7bd4fc2fcb78910dbb8b1c870b980384227"
+    "bytes": 9278,
+    "sha256": "eb3e3a59e4748e53fa26eb1d1cd4abdc193914d77ca48f926447cfced099e968"
   },
   {
     "path": "assets/app-previews/7e73070fba8408e59416aa0e.png.webp",
