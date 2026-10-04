@@ -54,6 +54,15 @@
     phoneElement.style.setProperty('--glass-light-x',`${18+sweep*105+pointer}%`);
     phoneElement.style.setProperty('--glass-light-y',`${4+(reduced.matches?0:y*18)}%`);
     phoneElement.style.setProperty('--glass-edge',String(Math.max(0,front)*(.3+Math.abs(sweep)*.55)));
+    // The edge catches the studio light only as the front reappears after the rear.
+    const travelled=Math.abs(glassAngle),phase=travelled%360;
+    const glint=!reduced.matches && travelled>180 && phase>277 && phase<303
+      ? Math.pow(Math.sin((phase-277)/26*Math.PI),2)*.85 : 0;
+    phoneElement.style.setProperty('--glint',String(glint));
+    phoneElement.style.setProperty('--glint-y',`${(phase-277)*1.2}px`);
+    const edge=glassAngle<0?'right':'left';
+    const glintElement=phoneElement.querySelector('.phone-edge-glint');
+    glintElement.style.left=edge==='left'?'1px':'auto';glintElement.style.right=edge==='right'?'1px':'auto';
   }
   const setSpin=angle=>{glassAngle=angle;phone.style.setProperty('--spin',`${angle}deg`);updateGlass()};
   updateGlass();

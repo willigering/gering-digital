@@ -56,7 +56,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
       <div class="phone phone-locked" data-parallax="0.20">
         <div class="phone-volume" aria-hidden="true"></div>
         <div class="phone-back" aria-hidden="true"><div class="phone-camera"><i></i><i></i><i></i><i></i></div><img src="assets/gering-digital-logo-icon.png" alt=""></div>
-        <div class="phone-frame">
+        <div class="phone-frame"><span class="phone-edge-glint" aria-hidden="true"></span>
           <div class="phone-side-button button-a"></div><div class="phone-side-button button-b"></div>
           <div class="phone-screen">
             <div class="phone-notch"></div>

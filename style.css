@@ -11,6 +11,8 @@
 /* Solid rounded chassis: connected perimeter faces close the 32px metal sidewall. */
 .phone-volume{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
 .phone-volume i{position:absolute;display:block;height:32px;transform-origin:center;background:linear-gradient(180deg,#71828c 0%,#253a48 12%,#526672 45%,#344853 80%,#81919a 100%);backface-visibility:visible}
+.phone-edge-glint{position:absolute;z-index:20;top:11%;left:1px;width:3px;height:58px;border-radius:50%;pointer-events:none;opacity:var(--glint,0);background:linear-gradient(transparent,#fff9e6 42%,#ffe5a3 56%,transparent);box-shadow:0 0 5px #fff3cb,0 0 12px #f8d68380;transform:translateY(var(--glint-y,0px))}
+@media(prefers-reduced-motion:reduce){.phone-edge-glint{display:none}}
 .phone-back{position:absolute;inset:0;backface-visibility:hidden;transform:rotateY(180deg) translateZ(16px);border-radius:52px;background:radial-gradient(ellipse at 15% 8%,#334551,#111e27 45%,#070e14);border:2px solid #697b87;box-shadow:inset 1px 1px 2px #cbdce477,inset -3px -2px 8px #0009;display:grid;place-items:center;pointer-events:none}
 .phone-back>img{width:60px;opacity:.48;filter:grayscale(.3)}
 .phone-camera{position:absolute;top:26px;left:23px;width:88px;height:103px;border:1px solid #8093a14d;border-radius:23px;background:linear-gradient(145deg,#33414c,#101923);box-shadow:2px 3px 6px #0008;display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:10px}
