@@ -1,0 +1,49 @@
+/* Shared admin styling */
+.admin-page{background:#07111b;color:#e8f0f6;min-height:100vh}.admin-page .nav{background:rgba(5,13,22,.96);border-bottom:1px solid rgba(150,190,215,.16)}.admin-page .brand{color:#f3f7fa}.admin-page .admin{padding:55px 0 80px}.admin-page .panel{background:#0d1b29;border:1px solid rgba(166,210,229,.18);box-shadow:0 18px 50px rgba(0,0,0,.28);color:#dce8ef}.admin-page .panel h1,.admin-page .panel h2{color:#f5f8fc}.admin-page .panel label{display:block;color:#b9cbd8;font-size:13px;font-weight:700;margin:0 0 14px}.admin-page .panel input,.admin-page .panel textarea,.admin-page .panel select{display:block;width:100%;box-sizing:border-box;margin-top:7px;background:#122536!important;color:#eef7fb!important;border:1px solid rgba(150,195,220,.24)!important;border-radius:10px;padding:12px 13px;outline:none}.admin-page .panel input:focus,.admin-page .panel textarea:focus,.admin-page .panel select:focus{border-color:#63dfff!important;box-shadow:0 0 0 3px rgba(99,223,255,.10)}.admin-page .panel input[type=file]{padding:9px}.admin-page .panel input[type=number]{max-width:180px}.form-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}.check{display:flex!important;align-items:center;gap:9px}.check input{width:auto!important;margin:0!important}.success{color:#7ef0b1;background:rgba(40,190,110,.1);border:1px solid rgba(40,190,110,.25);padding:10px 12px;border-radius:10px}.admin-page .admin table{width:100%;border-collapse:collapse;color:#dce8ef}.admin-page .admin th,.admin-page .admin td{text-align:left;padding:10px;border-bottom:1px solid rgba(166,210,229,.12);vertical-align:top}.admin-page .admin th{color:#8fa8b9;font-size:12px;text-transform:uppercase;letter-spacing:.5px}.admin-page .admin a:not(.btn){color:#63dfff}.admin-page .danger{color:#ff6f67!important}.pill{display:inline-block;padding:4px 8px;border-radius:20px;background:rgba(99,223,255,.10);color:#8de7ff;font-size:12px}.status{display:inline-block;padding:5px 9px;border-radius:999px;font-size:12px;font-weight:700;background:#163044;color:#bfefff}.status.live{background:rgba(48,196,125,.12);color:#7ef0b1}.status.soon{background:rgba(255,201,92,.12);color:#ffd77e}.status.dev{background:rgba(180,180,200,.10);color:#c3ccd5}@media(max-width:700px){.form-grid{grid-template-columns:1fr}.admin-page .admin{padding:30px 0 50px}.admin-page .admin table{font-size:12px;display:block;overflow-x:auto;white-space:nowrap}}
+.panel-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:18px}.panel-heading-row h2{margin-bottom:5px}.admin-hint{margin:0;color:#8fa8b9;font-size:13px;line-height:1.5}.app-order-list{display:grid;gap:8px}.app-order-item{display:grid;grid-template-columns:34px minmax(180px,1fr) auto auto;align-items:center;gap:12px;padding:12px 14px;background:#102232;border:1px solid rgba(166,210,229,.14);border-radius:12px;transition:border-color .15s,background .15s,transform .15s}.app-order-item:hover{border-color:rgba(99,223,255,.3);background:#12283a}.app-order-item.dragging{opacity:.55;border-color:#63dfff}.drag-handle{font-size:23px;line-height:1;color:#71899a;cursor:grab;text-align:center;user-select:none}.drag-handle:active{cursor:grabbing}.app-order-main{min-width:0}.app-order-main strong{display:block;color:#f5f8fc}.app-order-main small{display:block;color:#8fa8b9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:3px}.order-actions{display:flex;align-items:center;gap:8px;white-space:nowrap}.order-btn{width:32px;height:32px;border:1px solid rgba(150,195,220,.22);border-radius:8px;background:#122536;color:#eaf7fc;font-size:17px;cursor:pointer}.order-btn:hover{border-color:#63dfff;background:#163247}.order-edit{margin-left:4px}.order-message{min-height:0;margin:-4px 0 12px;font-size:13px}.order-message.ok{color:#7ef0b1}.order-message.error{color:#ff8c84}@media(max-width:800px){.panel-heading-row{align-items:flex-start;flex-direction:column}.panel-heading-row .btn{width:100%}.app-order-item{grid-template-columns:30px minmax(120px,1fr) auto;gap:8px}.app-order-item>.status{display:none}.order-actions{grid-column:2 / -1}.order-edit{margin-left:0}}@media(max-width:700px){.app-order-main small{white-space:normal}.order-actions{flex-wrap:wrap}}
+
+/* ===== Admin BlackGold theme ===== */
+.admin-page{background:radial-gradient(circle at 80% 0%,rgba(180,126,26,.12),transparent 35%),linear-gradient(180deg,#090806 0%,#0f0b06 100%)!important;color:#fffaf0!important;}
+.admin-page .nav{background:linear-gradient(180deg,rgba(10,8,5,.98),rgba(19,13,6,.96))!important;border-bottom:1px solid rgba(218,168,64,.28)!important;}
+.admin-page .nav .brand strong{color:#fffaf0!important;}
+.admin-page .nav .brand span{color:#e8b34b!important;}
+.admin-page .nav .brand small{color:#a18c68!important;}
+.admin-page .panel{background:linear-gradient(145deg,rgba(34,25,13,.94),rgba(13,10,6,.98))!important;border-color:rgba(218,168,64,.24)!important;color:#f3e6ce!important;box-shadow:inset 0 1px 0 rgba(255,224,154,.06),0 18px 50px rgba(0,0,0,.35)!important;}
+.admin-page .panel h1,.admin-page .panel h2{color:#fffaf0!important;}
+.admin-page .panel label{color:#d2c09e!important;}
+.admin-page .panel input,.admin-page .panel textarea,.admin-page .panel select{background:#1b140b!important;color:#fff4dc!important;border-color:rgba(218,168,64,.28)!important;}
+.admin-page .panel input:focus,.admin-page .panel textarea:focus,.admin-page .panel select:focus{border-color:#ffc95c!important;box-shadow:0 0 0 3px rgba(255,201,92,.12)!important;}
+.admin-page .panel .btn{background:linear-gradient(135deg,#ffe09a,#dca63c)!important;color:#1b1206!important;border-color:#ffd878!important;}
+.admin-page .admin table{color:#eadcc3!important;}
+.admin-page .admin th,.admin-page .admin td{border-bottom-color:rgba(218,168,64,.14)!important;}
+.admin-page .admin th{color:#b49a6c!important;}
+.admin-page .admin a:not(.btn){color:#f4c968!important;}
+.admin-page .pill{background:rgba(218,168,64,.12)!important;color:#ffd77e!important;}
+.admin-page .status{background:rgba(218,168,64,.12)!important;color:#f6d58d!important;}
+.admin-page .status.live{background:rgba(48,196,125,.12)!important;color:#7ef0b1!important;}
+.admin-page .status.soon{background:rgba(255,201,92,.13)!important;color:#ffd77e!important;}
+.admin-page .status.dev{background:rgba(180,160,125,.12)!important;color:#d7c5a7!important;}
+.admin-page .app-order-item{background:#1a130a!important;border-color:rgba(218,168,64,.18)!important;}
+.admin-page .app-order-item:hover{background:#241a0c!important;border-color:rgba(255,201,92,.4)!important;}
+.admin-page .app-order-item.dragging{border-color:#ffc95c!important;}
+.admin-page .drag-handle{color:#a18c68!important;}
+.admin-page .order-btn{background:#21170b!important;color:#fff0d0!important;border-color:rgba(218,168,64,.28)!important;}
+.admin-page .order-btn:hover{border-color:#ffc95c!important;background:#30200d!important;}
+.admin-page .admin-hint{color:#b09a75!important;}
+.admin-page .order-message.ok{color:#8ee6a9!important;}
+.admin-page .order-message.error{color:#ff9a8f!important;}
+
+/* ===== Admin BlackGold correction ===== */
+.admin-page{background:radial-gradient(circle at 80% 0%,rgba(218,168,64,.10),transparent 35%),linear-gradient(180deg,#090806,#0d0a06) !important;color:#fffaf0 !important;}
+.admin-page .nav{background:linear-gradient(180deg,rgba(10,8,5,.98),rgba(19,13,6,.96)) !important;border-bottom:1px solid rgba(218,168,64,.28) !important;}
+.admin-page .panel{background:linear-gradient(145deg,rgba(31,24,13,.94),rgba(8,7,5,.97)) !important;border-color:rgba(218,168,64,.28) !important;color:#e8dcc5 !important;}
+.admin-page .panel h1,.admin-page .panel h2{color:#fffaf0 !important;}
+.admin-page .panel label{color:#c5b79b !important;}
+.admin-page .panel input,.admin-page .panel textarea,.admin-page .panel select{background:#171108 !important;color:#fffaf0 !important;border-color:rgba(218,168,64,.28) !important;}
+.admin-page .panel input:focus,.admin-page .panel textarea:focus,.admin-page .panel select:focus{border-color:#ffc95c !important;box-shadow:0 0 0 3px rgba(255,201,92,.12) !important;}
+.admin-page .admin table{color:#e8dcc5 !important;}
+.admin-page .admin th{color:#a18c68 !important;}
+.admin-page .admin th,.admin-page .admin td{border-bottom-color:rgba(218,168,64,.14) !important;}
+.admin-page .admin a:not(.btn){color:#ffc95c !important;}
+.admin-page .btn{background:linear-gradient(135deg,#ffe09a,#dca63c) !important;color:#171006 !important;border-color:rgba(255,214,119,.8) !important;}
+.admin-page .pill,.admin-page .status{background:rgba(218,168,64,.12) !important;color:#ffe09a !important;}

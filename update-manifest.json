@@ -1,0 +1,72 @@
+[
+  {
+    "path": "index.php",
+    "bytes": 10224,
+    "sha256": "7759404fc0bf09ca176ac279a9be99aa1d1ede89d1f165b4b1daed71ef84e960"
+  },
+  {
+    "path": "lib.php",
+    "bytes": 3612,
+    "sha256": "7c3d6d02790f13bcc4f3b95bd40decbcb737f2fbd6906bc0a92899ab46086995"
+  },
+  {
+    "path": "send.php",
+    "bytes": 1579,
+    "sha256": "e1cbe17c97a2c34e8226fa33992fa80c244365c9b597bbacd99850d25a50c565"
+  },
+  {
+    "path": "style.css",
+    "bytes": 20983,
+    "sha256": "8623bfccb6a95308cde6cf187a9646da1d300f85a84c0cda126299203708b205"
+  },
+  {
+    "path": "assets/site.js",
+    "bytes": 4503,
+    "sha256": "d006b503f1134a88d3c5745292190f62d80e091605b0e5c7264e0f155fafdb38"
+  },
+  {
+    "path": "assets/app-previews/7e73070fba8408e59416aa0e.png.webp",
+    "bytes": 3246,
+    "sha256": "2849614ba3a7f9e041314e0f76800bbe9bb894009875dd96a2ced93ed54e3df2"
+  },
+  {
+    "path": "assets/app-previews/again.png.webp",
+    "bytes": 2764,
+    "sha256": "306767f3acfd017418ba70e394412ed61060627e4269bd9e211ee0a73496289f"
+  },
+  {
+    "path": "assets/app-previews/d92c674d33ddd0a6340d5b2e.png.webp",
+    "bytes": 7050,
+    "sha256": "20124fc30c61bc6dd539f853525ec9cd2c9a6a9a8c3a5e9b063a260a6966eaef"
+  },
+  {
+    "path": "assets/app-previews/daae834f82dffa2d5b8c7596.png.webp",
+    "bytes": 8186,
+    "sha256": "797f8813fd3ebb87925cb599cd1d8a92fc9dbe1704322109bacc5d12074dce6b"
+  },
+  {
+    "path": "assets/app-previews/df3ba59c04211492035e2784.png.webp",
+    "bytes": 15030,
+    "sha256": "c3d4770b577c419fff9ea21d842a6f1045b5476ac36c2ccf44d050f52c65033d"
+  },
+  {
+    "path": "assets/app-previews/feac7ed82995d55882b151a2.png.webp",
+    "bytes": 7762,
+    "sha256": "c8c5aa050296e2085feacdac943733f6d4512462b96eebde7cbfd8900ac96b4e"
+  },
+  {
+    "path": "assets/app-previews/nook.png.webp",
+    "bytes": 7856,
+    "sha256": "e7403aad422fe1cd4fdda1810805c8a11dc46f488a4e720695087897a382a28a"
+  },
+  {
+    "path": "assets/app-previews/rechenwelt.png.webp",
+    "bytes": 13518,
+    "sha256": "3af7a0c1eb6050e16495933158f751a0929385d0434780ba48d100220d6ece6c"
+  },
+  {
+    "path": "assets/app-previews/techdeck.png.webp",
+    "bytes": 6366,
+    "sha256": "fbdb58b7d71d3a889968ad3055ec744734c045240b1d8c27eba9e8f4e80dce66"
+  }
+]

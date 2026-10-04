@@ -1,0 +1,10 @@
+data/*
+!data/.htaccess
+*.sqlite
+*.sqlite-*
+*.db
+.env
+.env.*
+start.bat
+runtime/
+node_modules/
