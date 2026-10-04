@@ -56,13 +56,13 @@
     phoneElement.style.setProperty('--glass-edge',String(Math.max(0,front)*(.3+Math.abs(sweep)*.55)));
     // The edge catches the studio light only as the front reappears after the rear.
     const travelled=Math.abs(glassAngle),phase=travelled%360;
-    const glint=!reduced.matches && travelled>180 && phase>277 && phase<303
-      ? Math.pow(Math.sin((phase-277)/26*Math.PI),2)*.85 : 0;
+    const glint=!reduced.matches && travelled>180 && phase>304 && phase<338
+      ? Math.pow(Math.sin((phase-304)/34*Math.PI),2) : 0;
     phoneElement.style.setProperty('--glint',String(glint));
-    phoneElement.style.setProperty('--glint-y',`${(phase-277)*1.2}px`);
+    phoneElement.style.setProperty('--glint-y',`${(phase-304)*1.1}px`);
     const edge=glassAngle<0?'right':'left';
     const glintElement=phoneElement.querySelector('.phone-edge-glint');
-    glintElement.style.left=edge==='left'?'1px':'auto';glintElement.style.right=edge==='right'?'1px':'auto';
+    glintElement.style.left=edge==='left'?'10px':'auto';glintElement.style.right=edge==='right'?'10px':'auto';
   }
   const setSpin=angle=>{glassAngle=angle;phone.style.setProperty('--spin',`${angle}deg`);updateGlass()};
   updateGlass();
@@ -82,7 +82,7 @@
   });
   phone.addEventListener('pointermove',e=>{
     if(!drag||drag.id!==e.pointerId)return;
-    const now=performance.now();drag.angle=Math.max(-75,Math.min(75,(e.clientX-drag.start)*.45));setSpin(drag.angle);
+    const now=performance.now();const restingYaw=parseFloat(getComputedStyle(phone).getPropertyValue('--yaw'))||0;drag.angle=Math.max(-55-restingYaw,Math.min(55-restingYaw,(e.clientX-drag.start)*.45));setSpin(drag.angle);
     drag.samples.push({x:e.clientX,t:now});drag.samples=drag.samples.filter(sample=>now-sample.t<130);if(drag.samples.length>12)drag.samples.shift();
   });
   phone.addEventListener('pointerup',e=>{

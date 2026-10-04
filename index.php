@@ -10,7 +10,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Gering Digital – Apps & Software</title>
 <meta name="description" content="Gering Digital entwickelt moderne Apps und individuelle Softwarelösungen.">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <link rel="icon" type="image/png" href="assets/gering-digital-logo-icon.png">
 
 </head>
@@ -145,5 +145,5 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <footer><div class="wrap footer"><a class="brand" href="#top"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"><span><strong>GERING <em>DIGITAL</em></strong><small>IDEEN · APPS · SOFTWARE</small></span></a><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
 
-<script src="assets/site.js" defer></script>
+<script src="assets/site.js?v=<?=filemtime(__DIR__.'/assets/site.js')?>" defer></script>
 </body></html>

@@ -1,8 +1,8 @@
 [
   {
     "path": "index.php",
-    "bytes": 10640,
-    "sha256": "73504e48e714a26e06c0966ea6ec15cbf3cb4ff449b924a218c30fd87b01d53f"
+    "bytes": 10723,
+    "sha256": "de1b9e38acd439c13448a20f34edb711312abbb0a5690fd7a6651084a62f5e52"
   },
   {
     "path": "lib.php",
@@ -16,13 +16,13 @@
   },
   {
     "path": "style.css",
-    "bytes": 23851,
-    "sha256": "98c52a08c6ed7e63a668dda9cf02b955464bd9942363f395b789df9d166aee91"
+    "bytes": 23852,
+    "sha256": "21f85f112f44025d8160b3ec6d4584741a0d1af4f2830d8640eb611b3aedfcaa"
   },
   {
     "path": "assets/site.js",
-    "bytes": 9930,
-    "sha256": "6d915bc473c1c2c88ee6adccec1d823beb607091dfa8b5317686d315c5634297"
+    "bytes": 10032,
+    "sha256": "acd2b9ad9d2ab8490d7414e664d91af4222b2532ef83ada9df13909fd02d57a0"
   },
   {
     "path": "assets/app-previews/7e73070fba8408e59416aa0e.png.webp",
