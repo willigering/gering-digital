@@ -12,19 +12,56 @@
     const desktop=innerWidth>800;
     layers.forEach(el=>{
       const depth=Number(el.dataset.parallax);
-      el.style.setProperty('--x',`${enabled && fine.matches ? x*depth*130 : 0}px`);
-      el.style.setProperty('--y',`${enabled && fine.matches ? y*depth*75 : 0}px`);
+      const mouseScale=el.classList.contains("phone")?.18:1;
+      el.style.setProperty('--x',`${enabled && fine.matches ? x*depth*130*mouseScale : 0}px`);
+      el.style.setProperty('--y',`${enabled && fine.matches ? y*depth*75*mouseScale : 0}px`);
       el.style.setProperty('--s',`${enabled ? scroll*depth*(desktop?1:.38) : 0}px`);
     });
     if(enabled && visible && (Math.abs(targetX-x)>.001 || Math.abs(targetY-y)>.001))request();
   };
   const request=()=>{if(!frame)frame=requestAnimationFrame(paint)};
   const onScroll=()=>{scroll=Math.max(0,Math.min(-hero.getBoundingClientRect().top,900));if(visible)request()};
-  stage.addEventListener('pointermove',e=>{if(!fine.matches||reduced.matches)return;const r=stage.getBoundingClientRect();targetX=(e.clientX-r.left)/r.width-.5;targetY=(e.clientY-r.top)/r.height-.5;request()},{passive:true});
+  stage.addEventListener('pointermove',e=>{if(drag || spinning || !fine.matches||reduced.matches)return;const r=stage.getBoundingClientRect();targetX=(e.clientX-r.left)/r.width-.5;targetY=(e.clientY-r.top)/r.height-.5;request()},{passive:true});
   stage.addEventListener('pointerleave',()=>{targetX=targetY=0;request()});
   addEventListener('scroll',onScroll,{passive:true});addEventListener('resize',onScroll,{passive:true});
   new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)onScroll()}).observe(hero);
   reduced.addEventListener('change',()=>{targetX=targetY=0;request()});fine.addEventListener('change',()=>{targetX=targetY=0;request()});onScroll();
+  // Pointer distance previews a turn; recent release speed sets 0–3 complete turns.
+  const phone=stage.querySelector('.phone'),spinControl=document.querySelector('.phone-spin-control');
+  let drag=null,spinning=false,spinFrame=0;
+  const setSpin=angle=>phone.style.setProperty('--spin',`${angle}deg`);
+  const resetSpin=()=>{cancelAnimationFrame(spinFrame);spinFrame=0;spinning=false;setSpin(0);phone.classList.remove('is-dragging');if(drag && phone.hasPointerCapture(drag.id))phone.releasePointerCapture(drag.id);drag=null};
+  const settle=(start,turns,direction,speed)=>{
+    if(reduced.matches){resetSpin();return}
+    spinning=true;const end=direction*360*Math.min(3,turns);
+    const duration=turns===0?380:Math.max(900,Math.min(2600,2600/(1+speed*.8)));
+    const began=performance.now();
+    const animate=now=>{const t=Math.min(1,(now-began)/duration),ease=1-Math.pow(1-t,3);setSpin(start+(end-start)*ease);if(t<1)spinFrame=requestAnimationFrame(animate);else resetSpin()};
+    spinFrame=requestAnimationFrame(animate);
+  };
+  phone.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='mouse'||e.button!==0||reduced.matches||e.target.closest('a,button'))return;
+    resetSpin();drag={id:e.pointerId,start:e.clientX,angle:0,samples:[{x:e.clientX,t:performance.now()}]};
+    phone.setPointerCapture(e.pointerId);phone.classList.add('is-dragging');targetX=targetY=0;request();e.preventDefault();
+  });
+  phone.addEventListener('pointermove',e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    const now=performance.now();drag.angle=Math.max(-75,Math.min(75,(e.clientX-drag.start)*.45));setSpin(drag.angle);
+    drag.samples.push({x:e.clientX,t:now});drag.samples=drag.samples.filter(sample=>now-sample.t<130);if(drag.samples.length>12)drag.samples.shift();
+  });
+  phone.addEventListener('pointerup',e=>{
+    if(!drag||drag.id!==e.pointerId)return;
+    const last=drag.samples.at(-1),first=drag.samples[0],now=performance.now();
+    const velocity=now-last.t>160?0:(last.x-first.x)/Math.max(16,last.t-first.t);
+    const distance=e.clientX-drag.start,start=drag.angle;drag=null;phone.classList.remove('is-dragging');phone.releasePointerCapture(e.pointerId);
+    const speed=Math.abs(velocity),turns=Math.abs(distance)<12||speed<.12?0:speed<.65?1:speed<1.5?2:3;
+    settle(start,turns,Math.sign(velocity||distance)||1,speed);
+  });
+  phone.addEventListener('pointercancel',resetSpin);
+  phone.addEventListener('lostpointercapture',()=>{if(drag)resetSpin()});
+  spinControl.addEventListener('click',()=>{resetSpin();settle(0,1,1,.6)});
+  reduced.addEventListener('change',resetSpin);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)resetSpin()});
   const menu=document.querySelector('.mobile-menu'),menuBtn=document.querySelector('.mobile-menu-btn');
   const closeMenu=()=>{menu.classList.remove('open');menu.setAttribute('aria-hidden','true');menuBtn.setAttribute('aria-expanded','false');menuBtn.setAttribute('aria-label','Menü öffnen');menu.inert=true};
   closeMenu();menuBtn.addEventListener('click',()=>{const open=menuBtn.getAttribute('aria-expanded')!=='true';menu.classList.toggle('open',open);menu.inert=!open;menu.setAttribute('aria-hidden',String(!open));menuBtn.setAttribute('aria-expanded',String(open));menuBtn.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen')});
