@@ -105,6 +105,19 @@
   addEventListener('keydown',e=>{if(e.key==='Escape'&&menuBtn.getAttribute('aria-expanded')==='true'){closeMenu();menuBtn.focus()}});
   document.addEventListener('click',e=>{if(!e.target.closest('.nav'))closeMenu()});
   matchMedia('(max-width:800px)').addEventListener('change',closeMenu);
+  // Native <details> menus: click/keyboard friendly, one open at a time.
+  const projectMenus=[...document.querySelectorAll('.project-dropdown,.mobile-project-dropdown')];
+  const closeProjectMenus=except=>projectMenus.forEach(item=>{if(item!==except)item.open=false});
+  projectMenus.forEach(item=>{
+    item.addEventListener('toggle',()=>{if(item.open)closeProjectMenus(item)});
+    item.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{item.open=false}));
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('.project-dropdown,.mobile-project-dropdown'))closeProjectMenus()});
+  addEventListener('keydown',e=>{
+    if(e.key!=='Escape')return;
+    const expanded=projectMenus.find(item=>item.open);
+    if(expanded){closeProjectMenus();expanded.querySelector('summary')?.focus()}
+  });
   // Catalogue filters work without page reloads and never hide existing project data.
   const filters=document.querySelector('.catalog-filters');
   if(filters){
