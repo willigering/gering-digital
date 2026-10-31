@@ -76,7 +76,7 @@
     spinFrame=requestAnimationFrame(animate);
   };
   phone.addEventListener('pointerdown',e=>{
-    if(e.pointerType!=='mouse'||e.button!==0||reduced.matches||e.target.closest('a,button'))return;
+    if((e.pointerType==='mouse'&&e.button!==0)||!e.isPrimary||reduced.matches||e.target.closest('a,button'))return;
     resetSpin();drag={id:e.pointerId,start:e.clientX,angle:0,samples:[{x:e.clientX,t:performance.now()}]};
     phone.setPointerCapture(e.pointerId);phone.classList.add('is-dragging');targetX=targetY=0;request();e.preventDefault();
   });
