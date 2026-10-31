@@ -6,7 +6,7 @@ $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 ORDER BY upda
 foreach ($webPages as $page) {
     $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
        'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
-       'play_url'=>'','apple_url'=>'','slug'=>$page['slug']];
+       'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$page['preview_image']??''];
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
@@ -154,7 +154,15 @@ foreach ($apps as $app) {
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
-          <div class="icon-wrap"><?php if(!empty($app['is_html'])): ?><div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div><?php else: ?><img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"><?php endif; ?></div>
+          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
+            <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
+              <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>">
+            <?php elseif(!empty($app['is_html'])): ?>
+              <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
+            <?php else: ?>
+              <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>">
+            <?php endif; ?>
+          </div>
           <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
