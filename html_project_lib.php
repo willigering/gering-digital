@@ -4,7 +4,7 @@
 require_once __DIR__.'/lib.php';
 
 function hp_categories(): array {
-    return ['lernen'=>'DAU to Pro','windows'=>'Windows-Apps','spiele'=>'Spiele','sonstiges'=>'Sonstiges','apps'=>'Apps'];
+    return ['lernen'=>'DAU to Pro','windows'=>'Windows-Apps','spiele'=>'Spiele','sonstiges'=>'Sonstiges','apps'=>'Android-Apps'];
 }
 function hp_valid_slug(string $slug): bool {
     return (bool)preg_match('/^[a-z0-9][a-z0-9-]{2,59}$/D', $slug)
