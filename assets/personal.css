@@ -12,7 +12,7 @@
 /* Abschnittskopf */
 .pd-section{padding:64px 0}
 .pd-wrap{max-width:none;margin:0}
-.pd-head{margin-bottom:26px;max-width:720px}
+.pd-head{margin-bottom:23px;max-width:100%}
 .pd-head .eyebrow,.inquiry.pd-card .eyebrow{display:inline-block;padding:6px 12px;border:1px solid rgba(218,168,64,.35);border-radius:999px;background:rgba(218,168,64,.07);margin-bottom:18px}
 .pd-head h2,.inquiry.pd-card h2{font-size:clamp(26px,2.6vw,34px);line-height:1.2;letter-spacing:-.6px;font-weight:700;color:#f5f8fc;margin:0;overflow-wrap:break-word}
 .pd-head h2 span,.inquiry.pd-card h2 span{color:var(--gold)}
@@ -24,7 +24,7 @@
  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 30px 80px rgba(0,0,0,.45)}
 .pd-single:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.75}
 .pd-single .pd-head{margin-bottom:28px}
-.pd-flow{max-width:65ch;text-align:left}
+.pd-flow{max-width:min(100%,108ch);text-align:left}
 .pd-flow p{margin:0 0 1em;font-size:17px;line-height:1.65;color:rgb(200,212,223)}
 .pd-flow p:last-child{margin-bottom:0}
 .pd-flow .pd-punch{color:var(--gold);font-weight:600;margin-top:1.4em}
@@ -113,40 +113,28 @@
 
 
 
-/* Gering Digital: a single, calm navbar with category dropdown instead of a second row. */
+/* Single-row navigation – project categories remain in the catalogue below. */
 .nav .desktop-nav{align-items:center}
-.nav .project-dropdown{position:relative;align-self:center}
-.nav .project-dropdown summary,
-.nav .mobile-project-dropdown summary{display:flex;align-items:center;justify-content:space-between;gap:10px;list-style:none;cursor:pointer;color:var(--muted);font-size:13px;transition:color .2s}
-.nav .project-dropdown summary::-webkit-details-marker,
-.nav .mobile-project-dropdown summary::-webkit-details-marker{display:none}
-.nav .project-dropdown summary:hover,
-.nav .project-dropdown[open]>summary{color:var(--gold2)}
-.nav .dropdown-chevron{display:inline-block;flex:0 0 7px;width:7px;height:7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg) translateY(-2px);transition:transform .2s}
-.nav .project-dropdown[open] .dropdown-chevron,
-.nav .mobile-project-dropdown[open] .dropdown-chevron{transform:rotate(225deg) translate(-2px,-1px)}
-.nav .project-dropdown-panel{position:absolute;z-index:35;top:calc(100% + 20px);left:-25px;width:263px;display:grid;gap:4px;padding:11px;border:1px solid rgba(218,168,64,.35);border-radius:16px;background:linear-gradient(155deg,rgba(33,27,20,.98),rgba(10,12,15,.98));box-shadow:0 21px 45px #000a,0 1px 0 #ffedc01a inset;backdrop-filter:blur(18px)}
-.nav .project-dropdown-panel:before{content:"";position:absolute;top:-6px;left:65px;width:10px;height:10px;transform:rotate(45deg);background:#211b14;border-left:1px solid rgba(218,168,64,.35);border-top:1px solid rgba(218,168,64,.35)}
-.nav .project-dropdown-kicker{font-size:10px;letter-spacing:.18em;font-weight:850;color:#c4a468;padding:9px 10px 7px}
-.nav .project-dropdown-panel a{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 11px;min-height:43px;border-radius:9px;color:#eadfc9;font-size:13px;line-height:1.3;white-space:nowrap;transition:background .15s,color .15s}
-.nav .project-dropdown-panel a:hover,.nav .project-dropdown-panel a:focus-visible{background:#e1b4581c;color:#ffe7ae}
-.nav .project-dropdown-panel a.is-active,.nav .project-dropdown-panel a[aria-current]{background:linear-gradient(110deg,rgba(226,177,77,.21),rgba(226,177,77,.07));color:#ffd47d}
-.nav .project-dropdown-count{display:inline-grid;place-items:center;min-width:25px;min-height:24px;padding:2px 7px;border-radius:7px;border:1px solid rgba(218,168,64,.18);background:rgba(218,168,64,.08);color:#c9b188;font:700 11px ui-monospace,Consolas,monospace}
-.nav .project-dropdown-panel a.is-active .project-dropdown-count{color:#ffd47d}
 #apps{scroll-margin-top:115px}
-@media(max-width:800px){
-  .nav .mobile-menu{z-index:40;max-height:calc(100dvh - 95px);overflow-y:auto}
-  .nav .mobile-project-dropdown{border-top:1px solid rgba(218,168,64,.11);border-bottom:1px solid rgba(218,168,64,.11)}
-  .nav .mobile-project-dropdown summary{padding:12px;min-height:46px;color:#d6c5a1;font-size:16px}
-  .nav .mobile-project-dropdown[open] summary{color:var(--gold2)}
-  .nav .mobile-project-subnav{display:grid;gap:5px;margin:0 4px 10px 13px;padding-left:12px;border-left:2px solid rgba(218,168,64,.35)}
-  .nav .mobile-project-subnav a{display:flex;align-items:center;min-height:43px;padding:9px 12px;border-radius:9px;background:#d6a4400a;color:#e8d6b4;font-size:14px}
-  .nav .mobile-project-subnav a.is-active,.nav .mobile-project-subnav a[aria-current]{background:#d6a44024;color:#ffe0a1}
-  #apps{scroll-margin-top:90px}
-}
-@media(prefers-reduced-motion:reduce){.nav .project-dropdown summary,.nav .mobile-project-dropdown summary,.nav .dropdown-chevron,.nav .project-dropdown-panel a{transition:none}}
+@media(max-width:800px){#apps{scroll-margin-top:90px}}
 
+/* Broader reading columns, shorter sections, unchanged typography and copy. */
+@media(min-width:801px){.pd-section .pd-single{padding:40px 46px}}
+@media(max-width:800px){.pd-section .pd-single{padding:32px 26px}}
+@media(max-width:480px){.pd-section .pd-single{padding:26px 20px}}
 
+/* Entire HTML project card is a native, keyboard-focusable link. Other app
+   cards retain their existing buttons and store links. */
+#apps .html-clickable-card{cursor:pointer}
+#apps .html-clickable-card .html-card-link{position:absolute;inset:0;display:block;z-index:3;border-radius:inherit}
+#apps .html-clickable-card .html-card-link:focus-visible{outline:3px solid var(--gold2);outline-offset:-5px}
+#apps .html-clickable-card:focus-within{box-shadow:0 20px 40px #0007,0 0 0 2px rgba(255,225,154,.8)}
+#apps .html-card-cta{display:inline-flex;align-items:center;gap:9px;min-height:44px;margin-top:8px;font-size:12px;font-weight:700;color:var(--gold)}
+#apps .html-clickable-card:hover .html-card-cta{color:var(--gold2)}
+@media(max-width:800px){#apps .html-card-cta{font-size:12px;min-height:38px}}
+
+/* Keep the mobile hamburger menu scrollable, without a nested project dropdown. */
+@media(max-width:800px){.nav .mobile-menu{z-index:40;max-height:calc(100dvh - 95px);overflow-y:auto}}
 
 /* Actual HTML screenshots on project cards; existing native app icons unchanged. */
 #apps .icon-wrap.html-preview-wrap{padding:12px;height:190px;background:radial-gradient(ellipse at 50% 5%,rgba(227,182,83,.10),transparent 72%)}
