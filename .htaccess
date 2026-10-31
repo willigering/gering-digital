@@ -1,0 +1,10 @@
+# Project URLs: /subnet-sprint/ and relative HTML/CSS/JS/assets.
+Options -Indexes
+RewriteEngine On
+RewriteRule ^__preview/([a-z0-9][a-z0-9-]{2,59})/?$ admin/html_preview.php?slug=$1 [L,QSA]
+RewriteRule ^__preview/([a-z0-9][a-z0-9-]{2,59})/(.+)$ admin/html_preview.php?slug=$1&file=$2 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+RewriteRule ^([a-z0-9][a-z0-9-]{2,59})/?$ html_project.php?slug=$1 [L,QSA]
+RewriteRule ^([a-z0-9][a-z0-9-]{2,59})/(.+)$ html_project.php?slug=$1&file=$2 [L,QSA]

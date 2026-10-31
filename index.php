@@ -1,8 +1,14 @@
 <?php
 require __DIR__.'/lib.php';
 $db = db();
-$apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll();
-$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store'];
+$apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
+foreach ($webPages as $page) {
+    $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
+       'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+       'play_url'=>'','apple_url'=>'','slug'=>$page['slug']];
+}
+$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
 $categoryCounts=array_fill_keys(array_keys($categories),0);
 foreach ($apps as $app) {
@@ -119,10 +125,11 @@ foreach ($apps as $app) {
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
-          <div class="icon-wrap"><img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"></div>
+          <div class="icon-wrap"><?php if(!empty($app['is_html'])): ?><div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div><?php else: ?><img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"><?php endif; ?></div>
           <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
+          <?php if(!empty($app['is_html'])): ?><a class="store" href="/<?=e($app['slug'])?>/" target="_blank" rel="noopener">Im Browser öffnen <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['apple','both'],true) && !empty($app['apple_url'])): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
           <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
