@@ -20,6 +20,6 @@ Chrome bei 1440, 390 und 320 Pixel Breite; kein horizontaler Überlauf oder Java
 Keine Datenbank, Zugangsdaten, lokale Laufzeit oder start.bat enthalten.
 
 ## Projektkategorien
-Der öffentliche Katalog enthält die Filter **Alle**, **Apps**, **Tools zum Lernen**, **Windows-Apps**, **Spiele** und **Sonstiges**. Die Kategorien erscheinen unabhängig davon, ob bereits Projekte vorhanden sind. Die Auswahl filtert direkt in der Seite; bei leeren Rubriken erscheint ein Hinweis.
+Der öffentliche Katalog enthält die Filter **Alle**, **Apps**, **DAU to Pro**, **Windows-Apps**, **Spiele** und **Sonstiges**. Die Kategorien erscheinen unabhängig davon, ob bereits Projekte vorhanden sind. Die Auswahl filtert direkt in der Seite; bei leeren Rubriken erscheint ein Hinweis.
 
 Im Admin-Dashboard können Kategorien beim Anlegen und Bearbeiten von Projekten gesetzt werden. Die Datenbankmigration ergänzt beim nächsten Aufruf nur die Spalte `apps.category` mit dem Standardwert `apps`; bestehende Produkte, Reihenfolge, Uploads und die produktive SQLite-Datei bleiben erhalten. Die übrigen Status- und Store-Link-Funktionen sind unverändert.
