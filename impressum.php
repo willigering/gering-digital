@@ -46,19 +46,6 @@ require_once __DIR__ . '/lib.php';
           <p>Für Fragen, Projekte und geschäftliche Anfragen erreichst du mich direkt per E-Mail.</p>
           <p class="legal-contact"><a href="mailto:willi.gering@mail.de">willi.gering@mail.de</a></p>
         </section>
-
-        <section class="legal-block legal-block-wide">
-          <div class="legal-label">TÄTIGKEIT</div>
-          <h2>Apps · Software · Websites</h2>
-          <p>Entwicklung und Vertrieb von Apps, Software und Websites sowie damit verbundene digitale Dienstleistungen.</p>
-        </section>
-      </div>
-
-      <div class="legal-meta">
-        <div>
-          <span class="legal-meta-label">UMSATZSTEUER</span>
-          <p>Eine Umsatzsteuer-Identifikationsnummer wird ergänzt, sobald sie erteilt wurde.</p>
-        </div>
       </div>
     </div>
   </section>

@@ -69,18 +69,12 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
               <div class="phone-tagline">DIGITALE IDEEN · REALE LÖSUNGEN.</div>
               <time id="phone-digital-clock" class="phone-digital-clock" datetime="">00:00:00</time>
             </div>
-            <div class="contact-hero">
+            <div class="contact-hero pd-phone-fill">
               <small>DIGITALE IDEEN · SOFTWARE · APPS</small>
               <h3>Lass uns etwas<br><em>entwickeln!</em></h3>
               <p>Du hast eine Idee?<br>Ich freue mich auf deine Nachricht.</p>
             </div>
-            <div class="phone-contact-hit"><a class="phone-contact" href="#anfrage"><span class="mail-icon">✉</span><strong>Zum Kontaktformular</strong><b>→</b></a></div>
-            <div class="phone-mini-cards">
-              <div><span>◇</span><small>Idee<br>besprechen</small></div>
-              <div><span>◉</span><small>Lösung<br>entwickeln</small></div>
-              <div><span>↗</span><small>Gemeinsam<br>umsetzen</small></div>
-            </div>
-            <div class="phone-signature">Deine Idee.<br><em>Mein Code.</em></div>
+            <div class="phone-contact-hit pd-phone-fill"><a class="phone-contact" href="#anfrage"><span class="mail-icon">✉</span><strong>Zum Kontaktformular</strong><b>→</b></a></div>
             <div class="phone-tabs" aria-label="Navigation">
               <a href="#apps"><span class="active">▦<small>Apps</small></span></a>
               <a href="#leistungen"><span>⌘<small>Entwicklung</small></span></a>
@@ -97,7 +91,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <section id="apps" class="section apps-section">
   <div class="wrap">
-    <div class="glass-panel apps-panel" data-parallax="0.025">
+    <div class="glass-panel apps-panel pd-card" data-parallax="0.025">
       <div class="pd-apps-intro"><p class="eyebrow">MEINE APPS</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2>
         <div class="pd-text"><p>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</p><p class="pd-quote">„Das müsste doch auch einfacher gehen.“</p><p>Also versuche ich, eine Lösung zu entwickeln.</p><p>Mal ist es eine praktische Anwendung, mal ein Werkzeug, das ich selbst vermisst habe. Und manchmal entsteht etwas, weil ich einfach wissen wollte, ob ich es hinbekomme.</p><p class="pd-punch">Nicht alles ist perfekt. Aber alles hat einen Grund, warum es entstanden ist.</p></div></div>
       <div class="cards">
@@ -121,8 +115,8 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <section id="ueber-mich" class="section pd-section">
   <div class="wrap">
-    <div class="glass-panel pd-panel pd-split" data-parallax="0.025">
-      <div><p class="eyebrow">ÜBER MICH</p><h2>Moin, ich bin Willi!<br><span>Eigentlich wollte ich nur ein paar Probleme lösen.</span></h2></div>
+    <div class="glass-panel pd-panel pd-split pd-card" data-parallax="0.025">
+      <div><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!<br><span>Eigentlich wollte ich nur ein paar Probleme lösen.</span></h2></div>
       <div class="pd-text">
         <p>Ich mache derzeit eine Umschulung zum Fachinformatiker für Systemintegration.</p>
         <p>Durch die rasante Entwicklung der künstlichen Intelligenz hat sich für mich allerdings noch eine ganz andere Tür geöffnet.</p>
@@ -141,7 +135,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
   <div class="feature-orbit orbit-a" data-parallax="0.13"></div>
   <div class="feature-orbit orbit-b" data-parallax="-0.08"></div>
   <div class="wrap">
-    <div class="glass-panel feature-panel" data-parallax="0.035">
+    <div class="glass-panel feature-panel pd-card" data-parallax="0.035">
       <div class="feature-content"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code.<br><span>Und ich kümmere mich um den Rest.</span></h2>
       <div class="pd-text pd-cols">
         <p>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</p>
@@ -157,7 +151,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <section id="warum" class="section pd-section">
   <div class="wrap">
-    <div class="glass-panel pd-panel pd-split" data-parallax="0.025">
+    <div class="glass-panel pd-panel pd-split pd-card" data-parallax="0.025">
       <div><p class="eyebrow">WARUM ICH MEINE APPS TEILE</p><h2>Gute Ideen müssen nicht in der eigenen <span>Schublade verstauben.</span></h2></div>
       <div class="pd-text">
         <p>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen.</p>
@@ -173,7 +167,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <section id="anfrage" class="section inquiry-section">
   <div class="wrap">
-    <div class="glass-panel inquiry">
+    <div class="glass-panel inquiry pd-card">
       <div class="inquiry-copy"><p class="eyebrow">KONTAKT</p><h2>Fragen, Ideen oder einen Bug gefunden?<br><span>Immer her damit!</span></h2><p>Ob Lob, Verbesserungsvorschlag oder eine Fehlermeldung, bei der ich mich frage, wie das überhaupt passieren konnte – ich freue mich über Rückmeldungen.</p></div>
       <?php if(isset($_GET["sent"])): ?><p class="form-success" role="status">Vielen Dank! Deine Nachricht wurde gespeichert.</p><?php endif; ?>
       <form method="post" action="send.php" class="form glass-inner"><input type="hidden" name="csrf" value="<?=e(csrf())?>">
