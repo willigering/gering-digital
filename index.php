@@ -41,20 +41,40 @@ foreach ($apps as $app) {
       <picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
       <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
     </a>
-    <nav class="desktop-nav"><a href="#top">Startseite</a><a href="#apps">Meine Projekte</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
+    <nav class="desktop-nav" aria-label="Hauptnavigation">
+      <a href="#top">Startseite</a>
+      <details class="project-dropdown">
+        <summary>Meine Projekte <span class="dropdown-chevron" aria-hidden="true"></span></summary>
+        <div class="project-dropdown-panel">
+          <span class="project-dropdown-kicker">PROJEKTE ENTDECKEN</span>
+          <a href="#apps" data-category-nav="alle">Alle Projekte <span class="project-dropdown-count"><?=count($apps)?></span></a>
+          <?php foreach($categories as $key=>$label): ?>
+          <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?> <span class="project-dropdown-count"><?= (int)$categoryCounts[$key] ?></span></a>
+          <?php endforeach; ?>
+        </div>
+      </details>
+      <a href="#ueber-mich">Über mich</a>
+      <a href="#leistungen">Wie ich entwickle</a>
+      <a href="#anfrage">Kontakt</a>
+    </nav>
     <a class="btn small desktop-cta" href="#apps">Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
-    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#top">Startseite</a><a href="#apps">Meine Projekte</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
+    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
+      <a href="#top">Startseite</a>
+      <details class="mobile-project-dropdown">
+        <summary>Meine Projekte <span class="dropdown-chevron" aria-hidden="true"></span></summary>
+        <div class="mobile-project-subnav">
+          <a href="#apps" data-category-nav="alle">Alle Projekte</a>
+          <?php foreach($categories as $key=>$label): ?>
+          <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?></a>
+          <?php endforeach; ?>
+        </div>
+      </details>
+      <a href="#ueber-mich">Über mich</a>
+      <a href="#leistungen">Wie ich entwickle</a>
+      <a href="#anfrage">Kontakt</a>
+    </nav>
   </div>
-  <nav class="project-category-nav" aria-label="Projektkategorien">
-    <div class="wrap project-category-links">
-      <span class="project-category-caption" aria-hidden="true">KATEGORIEN</span>
-      <a href="#apps" data-category-nav="alle" aria-current="true">Alle Projekte</a>
-      <?php foreach($categories as $key=>$label): ?>
-      <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?></a>
-      <?php endforeach; ?>
-    </div>
-  </nav>
 </header>
 <main id="top">
 <section class="hero parallax-section" id="home">
