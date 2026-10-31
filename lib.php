@@ -16,6 +16,8 @@ function db(){
     $names = array_column($cols, 'name');
     if (!in_array('status', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN status TEXT NOT NULL DEFAULT 'bald_verfuegbar'");
     if (!in_array('apple_url', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN apple_url TEXT NOT NULL DEFAULT ''");
+    // Add categories without replacing or reassigning any existing production records.
+    if (!in_array('category', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN category TEXT NOT NULL DEFAULT 'apps'");
 
     $db->exec("INSERT OR IGNORE INTO settings(key,value) VALUES('site_email','info@geringdigital.de')");
     $db->exec("CREATE TABLE IF NOT EXISTS inquiries(id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, subject TEXT, message TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, is_read INTEGER NOT NULL DEFAULT 0)");
@@ -34,6 +36,7 @@ function db(){
 
     return $db;
 }
+function project_categories(){return ['apps'=>'Apps','lernen'=>'Tools zum Lernen','windows'=>'Windows-Apps','spiele'=>'Spiele','sonstiges'=>'Sonstiges'];}
 function e($s){return htmlspecialchars((string)$s,ENT_QUOTES,'UTF-8');}
 function csrf(){if(empty($_SESSION['csrf'])) $_SESSION['csrf']=bin2hex(random_bytes(32));return $_SESSION['csrf'];}
 function check_csrf(){if(!hash_equals($_SESSION['csrf']??'',$_POST['csrf']??'')) die('Ungültige Anfrage.');}
