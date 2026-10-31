@@ -115,8 +115,8 @@
 
 /* Single-row navigation – project categories remain in the catalogue below. */
 .nav .desktop-nav{align-items:center}
-#apps{scroll-margin-top:115px}
-@media(max-width:800px){#apps{scroll-margin-top:90px}}
+/* Navigation scrolls with the page: no sticky-header offset for project anchors. */
+#apps{scroll-margin-top:0}
 
 /* Broader reading columns, shorter sections, unchanged typography and copy. */
 @media(min-width:801px){.pd-section .pd-single{padding:40px 46px}}
