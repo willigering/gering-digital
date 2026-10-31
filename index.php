@@ -47,7 +47,6 @@ foreach ($apps as $app) {
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
     </nav>
-    <a class="btn small desktop-cta" href="#apps">Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
@@ -69,7 +68,6 @@ foreach ($apps as $app) {
         <p class="lead">Hier stelle ich meine Apps, Programme und digitalen Experimente vor. Manche lösen echte Alltagsprobleme, andere sind einfach aus Neugier entstanden.</p>
         <p class="lead">Und falls jemand anderes damit auch etwas anfangen kann: umso besser!</p>
       </div>
-      <div class="actions"><a class="btn" href="#apps">Meine Projekte entdecken <b>→</b></a></div>
     </div>
 
     <div class="hero-stage">
