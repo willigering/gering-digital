@@ -45,3 +45,12 @@ Veröffentlichte HTML-Projekte erscheinen im Projektkatalog samt Kategorie und d
 Im Admin bei **HTML-Projekte verwalten** kann jedem Projekt ein echtes Screenshot-Vorschaubild (PNG, JPG oder WebP) zugeordnet werden. Empfohlen sind **1280 × 720 Pixel (16:9)**, maximal 5 MB und 4096 Pixel Kantenlänge. Das Bild erscheint auf der Projektkarte statt des bisherigen `</>`-Platzhalters. Die HTML-Dateien selbst werden dadurch nicht verändert. Beim Bearbeiten reicht es, ausschließlich ein neues Bild hochzuladen; die bisher veröffentlichte HTML-Version bleibt aktiv. Es gibt auch eine Option, das Vorschaubild wieder zu entfernen.
 
 Bestandsprojekte behalten ihre Inhalte. Die Datenbank erweitert sich nur um die optionale Spalte `html_pages.preview_image`. Bilddateien werden nach strenger MIME- und Bildprüfung mit zufälligen Dateinamen unter `assets/uploads/html-preview-....jpg/png/webp` gespeichert. Bei einem Austausch oder dem Löschen eines Projekts wird das jeweilige alte Vorschaubild entfernt. Bei STRATO müssen **`assets/uploads/` beschreibbar** sein und bestehende Uploads erhalten bleiben. Die Projekt-Kategoriefilter sind mittig ausgerichtet.
+
+## Startseite: vereinfachte Navigation und Karten
+Die öffentliche Startseite zeigt vorübergehend **kein Kontaktformular**. Die Kontaktlinks wurden aus Desktop-/Mobilnavigation und aus der Smartphone-Visualisierung entfernt und durch Projektlinks ersetzt; `send.php` und bestehende Anfragen bleiben für eine mögliche spätere Reaktivierung erhalten.
+
+**Meine Projekte** ist auf Desktop und Mobil wieder ein einfacher Ankerlink; die bisherigen Kategoriechips im Projektbereich bleiben erhalten. Die Kategorie `apps` heißt nach außen **Android-Apps** (intern bleibt `apps`, Datenbankeinträge bleiben unberührt). Die Lesetexte unter den Inhaltsabschnitten haben breitere Spalten und etwas kompaktere Abstände, ohne die Formulierungen zu ändern.
+
+**HTML-Projektkarten** sind vollständig als Link klickbar und per Tastatur erreichbar. Der bisher separate „Im Browser öffnen“-Link entfällt, die Beschriftung bleibt als visuelle Handlungsaufforderung erhalten. Normale App-Karten samt Detailbutton und Play-Store-Links funktionieren weiter wie zuvor.
+
+Deployment auf STRATO: `index.php`, `lib.php`, `html_project_lib.php`, `assets/personal.css` und `assets/site.js` aktualisieren, **keine Datenbank oder Uploadordner ersetzen**.
