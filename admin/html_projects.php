@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             $title=trim((string)($_POST['title']??''));
             $description=trim((string)($_POST['description']??''));
             $category=(string)($_POST['category']??'lernen');
-            if ($title==='' || mb_strlen($title)>100 || mb_strlen($description)>400)
+            if ($title==='' || strlen($title)>400 || strlen($description)>1600)
                 throw new RuntimeException('Titel erforderlich (max. 100 Zeichen); Beschreibung max. 400 Zeichen.');
             if (!array_key_exists($category,$categories)) throw new RuntimeException('Ungültige Kategorie.');
             $uploaded=($_FILES['project_file']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
