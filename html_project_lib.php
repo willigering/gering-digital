@@ -41,6 +41,39 @@ function hp_delete_tree(string $path): void {
     }
     @rmdir($path);
 }
+/**
+ * Upload a real preview screenshot for the public project card.
+ * Only validated raster images are stored. This is not executable page content.
+ */
+function hp_import_preview(array $upload): string {
+    if (($upload['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK || !is_uploaded_file($upload['tmp_name']??''))
+        throw new RuntimeException('Vorschaubild konnte nicht hochgeladen werden.');
+    if (($upload['size']??0)<1 || $upload['size']>5*1024*1024)
+        throw new RuntimeException('Vorschaubild zu groß (maximal 5 MB).');
+    $tmp=$upload['tmp_name'];
+    $info=@getimagesize($tmp);
+    $types=[
+        IMAGETYPE_JPEG=>['image/jpeg','jpg'],
+        IMAGETYPE_PNG=>['image/png','png'],
+        IMAGETYPE_WEBP=>['image/webp','webp']
+    ];
+    if (!$info || !isset($types[$info[2]]) || $info[0]<16 || $info[1]<16 ||
+        $info[0]>4096 || $info[1]>4096 || ($info[0]*$info[1])>12000000)
+        throw new RuntimeException('Bitte ein gültiges JPG-, PNG- oder WebP-Bild verwenden (max. 4096 px, 12 MP).');
+    $actualMime=(new finfo(FILEINFO_MIME_TYPE))->file($tmp);
+    [$expectedMime,$extension]=$types[$info[2]];
+    if ($actualMime!==$expectedMime) throw new RuntimeException('Dateityp des Vorschaubilds stimmt nicht.');
+    $directory=__DIR__.'/assets/uploads';
+    if (!is_dir($directory) && !mkdir($directory,0755,true)) throw new RuntimeException('Bildordner kann nicht erstellt werden.');
+    $relative='assets/uploads/html-preview-'.bin2hex(random_bytes(16)).'.'.$extension;
+    if (!move_uploaded_file($tmp,__DIR__.'/'.$relative)) throw new RuntimeException('Vorschaubild konnte nicht gespeichert werden.');
+    return $relative;
+}
+function hp_delete_preview(string $relative): void {
+    if (preg_match('~^assets/uploads/html-preview-[a-f0-9]{32}\.(?:png|jpg|webp)$~D',$relative))
+        @unlink(__DIR__.'/'.$relative);
+}
+
 function hp_import(array $upload,string $slug): string {
     if (($upload['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK) throw new RuntimeException('Bitte HTML- oder ZIP-Datei auswählen.');
     if (!is_uploaded_file($upload['tmp_name']??'')) throw new RuntimeException('Ungültiger Upload.');
