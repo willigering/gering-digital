@@ -8,9 +8,10 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gering Digital – Apps & Software</title>
-<meta name="description" content="Gering Digital entwickelt moderne Apps und individuelle Softwarelösungen.">
+<title>Gering Digital – Meine Apps & Programme</title>
+<meta name="description" content="Gering Digital ist die persönliche Plattform von Willi: selbst entwickelte Apps und Programme aus Alltagsproblemen, Neugier und Vibe Coding.">
 <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
+<link rel="stylesheet" href="assets/personal.css?v=<?=filemtime(__DIR__.'/assets/personal.css')?>">
 <link rel="icon" type="image/png" href="assets/gering-digital-logo-icon.png">
 
 </head>
@@ -25,12 +26,12 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
   <div class="wrap navin">
     <a class="brand" href="#top" aria-label="Gering Apps Startseite">
       <img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo">
-      <span><strong>GERING <em>DIGITAL</em></strong><small>IDEEN · APPS · SOFTWARE</small></span>
+      <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
     </a>
-    <nav class="desktop-nav"><a href="#apps">Apps</a><a href="#leistungen">Entwicklung</a><a href="#anfrage">Anfrage</a><a href="impressum.php">Impressum</a></nav>
-    <a class="btn small desktop-cta" href="#anfrage">Projekt starten <b>→</b></a>
+    <nav class="desktop-nav"><a href="#top">Startseite</a><a href="#apps">Meine Apps</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
+    <a class="btn small desktop-cta" href="#apps">Meine Apps <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
-    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#apps">Apps</a><a href="#leistungen">Entwicklung</a><a href="#anfrage">Anfrage</a><a href="impressum.php">Impressum</a></nav>
+    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#top">Startseite</a><a href="#apps">Meine Apps</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
   </div>
 </header>
 <main id="top">
@@ -38,11 +39,14 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
   <div class="hero-lines"></div>
   <div class="hero-grid wrap">
     <div class="hero-copy" data-parallax="0.05">
-      <p class="eyebrow">APPS · SOFTWARE · LÖSUNGEN</p>
-      <h1>Kleine Ideen.<br><span>Große Wirkung.</span></h1>
-      <p class="lead">Ich entwickle moderne Apps und Softwarelösungen, die funktionieren, begeistern und einen echten Mehrwert bieten.</p>
-      <div class="actions"><a class="btn" href="#apps">Apps entdecken <b>→</b></a><a class="btn ghost" href="#anfrage">App entwickeln lassen</a></div>
-      <div class="trust"><span>✦ Modern</span><span>◈ Zuverlässig</span><span>⌁ Persönlich</span></div>
+      <p class="eyebrow">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
+      <h1 class="pd-hero-title">Aus einer Idee wurde eine App.<br><span>Dann noch eine.</span><br>Und irgendwie hört das nicht auf.</h1>
+      <div class="pd-hero-text">
+        <p class="lead">Ich entwickle Apps, weil mich Dinge nerven, die eigentlich einfacher gehen müssten. Was als kleines Experiment begann, hat sich inzwischen zu einer ziemlich ausgewachsenen Leidenschaft entwickelt.</p>
+        <p class="lead">Hier stelle ich meine Apps, Programme und digitalen Experimente vor. Manche lösen echte Alltagsprobleme, andere sind einfach aus Neugier entstanden.</p>
+        <p class="lead">Und falls jemand anderes damit auch etwas anfangen kann: umso besser!</p>
+      </div>
+      <div class="actions"><a class="btn" href="#apps">Meine Apps entdecken <b>→</b></a></div>
     </div>
 
     <div class="hero-stage">
@@ -94,7 +98,8 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <section id="apps" class="section apps-section">
   <div class="wrap">
     <div class="glass-panel apps-panel" data-parallax="0.025">
-      <div class="section-head"><div><p class="eyebrow">MEINE APPS</p><h2>Apps im <span>Überblick.</span></h2></div><p>Praktische und kreative Apps – entwickelt mit Leidenschaft.</p></div>
+      <div class="pd-apps-intro"><p class="eyebrow">MEINE APPS</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2>
+        <div class="pd-text"><p>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</p><p class="pd-quote">„Das müsste doch auch einfacher gehen.“</p><p>Also versuche ich, eine Lösung zu entwickeln.</p><p>Mal ist es eine praktische Anwendung, mal ein Werkzeug, das ich selbst vermisst habe. Und manchmal entsteht etwas, weil ich einfach wissen wollte, ob ich es hinbekomme.</p><p class="pd-punch">Nicht alles ist perfekt. Aber alles hat einen Grund, warum es entstanden ist.</p></div></div>
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card" >
@@ -114,13 +119,53 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
   </div>
 </section>
 
+<section id="ueber-mich" class="section pd-section">
+  <div class="wrap">
+    <div class="glass-panel pd-panel pd-split" data-parallax="0.025">
+      <div><p class="eyebrow">ÜBER MICH</p><h2>Moin, ich bin Willi!<br><span>Eigentlich wollte ich nur ein paar Probleme lösen.</span></h2></div>
+      <div class="pd-text">
+        <p>Ich mache derzeit eine Umschulung zum Fachinformatiker für Systemintegration.</p>
+        <p>Durch die rasante Entwicklung der künstlichen Intelligenz hat sich für mich allerdings noch eine ganz andere Tür geöffnet.</p>
+        <p>Plötzlich war es möglich, eigene Softwareideen umzusetzen, ohne vorher jahrelang Programmiersprachen studieren zu müssen.</p>
+        <p>Also habe ich mich ans Vibe Coding gewagt.</p>
+        <p>Seitdem überlege ich, experimentiere, teste, verbessere, verwerfe und fange gelegentlich wieder von vorne an.</p>
+        <p class="pd-punch">Klingt unkompliziert?<br>Ist es erstaunlich oft. Bis es das nicht mehr ist.</p>
+        <p>Mit jedem Projekt lerne ich etwas Neues über Softwareentwicklung und die Technik dahinter.</p>
+        <p>Und weil ich meine Ergebnisse nicht ausschließlich für mich behalten möchte, gibt es Gering Digital.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="leistungen" class="section feature-section parallax-section">
   <div class="feature-orbit orbit-a" data-parallax="0.13"></div>
   <div class="feature-orbit orbit-b" data-parallax="-0.08"></div>
   <div class="wrap">
     <div class="glass-panel feature-panel" data-parallax="0.035">
-      <div class="feature-content"><p class="eyebrow">APP-ENTWICKLUNG</p><h2>Deine Idee.<br><span>Meine Umsetzung.</span></h2><p class="lead narrow">Von der ersten Idee bis zur fertigen Anwendung: Konzeption, Entwicklung, Veröffentlichung und Weiterentwicklung aus einer Hand.</p>
-      <div class="services"><div><i>01</i><b>Konzept</b><p>Idee und Anforderungen gemeinsam schärfen.</p></div><div><i>02</i><b>Design</b><p>Klare, moderne und intuitive Benutzeroberflächen.</p></div><div><i>03</i><b>Entwicklung</b><p>Saubere und zuverlässige technische Umsetzung.</p></div><div><i>04</i><b>Release</b><p>Begleitung bis zur Veröffentlichung und darüber hinaus.</p></div></div></div>
+      <div class="feature-content"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code.<br><span>Und ich kümmere mich um den Rest.</span></h2>
+      <div class="pd-text pd-cols">
+        <p>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</p>
+        <p>Die Ideen, Anforderungen, Entscheidungen und Überprüfung liegen bei mir.</p>
+        <p>Die KI hilft bei der technischen Umsetzung.</p>
+        <p>Ein großer Teil meiner Arbeit besteht darin, die KI dazu zu bringen, genau das zu tun, was ich möchte.</p>
+        <p>Und sie anschließend davon abzuhalten, Dinge zu tun, die ich definitiv nicht wollte.</p>
+        <p class="pd-punch">KI ist für mich kein Ersatz fürs Lernen, sondern ein ziemlich spannendes Werkzeug dafür.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<section id="warum" class="section pd-section">
+  <div class="wrap">
+    <div class="glass-panel pd-panel pd-split" data-parallax="0.025">
+      <div><p class="eyebrow">WARUM ICH MEINE APPS TEILE</p><h2>Gute Ideen müssen nicht in der eigenen <span>Schublade verstauben.</span></h2></div>
+      <div class="pd-text">
+        <p>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen.</p>
+        <p>Wenn sie mir helfen, könnten sie vielleicht auch anderen nützlich sein.</p>
+        <p>Deshalb möchte ich meine Projekte vorstellen und nach Möglichkeit zum Download anbieten.</p>
+        <p>Einige Apps sind bereits veröffentlicht, andere befinden sich noch in Entwicklung.</p>
+        <p class="pd-punch">An Ideen mangelt es jedenfalls nicht. Eher an Stunden pro Tag.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -129,21 +174,21 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <section id="anfrage" class="section inquiry-section">
   <div class="wrap">
     <div class="glass-panel inquiry">
-      <div class="inquiry-copy"><p class="eyebrow">PROJEKT STARTEN</p><h2>Lass uns etwas<br><span>entwickeln.</span></h2><p>Du hast eine App-Idee oder benötigst eine individuelle Softwarelösung? Erzähl mir davon.</p><div class="contact-note">✓ Unverbindlich &nbsp;&nbsp; ✓ Persönlich &nbsp;&nbsp; ✓ Direkt</div></div>
-      <?php if(isset($_GET["sent"])): ?><p class="form-success" role="status">Vielen Dank! Deine Anfrage wurde gespeichert.</p><?php endif; ?>
+      <div class="inquiry-copy"><p class="eyebrow">KONTAKT</p><h2>Fragen, Ideen oder einen Bug gefunden?<br><span>Immer her damit!</span></h2><p>Ob Lob, Verbesserungsvorschlag oder eine Fehlermeldung, bei der ich mich frage, wie das überhaupt passieren konnte – ich freue mich über Rückmeldungen.</p></div>
+      <?php if(isset($_GET["sent"])): ?><p class="form-success" role="status">Vielen Dank! Deine Nachricht wurde gespeichert.</p><?php endif; ?>
       <form method="post" action="send.php" class="form glass-inner"><input type="hidden" name="csrf" value="<?=e(csrf())?>">
         <div class="form-row"><label>Name *<input name="name" required maxlength="100" placeholder="Dein Name"></label><label>E-Mail *<input type="email" name="email" required maxlength="180" placeholder="deine@email.de"></label></div>
         <label>Betreff<input name="subject" maxlength="180" placeholder="Worum geht es?"></label>
-        <label>Nachricht *<textarea name="message" required maxlength="5000" rows="6" placeholder="Beschreibe kurz deine Idee oder dein Projekt …"></textarea></label>
+        <label>Nachricht *<textarea name="message" required maxlength="5000" rows="6" placeholder="Lob, Idee, Bug – raus damit …"></textarea></label>
         <label class="check"><input type="checkbox" name="privacy" required> <span>Ich habe die <a href="datenschutz.php">Datenschutzerklärung</a> gelesen. *</span></label>
-        <button class="btn" type="submit">Anfrage senden <b>→</b></button>
+        <button class="btn" type="submit">Nachricht senden <b>→</b></button>
       </form>
     </div>
   </div>
 </section>
 </main>
 
-<footer><div class="wrap footer"><a class="brand" href="#top"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"><span><strong>GERING <em>DIGITAL</em></strong><small>IDEEN · APPS · SOFTWARE</small></span></a><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
+<footer><div class="wrap footer"><a class="brand" href="#top"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
 
 <script src="assets/site.js?v=<?=filemtime(__DIR__.'/assets/site.js')?>" defer></script>
 </body></html>
