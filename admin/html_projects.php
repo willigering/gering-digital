@@ -231,4 +231,78 @@ function hp_render_thumb_editor(array $page=[]): void {
 </article>
 <?php endforeach; ?>
 </section>
-</div></main></body></html>
+</div></main>
+<script>
+(() => {
+  const objectUrls = new Set();
+  document.querySelectorAll('.hp-thumb-editor').forEach(editor => {
+    const form = editor.closest('form');
+    const file = form.querySelector('input[name="preview_image"]');
+    const remove = form.querySelector('input[name="remove_preview"]');
+    const fit = editor.querySelector('[data-thumb-fit]');
+    const x = editor.querySelector('[data-thumb-x]');
+    const y = editor.querySelector('[data-thumb-y]');
+    const xValue = editor.querySelector('[data-thumb-x-value]');
+    const yValue = editor.querySelector('[data-thumb-y-value]');
+    const stages = editor.querySelectorAll('.hp-thumb-stage');
+    const originalSrc = editor.dataset.thumbSrc || '';
+    let objectUrl = null;
+
+    const refresh = () => {
+      const source = remove?.checked ? '' : (objectUrl || originalSrc);
+      const fullImage = fit.value === 'contain';
+      x.disabled = fullImage;
+      y.disabled = fullImage;
+      xValue.textContent = x.value + '%';
+      yValue.textContent = y.value + '%';
+      stages.forEach(stage => {
+        stage.style.setProperty('--thumb-fit', fit.value);
+        stage.style.setProperty('--thumb-x', x.value + '%');
+        stage.style.setProperty('--thumb-y', y.value + '%');
+        const img = stage.querySelector('img');
+        const placeholder = stage.querySelector('.hp-thumb-empty');
+        if (source) {
+          if (img.getAttribute('src') !== source) img.src = source;
+          img.hidden = false;
+          placeholder.hidden = true;
+        } else {
+          img.hidden = true;
+          img.removeAttribute('src');
+          placeholder.hidden = false;
+        }
+      });
+    };
+    const clearObjectUrl = () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+        objectUrls.delete(objectUrl);
+        objectUrl = null;
+      }
+    };
+    file?.addEventListener('change', () => {
+      clearObjectUrl();
+      const selected = file.files?.[0];
+      if (selected) {
+        objectUrl = URL.createObjectURL(selected);
+        objectUrls.add(objectUrl);
+        if (remove) remove.checked = false;
+      }
+      refresh();
+    });
+    remove?.addEventListener('change', () => {
+      if (remove.checked && file) {
+        file.value = '';
+        clearObjectUrl();
+      }
+      refresh();
+    });
+    [fit, x, y].forEach(input => input.addEventListener('input', refresh));
+    refresh();
+  });
+  addEventListener('pagehide', () => {
+    objectUrls.forEach(url => URL.revokeObjectURL(url));
+    objectUrls.clear();
+  });
+})();
+</script>
+</body></html>
