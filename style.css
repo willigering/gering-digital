@@ -31,3 +31,30 @@
 @media(hover:none),(pointer:coarse){.app-card:hover{transform:none}.btn:hover{transform:none}}
 :focus-visible{outline:2px solid var(--gold2);outline-offset:5px}.skip-link{position:fixed;top:-100px;left:25px;z-index:100;background:var(--gold2);color:var(--bg);padding:12px 20px;border-radius:8px}.skip-link:focus{top:20px}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation:none!important;transition:none!important}.hero-stage>[data-parallax]{--x:0px!important;--y:0px!important;--s:0px!important}.app-card{transform:none}.phone{--spin:0deg!important}.btn:hover,.btn:active{transform:none}}
+
+
+/* Always-visible site navigation.
+   Use a fixed header because the earlier sticky rule could scroll out of view
+   in some layouts. Reserve its original space to prevent content jumping. */
+header.nav.glass-nav{
+  position:fixed;
+  top:16px;
+  left:24px;
+  right:24px;
+  margin:0;
+  z-index:100;
+}
+header.nav.glass-nav + main{
+  padding-top:92px; /* 16px top gap + 74px nav content + 2px border */
+}
+@media(max-width:800px){
+  header.nav.glass-nav{
+    top:10px;
+    left:12px;
+    right:12px;
+    margin:0;
+  }
+  header.nav.glass-nav + main{
+    padding-top:76px; /* 10px top gap + 64px nav content + 2px border */
+  }
+}
