@@ -116,7 +116,7 @@
 /* Single-row navigation – project categories remain in the catalogue below. */
 .nav .desktop-nav{align-items:center}
 /* Navigation scrolls with the page: no sticky-header offset for project anchors. */
-#apps{scroll-margin-top:0}
+#apps{scroll-margin-top:18px}
 
 /* Broader reading columns, shorter sections, unchanged typography and copy. */
 @media(min-width:801px){.pd-section .pd-single{padding:40px 46px}}
@@ -138,9 +138,9 @@
 
 /* Actual HTML screenshots on project cards; existing native app icons unchanged. */
 #apps .icon-wrap.html-preview-wrap{padding:12px;height:190px;background:radial-gradient(ellipse at 50% 5%,rgba(227,182,83,.10),transparent 72%)}
-#apps .html-preview-image{display:block;width:100%;height:100%;min-height:0;object-fit:cover;object-position:center top;border:1px solid rgba(218,168,64,.33);border-radius:12px;box-shadow:0 14px 28px #0008;background:#09111b}
+#apps .html-preview-image{display:block;width:100%;height:100%;min-height:0;object-fit:var(--thumb-fit,cover);object-position:var(--thumb-x,50%) var(--thumb-y,0%);border:1px solid rgba(218,168,64,.33);border-radius:12px;box-shadow:0 14px 28px #0008;background:#09111b}
 @media(max-width:800px){
   #apps .app-card .icon-wrap.html-preview-wrap{height:auto;max-height:none;aspect-ratio:16/10;padding:9px}
-  #apps .app-card .icon-wrap.html-preview-wrap .html-preview-image{max-width:none;max-height:none;width:100%;height:100%;object-fit:cover;object-position:center top;border-radius:9px}
+  #apps .app-card .icon-wrap.html-preview-wrap .html-preview-image{max-width:none;max-height:none;width:100%;height:100%;object-fit:var(--thumb-fit,cover);object-position:var(--thumb-x,50%) var(--thumb-y,0%);border-radius:9px}
 }
 @media(max-width:339px){#apps .app-card .icon-wrap.html-preview-wrap{aspect-ratio:16/9}}

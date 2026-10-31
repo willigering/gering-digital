@@ -43,10 +43,10 @@ foreach ($apps as $app) {
     </a>
     <nav class="desktop-nav" aria-label="Hauptnavigation">
       <a href="#top">Startseite</a>
-      <a href="#apps">Meine Projekte</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
     </nav>
+    <a class="btn small desktop-cta" href="#apps">Meine Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
@@ -110,9 +110,9 @@ foreach ($apps as $app) {
   <div class="scroll-hint"><span></span>SCROLL FÜR MEHR</div>
 </section>
 
-<section id="apps" class="section apps-section">
+<section class="section apps-section">
   <div class="wrap">
-    <div class="glass-panel apps-panel pd-card" data-parallax="0.025">
+    <div id="apps" class="glass-panel apps-panel pd-card" data-parallax="0.025">
       <div class="pd-apps-intro">
         <div class="pd-head"><p class="eyebrow">MEINE PROJEKTE</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2></div>
         <div class="pd-flow">
@@ -136,7 +136,7 @@ foreach ($apps as $app) {
           <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
           <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
-              <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>">
+              <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
             <?php elseif(!empty($app['is_html'])): ?>
               <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
             <?php else: ?>

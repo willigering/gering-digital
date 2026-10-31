@@ -15,6 +15,11 @@ function db(){
     // Optional project-card thumbnail; all existing HTML projects continue without one.
     $htmlColumns = $db->query("PRAGMA table_info(html_pages)")->fetchAll(PDO::FETCH_ASSOC);
     if (!in_array('preview_image', array_column($htmlColumns,'name'), true)) $db->exec("ALTER TABLE html_pages ADD COLUMN preview_image TEXT NOT NULL DEFAULT ''");
+    // Image cropping options are metadata only and keep existing published previews intact.
+    $htmlNames = array_column($htmlColumns,'name');
+    if (!in_array('preview_fit',$htmlNames,true)) $db->exec("ALTER TABLE html_pages ADD COLUMN preview_fit TEXT NOT NULL DEFAULT 'cover'");
+    if (!in_array('preview_x',$htmlNames,true)) $db->exec("ALTER TABLE html_pages ADD COLUMN preview_x INTEGER NOT NULL DEFAULT 50");
+    if (!in_array('preview_y',$htmlNames,true)) $db->exec("ALTER TABLE html_pages ADD COLUMN preview_y INTEGER NOT NULL DEFAULT 0");
 
     // Extend existing app installations without replacing existing data.
     $cols = $db->query("PRAGMA table_info(apps)")->fetchAll(PDO::FETCH_ASSOC);
