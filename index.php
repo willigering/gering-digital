@@ -145,7 +145,7 @@ foreach ($apps as $app) {
               <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>">
             <?php endif; ?>
           </div>
-          <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Android-Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <?php if(empty($app['is_html'])): ?>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
