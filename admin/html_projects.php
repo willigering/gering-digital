@@ -26,6 +26,11 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if ($title==='' || strlen($title)>400 || strlen($description)>1600)
                 throw new RuntimeException('Titel erforderlich (max. 100 Zeichen); Beschreibung max. 400 Zeichen.');
             if (!array_key_exists($category,$categories)) throw new RuntimeException('Ungültige Kategorie.');
+            $previewFit=(string)($_POST['preview_fit']??($old['preview_fit']??'cover'));
+            $previewX=filter_var((string)($_POST['preview_x']??($old['preview_x']??50)),FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100]]);
+            $previewY=filter_var((string)($_POST['preview_y']??($old['preview_y']??0)),FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>100]]);
+            if (!in_array($previewFit,['cover','contain'],true) || $previewX===false || $previewY===false)
+                throw new RuntimeException('Ungültige Vorschaubild-Einstellung. Bitte Einpassmodus und Position prüfen.');
             $uploaded=($_FILES['project_file']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
             $imageUploaded=($_FILES['preview_image']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
             $removePreview=!empty($_POST['remove_preview']);
@@ -38,11 +43,11 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 if ($imageUploaded) $newImage=hp_import_preview($_FILES['preview_image']);
                 $preview=$newImage?:($removePreview?'':($old['preview_image']??''));
                 if ($old) {
-                    $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,preview_image=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
-                    $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$preview,$id]);
+                    $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,preview_image=?,preview_fit=?,preview_x=?,preview_y=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+                    $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$preview,$previewFit,$previewX,$previewY,$id]);
                 } else {
-                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,description,category,draft_version,preview_image) VALUES(?,?,?,?,?,?)');
-                    $sql->execute([$slug,$title,$description,$category,$version,$preview]);
+                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,description,category,draft_version,preview_image,preview_fit,preview_x,preview_y) VALUES(?,?,?,?,?,?,?,?,?)');
+                    $sql->execute([$slug,$title,$description,$category,$version,$preview,$previewFit,$previewX,$previewY]);
                 }
             } catch(Throwable $error) {
                 if ($version!=='') hp_delete_tree(hp_version_dir($slug,$version));
