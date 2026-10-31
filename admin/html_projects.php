@@ -84,6 +84,50 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
 }
 $pages=$db->query('SELECT * FROM html_pages ORDER BY updated_at DESC,id DESC')->fetchAll(PDO::FETCH_ASSOC);
 $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
+
+/** Shared card thumbnail editor for creating and updating an HTML project. */
+function hp_render_thumb_editor(array $page=[]): void {
+    $src=(string)($page['preview_image']??'');
+    $fit=($page['preview_fit']??'cover')==='contain'?'contain':'cover';
+    $x=max(0,min(100,(int)($page['preview_x']??50)));
+    $y=max(0,min(100,(int)($page['preview_y']??0)));
+    $style='--thumb-fit:'.$fit.';--thumb-x:'.$x.'%;--thumb-y:'.$y.'%';
+?>
+<fieldset class="hp-thumb-editor" data-thumb-src="<?=$src!==''?'../'.e($src):''?>">
+  <legend>Vorschaubild einpassen · Live-Ansicht</legend>
+  <p class="hp-muted">So wird dein Screenshot auf der öffentlichen Projektkarte dargestellt. Änderungen erscheinen hier sofort, noch vor dem Speichern.</p>
+  <div class="hp-thumb-fields">
+    <label>Darstellung
+      <select name="preview_fit" data-thumb-fit>
+        <option value="cover" <?=$fit==='cover'?'selected':''?>>Ausfüllen – Bildausschnitt</option>
+        <option value="contain" <?=$fit==='contain'?'selected':''?>>Einpassen – ganzes Bild zeigen</option>
+      </select>
+    </label>
+    <label>Horizontaler Ausschnitt <span data-thumb-x-value><?=$x?>%</span>
+      <input type="range" name="preview_x" data-thumb-x min="0" max="100" step="1" value="<?=$x?>">
+    </label>
+    <label>Vertikaler Ausschnitt <span data-thumb-y-value><?=$y?>%</span>
+      <input type="range" name="preview_y" data-thumb-y min="0" max="100" step="1" value="<?=$y?>">
+    </label>
+  </div>
+  <p class="hp-muted hp-thumb-tip">Im Modus „Einpassen“ bleibt das ganze Bild sichtbar; dadurch können seitliche oder obere Ränder entstehen.</p>
+  <div class="hp-thumb-previews">
+    <figure><figcaption>Desktop-Projektkarte</figcaption>
+      <div class="hp-thumb-stage hp-thumb-desktop" style="<?=e($style)?>">
+        <img class="hp-thumb-image" src="<?=$src!==''?'../'.e($src):''?>" alt="Bildvorschau Desktop" <?=$src===''?'hidden':''?>>
+        <span class="hp-thumb-empty" <?=$src!==''?'hidden':''?>>Vorschaubild auswählen</span>
+      </div>
+    </figure>
+    <figure><figcaption>Smartphone-Projektkarte</figcaption>
+      <div class="hp-thumb-stage hp-thumb-mobile" style="<?=e($style)?>">
+        <img class="hp-thumb-image" src="<?=$src!==''?'../'.e($src):''?>" alt="Bildvorschau Smartphone" <?=$src===''?'hidden':''?>>
+        <span class="hp-thumb-empty" <?=$src!==''?'hidden':''?>>Vorschaubild auswählen</span>
+      </div>
+    </figure>
+  </div>
+</fieldset>
+<?php
+}
 ?>
 <!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -111,6 +155,29 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 .hp-image-preview{display:flex;align-items:center;gap:14px;margin:13px 0;padding:10px;border:1px solid #d2aa5133;border-radius:13px;max-width:440px;background:#0004}
 .hp-image-preview img{width:155px;max-width:47%;aspect-ratio:16/9;object-fit:cover;object-position:top center;border-radius:8px;border:1px solid #d2aa5166}
 .hp-image-preview span{font-size:12px;color:#c3af89}
+
+.hp-thumb-editor{min-width:0;margin:18px 0 22px;padding:19px;border:1px solid #d2aa5160;border-radius:16px;background:linear-gradient(135deg,#101a25,#0c1119)}
+.hp-thumb-editor legend{padding:0 8px;color:#f0c76c;font-size:15px;font-weight:750}
+.hp-thumb-editor>.hp-muted{margin:4px 0 16px;line-height:1.55}
+.hp-thumb-fields{display:grid;grid-template-columns:minmax(190px,1.2fr) minmax(130px,1fr) minmax(130px,1fr);align-items:end;gap:12px}
+.hp-thumb-fields label{min-width:0;color:#d8cbb1;font-size:13px}
+.hp-thumb-fields select{display:block;width:100%;min-height:44px;margin-top:6px}
+.hp-thumb-fields input[type=range]{width:100%;min-height:32px;cursor:pointer;accent-color:#efc76b}
+.hp-thumb-fields input[type=range]:disabled{opacity:.4;cursor:not-allowed}
+.hp-thumb-fields [data-thumb-x-value],.hp-thumb-fields [data-thumb-y-value]{color:#eac271;font-variant-numeric:tabular-nums}
+.hp-thumb-editor .hp-thumb-tip{font-size:12px;margin:9px 0 16px}
+.hp-thumb-previews{display:flex;align-items:flex-start;gap:22px;flex-wrap:wrap}
+.hp-thumb-previews figure{margin:0;min-width:0;max-width:100%}
+.hp-thumb-previews figcaption{font-size:12px;font-weight:700;color:#e2c17b;margin:0 0 8px}
+.hp-thumb-stage{position:relative;border:1px solid #d8ae4928;border-radius:13px;background:radial-gradient(ellipse at 50% 5%,rgba(227,182,83,.10),#0c1520 75%);padding:12px;overflow:hidden;display:flex;align-items:stretch}
+.hp-thumb-desktop{width:330px;max-width:100%;height:190px}
+.hp-thumb-mobile{width:220px;max-width:100%;height:auto;aspect-ratio:16/10;padding:9px}
+.hp-thumb-stage .hp-thumb-image{width:100%;height:100%;min-height:0;min-width:0;display:block;object-fit:var(--thumb-fit,cover);object-position:var(--thumb-x,50%) var(--thumb-y,0%);border:1px solid rgba(218,168,64,.33);border-radius:12px;background:#09111b}
+.hp-thumb-stage .hp-thumb-image[hidden],.hp-thumb-stage .hp-thumb-empty[hidden]{display:none!important}
+.hp-thumb-stage .hp-thumb-empty{display:grid;place-items:center;width:100%;color:#c7b995;text-align:center;border:1px dashed rgba(218,168,64,.35);border-radius:12px;font-size:12px}
+@media(max-width:700px){.hp-thumb-fields{grid-template-columns:1fr 1fr}.hp-thumb-fields label:first-child{grid-column:1/-1}}
+@media(max-width:420px){.hp-thumb-fields{grid-template-columns:1fr}}
+
 @media(max-width:650px){.hp-layout .form-grid{grid-template-columns:1fr}.hp-actions{align-items:stretch}.hp-actions a,.hp-actions form,.hp-actions button{width:100%;justify-content:center}}
 </style>
 </head><body class="admin-page">
@@ -129,6 +196,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <label>Kategorie<select name="category"><?php foreach($categories as $key=>$value): ?><option value="<?=e($key)?>" <?=$key==='lernen'?'selected':''?>><?=e($value)?></option><?php endforeach; ?></select></label>
 <label>HTML-Datei oder ZIP-Projekt *<input type="file" name="project_file" required accept=".html,.htm,.zip"></label>
 <label>Vorschaubild für die Projektkarte (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Screenshot der HTML-Seite, empfohlen 16:9 (z. B. 1280 × 720), maximal 5 MB.</small></label>
+<?php hp_render_thumb_editor(); ?>
 <button class="btn" type="submit">Entwurf speichern <b>→</b></button>
 </form></section>
 <section class="panel"><h2>Deine HTML-Projekte <span class="pill"><?=count($pages)?></span></h2>
@@ -138,7 +206,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <div class="hp-head"><div><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'DAU to Pro')?> · <?=e($page['updated_at'])?></small></div>
 <span class="status <?=$page['published']?'live':'soon'?>"><?=$page['published']?'Öffentlich':'Entwurf / offline'?></span></div>
 <?php if($page['description']): ?><p class="hp-muted"><?=e($page['description'])?></p><?php endif; ?>
-<?php if(!empty($page['preview_image'])): ?><div class="hp-image-preview"><img loading="lazy" src="../<?=e($page['preview_image'])?>" alt="Aktuelles Vorschaubild für <?=e($page['title'])?>"><span>Aktuelles Vorschaubild der Projektkarte</span></div><?php endif; ?>
+
 <div class="hp-actions">
 <a class="btn ghost" href="html_project_preview_page.php?slug=<?=rawurlencode($page['slug'])?>" target="_blank" rel="noopener">👁 Vorschau ansehen</a>
 <?php if($page['published']): ?><a class="btn ghost" href="../<?=e($page['slug'])?>/" target="_blank" rel="noopener">↗ Öffentliche Seite</a><?php endif; ?>
@@ -152,6 +220,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <label>Beschreibung<textarea name="description" maxlength="400" rows="2"><?=e($page['description'])?></textarea></label>
 <label>Neue HTML- oder ZIP-Version (optional)<input type="file" name="project_file" accept=".html,.htm,.zip"></label>
 <label>Vorschaubild austauschen (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Ein Screenshot im Querformat (16:9). Nur das Vorschaubild ändern ist auch ohne neue HTML-Datei möglich.</small></label>
+<?php hp_render_thumb_editor($page); ?>
 <?php if(!empty($page['preview_image'])): ?><label class="check"><input type="checkbox" name="remove_preview" value="1"> Vorschaubild entfernen (zurück zum Standardsymbol)</label><?php endif; ?>
 <p class="hp-muted">Die URL bleibt unverändert. Eine neue Version ersetzt die veröffentlichte erst nach Klick auf „Veröffentlichen“.</p>
 <button type="submit" class="btn">Änderungen als Entwurf speichern</button>
