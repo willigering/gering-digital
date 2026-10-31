@@ -105,6 +105,29 @@
   addEventListener('keydown',e=>{if(e.key==='Escape'&&menuBtn.getAttribute('aria-expanded')==='true'){closeMenu();menuBtn.focus()}});
   document.addEventListener('click',e=>{if(!e.target.closest('.nav'))closeMenu()});
   matchMedia('(max-width:800px)').addEventListener('change',closeMenu);
+  // Catalogue filters work without page reloads and never hide existing project data.
+  const filters=document.querySelector('.catalog-filters');
+  if(filters){
+    const buttons=[...filters.querySelectorAll('.catalog-filter')];
+    const cards=[...document.querySelectorAll('#apps .app-card')];
+    const empty=document.getElementById('catalog-empty');
+    const applyCategory=category=>{
+      let visible=0;
+      cards.forEach(card=>{
+        const show=category==='alle'||card.dataset.category===category;
+        card.hidden=!show;
+        if(show)visible++;
+      });
+      buttons.forEach(button=>{
+        const active=button.dataset.category===category;
+        button.classList.toggle('is-active',active);
+        button.setAttribute('aria-pressed',String(active));
+      });
+      if(empty)empty.hidden=visible>0;
+    };
+    buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
+    applyCategory('alle');
+  }
   document.querySelectorAll('.app-card').forEach((card,index)=>{
     const text=card.querySelector('.card-body>p'),button=card.querySelector('.app-details');
     text.id=`app-description-${index}`;button.setAttribute('aria-controls',text.id);

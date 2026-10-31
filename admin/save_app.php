@@ -3,6 +3,8 @@ require __DIR__.'/../lib.php'; require_login(); check_csrf();
 $db=db();
 $id=(int)($_POST['id']??0); $name=trim($_POST['name']??''); $desc=trim($_POST['short_description']??'');
 $play=trim($_POST['play_url']??''); $apple=trim($_POST['apple_url']??''); $sort=(int)($_POST['sort_order']??0);
+$category=$_POST['category']??'apps';
+if(!array_key_exists($category,project_categories())) $category='apps';
 $status=$_POST['status']??'bald_verfuegbar'; $allowed=['entwicklung','bald_verfuegbar','google','apple','both'];
 if(!in_array($status,$allowed,true)) $status='bald_verfuegbar';
 $visible=!empty($_POST['published'])?1:0;
@@ -18,10 +20,10 @@ if(!empty($_FILES['icon']['tmp_name'])){
 if($id){
   $old=$db->prepare('SELECT icon FROM apps WHERE id=?'); $old->execute([$id]); $oldIcon=$old->fetchColumn();
   if($icon==='') $icon=$oldIcon;
-  $st=$db->prepare('UPDATE apps SET name=?,short_description=?,play_url=?,apple_url=?,icon=?,published=?,sort_order=?,status=? WHERE id=?');
-  $st->execute([$name,$desc,$play,$apple,$icon,$visible,$sort,$status,$id]);
+  $st=$db->prepare('UPDATE apps SET name=?,short_description=?,play_url=?,apple_url=?,icon=?,published=?,sort_order=?,status=?,category=? WHERE id=?');
+  $st->execute([$name,$desc,$play,$apple,$icon,$visible,$sort,$status,$category,$id]);
 }else{
-  $st=$db->prepare('INSERT INTO apps(name,short_description,play_url,apple_url,icon,published,sort_order,status) VALUES(?,?,?,?,?,?,?,?)');
-  $st->execute([$name,$desc,$play,$apple,$icon,$visible,$sort,$status]);
+  $st=$db->prepare('INSERT INTO apps(name,short_description,play_url,apple_url,icon,published,sort_order,status,category) VALUES(?,?,?,?,?,?,?,?,?)');
+  $st->execute([$name,$desc,$play,$apple,$icon,$visible,$sort,$status,$category]);
 }
 header('Location: index.php'); exit;
