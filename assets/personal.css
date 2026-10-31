@@ -79,3 +79,15 @@
  #apps .app-card .store{font-size:12.5px;min-height:44px;display:inline-flex;align-items:center}
 }
 @media(max-width:339px){#apps .cards{grid-template-columns:1fr}}
+/* v10: mobile phone performance & rendering */
+.phone-back picture{display:contents}
+.brand picture{display:block;flex:none;line-height:0}
+.phone-brand-lockup picture{display:block;width:31px;height:31px;line-height:0}
+.phone-back>picture>img{width:60px;opacity:.48;filter:grayscale(.3)}
+@media(max-width:800px){
+ .hero-stage>.phone{will-change:transform;transform:translate3d(var(--x),calc(var(--y) + min(var(--s),12px)),0) rotate(var(--angle,0deg)) rotateY(calc(var(--yaw,0deg) + var(--spin,0deg))) rotateX(var(--pitch,0deg))}
+ .phone-frame,.phone-back{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+}
+@media(max-width:480px){
+ .hero-stage{overflow:visible;overflow-x:clip;overflow-y:visible}
+}

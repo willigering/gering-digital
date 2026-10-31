@@ -12,7 +12,8 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <meta name="description" content="Gering Digital ist die persönliche Plattform von Willi: selbst entwickelte Apps und Programme aus Alltagsproblemen, Neugier und Vibe Coding.">
 <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <link rel="stylesheet" href="assets/personal.css?v=<?=filemtime(__DIR__.'/assets/personal.css')?>">
-<link rel="icon" type="image/png" href="assets/gering-digital-logo-icon.png">
+<link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
+<link rel="preload" as="image" type="image/webp" href="assets/gering-digital-logo-icon-312.webp" media="(max-width:800px)">
 
 </head>
 <body>
@@ -25,7 +26,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <header class="nav glass-nav">
   <div class="wrap navin">
     <a class="brand" href="#top" aria-label="Gering Apps Startseite">
-      <img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo">
+      <picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
       <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
     </a>
     <nav class="desktop-nav"><a href="#top">Startseite</a><a href="#apps">Meine Apps</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
@@ -59,12 +60,12 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
       <div class="phone phone-locked" data-parallax="0.20">
         <div class="phone-volume" aria-hidden="true"></div>
-        <div class="phone-back" aria-hidden="true"><div class="phone-camera"><i></i><i></i><i></i><i></i></div><img src="assets/gering-digital-logo-icon.png" alt=""></div>
+        <div class="phone-back" aria-hidden="true"><div class="phone-camera"><i></i><i></i><i></i><i></i></div><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img src="assets/gering-digital-logo-icon.png" alt=""></picture></div>
         <div class="phone-frame"><span class="phone-edge-glint" aria-hidden="true"></span>
           <div class="phone-side-button button-a"></div><div class="phone-side-button button-b"></div>
           <div class="phone-screen">
             <div class="phone-notch"></div>
-            <div class="appbar phone-brandbar"><div class="phone-brand-lockup"><img src="assets/gering-digital-logo-icon.png" alt="Gering Digital"><strong>Gering Digital</strong></div><span>☰</span></div>
+            <div class="appbar phone-brandbar"><div class="phone-brand-lockup"><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img src="assets/gering-digital-logo-icon.png" alt="Gering Digital"></picture><strong>Gering Digital</strong></div><span>☰</span></div>
             <div class="phone-clock-block" aria-label="Aktuelle Uhrzeit">
               <div class="phone-tagline">DIGITALE IDEEN · REALE LÖSUNGEN.</div>
               <time id="phone-digital-clock" class="phone-digital-clock" datetime="">00:00:00</time>
@@ -105,7 +106,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card" >
-          <div class="icon-wrap"><img loading="lazy" decoding="async" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"></div>
+          <div class="icon-wrap"><img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"></div>
           <div class="card-body"><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
@@ -188,7 +189,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 </section>
 </main>
 
-<footer><div class="wrap footer"><a class="brand" href="#top"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
+<footer><div class="wrap footer"><a class="brand" href="#top"><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
 
 <script src="assets/site.js?v=<?=filemtime(__DIR__.'/assets/site.js')?>" defer></script>
 </body></html>
