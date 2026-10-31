@@ -28,13 +28,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if (!array_key_exists($category,$categories)) throw new RuntimeException('Ungültige Kategorie.');
             $uploaded=($_FILES['project_file']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
             $imageUploaded=($_FILES['preview_image']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
+            $removePreview=!empty($_POST['remove_preview']);
+            if ($imageUploaded && $removePreview) throw new RuntimeException('Bitte entweder ein neues Vorschaubild wählen oder das bisherige entfernen.');
             if (!$old && !$uploaded) throw new RuntimeException('Für ein neues Projekt bitte eine HTML- oder ZIP-Datei hochladen.');
             $version='';
             $newImage='';
             try {
                 if ($uploaded) $version=hp_import($_FILES['project_file'],$slug);
                 if ($imageUploaded) $newImage=hp_import_preview($_FILES['preview_image']);
-                $preview=$newImage?:($old['preview_image']??'');
+                $preview=$newImage?:($removePreview?'':($old['preview_image']??''));
                 if ($old) {
                     $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,preview_image=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
                     $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$preview,$id]);
@@ -47,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 if ($newImage!=='') hp_delete_preview($newImage);
                 throw $error;
             }
-            if ($newImage!=='' && !empty($old['preview_image'])) hp_delete_preview($old['preview_image']);
+            if (($newImage!=='' || $removePreview) && !empty($old['preview_image'])) hp_delete_preview($old['preview_image']);
             hp_notice('Gespeichert. Das Vorschaubild erscheint bei veröffentlichten Projekten sofort auf der Projektkarte.');
         }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
@@ -145,6 +147,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <label>Beschreibung<textarea name="description" maxlength="400" rows="2"><?=e($page['description'])?></textarea></label>
 <label>Neue HTML- oder ZIP-Version (optional)<input type="file" name="project_file" accept=".html,.htm,.zip"></label>
 <label>Vorschaubild austauschen (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Ein Screenshot im Querformat (16:9). Nur das Vorschaubild ändern ist auch ohne neue HTML-Datei möglich.</small></label>
+<?php if(!empty($page['preview_image'])): ?><label class="check"><input type="checkbox" name="remove_preview" value="1"> Vorschaubild entfernen (zurück zum Standardsymbol)</label><?php endif; ?>
 <p class="hp-muted">Die URL bleibt unverändert. Eine neue Version ersetzt die veröffentlichte erst nach Klick auf „Veröffentlichen“.</p>
 <button type="submit" class="btn">Änderungen als Entwurf speichern</button>
 </form>
