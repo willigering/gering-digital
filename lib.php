@@ -10,6 +10,8 @@ function db(){
     $db->exec("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL)");
     $db->exec("CREATE TABLE IF NOT EXISTS apps(id INTEGER PRIMARY KEY, name TEXT NOT NULL, short_description TEXT NOT NULL, play_url TEXT, icon TEXT, published INTEGER NOT NULL DEFAULT 1, sort_order INTEGER NOT NULL DEFAULT 0)");
     $db->exec("CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')");
+    // Managed static HTML projects: versions are files under data/, not executable webroot uploads.
+    $db->exec("CREATE TABLE IF NOT EXISTS html_pages(id INTEGER PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT 'lernen', draft_version TEXT NOT NULL DEFAULT '', live_version TEXT NOT NULL DEFAULT '', published INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
 
     // Extend existing app installations without replacing existing data.
     $cols = $db->query("PRAGMA table_info(apps)")->fetchAll(PDO::FETCH_ASSOC);
