@@ -1,0 +1,16 @@
+name: PHP project manager checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  php:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint PHP files
+        run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
+      - name: Validate slug and archive filenames
+        run: php tests/html_project_paths.php
