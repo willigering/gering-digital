@@ -62,3 +62,20 @@
  footer .footer>small{font-size:12px}
  .mobile-menu a{font-size:16px;min-height:44px;display:flex;align-items:center}
 }
+/* v8: mobile app catalog grid */
+@media(max-width:800px){
+ #apps .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+ #apps .app-card{border-radius:14px;height:100%}
+ #apps .app-card .icon-wrap{height:auto;aspect-ratio:1/1;max-height:128px;padding:14px}
+ #apps .app-card .appicon{width:100%;height:100%;max-width:100px;max-height:100px;object-fit:contain}
+ #apps .app-card .card-body{padding:2px 11px 12px;gap:6px}
+ #apps .app-card h3{font-size:15px;line-height:1.25;margin:0;overflow-wrap:anywhere;hyphens:auto}
+ #apps .app-card .card-body>p{font-size:13px;line-height:1.4;margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;hyphens:auto;overflow-wrap:break-word}
+ #apps .app-card .app-status{font-size:11.5px;margin:auto 0 0;padding-top:4px}
+ #apps .app-card .app-details span{display:none}
+ #apps .app-card .app-details{font-size:12.5px;min-height:44px;width:100%;margin-top:0;justify-content:center;padding:0 6px;line-height:1.25;border-bottom:0}
+ #apps .app-card .store-links{gap:2px 8px}
+ #apps .app-card .store-links:not(:has(a)){display:none}
+ #apps .app-card .store{font-size:12.5px;min-height:44px;display:inline-flex;align-items:center}
+}
+@media(max-width:339px){#apps .cards{grid-template-columns:1fr}}
