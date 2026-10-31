@@ -27,22 +27,28 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 throw new RuntimeException('Titel erforderlich (max. 100 Zeichen); Beschreibung max. 400 Zeichen.');
             if (!array_key_exists($category,$categories)) throw new RuntimeException('Ungültige Kategorie.');
             $uploaded=($_FILES['project_file']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
+            $imageUploaded=($_FILES['preview_image']['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_NO_FILE;
             if (!$old && !$uploaded) throw new RuntimeException('Für ein neues Projekt bitte eine HTML- oder ZIP-Datei hochladen.');
             $version='';
+            $newImage='';
             try {
                 if ($uploaded) $version=hp_import($_FILES['project_file'],$slug);
+                if ($imageUploaded) $newImage=hp_import_preview($_FILES['preview_image']);
+                $preview=$newImage?:($old['preview_image']??'');
                 if ($old) {
-                    $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
-                    $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$id]);
+                    $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,preview_image=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+                    $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$preview,$id]);
                 } else {
-                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,description,category,draft_version) VALUES(?,?,?,?,?)');
-                    $sql->execute([$slug,$title,$description,$category,$version]);
+                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,description,category,draft_version,preview_image) VALUES(?,?,?,?,?,?)');
+                    $sql->execute([$slug,$title,$description,$category,$version,$preview]);
                 }
             } catch(Throwable $error) {
                 if ($version!=='') hp_delete_tree(hp_version_dir($slug,$version));
+                if ($newImage!=='') hp_delete_preview($newImage);
                 throw $error;
             }
-            hp_notice('Entwurf gespeichert. Prüfe die Vorschau und klicke danach auf „Veröffentlichen“.');
+            if ($newImage!=='' && !empty($old['preview_image'])) hp_delete_preview($old['preview_image']);
+            hp_notice('Gespeichert. Das Vorschaubild erscheint bei veröffentlichten Projekten sofort auf der Projektkarte.');
         }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
         if ($action==='publish') {
@@ -61,6 +67,7 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             $sql=$db->prepare('DELETE FROM html_pages WHERE id=?');
             $sql->execute([$id]);
             hp_delete_tree(hp_storage().'/'.$old['slug']);
+            if (!empty($old['preview_image'])) hp_delete_preview($old['preview_image']);
             hp_notice('Projekt gelöscht.');
         }
         throw new RuntimeException('Unbekannte Aktion.');
@@ -94,6 +101,9 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 .hp-layout input[type=file]{max-width:100%}
 .hp-layout .hp-project form.form{margin-top:12px}
 .hp-layout .hp-inline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.hp-image-preview{display:flex;align-items:center;gap:14px;margin:13px 0;padding:10px;border:1px solid #d2aa5133;border-radius:13px;max-width:440px;background:#0004}
+.hp-image-preview img{width:155px;max-width:47%;aspect-ratio:16/9;object-fit:cover;object-position:top center;border-radius:8px;border:1px solid #d2aa5166}
+.hp-image-preview span{font-size:12px;color:#c3af89}
 @media(max-width:650px){.hp-layout .form-grid{grid-template-columns:1fr}.hp-actions{align-items:stretch}.hp-actions a,.hp-actions form,.hp-actions button{width:100%;justify-content:center}}
 </style>
 </head><body class="admin-page">
@@ -111,6 +121,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <label>Beschreibung<textarea name="description" rows="2" maxlength="400" placeholder="Subnetting lernen, bis die Bits freiwillig kapitulieren."></textarea></label>
 <label>Kategorie<select name="category"><?php foreach($categories as $key=>$value): ?><option value="<?=e($key)?>" <?=$key==='lernen'?'selected':''?>><?=e($value)?></option><?php endforeach; ?></select></label>
 <label>HTML-Datei oder ZIP-Projekt *<input type="file" name="project_file" required accept=".html,.htm,.zip"></label>
+<label>Vorschaubild für die Projektkarte (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Screenshot der HTML-Seite, empfohlen 16:9 (z. B. 1280 × 720), maximal 5 MB.</small></label>
 <button class="btn" type="submit">Entwurf speichern <b>→</b></button>
 </form></section>
 <section class="panel"><h2>Deine HTML-Projekte <span class="pill"><?=count($pages)?></span></h2>
@@ -120,6 +131,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <div class="hp-head"><div><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'DAU to Pro')?> · <?=e($page['updated_at'])?></small></div>
 <span class="status <?=$page['published']?'live':'soon'?>"><?=$page['published']?'Öffentlich':'Entwurf / offline'?></span></div>
 <?php if($page['description']): ?><p class="hp-muted"><?=e($page['description'])?></p><?php endif; ?>
+<?php if(!empty($page['preview_image'])): ?><div class="hp-image-preview"><img loading="lazy" src="../<?=e($page['preview_image'])?>" alt="Aktuelles Vorschaubild für <?=e($page['title'])?>"><span>Aktuelles Vorschaubild der Projektkarte</span></div><?php endif; ?>
 <div class="hp-actions">
 <a class="btn ghost" href="html_project_preview_page.php?slug=<?=rawurlencode($page['slug'])?>" target="_blank" rel="noopener">👁 Vorschau ansehen</a>
 <?php if($page['published']): ?><a class="btn ghost" href="../<?=e($page['slug'])?>/" target="_blank" rel="noopener">↗ Öffentliche Seite</a><?php endif; ?>
@@ -132,6 +144,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <div class="form-grid"><label>Titel<input name="title" required maxlength="100" value="<?=e($page['title'])?>"></label><label>Kategorie<select name="category"><?php foreach($categories as $key=>$value): ?><option value="<?=e($key)?>" <?=$page['category']===$key?'selected':''?>><?=e($value)?></option><?php endforeach; ?></select></label></div>
 <label>Beschreibung<textarea name="description" maxlength="400" rows="2"><?=e($page['description'])?></textarea></label>
 <label>Neue HTML- oder ZIP-Version (optional)<input type="file" name="project_file" accept=".html,.htm,.zip"></label>
+<label>Vorschaubild austauschen (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Ein Screenshot im Querformat (16:9). Nur das Vorschaubild ändern ist auch ohne neue HTML-Datei möglich.</small></label>
 <p class="hp-muted">Die URL bleibt unverändert. Eine neue Version ersetzt die veröffentlichte erst nach Klick auf „Veröffentlichen“.</p>
 <button type="submit" class="btn">Änderungen als Entwurf speichern</button>
 </form>
