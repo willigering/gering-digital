@@ -43,36 +43,17 @@ foreach ($apps as $app) {
     </a>
     <nav class="desktop-nav" aria-label="Hauptnavigation">
       <a href="#top">Startseite</a>
-      <details class="project-dropdown">
-        <summary>Meine Projekte <span class="dropdown-chevron" aria-hidden="true"></span></summary>
-        <div class="project-dropdown-panel">
-          <span class="project-dropdown-kicker">PROJEKTE ENTDECKEN</span>
-          <a href="#apps" data-category-nav="alle">Alle Projekte <span class="project-dropdown-count"><?=count($apps)?></span></a>
-          <?php foreach($categories as $key=>$label): ?>
-          <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?> <span class="project-dropdown-count"><?= (int)$categoryCounts[$key] ?></span></a>
-          <?php endforeach; ?>
-        </div>
-      </details>
+      <a href="#apps">Meine Projekte</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
-      <a href="#anfrage">Kontakt</a>
     </nav>
     <a class="btn small desktop-cta" href="#apps">Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
-      <details class="mobile-project-dropdown">
-        <summary>Meine Projekte <span class="dropdown-chevron" aria-hidden="true"></span></summary>
-        <div class="mobile-project-subnav">
-          <a href="#apps" data-category-nav="alle">Alle Projekte</a>
-          <?php foreach($categories as $key=>$label): ?>
-          <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?></a>
-          <?php endforeach; ?>
-        </div>
-      </details>
+      <a href="#apps">Meine Projekte</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
-      <a href="#anfrage">Kontakt</a>
     </nav>
   </div>
 </header>
@@ -113,14 +94,14 @@ foreach ($apps as $app) {
             </div>
             <div class="contact-hero pd-phone-fill">
               <small>DIGITALE IDEEN · SOFTWARE · APPS</small>
-              <h3>Lass uns etwas<br><em>entwickeln!</em></h3>
-              <p>Du hast eine Idee?<br>Ich freue mich auf deine Nachricht.</p>
+              <h3>Neugierig?<br><em>Sieh dich um!</em></h3>
+              <p>Apps, Lernprogramme und digitale Experimente.<br>Alles aus eigener Neugier entstanden.</p>
             </div>
-            <div class="phone-contact-hit pd-phone-fill"><a class="phone-contact" href="#anfrage"><span class="mail-icon">✉</span><strong>Zum Kontaktformular</strong><b>→</b></a></div>
+            <div class="phone-contact-hit pd-phone-fill"><a class="phone-contact" href="#apps"><span class="mail-icon">▦</span><strong>Projekte entdecken</strong><b>→</b></a></div>
             <div class="phone-tabs" aria-label="Navigation">
               <a href="#apps"><span class="active">▦<small>Apps</small></span></a>
               <a href="#leistungen"><span>⌘<small>Entwicklung</small></span></a>
-              <a href="#anfrage"><span>✉<small>Kontakt</small></span></a>
+              <a href="#ueber-mich"><span>◉<small>Über mich</small></span></a>
             </div>
           </div>
         </div>
@@ -153,7 +134,8 @@ foreach ($apps as $app) {
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
-        <article class="card glass-card app-card" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
+        <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
+          <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
           <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>">
@@ -165,13 +147,16 @@ foreach ($apps as $app) {
           </div>
           <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
+          <?php if(empty($app['is_html'])): ?>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
-          <?php if(!empty($app['is_html'])): ?><a class="store" href="/<?=e($app['slug'])?>/" target="_blank" rel="noopener">Im Browser öffnen <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['apple','both'],true) && !empty($app['apple_url'])): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
           <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
           <?php if($st==='entwicklung'): ?><span class="store muted">In Entwicklung</span><?php endif; ?>
-          </div></div>
+          </div>
+          <?php else: ?><span class="html-card-cta" aria-hidden="true">Im Browser öffnen <b>↗</b></span>
+          <?php endif; ?>
+          </div>
         </article>
       <?php endforeach; ?>
       </div>
@@ -229,21 +214,7 @@ foreach ($apps as $app) {
 </section>
 
 
-<section id="anfrage" class="section inquiry-section">
-  <div class="wrap">
-    <div class="glass-panel inquiry pd-card">
-      <div class="inquiry-copy"><p class="eyebrow">KONTAKT</p><h2>Fragen, Ideen oder einen Bug gefunden?<br><span>Immer her damit!</span></h2><div class="pd-flow pd-flow-plain"><p>Ob Lob, Verbesserungsvorschlag oder eine Fehlermeldung, bei der ich mich frage, wie das überhaupt passieren konnte – ich freue mich über Rückmeldungen.</p></div></div>
-      <?php if(isset($_GET["sent"])): ?><p class="form-success" role="status">Vielen Dank! Deine Nachricht wurde gespeichert.</p><?php endif; ?>
-      <form method="post" action="send.php" class="form glass-inner"><input type="hidden" name="csrf" value="<?=e(csrf())?>">
-        <div class="form-row"><label>Name *<input name="name" required maxlength="100" placeholder="Dein Name"></label><label>E-Mail *<input type="email" name="email" required maxlength="180" placeholder="deine@email.de"></label></div>
-        <label>Betreff<input name="subject" maxlength="180" placeholder="Worum geht es?"></label>
-        <label>Nachricht *<textarea name="message" required maxlength="5000" rows="6" placeholder="Lob, Idee, Bug – raus damit …"></textarea></label>
-        <label class="check"><input type="checkbox" name="privacy" required> <span>Ich habe die <a href="datenschutz.php">Datenschutzerklärung</a> gelesen. *</span></label>
-        <button class="btn" type="submit">Nachricht senden <b>→</b></button>
-      </form>
-    </div>
-  </div>
-</section>
+
 </main>
 
 <footer><div class="wrap footer"><a class="brand" href="#top"><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
