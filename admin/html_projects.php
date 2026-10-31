@@ -117,7 +117,7 @@ $notice=$_SESSION['hp_notice']??null;unset($_SESSION['hp_notice']);
 <?php if(!$pages): ?><p class="hp-muted">Noch nichts hochgeladen. Die Bits warten schon ungeduldig.</p><?php endif; ?>
 <?php foreach($pages as $page): ?>
 <article class="hp-project">
-<div class="hp-head"><div><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'Tools zum Lernen')?> · <?=e($page['updated_at'])?></small></div>
+<div class="hp-head"><div><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'DAU to Pro')?> · <?=e($page['updated_at'])?></small></div>
 <span class="status <?=$page['published']?'live':'soon'?>"><?=$page['published']?'Öffentlich':'Entwurf / offline'?></span></div>
 <?php if($page['description']): ?><p class="hp-muted"><?=e($page['description'])?></p><?php endif; ?>
 <div class="hp-actions">
