@@ -79,6 +79,3 @@
  #apps .app-card .store{font-size:12.5px;min-height:44px;display:inline-flex;align-items:center}
 }
 @media(max-width:339px){#apps .cards{grid-template-columns:1fr}}
-/* v9: centered text sections (not Kontakt) */
-.pd-apps-intro .pd-head,.pd-single .pd-head{text-align:center;margin-inline:auto}
-.pd-apps-intro .pd-flow,.pd-single .pd-flow{text-align:center;margin-inline:auto}
