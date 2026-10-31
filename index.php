@@ -92,8 +92,14 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <section id="apps" class="section apps-section">
   <div class="wrap">
     <div class="glass-panel apps-panel pd-card" data-parallax="0.025">
-      <div class="pd-apps-intro"><p class="eyebrow">MEINE APPS</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2>
-        <div class="pd-text"><p>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</p><p class="pd-quote">„Das müsste doch auch einfacher gehen.“</p><p>Also versuche ich, eine Lösung zu entwickeln.</p><p>Mal ist es eine praktische Anwendung, mal ein Werkzeug, das ich selbst vermisst habe. Und manchmal entsteht etwas, weil ich einfach wissen wollte, ob ich es hinbekomme.</p><p class="pd-punch">Nicht alles ist perfekt. Aber alles hat einen Grund, warum es entstanden ist.</p></div></div>
+      <div class="pd-apps-intro">
+        <div class="pd-head"><p class="eyebrow">MEINE APPS</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2></div>
+        <div class="pd-grid">
+          <div class="pd-block"><strong>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</strong><p>„Das müsste doch auch einfacher gehen.“ Also versuche ich, eine Lösung zu entwickeln.</p></div>
+          <div class="pd-block"><strong>Mal ist es eine praktische Anwendung, mal ein Werkzeug, das ich selbst vermisst habe.</strong><p>Und manchmal entsteht etwas, weil ich einfach wissen wollte, ob ich es hinbekomme.</p></div>
+          <div class="pd-block pd-gold"><strong>Nicht alles ist perfekt.</strong><p>Aber alles hat einen Grund, warum es entstanden ist.</p></div>
+        </div>
+      </div>
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card" >
@@ -115,52 +121,45 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 
 <section id="ueber-mich" class="section pd-section">
   <div class="wrap">
-    <div class="glass-panel pd-panel pd-split pd-card" data-parallax="0.025">
-      <div><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!<br><span>Eigentlich wollte ich nur ein paar Probleme lösen.</span></h2></div>
-      <div class="pd-text">
-        <p>Ich mache derzeit eine Umschulung zum Fachinformatiker für Systemintegration.</p>
-        <p>Durch die rasante Entwicklung der künstlichen Intelligenz hat sich für mich allerdings noch eine ganz andere Tür geöffnet.</p>
-        <p>Plötzlich war es möglich, eigene Softwareideen umzusetzen, ohne vorher jahrelang Programmiersprachen studieren zu müssen.</p>
-        <p>Also habe ich mich ans Vibe Coding gewagt.</p>
-        <p>Seitdem überlege ich, experimentiere, teste, verbessere, verwerfe und fange gelegentlich wieder von vorne an.</p>
-        <p class="pd-punch">Klingt unkompliziert?<br>Ist es erstaunlich oft. Bis es das nicht mehr ist.</p>
-        <p>Mit jedem Projekt lerne ich etwas Neues über Softwareentwicklung und die Technik dahinter.</p>
-        <p>Und weil ich meine Ergebnisse nicht ausschließlich für mich behalten möchte, gibt es Gering Digital.</p>
+      <div class="pd-wrap">
+        <div class="pd-head"><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!</h2><p class="pd-sub">Knapp 20 Jahre Produktion. Und jetzt noch mal was völlig anderes.</p></div>
+        <div class="pd-grid">
+          <div class="pd-block"><strong>Knapp 20 Jahre habe ich in der Produktion gearbeitet.</strong><p>Eine ziemlich lange Zeit, in der ich viel erlebt, einiges gelernt und jede Menge Menschen kennengelernt habe.</p></div>
+          <div class="pd-block"><strong>Und nein, ich bereue diese Zeit nicht. Im Gegenteil.</strong><p>Ich habe dort unglaublich viel fürs Leben mitgenommen. Vor allem, dass man Probleme am besten anpackt, statt lange darüber zu reden. Dass nicht immer alles nach Plan läuft. Und dass gute Kollegen manchmal mehr wert sind als jede noch so ausgefeilte Technik. Gerade die Menschen werde ich sicherlich vermissen.</p></div>
+          <div class="pd-block"><strong>Aber irgendwann kam der Punkt, an dem ich mir dachte: War’s das jetzt schon? Oder geht da noch was?</strong><p>Offenbar geht da noch was.</p></div>
+          <div class="pd-block"><strong>Also habe ich nach fast zwei Jahrzehnten den Sprung gewagt und eine Umschulung zum Fachinformatiker für Systemintegration begonnen.</strong><p>Ein kompletter Neuanfang. Noch mal die Schulbank drücken, Netzwerke verstehen, Server konfigurieren und sich freiwillig mit Dingen beschäftigen, bei denen andere schon beim Lesen der Fehlermeldung aufgeben.</p></div>
+          <div class="pd-block pd-gold"><strong>Und wisst ihr was? Ich freue mich drauf!</strong></div>
+        </div>
       </div>
-    </div>
   </div>
 </section>
 
-<section id="leistungen" class="section feature-section parallax-section">
+<section id="leistungen" class="section feature-section parallax-section pd-section">
   <div class="feature-orbit orbit-a" data-parallax="0.13"></div>
   <div class="feature-orbit orbit-b" data-parallax="-0.08"></div>
   <div class="wrap">
-    <div class="glass-panel feature-panel pd-card" data-parallax="0.035">
-      <div class="feature-content"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code.<br><span>Und ich kümmere mich um den Rest.</span></h2>
-      <div class="pd-text pd-cols">
-        <p>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</p>
-        <p>Die Ideen, Anforderungen, Entscheidungen und Überprüfung liegen bei mir.</p>
-        <p>Die KI hilft bei der technischen Umsetzung.</p>
-        <p>Ein großer Teil meiner Arbeit besteht darin, die KI dazu zu bringen, genau das zu tun, was ich möchte.</p>
-        <p>Und sie anschließend davon abzuhalten, Dinge zu tun, die ich definitiv nicht wollte.</p>
-        <p class="pd-punch">KI ist für mich kein Ersatz fürs Lernen, sondern ein ziemlich spannendes Werkzeug dafür.</p>
-      </div></div>
-    </div>
+      <div class="pd-wrap">
+        <div class="pd-head"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code. <span>Und ich kümmere mich um den Rest.</span></h2></div>
+        <div class="pd-grid">
+          <div class="pd-block"><strong>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</strong></div>
+          <div class="pd-block"><strong>Die Ideen, Anforderungen, Entscheidungen und Überprüfung liegen bei mir.</strong><p>Die KI hilft bei der technischen Umsetzung.</p></div>
+          <div class="pd-block"><strong>Ein großer Teil meiner Arbeit besteht darin, die KI dazu zu bringen, genau das zu tun, was ich möchte.</strong><p>Und sie anschließend davon abzuhalten, Dinge zu tun, die ich definitiv nicht wollte.</p></div>
+          <div class="pd-block pd-gold"><strong>KI ist für mich kein Ersatz fürs Lernen, sondern ein ziemlich spannendes Werkzeug dafür.</strong></div>
+        </div>
+      </div>
   </div>
 </section>
 
 <section id="warum" class="section pd-section">
   <div class="wrap">
-    <div class="glass-panel pd-panel pd-split pd-card" data-parallax="0.025">
-      <div><p class="eyebrow">WARUM ICH MEINE APPS TEILE</p><h2>Gute Ideen müssen nicht in der eigenen <span>Schublade verstauben.</span></h2></div>
-      <div class="pd-text">
-        <p>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen.</p>
-        <p>Wenn sie mir helfen, könnten sie vielleicht auch anderen nützlich sein.</p>
-        <p>Deshalb möchte ich meine Projekte vorstellen und nach Möglichkeit zum Download anbieten.</p>
-        <p>Einige Apps sind bereits veröffentlicht, andere befinden sich noch in Entwicklung.</p>
-        <p class="pd-punch">An Ideen mangelt es jedenfalls nicht. Eher an Stunden pro Tag.</p>
+      <div class="pd-wrap">
+        <div class="pd-head"><p class="eyebrow">WARUM ICH MEINE APPS TEILE</p><h2>Gute Ideen müssen nicht in der eigenen <span>Schublade verstauben.</span></h2></div>
+        <div class="pd-grid">
+          <div class="pd-block"><strong>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen.</strong><p>Wenn sie mir helfen, könnten sie vielleicht auch anderen nützlich sein.</p></div>
+          <div class="pd-block"><strong>Deshalb möchte ich meine Projekte vorstellen und nach Möglichkeit zum Download anbieten.</strong><p>Einige Apps sind bereits veröffentlicht, andere befinden sich noch in Entwicklung.</p></div>
+          <div class="pd-block pd-gold"><strong>An Ideen mangelt es jedenfalls nicht.</strong><p>Eher an Stunden pro Tag.</p></div>
+        </div>
       </div>
-    </div>
   </div>
 </section>
 
@@ -168,7 +167,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
 <section id="anfrage" class="section inquiry-section">
   <div class="wrap">
     <div class="glass-panel inquiry pd-card">
-      <div class="inquiry-copy"><p class="eyebrow">KONTAKT</p><h2>Fragen, Ideen oder einen Bug gefunden?<br><span>Immer her damit!</span></h2><p>Ob Lob, Verbesserungsvorschlag oder eine Fehlermeldung, bei der ich mich frage, wie das überhaupt passieren konnte – ich freue mich über Rückmeldungen.</p></div>
+      <div class="inquiry-copy"><p class="eyebrow">KONTAKT</p><h2>Fragen, Ideen oder einen Bug gefunden?<br><span>Immer her damit!</span></h2><div class="pd-block"><strong>Ob Lob, Verbesserungsvorschlag oder eine Fehlermeldung,</strong><p>bei der ich mich frage, wie das überhaupt passieren konnte – ich freue mich über Rückmeldungen.</p></div></div>
       <?php if(isset($_GET["sent"])): ?><p class="form-success" role="status">Vielen Dank! Deine Nachricht wurde gespeichert.</p><?php endif; ?>
       <form method="post" action="send.php" class="form glass-inner"><input type="hidden" name="csrf" value="<?=e(csrf())?>">
         <div class="form-row"><label>Name *<input name="name" required maxlength="100" placeholder="Dein Name"></label><label>E-Mail *<input type="email" name="email" required maxlength="180" placeholder="deine@email.de"></label></div>
