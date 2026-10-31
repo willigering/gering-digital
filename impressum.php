@@ -44,7 +44,7 @@ require_once __DIR__ . '/lib.php';
           <div class="legal-label">KONTAKT</div>
           <h2>Direkter Kontakt</h2>
           <p>Für Fragen, Projekte und geschäftliche Anfragen erreichst du mich direkt per E-Mail.</p>
-          <p class="legal-contact"><a href="mailto:willi.gering@mail.de">willi.gering@mail.de</a></p>
+          <p class="legal-contact"><a href="mailto:info@geringdigital.de">info@geringdigital.de</a></p>
         </section>
       </div>
     </div>

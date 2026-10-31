@@ -39,7 +39,7 @@ require_once __DIR__ . '/lib.php';
         <h2>Gering Digital</h2>
         <p class="legal-name">Willi Gering</p>
         <p>Hölderlinstr. 3<br>32791 Lage<br>Deutschland</p>
-        <p class="legal-contact"><a href="mailto:willi.gering@mail.de">willi.gering@mail.de</a></p>
+        <p class="legal-contact"><a href="mailto:info@geringdigital.de">info@geringdigital.de</a></p>
       </section>
 
       <div class="legal-grid">
@@ -88,7 +88,7 @@ require_once __DIR__ . '/lib.php';
           <div class="legal-label">8 · DEINE RECHTE</div>
           <h2>Auskunft, Berichtigung, Löschung und Widerspruch</h2>
           <p>Du hast im Rahmen der gesetzlichen Voraussetzungen insbesondere das Recht auf Auskunft über deine personenbezogenen Daten, Berichtigung unrichtiger Daten, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen bestimmte Verarbeitungen. Erteilte Einwilligungen kannst du mit Wirkung für die Zukunft widerrufen.</p>
-          <p style="margin-top:12px">Zur Ausübung deiner Rechte genügt eine Nachricht an <a href="mailto:willi.gering@mail.de">willi.gering@mail.de</a>.</p>
+          <p style="margin-top:12px">Zur Ausübung deiner Rechte genügt eine Nachricht an <a href="mailto:info@geringdigital.de">info@geringdigital.de</a>.</p>
         </section>
 
         <section class="legal-block legal-block-wide">
