@@ -105,24 +105,10 @@
   addEventListener('keydown',e=>{if(e.key==='Escape'&&menuBtn.getAttribute('aria-expanded')==='true'){closeMenu();menuBtn.focus()}});
   document.addEventListener('click',e=>{if(!e.target.closest('.nav'))closeMenu()});
   matchMedia('(max-width:800px)').addEventListener('change',closeMenu);
-  // Native <details> menus: click/keyboard friendly, one open at a time.
-  const projectMenus=[...document.querySelectorAll('.project-dropdown,.mobile-project-dropdown')];
-  const closeProjectMenus=except=>projectMenus.forEach(item=>{if(item!==except)item.open=false});
-  projectMenus.forEach(item=>{
-    item.addEventListener('toggle',()=>{if(item.open)closeProjectMenus(item)});
-    item.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{item.open=false}));
-  });
-  document.addEventListener('click',e=>{if(!e.target.closest('.project-dropdown,.mobile-project-dropdown'))closeProjectMenus()});
-  addEventListener('keydown',e=>{
-    if(e.key!=='Escape')return;
-    const expanded=projectMenus.find(item=>item.open);
-    if(expanded){closeProjectMenus();expanded.querySelector('summary')?.focus()}
-  });
   // Catalogue filters work without page reloads and never hide existing project data.
   const filters=document.querySelector('.catalog-filters');
   if(filters){
     const buttons=[...filters.querySelectorAll('.catalog-filter')];
-    const headerLinks=[...document.querySelectorAll('[data-category-nav]')];
     const cards=[...document.querySelectorAll('#apps .app-card')];
     const empty=document.getElementById('catalog-empty');
     const applyCategory=category=>{
@@ -138,21 +124,16 @@
         button.setAttribute('aria-pressed',String(active));
       });
       if(empty)empty.hidden=visible>0;
-      headerLinks.forEach(link=>{
-        const active=link.dataset.categoryNav===category;
-        link.classList.toggle('is-active',active);
-        if(active)link.setAttribute('aria-current','true');
-        else link.removeAttribute('aria-current');
-      });
     };
     buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
-    headerLinks.forEach(link=>link.addEventListener('click',()=>applyCategory(link.dataset.categoryNav)));
     applyCategory('alle');
   }
   document.querySelectorAll('.app-card').forEach((card,index)=>{
     const text=card.querySelector('.card-body>p'),button=card.querySelector('.app-details');
-    text.id=`app-description-${index}`;button.setAttribute('aria-controls',text.id);
-    button.addEventListener('click',()=>{const closed=card.classList.toggle('details-closed');button.setAttribute('aria-expanded',String(!closed));button.innerHTML=closed?'Details anzeigen <span>+</span>':'Details ausblenden <span>−</span>'});
+    if(button && text){
+      text.id=`app-description-${index}`;button.setAttribute('aria-controls',text.id);
+      button.addEventListener('click',()=>{const closed=card.classList.toggle('details-closed');button.setAttribute('aria-expanded',String(!closed));button.innerHTML=closed?'Details anzeigen <span>+</span>':'Details ausblenden <span>−</span>'});
+    }
     card.addEventListener('pointermove',e=>{if(!fine.matches||reduced.matches)return;const r=card.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;card.style.setProperty('--rx',`${(py-.5)*-5}deg`);card.style.setProperty('--ry',`${(px-.5)*6}deg`);card.style.setProperty('--lx',`${px*100}%`);card.style.setProperty('--ly',`${py*100}%`);card.style.setProperty('--lift','-5px')},{passive:true});
     const reset=()=>{card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');card.style.setProperty('--lift','0px');card.classList.remove('is-pressed')};
     card.addEventListener('pointerleave',reset);card.addEventListener('pointerdown',()=>card.classList.add('is-pressed'));card.addEventListener('pointerup',()=>card.classList.remove('is-pressed'));card.addEventListener('pointercancel',reset);reduced.addEventListener('change',reset);fine.addEventListener('change',reset);
