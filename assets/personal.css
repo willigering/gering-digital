@@ -11,7 +11,7 @@
 
 /* Abschnittskopf */
 .pd-section{padding:64px 0}
-.pd-wrap{max-width:920px;margin:0 auto}
+.pd-wrap{max-width:none;margin:0}
 .pd-head{margin-bottom:26px;max-width:720px}
 .pd-head .eyebrow,.inquiry.pd-card .eyebrow{display:inline-block;padding:6px 12px;border:1px solid rgba(218,168,64,.35);border-radius:999px;background:rgba(218,168,64,.07);margin-bottom:18px}
 .pd-head h2,.inquiry.pd-card h2{font-size:clamp(26px,2.6vw,34px);line-height:1.2;letter-spacing:-.6px;font-weight:700;color:#f5f8fc;margin:0;overflow-wrap:break-word}
