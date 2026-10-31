@@ -109,6 +109,7 @@
   const filters=document.querySelector('.catalog-filters');
   if(filters){
     const buttons=[...filters.querySelectorAll('.catalog-filter')];
+    const headerLinks=[...document.querySelectorAll('[data-category-nav]')];
     const cards=[...document.querySelectorAll('#apps .app-card')];
     const empty=document.getElementById('catalog-empty');
     const applyCategory=category=>{
@@ -124,8 +125,15 @@
         button.setAttribute('aria-pressed',String(active));
       });
       if(empty)empty.hidden=visible>0;
+      headerLinks.forEach(link=>{
+        const active=link.dataset.categoryNav===category;
+        link.classList.toggle('is-active',active);
+        if(active)link.setAttribute('aria-current','true');
+        else link.removeAttribute('aria-current');
+      });
     };
     buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
+    headerLinks.forEach(link=>link.addEventListener('click',()=>applyCategory(link.dataset.categoryNav)));
     applyCategory('alle');
   }
   document.querySelectorAll('.app-card').forEach((card,index)=>{
