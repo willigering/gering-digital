@@ -46,6 +46,15 @@ foreach ($apps as $app) {
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#top">Startseite</a><a href="#apps">Meine Projekte</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
   </div>
+  <nav class="project-category-nav" aria-label="Projektkategorien">
+    <div class="wrap project-category-links">
+      <span class="project-category-caption" aria-hidden="true">KATEGORIEN</span>
+      <a href="#apps" data-category-nav="alle" aria-current="true">Alle Projekte</a>
+      <?php foreach($categories as $key=>$label): ?>
+      <a href="#apps" data-category-nav="<?=e($key)?>"><?=e($label)?></a>
+      <?php endforeach; ?>
+    </div>
+  </nav>
 </header>
 <main id="top">
 <section class="hero parallax-section" id="home">
