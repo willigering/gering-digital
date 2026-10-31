@@ -48,6 +48,9 @@ function hp_import(array $upload,string $slug): string {
     $name=$upload['name']??'';
     $extension=strtolower(pathinfo($name,PATHINFO_EXTENSION));
     if (!in_array($extension,['html','htm','zip'],true)) throw new RuntimeException('Nur HTML oder ZIP-Dateien sind erlaubt.');
+    // Reject misleading file types even when the filename ends in .html or .zip.
+    $mime=(new finfo(FILEINFO_MIME_TYPE))->file($upload['tmp_name']);
+    if ($extension==='zip' && !in_array($mime,['application/zip','application/x-zip-compressed','application/octet-stream'],true)) throw new RuntimeException('Datei ist kein gültiges ZIP-Archiv.');
     $version=bin2hex(random_bytes(12));
     $base=hp_version_dir($slug,$version);
     if (!is_dir($base) && !mkdir($base,0750,true)) throw new RuntimeException('Speicherordner konnte nicht angelegt werden.');
@@ -137,7 +140,7 @@ function hp_serve(string $slug,string $version,string $file='',bool $preview=fal
     } elseif ($ext==='svg') {
         header("Content-Security-Policy: sandbox; object-src 'none'");
     }
-    if ($_SERVER['REQUEST_METHOD']??'GET'==='HEAD') exit;
+    if (($_SERVER['REQUEST_METHOD']??'GET')==='HEAD') exit;
     readfile($path);
     exit;
 }
