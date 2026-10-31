@@ -3,6 +3,12 @@ require __DIR__.'/lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll();
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store'];
+$categories=project_categories();
+$categoryCounts=array_fill_keys(array_keys($categories),0);
+foreach ($apps as $app) {
+    $category=$app['category']??'apps';
+    $categoryCounts[array_key_exists($category,$categories)?$category:'apps']++;
+}
 ?>
 <!doctype html>
 <html lang="de">
@@ -29,10 +35,10 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
       <picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
       <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
     </a>
-    <nav class="desktop-nav"><a href="#top">Startseite</a><a href="#apps">Meine Apps</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
-    <a class="btn small desktop-cta" href="#apps">Meine Apps <b>→</b></a>
+    <nav class="desktop-nav"><a href="#top">Startseite</a><a href="#apps">Meine Projekte</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
+    <a class="btn small desktop-cta" href="#apps">Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
-    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#top">Startseite</a><a href="#apps">Meine Apps</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
+    <nav class="mobile-menu" id="mobile-menu" aria-hidden="true"><a href="#top">Startseite</a><a href="#apps">Meine Projekte</a><a href="#ueber-mich">Über mich</a><a href="#leistungen">Wie ich entwickle</a><a href="#anfrage">Kontakt</a></nav>
   </div>
 </header>
 <main id="top">
@@ -47,7 +53,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
         <p class="lead">Hier stelle ich meine Apps, Programme und digitalen Experimente vor. Manche lösen echte Alltagsprobleme, andere sind einfach aus Neugier entstanden.</p>
         <p class="lead">Und falls jemand anderes damit auch etwas anfangen kann: umso besser!</p>
       </div>
-      <div class="actions"><a class="btn" href="#apps">Meine Apps entdecken <b>→</b></a></div>
+      <div class="actions"><a class="btn" href="#apps">Meine Projekte entdecken <b>→</b></a></div>
     </div>
 
     <div class="hero-stage">
@@ -94,7 +100,7 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
   <div class="wrap">
     <div class="glass-panel apps-panel pd-card" data-parallax="0.025">
       <div class="pd-apps-intro">
-        <div class="pd-head"><p class="eyebrow">MEINE APPS</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2></div>
+        <div class="pd-head"><p class="eyebrow">MEINE PROJEKTE</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2></div>
         <div class="pd-flow">
           <p>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</p>
           <p class="pd-quote">„Das müsste doch auch einfacher gehen.“</p>
@@ -103,11 +109,18 @@ $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügb
           <p class="pd-punch">Nicht alles ist perfekt. Aber alles hat einen Grund, warum es entstanden ist.</p>
         </div>
       </div>
+      <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
+        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle <span><?=count($apps)?></span></button>
+        <?php foreach($categories as $key=>$label): ?>
+        <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
+        <?php endforeach; ?>
+      </div>
+      <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards">
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
-        <article class="card glass-card app-card" >
+        <article class="card glass-card app-card" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <div class="icon-wrap"><img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>"></div>
-          <div class="card-body"><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
           <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
