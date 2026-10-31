@@ -12,6 +12,9 @@ function db(){
     $db->exec("CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')");
     // Managed static HTML projects: versions are files under data/, not executable webroot uploads.
     $db->exec("CREATE TABLE IF NOT EXISTS html_pages(id INTEGER PRIMARY KEY, slug TEXT NOT NULL UNIQUE, title TEXT NOT NULL, description TEXT NOT NULL DEFAULT '', category TEXT NOT NULL DEFAULT 'lernen', draft_version TEXT NOT NULL DEFAULT '', live_version TEXT NOT NULL DEFAULT '', published INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)");
+    // Optional project-card thumbnail; all existing HTML projects continue without one.
+    $htmlColumns = $db->query("PRAGMA table_info(html_pages)")->fetchAll(PDO::FETCH_ASSOC);
+    if (!in_array('preview_image', array_column($htmlColumns,'name'), true)) $db->exec("ALTER TABLE html_pages ADD COLUMN preview_image TEXT NOT NULL DEFAULT ''");
 
     // Extend existing app installations without replacing existing data.
     $cols = $db->query("PRAGMA table_info(apps)")->fetchAll(PDO::FETCH_ASSOC);
