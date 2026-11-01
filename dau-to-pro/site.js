@@ -68,7 +68,7 @@
   if(!input)return;
   let current='alle';
   const normalize=(value)=>String(value||'').toLocaleLowerCase('de-DE')
-    .normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/ß/g,'ss')
+    .normalize('NFD').replace(/\p{M}/gu,'').replace(/ß/g,'ss')
     .replace(/[^a-z0-9]+/g,' ').trim();
   const ignore=new Set(['ich','will','muss','mich','auf','eine','einen','die','der','das','dem','den','und','oder','zu','zur','zum','fur','meine','meiner','prüfung','prufung','lernen','vorbereiten','themen','thema','uber','mit','sowie','ist','im','in','von','bei','bitte','noch']);
   const aliasGroups=[
@@ -82,7 +82,7 @@
     ['wiso','ihk','prufungsvorbereitung']
   ].map(g=>g.map(normalize));
   function words(query){
-    return [...new Set(normalize(query).split(/\\s+/).filter(w=>w.length>1&&!ignore.has(w)))];
+    return [...new Set(normalize(query).split(' ').filter(w=>w.length>1&&!ignore.has(w)))];
   }
   function equivalent(term){
     const groups=aliasGroups.filter(g=>g.some(a=>a===term||a.split(' ').includes(term)));
