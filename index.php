@@ -2,11 +2,10 @@
 require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
-$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
+// DAU-TO-PRO-Lernmodule erscheinen nur auf /dau-to-pro/, hier steht stattdessen die eine DAU-TO-PRO-Karte unter „Sonstiges“.
+$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND IFNULL(category,'')<>'lernen' ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
-    // DAU-TO-PRO-Lernmodule nutzen dasselbe Vorschaubild wie in der Modulübersicht (inkl. mitgelieferter Motive).
-    $preview=($page['category']??'')==='lernen'?dtp_preview_resolve($page):
-        ['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
+    $preview=['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
     $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
        'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
        'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
@@ -14,12 +13,13 @@ foreach ($webPages as $page) {
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
+unset($categories['lernen']); // kein eigener Filter mehr: DAU TO PRO läuft unter „Sonstiges“
 $categoryCounts=array_fill_keys(array_keys($categories),0);
 foreach ($apps as $app) {
     $category=$app['category']??'apps';
     $categoryCounts[array_key_exists($category,$categories)?$category:'apps']++;
 }
-$categoryCounts['lernen']++; // DAU TO PRO hub is also a catalog entry
+$categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 ?>
 <!doctype html>
 <html lang="de">
@@ -139,7 +139,7 @@ $categoryCounts['lernen']++; // DAU TO PRO hub is also a catalog entry
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards">
-        <article class="card glass-card app-card dtp-portal-card" data-category="lernen">
+        <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
           <div class="dtp-portal-art"><img src="assets/dau-to-pro-logo.webp" loading="lazy" width="1150" height="864" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
