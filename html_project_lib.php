@@ -8,7 +8,7 @@ function hp_categories(): array {
 }
 function hp_valid_slug(string $slug): bool {
     return (bool)preg_match('/^[a-z0-9][a-z0-9-]{2,59}$/D', $slug)
-        && !in_array($slug, ['admin','assets','data','index','lib','project','html-project','html-projects','html-preview','impressum','datenschutz','send','api','contact','favicon','__preview'], true);
+        && !in_array($slug, ['admin','assets','data','index','lib','project','html-project','html-projects','html-preview','impressum','datenschutz','send','api','contact','favicon','__preview','dau-to-pro'], true);
 }
 function hp_storage(): string { return __DIR__.'/data/html-pages'; }
 function hp_version_dir(string $slug,string $version): string {

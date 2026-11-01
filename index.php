@@ -15,6 +15,7 @@ foreach ($apps as $app) {
     $category=$app['category']??'apps';
     $categoryCounts[array_key_exists($category,$categories)?$category:'apps']++;
 }
+$categoryCounts['lernen']++; // DAU TO PRO hub is also a catalog entry
 ?>
 <!doctype html>
 <html lang="de">
@@ -24,6 +25,7 @@ foreach ($apps as $app) {
 <meta name="description" content="Gering Digital ist die persönliche Plattform von Willi: selbst entwickelte Apps und Programme aus Alltagsproblemen, Neugier und Vibe Coding.">
 <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <link rel="stylesheet" href="assets/personal.css?v=<?=filemtime(__DIR__.'/assets/personal.css')?>">
+<link rel="stylesheet" href="assets/dtp-entry.css?v=<?=filemtime(__DIR__.'/assets/dtp-entry.css')?>">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
 <link rel="preload" as="image" type="image/webp" href="assets/gering-digital-logo-icon-312.webp" media="(max-width:800px)">
 
@@ -45,12 +47,14 @@ foreach ($apps as $app) {
       <a href="#top">Startseite</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
+      <a class="dtp-nav-link" href="dau-to-pro/">DAU TO PRO</a>
     </nav>
     <a class="btn small desktop-cta" href="#apps">Meine Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
       <a href="#apps">Meine Projekte</a>
+      <a href="dau-to-pro/">DAU TO PRO</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
     </nav>
@@ -124,13 +128,20 @@ foreach ($apps as $app) {
         </div>
       </div>
       <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
-        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle <span><?=count($apps)?></span></button>
+        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle <span><?=count($apps)+1?></span></button>
         <?php foreach($categories as $key=>$label): ?>
         <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
         <?php endforeach; ?>
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards">
+        <article class="card glass-card app-card dtp-portal-card" data-category="lernen">
+          <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
+          <div class="dtp-portal-art"><img src="assets/dau-to-pro-logo.webp" loading="lazy" width="1150" height="864" alt=""></div>
+          <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
+          <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
+          <span class="dtp-portal-cta">Lernplattform öffnen <b>↗</b></span></div>
+        </article>
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
