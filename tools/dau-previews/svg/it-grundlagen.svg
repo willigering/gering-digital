@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
   <defs>
     <radialGradient id="it-grundlagen-glow" cx="0.5" cy="0.4861111111111111" r=".55">
-      <stop offset="0" stop-color="#00dce8" stop-opacity=".16"/>
-      <stop offset=".55" stop-color="#00dce8" stop-opacity=".035"/>
-      <stop offset="1" stop-color="#00dce8" stop-opacity="0"/>
+      <stop offset="0" stop-color="#b9c4d0" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#b9c4d0" stop-opacity=".035"/>
+      <stop offset="1" stop-color="#b9c4d0" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="it-grundlagen-warm" cx=".78" cy=".8" r=".6">
       <stop offset="0" stop-color="#f39a2b" stop-opacity=".12"/>
@@ -37,7 +37,7 @@
   <rect width="1280" height="720" fill="url(#it-grundlagen-grid)"/>
   <rect width="1280" height="720" fill="url(#it-grundlagen-glow)"/>
   <rect width="1280" height="720" fill="url(#it-grundlagen-warm)"/>
-  <g><path d="M-20 213.4 H254.5 L314.2 273.1 H438.2" stroke="#00dce8" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="438.2" cy="273.1" r="4" fill="#00dce8" fill-opacity=".35"/><path d="M1300 559.4 H1144.6 L1104.6 519.5 H958.7" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="958.7" cy="519.5" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 616.8 H182.9 L214.2 648.1 H287.6" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="287.6" cy="648.1" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 94.9 H1118.6 L1054 159.4 H918.7" stroke="#00dce8" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="918.7" cy="159.4" r="4" fill="#00dce8" fill-opacity=".35"/><path d="M-20 311.8 H113.3 L177.5 247.5 H322" stroke="#00dce8" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="322" cy="247.5" r="4" fill="#00dce8" fill-opacity=".35"/><path d="M1300 292.5 H1091.5 L1023 224 H916.6" stroke="#00dce8" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="916.6" cy="224" r="4" fill="#00dce8" fill-opacity=".35"/><path d="M-20 331.1 H101.8 L164.3 268.5 H266.4" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="266.4" cy="268.5" r="4" fill="#eab448" fill-opacity=".35"/></g>
+  <g><path d="M-20 213.4 H254.5 L314.2 273.1 H438.2" stroke="#b9c4d0" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="438.2" cy="273.1" r="4" fill="#b9c4d0" fill-opacity=".35"/><path d="M1300 559.4 H1144.6 L1104.6 519.5 H958.7" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="958.7" cy="519.5" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 616.8 H182.9 L214.2 648.1 H287.6" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="287.6" cy="648.1" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 94.9 H1118.6 L1054 159.4 H918.7" stroke="#b9c4d0" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="918.7" cy="159.4" r="4" fill="#b9c4d0" fill-opacity=".35"/><path d="M-20 311.8 H113.3 L177.5 247.5 H322" stroke="#b9c4d0" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="322" cy="247.5" r="4" fill="#b9c4d0" fill-opacity=".35"/><path d="M1300 292.5 H1091.5 L1023 224 H916.6" stroke="#b9c4d0" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="916.6" cy="224" r="4" fill="#b9c4d0" fill-opacity=".35"/><path d="M-20 331.1 H101.8 L164.3 268.5 H266.4" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="266.4" cy="268.5" r="4" fill="#eab448" fill-opacity=".35"/></g>
   
     <g stroke-linecap="round" fill="none">
       <path d="M-140 780 L704 -140" stroke="#f39a2b" stroke-width="16" stroke-opacity=".08" filter="url(#it-grundlagen-soft)"/>
@@ -45,12 +45,12 @@
       <path d="M704 860 L1420 86.39999999999999" stroke="url(#it-grundlagen-ray)" stroke-width="1.6" stroke-opacity=".32"/>
     </g>
   
-  <text x="1010" y="610" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="250" font-weight="800" fill="#00dce8" fill-opacity=".07">&lt;/&gt;</text>
+  <text x="1010" y="610" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="250" font-weight="800" fill="#b9c4d0" fill-opacity=".07">&lt;/&gt;</text>
   <g filter="url(#it-grundlagen-glowf)"><rect x="330" y="150" width="620" height="400" rx="18" fill="#0b1214" stroke="url(#it-grundlagen-gold)" stroke-width="4"/></g>
   <path d="M330 202 H950" stroke="#eab448" stroke-opacity=".4" stroke-width="2"/>
-  <circle cx="362" cy="176" r="8" fill="#f39a2b"/><circle cx="388" cy="176" r="8" fill="#eab448"/><circle cx="414" cy="176" r="8" fill="#00dce8"/>
+  <circle cx="362" cy="176" r="8" fill="#f39a2b"/><circle cx="388" cy="176" r="8" fill="#eab448"/><circle cx="414" cy="176" r="8" fill="#b9c4d0"/>
   <text x="640" y="183" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="17" font-weight="700" letter-spacing="3" fill="#8fa3a8">dau-to-pro ~ bash</text>
-  <text x="370" y="254" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#00dce8">$</tspan> whoami</text><text x="370" y="301" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#8fa3a8">dau</text><text x="370" y="348" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#00dce8">$</tspan> lernen --verstehen --ueben</text><text x="370" y="395" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#eab448">[####################-----] 80 %</text><text x="370" y="442" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#00dce8">$</tspan> whoami</text><text x="370" y="489" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#ffd98a">pro</text>
-  <rect x="458" y="501" width="16" height="30" fill="#00dce8"/>
+  <text x="370" y="254" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#b9c4d0">$</tspan> whoami</text><text x="370" y="301" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#8fa3a8">dau</text><text x="370" y="348" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#b9c4d0">$</tspan> lernen --verstehen --ueben</text><text x="370" y="395" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#eab448">[####################-----] 80 %</text><text x="370" y="442" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#f5f0df"><tspan fill="#b9c4d0">$</tspan> whoami</text><text x="370" y="489" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="27" font-weight="700" fill="#ffd98a">pro</text>
+  <rect x="458" y="501" width="16" height="30" fill="#b9c4d0"/>
   <rect width="1280" height="720" fill="url(#it-grundlagen-vignette)" pointer-events="none"/>
 </svg>

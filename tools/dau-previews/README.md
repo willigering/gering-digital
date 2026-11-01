@@ -22,9 +22,10 @@ Der Webserver braucht dafür keine Bildgenerierung, keinen externen Dienst und k
    dunkler Hintergrund kommt aus `frame()`, Hauptakzent Orange/Gold, Cyan nur dezent, ein klares Motiv in der Mitte,
    Ecken oben links (Nummer) und unten rechts (Warnstreifen) frei lassen, keine Wasserzeichen, Schrift mindestens 20 px.
 2. `node tools/dau-previews/render.mjs <id>` ausführen und beide WebP-Dateien ansehen (auch in 640 px Breite).
-3. In `manifest.json` einen Eintrag ergänzen. Das URL-Kürzel des Moduls in `slugs` eintragen – damit wird das Bild
+3. In `motifs.mjs` und `manifest.json` dieselbe Modulfarbe als `accent` eintragen (eigene Farbe pro Modul, z. B. OSI violett `#c4a8ff`, Netzwerke Kupfer `#e0977a`, Subnetting Cyan `#5de7e4`, A1 Lime `#a6f05a`; Gold bleibt Hauptakzent). Die Karte auf `/dau-to-pro/` übernimmt die Farbe automatisch.
+4. In `manifest.json` einen Eintrag ergänzen. Das URL-Kürzel des Moduls in `slugs` eintragen – damit wird das Bild
    dem Modul automatisch zugeordnet, ohne Datenbankänderung. Die Reihenfolge der Einträge ist die Priorität.
-4. `php tests/dau_lib_test.php` ausführen (prüft Format, Größe, Eindeutigkeit und Zuordnung).
+5. `php tests/dau_lib_test.php` ausführen (prüft Format, Größe, Eindeutigkeit und Zuordnung).
 
 Im Admin (HTML-Projekte → Projekt bearbeiten) kann jedes Modul stattdessen ein Motiv fest zugeordnet bekommen
 oder ein eigenes Bild hochladen; Ausschnitt und „Einpassen/Ausfüllen“ werden in den vorhandenen Feldern

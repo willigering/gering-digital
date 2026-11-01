@@ -214,3 +214,16 @@ body{position:relative;isolation:isolate}
 body{display:flow-root}
 /* Keine orange-schwarzen Warnstreifen (Willi, 01.11.2026). */
 .hero:after,.hazard,.module-art-corner{display:none!important}
+
+/* Jedes Lernmodul in seiner eigenen Farbe (Farbe aus assets/dau-previews/manifest.json, Variable --mod). */
+.module-card{--mod:var(--cyan);border-color:color-mix(in srgb,var(--mod) 38%,transparent)}
+.module-card:after{background:linear-gradient(135deg,transparent 49%,var(--mod) 50%)}
+.module-card .module-art{border-bottom-color:var(--mod)}
+.module-card .module-art-number{border-color:color-mix(in srgb,var(--mod) 65%,transparent);color:var(--mod)}
+.module-card .module-category{color:var(--mod)}
+.module-card .module-category i{border-color:var(--mod)}
+.module-card .module-footer{border-top-color:color-mix(in srgb,var(--mod) 22%,transparent);color:color-mix(in srgb,var(--mod) 75%,#f5f0df)}
+.module-card .module-footer b{color:var(--mod)}
+.module-card:hover{border-color:var(--mod);box-shadow:0 15px 38px #0008,0 0 30px color-mix(in srgb,var(--mod) 18%,transparent)}
+.module-card.is-focus-target{border-color:var(--mod);box-shadow:0 0 0 1px color-mix(in srgb,var(--mod) 30%,transparent),0 12px 36px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--mod) 14%,transparent)}
+.module-card.is-search-result{border-color:var(--mod)}

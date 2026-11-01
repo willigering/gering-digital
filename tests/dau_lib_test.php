@@ -71,6 +71,10 @@ $card=dtp_module_card(['slug'=>'osi-sprint','title'=>'<img src=x onerror=alert(1
 check(!str_contains($card,'<img src=x') && str_contains($card,'&lt;img src=x'),'Kartentitel wird escaped');
 check(str_contains($card,'srcset="../assets/dau-previews/osi-modell-640.webp 640w') && str_contains($card,'loading="lazy"') && str_contains($card,'width="1280" height="720"'),'Karte lädt Bilder performant (lazy, srcset, feste Maße)');
 check(str_contains(dtp_module_card(['slug'=>'s','title'=>'t'],'../',false),'<div class="module-card"'),'Vorschaukarte ohne Link');
+$accents=array_column($catalog['motifs'],'accent');
+check(count(array_unique($accents))===count($accents) && !array_filter($accents,fn($c)=>!preg_match('/^#[0-9a-f]{6}$/',$c)),'Jedes Motiv hat eine eigene Modulfarbe');
+check(str_contains(dtp_module_card(['slug'=>'osi-sprint','title'=>'OSI'],'../'),'style="--mod:#c4a8ff"'),'OSI-Karte ist violett wie die OSI-Lernseite');
+check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','preview_image'=>'assets/uploads/fehlt.png'])['accent']==='#e0977a','Farbe folgt dem Thema auch ohne Motivbild');
 
 // --- Hero ---
 $hero=dtp_hero();

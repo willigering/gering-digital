@@ -4,7 +4,9 @@
 // Neue Lernmodule bekommen hier ein eigenes Motiv (siehe README.md in diesem Ordner).
 
 export const W = 1280, H = 720;
-const GOLD = '#eab448', GOLD_LITE = '#ffd98a', ORANGE = '#f39a2b', CYAN = '#00dce8', CREAM = '#f5f0df', MUTED = '#8fa3a8';
+const GOLD = '#eab448', GOLD_LITE = '#ffd98a', ORANGE = '#f39a2b', CREAM = '#f5f0df', MUTED = '#8fa3a8';
+// Modulfarbe: ersetzt das frühere Cyan, damit jedes Modul seine eigene Akzentfarbe trägt (Gold bleibt Hauptakzent).
+let CYAN = '#00dce8';
 const MONO = "'JetBrains Mono','DejaVu Sans Mono',monospace";
 const SANS = "Inter,'DejaVu Sans',sans-serif";
 
@@ -135,7 +137,7 @@ function ipv4(id) {
 function osi(id) {
   const names = ['Anwendung', 'Darstellung', 'Sitzung', 'Transport', 'Vermittlung', 'Sicherung', 'Bitübertragung'];
   // Obere (anwendungsnahe) Schichten in Cyan, untere (netznahe) in Gold/Orange.
-  const palette = ['#00dce8', '#33d4e2', '#6ccbd6', '#ffd27a', '#eab448', '#eda23a', '#f39a2b'];
+  const palette = [CYAN, CYAN, CYAN, '#ffd27a', '#eab448', '#eda23a', '#f39a2b'];
   const mix = (t) => palette[Math.round(t * 6)];
   const x = 395, w = 500, h = 54, gap = 13, depth = 16, y0 = 108;
   let slabs = '';
@@ -250,7 +252,7 @@ function security(id) {
     const y = cy - 70 + i * 70;
     streams += `<path d="M150 ${y} H${cx - 196}" stroke="${CYAN}" stroke-opacity=".45" stroke-width="2.5" stroke-dasharray="3 9" stroke-linecap="round"/>` +
       `<rect x="${170 + i * 26}" y="${y - 22}" width="128" height="44" rx="8" fill="#0d1a1d" stroke="${CYAN}" stroke-width="2"/>` +
-      `<text x="${234 + i * 26}" y="${y + 9}" text-anchor="middle" font-family="${MONO}" font-size="23" font-weight="700" fill="#bdf6f9">${t}</text>`;
+      `<text x="${234 + i * 26}" y="${y + 9}" text-anchor="middle" font-family="${MONO}" font-size="23" font-weight="700" fill="${CREAM}">${t}</text>`;
   });
   cipher.forEach((t, i) => {
     const y = cy - 70 + i * 70;
@@ -360,16 +362,17 @@ function basics(id) {
 }
 
 export const motifs = [
-  { id: 'ipv4-subnetting', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
-  { id: 'osi-modell', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
-  { id: 'netzwerke-routing', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
-  { id: 'zahlensysteme', label: 'Zahlensysteme · Bits & Bytes', draw: numbers, seed: 9, glowX: 640, glowY: 320 },
-  { id: 'it-sicherheit', label: 'IT-Sicherheit & Datenschutz', draw: security, seed: 13, glowX: 640, glowY: 360 },
-  { id: 'pruefung', label: 'Prüfungsvorbereitung', draw: exam, seed: 17, glowX: 520, glowY: 380 },
-  { id: 'hardware', label: 'Hardware & Architektur', draw: hardware, seed: 19, glowX: 640, glowY: 360 },
-  { id: 'it-grundlagen', label: 'IT-Grundlagen', draw: basics, seed: 29, glowX: 640, glowY: 350 }
+  { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
+  { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
+  { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
+  { id: 'zahlensysteme', accent: '#a6f05a', label: 'Zahlensysteme · Bits & Bytes', draw: numbers, seed: 9, glowX: 640, glowY: 320 },
+  { id: 'it-sicherheit', accent: '#ff7f8f', label: 'IT-Sicherheit & Datenschutz', draw: security, seed: 13, glowX: 640, glowY: 360 },
+  { id: 'pruefung', accent: '#7aa2ff', label: 'Prüfungsvorbereitung', draw: exam, seed: 17, glowX: 520, glowY: 380 },
+  { id: 'hardware', accent: '#6fe3c1', label: 'Hardware & Architektur', draw: hardware, seed: 19, glowX: 640, glowY: 360 },
+  { id: 'it-grundlagen', accent: '#b9c4d0', label: 'IT-Grundlagen', draw: basics, seed: 29, glowX: 640, glowY: 350 }
 ];
 
 export function svgFor(motif) {
+  CYAN = motif.accent || '#00dce8';
   return frame(motif.id, motif.draw, { seed: motif.seed, glowX: motif.glowX, glowY: motif.glowY });
 }

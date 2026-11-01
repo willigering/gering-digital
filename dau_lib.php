@@ -41,6 +41,8 @@ function dtp_preview_catalog(): array {
         $catalog['motifs'][$id]=[
             'id'=>$id,
             'label'=>(string)($motif['label']??$id),
+            // Modulfarbe (wie OSI violett, Netzwerke Kupfer, Subnetting Cyan, A1 Lime).
+            'accent'=>preg_match('/^#[0-9a-f]{6}$/iD',(string)($motif['accent']??''))?strtolower((string)$motif['accent']):'#00dce8',
             'slugs'=>array_values(array_filter(array_map('strval',(array)($motif['slugs']??[])))),
             'keywords'=>array_values(array_filter(array_map(static fn($k)=>dtp_lower((string)$k),(array)($motif['keywords']??[])))),
             'src'=>DTP_PREVIEW_DIR.'/'.$id.'.webp',
@@ -95,15 +97,18 @@ function dtp_preview_resolve(array $module): array {
         $bundled=dtp_preview_bundled_id($stored);
         if ($bundled!==null) {
             $motif=$catalog['motifs'][$bundled];
-            return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'bundled','motif'=>$bundled,'label'=>$motif['label']];
+            return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'bundled','motif'=>$bundled,'label'=>$motif['label'],'accent'=>$motif['accent']];
         }
-        if (is_file(__DIR__.'/'.$stored)) return ['src'=>$stored,'small'=>'','fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'custom','motif'=>'','label'=>'Eigenes Vorschaubild'];
     }
     $id=dtp_preview_match($module);
-    if ($id==='') return ['src'=>'','small'=>'','fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'none','motif'=>'','label'=>''];
+    // Eigenes Bild: Farbe kommt vom thematisch passenden Motiv.
+    $accent=$id!==''?$catalog['motifs'][$id]['accent']:'#00dce8';
+    if ($stored!=='' && dtp_preview_bundled_id($stored)===null && is_file(__DIR__.'/'.$stored))
+        return ['src'=>$stored,'small'=>'','fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'custom','motif'=>'','label'=>'Eigenes Vorschaubild','accent'=>$accent];
+    if ($id==='') return ['src'=>'','small'=>'','fit'=>$fit,'x'=>$x,'y'=>$y,'source'=>'none','motif'=>'','label'=>'','accent'=>$accent];
     $motif=$catalog['motifs'][$id];
     // Automatic motifs are designed for the card and always fill it centred.
-    return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>'cover','x'=>50,'y'=>50,'source'=>'auto','motif'=>$id,'label'=>$motif['label']];
+    return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>'cover','x'=>50,'y'=>50,'source'=>'auto','motif'=>$id,'label'=>$motif['label'],'accent'=>$motif['accent']];
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
@@ -114,7 +119,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
     $description=(string)($module['description']??'');
     $tag=$link?'a':'div';
     $attrs=$link?' href="'.e($base.rawurlencode((string)($module['slug']??'')).'/').'"':'';
-    $html='<'.$tag.' class="module-card"'.$attrs.' data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e($title).' – Lernmodul öffnen">';
+    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e($title).' – Lernmodul öffnen">';
     $html.='<div class="module-art'.($preview['src']!==''?' has-image':'').'">';
     if ($preview['src']!=='') {
         $srcset=$preview['small']!==''?' srcset="'.e($base.$preview['small']).' 640w, '.e($base.$preview['src']).' 1280w" sizes="(max-width: 610px) 92vw, (max-width: 1060px) 46vw, 380px"':'';
