@@ -1,4 +1,25 @@
 (() => {
+  // Build a lightweight, seamless stone texture from the logo's own unlettered edge.
+  // It keeps the entire page visually consistent without duplicating the logo artwork.
+  const artwork=document.querySelector('.hero-logo');
+  const makeStone=()=>{
+    if(!artwork?.naturalWidth)return;
+    try{
+      const tile=document.createElement('canvas');tile.width=tile.height=640;
+      const ctx=tile.getContext('2d');if(!ctx)return;
+      const sw=artwork.naturalWidth,sh=artwork.naturalHeight;
+      ctx.filter='brightness(.53) contrast(.90)';
+      for(let y=0;y<2;y++)for(let x=0;x<2;x++){
+        ctx.save();
+        ctx.translate(x*320+(x?320:0),y*320+(y?320:0));
+        ctx.scale(x?-1:1,y?-1:1);
+        ctx.drawImage(artwork,sw*.857,sh*.221,sw*.118,sh*.184,0,0,320,320);
+        ctx.restore();
+      }
+      document.documentElement.style.setProperty('--dtp-stone', 'url("'+tile.toDataURL('image/webp',.62)+'")');
+    }catch(error){/* Keep the no-JavaScript CSS texture fallback. */}
+  };
+  if(artwork?.complete)makeStone();else artwork?.addEventListener('load',makeStone,{once:true});
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
