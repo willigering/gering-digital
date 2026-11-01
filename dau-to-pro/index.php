@@ -71,7 +71,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     <div class="hazard hazard-left" aria-hidden="true"></div><div class="hazard hazard-right" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="kicker"><span class="live-dot"></span> GERING DIGITAL <b>//</b> DIE IT-LERNPLATTFORM</div>
-      <img class="hero-logo" src="../assets/dau-to-pro-logo.webp" width="1447" height="1087" fetchpriority="high" alt="DAU TO PRO – Von Null Plan zu echtem IT-Verständnis. Illustration: vom ratlosen Anfänger zum selbstbewussten IT-Profi.">
+      <img class="hero-logo" data-exact-src="../assets/dau-to-pro-logo-exakt.png" src="../assets/dau-to-pro-logo.webp" width="1447" height="1087" fetchpriority="high" alt="DAU TO PRO – Von Null Plan zu echtem IT-Verständnis. Illustration: vom ratlosen Anfänger zum selbstbewussten IT-Profi.">
       <div class="hero-strip"><span>VERSTEHEN</span><i aria-hidden="true"></i><span>ÜBEN</span><i aria-hidden="true"></i><span>ANWENDEN</span></div>
       <p class="hero-lead">Netzwerke, Subnetting, IT-Sicherheit und mehr. Hier werden aus komplizierten Themen verständliche Erklärungen, praktische Übungen und echte Aha-Momente.</p>
       <div class="hero-actions"><a class="primary-action" href="#lernmodule">Lernmodule entdecken <span aria-hidden="true">↓</span></a><a class="secondary-action" href="#konzept">So funktioniert's <span aria-hidden="true">↗</span></a></div>
