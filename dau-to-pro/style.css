@@ -154,3 +154,18 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
  .exam-input-row input{flex:1 1 100%;min-height:58px}
  .exam-input-row button{width:100%;margin:0;border:0;border-top:1px solid #bba16a66;min-height:49px}
 }
+
+/* Final hero: echtes freigestelltes PNG, nicht länger das Poster samt Bildrand. */
+.hero-art-wrap{position:relative;width:min(1150px,100%);max-width:100%;aspect-ratio:1448/952;overflow:hidden;margin:0 auto;pointer-events:none}
+.hero-art-wrap .hero-logo,.dtp-exact-logo .hero-art-wrap .hero-logo{
+ display:block!important;width:100%!important;max-width:none!important;height:auto!important;
+ margin:0!important;opacity:.94!important;mix-blend-mode:normal!important;
+ -webkit-mask-image:none!important;mask-image:none!important;
+ filter:grayscale(.08) saturate(.83) brightness(.93) contrast(1.04) drop-shadow(0 12px 23px rgba(0,0,0,.55))!important}
+.hero-tagline,.dtp-exact-logo .hero-tagline{margin:-5px auto 10px!important}
+@media(max-width:900px){.hero-art-wrap{width:min(980px,100%)}}
+@media(max-width:610px){
+ .hero-art-wrap{width:calc(100vw - 18px);max-width:none;margin:0 50%;transform:translateX(-50%)}
+ .hero-art-wrap .hero-logo{width:100%!important;margin:0!important;opacity:.96!important}
+ .hero-tagline{margin:0 auto 8px!important}
+}
