@@ -5,6 +5,7 @@ function admin2_counts(): array {
     return [
         'all'=>(int)$db->query('SELECT COUNT(*) FROM apps')->fetchColumn()+(int)$db->query('SELECT COUNT(*) FROM html_pages')->fetchColumn(),
         'dau'=>(int)$db->query("SELECT COUNT(*) FROM html_pages WHERE category='lernen'")->fetchColumn(),
+        'learners'=>(int)$db->query('SELECT COUNT(*) FROM learners')->fetchColumn(),
     ];
 }
 function admin2_open(string $active,string $crumb,string $pageTitle='Gering Digital · Admin 2.0',string $extraHead=''): void {
@@ -44,6 +45,7 @@ a.nav-link{font-weight:650}.small-action{border:1px solid #655236;padding:7px 10
 <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 7-5 5 5 5m8-10 5 5-5 5"/></symbol>
 <symbol id="i-external" viewBox="0 0 24 24"><path d="M13 4h7v7m0-7L9 15M20 14v6H4V4h6"/></symbol>
 <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM14 6l4 4"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.7 3.2-5.6 6.5-5.6s5.9 1.9 6.5 5.6M16 4.8a3.4 3.4 0 0 1 0 6.4M18.2 14.6c1.9.7 3 2.5 3.3 5.4"/></symbol>
 <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 8"/></symbol>
 </defs></svg>
 <div class="overlay" id="mobile-overlay"></div>
@@ -59,6 +61,7 @@ a.nav-link{font-weight:650}.small-action{border:1px solid #655236;padding:7px 10
  <a class="nav-link <?=$active==='dau'?'active':''?>" href="index.php?view=dau"><svg><use href="#i-book"/></svg> DAU TO PRO <span class="nav-count"><?=$counts['dau']?></span></a>
  <a class="nav-link <?=$active==='dau_page'?'active':''?>" href="dau_page.php"><svg><use href="#i-edit"/></svg> Oberseite bearbeiten</a>
  <a class="nav-link" href="html_projects.php"><svg><use href="#i-code"/></svg> HTML-Projekte</a>
+ <a class="nav-link <?=$active==='learners'?'active':''?>" href="learners.php"><svg><use href="#i-users"/></svg> Lernkonten <span class="nav-count"><?=$counts['learners']?></span></a>
  <div class="nav-label">VERWALTUNG</div>
  <a class="nav-link <?=$active==='publications'?'active':''?>" href="index.php?view=publications"><svg><use href="#i-rocket"/></svg> Veröffentlichungen</a>
  <a class="nav-link <?=$active==='settings'?'active':''?>" href="index.php?view=settings"><svg><use href="#i-settings"/></svg> Einstellungen</a>
