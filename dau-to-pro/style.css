@@ -87,15 +87,25 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
 @media(max-width:900px){.dtp-exact-logo .hero-logo{width:calc(100% + 26px)!important;margin:0 -13px -6px!important}}
 @media(max-width:610px){.dtp-exact-logo .hero-logo{width:calc(100% + 30px)!important;margin:-2px -15px 0!important}.dtp-exact-logo .hero{padding-top:15px!important}}
 
-/* Focus spotlight: four backdrop-filter regions surround an unfiltered hovered card.
-   This avoids the clipping/stacking contexts of the catalogue and its cards. */
+/* Focus spotlight: four backdrop-filter regions surround the unfiltered hovered card.
+   Einblenden ~2,8 s (sinusförmig: anfangs kaum sichtbar, gleichmäßiger Anstieg, sanftes Ende),
+   Ausblenden ~0,7 s. Laufende Übergänge kehren vom aktuellen Wert aus um, daher keine Sprünge. */
+@property --focus-y{syntax:"<length>";inherits:true;initial-value:0px}
+@property --focus-bottom{syntax:"<length>";inherits:true;initial-value:0px}
+@property --focus-height{syntax:"<length>";inherits:true;initial-value:0px}
+@property --focus-x{syntax:"<length>";inherits:true;initial-value:0px}
+@property --focus-right{syntax:"<length>";inherits:true;initial-value:0px}
 .dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0;visibility:hidden;
-  transition:opacity .57s cubic-bezier(.12,.82,.28,1),visibility 0s linear .57s;contain:layout style}
+  transition:opacity .7s cubic-bezier(.33,0,.25,1),visibility 0s linear .7s;contain:layout style}
 .dtp-focus-overlay.is-active{opacity:1;visibility:visible;
-  transition:opacity 2.55s cubic-bezier(.65,.02,.82,.34),visibility 0s}
-.dtp-focus-panel{position:fixed;pointer-events:none;background:rgba(3,7,10,.28);
-  -webkit-backdrop-filter:blur(5px) brightness(.70) saturate(.78);
-  backdrop-filter:blur(5px) brightness(.70) saturate(.78)}
+  transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s}
+/* Beim schnellen Wechsel zwischen Modulen gleitet die Aussparung zur neuen Karte. */
+.dtp-focus-overlay.is-moving{transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s,
+  --focus-y .38s cubic-bezier(.25,.1,.25,1),--focus-bottom .38s cubic-bezier(.25,.1,.25,1),--focus-height .38s cubic-bezier(.25,.1,.25,1),
+  --focus-x .38s cubic-bezier(.25,.1,.25,1),--focus-right .38s cubic-bezier(.25,.1,.25,1)}
+.dtp-focus-panel{position:fixed;pointer-events:none;background:rgba(3,7,10,.30);
+  -webkit-backdrop-filter:blur(5px) brightness(.70);
+  backdrop-filter:blur(5px) brightness(.70)}
 .dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
 .dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
 .dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
@@ -155,19 +165,24 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
  .exam-input-row button{width:100%;margin:0;border:0;border-top:1px solid #bba16a66;min-height:49px}
 }
 
-/* Final hero: echtes freigestelltes PNG, nicht länger das Poster samt Bildrand. */
-.hero-art-wrap{position:relative;width:min(1150px,100%);max-width:100%;aspect-ratio:1448/952;overflow:hidden;margin:0 auto;pointer-events:none}
+/* Hero: freigestellte Grafik vollständig, ohne Beschnitt, Maske oder Farbfilter.
+   Nur die transparenten Ränder (per PHP gemessen: --hero-trim-*) überlappen den Nachbarinhalt. */
+.hero-art-wrap{
+ --hero-max:1060px;
+ position:relative;display:flow-root;pointer-events:none;margin:0 auto;max-width:none;
+ width:min(var(--hero-max),100%,calc((100vh - 200px) / var(--hero-visible,.65)));
+ aspect-ratio:auto;overflow:visible}
+@supports (height:100svh){.hero-art-wrap{width:min(var(--hero-max),100%,calc((100svh - 200px) / var(--hero-visible,.65)))}}
 .hero-art-wrap .hero-logo,.dtp-exact-logo .hero-art-wrap .hero-logo{
  display:block!important;width:100%!important;max-width:none!important;height:auto!important;
- margin:0!important;opacity:.94!important;mix-blend-mode:normal!important;
- -webkit-mask-image:none!important;mask-image:none!important;
- filter:grayscale(.08) saturate(.83) brightness(.93) contrast(1.04) drop-shadow(0 12px 23px rgba(0,0,0,.55))!important}
-.hero-tagline,.dtp-exact-logo .hero-tagline{margin:-5px auto 10px!important}
-@media(max-width:900px){.hero-art-wrap{width:min(980px,100%)}}
+ margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%)!important;
+ opacity:1!important;mix-blend-mode:normal!important;filter:none!important;
+ -webkit-mask-image:none!important;mask-image:none!important;transform:none}
+.hero-tagline,.dtp-exact-logo .hero-tagline{margin:6px auto 12px!important}
+@media(max-width:900px){.hero-art-wrap{--hero-max:860px;width:min(var(--hero-max),100%)}}
 @media(max-width:610px){
- .hero-art-wrap{width:calc(100vw - 18px);max-width:none;margin:0 50%;transform:translateX(-50%)}
- .hero-art-wrap .hero-logo{width:100%!important;margin:0!important;opacity:.96!important}
- .hero-tagline{margin:0 auto 8px!important}
+ .hero-art-wrap{width:calc(100% + 24px);margin:0 -12px}
+ .hero-tagline,.dtp-exact-logo .hero-tagline{margin:4px auto 8px!important}
 }
 
 /* Das Orange ist Teil des Layouts – echte, über die ganze Seite berechnete SVG-Linien. */
@@ -181,5 +196,19 @@ body{position:relative;isolation:isolate}
 .dtp-world-texture{opacity:.88}
 .dtp-nav,main,.dtp-footer{position:relative;z-index:1}
 .hero,.catalog-section,.method-section,.end-cap,.dtp-footer{background:transparent!important}
-.dtp-disclaimer{background:rgba(8,12,14,.82)!important}
+.dtp-disclaimer{background:transparent!important}
 @media(max-width:610px){.dtp-eternal-rays{opacity:.38}}
+
+
+/* Modulkarten: einheitliches 16:9-Vorschaubild auf allen Bildschirmgrößen. */
+.module-art,.module-art.has-image{height:auto!important;aspect-ratio:16/9}
+.module-art.has-image:before{display:none}
+.module-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.module-art.has-image .module-art-corner{opacity:.8}
+.module-art.has-image .module-art-number{background:#0b0f12e6}
+/* Orange Linien etwas präsenter, damit sie über die gesamte Seitenhöhe lesbar bleiben. */
+.dtp-eternal-rays{opacity:.68}
+@media(max-width:610px){.dtp-eternal-rays{opacity:.46}}
+.hero-tagline span{white-space:nowrap}
+/* Body umschließt den Navigationsabstand, damit Linien und Textur wirklich bei 0 beginnen und bis zum Seitenende reichen. */
+body{display:flow-root}

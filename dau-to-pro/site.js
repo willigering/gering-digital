@@ -6,12 +6,15 @@
   const motionReduced=matchMedia('(prefers-reduced-motion:reduce)');
   const focusCards=[...document.querySelectorAll('.module-card')];
   if(pointerCanHover.matches && !motionReduced.matches && focusCards.length){
+    // Ruhiger Kino-Fokus: Umgebung dunkelt langsam ab (~2,8 s), löst sich schnell (~0,7 s).
+    // Zeiten stehen im CSS; hier nur Zustände, damit Übergänge nie neu bei 0 starten.
+    const EXIT_MS=700, LEAVE_GRACE_MS=90, ENTRY_DELAY_MS=120, MOVE_MS=380;
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML='<i class="dtp-focus-panel dtp-focus-top"></i><i class="dtp-focus-panel dtp-focus-bottom"></i><i class="dtp-focus-panel dtp-focus-left"></i><i class="dtp-focus-panel dtp-focus-right"></i>';
     document.body.append(overlay);
-    let current=null,entryTimer=0,exitTimer=0;
+    let current=null,entryTimer=0,leaveTimer=0,moveTimer=0,visibleUntil=0;
     const positionSpotlight=()=>{
       if(!current)return;
       const rect=current.getBoundingClientRect(),pad=9;
@@ -25,25 +28,46 @@
       overlay.style.setProperty('--focus-x',left+'px');
       overlay.style.setProperty('--focus-right',right+'px');
     };
+    // Overlay sichtbar (aktiv oder noch beim Ausblenden)?
+    const overlayVisible=()=>overlay.classList.contains('is-active')||performance.now()<visibleUntil;
     const focus=(card)=>{
-      clearTimeout(entryTimer);clearTimeout(exitTimer);
-      if(current && current!==card)current.classList.remove('is-focus-target');
-      current=card;positionSpotlight();card.classList.add('is-focus-target');
-      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},260);
+      clearTimeout(entryTimer);clearTimeout(leaveTimer);
+      if(current===card){
+        // Zurück auf dieselbe Karte: Abdunklung läuft vom aktuellen Wert aus weiter.
+        if(!overlay.classList.contains('is-active'))overlay.classList.add('is-active');
+        return;
+      }
+      // Auch während des Ausblendens gilt es als Wechsel: kein Sprung der Aussparung.
+      const switching=overlayVisible();
+      if(current)current.classList.remove('is-focus-target');
+      current=card;card.classList.add('is-focus-target');
+      if(switching){
+        // Schneller Wechsel: Aussparung gleitet zur neuen Karte, Abdunklung bleibt erhalten.
+        overlay.classList.add('is-moving');
+        clearTimeout(moveTimer);
+        moveTimer=setTimeout(()=>overlay.classList.remove('is-moving'),MOVE_MS+40);
+        positionSpotlight();
+        overlay.classList.add('is-active');
+        return;
+      }
+      positionSpotlight();
+      // Kurze Verzögerung, damit reines Überfahren auf dem Weg zu etwas anderem nichts auslöst.
+      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},ENTRY_DELAY_MS);
     };
     const unfocus=(card)=>{
       if(current!==card)return;
-      clearTimeout(entryTimer);clearTimeout(exitTimer);
-      exitTimer=setTimeout(()=>{
+      clearTimeout(entryTimer);clearTimeout(leaveTimer);
+      leaveTimer=setTimeout(()=>{
         if(current!==card)return;
+        if(overlay.classList.contains('is-active'))visibleUntil=performance.now()+EXIT_MS;
         overlay.classList.remove('is-active');
         card.classList.remove('is-focus-target');
         current=null;
-      },75);
+      },LEAVE_GRACE_MS);
     };
     focusCards.forEach(card=>{
       card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')focus(card)});
-      card.addEventListener('pointerleave',()=>unfocus(card));
+      card.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')unfocus(card)});
     });
     addEventListener('scroll',positionSpotlight,{passive:true});
     addEventListener('resize',positionSpotlight,{passive:true});
