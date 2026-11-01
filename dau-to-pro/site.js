@@ -1,4 +1,89 @@
 (() => {
+  // Modul-Fokus wie in der Designvorlage: linearer Aufbau (~4,1 s), schnelles, weiches Ausblenden.
+  // Nicht die Deckkraft eines fertig weichgezeichneten Layers animieren:
+  // Blur, Helligkeit, Sättigung und Abdunkelung werden in jedem Frame gemeinsam gesetzt.
+  (() => {
+    const canHover=matchMedia('(hover:hover) and (pointer:fine)');
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const cards=[...document.querySelectorAll('.module-card')];
+    if(!cards.length||!canHover.matches||reduced.matches)return;
+    const overlay=document.createElement('div');
+    overlay.className='dtp-focus-overlay';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML='<i class="dtp-focus-panel dtp-focus-top"></i><i class="dtp-focus-panel dtp-focus-bottom"></i><i class="dtp-focus-panel dtp-focus-left"></i><i class="dtp-focus-panel dtp-focus-right"></i>';
+    document.body.append(overlay);
+    const ENTER_MS=4100,EXIT_MS=920,INTENT_MS=150;
+    let current=null,progress=0,frame=0,entryTimer=0,exitTimer=0;
+    const paint=value=>{
+      progress=Math.max(0,Math.min(1,value));
+      overlay.style.setProperty('--focus-blur',(5.5*progress).toFixed(3)+'px');
+      overlay.style.setProperty('--focus-dim',(0.22*progress).toFixed(4));
+      overlay.style.setProperty('--focus-brightness',(1-0.24*progress).toFixed(4));
+      overlay.style.setProperty('--focus-saturation',(1-0.35*progress).toFixed(4));
+      overlay.classList.toggle('is-rendering',progress>0);
+    };
+    paint(0);
+    const layout=()=>{
+      if(!current)return;
+      if(current.hidden){hide(current);return;}
+      const b=current.getBoundingClientRect(),pad=9;
+      const y=Math.max(0,Math.round(b.top-pad));
+      const bottom=Math.min(innerHeight,Math.round(b.bottom+pad));
+      const x=Math.max(0,Math.round(b.left-pad));
+      const right=Math.min(innerWidth,Math.round(b.right+pad));
+      overlay.style.setProperty('--focus-y',y+'px');
+      overlay.style.setProperty('--focus-bottom',bottom+'px');
+      overlay.style.setProperty('--focus-height',Math.max(0,bottom-y)+'px');
+      overlay.style.setProperty('--focus-x',x+'px');
+      overlay.style.setProperty('--focus-right',right+'px');
+    };
+    const animateTo=target=>{
+      cancelAnimationFrame(frame);
+      const from=progress,distance=Math.abs(target-from);
+      if(distance<.00001){paint(target);return;}
+      const started=performance.now();
+      const duration=(target>from?ENTER_MS:EXIT_MS)*distance;
+      const tick=now=>{
+        const t=Math.min(1,(now-started)/duration);
+        // Eintritt: exakt linear. Austritt: schneller Beginn, sanftes Ende.
+        paint(from+(target-from)*(target>from?t:1-Math.pow(1-t,3)));
+        if(t<1)frame=requestAnimationFrame(tick);
+      };
+      frame=requestAnimationFrame(tick);
+    };
+    const show=card=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      if(current&&current!==card)current.classList.remove('is-focus-target');
+      current=card;
+      layout();
+      card.classList.add('is-focus-target');
+      // Schnelles Vorbeistreichen soll keinen abgebrochenen Fokus hinterlassen.
+      entryTimer=setTimeout(()=>{if(current===card)animateTo(1)},INTENT_MS);
+    };
+    function hide(card){
+      if(current!==card)return;
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      exitTimer=setTimeout(()=>{
+        if(current!==card)return;
+        current.classList.remove('is-focus-target');
+        current=null;
+        animateTo(0);
+      },60);
+    }
+    const reset=()=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      if(current)current.classList.remove('is-focus-target');
+      current=null;cancelAnimationFrame(frame);paint(0);
+    };
+    cards.forEach(card=>{
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(card)});
+      card.addEventListener('pointerleave',()=>hide(card));
+    });
+    addEventListener('scroll',layout,{passive:true});
+    addEventListener('resize',layout,{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
+    canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
+  })();
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});

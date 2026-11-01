@@ -257,3 +257,21 @@ html.fx-locked{overflow:hidden}
   .fx-bolt{transform:translate(-50%,-62%)}
   .fx-video,.fx-xp,.fx-video-stage{transition:none}
 }
+
+/* Modul-Fokus wie in der Designvorlage (DAU_TO_PRO_Pruefungsfinder_mehr_Farbe.html):
+   vier Flächen umschließen die Karte. Unschärfe, Abdunkelung, Helligkeit und Sättigung
+   werden in site.js pro Frame gemeinsam hochgezählt, statt die Deckkraft einer fertig
+   weichgezeichneten Ebene einzublenden. */
+.dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;visibility:hidden;contain:layout style}
+.dtp-focus-overlay.is-rendering{visibility:visible}
+.dtp-focus-panel{position:fixed;pointer-events:none;
+  background:rgba(4,7,9,var(--focus-dim,0));
+  -webkit-backdrop-filter:blur(var(--focus-blur,0px)) brightness(var(--focus-brightness,1)) saturate(var(--focus-saturation,1));
+  backdrop-filter:blur(var(--focus-blur,0px)) brightness(var(--focus-brightness,1)) saturate(var(--focus-saturation,1))}
+.dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
+.dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
+.dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
+.dtp-focus-right{right:0;top:var(--focus-y,0px);height:var(--focus-height,0px);left:var(--focus-right,0px)}
+.module-card.is-focus-target{transform:translateY(-2px);border-color:rgba(255,219,142,.82);
+  box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
