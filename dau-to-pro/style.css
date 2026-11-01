@@ -24,3 +24,53 @@
 .empty-state h2{font-size:22px;color:#fff3d7}
 .empty-state p{color:#c9c1b1;margin:0}
 @media(max-width:650px){.dtp-disclaimer{padding:12px 14px}.disclaimer-shell{padding:18px 16px}.disclaimer-label{font-size:10px;letter-spacing:.5px}}
+
+
+/* Seamless grunge world: the logo is artwork within one continuous page, not a rectangular banner. */
+html{overflow-x:clip;background:#080c0e}
+body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!important}
+.dtp-world-texture{
+  position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:var(--dtp-stone,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' fill='%230a0d0f'/%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E")),
+  radial-gradient(circle at 48% 11%,rgba(0,209,222,.07),transparent 30%),
+  radial-gradient(circle at 82% 45%,rgba(255,191,55,.052),transparent 25%),
+  radial-gradient(circle at 24% 81%,rgba(0,194,220,.055),transparent 20%);
+  background-repeat:repeat,no-repeat,no-repeat,no-repeat;
+  background-size:640px 640px,auto,auto,auto
+}
+.dtp-world-traces{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
+.dtp-world-traces svg{width:100%;height:100%;display:block}
+.dtp-nav,main,.dtp-footer{position:relative;z-index:1}
+.hero,.dtp-disclaimer,.catalog-section,.method-section,.end-cap,.dtp-footer{background:transparent!important}
+.hero{padding-top:12px!important;padding-bottom:50px!important;overflow:visible!important;isolation:auto!important}
+.hero:before,.hero:after,.method-section:before,.end-cap:before{display:none!important}
+.hazard{display:none!important}
+.hero-inner{max-width:1240px!important}
+.hero-logo{
+  display:block;width:min(1090px,100%)!important;height:auto;max-width:none;
+  margin:-8px auto -88px!important;mix-blend-mode:screen;
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 9%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0%,#000 5%,#000 87%,transparent 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 9%,#000 93%,transparent 100%),linear-gradient(180deg,transparent 0%,#000 5%,#000 87%,transparent 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect;
+  filter:drop-shadow(0 12px 26px rgba(0,0,0,.35))
+}
+.hero-strip{margin-top:0}
+.hero-lead{max-width:780px;margin-top:22px;color:#e0e2df;text-shadow:0 2px 10px #000c}
+.hero-meta{margin-top:20px}
+.catalog-section,.method-section,.end-cap,.dtp-disclaimer{border:none!important}
+.disclaimer-shell,.catalog-panel,.step{
+  background:linear-gradient(140deg,rgba(12,16,19,.86),rgba(12,16,17,.86))!important;
+  box-shadow:0 14px 45px #0007,inset 0 1px 0 #ffffff0b;
+  backdrop-filter:blur(4px)
+}
+.dtp-footer{border-top:1px solid rgba(234,180,72,.38)!important}
+@media(max-width:900px){
+  .hero-logo{width:calc(100% + 25px)!important;margin:0 -12px -52px!important}
+  .hero{padding-top:18px!important}
+}
+@media(max-width:610px){
+  .hero-logo{width:calc(100% + 34px)!important;margin:0 -17px -23px!important}
+  .hero{padding-top:25px!important;padding-bottom:46px!important}
+  .hero-lead{margin-top:17px}
+  .dtp-world-traces{opacity:.65}
+}
