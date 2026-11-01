@@ -407,3 +407,16 @@ function dtp_hero_style(array $hero): string {
     $visible=max(0.2,$ratio-$top-$bottom);
     return sprintf('--hero-ratio:%.5F;--hero-trim-top:%.5F;--hero-trim-bottom:%.5F;--hero-visible:%.5F',$ratio,$top,$bottom,$visible);
 }
+
+/**
+ * Data attributes for the hero effects (hero-fx.js). Only for the original hero artwork, because the
+ * effect layer is aligned to a detail of exactly that image. The video is optional: without the file
+ * the effect still works but no player is shown.
+ */
+function dtp_hero_fx_attrs(array $hero): string {
+    if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.png')) return '';
+    $video=__DIR__.'/assets/dau-to-pro-easteregg.mp4';
+    $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.png?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.png').'"';
+    $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
+    return $attrs;
+}
