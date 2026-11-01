@@ -87,32 +87,6 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
 @media(max-width:900px){.dtp-exact-logo .hero-logo{width:calc(100% + 26px)!important;margin:0 -13px -6px!important}}
 @media(max-width:610px){.dtp-exact-logo .hero-logo{width:calc(100% + 30px)!important;margin:-2px -15px 0!important}.dtp-exact-logo .hero{padding-top:15px!important}}
 
-/* Focus spotlight: four backdrop-filter regions surround the unfiltered hovered card.
-   Einblenden ~2,8 s (sinusförmig: anfangs kaum sichtbar, gleichmäßiger Anstieg, sanftes Ende),
-   Ausblenden ~0,7 s. Laufende Übergänge kehren vom aktuellen Wert aus um, daher keine Sprünge. */
-@property --focus-y{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-bottom{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-height{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-x{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-right{syntax:"<length>";inherits:true;initial-value:0px}
-.dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0;visibility:hidden;
-  transition:opacity .7s cubic-bezier(.33,0,.25,1),visibility 0s linear .7s;contain:layout style}
-.dtp-focus-overlay.is-active{opacity:1;visibility:visible;
-  transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s}
-/* Beim schnellen Wechsel zwischen Modulen gleitet die Aussparung zur neuen Karte. */
-.dtp-focus-overlay.is-moving{transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s,
-  --focus-y .38s cubic-bezier(.25,.1,.25,1),--focus-bottom .38s cubic-bezier(.25,.1,.25,1),--focus-height .38s cubic-bezier(.25,.1,.25,1),
-  --focus-x .38s cubic-bezier(.25,.1,.25,1),--focus-right .38s cubic-bezier(.25,.1,.25,1)}
-.dtp-focus-panel{position:fixed;pointer-events:none;background:rgba(3,7,10,.30);
-  -webkit-backdrop-filter:blur(5px) brightness(.70);
-  backdrop-filter:blur(5px) brightness(.70)}
-.dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
-.dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
-.dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
-.dtp-focus-right{right:0;top:var(--focus-y,0px);height:var(--focus-height,0px);left:var(--focus-right,0px)}
-.module-card.is-focus-target{border-color:rgba(255,219,142,.82);
-  box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
-@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
 
 
 /* PRÜFUNGSFINDER 2026 – echte veröffentlichte Module statt Demo-Einträge */
@@ -225,7 +199,6 @@ body{display:flow-root}
 .module-card .module-footer{border-top-color:color-mix(in srgb,var(--mod) 22%,transparent);color:color-mix(in srgb,var(--mod) 75%,#f5f0df)}
 .module-card .module-footer b{color:var(--mod)}
 .module-card:hover{border-color:var(--mod);box-shadow:0 15px 38px #0008,0 0 30px color-mix(in srgb,var(--mod) 18%,transparent)}
-.module-card.is-focus-target{border-color:var(--mod);box-shadow:0 0 0 1px color-mix(in srgb,var(--mod) 30%,transparent),0 12px 36px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--mod) 14%,transparent)}
 .module-card.is-search-result{border-color:var(--mod)}
 
 /* Hero-Effekte (hero-fx.js): Ebene exakt über einem Bildausschnitt der Hero-Grafik. */
