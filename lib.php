@@ -1,4 +1,13 @@
 <?php
+// Harden the shared session cookie (admin and DAU TO PRO learner accounts) before it is created.
+if (session_status()===PHP_SESSION_NONE && !headers_sent()) {
+    $gdHttps=(!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS'])!=='off') || (string)($_SERVER['SERVER_PORT']??'')==='443';
+    ini_set('session.use_strict_mode','1');
+    ini_set('session.use_only_cookies','1');
+    $gdCookie=session_get_cookie_params();
+    session_set_cookie_params(['lifetime'=>0,'path'=>$gdCookie['path']?:'/','domain'=>$gdCookie['domain'],'secure'=>$gdHttps,'httponly'=>true,'samesite'=>'Lax']);
+    unset($gdHttps,$gdCookie);
+}
 session_start();
 function db(){
     static $db=null;
@@ -31,6 +40,14 @@ function db(){
     if (!in_array('apple_url', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN apple_url TEXT NOT NULL DEFAULT ''");
     // Add categories without replacing or reassigning any existing production records.
     if (!in_array('category', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN category TEXT NOT NULL DEFAULT 'apps'");
+
+    // DAU TO PRO learner accounts (username + password, no e-mail). New tables only; nothing existing changes.
+    $db->exec("CREATE TABLE IF NOT EXISTS learners(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, recovery_hash TEXT NOT NULL DEFAULT '', session_version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, last_login_at TEXT, last_seen_at TEXT)");
+    $db->exec("CREATE TABLE IF NOT EXISTS learner_progress(learner_id INTEGER NOT NULL REFERENCES learners(id) ON DELETE CASCADE, storage_key TEXT NOT NULL, module_slug TEXT NOT NULL DEFAULT '', value TEXT NOT NULL DEFAULT '', deleted INTEGER NOT NULL DEFAULT 0, updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(learner_id,storage_key))");
+    $db->exec("CREATE TABLE IF NOT EXISTS learner_tokens(id INTEGER PRIMARY KEY, learner_id INTEGER NOT NULL REFERENCES learners(id) ON DELETE CASCADE, selector TEXT NOT NULL UNIQUE, validator_hash TEXT NOT NULL, expires_at INTEGER NOT NULL)");
+    $db->exec("CREATE TABLE IF NOT EXISTS learner_attempts(id INTEGER PRIMARY KEY, bucket TEXT NOT NULL, created_at INTEGER NOT NULL)");
+    $db->exec("CREATE INDEX IF NOT EXISTS learner_attempts_bucket ON learner_attempts(bucket,created_at)");
+    $db->exec("CREATE INDEX IF NOT EXISTS learner_progress_module ON learner_progress(learner_id,module_slug)");
 
     $db->exec("INSERT OR IGNORE INTO settings(key,value) VALUES('site_email','info@geringdigital.de')");
     $db->exec("CREATE TABLE IF NOT EXISTS inquiries(id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL, subject TEXT, message TEXT NOT NULL, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, is_read INTEGER NOT NULL DEFAULT 0)");

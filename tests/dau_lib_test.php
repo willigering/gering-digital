@@ -34,7 +34,8 @@ dtp_page_reset_texts();
 check(dtp_page_content()===$defaults,'Zurücksetzen stellt alle Standardtexte her');
 check(dtp_inline('<b>x</b> **fett** & "q"')==='&lt;b&gt;x&lt;/b&gt; <strong>fett</strong> &amp; &quot;q&quot;','Nur **fett** wird formatiert, HTML wird escaped');
 check(dtp_subtitle_parts('Verstehen · Üben | Anwenden, ')===['Verstehen','Üben','Anwenden'],'Untertitel wird in Begriffe zerlegt');
-check((int)db()->query("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")->fetchColumn()===5,'Keine zusätzlichen Tabellen angelegt');
+$tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
+check($tables===['apps','html_pages','inquiries','learner_attempts','learner_progress','learner_tokens','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten)');
 
 // --- Vorschaubilder ---
 $catalog=dtp_preview_catalog();

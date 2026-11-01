@@ -154,7 +154,11 @@ function hp_import(array $upload,string $slug): string {
         throw $error;
     }
 }
-function hp_serve(string $slug,string $version,string $file='',bool $preview=false): never {
+/**
+ * @param callable|null $htmlFilter Optional transformation for HTML files (used to add the
+ *        DAU TO PRO progress sync to live learning modules). Filtered pages are never cached publicly.
+ */
+function hp_serve(string $slug,string $version,string $file='',bool $preview=false,?callable $htmlFilter=null): never {
     if (!hp_valid_slug($slug) || !preg_match('/^[a-f0-9]{24}$/D',$version)) {http_response_code(404);exit('Nicht gefunden.');}
     $file=$file===''?'index.html':$file;
     if (!hp_file_allowed($file)) {http_response_code(404);exit('Nicht gefunden.');}
@@ -166,7 +170,8 @@ function hp_serve(string $slug,string $version,string $file='',bool $preview=fal
     header('X-Content-Type-Options: nosniff');
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('X-Frame-Options: SAMEORIGIN');
-    header('Cache-Control: '.($preview?'no-store, private':'public, max-age=300'));
+    $filtered=$htmlFilter!==null && !$preview && in_array($ext,['html','htm'],true);
+    header('Cache-Control: '.(($preview||$filtered)?'no-store, private':'public, max-age=300'));
     if ($preview) {
         // Preview content is isolated from admin origin: it cannot read cookies/localStorage.
         header("Content-Security-Policy: sandbox allow-scripts allow-forms allow-downloads; object-src 'none'");
@@ -174,6 +179,7 @@ function hp_serve(string $slug,string $version,string $file='',bool $preview=fal
         header("Content-Security-Policy: sandbox; object-src 'none'");
     }
     if (($_SERVER['REQUEST_METHOD']??'GET')==='HEAD') exit;
+    if ($filtered) {echo $htmlFilter((string)file_get_contents($path),$file);exit;}
     readfile($path);
     exit;
 }

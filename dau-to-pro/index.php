@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__.'/../dau_lib.php';
+require_once __DIR__.'/../learner_lib.php';
+$learnerName=learner_current()['username']??null;
 $query=db()->prepare("SELECT slug,title,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
@@ -24,59 +26,9 @@ $fx=dtp_hero_fx_attrs($hero);
 <?php endif; ?>
 </head>
 <body>
-<div class="dtp-world-texture" aria-hidden="true"></div>
-<div class="dtp-eternal-rays" aria-hidden="true">
-  <svg id="dtp-full-page-rays" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 4800" preserveAspectRatio="none" focusable="false">
-    <defs>
-      <linearGradient id="dtp-line-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
-        <stop offset="0" stop-color="#d88120" stop-opacity=".55"/>
-        <stop offset=".36" stop-color="#ffc15e" stop-opacity=".92"/>
-        <stop offset=".57" stop-color="#fff2c3" stop-opacity="1"/>
-        <stop offset=".75" stop-color="#ffc366" stop-opacity=".9"/>
-        <stop offset="1" stop-color="#ff9c29" stop-opacity=".35"/>
-      </linearGradient>
-    </defs>
-    <g id="dtp-ray-strokes"></g>
-  </svg>
-</div>
-<div class="dtp-world-traces" aria-hidden="true">
-<svg viewBox="0 0 1440 3600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
-<defs><linearGradient id="dtp-cyan" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00dce8" stop-opacity=".48"/><stop offset="1" stop-color="#00dce8" stop-opacity=".08"/></linearGradient><linearGradient id="dtp-gold" x1="0" x2="1"><stop stop-color="#ffc55a" stop-opacity=".25"/><stop offset="1" stop-color="#ffc55a" stop-opacity=".08"/></linearGradient></defs>
-<g fill="none" stroke-linejoin="round" stroke-linecap="square">
-<path d="M-80 500 H110 l60 -60 H310 l30 -30 H490" stroke="url(#dtp-cyan)" stroke-width="2"/>
-<path d="M1450 650 H1230 l-85 85 H1020 l-48 48 H810" stroke="url(#dtp-gold)" stroke-width="2"/>
-<path d="M-100 1150 H190 l60 60 H320 l60 -60 H455" stroke="url(#dtp-gold)" stroke-width="2"/>
-<path d="M1480 1485 H1190 l-85 -90 H1020 l-55 60 H820" stroke="url(#dtp-cyan)" stroke-width="2"/>
-<path d="M-100 2050 H110 l60 -60 H275 l55 45 H470" stroke="url(#dtp-cyan)" stroke-width="2"/>
-<path d="M1520 2370 H1240 l-65 60 H1015 l-70 -55 H810" stroke="url(#dtp-gold)" stroke-width="2"/>
-<path d="M-100 3000 H155 l60 -65 H350 l62 52 H575" stroke="url(#dtp-gold)" stroke-width="2"/>
-<path d="M1490 3420 H1260 l-75 75 H1110 l-55 -40 H910" stroke="url(#dtp-cyan)" stroke-width="2"/>
-<path d="M225 -60 l-240 370" stroke="url(#dtp-gold)" stroke-width="3"/>
-<path d="M1490 210 L1170 650" stroke="url(#dtp-cyan)" stroke-width="1" opacity=".4"/>
-<path d="M-50 2450 L210 2020" stroke="url(#dtp-cyan)" stroke-width="1" opacity=".4"/>
-</g><g fill="#00dce8" opacity=".65"><circle cx="310" cy="440" r="5"/><circle cx="1020" cy="735" r="4"/><circle cx="820" cy="1455" r="4"/><circle cx="170" cy="1990" r="4"/><circle cx="910" cy="3455" r="4"/></g>
-<g fill="#eab448" opacity=".6"><circle cx="455" cy="1150" r="4"/><circle cx="1175" cy="2430" r="5"/><circle cx="412" cy="2987" r="4"/></g>
-</svg></div>
+<?=dtp_backdrop()?>
 <a class="skip" href="#lernmodule">Direkt zu den Lernmodulen</a>
-<header class="dtp-nav" id="oben">
-  <div class="nav-inner">
-    <a class="gd-brand" href="../index.php" aria-label="Zur Gering-Digital-Startseite">
-      <img src="../assets/gering-digital-logo-icon.png" alt="" width="44" height="44">
-      <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
-    </a>
-    <nav class="desktop-links" aria-label="Hauptnavigation">
-      <a href="../index.php">Startseite</a>
-      <a class="selected" href="./" aria-current="page">DAU TO PRO</a>
-      <a href="#lernmodule">Lernmodule</a>
-      <a href="#konzept">So funktioniert's</a>
-    </nav>
-    <a class="nav-cta" href="../index.php#apps">Meine Projekte <span aria-hidden="true">↗</span></a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
-  </div>
-  <nav class="mobile-links" id="dtp-mobile-menu" aria-label="Mobile Navigation" hidden>
-    <a href="../index.php">Startseite</a><a href="./" aria-current="page">DAU TO PRO</a><a href="#lernmodule">Lernmodule</a><a href="#konzept">So funktioniert's</a><a href="../index.php#apps">Meine Projekte</a>
-  </nav>
-</header>
+<?=dtp_nav('start',$learnerName)?>
 <main>
   <section class="hero">
     <div class="hero-inner">
