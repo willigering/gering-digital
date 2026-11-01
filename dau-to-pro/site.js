@@ -138,3 +138,44 @@
   buttons.forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter)));
   showResults();
 })();
+
+
+/* Orange Linien als echte, nahtlose Webseitenebene (nicht im Hero-Bild). */
+(() => {
+  const svg=document.getElementById('dtp-full-page-rays');
+  const root=document.getElementById('dtp-ray-strokes');
+  if(!svg||!root) return;
+  const NS='http://www.w3.org/2000/svg';
+  let raf=0, previous='';
+  function render(){
+    raf=0;
+    const w=Math.max(document.documentElement.clientWidth,320);
+    const h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+    const signature=w+':'+h;
+    if(signature===previous) return;
+    previous=signature;
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    const fragment=document.createDocumentFragment();
+    const gap=Math.max(850,Math.min(1490,w*1.10));
+    // Gleiche Richtung wie die originale orange Ecke: links unten -> rechts oben.
+    // Mehrere identische komplette Linien reichen durch alle Seitenbereiche.
+    for(let i=0,y=460;y<h+w+300;y+=gap,i++){
+      const main=`M -130 ${y+130} L ${w+130} ${y-(w+130)}`;
+      const parallel=`M -130 ${y+185} L ${w+130} ${y+55-(w+130)}`;
+      for(const [cls,d] of [['beam-glow',main],['beam-halo',main],['beam-core',main],['beam-echo',parallel]]){
+        const path=document.createElementNS(NS,'path');
+        path.setAttribute('class',cls);
+        path.setAttribute('d',d);
+        if(i%2===1) path.style.opacity=cls==='beam-core'?'.48':cls==='beam-echo'?'.17':'.22';
+        fragment.appendChild(path);
+      }
+    }
+    root.replaceChildren(fragment);
+  }
+  const schedule=()=>{if(!raf)raf=requestAnimationFrame(render)};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  else schedule();
+  window.addEventListener('load',schedule,{once:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  if('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
+})();
