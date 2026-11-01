@@ -27,6 +27,25 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
 </head>
 <body>
+<div class="dtp-world-texture" aria-hidden="true"></div>
+<div class="dtp-world-traces" aria-hidden="true">
+<svg viewBox="0 0 1440 3600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+<defs><linearGradient id="dtp-cyan" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00dce8" stop-opacity=".48"/><stop offset="1" stop-color="#00dce8" stop-opacity=".08"/></linearGradient><linearGradient id="dtp-gold" x1="0" x2="1"><stop stop-color="#ffc55a" stop-opacity=".25"/><stop offset="1" stop-color="#ffc55a" stop-opacity=".08"/></linearGradient></defs>
+<g fill="none" stroke-linejoin="round" stroke-linecap="square">
+<path d="M-80 500 H110 l60 -60 H310 l30 -30 H490" stroke="url(#dtp-cyan)" stroke-width="2"/>
+<path d="M1450 650 H1230 l-85 85 H1020 l-48 48 H810" stroke="url(#dtp-gold)" stroke-width="2"/>
+<path d="M-100 1150 H190 l60 60 H320 l60 -60 H455" stroke="url(#dtp-gold)" stroke-width="2"/>
+<path d="M1480 1485 H1190 l-85 -90 H1020 l-55 60 H820" stroke="url(#dtp-cyan)" stroke-width="2"/>
+<path d="M-100 2050 H110 l60 -60 H275 l55 45 H470" stroke="url(#dtp-cyan)" stroke-width="2"/>
+<path d="M1520 2370 H1240 l-65 60 H1015 l-70 -55 H810" stroke="url(#dtp-gold)" stroke-width="2"/>
+<path d="M-100 3000 H155 l60 -65 H350 l62 52 H575" stroke="url(#dtp-gold)" stroke-width="2"/>
+<path d="M1490 3420 H1260 l-75 75 H1110 l-55 -40 H910" stroke="url(#dtp-cyan)" stroke-width="2"/>
+<path d="M225 -60 l-240 370" stroke="url(#dtp-gold)" stroke-width="3"/>
+<path d="M1490 210 L1170 650" stroke="url(#dtp-cyan)" stroke-width="1" opacity=".4"/>
+<path d="M-50 2450 L210 2020" stroke="url(#dtp-cyan)" stroke-width="1" opacity=".4"/>
+</g><g fill="#00dce8" opacity=".65"><circle cx="310" cy="440" r="5"/><circle cx="1020" cy="735" r="4"/><circle cx="820" cy="1455" r="4"/><circle cx="170" cy="1990" r="4"/><circle cx="910" cy="3455" r="4"/></g>
+<g fill="#eab448" opacity=".6"><circle cx="455" cy="1150" r="4"/><circle cx="1175" cy="2430" r="5"/><circle cx="412" cy="2987" r="4"/></g>
+</svg></div>
 <a class="skip" href="#lernmodule">Direkt zu den Lernmodulen</a>
 <header class="dtp-nav" id="oben">
   <div class="nav-inner">
