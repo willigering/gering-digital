@@ -20,6 +20,70 @@
     }catch(error){/* Keep the no-JavaScript CSS texture fallback. */}
   };
   if(artwork?.complete)makeStone();else artwork?.addEventListener('load',makeStone,{once:true});
+
+  // Use the user's exact PNG when it has been uploaded; keep the existing hero as a safe fallback.
+  if(artwork?.dataset.exactSrc){
+    const exact=new Image();
+    exact.onload=()=>{
+      artwork.src=exact.src;
+      artwork.setAttribute('width','1448');
+      artwork.setAttribute('height','1086');
+      document.documentElement.classList.add('dtp-exact-logo');
+      makeStone();
+    };
+    exact.src=artwork.dataset.exactSrc;
+  }
+
+  // Calm cinematic focus on a hovered learning module.
+  // Slow to appear, noticeably faster (but smooth) to disappear.
+  const pointerCanHover=matchMedia('(hover:hover) and (pointer:fine)');
+  const motionReduced=matchMedia('(prefers-reduced-motion:reduce)');
+  const focusCards=[...document.querySelectorAll('.module-card')];
+  if(pointerCanHover.matches && !motionReduced.matches && focusCards.length){
+    const overlay=document.createElement('div');
+    overlay.className='dtp-focus-overlay';
+    overlay.setAttribute('aria-hidden','true');
+    overlay.innerHTML='<i class="dtp-focus-panel dtp-focus-top"></i><i class="dtp-focus-panel dtp-focus-bottom"></i><i class="dtp-focus-panel dtp-focus-left"></i><i class="dtp-focus-panel dtp-focus-right"></i>';
+    document.body.append(overlay);
+    let current=null,entryTimer=0,exitTimer=0;
+    const positionSpotlight=()=>{
+      if(!current)return;
+      const rect=current.getBoundingClientRect(),pad=9;
+      const top=Math.max(0,Math.round(rect.top-pad));
+      const bottom=Math.min(innerHeight,Math.round(rect.bottom+pad));
+      const left=Math.max(0,Math.round(rect.left-pad));
+      const right=Math.min(innerWidth,Math.round(rect.right+pad));
+      overlay.style.setProperty('--focus-y',top+'px');
+      overlay.style.setProperty('--focus-bottom',bottom+'px');
+      overlay.style.setProperty('--focus-height',Math.max(0,bottom-top)+'px');
+      overlay.style.setProperty('--focus-x',left+'px');
+      overlay.style.setProperty('--focus-right',right+'px');
+    };
+    const focus=(card)=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      if(current && current!==card)current.classList.remove('is-focus-target');
+      current=card;positionSpotlight();card.classList.add('is-focus-target');
+      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},260);
+    };
+    const unfocus=(card)=>{
+      if(current!==card)return;
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      exitTimer=setTimeout(()=>{
+        if(current!==card)return;
+        overlay.classList.remove('is-active');
+        card.classList.remove('is-focus-target');
+        current=null;
+      },75);
+    };
+    focusCards.forEach(card=>{
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')focus(card)});
+      card.addEventListener('pointerleave',()=>unfocus(card));
+    });
+    addEventListener('scroll',positionSpotlight,{passive:true});
+    addEventListener('resize',positionSpotlight,{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden && current)unfocus(current)});
+    pointerCanHover.addEventListener('change',()=>{if(current)unfocus(current)});
+  }
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
