@@ -63,7 +63,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
   </div>
   <nav class="mobile-links" id="dtp-mobile-menu" aria-label="Mobile Navigation" hidden>
-    <a href="#oben">Startseite</a><a href="./" aria-current="page">DAU TO PRO</a><a href="#lernmodule">Lernmodule</a><a href="#konzept">So funktioniert's</a><a href="../index.php#apps">Meine Projekte</a>
+    <a href="../index.php">Startseite</a><a href="./" aria-current="page">DAU TO PRO</a><a href="#lernmodule">Lernmodule</a><a href="#konzept">So funktioniert's</a><a href="../index.php#apps">Meine Projekte</a>
   </nav>
 </header>
 <main>
@@ -71,7 +71,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     <div class="hazard hazard-left" aria-hidden="true"></div><div class="hazard hazard-right" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="kicker"><span class="live-dot"></span> GERING DIGITAL <b>//</b> DIE IT-LERNPLATTFORM</div>
-      <img class="hero-logo" data-exact-src="../assets/dau-to-pro-logo-exakt.png" src="../assets/dau-to-pro-logo.webp" width="1447" height="1087" fetchpriority="high" alt="DAU TO PRO – Von Null Plan zu echtem IT-Verständnis. Illustration: vom ratlosen Anfänger zum selbstbewussten IT-Profi.">
+      <div class="hero-art-wrap"><img class="hero-logo" src="../assets/dau-to-pro-hero-freigestellt.png" width="1448" height="1086" fetchpriority="high" alt="DAU TO PRO – vom ratlosen Anfänger zum IT-Profi, ohne Magisterhut"></div>
       <div class="hero-tagline">
         <h1>Von Null Plan zu echtem <span>IT-Verständnis</span></h1>
       </div>
