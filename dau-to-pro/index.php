@@ -76,7 +76,6 @@ $subtitle=dtp_subtitle_parts($c['subtitle']);
 </header>
 <main>
   <section class="hero">
-    <div class="hazard hazard-left" aria-hidden="true"></div><div class="hazard hazard-right" aria-hidden="true"></div>
     <div class="hero-inner">
       <div class="kicker"><span class="live-dot"></span> <?=e($c['kicker_left'])?><?php if($c['kicker_left']!==''&&$c['kicker_right']!==''): ?> <b>//</b> <?php endif; ?><?=e($c['kicker_right'])?></div>
       <div class="hero-art-wrap" style="<?=e(dtp_hero_style($hero))?>"><img class="hero-logo" src="../<?=e($hero['src'])?>" width="<?=(int)$hero['width']?>" height="<?=(int)$hero['height']?>" fetchpriority="high" decoding="async" alt="<?=e($c['hero_alt'])?>"></div>

@@ -123,7 +123,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
         $symbols=['subnet'=>'01/10','netzwerk'=>'⌘','sicherheit'=>'⌁','pruefung'=>'90:00','sonstiges'=>'</>'];
         $html.='<span class="module-art-symbol" aria-hidden="true">'.e($symbols[$topic[0]]??'</>').'</span>';
     }
-    $html.='<span class="module-art-corner" aria-hidden="true"></span><span class="module-art-number">'.e($topic[2]).'</span></div>';
+    $html.='<span class="module-art-number">'.e($topic[2]).'</span></div>';
     $html.='<div class="module-body"><span class="module-category"><i></i>'.e($topic[1]).'</span>';
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description!==''?$description:'Interaktives Lernprogramm mit Erklärungen und Übungen.').'</p>';
