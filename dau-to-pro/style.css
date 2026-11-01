@@ -74,3 +74,32 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
   .hero-lead{margin-top:17px}
   .dtp-world-traces{opacity:.65}
 }
+
+
+/* Exact uploaded DTP art, seamless border; avoid duplicating its own lower caption. */
+.dtp-exact-logo .hero-logo{width:min(1180px,100%)!important;margin:-14px auto -26px!important;object-fit:contain;mix-blend-mode:screen;
+  -webkit-mask-image:linear-gradient(to right,transparent 0%,#000 2.5%,#000 97.5%,transparent 100%),linear-gradient(to bottom,#000 0%,#000 97%,transparent 100%)!important;
+  mask-image:linear-gradient(to right,transparent 0%,#000 2.5%,#000 97.5%,transparent 100%),linear-gradient(to bottom,#000 0%,#000 97%,transparent 100%)!important;
+  -webkit-mask-composite:source-in!important;mask-composite:intersect!important}
+.dtp-exact-logo .hero-strip{display:none!important}
+.dtp-exact-logo .hero{padding-top:8px!important;padding-bottom:64px!important}
+.dtp-exact-logo .hero-lead{margin-top:17px!important}
+@media(max-width:900px){.dtp-exact-logo .hero-logo{width:calc(100% + 26px)!important;margin:0 -13px -6px!important}}
+@media(max-width:610px){.dtp-exact-logo .hero-logo{width:calc(100% + 30px)!important;margin:-2px -15px 0!important}.dtp-exact-logo .hero{padding-top:15px!important}}
+
+/* Focus spotlight: four backdrop-filter regions surround an unfiltered hovered card.
+   This avoids the clipping/stacking contexts of the catalogue and its cards. */
+.dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0;visibility:hidden;
+  transition:opacity .57s cubic-bezier(.12,.82,.28,1),visibility 0s linear .57s;contain:layout style}
+.dtp-focus-overlay.is-active{opacity:1;visibility:visible;
+  transition:opacity 2.55s cubic-bezier(.65,.02,.82,.34),visibility 0s}
+.dtp-focus-panel{position:fixed;pointer-events:none;background:rgba(3,7,10,.28);
+  -webkit-backdrop-filter:blur(5px) brightness(.70) saturate(.78);
+  backdrop-filter:blur(5px) brightness(.70) saturate(.78)}
+.dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
+.dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
+.dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
+.dtp-focus-right{right:0;top:var(--focus-y,0px);height:var(--focus-height,0px);left:var(--focus-right,0px)}
+.module-card.is-focus-target{border-color:rgba(255,219,142,.82);
+  box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
