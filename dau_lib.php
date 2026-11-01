@@ -451,8 +451,9 @@ function dtp_nav(string $page,?string $learner): string {
 
 /** Shared page background of the DAU TO PRO pages (texture, full-height orange rays drawn by site.js, circuit traces). */
 function dtp_backdrop(): string {
-    return <<<'HTML'
-<div class="dtp-world-texture" aria-hidden="true"></div>
+    // Hintergrund: eines von Willis Platinen-Motiven, pro Seitenaufruf zufällig (wie in den Lernmodulen).
+    $bg='../assets/dau-to-pro-bg-platine-'.random_int(1,2).'.webp';
+    return '<div class="dtp-world-texture" aria-hidden="true" style="--dtp-bg:url(&quot;'.htmlspecialchars($bg,ENT_QUOTES).'&quot;)"></div>'."\n".<<<'HTML'
 <div class="dtp-eternal-rays" aria-hidden="true">
   <svg id="dtp-full-page-rays" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 4800" preserveAspectRatio="none" focusable="false">
     <defs>

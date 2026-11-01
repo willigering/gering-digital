@@ -84,6 +84,51 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
     canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
   })();
+  // Parallax: Hintergrund-Ebenen (Textur, Leiterbahnen, Lichtstrahlen) laufen langsamer als der Inhalt,
+  // das Hero-Bild zieht beim Wegscrollen etwas schneller nach oben weg. Nur transform/translate, ein rAF pro Frame.
+  // Bei reduzierter Bewegung komplett aus.
+  (() => {
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const layers=[['.dtp-world-traces',.14],['.dtp-eternal-rays',.08]]
+      .map(([sel,speed])=>[document.querySelector(sel),speed]).filter(([el])=>el);
+    const hero=document.querySelector('.hero');
+    const art=document.querySelector('.hero-art-wrap');
+    const marks=[...document.querySelectorAll('.section-mark')];
+    const stage=document.querySelector('.dtp-world-texture'); // fest stehende Hintergrundbühne (128vh hoch)
+    if(!layers.length&&!art&&!stage)return;
+    // Eigene Clip-Ebene, damit verschobene Hintergründe die Seite nicht verlängern.
+    // Ohne z-index/isolation: mix-blend-mode der Ebenen wirkt weiter auf den Seitenhintergrund.
+    if(layers.length){
+      const clip=document.createElement('div');
+      clip.className='dtp-parallax-clip';
+      clip.setAttribute('aria-hidden','true');
+      layers[0][0].before(clip);
+      layers.forEach(([el])=>clip.append(el));
+    }
+    let frame=0,on=false;
+    const apply=()=>{
+      frame=0;
+      const y=on?scrollY:0;
+      if(stage){
+        const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+        stage.style.translate=on&&y?`0 ${(-(y/max)*.28*innerHeight).toFixed(1)}px`:'';
+      }
+      layers.forEach(([el,speed])=>{el.style.translate=y?`0 ${(y*speed).toFixed(1)}px`:''});
+      const h=hero?hero.offsetHeight:0,inHero=on&&y<h+200;
+      if(art)art.style.translate=inHero&&y?`0 ${(-y*.1).toFixed(1)}px`:''; // Bild zieht etwas schneller nach oben weg als der Text
+      marks.forEach(el=>{
+        if(!on){el.style.translate='';return;}
+        const r=el.getBoundingClientRect(),mid=r.top+r.height/2-innerHeight/2;
+        el.style.translate=`0 ${(-mid*.18).toFixed(1)}px`;
+      });
+    };
+    const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
+    const update=()=>{on=!reduced.matches;request()};
+    addEventListener('scroll',request,{passive:true});
+    addEventListener('resize',request,{passive:true});
+    reduced.addEventListener('change',update);
+    update();
+  })();
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});

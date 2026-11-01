@@ -17,7 +17,7 @@ jobs:
       - name: Test exam finder behavior
         run: node tests/dau_exam_finder.js
       - name: Test hover focus timing and module switching
-        run: node tests/dau_card_hover.js
+        run: node tests/dau_card_hover.js && node tests/dau_parallax.js
       - name: Validate slug and archive filenames
         run: php tests/html_project_paths.php
       - name: Test DAU page texts, preview images and hero handling

@@ -30,13 +30,19 @@
 html{overflow-x:clip;background:#080c0e}
 body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!important}
 .dtp-world-texture{
-  position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background-image:var(--dtp-stone,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' fill='%230a0d0f'/%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E")),
-  radial-gradient(circle at 48% 11%,rgba(0,209,222,.07),transparent 30%),
-  radial-gradient(circle at 82% 45%,rgba(255,191,55,.052),transparent 25%),
-  radial-gradient(circle at 24% 81%,rgba(0,194,220,.055),transparent 20%);
-  background-repeat:repeat,no-repeat,no-repeat,no-repeat;
-  background-size:640px 640px,auto,auto,auto
+  /* Willis Platinen-Motiv als feste Bühne hinter der Seite; site.js lässt sie beim Scrollen
+     langsam nach oben wandern (Parallax). Abdunkelung + Farbschimmer liegen darüber. */
+  position:fixed;top:0;left:0;width:100%;height:128vh;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(180deg,rgba(8,12,14,.42),rgba(8,12,14,.62) 55%,rgba(8,12,14,.78)),
+    radial-gradient(circle at 48% 11%,rgba(0,209,222,.07),transparent 30%),
+    radial-gradient(circle at 82% 45%,rgba(255,191,55,.052),transparent 25%),
+    radial-gradient(circle at 24% 81%,rgba(0,194,220,.055),transparent 20%),
+    var(--dtp-bg,none);
+  background-repeat:no-repeat;
+  background-size:100% 100%,auto,auto,auto,cover;
+  background-position:center,center,center,center,center top;
+  background-color:#080c0e
 }
 .dtp-world-traces{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
 .dtp-world-traces svg{width:100%;height:100%;display:block}
@@ -99,7 +105,7 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
   margin-bottom:-105px!important}
 .dtp-exact-logo .hero-strip{display:flex!important}
 .dtp-world-traces{opacity:.76}
-.dtp-world-texture{opacity:.8}
+
 .catalog-section{padding-top:67px}
 .exam-finder{position:relative;margin:4px 0 25px;padding:clamp(22px,3.2vw,38px);background:linear-gradient(140deg,rgba(24,30,30,.95),rgba(10,16,18,.98));border:1px solid #d6ad625e;box-shadow:0 15px 52px #0005;isolation:isolate}
 .exam-finder:before{content:"";position:absolute;left:0;top:0;width:170px;height:3px;background:linear-gradient(90deg,#edba61,#68bbc0,transparent)}
@@ -167,7 +173,7 @@ body{position:relative;isolation:isolate}
 .dtp-eternal-rays .beam-halo{fill:none;stroke:#ffbb51;stroke-width:7;stroke-linecap:round;opacity:.25;filter:blur(3px)}
 .dtp-eternal-rays .beam-core{fill:none;stroke:url(#dtp-line-gradient);stroke-width:2.5;stroke-linecap:round;opacity:.7}
 .dtp-eternal-rays .beam-echo{fill:none;stroke:#e7a143;stroke-width:1.1;stroke-linecap:round;opacity:.23}
-.dtp-world-texture{opacity:.88}
+
 .dtp-nav,main,.dtp-footer{position:relative;z-index:1}
 .hero,.catalog-section,.method-section,.end-cap,.dtp-footer{background:transparent!important}
 .dtp-disclaimer{background:transparent!important}
@@ -275,3 +281,8 @@ html.fx-locked{overflow:hidden}
 .module-card.is-focus-target{transform:translateY(-2px);border-color:rgba(255,219,142,.82);
   box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
 @media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
+
+/* Parallax-Ebene: hält die verschobenen Hintergründe innerhalb der Seitenhöhe. */
+.dtp-parallax-clip{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:translate}
+@media(prefers-reduced-motion:reduce){.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:auto;translate:none!important}}
