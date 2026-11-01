@@ -93,6 +93,9 @@ imagefilledrectangle($im,100,60,299,239,imagecolorallocatealpha($im,255,200,0,0)
 $t=dtp_hero_measure_trim($tmp,IMAGETYPE_PNG);
 check($t['left']>0.2 && $t['left']<=0.25 && $t['top']>0.15 && $t['top']<=0.2 && $t['bottom']>0.15 && $t['right']>0.2,'Transparente Ränder einer eigenen Grafik werden korrekt erkannt');
 check(!dtp_hero_is_upload('assets/dau-to-pro-hero-freigestellt.png') && !dtp_hero_is_upload('../lib.php'),'Original und fremde Pfade werden nie gelöscht');
+$fx=dtp_hero_fx_attrs(['custom'=>false]);
+check(str_contains($fx,'data-fx="../assets/dau-to-pro-pixelpilz.png?v=') && str_contains($fx,'data-fx-video="../assets/dau-to-pro-easteregg.mp4?v='),'Hero-Effekt: Bild und Video werden übergeben');
+check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original-Hero-Grafik');
 @unlink($tmp);@unlink($db);
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"DAU-Bibliothek: $count Prüfungen bestanden\n";
 exit($failures?1:0);

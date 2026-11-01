@@ -9,6 +9,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
 $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
+$fx=dtp_hero_fx_attrs($hero);
 ?>
 <!doctype html>
 <html lang="de">
@@ -21,6 +22,8 @@ $subtitle=dtp_subtitle_parts($c['subtitle']);
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
+<?php if ($fx!==''): ?>  <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
+<?php endif; ?>
 </head>
 <body>
 <?=dtp_backdrop()?>
@@ -30,7 +33,7 @@ $subtitle=dtp_subtitle_parts($c['subtitle']);
   <section class="hero">
     <div class="hero-inner">
       <div class="kicker"><span class="live-dot"></span> <?=e($c['kicker_left'])?><?php if($c['kicker_left']!==''&&$c['kicker_right']!==''): ?> <b>//</b> <?php endif; ?><?=e($c['kicker_right'])?></div>
-      <div class="hero-art-wrap" style="<?=e(dtp_hero_style($hero))?>"><img class="hero-logo" src="../<?=e($hero['src'])?>" width="<?=(int)$hero['width']?>" height="<?=(int)$hero['height']?>" fetchpriority="high" decoding="async" alt="<?=e($c['hero_alt'])?>"></div>
+      <div class="hero-art-wrap" style="<?=e(dtp_hero_style($hero))?>"<?=$fx?>><img class="hero-logo" src="../<?=e($hero['src'])?>" width="<?=(int)$hero['width']?>" height="<?=(int)$hero['height']?>" fetchpriority="high" decoding="async" alt="<?=e($c['hero_alt'])?>"></div>
       <div class="hero-tagline">
         <h1><?=e($c['title'])?><?php if($c['title_highlight']!==''): ?> <span><?=e($c['title_highlight'])?></span><?php endif; ?></h1>
       </div>
