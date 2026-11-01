@@ -28,6 +28,20 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
 </head>
 <body>
 <div class="dtp-world-texture" aria-hidden="true"></div>
+<div class="dtp-eternal-rays" aria-hidden="true">
+  <svg id="dtp-full-page-rays" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 4800" preserveAspectRatio="none" focusable="false">
+    <defs>
+      <linearGradient id="dtp-line-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+        <stop offset="0" stop-color="#d88120" stop-opacity=".55"/>
+        <stop offset=".36" stop-color="#ffc15e" stop-opacity=".92"/>
+        <stop offset=".57" stop-color="#fff2c3" stop-opacity="1"/>
+        <stop offset=".75" stop-color="#ffc366" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#ff9c29" stop-opacity=".35"/>
+      </linearGradient>
+    </defs>
+    <g id="dtp-ray-strokes"></g>
+  </svg>
+</div>
 <div class="dtp-world-traces" aria-hidden="true">
 <svg viewBox="0 0 1440 3600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
 <defs><linearGradient id="dtp-cyan" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#00dce8" stop-opacity=".48"/><stop offset="1" stop-color="#00dce8" stop-opacity=".08"/></linearGradient><linearGradient id="dtp-gold" x1="0" x2="1"><stop stop-color="#ffc55a" stop-opacity=".25"/><stop offset="1" stop-color="#ffc55a" stop-opacity=".08"/></linearGradient></defs>
