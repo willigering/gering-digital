@@ -8,6 +8,7 @@ function element(id){
   return {id,events,value:'',hidden:false,dataset:{},textContent:'',
     setAttribute(){},getAttribute(){return 'false'},
     addEventListener(type,fn){events[type]=fn},
+    querySelectorAll(){return []},
     classList:{add(){},remove(){},toggle(){}},
     focus(){},scrollIntoView(){}};
 }
