@@ -1,18 +1,12 @@
 <?php
-require __DIR__.'/../lib.php';
+require_once __DIR__.'/../dau_lib.php';
 $query=db()->prepare("SELECT slug,title,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
-function dtp_lower(string $s): string {return function_exists('mb_strtolower')?mb_strtolower($s,'UTF-8'):strtolower($s);}
-function dtp_topic(array $p): array {
-    $t=dtp_lower(($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
-    if(preg_match('/subnet|ipv4|ipv6|cidr|wildcard|bits|binär|binaer|hexadezimal|ip-adress/',$t))return ['subnet','IP & Subnetting','01'];
-    if(preg_match('/osi|switch|router|wlan|netzwerk|topolog|routing|dhcp|dns|vlan/',$t))return ['netzwerk','Netzwerktechnik','02'];
-    if(preg_match('/sicher|datenschutz|dsgvo|krypt|verschlüssel|verschluessel|hash|authentif/',$t))return ['sicherheit','IT-Sicherheit','03'];
-    if(preg_match('/prüfung|pruefung|ihk|klausur|wiso|exam/',$t))return ['pruefung','Prüfungsvorbereitung','04'];
-    return ['sonstiges','IT-Grundlagen','05'];
-}
 foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($module);
+$c=dtp_page_content();
+$hero=dtp_hero();
+$subtitle=dtp_subtitle_parts($c['subtitle']);
 ?>
 <!doctype html>
 <html lang="de">
@@ -20,8 +14,8 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090c0e">
-  <meta name="description" content="DAU TO PRO – Von Null Plan zu echtem IT-Verständnis. Interaktive IT-Lernprogramme von Gering Digital.">
-  <title>DAU TO PRO – Von Null Plan zu echtem IT-Verständnis | Gering Digital</title>
+  <meta name="description" content="<?=e($c['meta_description'])?>">
+  <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
@@ -84,37 +78,37 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
   <section class="hero">
     <div class="hazard hazard-left" aria-hidden="true"></div><div class="hazard hazard-right" aria-hidden="true"></div>
     <div class="hero-inner">
-      <div class="kicker"><span class="live-dot"></span> GERING DIGITAL <b>//</b> DIE IT-LERNPLATTFORM</div>
-      <div class="hero-art-wrap"><img class="hero-logo" src="../assets/dau-to-pro-hero-freigestellt.png" width="1448" height="1086" fetchpriority="high" alt="DAU TO PRO – vom ratlosen Anfänger zum IT-Profi, ohne Magisterhut"></div>
+      <div class="kicker"><span class="live-dot"></span> <?=e($c['kicker_left'])?><?php if($c['kicker_left']!==''&&$c['kicker_right']!==''): ?> <b>//</b> <?php endif; ?><?=e($c['kicker_right'])?></div>
+      <div class="hero-art-wrap" style="<?=e(dtp_hero_style($hero))?>"><img class="hero-logo" src="../<?=e($hero['src'])?>" width="<?=(int)$hero['width']?>" height="<?=(int)$hero['height']?>" fetchpriority="high" decoding="async" alt="<?=e($c['hero_alt'])?>"></div>
       <div class="hero-tagline">
-        <h1>Von Null Plan zu echtem <span>IT-Verständnis</span></h1>
+        <h1><?=e($c['title'])?><?php if($c['title_highlight']!==''): ?> <span><?=e($c['title_highlight'])?></span><?php endif; ?></h1>
       </div>
-      <div class="hero-strip"><span>VERSTEHEN</span><i aria-hidden="true"></i><span>ÜBEN</span><i aria-hidden="true"></i><span>ANWENDEN</span></div>
-      <p class="hero-lead">Netzwerke, Subnetting, IT-Sicherheit und mehr. Hier werden aus komplizierten Themen verständliche Erklärungen, praktische Übungen und echte Aha-Momente.</p>
-      <div class="hero-actions"><a class="primary-action" href="#lernmodule">Lernmodule entdecken <span aria-hidden="true">↓</span></a><a class="secondary-action" href="#konzept">So funktioniert's <span aria-hidden="true">↗</span></a></div>
-      <div class="hero-meta"><span><b><?=count($modules)?></b> <?=count($modules)===1?'veröffentlichtes Lernmodul':'veröffentlichte Lernmodule'?></span><span>Direkt im Browser</span><span>Ohne Registrierung</span></div>
+      <?php if($subtitle): ?><div class="hero-strip"><?php foreach($subtitle as $i=>$part): ?><?php if($i>0): ?><i aria-hidden="true"></i><?php endif; ?><span><?=e(dtp_upper($part))?></span><?php endforeach; ?></div><?php endif; ?>
+      <p class="hero-lead"><?=dtp_inline($c['lead'])?></p>
+      <div class="hero-actions"><a class="primary-action" href="#lernmodule"><?=e($c['cta_primary'])?> <span aria-hidden="true">↓</span></a><a class="secondary-action" href="#konzept"><?=e($c['cta_secondary'])?> <span aria-hidden="true">↗</span></a></div>
+      <div class="hero-meta"><span><b><?=count($modules)?></b> <?=count($modules)===1?'veröffentlichtes Lernmodul':'veröffentlichte Lernmodule'?></span><?php foreach([$c['meta_1'],$c['meta_2']] as $meta): if($meta==='')continue; ?><span><?=e($meta)?></span><?php endforeach; ?></div>
     </div>
   </section>
 <section class="dtp-disclaimer" id="hinweis" aria-labelledby="dtp-disclaimer-title">
   <div class="disclaimer-shell">
-    <div class="disclaimer-label"><span class="disclaimer-icon" aria-hidden="true">!</span><span>WICHTIGER HINWEIS · UNABHÄNGIGE LERNHILFE</span></div>
-    <h2 id="dtp-disclaimer-title">Keine offiziellen Lern- oder Prüfungsinhalte</h2>
-    <p><strong>DAU TO PRO ist keine offizielle Lernplattform.</strong> Die Inhalte sind meine persönlichen Sammlungen, Notizen und Recherchen, die ich für mein eigenes Lernen zusammengestellt habe und mit anderen teilen möchte. Sie bilden keine offiziellen Lehrpläne, Unterrichtsmaterialien oder Prüfungsanforderungen vollständig oder verbindlich ab und ersetzen diese nicht.</p>
-    <p><strong>Die Nutzung erfolgt auf eigene Gefahr und Verantwortung.</strong> Trotz sorgfältiger Erstellung können Informationen fehlerhaft, unvollständig oder nicht mehr aktuell sein. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</p>
-    <p class="disclaimer-final">Ich nutze selbst weitere Lernquellen. <strong>Kontrolle ist besser als Vertrauen:</strong> Bitte überprüfe wichtige Aussagen anhand deiner Unterrichtsunterlagen, offizieller Vorgaben und verlässlicher Fachquellen.</p>
+    <div class="disclaimer-label"><span class="disclaimer-icon" aria-hidden="true">!</span><span><?=e($c['disclaimer_label'])?></span></div>
+    <h2 id="dtp-disclaimer-title"><?=e($c['disclaimer_title'])?></h2>
+    <p><?=dtp_inline($c['disclaimer_p1'])?></p>
+    <?php if($c['disclaimer_p2']!==''): ?><p><?=dtp_inline($c['disclaimer_p2'])?></p><?php endif; ?>
+    <?php if($c['disclaimer_p3']!==''): ?><p class="disclaimer-final"><?=dtp_inline($c['disclaimer_p3'])?></p><?php endif; ?>
   </div>
 </section>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
-      <div class="section-heading"><div><span class="eyebrow">01 / LERNEN</span><h1 id="modules-title">Deine <span>Trainingszone.</span></h1><p>Suche dir ein Thema aus und öffne den passenden Trainer. Alle veröffentlichten Lernprogramme werden hier automatisch angezeigt.</p></div><div class="section-mark" aria-hidden="true">&lt;/&gt;</div></div>
+      <div class="section-heading"><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h1 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h1><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><div class="section-mark" aria-hidden="true">&lt;/&gt;</div></div>
       <section class="exam-finder" aria-labelledby="exam-title">
-        <span class="exam-eyebrow">⌕ &nbsp; DEIN PRÜFUNGSFINDER</span>
-        <h2 id="exam-title">Du willst dich auf eine <em>Prüfung vorbereiten?</em></h2>
-        <p>Prima! Gib die Themen ein, die drankommen. Ich zeige dir die passenden Lernmodule – ganz ohne Fachchinesisch-Bingo.</p>
+        <span class="exam-eyebrow">⌕ &nbsp; <?=e($c['finder_eyebrow'])?></span>
+        <h2 id="exam-title"><?=e($c['finder_title'])?><?php if($c['finder_title_highlight']!==''): ?> <em><?=e($c['finder_title_highlight'])?></em><?php endif; ?></h2>
+        <?php if($c['finder_intro']!==''): ?><p><?=dtp_inline($c['finder_intro'])?></p><?php endif; ?>
         <form id="exam-form" role="search">
-          <label for="exam-topics">WELCHE THEMEN KOMMEN DRAN?</label>
-          <div class="exam-input-row"><input id="exam-topics" type="search" maxlength="260" placeholder="z. B. OSI, IPv4, Datenschutz" autocomplete="off">
-          <button type="submit">Module finden <span aria-hidden="true">→</span></button></div>
+          <label for="exam-topics"><?=e($c['finder_label'])?></label>
+          <div class="exam-input-row"><input id="exam-topics" type="search" maxlength="260" placeholder="<?=e($c['finder_placeholder'])?>" autocomplete="off">
+          <button type="submit"><?=e($c['finder_button'])?> <span aria-hidden="true">→</span></button></div>
         </form>
         <div class="exam-examples"><span>PROBIER MAL:</span>
           <button type="button" data-example="OSI, VLAN, Router">Netzwerke</button>
@@ -128,24 +122,11 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema filtern">
           <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button><button type="button" class="filter-btn" data-filter="subnet" aria-pressed="false">IP &amp; Subnetting</button><button type="button" class="filter-btn" data-filter="netzwerk" aria-pressed="false">Netzwerke</button><button type="button" class="filter-btn" data-filter="sicherheit" aria-pressed="false">IT-Sicherheit</button><button type="button" class="filter-btn" data-filter="pruefung" aria-pressed="false">Prüfung</button><button type="button" class="filter-btn" data-filter="sonstiges" aria-pressed="false">Grundlagen</button>        </div>
                   <?php if (!$modules): ?>
-<div class="empty-state"><h2>Deine Trainingszone wächst.</h2><p>Hier erscheinen alle Lernmodule, die über den Admin-Bereich in der Kategorie „DAU to Pro“ veröffentlicht werden.</p></div>
+<div class="empty-state"><h2><?=e($c['empty_title'])?></h2><?php if($c['empty_text']!==''): ?><p><?=dtp_inline($c['empty_text'])?></p><?php endif; ?></div>
 <?php else: ?>
 <div class="module-grid" id="module-grid">
-<?php foreach($modules as $module): $topic=$module['topic']; ?>
-<a class="module-card" href="../<?=rawurlencode($module['slug'])?>/" data-topic="<?=e($topic[0])?>" data-search="<?=e(dtp_lower($module['title'].' '.$module['description'].' '.$module['slug'].' '.$topic[1]))?>" aria-label="<?=e($module['title'])?> – Lernmodul öffnen">
-  <div class="module-art">
-  <?php if (!empty($module['preview_image'])): ?>
-    <img loading="lazy" src="../<?=e($module['preview_image'])?>" alt="" style="width:100%;height:100%;object-fit:<?=($module['preview_fit']??'cover')==='contain'?'contain':'cover'?>;object-position:<?=max(0,min(100,(int)($module['preview_x']??50)))?>% <?=max(0,min(100,(int)($module['preview_y']??0)))?>%;">
-  <?php else: ?>
-    <span class="module-art-symbol" aria-hidden="true"><?=e(['subnet'=>'01/10','netzwerk'=>'⌘','sicherheit'=>'⌁','pruefung'=>'90:00','sonstiges'=>'</>'][$topic[0]]??'</>')?></span>
-  <?php endif; ?>
-    <span class="module-art-corner" aria-hidden="true"></span><span class="module-art-number"><?=e($topic[2])?></span>
-  </div>
-  <div class="module-body"><span class="module-category"><i></i><?=e($topic[1])?></span>
-  <h2><?=e($module['title'])?></h2>
-  <p><?=e($module['description']!==''?$module['description']:'Interaktives Lernprogramm mit Erklärungen und Übungen.')?></p>
-  <div class="module-footer"><span>IM BROWSER STARTEN</span><b aria-hidden="true">↗</b></div></div>
-</a>
+<?php foreach($modules as $module): ?>
+<?=dtp_module_card($module,'../')?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Keine Module gefunden. Versuche einen anderen Suchbegriff oder Themenfilter.</p>
@@ -154,15 +135,15 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     </div>
   </section>
   <section class="method-section" id="konzept" aria-labelledby="method-title">
-    <div class="section-shell"><div class="section-heading"><div><span class="eyebrow">02 / DEIN WEG</span><h2 id="method-title">Vom Fragezeichen <span>zum Durchblick.</span></h2><p>Erst verstehen, dann ausprobieren, schließlich zeigen, was du kannst. Die Lerntrainer können diese drei Bereiche enthalten.</p></div></div>
+    <div class="section-shell"><div class="section-heading"><div><span class="eyebrow"><?=e($c['method_eyebrow'])?></span><h2 id="method-title"><?=e($c['method_title'])?><?php if($c['method_title_highlight']!==''): ?> <span><?=e($c['method_title_highlight'])?></span><?php endif; ?></h2><?php if($c['method_intro']!==''): ?><p><?=dtp_inline($c['method_intro'])?></p><?php endif; ?></div></div>
       <div class="steps">
-        <article class="step"><span class="step-no">01</span><div class="step-symbol">◎</div><h3>Nachschlagwerk</h3><p>Verständliche Erklärungen, nachvollziehbare Beispiele und Fachbegriffe, die tatsächlich Sinn ergeben.</p><span class="step-key">WISSEN AUFBAUEN</span></article>
-        <article class="step"><span class="step-no">02</span><div class="step-symbol">⌘</div><h3>Trainingsraum</h3><p>Aufgaben gezielt üben, Antworten kontrollieren und knifflige Themen so oft wiederholen, wie nötig.</p><span class="step-key">WISSEN FESTIGEN</span></article>
-        <article class="step"><span class="step-no">03</span><div class="step-symbol">◷</div><h3>Prüfungsmodus</h3><p>Unter Zeitdruck üben, Punkte sammeln und anhand einer Auswertung erkennen, wo noch Luft nach oben ist.</p><span class="step-key">WISSEN BEWEISEN</span></article>
+        <?php foreach([['01','◎',1],['02','⌘',2],['03','◷',3]] as [$no,$symbol,$n]): ?>
+        <article class="step"><span class="step-no"><?=$no?></span><div class="step-symbol"><?=$symbol?></div><h3><?=e($c['step'.$n.'_title'])?></h3><?php if($c['step'.$n.'_text']!==''): ?><p><?=dtp_inline($c['step'.$n.'_text'])?></p><?php endif; ?><?php if($c['step'.$n.'_key']!==''): ?><span class="step-key"><?=e($c['step'.$n.'_key'])?></span><?php endif; ?></article>
+<?php endforeach; ?>
       </div>
     </div>
   </section>
-  <section class="end-cap"><div class="section-shell"><div class="end-cap-content"><span class="eyebrow">BEREIT FÜR DEN NÄCHSTEN SCHRITT?</span><h2>Weniger Rätselraten.<br><em>Mehr Durchblick.</em></h2><p>Such dir ein Lernmodul aus. Der Weg zum IT-Verständnis beginnt nicht mit einer perfekten Antwort – sondern mit der nächsten Frage.</p><a class="primary-action" href="#lernmodule">Jetzt lernen <span aria-hidden="true">↑</span></a></div></div></section>
+  <section class="end-cap"><div class="section-shell"><div class="end-cap-content"><span class="eyebrow"><?=e($c['end_eyebrow'])?></span><h2><?=e($c['end_title'])?><?php if($c['end_title_highlight']!==''): ?><br><em><?=e($c['end_title_highlight'])?></em><?php endif; ?></h2><?php if($c['end_text']!==''): ?><p><?=dtp_inline($c['end_text'])?></p><?php endif; ?><a class="primary-action" href="#lernmodule"><?=e($c['end_cta'])?> <span aria-hidden="true">↑</span></a></div></div></section>
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><a href="../index.php" class="footer-brand"><strong>GERING <em>DIGITAL</em></strong><small>DAU TO PRO · Ein Projekt von Gering Digital</small></a><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
 </body></html>

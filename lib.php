@@ -4,7 +4,10 @@ function db(){
     static $db=null;
     if($db) return $db;
     $dir=__DIR__.'/data'; if(!is_dir($dir)) mkdir($dir,0750,true);
-    $db=new PDO('sqlite:'.$dir.'/site.sqlite');
+    // Automated tests and the local preview server may point at a database copy.
+    // Ignored under Apache/FPM, so production always uses data/site.sqlite.
+    $override=in_array(PHP_SAPI,['cli','cli-server'],true)?(string)getenv('GD_DB_PATH'):'';
+    $db=new PDO('sqlite:'.($override!==''?$override:$dir.'/site.sqlite'));
     $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
     $db->exec("PRAGMA foreign_keys=ON");
     $db->exec("CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL)");
