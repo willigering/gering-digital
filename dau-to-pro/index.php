@@ -72,6 +72,9 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     <div class="hero-inner">
       <div class="kicker"><span class="live-dot"></span> GERING DIGITAL <b>//</b> DIE IT-LERNPLATTFORM</div>
       <img class="hero-logo" data-exact-src="../assets/dau-to-pro-logo-exakt.png" src="../assets/dau-to-pro-logo.webp" width="1447" height="1087" fetchpriority="high" alt="DAU TO PRO – Von Null Plan zu echtem IT-Verständnis. Illustration: vom ratlosen Anfänger zum selbstbewussten IT-Profi.">
+      <div class="hero-tagline">
+        <h1>Von Null Plan zu echtem <span>IT-Verständnis</span></h1>
+      </div>
       <div class="hero-strip"><span>VERSTEHEN</span><i aria-hidden="true"></i><span>ÜBEN</span><i aria-hidden="true"></i><span>ANWENDEN</span></div>
       <p class="hero-lead">Netzwerke, Subnetting, IT-Sicherheit und mehr. Hier werden aus komplizierten Themen verständliche Erklärungen, praktische Übungen und echte Aha-Momente.</p>
       <div class="hero-actions"><a class="primary-action" href="#lernmodule">Lernmodule entdecken <span aria-hidden="true">↓</span></a><a class="secondary-action" href="#konzept">So funktioniert's <span aria-hidden="true">↗</span></a></div>
@@ -90,8 +93,24 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
       <div class="section-heading"><div><span class="eyebrow">01 / LERNEN</span><h1 id="modules-title">Deine <span>Trainingszone.</span></h1><p>Suche dir ein Thema aus und öffne den passenden Trainer. Alle veröffentlichten Lernprogramme werden hier automatisch angezeigt.</p></div><div class="section-mark" aria-hidden="true">&lt;/&gt;</div></div>
+      <section class="exam-finder" aria-labelledby="exam-title">
+        <span class="exam-eyebrow">⌕ &nbsp; DEIN PRÜFUNGSFINDER</span>
+        <h2 id="exam-title">Du willst dich auf eine <em>Prüfung vorbereiten?</em></h2>
+        <p>Prima! Gib die Themen ein, die drankommen. Ich zeige dir die passenden Lernmodule – ganz ohne Fachchinesisch-Bingo.</p>
+        <form id="exam-form" role="search">
+          <label for="exam-topics">WELCHE THEMEN KOMMEN DRAN?</label>
+          <div class="exam-input-row"><input id="exam-topics" type="search" maxlength="260" placeholder="z. B. OSI, IPv4, Datenschutz" autocomplete="off">
+          <button type="submit">Module finden <span aria-hidden="true">→</span></button></div>
+        </form>
+        <div class="exam-examples"><span>PROBIER MAL:</span>
+          <button type="button" data-example="OSI, VLAN, Router">Netzwerke</button>
+          <button type="button" data-example="IPv4, Subnetting, Binär">IPv4 &amp; Subnetting</button>
+          <button type="button" data-example="DSGVO, Hash, Verschlüsselung">IT-Sicherheit</button>
+        </div>
+        <div class="exam-feedback" aria-live="polite"><strong id="result-indicator"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?> verfügbar</strong><button id="exam-reset" type="button" hidden>Suche zurücksetzen ×</button></div>
+      </section>
       <div class="catalog-panel">
-        <div class="toolbar"><label class="searchbox"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.4"/><path d="m15.4 15.4 5 5"/></svg><span class="sr-only">Lernmodule durchsuchen</span><input id="module-search" type="search" placeholder="Modul oder Thema suchen …" autocomplete="off"></label><div class="result-indicator" id="result-indicator" role="status" aria-live="polite"><?=count($modules)?> Module</div></div>
+        
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema filtern">
           <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button><button type="button" class="filter-btn" data-filter="subnet" aria-pressed="false">IP &amp; Subnetting</button><button type="button" class="filter-btn" data-filter="netzwerk" aria-pressed="false">Netzwerke</button><button type="button" class="filter-btn" data-filter="sicherheit" aria-pressed="false">IT-Sicherheit</button><button type="button" class="filter-btn" data-filter="pruefung" aria-pressed="false">Prüfung</button><button type="button" class="filter-btn" data-filter="sonstiges" aria-pressed="false">Grundlagen</button>        </div>
                   <?php if (!$modules): ?>
@@ -99,7 +118,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
 <?php else: ?>
 <div class="module-grid" id="module-grid">
 <?php foreach($modules as $module): $topic=$module['topic']; ?>
-<a class="module-card" href="../<?=rawurlencode($module['slug'])?>/" data-topic="<?=e($topic[0])?>" data-search="<?=e(dtp_lower($module['title'].' '.$module['description'].' '.$topic[1]))?>" aria-label="<?=e($module['title'])?> – Lernmodul öffnen">
+<a class="module-card" href="../<?=rawurlencode($module['slug'])?>/" data-topic="<?=e($topic[0])?>" data-search="<?=e(dtp_lower($module['title'].' '.$module['description'].' '.$module['slug'].' '.$topic[1]))?>" aria-label="<?=e($module['title'])?> – Lernmodul öffnen">
   <div class="module-art">
   <?php if (!empty($module['preview_image'])): ?>
     <img loading="lazy" src="../<?=e($module['preview_image'])?>" alt="" style="width:100%;height:100%;object-fit:<?=($module['preview_fit']??'cover')==='contain'?'contain':'cover'?>;object-position:<?=max(0,min(100,(int)($module['preview_x']??50)))?>% <?=max(0,min(100,(int)($module['preview_y']??0)))?>%;">
