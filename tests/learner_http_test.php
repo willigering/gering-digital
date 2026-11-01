@@ -62,6 +62,8 @@ try {
     check(str_contains($start['body'],'<a class="nav-account" href="konto.php">Anmelden</a>'),'Oberseite zeigt „Anmelden“ in der Navigation');
     check((bool)preg_match('/Set-Cookie: PHPSESSID=[^\r\n]*HttpOnly[^\r\n]*SameSite=Lax/i',$start['headers']),'Sitzungs-Cookie ist HttpOnly und SameSite=Lax');
 
+    $privacy=http('GET','/datenschutz.php','','none')['body'];
+    check(str_contains($privacy,'id="lernkonten"') && str_contains($privacy,'Wiederherstellungscode') && str_contains($privacy,'24 Stunden'),'Datenschutzerklärung beschreibt die Lernkonten');
     // --- Registrierung & Spamschutz ---
     $form=http('GET','/dau-to-pro/konto.php?modus=registrieren','','anna');
     check(str_contains($form['body'],'name="website"') && str_contains($form['body'],'name="ft"') && str_contains($form['headers'],'noindex'),'Registrierung hat unsichtbaren Spamschutz und wird nicht indexiert');

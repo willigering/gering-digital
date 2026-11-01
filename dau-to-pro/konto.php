@@ -265,7 +265,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <small class="field-hint" id="pw-hint">Mindestens 10 Zeichen. Ein Satz wie „Mein Router heißt Kevin!“ ist gut zu merken.</small>
         <label>Passwort wiederholen<input type="password" name="password2" autocomplete="new-password" minlength="10" maxlength="200" required></label>
         <button class="primary-action" type="submit">Konto erstellen <span aria-hidden="true">→</span></button>
-        <p class="field-hint">Gespeichert werden nur Benutzername, Passwort (verschlüsselt) und dein Lernfortschritt. Mehr in der <a href="../datenschutz.php">Datenschutzerklärung</a>.</p>
+        <p class="field-hint">Gespeichert werden nur Benutzername, Passwort (verschlüsselt) und dein Lernfortschritt. Mehr in der <a href="../datenschutz.php#lernkonten">Datenschutzerklärung</a>.</p>
       </form>
       <?php else: ?>
       <form method="post" class="auth-form">

@@ -75,7 +75,7 @@ Lernende können unter `/dau-to-pro/konto.php` ein kostenloses Konto anlegen: **
 
 **Datenbank:** neue Tabellen `learners`, `learner_progress`, `learner_tokens`, `learner_attempts` (werden beim ersten Aufruf automatisch angelegt; bestehende Tabellen bleiben unverändert).
 
-**Deployment (zusätzlich):** `learner_lib.php`, `lib.php`, `html_project.php`, `html_project_lib.php`, `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/konto.php`, `dau-to-pro/konto.css`, `dau-to-pro/sync.js`, `dau-to-pro/api/progress.php`, `admin/learners.php`, `admin/admin2_layout.php`. Vor dem Livegang die Datenschutzerklärung um die Lernkonten ergänzen.
+**Deployment (zusätzlich):** `learner_lib.php`, `lib.php`, `html_project.php`, `html_project_lib.php`, `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/konto.php`, `dau-to-pro/konto.css`, `dau-to-pro/sync.js`, `dau-to-pro/api/progress.php`, `admin/learners.php`, `admin/admin2_layout.php`, `datenschutz.php` (neuer Abschnitt 8 „DAU TO PRO Lernkonten“).
 
 ## Tests
 `php tests/dau_lib_test.php`, `php tests/admin_http_test.php` (startet PHPs eingebauten Server mit einer temporären Datenbank), `node tests/dau_focus_animation.js`, `node tests/dau_exam_finder.js`, `php tests/html_project_paths.php`, `php tests/learner_lib_test.php`, `php tests/learner_http_test.php`, `node tests/learner_sync.js`. Die produktive Datenbank wird dabei nie verwendet: `GD_DB_PATH` wirkt nur in der Kommandozeile und im eingebauten Testserver.
