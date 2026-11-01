@@ -2,7 +2,7 @@
 // Static input-validation smoke tests; no productive database connection required.
 require __DIR__.'/../html_project_lib.php';
 $validSlugs=['subnet-sprint','bits-zum-bitteren-ende','ipv4-trainer'];
-$invalidSlugs=['admin','data','__preview','../secret','Test','a','a/b','../../',str_repeat('x',100)];
+$invalidSlugs=['admin','data','__preview','dau-to-pro','../secret','Test','a','a/b','../../',str_repeat('x',100)];
 $validFiles=['index.html','assets/site.css','css/widgets/theme.css','assets/game.mjs','fonts/normal.woff2','icons/app.svg'];
 $invalidFiles=['.htaccess','../../config.php','app.php','folder/../foo.html','/root/index.html','C:\\bad\\file.js','files/.hidden.js','script.sh','backup.sqlite','assets/.user.ini'];
 foreach($validSlugs as $slug) if(!hp_valid_slug($slug)) throw new RuntimeException('Valid slug rejected: '.$slug);
