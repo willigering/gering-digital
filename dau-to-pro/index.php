@@ -64,7 +64,7 @@ foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($modul
     <div class="disclaimer-label"><span class="disclaimer-icon" aria-hidden="true">!</span><span>WICHTIGER HINWEIS · UNABHÄNGIGE LERNHILFE</span></div>
     <h2 id="dtp-disclaimer-title">Keine offiziellen Lern- oder Prüfungsinhalte</h2>
     <p><strong>DAU TO PRO ist keine offizielle Lernplattform.</strong> Die Inhalte sind meine persönlichen Sammlungen, Notizen und Recherchen, die ich für mein eigenes Lernen zusammengestellt habe und mit anderen teilen möchte. Sie bilden keine offiziellen Lehrpläne, Unterrichtsmaterialien oder Prüfungsanforderungen vollständig oder verbindlich ab und ersetzen diese nicht.</p>
-    <p><strong>Die Nutzung erfolgt auf eigene Verantwortung.</strong> Trotz sorgfältiger Erstellung können Informationen fehlerhaft, unvollständig oder nicht mehr aktuell sein. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</p>
+    <p><strong>Die Nutzung erfolgt auf eigene Gefahr und Verantwortung.</strong> Trotz sorgfältiger Erstellung können Informationen fehlerhaft, unvollständig oder nicht mehr aktuell sein. Es besteht keine Gewähr für Richtigkeit, Vollständigkeit oder Aktualität.</p>
     <p class="disclaimer-final">Ich nutze selbst weitere Lernquellen. <strong>Kontrolle ist besser als Vertrauen:</strong> Bitte überprüfe wichtige Aussagen anhand deiner Unterrichtsunterlagen, offizieller Vorgaben und verlässlicher Fachquellen.</p>
   </div>
 </section>
