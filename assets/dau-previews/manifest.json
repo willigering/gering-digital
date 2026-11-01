@@ -1,0 +1,14 @@
+{
+  "_hinweis": "Mitgelieferte DAU-TO-PRO-Vorschaubilder. Erzeugt mit tools/dau-previews/render.mjs. Reihenfolge = Priorität der automatischen Zuordnung.",
+  "default": "it-grundlagen",
+  "motifs": [
+    {"id": "zahlensysteme", "label": "Zahlensysteme · Bits & Bytes", "slugs": ["a1-zahlensysteme", "bits-zum-bitteren-ende", "zahlensysteme"], "keywords": ["zahlensystem", "binär", "binaer", "hexadezimal", "dezimal", "bits zum", "bit und byte", "bits & bytes"]},
+    {"id": "ipv4-subnetting", "label": "IPv4 & Subnetting", "slugs": ["subnet-sprint", "subnetting", "ipv4-subnetting"], "keywords": ["subnet", "ipv4", "ipv6", "cidr", "ip-adress", "wildcard", "netzmaske"]},
+    {"id": "osi-modell", "label": "OSI-Modell", "slugs": ["osi-sprint", "osi-modell"], "keywords": ["osi", "schichtenmodell", "tcp/ip-modell"]},
+    {"id": "it-sicherheit", "label": "IT-Sicherheit & Datenschutz", "slugs": ["it-sicherheit", "datenschutz"], "keywords": ["sicherheit", "datenschutz", "dsgvo", "krypt", "verschlüssel", "verschluessel", "hash", "authentif", "schadsoftware", "schutzbedarf"]},
+    {"id": "hardware", "label": "Hardware & Architektur", "slugs": ["hardware"], "keywords": ["hardware", "prozessor", "cpu", "mainboard", "platine", "arbeitsspeicher", "rechnerarchitektur"]},
+    {"id": "netzwerke-routing", "label": "Netzwerke · Routing & Switching", "slugs": ["netzwerke-sprint", "netzwerke", "routing-switching"], "keywords": ["netzwerk", "routing", "router", "switch", "vlan", "dhcp", "dns", "wlan", "topolog"]},
+    {"id": "pruefung", "label": "Prüfungsvorbereitung", "slugs": ["pruefung", "pruefungsvorbereitung", "klausur"], "keywords": ["prüfung", "pruefung", "klausur", "ihk", "wiso", "exam", "90:00"]},
+    {"id": "it-grundlagen", "label": "IT-Grundlagen", "slugs": ["it-grundlagen", "grundlagen"], "keywords": ["grundlagen", "terminal", "betriebssystem", "linux", "windows", "programmier", "skript"]}
+  ]
+}
