@@ -12,5 +12,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
+      - name: Validate JavaScript syntax
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/hero-fx.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
+      - name: Test exam finder behavior
+        run: node tests/dau_exam_finder.js
+      - name: Test hover focus timing and module switching
+        run: node tests/dau_focus_animation.js
       - name: Validate slug and archive filenames
         run: php tests/html_project_paths.php
+      - name: Test DAU page texts, preview images and hero handling
+        run: php tests/dau_lib_test.php
+      - name: Test admin (login, CSRF, page editor, hero upload, preview images) over HTTP
+        run: php tests/admin_http_test.php

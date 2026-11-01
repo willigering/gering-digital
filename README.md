@@ -54,3 +54,17 @@ Die öffentliche Startseite zeigt vorübergehend **kein Kontaktformular**. Die K
 **HTML-Projektkarten** sind vollständig als Link klickbar und per Tastatur erreichbar. Der bisher separate „Im Browser öffnen“-Link entfällt, die Beschriftung bleibt als visuelle Handlungsaufforderung erhalten. Normale App-Karten samt Detailbutton und Play-Store-Links funktionieren weiter wie zuvor.
 
 Deployment auf STRATO: `index.php`, `lib.php`, `html_project_lib.php`, `assets/personal.css` und `assets/site.js` aktualisieren, **keine Datenbank oder Uploadordner ersetzen**.
+
+
+## DAU TO PRO: Oberseiten-Editor (Admin 2.0)
+Im Admin unter **Oberseite bearbeiten** (`admin/dau_page.php`) lassen sich Titel, Untertitel, Beschreibung, Buttons, Hinweisbox, Prüfungsfinder, „Dein Weg“, Abschlussbereich sowie Seitentitel und Meta-Beschreibung bearbeiten. **Vorschau** zeigt die Seite ungespeichert in einem neuen Tab; **Speichern & veröffentlichen** übernimmt die Texte sofort. In Textfeldern ist nur `**fett**` als Formatierung erlaubt, alles andere wird als Text ausgegeben. Die Texte liegen in der vorhandenen Tabelle `settings` (Schlüssel `dtp.*`); es werden **keine neuen Tabellen oder Spalten** angelegt. Ohne gespeicherte Werte gelten die bisherigen Texte.
+
+Die **Hero-Grafik** kann im selben Editor ausgetauscht werden (PNG/WebP mit Transparenz empfohlen, max. 8 MB). Sie wird unter `assets/uploads/dtp-hero-<zufall>.<ext>` gespeichert, transparente Ränder werden beim Upload gemessen, damit die Grafik vollständig und ohne Beschnitt erscheint. „Originalgrafik wiederherstellen“ entfernt die eigene Datei wieder.
+
+## DAU TO PRO: Vorschaubilder der Lernmodule
+Alle Modulkarten haben einheitlich 16:9. Mitgelieferte Motive liegen in `assets/dau-previews/` (WebP 1280 × 720 und 640 × 360) und werden Modulen ohne eigenes Bild automatisch thematisch zugeordnet – auch bestehenden Modulen, ohne Datenbankänderung. In **HTML-Projekte → Projekt bearbeiten** gibt es die Bildquelle (automatisch / Motiv fest zuordnen / eigenes Bild), Hochladen, Ersetzen, Löschen (zurück zur automatischen Zuordnung), Ausschnitt, Einpassen/Ausfüllen und eine Live-Vorschau, die serverseitig mit derselben Funktion und demselben Stylesheet wie `/dau-to-pro/` gerendert wird. Erzeugung neuer Motive: `tools/dau-previews/README.md`.
+
+**Deployment (zusätzlich):** `dau_lib.php`, `admin/admin2_layout.php`, `admin/dau_page.php`, `admin/dau_card_preview.php`, geänderte `admin/index.php`, `admin/html_projects.php`, `index.php`, `lib.php`, `dau-to-pro/*` sowie den Ordner `assets/dau-previews/` hochladen. `tools/` und `tests/` werden auf dem Server nicht benötigt. Keine Datenbank und keine Uploads ersetzen.
+
+## Tests
+`php tests/dau_lib_test.php`, `php tests/admin_http_test.php` (startet PHPs eingebauten Server mit einer temporären Datenbank), `node tests/dau_focus_animation.js`, `node tests/dau_exam_finder.js`, `php tests/html_project_paths.php`. Die produktive Datenbank wird dabei nie verwendet: `GD_DB_PATH` wirkt nur in der Kommandozeile und im eingebauten Testserver.

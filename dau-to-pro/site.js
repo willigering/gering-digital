@@ -1,51 +1,20 @@
 (() => {
-  // Build a lightweight, seamless stone texture from the logo's own unlettered edge.
-  // It keeps the entire page visually consistent without duplicating the logo artwork.
-  const artwork=document.querySelector('.hero-logo');
-  const makeStone=()=>{
-    if(!artwork?.naturalWidth)return;
-    try{
-      const tile=document.createElement('canvas');tile.width=tile.height=640;
-      const ctx=tile.getContext('2d');if(!ctx)return;
-      const sw=artwork.naturalWidth,sh=artwork.naturalHeight;
-      ctx.filter='brightness(.53) contrast(.90)';
-      for(let y=0;y<2;y++)for(let x=0;x<2;x++){
-        ctx.save();
-        ctx.translate(x*320+(x?320:0),y*320+(y?320:0));
-        ctx.scale(x?-1:1,y?-1:1);
-        ctx.drawImage(artwork,sw*.857,sh*.221,sw*.118,sh*.184,0,0,320,320);
-        ctx.restore();
-      }
-      document.documentElement.style.setProperty('--dtp-stone', 'url("'+tile.toDataURL('image/webp',.62)+'")');
-    }catch(error){/* Keep the no-JavaScript CSS texture fallback. */}
-  };
-  if(artwork?.complete)makeStone();else artwork?.addEventListener('load',makeStone,{once:true});
-
-  // Use the user's exact PNG when it has been uploaded; keep the existing hero as a safe fallback.
-  if(artwork?.dataset.exactSrc){
-    const exact=new Image();
-    exact.onload=()=>{
-      artwork.src=exact.src;
-      artwork.setAttribute('width','1448');
-      artwork.setAttribute('height','1086');
-      document.documentElement.classList.add('dtp-exact-logo');
-      makeStone();
-    };
-    exact.src=artwork.dataset.exactSrc;
-  }
-
+  // Transparent hero is a dedicated web asset, without sampling its pixels into the backdrop.
   // Calm cinematic focus on a hovered learning module.
   // Slow to appear, noticeably faster (but smooth) to disappear.
   const pointerCanHover=matchMedia('(hover:hover) and (pointer:fine)');
   const motionReduced=matchMedia('(prefers-reduced-motion:reduce)');
   const focusCards=[...document.querySelectorAll('.module-card')];
   if(pointerCanHover.matches && !motionReduced.matches && focusCards.length){
+    // Ruhiger Kino-Fokus: Umgebung dunkelt langsam ab (~2,8 s), löst sich schnell (~0,7 s).
+    // Zeiten stehen im CSS; hier nur Zustände, damit Übergänge nie neu bei 0 starten.
+    const EXIT_MS=700, LEAVE_GRACE_MS=90, ENTRY_DELAY_MS=120, MOVE_MS=380;
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML='<i class="dtp-focus-panel dtp-focus-top"></i><i class="dtp-focus-panel dtp-focus-bottom"></i><i class="dtp-focus-panel dtp-focus-left"></i><i class="dtp-focus-panel dtp-focus-right"></i>';
     document.body.append(overlay);
-    let current=null,entryTimer=0,exitTimer=0;
+    let current=null,entryTimer=0,leaveTimer=0,moveTimer=0,visibleUntil=0;
     const positionSpotlight=()=>{
       if(!current)return;
       const rect=current.getBoundingClientRect(),pad=9;
@@ -59,25 +28,46 @@
       overlay.style.setProperty('--focus-x',left+'px');
       overlay.style.setProperty('--focus-right',right+'px');
     };
+    // Overlay sichtbar (aktiv oder noch beim Ausblenden)?
+    const overlayVisible=()=>overlay.classList.contains('is-active')||performance.now()<visibleUntil;
     const focus=(card)=>{
-      clearTimeout(entryTimer);clearTimeout(exitTimer);
-      if(current && current!==card)current.classList.remove('is-focus-target');
-      current=card;positionSpotlight();card.classList.add('is-focus-target');
-      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},260);
+      clearTimeout(entryTimer);clearTimeout(leaveTimer);
+      if(current===card){
+        // Zurück auf dieselbe Karte: Abdunklung läuft vom aktuellen Wert aus weiter.
+        if(!overlay.classList.contains('is-active'))overlay.classList.add('is-active');
+        return;
+      }
+      // Auch während des Ausblendens gilt es als Wechsel: kein Sprung der Aussparung.
+      const switching=overlayVisible();
+      if(current)current.classList.remove('is-focus-target');
+      current=card;card.classList.add('is-focus-target');
+      if(switching){
+        // Schneller Wechsel: Aussparung gleitet zur neuen Karte, Abdunklung bleibt erhalten.
+        overlay.classList.add('is-moving');
+        clearTimeout(moveTimer);
+        moveTimer=setTimeout(()=>overlay.classList.remove('is-moving'),MOVE_MS+40);
+        positionSpotlight();
+        overlay.classList.add('is-active');
+        return;
+      }
+      positionSpotlight();
+      // Kurze Verzögerung, damit reines Überfahren auf dem Weg zu etwas anderem nichts auslöst.
+      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},ENTRY_DELAY_MS);
     };
     const unfocus=(card)=>{
       if(current!==card)return;
-      clearTimeout(entryTimer);clearTimeout(exitTimer);
-      exitTimer=setTimeout(()=>{
+      clearTimeout(entryTimer);clearTimeout(leaveTimer);
+      leaveTimer=setTimeout(()=>{
         if(current!==card)return;
+        if(overlay.classList.contains('is-active'))visibleUntil=performance.now()+EXIT_MS;
         overlay.classList.remove('is-active');
         card.classList.remove('is-focus-target');
         current=null;
-      },75);
+      },LEAVE_GRACE_MS);
     };
     focusCards.forEach(card=>{
       card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')focus(card)});
-      card.addEventListener('pointerleave',()=>unfocus(card));
+      card.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')unfocus(card)});
     });
     addEventListener('scroll',positionSpotlight,{passive:true});
     addEventListener('resize',positionSpotlight,{passive:true});
@@ -91,16 +81,125 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
   document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dtp-nav'))closeMenu()});
   matchMedia('(min-width: 861px)').addEventListener('change',closeMenu);
-  const input=document.getElementById('module-search'),buttons=[...document.querySelectorAll('[data-filter]')],cards=[...document.querySelectorAll('.module-card')],indicator=document.getElementById('result-indicator'),empty=document.getElementById('search-empty');
+  // Mehrthemen-Prüfungsfinder: findet ausschließlich tatsächlich veröffentlichte PHP-Module.
+  const form=document.getElementById('exam-form');
+  const input=document.getElementById('exam-topics');
+  const buttons=[...document.querySelectorAll('[data-filter]')];
+  const cards=[...document.querySelectorAll('.module-card')];
+  const indicator=document.getElementById('result-indicator');
+  const empty=document.getElementById('search-empty');
+  const reset=document.getElementById('exam-reset');
   if(!input)return;
   let current='alle';
-  const apply=()=>{
-    const q=input.value.toLocaleLowerCase('de-DE').trim();let found=0;
-    cards.forEach(card=>{const show=(current==='alle'||current===card.dataset.topic)&&(!q||card.dataset.search.includes(q));card.hidden=!show;if(show)found++});
-    indicator.textContent=`${found} von ${cards.length} ${cards.length===1?'Modul':'Modulen'}`;
+  const normalize=(value)=>String(value||'').toLocaleLowerCase('de-DE')
+    .normalize('NFD').replace(/\p{M}/gu,'').replace(/ß/g,'ss')
+    .replace(/[^a-z0-9]+/g,' ').trim();
+  const ignore=new Set(['ich','will','muss','mich','auf','eine','einen','die','der','das','dem','den','und','oder','zu','zur','zum','fur','meine','meiner','prüfung','prufung','lernen','vorbereiten','themen','thema','uber','mit','sowie','ist','im','in','von','bei','bitte','noch']);
+  const aliasGroups=[
+    ['ipv4','ip adresse','ip adressen','subnet','subnetting','cidr','wildcard'],
+    ['ipv6','slaac','link local'],
+    ['osi','schichtenmodell','7 schichten'],
+    ['vlan','switch','switching'],
+    ['dhcp','dns','netzwerk','router','routing','topologie','wlan'],
+    ['dsgvo','datenschutz','datensicherheit','verschlüsselung','verschlusselung','hash','it sicherheit','kryptografie'],
+    ['binär','binar','dezimal','hexadezimal','bits'],
+    ['wiso','ihk','prufungsvorbereitung']
+  ].map(g=>g.map(normalize));
+  function words(query){
+    return [...new Set(normalize(query).split(' ').filter(w=>w.length>1&&!ignore.has(w)))];
+  }
+  function equivalent(term){
+    const groups=aliasGroups.filter(g=>g.some(a=>a===term||a.split(' ').includes(term)));
+    return groups.length?[...new Set(groups.flat())]:[term];
+  }
+  function containsTerm(haystack,token){
+    const phrase=normalize(token);
+    return phrase&&(' '+haystack+' ').includes(' '+phrase+' ');
+  }
+  function showResults(){
+    const terms=words(input.value);
+    let found=0;
+    cards.forEach(card=>{
+      const topicOK=current==='alle'||card.dataset.topic===current;
+      const haystack=normalize(card.dataset.search);
+      const matches=terms.length===0||terms.some(term=>equivalent(term).some(alias=>
+        alias&&((alias.length>3&&haystack.includes(alias))||containsTerm(haystack,alias))
+      ));
+      const show=topicOK&&matches;
+      card.hidden=!show;
+      card.classList.toggle('is-search-result',show&&terms.length>0);
+      if(show)found++;
+    });
+    const unit=found===1?'Modul':'Module';
+    if(indicator)indicator.textContent=terms.length
+      ? (found ? found+' passende '+unit+' gefunden' : 'Leider kein passendes Modul gefunden')
+      : found+' '+unit+' verfügbar';
     if(empty)empty.hidden=found!==0;
-  };
-  input.addEventListener('input',apply);
-  buttons.forEach(button=>button.addEventListener('click',()=>{current=button.dataset.filter;buttons.forEach(b=>{const on=b===button;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});apply()}));
-  apply();
+    if(reset)reset.hidden=!input.value.trim()&&current==='alle';
+  }
+  function setFilter(filter){
+    current=filter;
+    buttons.forEach(button=>{
+      const active=button.dataset.filter===filter;
+      button.classList.toggle('active',active);
+      button.setAttribute('aria-pressed',String(active));
+    });
+    showResults();
+  }
+  input.addEventListener('input',showResults);
+  form?.addEventListener('submit',event=>{
+    event.preventDefault();
+    setFilter('alle');
+    const target=document.getElementById('module-grid')||document.querySelector('.catalog-panel');
+    target?.scrollIntoView({behavior:motionReduced.matches?'auto':'smooth',block:'start'});
+  });
+  document.querySelectorAll('[data-example]').forEach(button=>button.addEventListener('click',()=>{
+    input.value=button.dataset.example||'';
+    setFilter('alle');
+    input.focus();
+  }));
+  reset?.addEventListener('click',()=>{input.value='';setFilter('alle');input.focus()});
+  buttons.forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter)));
+  showResults();
+})();
+
+
+/* Orange Linien als echte, nahtlose Webseitenebene (nicht im Hero-Bild). */
+(() => {
+  const svg=document.getElementById('dtp-full-page-rays');
+  const root=document.getElementById('dtp-ray-strokes');
+  if(!svg||!root) return;
+  const NS='http://www.w3.org/2000/svg';
+  let raf=0, previous='';
+  function render(){
+    raf=0;
+    const w=Math.max(document.documentElement.clientWidth,320);
+    const h=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);
+    const signature=w+':'+h;
+    if(signature===previous) return;
+    previous=signature;
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    const fragment=document.createDocumentFragment();
+    const gap=Math.max(850,Math.min(1490,w*1.10));
+    // Gleiche Richtung wie die originale orange Ecke: links unten -> rechts oben.
+    // Mehrere identische komplette Linien reichen durch alle Seitenbereiche.
+    for(let i=0,y=460;y<h+w+300;y+=gap,i++){
+      const main=`M -130 ${y+130} L ${w+130} ${y-(w+130)}`;
+      const parallel=`M -130 ${y+185} L ${w+130} ${y+55-(w+130)}`;
+      for(const [cls,d] of [['beam-glow',main],['beam-halo',main],['beam-core',main],['beam-echo',parallel]]){
+        const path=document.createElementNS(NS,'path');
+        path.setAttribute('class',cls);
+        path.setAttribute('d',d);
+        if(i%2===1) path.style.opacity=cls==='beam-core'?'.48':cls==='beam-echo'?'.17':'.22';
+        fragment.appendChild(path);
+      }
+    }
+    root.replaceChildren(fragment);
+  }
+  const schedule=()=>{if(!raf)raf=requestAnimationFrame(render)};
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule,{once:true});
+  else schedule();
+  window.addEventListener('load',schedule,{once:true});
+  window.addEventListener('resize',schedule,{passive:true});
+  if('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
 })();

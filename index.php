@@ -1,12 +1,16 @@
 <?php
-require __DIR__.'/lib.php';
+require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
 $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
+    // DAU-TO-PRO-Lernmodule nutzen dasselbe Vorschaubild wie in der Modulübersicht (inkl. mitgelieferter Motive).
+    $preview=($page['category']??'')==='lernen'?dtp_preview_resolve($page):
+        ['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
     $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
        'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
-       'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$page['preview_image']??''];
+       'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
+       'preview_fit'=>$preview['fit']==='contain'?'contain':'cover','preview_x'=>$preview['x'],'preview_y'=>$preview['y']];
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
