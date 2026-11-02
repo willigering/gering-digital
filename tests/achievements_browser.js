@@ -155,6 +155,11 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     if(shots)await page.screenshot({path:path.join(shots,'popup-im-modul.png'),clip:{x:966,y:700,width:400,height:200}});
     assert.ok(unlocked('anna').includes('osi.paketbote'),'Popup-Fall: Paketbote freigeschaltet');
 
+    // Jedes Modul hat oben links „Zurück zur Modulauswahl“.
+    await page.waitForSelector('dtp-back',{state:'attached'});
+    await Promise.all([page.waitForURL(u=>new URL(u).pathname==='/dau-to-pro/'),page.mouse.click(28,30)]);
+    assert.equal(new URL(page.url()).hash,'#lernmodule','Zurück-Button führt zur Modulauswahl');
+
     // Easter Egg mit Konto: 200 XP.
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     const hit=page.locator('.fx-shroom-hit');

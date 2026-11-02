@@ -118,6 +118,10 @@ Fertige DAU-TO-PRO-Module liegen als einzelne HTML-Dateien in `lernmodule/` (Lis
 
 **Deployment (zusätzlich):** Ordner `lernmodule/` (inkl. `.htaccess`), `html_project_lib.php`, `admin/html_projects.php`.
 
+**Farbe und Hintergrund je Modul:** Jedes Modul hat eine eigene Akzentfarbe und ein eigenes Motiv aus `assets/dau-backgrounds/` (als Base64 eingebettet, damit die Datei offline läuft): A1 Zahlensysteme grün mit `circuit-signal`, B1 OSI violett mit `network-ports`, B3 Subnetting petrol mit `cables-patch`. Gold bleibt die gemeinsame Hausfarbe. Neue Module bekommen eine noch nicht vergebene Farbe und ein passendes Motiv.
+
+**Zurück zur Modulauswahl:** `dau-to-pro/sync.js` blendet in jedem veröffentlichten Lernmodul oben links den Button „← Modulauswahl“ ein (Ziel `dau-to-pro/#lernmodule`, Pfad aus `learner_sync_config`). Beim Runterscrollen schrumpft er auf das Pfeilsymbol, beim Hochscrollen kommt der Text zurück. Die Moduldateien selbst brauchen dafür nichts.
+
 ## DAU TO PRO: Achievements, Level und Highscore
 
 Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige = 590 XP), dazu kommen 12 modulübergreifende (u. a. das versteckte Easter-Egg-Achievement, 200 XP, nur mit Lernkonto). Katalog, XP- und Level-Berechnung stehen in `achievements_lib.php`. Ausgewertet wird serverseitig aus dem ohnehin synchronisierten Fortschritt (`<präfix>-path-v1`, `-stats-v1`, `-subs-v1`, `-exam-v1`); die Moduldateien bleiben dafür unverändert. Einmal freigeschaltete Achievements bleiben erhalten, auch wenn Fortschritt gelöscht wird. Level: Gesamt-XP für Level L = 50 · L · (L − 1), höchstens Level 50.
