@@ -28,7 +28,7 @@ let server,browser;
   const screenshots=process.env.DTP_SCREENSHOT_DIR;
   if(screenshots)fs.mkdirSync(screenshots,{recursive:true});
   for(const [width,height] of [[1440,900],[1366,768],[1024,768],[768,1024],[390,844],[320,568]]){
-    const context=await browser.newContext({viewport:{width,height},reducedMotion:'reduce'});
+    const context=await browser.newContext({viewport:{width,height},isMobile:width<=610,hasTouch:width<=610,reducedMotion:'reduce'});
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
@@ -83,6 +83,9 @@ let server,browser;
   assert.equal(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the backdrop');
   await page.goto(base+'/dau-to-pro/#hinweis');
   assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Footer deep link opens full notice');
+  await page.locator('.disclaimer-shell summary').click();
+  await page.getByRole('link',{name:'Wichtiger Hinweis',exact:true}).click();
+  assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Notice link also reopens an unchanged hash');
   php(`db()->exec("DELETE FROM html_pages WHERE slug='subnetsprint'");`);
   await page.goto(base+'/dau-to-pro/');
   assert.equal(await page.locator('.module-card').count(),1,'Single-module catalogue');

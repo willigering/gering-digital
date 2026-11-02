@@ -167,7 +167,7 @@
     const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
     toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
     menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){closeMenu();toggle.focus()}});
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dtp-nav'))closeMenu()});
     matchMedia('(min-width: 861px)').addEventListener('change',closeMenu);
   })();
@@ -301,5 +301,6 @@
   const notice=document.querySelector('#hinweis details');
   if(!notice)return;
   const openNotice=()=>{if(location.hash==='#hinweis')notice.open=true};
+  document.querySelectorAll('a[href="#hinweis"]').forEach(link=>link.addEventListener('click',()=>{notice.open=true}));
   openNotice();addEventListener('hashchange',openNotice);
 })();
