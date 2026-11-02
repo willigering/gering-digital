@@ -420,6 +420,44 @@ function dtp_hero_style(array $hero): string {
     return sprintf('--hero-ratio:%.5F;--hero-trim-top:%.5F;--hero-trim-bottom:%.5F;--hero-visible:%.5F',$ratio,$top,$bottom,$visible);
 }
 
+/** Responsive, pixel-identical artwork. Copies share the same browser-cached source. */
+function dtp_hero_picture(array $hero,string $alt,string $class='hero-logo'): string {
+    $source='';
+    if (empty($hero['custom']) && is_file(__DIR__.'/assets/dau-to-pro-hero-1448.webp') && is_file(__DIR__.'/assets/dau-to-pro-hero-768.webp'))
+        $source='<source type="image/webp" srcset="../assets/dau-to-pro-hero-768.webp 768w, ../assets/dau-to-pro-hero-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px">';
+    return '<picture>'.$source.'<img class="'.e($class).'" src="../'.e($hero['src']).'" width="'.(int)$hero['width'].'" height="'.(int)$hero['height'].'" '.($class==='hero-logo'?'fetchpriority="high" ':'').'decoding="async" alt="'.e($alt).'" draggable="false"></picture>';
+}
+
+/**
+ * Native scene planes: original foreground pixels with a code-native circuit backdrop.
+ * Percentage polygons share one coordinate system with the mushroom and work in admin previews with a base URL.
+ * Custom admin artwork keeps its original, unsliced rendering.
+ */
+function dtp_hero_scene(array $hero,string $alt): string {
+    if (!empty($hero['custom'])) return dtp_hero_picture($hero,$alt);
+    $novice=[[38,350],[57,333],[43,310],[46,270],[75,247],[63,237],[85,216],[87,167],[113,146],[178,132],[218,139],[240,131],[246,99],[279,76],[356,65],[404,79],[423,89],[442,91],[478,95],[476,122],[503,137],[536,152],[560,181],[570,220],[554,247],[576,263],[585,290],[582,326],[570,338],[606,351],[622,380],[616,413],[598,433],[570,449],[580,466],[568,484],[566,515],[575,537],[578,564],[562,587],[545,627],[542,655],[538,707],[55,707],[50,666],[50,594],[57,554],[95,539],[124,539],[124,503],[138,467],[164,444],[130,443],[110,447],[74,441],[49,426],[31,405],[32,375]];
+    $pro=[[862,183],[880,184],[898,166],[910,180],[916,193],[929,169],[939,184],[949,194],[959,188],[969,207],[980,217],[980,224],[997,230],[1012,237],[1030,239],[1033,261],[1046,281],[1037,294],[1053,312],[1049,340],[1032,358],[1016,371],[1044,383],[1060,403],[1099,414],[1134,439],[1159,475],[1185,497],[1206,533],[1222,559],[1229,601],[1227,637],[1205,663],[1180,675],[1187,707],[855,707],[854,677],[842,655],[827,628],[811,601],[802,565],[789,528],[785,485],[789,451],[800,420],[811,399],[810,382],[817,365],[831,358],[813,336],[800,313],[793,292],[786,280],[796,262],[795,245],[807,235],[810,215],[829,222],[834,203],[849,205]];
+    $powerup=[[1151,395],[1448,331],[1448,707],[1205,707],[1205,537],[1176,522],[1151,505]];
+    $brand=[[0,719],[1448,719],[1448,904],[0,904]];
+    $polygon=static function(array $points): string {
+        return 'polygon('.implode(',',array_map(static fn($p)=>sprintf('%.6F%% %.6F%%',$p[0]/1448*100,$p[1]/1086*100),$points)).')';
+    };
+    $shapes=['dau'=>$polygon($novice),'pro'=>$polygon($pro),'powerup'=>$polygon($powerup),'brand'=>$polygon($brand)];
+    $html='<div class="hero-canvas"><div class="hero-reference">'.dtp_hero_picture($hero,$alt).'</div>';
+    foreach(['ambient'=>-.4,'dau'=>.32,'pro'=>.62,'brand'=>.18,'powerup'=>.8] as $name=>$depth){
+        $html.='<div class="hero-plane hero-plane--'.$name.'" data-hero-depth="'.$depth.'">';
+        if($name==='ambient') {
+            // Decorative native paths continue the circuit language of the page, without raster cut edges.
+            $html.='<svg class="hero-circuit" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="scene-wire-cyan" d="M-120 460H230L450 230H680L760 150H1050L1220 320H1560 M-100 570H320L460 430H655L730 350 M540 270H690L780 180H940 M920 400H1110L1260 550H1550"/><path class="scene-wire-gold" d="M-100 750H255L510 495H660L810 345H1080L1280 145H1560 M930 660H1110L1215 765H1530"/><path class="scene-growth" d="M435 672L790 330L745 451 M790 330L664 369"/></g><g class="scene-bars"><path d="M533 711V629H578V711 M607 711V561H654V711 M681 711V486H730V711 M755 711V418H802V711"/></g><g class="scene-dots"><circle cx="680" cy="230" r="10"/><circle cx="655" cy="430" r="8"/><circle cx="1110" cy="660" r="8"/></g></svg>';
+        } else {
+            $html.='<div class="hero-slice" aria-hidden="true" style="clip-path:'.$shapes[$name].'">'.dtp_hero_picture($hero,'','hero-part-image').'</div>';
+        }
+        if($name==='powerup')$html.='<div class="hero-mushroom-anchor" data-mushroom-anchor></div>';
+        $html.='</div>';
+    }
+    return $html.'</div>';
+}
+
 /**
  * Top navigation of the DAU TO PRO pages.
  * $page: 'start' (landing page) or 'konto' (learner account page). $learner: logged-in username or null.

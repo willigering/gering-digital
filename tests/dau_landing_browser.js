@@ -32,6 +32,8 @@ let server,browser;
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
+    assert.equal(await page.locator('[data-hero-depth]').count(),5,'Original artwork has five independent planes');
+    assert.equal(await page.locator('[data-mushroom-anchor] .fx-layer').count(),1,'Mushroom interaction belongs to its moving plane');
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
@@ -76,11 +78,18 @@ let server,browser;
   await page.evaluate(()=>scrollTo(0,300));await pause(150);
   assert.notEqual(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Background parallax runs');
   assert.notEqual(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Hero has independent depth');
+  const shifts=await page.locator('[data-hero-depth]').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate));
+  assert.ok(new Set(shifts).size>=3,'Foreground, lettering and backdrop have distinct depth motion');
+  await page.locator('.hero-visual').hover();await pause(300);
+  const anchorBox=await page.locator('[data-mushroom-anchor]').boundingBox();
+  const layerBox=await page.locator('[data-mushroom-anchor] .fx-layer').boundingBox();
+  for(const axis of ['x','y','width','height'])assert.ok(Math.abs(anchorBox[axis]-layerBox[axis])<1,'Pilz stays aligned after scroll and pointer motion');
   await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await pause(150);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),originalHeight,'Effects do not extend the document');
   await page.emulateMedia({reducedMotion:'reduce'});await pause(100);
   assert.equal(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the artwork');
   assert.equal(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the backdrop');
+  assert.ok((await page.locator('[data-hero-depth]').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate))).every(t=>t==='none'),'Reduced motion also stops individual planes');
   await page.goto(base+'/dau-to-pro/#hinweis');
   assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Footer deep link opens full notice');
   await page.locator('.disclaimer-shell summary').click();
@@ -121,6 +130,29 @@ let server,browser;
   await staticPage.locator('.disclaimer-shell summary').click();
   assert.ok(await staticPage.locator('.disclaimer-body').isVisible(),'Native disclosure works without JS');
   await noJs.close();
+  // Full five-step sequence, including the existing video and XP conclusion.
+  for(const reduced of [false,true]){
+    const eggContext=await browser.newContext({viewport:reduced?{width:390,height:844}:{width:1440,height:900},isMobile:reduced,hasTouch:reduced,reducedMotion:reduced?'reduce':'no-preference'});
+    const egg=await eggContext.newPage();egg.on('pageerror',e=>errors.push(e.message));
+    await egg.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
+    const mushroom=egg.getByRole('button',{name:'Pixelpilz',exact:true});
+    await mushroom.focus();
+    for(let n=1;n<=4;n++){
+      await mushroom.press('Enter');
+      assert.equal(await egg.locator('.fx-count').textContent(),`${n}x`,'Every click advances the counter');
+    }
+    assert.ok(await egg.locator('.fx-shroom').evaluate(e=>Number(e.style.getPropertyValue('--fx-scale'))>1.3),'Mushroom still grows');
+    await mushroom.press('Enter');
+    await egg.locator('.fx-video.is-open').waitFor({state:'visible',timeout:7000});
+    await egg.locator('.fx-video-player').waitFor({state:'attached',timeout:7000});
+    assert.ok((await egg.locator('.fx-video-player').getAttribute('src')).includes('dau-to-pro-easteregg.mp4'),'Existing Easter egg video is loaded');
+    await egg.keyboard.press('Escape');
+    assert.ok(await egg.locator('.fx-video.show-xp').isVisible(),'XP conclusion still appears');
+    await egg.keyboard.press('Escape');
+    await egg.locator('.fx-video').waitFor({state:'hidden'});
+    assert.equal(await egg.evaluate(()=>document.documentElement.classList.contains('fx-locked')),false,'Closing the egg restores scrolling');
+    await eggContext.close();
+  }
   assert.deepEqual(errors,[],'No browser JavaScript errors');
   console.log('Parallax, reduced motion, one/zero modules, deep links and no-JS passed');
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{

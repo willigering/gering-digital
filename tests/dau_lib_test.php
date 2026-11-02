@@ -82,6 +82,10 @@ check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','prev
 
 // --- Hero ---
 $hero=dtp_hero();
+$scene=dtp_hero_scene($hero,'Originalgrafik');
+check(substr_count($scene,'data-hero-depth=')===5,'Originalgrafik wird als fünf native Szenenebenen gerendert');
+check(str_contains($scene,'data-mushroom-anchor'),'Der Pilz besitzt einen eigenen mitbewegten Anker');
+check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true]),'Eigener Hero'),'hero-plane'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');
 check($hero['src']==='assets/dau-to-pro-hero-freigestellt.png' && !$hero['custom'],'Standard-Hero ist die freigestellte Originalgrafik');
 check(is_file(__DIR__.'/../'.$hero['src']),'Original-Hero-Datei existiert');
 $size=getimagesize(__DIR__.'/../'.$hero['src']);
