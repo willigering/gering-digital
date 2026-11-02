@@ -83,6 +83,15 @@ check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','prev
 // --- Hero ---
 $hero=dtp_hero();
 $scene=dtp_hero_scene($hero,'Originalgrafik');
+check(str_contains($scene,'hero-canvas--clean-people') && substr_count($scene,'src="../assets/dau-to-pro-people-clean-1448.webp"')===2,'Beide Figuren nutzen die neue transparente Quelle');
+foreach([768,1448] as $width){
+    $clean=__DIR__.'/../assets/dau-to-pro-people-clean-'.$width.'.webp';
+    $size=getimagesize($clean);
+    check($size!==false && $size[0]===$width && $size['mime']==='image/webp','Neue Figurenquelle hat richtige Maße und Bildformat');
+    $cutout=imagecreatefromwebp($clean);
+    check(((imagecolorat($cutout,0,0)>>24)&0x7F)===127,'Neue Figurenquelle hat echte transparente Außenpixel');
+    imagedestroy($cutout);
+}
 check(substr_count($scene,'data-hero-depth=')===5,'Originalgrafik wird als fünf native Szenenebenen gerendert');
 check(str_contains($scene,'data-mushroom-anchor'),'Der Pilz besitzt einen eigenen mitbewegten Anker');
 check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true]),'Eigener Hero'),'hero-plane'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');

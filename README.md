@@ -105,3 +105,9 @@ Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickflä
 
 **Update zusätzlich zur kompakten Hauptseite:** `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/site.js`, `dau-to-pro/hero-fx.js` und die neue `dau-to-pro/hero-scene.css` gemeinsam übertragen. Keine Datenbank oder Uploads ersetzen. Der Browsertest prüft zusätzlich die Ebenenbewegung, Pilz-Ausrichtung nach Scrollen und die vollständige Fünf-Klick-/Video-/XP-Sequenz auf Desktop und Smartphone.
 
+
+### Sauber freigestellte Figuren
+
+Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu als transparentes Motiv erstellt, um matte und farbige Rückstände außerhalb der Konturen zu entfernen. Das neue Figurenmotiv enthält nur DAU mit Laptop und Sprechblasen sowie PRO. Schriftzug und Pilz einschließlich Level-up-Schild kommen weiterhin aus den Originaldateien. Die Pilzkoordinaten und seine Interaktionslogik bleiben unverändert.
+
+**Update:** `dau_lib.php`, `dau-to-pro/hero-scene.css` sowie `assets/dau-to-pro-people-clean-768.webp` und `assets/dau-to-pro-people-clean-1448.webp` gemeinsam übertragen. Fehlen die neuen Figuren-Dateien, wird die bisherige Originalgrafik weiter verwendet. Eigene Hero-Uploads bleiben unverändert.

@@ -33,6 +33,7 @@ let server,browser;
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
     assert.equal(await page.locator('[data-hero-depth]').count(),5,'Original artwork has five independent planes');
+    assert.equal(await page.locator('.hero-canvas--clean-people .hero-part-image[src*="people-clean"]').count(),2,'Both character planes use the cleaned cutouts');
     assert.equal(await page.locator('[data-mushroom-anchor] .fx-layer').count(),1,'Mushroom interaction belongs to its moving plane');
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
