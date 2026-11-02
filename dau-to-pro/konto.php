@@ -68,6 +68,10 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 header('Content-Disposition: attachment; filename="dau-to-pro-fortschritt-'.preg_replace('/[^A-Za-z0-9._-]/','',$learner['username']).'.json"');
                 echo json_encode(learner_export($learner)+['level_und_achievements'=>ach_export($id)],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
                 exit;
+            case 'reset_all':
+                if (($_POST['confirm']??'')!=='NULL') throw new LearnerError('Bitte tippe NULL in das Bestätigungsfeld.');
+                learner_reset_all($learner,(string)($_POST['current']??''));
+                konto_back('',['ok'=>'Alles auf null: Fortschritt in allen Modulen, Achievements, XP und Level sind gelöscht. Auf deinen anderen Geräten verschwindet der alte Stand beim nächsten Öffnen eines Moduls.','clear_uid'=>(string)$id]);
             case 'delete_account':
                 if (($_POST['confirm']??'')!=='LÖSCHEN') throw new LearnerError('Bitte tippe LÖSCHEN in das Bestätigungsfeld.');
                 learner_delete_account($learner,(string)($_POST['current']??''));
@@ -75,7 +79,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         }
         konto_back('',['error'=>'Unbekannte Aktion.']);
     } catch (LearnerError $error) {
-        $section=in_array($action,['change_password','new_code','delete_account','highscore'],true)?$action:'';
+        $section=in_array($action,['change_password','new_code','delete_account','highscore','reset_all'],true)?$action:'';
         konto_back($mode,['error'=>$error->getMessage(),'username'=>$username,'section'=>$section,'remember'=>!empty($_POST['remember'])],$next);
     }
 }
@@ -225,7 +229,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       </ul>
     </details>
     <?php endforeach; ?>
-    <p class="konto-hint">Achievements, Level und XP werden aus deinem gespeicherten Fortschritt berechnet. Einmal freigeschaltet bleiben sie, auch wenn du den Fortschritt eines Moduls löschst.</p>
+    <p class="konto-hint">Achievements, Level und XP werden aus deinem gespeicherten Fortschritt berechnet. Einmal freigeschaltet bleiben sie, auch wenn du den Fortschritt eines Moduls löschst. Komplett neu anfangen geht unter Konto-Einstellungen → „Alles auf null setzen“.</p>
   </section>
 
   <section aria-labelledby="settings-title" class="konto-section" id="einstellungen">
@@ -267,6 +271,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       <details class="settings-item" id="abmelden">
         <summary><span><b>Abmelden</b><small>Entfernt deinen Fortschritt von diesem Gerät, im Konto bleibt er erhalten.</small></span></summary>
         <form method="post" class="settings-body"><?=$hidden('logout')?><button class="secondary-action" type="submit">Abmelden</button></form>
+      </details>
+      <details class="settings-item is-danger" id="reset_all"<?=($flash['section']??'')==='reset_all'?' open':''?>>
+        <summary><span><b>Alles auf null setzen</b><small>Löscht deinen gesamten Lernstand inklusive Achievements, XP und Level. Das Konto bleibt.</small></span></summary>
+        <form method="post" class="settings-body" onsubmit="return confirm('Wirklich ALLES auf null setzen? Fortschritt in allen Modulen, alle Achievements, XP und Level werden endgültig gelöscht. Das kann nicht rückgängig gemacht werden.')">
+          <?=$hidden('reset_all')?>
+          <p class="field-hint"><b>Achtung, endgültig:</b> Dein Fortschritt in allen Lernmodulen, alle freigeschalteten Achievements, deine XP, dein Level und deine Lerntage werden gelöscht, auf diesem und allen anderen Geräten. Die Highscore-Sichtbarkeit wird ausgeschaltet. Benutzername, Passwort und Wiederherstellungscode bleiben. Du startest wie mit einem neuen Konto. Tipp: Vorher unter „Daten herunterladen“ eine Sicherung speichern.</p>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <label><span>Zur Bestätigung <b>NULL</b> eintippen</span><input type="text" name="confirm" autocomplete="off" required pattern="NULL"></label>
+          <button class="mini-action is-danger" type="submit">Alles auf null setzen</button>
+        </form>
       </details>
       <details class="settings-item is-danger" id="delete_account"<?=($flash['section']??'')==='delete_account'?' open':''?>>
         <summary><span><b>Konto löschen</b><small>Löscht Konto und gesamten Fortschritt sofort und endgültig.</small></span></summary>

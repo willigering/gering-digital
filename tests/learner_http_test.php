@@ -155,6 +155,26 @@ try {
     $konto=http('GET','/dau-to-pro/konto.php','','fremd')['body'];
     check(str_contains($konto,'Hallo, <span>Anna.Lernt</span>'),'Anmeldung mit dem Admin-Passwort klappt');
 
+    // --- Alles auf null ---
+    $pdo->prepare("INSERT OR REPLACE INTO learner_progress(learner_id,storage_key,module_slug,value,updated_at,deleted) VALUES(?,?,?,?,?,0)")->execute([$id,'reset-probe',$lern,'1',learner_now()]);
+    $pdo->prepare("INSERT OR IGNORE INTO learner_achievements(learner_id,code) VALUES(?,'g.easteregg')")->execute([$id]);
+    $pdo->prepare("INSERT OR IGNORE INTO learner_stats(learner_id) VALUES(?)")->execute([$id]);
+    $pdo->prepare("UPDATE learner_stats SET xp=999,level=4,achievements=3,days=5,highscore_visible=1 WHERE learner_id=?")->execute([$id]);
+    $active=fn()=>(int)$pdo->query("SELECT COUNT(*) FROM learner_progress WHERE learner_id=$id AND deleted=0")->fetchColumn();
+    check(str_contains($konto,'Alles auf null setzen') && str_contains($konto,'pattern="NULL"'),'Konto-Einstellungen bieten „Alles auf null setzen“ mit Warnung');
+    http('POST','/dau-to-pro/konto.php',['action'=>'reset_all','csrf'=>token($konto),'current'=>$pm[1]??'','confirm'=>'null'],'fremd');
+    check($active()>0,'Ohne exakte Bestätigung NULL wird nichts zurückgesetzt');
+    http('POST','/dau-to-pro/konto.php',['action'=>'reset_all','csrf'=>token($konto),'current'=>'falsches-passwort','confirm'=>'NULL'],'fremd');
+    check($active()>0,'Mit falschem Passwort wird nichts zurückgesetzt');
+    $r=http('POST','/dau-to-pro/konto.php',['action'=>'reset_all','csrf'=>token($konto),'current'=>$pm[1]??'','confirm'=>'NULL'],'fremd');
+    $st=$pdo->query("SELECT xp,level,achievements,days,highscore_visible,best FROM learner_stats WHERE learner_id=$id")->fetch(PDO::FETCH_ASSOC);
+    check($r['status']===303 && $active()===0 && (int)$pdo->query("SELECT COUNT(*) FROM learner_progress WHERE learner_id=$id AND deleted=1")->fetchColumn()>0,'Alles auf null: Fortschritt aller Module wird zu Löschmarken (auch für andere Geräte)');
+    check((int)$pdo->query("SELECT COUNT(*) FROM learner_achievements WHERE learner_id=$id")->fetchColumn()===0,'Alles auf null: Achievements gelöscht');
+    check($st==['xp'=>0,'level'=>1,'achievements'=>0,'days'=>0,'highscore_visible'=>0,'best'=>'{}'],'Alles auf null: XP, Level, Lerntage, Bestwerte und Highscore-Sichtbarkeit zurückgesetzt');
+    $after=http('GET','/dau-to-pro/konto.php','','fremd')['body'];
+    check(str_contains($after,'Alles auf null') && str_contains($after,'dtp-sync:owner') && learner_find('Anna.Lernt')!==null,'Bestätigung, Gerät wird geleert, Konto bleibt');
+    $konto=$after;
+
     // --- Konto löschen ---
     http('POST','/dau-to-pro/konto.php',['action'=>'delete_account','csrf'=>token($konto),'current'=>$pm[1]??'','confirm'=>'falsch'],'fremd');
     check(learner_find('Anna.Lernt')!==null,'Ohne Bestätigung wird nichts gelöscht');

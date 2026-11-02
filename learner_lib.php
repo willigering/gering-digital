@@ -274,6 +274,28 @@ function learner_delete_account(array $learner,string $current): void {
     learner_delete((int)$learner['id']);
     learner_logout();
 }
+/**
+ * Gesamten Lernstand auf null: alle Fortschritts-Einträge werden zu Löschmarken (damit andere Geräte sie
+ * beim nächsten Öffnen auch entfernen), Achievements, XP, Level, Lerntage und Bestwerte werden gelöscht,
+ * die Highscore-Sichtbarkeit wird ausgeschaltet. Das Konto selbst (Name, Passwort, Code) bleibt.
+ */
+function learner_reset_all(array $learner,string $current): int {
+    learner_require_password($learner,$current);
+    $id=(int)$learner['id'];$now=learner_now();
+    $db=db();
+    $db->beginTransaction();
+    try {
+        $q=$db->prepare("UPDATE learner_progress SET value='',deleted=1,updated_at=? WHERE learner_id=? AND deleted=0");
+        $q->execute([$now,$id]);
+        $count=$q->rowCount();
+        $db->prepare('DELETE FROM learner_achievements WHERE learner_id=?')->execute([$id]);
+        $db->prepare('INSERT OR IGNORE INTO learner_stats(learner_id) VALUES(?)')->execute([$id]);
+        $db->prepare("UPDATE learner_stats SET xp=0,level=1,achievements=0,best='{}',days=0,last_day='',highscore_visible=0,xp_changed_at=?,updated_at=? WHERE learner_id=?")
+           ->execute([$now,$now,$id]);
+        $db->commit();
+    } catch (Throwable $error) { $db->rollBack(); throw $error; }
+    return $count;
+}
 function learner_delete(int $learnerId): void {
     $db=db();
     $db->beginTransaction();
