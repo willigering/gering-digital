@@ -49,6 +49,18 @@ function ach_modules(): array {
             ['osi.richtung','witzig','Von oben oder von unten?','3 × hintereinander falsch bei „Nummer einer Schicht“.',['fails','n_num'],'Schicht 1 ist … äh … welche Seite war nochmal unten?'],
             ['osi.getrennt','witzig','Verbindung getrennt','Probeprüfung durch Verlassen der Seite beendet.',['leave'],'Manchmal ist Weglaufen auch eine Lösung.'],
         ]],
+        'netz'=>['prefix'=>'netz-sprint','subject'=>'Netzwerkgrundlagen','title'=>'Jetzt ma Router bei die Switche!','motif'=>'netzwerke-routing','stages'=>10,'list'=>[
+            ['netz.link-up','bronze','Link up','Stufe 1 „Netzwerkarten & Architektur“ gemeistert.',['stage',0]],
+            ['netz.kuerzel','bronze','PAN, LAN, GAN – Hauptsache Plan','Aufgabentyp „Kürzel PAN bis GAN“ 10 × in Folge richtig.',['clean',['b_kurz']]],
+            ['netz.mac','silber','MAC-Tabellen-Flüsterer','Stufe 4 „Switch: MAC-Tabelle“ gemeistert.',['stage',3]],
+            ['netz.ports','silber','Well-known Ports','„Standardport nennen“ und „Port → Dienst“ je 10 × in Folge richtig.',['clean',['p_port','p_portr']]],
+            ['netz.domaenen','gold','Domänen-Dompteur','„Kollisionsdomänen zählen“ und „Broadcastdomänen zählen“ je 10 × in Folge richtig.',['clean',['c_coll','c_bcast']]],
+            ['netz.lernpfad','gold','Router bei die Switche','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['netz.marathon','platin','Uptime: 90 Minuten','90-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',90,81]],
+            ['netz.sturm','witzig','Broadcast-Sturm','3 × hintereinander falsch bei „Flooding: Wie viele Ports?“.',['fails','s_flood'],'Alle Ports? Auch der, von dem es kam?'],
+            ['netz.doppelpunkt','witzig','Doppelter Doppelpunkt','3 × hintereinander falsch bei „IPv6 kürzen (RFC 5952)“.',['fails','v_short'],'„::“ gibt es nur einmal pro Adresse.'],
+            ['netz.neustart','witzig','Schon mal aus- und eingeschaltet?','3 × hintereinander falsch bei „Fehlerbild deuten“.',['fails','tr_diag'],'Der Klassiker hilft öfter, als man denkt. Hier leider nicht.'],
+        ]],
         'subnet'=>['prefix'=>'subnet-sprint','subject'=>'Subnetting','title'=>'Wer teilt, gewinnt','motif'=>'ipv4-subnetting','stages'=>10,'list'=>[
             ['subnet.oktett','bronze','Erstes Oktett geknackt','Stufe 1 „Bits & Oktette“ gemeistert.',['stage',0]],
             ['subnet.potenzen','bronze','Zweierpotenz-Turbo','Aufgabentyp „2 hoch n“ 10 × in Folge richtig.',['clean',['p_pow']]],
