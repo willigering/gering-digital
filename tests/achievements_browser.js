@@ -113,6 +113,8 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
           await page.click('#trainTask [data-r="next"]');
         }
         assert.ok(done,`${slug}: ${target} ${right?'10 × richtig':'3 × falsch'} in Folge erreicht`);
+        // Wie ein echter Mensch: der Stand ist gespeichert, bevor die nächste Aufgabenserie startet (Ring-Puffer der letzten 12).
+        await page.waitForFunction(()=>window.__dtpSyncStatus().pending===0&&window.__dtpSyncStatus().state==='saved',null,{timeout:15000});
       }
       await page.waitForFunction(()=>window.__dtpSyncStatus().pending===0&&window.__dtpSyncStatus().state==='saved',null,{timeout:15000});
       if(!popupShot&&shots){
