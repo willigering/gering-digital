@@ -111,3 +111,9 @@ Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickflä
 Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu als transparentes Motiv erstellt, um matte und farbige Rückstände außerhalb der Konturen zu entfernen. Das neue Figurenmotiv enthält nur DAU mit Laptop und Sprechblasen sowie PRO. Schriftzug und Pilz einschließlich Level-up-Schild kommen weiterhin aus den Originaldateien. Die Pilzkoordinaten und seine Interaktionslogik bleiben unverändert.
 
 **Update:** `dau_lib.php`, `dau-to-pro/hero-scene.css` sowie `assets/dau-to-pro-people-clean-768.webp` und `assets/dau-to-pro-people-clean-1448.webp` gemeinsam übertragen. Fehlen die neuen Figuren-Dateien, wird die bisherige Originalgrafik weiter verwendet. Eigene Hero-Uploads bleiben unverändert.
+
+## Mitgelieferte Lernmodule (`lernmodule/`)
+
+Fertige DAU-TO-PRO-Module liegen als einzelne HTML-Dateien in `lernmodule/` (Liste in `lernmodule/manifest.json`). Der Ordner ist per `.htaccess` gesperrt und wird nie direkt ausgeliefert. Im Admin unter **HTML-Projekte → Mitgelieferte Lernmodule** zeigt jede Datei, ob live schon dieselbe Version läuft. „Als Entwurf übernehmen“ legt sie als neue Entwurfsversion des gewählten Projekts an (bei bestehenden Projekten bleibt die URL und damit der gespeicherte Lernfortschritt erhalten). Öffentlich wird sie erst mit „Veröffentlichen“. Neues Modul: HTML-Datei nach `lernmodule/<kürzel>.html`, Eintrag in `manifest.json`, Vorschaubild-Motiv wie oben beschrieben.
+
+**Deployment (zusätzlich):** Ordner `lernmodule/` (inkl. `.htaccess`), `html_project_lib.php`, `admin/html_projects.php`.

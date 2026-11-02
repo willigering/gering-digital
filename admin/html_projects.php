@@ -67,6 +67,32 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if (!empty($old['preview_image']) && $preview!==$old['preview_image']) hp_delete_preview($old['preview_image']);
             hp_notice('Gespeichert. Das Vorschaubild erscheint bei veröffentlichten Projekten sofort auf der Projektkarte.');
         }
+        if ($action==='bundle_import') {
+            // Mitgeliefertes Lernmodul aus dem Repository als Entwurf übernehmen. Live bleibt unverändert,
+            // bis du auf „Veröffentlichen“ klickst.
+            $bundle=hp_bundles()[(string)($_POST['bundle']??'')]??null;
+            if (!$bundle) throw new RuntimeException('Unbekanntes Lernmodul.');
+            $target=(string)($_POST['target']??'');
+            if ($target==='new') {
+                $exists=$db->prepare('SELECT COUNT(*) FROM html_pages WHERE slug=?');
+                $exists->execute([$bundle['slug']]);
+                if ((int)$exists->fetchColumn()>0) throw new RuntimeException('Das Kürzel /'.$bundle['slug'].'/ gibt es schon. Bitte das bestehende Projekt als Ziel wählen.');
+                $version=hp_import_local($bundle['path'],$bundle['slug']);
+                try {
+                    $db->prepare("INSERT INTO html_pages(slug,title,description,category,draft_version) VALUES(?,?,?,'lernen',?)")
+                       ->execute([$bundle['slug'],$bundle['title'],$bundle['description'],$version]);
+                } catch(Throwable $error) {hp_delete_tree(hp_version_dir($bundle['slug'],$version));throw $error;}
+                hp_notice('„'.$bundle['title'].'“ als neuer Entwurf angelegt (/'.$bundle['slug'].'/). Vorschau prüfen, dann „Veröffentlichen“.');
+            }
+            $stmt->execute([(int)$target]);
+            $dest=$stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$dest) throw new RuntimeException('Zielprojekt nicht gefunden.');
+            $current=hp_version_hash($dest['slug'],$dest['draft_version']?:$dest['live_version']);
+            if ($current===$bundle['hash']) hp_notice('„'.$dest['title'].'“ hat diese Version bereits'.((string)$dest['draft_version']!==(string)$dest['live_version']||!$dest['published']?' als Entwurf. Jetzt nur noch „Veröffentlichen“.':'.'));
+            $version=hp_import_local($bundle['path'],$dest['slug']);
+            $db->prepare('UPDATE html_pages SET draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,(int)$dest['id']]);
+            hp_notice('Neue Version als Entwurf bei „'.$dest['title'].'“ hinterlegt. Die öffentliche Seite bleibt unverändert, bis du „Veröffentlichen“ klickst. Gespeicherter Fortschritt bleibt erhalten, weil die URL gleich bleibt.');
+        }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
         if ($action==='publish') {
             $version=$old['draft_version']?:$old['live_version'];
@@ -220,6 +246,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 @media(max-width:700px){.hp-thumb-fields{grid-template-columns:1fr 1fr}.hp-thumb-fields label:first-child{grid-column:1/-1}}
 @media(max-width:420px){.hp-thumb-fields{grid-template-columns:1fr}}
 
+.hp-bundle-target{display:flex;align-items:center;gap:8px;font-weight:700}.hp-bundle-target select{min-width:240px;max-width:100%}.hp-bundle .btn[disabled]{opacity:.45;cursor:default}
 @media(max-width:650px){.hp-layout .form-grid{grid-template-columns:1fr}.hp-actions{align-items:stretch}.hp-actions a,.hp-actions form,.hp-actions button{width:100%;justify-content:center}}
 </style>
 </head><body class="admin-page">
@@ -241,6 +268,32 @@ function hp_render_thumb_editor(array $page=[]): void {
 <?php hp_render_thumb_editor(); ?>
 <button class="btn" type="submit">Entwurf speichern <b>→</b></button>
 </form></section>
+<?php $bundles=hp_bundles(); if($bundles): $bySlug=array_column($pages,null,'slug'); ?>
+<section class="panel" id="lernmodule"><h2>📦 Mitgelieferte Lernmodule <span class="pill"><?=count($bundles)?></span></h2>
+<p class="hp-muted">Diese DAU-TO-PRO-Module kommen mit dem Website-Update aus GitHub. „Als Entwurf übernehmen“ legt sie als neue Version an. Öffentlich wird es erst mit „Veröffentlichen“ im Projekt unten. Bei einem bestehenden Projekt bleibt die URL gleich, gespeicherter Lernfortschritt bleibt also erhalten.</p>
+<?php foreach($bundles as $b): $dest=$bySlug[$b['slug']]??null;
+  // Live-Kürzel kann anders heißen (z. B. /osi-schichten/): dann das DAU-Projekt mit demselben Thema vorschlagen.
+  if(!$dest){$topic=dtp_preview_match(['slug'=>$b['slug'],'title'=>$b['title'],'description'=>'']);foreach($pages as $p){if(($p['category']??'')==='lernen'&&$topic!==''&&dtp_preview_match($p)===$topic){$dest=$p;break;}}}
+  $live=$dest&&$dest['published']?hp_version_hash($dest['slug'],$dest['live_version']):'';
+  $draft=$dest?hp_version_hash($dest['slug'],$dest['draft_version']):'';
+  if(!$dest){$state=['soon','Noch nicht auf der Website'];}
+  elseif($live===$b['hash']){$state=['live','✓ Live ist aktuell'];}
+  elseif($draft===$b['hash']){$state=['soon','Als Entwurf übernommen – noch veröffentlichen'];}
+  else{$state=['soon','Neuere Version verfügbar'];} ?>
+<article class="hp-project hp-bundle">
+<div class="hp-head"><div><h3><?=e($b['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($dest['slug']??$b['slug'])?>/</div><small class="hp-muted"><?=number_format($b['size']/1024,0,',','.')?> KB · Prüfsumme <?=e(substr($b['hash'],0,10))?></small></div>
+<span class="status <?=$state[0]?>"><?=e($state[1])?></span></div>
+<form class="hp-actions" action="html_projects.php#lernmodule" method="post"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="bundle_import"><input type="hidden" name="bundle" value="<?=e($b['slug'])?>">
+<label class="hp-bundle-target">Ziel <select name="target">
+<?php if(!isset($bySlug[$b['slug']])): ?><option value="new"<?=$dest?'':' selected'?>>Neues Projekt /<?=e($b['slug'])?>/</option><?php endif; ?>
+<?php foreach($pages as $p): ?><option value="<?=(int)$p['id']?>"<?=$dest&&(int)$dest['id']===(int)$p['id']?' selected':''?>><?=e($p['title'])?> (/<?=e($p['slug'])?>/)</option><?php endforeach; ?>
+</select></label>
+<button class="btn" type="submit"<?=$state[1]==='✓ Live ist aktuell'?' disabled':''?>>Als Entwurf übernehmen</button>
+</form>
+</article>
+<?php endforeach; ?>
+</section>
+<?php endif; ?>
 <section class="panel"><h2>Deine HTML-Projekte <span class="pill"><?=count($pages)?></span></h2>
 <?php if(!$pages): ?><p class="hp-muted">Noch nichts hochgeladen. Die Bits warten schon ungeduldig.</p><?php endif; ?>
 <?php foreach($pages as $page): ?>

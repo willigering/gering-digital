@@ -154,6 +154,37 @@ function hp_import(array $upload,string $slug): string {
         throw $error;
     }
 }
+/** Mitgelieferte Lernmodule aus dem Repository (Ordner lernmodule/, per .htaccess gesperrt). */
+function hp_bundle_dir(): string { return __DIR__.'/lernmodule'; }
+function hp_bundles(): array {
+    $raw=@file_get_contents(hp_bundle_dir().'/manifest.json');
+    $data=$raw!==false?json_decode($raw,true):null;
+    $out=[];
+    foreach((is_array($data)?($data['modules']??[]):[]) as $m){
+        $slug=(string)($m['slug']??'');$file=(string)($m['file']??'');
+        if (!hp_valid_slug($slug) || !preg_match('~^[a-z0-9-]+\.html$~D',$file)) continue;
+        $path=hp_bundle_dir().'/'.$file;
+        if (!is_file($path)) continue;
+        $out[$slug]=['slug'=>$slug,'path'=>$path,'title'=>(string)($m['title']??$slug),'description'=>(string)($m['description']??''),
+            'hash'=>hash_file('sha256',$path),'size'=>filesize($path),'changed'=>filemtime($path)];
+    }
+    return $out;
+}
+/** SHA-256 of a stored version's index.html ('' if missing). */
+function hp_version_hash(string $slug,?string $version): string {
+    if (!$version || !preg_match('~^[a-f0-9]{24}$~D',$version)) return '';
+    $file=hp_version_dir($slug,$version).'/index.html';
+    return is_file($file)?hash_file('sha256',$file):'';
+}
+/** Copies a bundled single-file module into a new draft version of $slug. */
+function hp_import_local(string $path,string $slug): string {
+    if (!is_file($path) || filesize($path)<1 || filesize($path)>20*1024*1024) throw new RuntimeException('Moduldatei fehlt oder ist zu groß.');
+    $version=bin2hex(random_bytes(12));
+    $base=hp_version_dir($slug,$version);
+    if (!is_dir($base) && !mkdir($base,0750,true)) throw new RuntimeException('Speicherordner konnte nicht angelegt werden.');
+    if (!copy($path,$base.'/index.html')) {hp_delete_tree($base);throw new RuntimeException('Modul konnte nicht übernommen werden.');}
+    return $version;
+}
 /**
  * @param callable|null $htmlFilter Optional transformation for HTML files (used to add the
  *        DAU TO PRO progress sync to live learning modules). Filtered pages are never cached publicly.
