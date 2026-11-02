@@ -23,6 +23,8 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
   <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/png" href="../assets/favicon-64.png">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
+<?php if(!$hero['custom']): ?>  <link rel="stylesheet" href="hero-scene.css?v=<?=filemtime(__DIR__.'/hero-scene.css')?>">
+<?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
@@ -44,7 +46,7 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
         <div class="hero-meta"><span><b><?=count($modules)?></b> <?=count($modules)===1?'Lernmodul':'Lernmodule'?></span><?php foreach([$c['meta_1'],$c['meta_2']] as $meta): if($meta==='')continue; ?><span><?=e($meta)?></span><?php endforeach; ?></div>
       </div>
       <div class="hero-visual">
-        <div class="hero-art-wrap" style="<?=e(dtp_hero_style($hero))?>"<?=$fx?>><picture><?php if(!$hero['custom'] && is_file(__DIR__.'/../assets/dau-to-pro-hero-1448.webp') && is_file(__DIR__.'/../assets/dau-to-pro-hero-768.webp')): ?><source type="image/webp" srcset="../assets/dau-to-pro-hero-768.webp 768w, ../assets/dau-to-pro-hero-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px"><?php endif; ?><img class="hero-logo" src="../<?=e($hero['src'])?>" width="<?=(int)$hero['width']?>" height="<?=(int)$hero['height']?>" fetchpriority="high" decoding="async" alt="<?=e($c['hero_alt'])?>"></picture></div>
+        <div class="hero-art-wrap"<?php if(!$hero['custom']): ?> data-scene="layers"<?php endif; ?> style="<?=e(dtp_hero_style($hero))?>"<?=$fx?>><?=dtp_hero_scene($hero,$c['hero_alt'])?></div>
       </div>
     </div>
   </section>

@@ -93,6 +93,8 @@
       .map(([sel,speed])=>[document.querySelector(sel),speed]).filter(([el])=>el);
     const hero=document.querySelector('.hero');
     const art=document.querySelector('.hero-art-wrap');
+    const planes=[...document.querySelectorAll('[data-hero-depth]')];
+    const finePointer=matchMedia('(hover:hover) and (pointer:fine)');
     const stage=document.querySelector('.dtp-world-texture');
     if(!layers.length&&!art&&!stage)return;
     if(layers.length){
@@ -102,7 +104,7 @@
       layers[0][0].before(clip);
       layers.forEach(([el])=>clip.append(el));
     }
-    let frame=0,on=false;
+    let frame=0,on=false,pointerX=0,pointerY=0;
     const apply=()=>{
       frame=0;
       const y=on?Math.max(0,scrollY):0;
@@ -116,6 +118,12 @@
       });
       const inHero=hero&&y<hero.offsetTop+hero.offsetHeight+120;
       if(art)art.style.translate=on&&!compact.matches&&inHero&&y?`0 ${(-Math.min(56,y*.10)).toFixed(1)}px`:'';
+      planes.forEach(plane=>{
+        if(!on||compact.matches){plane.style.translate='';return;}
+        const depth=Number(plane.dataset.heroDepth)||0;
+        const drift=inHero?Math.min(20,y*.04):0;
+        plane.style.translate=`${(pointerX*11*depth).toFixed(2)}px ${((pointerY*8-drift)*depth).toFixed(2)}px`;
+      });
     };
     const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
     const update=()=>{on=!reduced.matches;request()};
@@ -123,6 +131,16 @@
     addEventListener('resize',request,{passive:true});
     reduced.addEventListener('change',update);
     compact.addEventListener('change',request);
+    if(hero&&planes.length){
+      hero.addEventListener('pointermove',event=>{
+        if(!on||compact.matches||!finePointer.matches||event.pointerType!=='mouse')return;
+        const box=hero.getBoundingClientRect();
+        pointerX=Math.max(-1,Math.min(1,(event.clientX-box.left)/box.width*2-1));
+        pointerY=Math.max(-1,Math.min(1,(event.clientY-box.top)/box.height*2-1));
+        request();
+      },{passive:true});
+      hero.addEventListener('pointerleave',()=>{pointerX=0;pointerY=0;request()},{passive:true});
+    }
     // Details, Suchfilter, Bildnachladen und eigene Admin-Texte ändern die Seitenhöhe.
     if(typeof ResizeObserver!=='undefined')new ResizeObserver(request).observe(document.body);
     update();

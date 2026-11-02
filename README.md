@@ -97,3 +97,11 @@ Die bestehenden Originalgrafiken, `dau-to-pro/hero-fx.js`, `assets/dau-to-pro-pi
 
 **Browserprüfung:** `npm install --no-save --package-lock=false playwright@1.62.1`, `npx playwright install chromium`, dann `node tests/dau_landing_browser.js`. Optional `CHROME_PATH` für einen vorhandenen Chromium/Chrome setzen und `DTP_SCREENSHOT_DIR` für Screenshots. Der Test startet einen eigenen PHP-Server mit temporärer Datenbank und prüft 1440, 1366, 1024, 768, 390 und 320 Pixel Breite, Suchformular, Filter, Mobilmenü, Hinweis, Pixelpilz, Parallax, reduzierte Bewegung und leere Kataloge. CI stellt die Screenshots als Artefakt `dau-main-desktop-mobile` bereit.
 
+### Hero als integrierte Szene
+
+Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Native SVG-Ausschnitte und CSS-Masken verwenden dieselbe unveränderte Bildquelle; es entstehen keine neu gezeichneten Figuren oder zusätzlichen Bilddownloads. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
+
+Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickfläche, Farbwechsel, Wachstum, Zähler, Level-up, Video und XP-Abschluss bewegen sich dadurch zusammen. Eigene Hero-Uploads werden weiterhin als vollständiges Originalbild dargestellt.
+
+**Update zusätzlich zur kompakten Hauptseite:** `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/site.js`, `dau-to-pro/hero-fx.js` und die neue `dau-to-pro/hero-scene.css` gemeinsam übertragen. Keine Datenbank oder Uploads ersetzen. Der Browsertest prüft zusätzlich die Ebenenbewegung, Pilz-Ausrichtung nach Scrollen und die vollständige Fünf-Klick-/Video-/XP-Sequenz auf Desktop und Smartphone.
+

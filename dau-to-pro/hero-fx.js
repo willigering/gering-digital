@@ -4,6 +4,9 @@
   const wrap = document.querySelector('.hero-art-wrap[data-fx]');
   const img = wrap && wrap.querySelector('.hero-logo');
   if (!wrap || !img) return;
+  // The layered scene owns a real anchor that moves with the mushroom plane.
+  // Uploaded artwork keeps the original coordinate-based fallback.
+  const anchor = wrap.querySelector('[data-mushroom-anchor]');
 
   // Position of the pixel mushroom inside the original hero artwork (1448 × 1086 px).
   const ART = { w: 1448, h: 1086 }, BOX = { x: 1214, y: 522, w: 191, h: 174 };
@@ -17,7 +20,7 @@
     '....###...', '...###....', '..###.....', '..##......', '.##.......', '.#........', '#.........']
     .map((row, y) => [...row].map((c, x) => c === '#' ? `M${x} ${y}h1v1h-1z` : '').join('')).join('');
   const el = (tag, cls, parent) => { const n = document.createElement(tag); if (cls) n.className = cls; if (parent) parent.appendChild(n); return n; };
-  const layer = el('div', 'fx-layer', wrap);
+  const layer = el('div', 'fx-layer', anchor || wrap);
   const body = el('div', 'fx-shroom', layer);
   const pic = el('img', 'fx-shroom-img', body);
   pic.src = wrap.dataset.fx; pic.alt = ''; pic.decoding = 'async'; pic.draggable = false;
@@ -32,6 +35,10 @@
   let count = 0, firstAt = 0, resetTimer = 0, busy = false, video = null, lastFocus = null;
 
   function place() {
+    if (anchor) {
+      Object.assign(layer.style, { left: '0', top: '0', width: '100%', height: '100%' });
+      return;
+    }
     const r = img.getBoundingClientRect(), w = wrap.getBoundingClientRect();
     if (!r.width) return;
     const sx = r.width / ART.w, sy = r.height / ART.h;
@@ -211,3 +218,4 @@
 
   window.__dtpFx = { state: () => ({ count, busy, phase, video: !!video }) };
 })();
+

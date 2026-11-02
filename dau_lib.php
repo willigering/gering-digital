@@ -420,6 +420,42 @@ function dtp_hero_style(array $hero): string {
     return sprintf('--hero-ratio:%.5F;--hero-trim-top:%.5F;--hero-trim-bottom:%.5F;--hero-visible:%.5F',$ratio,$top,$bottom,$visible);
 }
 
+/** Responsive, pixel-identical artwork. Copies share the same browser-cached source. */
+function dtp_hero_picture(array $hero,string $alt,string $class='hero-logo'): string {
+    $source='';
+    if (empty($hero['custom']) && is_file(__DIR__.'/assets/dau-to-pro-hero-1448.webp') && is_file(__DIR__.'/assets/dau-to-pro-hero-768.webp'))
+        $source='<source type="image/webp" srcset="../assets/dau-to-pro-hero-768.webp 768w, ../assets/dau-to-pro-hero-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px">';
+    return '<picture>'.$source.'<img class="'.e($class).'" src="../'.e($hero['src']).'" width="'.(int)$hero['width'].'" height="'.(int)$hero['height'].'" '.($class==='hero-logo'?'fetchpriority="high" ':'').'decoding="async" alt="'.e($alt).'" draggable="false"></picture>';
+}
+
+/**
+ * Native scene planes, clipped from the original pixels rather than redrawn.
+ * Masks use normalized coordinates, so every plane and the mushroom share one coordinate system.
+ * Custom admin artwork keeps its original, unsliced rendering.
+ */
+function dtp_hero_scene(array $hero,string $alt): string {
+    if (!empty($hero['custom'])) return dtp_hero_picture($hero,$alt);
+    $novice=[[0,0],[610,0],[610,339],[631,360],[637,409],[603,443],[582,450],[569,480],[565,519],[563,552],[574,571],[560,610],[536,637],[534,707],[0,707]];
+    $pro=[[862,173],[889,193],[909,174],[931,188],[950,162],[969,184],[989,175],[1004,211],[1012,229],[1030,239],[1033,261],[1046,281],[1037,294],[1053,312],[1049,340],[1032,358],[1016,371],[1044,383],[1060,403],[1099,414],[1134,439],[1159,475],[1185,497],[1206,533],[1222,559],[1229,601],[1227,637],[1205,663],[1180,675],[1187,707],[855,707],[854,677],[842,655],[827,628],[811,601],[802,565],[789,528],[785,485],[789,451],[800,420],[811,399],[810,382],[817,365],[831,358],[813,336],[800,313],[793,292],[786,280],[796,262],[795,245],[807,235],[810,215],[829,222],[834,203],[849,205]];
+    $powerup=[[1151,331],[1448,331],[1448,707],[1205,707],[1205,537],[1176,522],[1151,505]];
+    $brand=[[0,707],[1448,707],[1448,1086],[0,1086]];
+    $path=static function(array $points): string {
+        $d='';foreach($points as $i=>[$x,$y])$d.=($i?' L':'M').sprintf('%.6F %.6F',$x/1448,$y/1086);
+        return $d.' Z';
+    };
+    $shapes=['dau'=>$path($novice),'pro'=>$path($pro),'powerup'=>$path($powerup),'brand'=>$path($brand)];
+    $html='<div class="hero-canvas"><div class="hero-reference">'.dtp_hero_picture($hero,$alt).'</div>';
+    $html.='<svg class="hero-mask-defs" width="0" height="0" aria-hidden="true" focusable="false"><defs>';
+    foreach($shapes as $name=>$d)$html.='<clipPath id="dtp-scene-'.$name.'" clipPathUnits="objectBoundingBox"><path d="'.$d.'"/></clipPath>';
+    $html.='<clipPath id="dtp-scene-ambient" clipPathUnits="objectBoundingBox"><path clip-rule="evenodd" d="M0 0H1V1H0Z '.implode(' ',$shapes).'"/></clipPath></defs></svg>';
+    foreach(['ambient'=>-.4,'dau'=>.32,'pro'=>.62,'brand'=>.18,'powerup'=>.8] as $name=>$depth){
+        $html.='<div class="hero-plane hero-plane--'.$name.'" data-hero-depth="'.$depth.'"><div class="hero-slice" aria-hidden="true" style="clip-path:url(#dtp-scene-'.$name.')">'.dtp_hero_picture($hero,'','hero-part-image').'</div>';
+        if($name==='powerup')$html.='<div class="hero-mushroom-anchor" data-mushroom-anchor></div>';
+        $html.='</div>';
+    }
+    return $html.'</div>';
+}
+
 /**
  * Top navigation of the DAU TO PRO pages.
  * $page: 'start' (landing page) or 'konto' (learner account page). $learner: logged-in username or null.
