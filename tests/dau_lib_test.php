@@ -38,6 +38,9 @@ $tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY 
 check($tables===['apps','html_pages','inquiries','learner_attempts','learner_progress','learner_tokens','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten)');
 
 // --- Vorschaubilder ---
+check(str_contains(dtp_module_description(['title'=>'OSI-Schichten','description'=>'Easy OSI']),'sieben OSI-Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
+check(str_contains(dtp_module_description(['title'=>'Subnet Sprint','description'=>'Subnetting, Subnetting, Subnetting...']),'Broadcast'),'Alter Subnetting-Platzhalter erklärt das Lernziel');
+check(dtp_module_description(['title'=>'OSI','description'=>'Meine eigene Beschreibung'])==='Meine eigene Beschreibung','Eigene aussagekräftige Kartentexte bleiben erhalten');
 $catalog=dtp_preview_catalog();
 check(count($catalog['motifs'])>=8,'Mindestens acht mitgelieferte Motive');
 foreach($catalog['motifs'] as $id=>$motif){
@@ -99,3 +102,4 @@ check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original
 @unlink($tmp);@unlink($db);
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"DAU-Bibliothek: $count Prüfungen bestanden\n";
 exit($failures?1:0);
+

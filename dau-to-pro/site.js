@@ -1,4 +1,5 @@
 (() => {
+  const motionReduced=matchMedia('(prefers-reduced-motion: reduce)');
   // Modul-Fokus wie in der Designvorlage: linearer Aufbau (~4,1 s), schnelles, weiches Ausblenden.
   // Nicht die Deckkraft eines fertig weichgezeichneten Layers animieren:
   // Blur, Helligkeit, Sättigung und Abdunkelung werden in jedem Frame gemeinsam gesetzt.
@@ -84,20 +85,16 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
     canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
   })();
-  // Parallax: Hintergrund-Ebenen (Textur, Leiterbahnen, Lichtstrahlen) laufen langsamer als der Inhalt,
-  // das Hero-Bild zieht beim Wegscrollen etwas schneller nach oben weg. Nur transform/translate, ein rAF pro Frame.
-  // Bei reduzierter Bewegung komplett aus.
+  // Begrenzte Tiefenbewegung: kein mit der Seitenlänge wachsender Versatz und kein Layout-Feedback.
   (() => {
-    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-    const layers=[['.dtp-world-traces',.14],['.dtp-eternal-rays',.08]]
+    const reduced=motionReduced;
+    const compact=matchMedia('(max-width: 860px)');
+    const layers=[['.dtp-world-traces',.10],['.dtp-eternal-rays',.05]]
       .map(([sel,speed])=>[document.querySelector(sel),speed]).filter(([el])=>el);
     const hero=document.querySelector('.hero');
     const art=document.querySelector('.hero-art-wrap');
-    const marks=[...document.querySelectorAll('.section-mark')];
-    const stage=document.querySelector('.dtp-world-texture'); // fest stehende Hintergrundbühne (128vh hoch)
+    const stage=document.querySelector('.dtp-world-texture');
     if(!layers.length&&!art&&!stage)return;
-    // Eigene Clip-Ebene, damit verschobene Hintergründe die Seite nicht verlängern.
-    // Ohne z-index/isolation: mix-blend-mode der Ebenen wirkt weiter auf den Seitenhintergrund.
     if(layers.length){
       const clip=document.createElement('div');
       clip.className='dtp-parallax-clip';
@@ -108,26 +105,45 @@
     let frame=0,on=false;
     const apply=()=>{
       frame=0;
-      const y=on?scrollY:0;
+      const y=on?Math.max(0,scrollY):0;
+      const scale=compact.matches?.5:1;
       if(stage){
         const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
-        stage.style.translate=on&&y?`0 ${(-(y/max)*.28*innerHeight).toFixed(1)}px`:'';
+        stage.style.translate=on&&y?`0 ${(-Math.min(1,y/max)*.28*innerHeight*scale).toFixed(1)}px`:'';
       }
-      layers.forEach(([el,speed])=>{el.style.translate=y?`0 ${(y*speed).toFixed(1)}px`:''});
-      const h=hero?hero.offsetHeight:0,inHero=on&&y<h+200;
-      if(art)art.style.translate=inHero&&y?`0 ${(-y*.1).toFixed(1)}px`:''; // Bild zieht etwas schneller nach oben weg als der Text
-      marks.forEach(el=>{
-        if(!on){el.style.translate='';return;}
-        const r=el.getBoundingClientRect(),mid=r.top+r.height/2-innerHeight/2;
-        el.style.translate=`0 ${(-mid*.18).toFixed(1)}px`;
+      layers.forEach(([el,speed])=>{
+        el.style.translate=y?`0 ${Math.min(110,y*speed*scale).toFixed(1)}px`:'';
       });
+      const inHero=hero&&y<hero.offsetTop+hero.offsetHeight+120;
+      if(art)art.style.translate=on&&!compact.matches&&inHero&&y?`0 ${(-Math.min(56,y*.10)).toFixed(1)}px`:'';
     };
     const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
     const update=()=>{on=!reduced.matches;request()};
     addEventListener('scroll',request,{passive:true});
     addEventListener('resize',request,{passive:true});
     reduced.addEventListener('change',update);
+    compact.addEventListener('change',request);
+    // Details, Suchfilter, Bildnachladen und eigene Admin-Texte ändern die Seitenhöhe.
+    if(typeof ResizeObserver!=='undefined')new ResizeObserver(request).observe(document.body);
     update();
+  })();
+  // Einmalige, kurze Einblendung. Ohne Observer oder bei reduzierter Bewegung bleibt alles sichtbar.
+  (() => {
+    if(motionReduced.matches||typeof IntersectionObserver==='undefined')return;
+    const elements=[...document.querySelectorAll('[data-reveal]')];
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(!entry.isIntersecting)return;
+        entry.target.classList.add('is-revealed');
+        observer.unobserve(entry.target);
+      });
+    },{threshold:.08});
+    elements.forEach(el=>{el.classList.add('will-reveal');observer.observe(el)});
+    motionReduced.addEventListener('change',()=>{
+      if(!motionReduced.matches)return;
+      elements.forEach(el=>el.classList.add('is-revealed'));
+      observer.disconnect();
+    });
   })();
   // „Mein Konto“-Menü: auf-/zuklappen, Escape und Klick daneben schließen.
   (() => {
@@ -145,13 +161,16 @@
     const open=()=>{const el=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el&&el.tagName==='DETAILS')el.open=true};
     open();addEventListener('hashchange',open);
   })();
-  const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
-  const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
-  toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
-  menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
-  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu()});
-  document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dtp-nav'))closeMenu()});
-  matchMedia('(min-width: 861px)').addEventListener('change',closeMenu);
+  (() => {
+    const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
+    if(!toggle||!menu)return;
+    const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
+    toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
+    menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){closeMenu();toggle.focus()}});
+    document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dtp-nav'))closeMenu()});
+    matchMedia('(min-width: 861px)').addEventListener('change',closeMenu);
+  })();
   // Mehrthemen-Prüfungsfinder: findet ausschließlich tatsächlich veröffentlichte PHP-Module.
   const form=document.getElementById('exam-form');
   const input=document.getElementById('exam-topics');
@@ -201,6 +220,8 @@
       card.classList.toggle('is-search-result',show&&terms.length>0);
       if(show)found++;
     });
+    const grid=document.getElementById('module-grid');
+    if(grid)grid.dataset.count=String(found);
     const unit=found===1?'Modul':'Module';
     if(indicator)indicator.textContent=terms.length
       ? (found ? found+' passende '+unit+' gefunden' : 'Leider kein passendes Modul gefunden')
@@ -273,4 +294,13 @@
   window.addEventListener('load',schedule,{once:true});
   window.addEventListener('resize',schedule,{passive:true});
   if('ResizeObserver' in window) new ResizeObserver(schedule).observe(document.body);
+})();
+
+
+(() => {
+  const notice=document.querySelector('#hinweis details');
+  if(!notice)return;
+  const openNotice=()=>{if(location.hash==='#hinweis')notice.open=true};
+  document.querySelectorAll('a[href="#hinweis"]').forEach(link=>link.addEventListener('click',()=>{notice.open=true}));
+  openNotice();addEventListener('hashchange',openNotice);
 })();

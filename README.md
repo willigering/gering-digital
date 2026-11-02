@@ -79,3 +79,21 @@ Lernende können unter `/dau-to-pro/konto.php` ein kostenloses Konto anlegen: **
 
 ## Tests
 `php tests/dau_lib_test.php`, `php tests/admin_http_test.php` (startet PHPs eingebauten Server mit einer temporären Datenbank), `node tests/dau_card_hover.js`, `node tests/dau_parallax.js`, `node tests/dau_exam_finder.js`, `php tests/html_project_paths.php`, `php tests/learner_lib_test.php`, `php tests/learner_http_test.php`, `node tests/learner_sync.js`. Die produktive Datenbank wird dabei nie verwendet: `GD_DB_PATH` wirkt nur in der Kommandozeile und im eingebauten Testserver.
+
+## DAU TO PRO: kompakte Hauptseite
+
+Der Einstieg zeigt Text und Originalgrafik nebeneinander, darunter folgen Prüfungsfinder und Lernmodule. Das Raster passt sich an die sichtbaren Treffer an; Filter erscheinen nur für vorhandene Themen. Bestehende eigene Vorschaubilder und Einpass-Einstellungen gelten weiterhin. Alte Platzhalter wie „Easy OSI“ bekommen bei der Ausgabe ein konkretes Lernziel; aussagekräftige eigene Beschreibungen und die gespeicherten Daten bleiben unverändert.
+
+Die Navigation bleibt erreichbar und führt zu den Lernangeboten; Gering Digital ist weiterhin über Mobilmenü und Footer erreichbar. Der vollständige Hinweis steht in einer nativen, aufklappbaren Box. Parallax bleibt begrenzt, läuft auf kleinen Geräten zurückhaltender und wird bei reduzierter Bewegung vollständig deaktiviert. Der Pixelpilz samt Video bleibt erhalten. Alle Texte und eigene Hero-Uploads können weiter im Admin bearbeitet werden.
+
+**STRATO-Update für diese Überarbeitung (gemeinsam übertragen):**
+
+- `dau_lib.php`
+- `dau-to-pro/index.php`, `dau-to-pro/style.css`, `dau-to-pro/site.js`
+- neu: `dau-to-pro/hero-fx.css`
+- neu: `assets/dau-to-pro-hero-768.webp`, `assets/dau-to-pro-hero-1448.webp`
+
+Die bestehenden Originalgrafiken, `dau-to-pro/hero-fx.js`, `assets/dau-to-pro-pixelpilz.png`, das Easter-Egg-Video und die Platinen-Hintergründe müssen weiterhin vorhanden sein (Hintergründe aus PR #25 mit übertragen). Keine Datenbank oder Uploadordner ersetzen. Nach Upload die Live-Seite neu laden: Suchformular absenden, Mobilmenü öffnen, Hinweis aufklappen und bei normaler Bewegung scrollen. Ein GitHub-Merge allein aktualisiert die STRATO-Dateien nicht.
+
+**Browserprüfung:** `npm install --no-save --package-lock=false playwright@1.62.1`, `npx playwright install chromium`, dann `node tests/dau_landing_browser.js`. Optional `CHROME_PATH` für einen vorhandenen Chromium/Chrome setzen und `DTP_SCREENSHOT_DIR` für Screenshots. Der Test startet einen eigenen PHP-Server mit temporärer Datenbank und prüft 1440, 1366, 1024, 768, 390 und 320 Pixel Breite, Suchformular, Filter, Mobilmenü, Hinweis, Pixelpilz, Parallax, reduzierte Bewegung und leere Kataloge. CI stellt die Screenshots als Artefakt `dau-main-desktop-mobile` bereit.
+
