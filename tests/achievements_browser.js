@@ -27,6 +27,7 @@ const MODULES={
   'a1-zahlensysteme':{hook:'A1_TEST',prefix:'a1-bits',clean:['h_color','h_chmod','u_cross','u_disk'],fails:['b_max','c_over','u_disk']},
   'osi-sprint':{hook:'OSI_TEST',prefix:'osi-sprint',clean:['n_memo','o_seq','t_case'],fails:['t_layer','n_num']},
   'subnet-sprint':{hook:'SUBNET_TEST',prefix:'subnet-sprint',clean:['p_pow','v_net','v_bc'],fails:['h_usable','c_same','b_bc']},
+  'netzwerke-sprint':{hook:'NETZ_TEST',prefix:'netz-sprint',clean:['b_kurz','p_port','p_portr','c_coll','c_bcast'],fails:['s_flood','v_short','tr_diag']},
 };
 const versions=[];
 
@@ -82,7 +83,7 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
 
     // Module names: formal subject above the witty title on the cards.
     const cards=await page.$$eval('.module-card',cs=>cs.map(c=>c.querySelector('.module-category').textContent.trim()+' | '+c.querySelector('h2').textContent.trim()));
-    for(const want of ['Zahlensysteme | Bits zum bitteren Ende','OSI-Schichten | Easy OSI for FISI','Subnetting | Wer teilt, gewinnt'])assert.ok(cards.includes(want),'Modulkarte zeigt '+want+' ('+cards.join(', ')+')');
+    for(const want of ['Zahlensysteme | Bits zum bitteren Ende','OSI-Schichten | Easy OSI for FISI','Subnetting | Wer teilt, gewinnt','Netzwerkgrundlagen | Jetzt ma Router bei die Switche!'])assert.ok(cards.includes(want),'Modulkarte zeigt '+want+' ('+cards.join(', ')+')');
     if(shots)await page.locator('#lernmodule').screenshot({path:path.join(shots,'modulkarten-thema.png')});
 
     let popupShot=false;
@@ -141,6 +142,7 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
       'a1-zahlensysteme':['a1.erstes-bit','a1.farbcodes','a1.chmod','a1.kibi','a1.off-by-one','a1.ueberlauf','a1.festplatte'],
       'osi-sprint':['osi.kabel','osi.merksatz','osi.handshake','osi.layer8','osi.richtung','osi.getrennt'],
       'subnet-sprint':['subnet.oktett','subnet.potenzen','subnet.vlsm','subnet.host','subnet.falsches-netz','subnet.leere'],
+      'netzwerke-sprint':['netz.link-up','netz.kuerzel','netz.ports','netz.domaenen','netz.sturm','netz.doppelpunkt','netz.neustart'],
     };
     for(const list of Object.values(expect))for(const code of list)assert.ok(got.includes(code),'Im echten Modul erreicht: '+code);
     assert.ok(got.includes('g.allrounder'),'Allrounder nach Stufe 1 in drei Modulen');
