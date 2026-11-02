@@ -149,7 +149,12 @@ try {
     check((int)$pdo->query("SELECT COUNT(*) FROM html_pages WHERE slug='a1-zahlensysteme'")->fetchColumn()===1,'Bestehendes Kürzel wird nicht doppelt angelegt');
     http('POST','/admin/html_projects.php',['action'=>'bundle_import','bundle'=>'subnet-sprint','target'=>'new']);
     check((int)$pdo->query("SELECT COUNT(*) FROM html_pages WHERE slug='subnet-sprint'")->fetchColumn()===0,'Ohne CSRF-Token passiert nichts');
-    $createdVersions=[['osi-sprint',$draft],['a1-zahlensysteme',(string)$a1['draft_version']]];
+    check($a1['preview_image']==='assets/dau-previews/zahlensysteme.webp','Neues Modul bringt sein Vorschaubild-Motiv mit');
+    $pdo->exec("UPDATE html_pages SET preview_image='assets/uploads/html-preview-".str_repeat('a',32).".png' WHERE id=$subLive");
+    http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'bundle_import','bundle'=>'subnet-sprint','target'=>(string)$subLive,'take_names'=>'1']);
+    $sl=$pdo->query("SELECT * FROM html_pages WHERE id=$subLive")->fetch(PDO::FETCH_ASSOC);
+    check($sl['title']==='Wer teilt, gewinnt' && $sl['subject']==='Subnetting' && $sl['preview_image']==='assets/dau-previews/ipv4-subnetting.webp','Namen übernehmen ersetzt auch den alten Screenshot durch das Motiv');
+    $createdVersions=[['osi-sprint',$draft],['a1-zahlensysteme',(string)$a1['draft_version']],['subnetz-live',(string)$sl['draft_version']]];
     @unlink($png);@unlink($fake);@unlink($shot);
 } finally {
     foreach($cleanup as $file) if(is_string($file) && preg_match('~^assets/uploads/(?:html-preview|dtp-hero)-[a-f0-9]{32}\.\w+$~',$file)) @unlink($root.'/'.$file);

@@ -166,6 +166,7 @@ function hp_bundles(): array {
         $path=hp_bundle_dir().'/'.$file;
         if (!is_file($path)) continue;
         $out[$slug]=['slug'=>$slug,'path'=>$path,'title'=>(string)($m['title']??$slug),'subject'=>(string)($m['subject']??''),'description'=>(string)($m['description']??''),
+            'preview'=>preg_match('~^[a-z0-9-]{2,60}$~D',(string)($m['preview']??''))?(string)$m['preview']:'',
             'hash'=>hash_file('sha256',$path),'size'=>filesize($path),'changed'=>filemtime($path)];
     }
     return $out;
@@ -213,4 +214,11 @@ function hp_serve(string $slug,string $version,string $file='',bool $preview=fal
     if ($filtered) {echo $htmlFilter((string)file_get_contents($path),$file);exit;}
     readfile($path);
     exit;
+}
+
+/** Vorschaubild eines mitgelieferten Moduls: das im Manifest genannte Motiv, sonst leer (= automatische Zuordnung). */
+function hp_bundle_preview(array $bundle): string {
+    $id=(string)($bundle['preview']??'');
+    if ($id==='' || !function_exists('dtp_preview_catalog') || !isset(dtp_preview_catalog()['motifs'][$id])) return '';
+    return DTP_PREVIEW_DIR.'/'.$id.'.webp';
 }

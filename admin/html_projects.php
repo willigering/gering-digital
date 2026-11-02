@@ -82,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 if ((int)$exists->fetchColumn()>0) throw new RuntimeException('Das Kürzel /'.$bundle['slug'].'/ gibt es schon. Bitte das bestehende Projekt als Ziel wählen.');
                 $version=hp_import_local($bundle['path'],$bundle['slug']);
                 try {
-                    $db->prepare("INSERT INTO html_pages(slug,title,subject,description,category,draft_version) VALUES(?,?,?,?,'lernen',?)")
-                       ->execute([$bundle['slug'],$bundle['title'],$bundle['subject'],$bundle['description'],$version]);
+                    $db->prepare("INSERT INTO html_pages(slug,title,subject,description,category,draft_version,preview_image) VALUES(?,?,?,?,'lernen',?,?)")
+                       ->execute([$bundle['slug'],$bundle['title'],$bundle['subject'],$bundle['description'],$version,hp_bundle_preview($bundle)]);
                 } catch(Throwable $error) {hp_delete_tree(hp_version_dir($bundle['slug'],$version));throw $error;}
                 hp_notice('„'.$bundle['title'].'“ als neuer Entwurf angelegt (/'.$bundle['slug'].'/). Vorschau prüfen, dann „Veröffentlichen“.');
             }
@@ -94,8 +94,15 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if ($current===$bundle['hash']) hp_notice('„'.$dest['title'].'“ hat diese Version bereits'.((string)$dest['draft_version']!==(string)$dest['live_version']||!$dest['published']?' als Entwurf. Jetzt nur noch „Veröffentlichen“.':'.'));
             $version=hp_import_local($bundle['path'],$dest['slug']);
             $db->prepare('UPDATE html_pages SET draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,(int)$dest['id']]);
-            // Optional auch Name, Thema und Beschreibung aus dem Paket übernehmen (z. B. nach einer Umbenennung).
-            if (!empty($_POST['take_names'])) $db->prepare('UPDATE html_pages SET title=?,subject=?,description=? WHERE id=?')->execute([$bundle['title'],$bundle['subject'],$bundle['description'],(int)$dest['id']]);
+            // Optional auch Name, Thema und Beschreibung aus dem Paket übernehmen (z. B. nach einer Umbenennung)
+            // und das passende Vorschaubild-Motiv statt eines alten Screenshots.
+            if (!empty($_POST['take_names'])) {
+                $motif=hp_bundle_preview($bundle);
+                $preview=$motif!==''?$motif:(string)($dest['preview_image']??'');
+                $db->prepare("UPDATE html_pages SET title=?,subject=?,description=?,preview_image=?,preview_fit='cover',preview_x=50,preview_y=50 WHERE id=?")
+                   ->execute([$bundle['title'],$bundle['subject'],$bundle['description'],$preview,(int)$dest['id']]);
+                if (!empty($dest['preview_image']) && $preview!==$dest['preview_image']) hp_delete_preview((string)$dest['preview_image']);
+            }
             hp_notice('Neue Version als Entwurf bei „'.$dest['title'].'“ hinterlegt. Die öffentliche Seite bleibt unverändert, bis du „Veröffentlichen“ klickst. Gespeicherter Fortschritt bleibt erhalten, weil die URL gleich bleibt.');
         }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
@@ -295,8 +302,8 @@ function hp_render_thumb_editor(array $page=[]): void {
 <?php if(!isset($bySlug[$b['slug']])): ?><option value="new"<?=$dest?'':' selected'?>>Neues Projekt /<?=e($b['slug'])?>/</option><?php endif; ?>
 <?php foreach($pages as $p): ?><option value="<?=(int)$p['id']?>"<?=$dest&&(int)$dest['id']===(int)$p['id']?' selected':''?>><?=e($p['title'])?> (/<?=e($p['slug'])?>/)</option><?php endforeach; ?>
 </select></label>
-<?php $namesDiffer=$dest&&(($dest['title']??'')!==$b['title']||($dest['subject']??'')!==$b['subject']); ?>
-<?php if($dest): ?><label class="check"><input type="checkbox" name="take_names" value="1"<?=$namesDiffer?' checked':''?>> Titel, Thema und Beschreibung aus dem Paket übernehmen<?=$namesDiffer?' (bisher: „'.e(trim(($dest['subject']??'').' · '.$dest['title'],' ·')).'“)':''?></label><?php endif; ?>
+<?php $motif=hp_bundle_preview($b); $namesDiffer=$dest&&(($dest['title']??'')!==$b['title']||($dest['subject']??'')!==$b['subject']||($motif!==''&&($dest['preview_image']??'')!==$motif)); ?>
+<?php if($dest): ?><label class="check"><input type="checkbox" name="take_names" value="1"<?=$namesDiffer?' checked':''?>> Titel, Thema, Beschreibung<?=$motif!==''?' und Vorschaubild':''?> aus dem Paket übernehmen<?=$namesDiffer?' (bisher: „'.e(trim(($dest['subject']??'').' · '.$dest['title'],' ·')).'“)':''?></label><?php endif; ?>
 <button class="btn" type="submit"<?=$state[1]==='✓ Live ist aktuell'&&!$namesDiffer?' disabled':''?>>Als Entwurf übernehmen</button>
 </form>
 </article>
