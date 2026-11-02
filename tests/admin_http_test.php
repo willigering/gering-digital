@@ -6,6 +6,7 @@ $root=realpath(__DIR__.'/..');
 $db=tempnam(sys_get_temp_dir(),'gd-http-').'.sqlite';
 putenv('GD_DB_PATH='.$db);
 require $root.'/dau_lib.php';
+require_once $root.'/html_project_lib.php';
 $pdo=db();
 $pdo->prepare('INSERT INTO users(username,password_hash) VALUES(?,?)')->execute(['tester',password_hash('ein-langes-testpasswort',PASSWORD_DEFAULT)]);
 $pdo->prepare("INSERT INTO html_pages(slug,title,description,category,published) VALUES('osi-sprint','OSI Sprint','Sieben Schichten','lernen',1)")->execute();
@@ -123,10 +124,37 @@ try {
     $other=(int)$pdo->query("SELECT id FROM html_pages WHERE slug='fremd-projekt'")->fetchColumn();
     http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'save','id'=>$other,'title'=>'Spiel','description'=>'Ein Spiel','category'=>'spiele','preview_source'=>'keep','preview_fit'=>'cover','preview_x'=>'50','preview_y'=>'0']);
     check($pdo->query("SELECT preview_image FROM html_pages WHERE id=$other")->fetchColumn()==='','Projekte außerhalb von DAU TO PRO bleiben unverändert');
+    // --- Mitgelieferte Lernmodule (lernmodule/) ---
+    check(str_contains((string)@file_get_contents($root.'/lernmodule/.htaccess'),'Require all denied'),'Modulpakete sind per .htaccess gesperrt');
+    $bundles=hp_bundles();
+    check(isset($bundles['osi-sprint'],$bundles['subnet-sprint'],$bundles['a1-zahlensysteme']),'Drei Lernmodule mitgeliefert');
+    foreach($bundles as $b) check(dtp_preview_resolve(['slug'=>$b['slug'],'title'=>$b['title'],'description'=>$b['description'],'preview_image'=>''])['src']!=='','Vorschaubild für '.$b['slug'].' vorhanden');
+    $pdo->exec("INSERT INTO html_pages(slug,title,description,category,published) VALUES('subnetz-live','Subnet Sprint','Subnetting üben','lernen',1)");
+    $subLive=(int)$pdo->lastInsertId();
+    $adminList=http('GET','/admin/html_projects.php')['body'];
+    check((bool)preg_match('~name="bundle" value="subnet-sprint">.*?<option value="'.$subLive.'" selected>~s',$adminList),'Anders benanntes Live-Modul wird als Ziel vorgeschlagen');
+    check(str_contains($adminList,'Mitgelieferte Lernmodule') && str_contains($adminList,'Neues Projekt /a1-zahlensysteme/'),'Admin zeigt mitgelieferte Module mit Ziel');
+    $osi=$pdo->query("SELECT * FROM html_pages WHERE slug='osi-sprint'")->fetch(PDO::FETCH_ASSOC);
+    $liveBefore=(string)$osi['live_version'];
+    http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'bundle_import','bundle'=>'osi-sprint','target'=>(string)$osi['id']]);
+    $osi=$pdo->query("SELECT * FROM html_pages WHERE slug='osi-sprint'")->fetch(PDO::FETCH_ASSOC);
+    check($osi['draft_version']!=='' && hp_version_hash('osi-sprint',$osi['draft_version'])===$bundles['osi-sprint']['hash'] && (string)$osi['live_version']===$liveBefore,'Übernahme legt Entwurf an, Live bleibt unverändert');
+    $draft=$osi['draft_version'];
+    http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'bundle_import','bundle'=>'osi-sprint','target'=>(string)$osi['id']]);
+    check($pdo->query("SELECT draft_version FROM html_pages WHERE slug='osi-sprint'")->fetchColumn()===$draft,'Gleiche Version wird nicht doppelt angelegt');
+    http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'bundle_import','bundle'=>'a1-zahlensysteme','target'=>'new']);
+    $a1=$pdo->query("SELECT * FROM html_pages WHERE slug='a1-zahlensysteme'")->fetch(PDO::FETCH_ASSOC);
+    check($a1 && $a1['category']==='lernen' && !$a1['published'] && hp_version_hash('a1-zahlensysteme',$a1['draft_version'])===$bundles['a1-zahlensysteme']['hash'],'Neues Modul wird als unveröffentlichter Entwurf angelegt');
+    http('POST','/admin/html_projects.php',['csrf'=>$csrf2,'action'=>'bundle_import','bundle'=>'a1-zahlensysteme','target'=>'new']);
+    check((int)$pdo->query("SELECT COUNT(*) FROM html_pages WHERE slug='a1-zahlensysteme'")->fetchColumn()===1,'Bestehendes Kürzel wird nicht doppelt angelegt');
+    http('POST','/admin/html_projects.php',['action'=>'bundle_import','bundle'=>'subnet-sprint','target'=>'new']);
+    check((int)$pdo->query("SELECT COUNT(*) FROM html_pages WHERE slug='subnet-sprint'")->fetchColumn()===0,'Ohne CSRF-Token passiert nichts');
+    $createdVersions=[['osi-sprint',$draft],['a1-zahlensysteme',(string)$a1['draft_version']]];
     @unlink($png);@unlink($fake);@unlink($shot);
 } finally {
     foreach($cleanup as $file) if(is_string($file) && preg_match('~^assets/uploads/(?:html-preview|dtp-hero)-[a-f0-9]{32}\.\w+$~',$file)) @unlink($root.'/'.$file);
     proc_terminate($server);@unlink($db);@unlink($jar);
+    foreach($createdVersions??[] as [$slug,$version]) if(preg_match('~^[a-f0-9]{24}$~D',$version)) {hp_delete_tree(hp_version_dir($slug,$version));@rmdir(hp_storage().'/'.$slug);}
 }
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"Admin-HTTP-Tests: $count Prüfungen bestanden\n";
 exit($failures?1:0);
