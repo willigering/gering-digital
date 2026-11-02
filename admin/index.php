@@ -22,7 +22,7 @@ function admin2_status(array $item): string {
 }
 function admin2_name(array $item): string {return (string)($item['name']??$item['title']??'Ohne Titel');}
 function admin2_target(array $item): string {
-  return ($item['_kind']??'')==='html'?'html_projects.php':'legacy.php';
+  return ($item['_kind']??'')==='html'?'html_projects.php#projekt-'.(int)$item['id']:'edit_app.php?id='.(int)$item['id'];
 }
 ?>
 <?php admin2_open($view,$labels[$view]); ?>
@@ -35,7 +35,10 @@ function admin2_target(array $item): string {
   <div class="stat"><span class="stat-top">Veröffentlichte HTML <svg><use href="#i-code"/></svg></span><div class="stat-num"><?=$livePages?></div><div class="stat-info">Online im Browser</div></div>
   <div class="stat"><span class="stat-top">Lernmodule <svg><use href="#i-book"/></svg></span><div class="stat-num"><?=$dauLive?></div><div class="stat-info">DAU TO PRO · veröffentlicht</div></div>
  </div>
- <div class="hero"><div class="hero-copy"><p class="eyebrow">DEINE LERNPLATTFORM</p><h2>DAU <span>TO</span> PRO</h2><p>Deine Lernprogramme zentral verwalten, Vorschauen prüfen und bewusst veröffentlichen.</p><a class="btn btn-gold" href="index.php?view=dau"><svg><use href="#i-book"/></svg> Lernplattform verwalten <svg><use href="#i-arrow"/></svg></a></div><div class="hero-art"><div class="orb"><svg><use href="#i-book"/></svg><div class="orb-label">LERNPLATTFORM</div></div></div></div>
+ <div class="admin-areas">
+ <section class="card card-pad"><p class="eyebrow">GERING DIGITAL</p><h2>Projekte &amp; Apps</h2><p class="subtext">Apps und Webprojekte auf deiner Portfolioseite pflegen.</p><div class="action-stack"><a class="btn btn-gold" href="index.php?view=projects">Projekte öffnen →</a><a class="btn btn-ghost" href="legacy.php">Apps bearbeiten</a></div></section>
+ <section class="card card-pad"><p class="eyebrow">DAU TO PRO</p><h2>Deine Lernplattform</h2><p class="subtext">Lernmodule, Vorschaubilder, Startseitentexte und Lernkonten.</p><div class="action-stack"><a class="btn btn-gold" href="index.php?view=dau">Lernmodule öffnen →</a><a class="btn btn-ghost" href="dau_page.php">Startseite bearbeiten</a></div></section>
+ </div>
  <div class="dash-grid">
  <div class="card card-pad"><div class="section-head"><div><h2>Deine Projekte</h2><p class="section-sub">Direkter Zugriff auf die Verwaltung</p></div><a class="link" href="index.php?view=projects">Alle ansehen →</a></div>
  <div class="table-wrap"><table class="project-table"><thead><tr><th>Projekt</th><th>Status</th><th>Aktion</th></tr></thead><tbody>
@@ -52,12 +55,12 @@ function admin2_target(array $item): string {
  <div class="page-heading"><div><p class="eyebrow">INHALTE VERWALTEN</p><h1>Alle Projekte</h1><p class="subtext">App-Katalog und veröffentlichbare HTML-Projekte. Die Bearbeitung bleibt durch Login und CSRF geschützt.</p></div><div class="heading-actions"><a class="btn btn-gold" href="html_projects.php">HTML hinzufügen</a><a class="btn btn-ghost" href="legacy.php">Apps verwalten</a></div></div>
  <div class="card full-table"><div class="table-wrap"><table class="project-table"><thead><tr><th>Projekt</th><th>Kategorie</th><th>Status</th><th>Aktion</th></tr></thead><tbody>
  <?php foreach($apps as $a): ?><tr><td><div class="proj-name"><?=e($a['name'])?></div><div class="proj-detail"><?=e($a['short_description']??'')?></div></td><td><?=e($categories[$a['category']??'apps']??'Apps')?></td><td><span class="badge <?=(int)($a['published']??0)===1?'live':'draft'?>"><?=(int)($a['published']??0)===1?'Sichtbar':'Entwurf'?></span></td><td><a class="small-action" href="edit_app.php?id=<?=(int)$a['id']?>">Bearbeiten</a></td></tr><?php endforeach; ?>
- <?php foreach($pages as $p): ?><tr><td><div class="proj-name"><?=e($p['title'])?></div><div class="proj-detail"><?=e($p['description']??'')?></div></td><td><?=e($categories[$p['category']??'lernen']??'HTML')?></td><td><span class="badge <?=(int)($p['published']??0)===1?'live':'draft'?>"><?=(int)($p['published']??0)===1?'Online':'Entwurf / offline'?></span></td><td><a class="small-action" href="html_projects.php">Verwalten</a></td></tr><?php endforeach; ?>
+ <?php foreach($pages as $p): ?><tr><td><div class="proj-name"><?=e($p['title'])?></div><div class="proj-detail"><?=e($p['description']??'')?></div></td><td><?=e($categories[$p['category']??'lernen']??'HTML')?></td><td><span class="badge <?=(int)($p['published']??0)===1?'live':'draft'?>"><?=(int)($p['published']??0)===1?'Online':'Entwurf / offline'?></span></td><td><a class="small-action" href="html_projects.php#projekt-<?=(int)$p['id']?>">Bearbeiten</a></td></tr><?php endforeach; ?>
  <?php if(!$apps&&!$pages): ?><tr><td colspan="4" class="empty-state">Keine Projekte vorhanden.</td></tr><?php endif; ?>
  </tbody></table></div></div>
 <?php elseif($view==='dau'): ?>
  <div class="page-heading"><div><p class="eyebrow">LERNPLATTFORM</p><h1>DAU TO PRO <span class="text-gold">/</span> Verwaltung</h1><p class="subtext">Hier erscheinen die Lernmodule der Kategorie DAU TO PRO direkt aus der Datenbank.</p></div>
- <div class="heading-actions"><a class="btn btn-gold" href="html_projects.php">Lernmodul hinzufügen</a><a class="btn btn-ghost" href="dau_page.php"><svg><use href="#i-edit"/></svg> Oberseite bearbeiten</a><a class="btn btn-ghost" href="../dau-to-pro/" target="_blank" rel="noopener">Öffentliche Oberseite ↗</a></div></div>
+ <div class="heading-actions"><a class="btn btn-gold" href="html_projects.php">Lernmodul hinzufügen</a><a class="btn btn-ghost" href="dau_page.php"><svg><use href="#i-edit"/></svg> Startseite bearbeiten</a><a class="btn btn-ghost" href="../dau-to-pro/" target="_blank" rel="noopener">Startseite ansehen ↗</a></div></div>
  <div class="dau-landing"><p class="eyebrow">DEINE LERNPLATTFORM</p><h2>Von Null Plan zu echtem <span>IT-Verständnis</span></h2><p>Der öffentliche Prüfungsfinder zeigt automatisch passende veröffentlichte Module. Neue Entwürfe sind erst nach deiner Freigabe sichtbar.</p><div class="dau-pills"><span>NETZWERKTECHNIK</span><span>IP &amp; SUBNETTING</span><span>PRÜFUNGSVORBEREITUNG</span></div></div>
  <div class="section-head"><div><h2>Deine Lernmodule <span class="text-gold">(<?=count($dauPages)?>)</span></h2><p class="section-sub"><?=$dauLive?> veröffentlicht · <?=count($dauPages)-$dauLive?> nicht online</p></div><a class="link" href="html_projects.php">Alle Module verwalten →</a></div>
  <div class="module-cards">
@@ -69,7 +72,7 @@ function admin2_target(array $item): string {
  <div class="publish-summary"><div class="publish-summary-copy"><svg><use href="#i-lock"/></svg><div><strong>Kontrollierter Veröffentlichungsprozess</strong><p>Ein Entwurf wird niemals allein durch das Speichern öffentlich.</p></div></div><span class="badge live">Echte Statusdaten</span></div>
  <div class="kanban">
  <div class="lane"><div class="lane-header"><strong>Entwürfe / offline</strong><span class="lane-number"><?=$draftPages?></span></div><?php foreach($pages as $p):if((int)($p['published']??0)===1)continue;?><div class="pub-card"><strong><?=e($p['title'])?></strong><small><?=e($p['slug'])?></small><div class="pub-card-actions"><a class="btn btn-small" href="html_projects.php">Bearbeiten →</a></div></div><?php endforeach;?></div>
- <div class="lane"><div class="lane-header"><strong>Online</strong><span class="lane-number"><?=$livePages?></span></div><?php foreach($pages as $p):if((int)($p['published']??0)!==1)continue;?><div class="pub-card"><strong><?=e($p['title'])?></strong><small><?=e($p['slug'])?></small><div class="pub-card-actions"><a class="btn btn-small" href="../<?=rawurlencode($p['slug'])?>/" target="_blank" rel="noopener">Ansehen ↗</a><a class="btn btn-small" href="html_projects.php">Verwalten</a></div></div><?php endforeach;?></div>
+ <div class="lane"><div class="lane-header"><strong>Online</strong><span class="lane-number"><?=$livePages?></span></div><?php foreach($pages as $p):if((int)($p['published']??0)!==1)continue;?><div class="pub-card"><strong><?=e($p['title'])?></strong><small><?=e($p['slug'])?></small><div class="pub-card-actions"><a class="btn btn-small" href="../<?=rawurlencode($p['slug'])?>/" target="_blank" rel="noopener">Ansehen ↗</a><a class="btn btn-small" href="html_projects.php#projekt-<?=(int)$p['id']?>">Bearbeiten</a></div></div><?php endforeach;?></div>
  <div class="lane"><div class="lane-header"><strong>Apps</strong><span class="lane-number"><?=count($apps)?></span></div><p class="section-sub">Apps werden über die App-Verwaltung freigeschaltet.</p><a class="btn btn-ghost full" href="legacy.php">Apps verwalten →</a></div>
  </div>
 <?php else: ?>
@@ -79,5 +82,6 @@ function admin2_target(array $item): string {
   <div class="card settings-card"><h3>Bestehende Verwaltung</h3><p>Vollständige bisherige Funktionen für Apps und Projekt-Reihenfolge.</p><a class="btn btn-ghost" href="legacy.php">Klassische Verwaltung →</a></div>
  </div><div class="admin-note">Die produktive SQLite-Datenbank und hochgeladene Dateien werden durch diese Oberflächenänderung nicht verändert.</div>
 <?php endif; ?>
-<div class="admin-note">Neue Oberfläche mit den echten Daten und bestehenden Serveraktionen verbunden. Eine Veröffentlichung passiert ausschließlich nach deiner Bestätigung im jeweiligen Verwaltungsformular.</div>
+
 <?php admin2_close(); ?>
+

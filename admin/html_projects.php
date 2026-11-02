@@ -207,7 +207,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 <link rel="stylesheet" href="../style.css">
 <style><?php include __DIR__.'/admin.css'; ?></style>
 <style>
-.hp-layout{max-width:1000px;margin:auto}
+.hp-layout{max-width:1100px;margin:auto}.hp-layout>details.panel{margin:18px 0;padding:20px}.hp-layout>details.panel>summary{cursor:pointer;font-size:18px;font-weight:700;color:#f0c76c}.hp-search{display:block;margin:20px 0}.hp-search input{display:block;width:100%;margin-top:8px;padding:12px;background:#101820;color:#fff;border:1px solid #75613c;border-radius:8px}.hp-project[hidden]{display:none}#projekte,#neues-projekt,#lernmodule{scroll-margin-top:85px}
 .hp-tip{color:#d4bc85;border:1px solid #d2aa5159;padding:15px 18px;border-radius:12px;background:#d2aa5110;font-size:13px;line-height:1.65}
 .hp-project{margin:20px 0 26px}
 .hp-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
@@ -268,10 +268,11 @@ function hp_render_thumb_editor(array $page=[]): void {
 <header class="nav"><div class="wrap navin"><a class="brand" href="../index.php"><strong>Gering</strong> <span>Digital</span><small>ADMIN</small></a><a class="btn" href="index.php">← Dashboard</a></div></header>
 <main class="admin"><div class="wrap hp-layout">
 <p class="eyebrow">GERING DIGITAL · ADMIN</p><h1>HTML-Projektmanager</h1>
-<p class="hp-muted">Hier landen deine HTML-Lerntrainer und Experimente. Erst Vorschau, dann veröffentlichen. Kein FTP-Gefummel. 😎</p>
-<p class="hp-tip"><strong>Wichtig:</strong> Nur selbst erstellte oder geprüfte HTML-Projekte hochladen. JavaScript auf derselben Domain kann mit der Website interagieren. ZIP-Dateien dürfen ausschließlich statische Dateien enthalten, eine <code>index.html</code> ist Pflicht. Maximal 20 MB Upload / 60 MB entpackt. Für ZIP muss PHP ZipArchive auf STRATO aktiv sein. Die Vorschau läuft isoliert; Browser-Speicherung kann dort eingeschränkt sein.</p>
+<p class="hp-muted">Projekt suchen, bearbeiten und die aktuelle Vorschau prüfen.</p>
+<nav class="hp-actions" aria-label="Projektverwaltung"><a class="btn" href="#projekte">Vorhandene Projekte</a><a class="btn ghost" href="#neues-projekt">＋ Neues Projekt</a><a class="btn ghost" href="#lernmodule">Module aktualisieren</a><a class="btn ghost" href="index.php?view=dau">DAU to Pro</a><a class="btn ghost" href="dau_page.php">Startseite &amp; Texte</a></nav>
+<details class="hp-tip"><summary>Hinweise zu HTML- und ZIP-Uploads</summary><p><strong>Wichtig:</strong> Nur selbst erstellte oder geprüfte HTML-Projekte hochladen. JavaScript auf derselben Domain kann mit der Website interagieren. ZIP-Dateien dürfen ausschließlich statische Dateien enthalten, eine <code>index.html</code> ist Pflicht. Maximal 20 MB Upload / 60 MB entpackt. Für ZIP muss PHP ZipArchive auf STRATO aktiv sein. Die Vorschau läuft isoliert; Browser-Speicherung kann dort eingeschränkt sein.</p></details>
 <?php if($notice): ?><p class="hp-message <?=$notice['ok']?'':'error'?>" role="status"><?=e($notice['message'])?></p><?php endif; ?>
-<section class="panel"><h2>＋ Neues HTML-Projekt</h2>
+<details class="panel" id="neues-projekt"><summary>＋ Neues HTML-Projekt anlegen</summary>
 <form class="form" action="html_projects.php" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="save">
 <div class="form-grid"><label>Projekttitel *<input name="title" required maxlength="100" placeholder="Wer teilt, gewinnt"></label>
@@ -283,9 +284,9 @@ function hp_render_thumb_editor(array $page=[]): void {
 <label>Vorschaubild für die Projektkarte (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Screenshot der HTML-Seite, empfohlen 16:9 (z. B. 1280 × 720), maximal 5 MB.</small></label>
 <?php hp_render_thumb_editor(); ?>
 <button class="btn" type="submit">Entwurf speichern <b>→</b></button>
-</form></section>
+</form></details>
 <?php $bundles=hp_bundles(); if($bundles): $bySlug=array_column($pages,null,'slug'); ?>
-<section class="panel" id="lernmodule"><h2>📦 Mitgelieferte Lernmodule <span class="pill"><?=count($bundles)?></span></h2>
+<details class="panel" id="lernmodule"><summary>Mitgelieferte Lernmodule installieren / aktualisieren (<?=count($bundles)?>)</summary>
 <p class="hp-muted">Diese DAU-TO-PRO-Module kommen mit dem Website-Update aus GitHub. „Lernmodul installieren“ übernimmt Datei, Namen und Vorschaubild, veröffentlicht sofort und entfernt alte Versionen. Bei einem bestehenden Projekt bleibt die URL gleich, gespeicherter Lernfortschritt bleibt also erhalten.</p>
 <?php foreach($bundles as $b): $dest=$bySlug[$b['slug']]??null;
   // Live-Kürzel kann anders heißen (z. B. /osi-schichten/): dann das DAU-Projekt mit demselben Thema vorschlagen.
@@ -316,9 +317,10 @@ function hp_render_thumb_editor(array $page=[]): void {
 <?php endforeach; ?>
 </article>
 <?php endforeach; ?>
-</section>
+</details>
 <?php endif; ?>
-<section class="panel"><h2>Deine HTML-Projekte <span class="pill"><?=count($pages)?></span></h2>
+<section class="panel" id="projekte"><h2>Deine HTML-Projekte <span class="pill"><?=count($pages)?></span></h2>
+<label class="hp-search">Projekte durchsuchen<input type="search" id="project-search" placeholder="Titel, Thema oder URL eingeben …"></label><p id="project-search-status" class="hp-muted" aria-live="polite"></p>
 <?php if(!$pages): ?><p class="hp-muted">Noch nichts hochgeladen. Die Bits warten schon ungeduldig.</p><?php endif; ?>
 <?php foreach($pages as $page): ?>
 <article class="hp-project" id="projekt-<?=(int)$page['id']?>">
@@ -354,6 +356,23 @@ function hp_render_thumb_editor(array $page=[]): void {
 </div></main>
 <script>
 (() => {
+  const search = document.getElementById('project-search');
+  const projects = [...document.querySelectorAll('#projekte > .hp-project')];
+  search?.addEventListener('input', () => {
+    const query = search.value.trim().toLocaleLowerCase('de');
+    let visible = 0;
+    projects.forEach(project => {
+      const text = project.querySelector('.hp-head').textContent.toLocaleLowerCase('de');
+      project.hidden = !text.includes(query);
+      if (!project.hidden) visible++;
+    });
+    document.getElementById('project-search-status').textContent = `${visible} von ${projects.length} Projekten`;
+  });
+  const expandTarget = () => {
+    const target = document.getElementById(location.hash.slice(1));
+    if (target?.tagName === 'DETAILS') target.open = true;
+  };
+  expandTarget(); addEventListener('hashchange', expandTarget);
   const objectUrls = new Set();
   document.querySelectorAll('.hp-thumb-editor').forEach(editor => {
     const form = editor.closest('form');
@@ -513,3 +532,4 @@ function hp_render_thumb_editor(array $page=[]): void {
 })();
 </script>
 </body></html>
+

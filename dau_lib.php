@@ -92,6 +92,10 @@ function dtp_preview_resolve(array $module): array {
     $x=max(0,min(100,(int)($module['preview_x']??50)));
     $y=max(0,min(100,(int)($module['preview_y']??0)));
     $stored=(string)($module['preview_image']??'');
+    // Old OSI/subnet screenshots are retired once. Later uploads remain freely editable.
+    dtp_retire_legacy_previews();
+    $retired=json_decode(dtp_setting_get('dtp_retired_previews_v1')??'[]',true);
+    if (is_array($retired) && isset($retired[(string)($module['slug']??'')]) && $retired[(string)$module['slug']]===$stored) $stored='';
     $catalog=dtp_preview_catalog();
     if ($stored!=='') {
         $bundled=dtp_preview_bundled_id($stored);
@@ -109,6 +113,29 @@ function dtp_preview_resolve(array $module): array {
     $motif=$catalog['motifs'][$id];
     // Automatic motifs are designed for the card and always fill it centred.
     return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>'cover','x'=>50,'y'=>50,'source'=>'auto','motif'=>$id,'label'=>$motif['label'],'accent'=>$motif['accent']];
+}
+
+/** Retire the existing screenshots of the two replaced modules; never delete uploads. */
+function dtp_retire_legacy_previews(): void {
+    static $done=false;
+    if ($done || !dtp_preview_catalog()['motifs']) return;
+    $done=true;
+    if (dtp_setting_get('dtp_retired_previews_v1')!==null) return;
+    $db=db();
+    $db->beginTransaction();
+    try {
+        $retired=[];
+        $rows=$db->query("SELECT slug,title,subject,description,preview_image FROM html_pages WHERE category='lernen'")->fetchAll(PDO::FETCH_ASSOC);
+        foreach ($rows as $row) {
+            if (!in_array(dtp_preview_match($row),['osi-modell','ipv4-subnetting'],true)) continue;
+            $path=(string)$row['preview_image'];
+            if ($path==='' || str_starts_with($path,DTP_PREVIEW_DIR.'/')) continue;
+            $retired[$row['slug']]=$path;
+            $db->prepare("UPDATE html_pages SET preview_image='' WHERE slug=? AND preview_image=?")->execute([$row['slug'],$path]);
+        }
+        dtp_setting_set('dtp_retired_previews_v1',json_encode((object)$retired));
+        $db->commit();
+    } catch (Throwable $error) {$db->rollBack();$done=false;throw $error;}
 }
 
 /** Give legacy placeholder descriptions a useful summary without rewriting stored content. */
@@ -168,7 +195,7 @@ function dtp_page_fields(): array {
             'cta_primary'=>['Hauptbutton','text',40,'Lernmodule entdecken',true],
             'cta_secondary'=>['Zweiter Button','text',40,"So funktioniert's",true],
             'meta_1'=>['Hinweis 1 unter den Buttons','text',40,'Direkt im Browser',false],
-            'meta_2'=>['Hinweis 2 unter den Buttons','text',40,'Ohne Registrierung',false],
+            'meta_2'=>['Hinweis 2 unter den Buttons','text',40,'Mit persönlichem Lernkonto',false],
             'hero_alt'=>['Alternativtext der Hero-Grafik','text',160,'DAU TO PRO – vom ratlosen Anfänger zum IT-Profi',true],
         ],
         'Suchmaschinen' => [
@@ -243,6 +270,10 @@ function dtp_page_content(): array {
     foreach ($rows as $key=>$value) {
         $name=substr((string)$key,4);
         if (array_key_exists($name,$content)) $content[$name]=(string)$value;
+    }
+    foreach (['meta_1','meta_2'] as $key) {
+        if (preg_match('/^(kein login|ohne login|ohne registrierung|keine registrierung|ohne anmeldung)[.!]?$/iu',trim($content[$key])))
+            $content[$key]='Mit persönlichem Lernkonto';
     }
     return $content;
 }
@@ -614,4 +645,5 @@ function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
     return $attrs;
 }
+
 
