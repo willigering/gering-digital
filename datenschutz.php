@@ -31,7 +31,7 @@ require_once __DIR__ . '/lib.php';
     <div class="legal-sheet privacy-sheet">
       <div class="legal-sheet-head">
         <span>DATENSCHUTZERKLÄRUNG</span>
-        <small>Stand: 01.11.2026</small>
+        <small>Stand: 02.11.2026</small>
       </div>
 
       <section class="legal-block legal-block-wide">
@@ -89,6 +89,7 @@ require_once __DIR__ . '/lib.php';
           <h2>Lernkonto &amp; Lernfortschritt</h2>
           <p>Auf der Lernplattform DAU TO PRO kannst du freiwillig ein Lernkonto anlegen, damit dein Lernfortschritt geräteübergreifend gespeichert wird. Die Lernmodule lassen sich auch ohne Konto nutzen; der Fortschritt bleibt dann nur im Speicher deines Browsers (localStorage) auf deinem Gerät und wird nicht an uns übertragen.</p>
           <p style="margin-top:12px"><strong>Verarbeitete Daten:</strong> dein frei gewählter Benutzername (bitte nicht dein voller echter Name), dein Passwort und dein Wiederherstellungscode (beide ausschließlich als nicht umkehrbarer Hash gespeichert), Zeitpunkte der Kontoerstellung, der letzten Anmeldung und der letzten Aktivität sowie dein Lernfortschritt in den Modulen (z. B. erledigte Aufgaben, Punktestände, zuletzt geöffneter Bereich). Eine E-Mail-Adresse oder andere Kontaktdaten werden nicht erhoben.</p>
+          <p style="margin-top:12px"><strong>Achievements, Level und Highscore:</strong> Aus deinem gespeicherten Lernfortschritt berechnen wir automatisch Erfahrungspunkte (XP), dein Level und freigeschaltete Achievements (Auszeichnungen) samt Zeitpunkt der Freischaltung. Das gehört zum Lernkonto und dient nur deiner Motivation. Im Highscore erscheinst du <strong>nur, wenn du es selbst einschaltest</strong> („Sichtbarkeit im Highscore“ in den Konto-Einstellungen, standardmäßig aus). Dann sehen andere angemeldete Lernende deinen Benutzernamen, dein Level, deine XP und deine Achievements; Besucher ohne Konto sehen den Highscore nicht. Rechtsgrundlage für die Anzeige im Highscore ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit in den Konto-Einstellungen widerrufen; du verschwindest dann sofort aus der Liste.</p>
           <p style="margin-top:12px"><strong>Missbrauchsschutz:</strong> Um automatisierte Registrierungen und das Erraten von Passwörtern zu verhindern, wird kurzzeitig ein verschlüsselter, nicht umkehrbarer Hashwert deiner IP-Adresse gespeichert und nach spätestens 24 Stunden automatisch gelöscht. Es werden keine Captchas oder externen Dienste eingesetzt.</p>
           <p style="margin-top:12px"><strong>Zweck und Rechtsgrundlage:</strong> Bereitstellung des Lernkontos und Speicherung des Fortschritts auf deinen Wunsch (Art. 6 Abs. 1 lit. b DSGVO); Missbrauchsschutz auf Grundlage unseres berechtigten Interesses an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).</p>
           <p style="margin-top:12px"><strong>Cookies und lokaler Speicher:</strong> Für die Anmeldung wird ein technisch notwendiges Session-Cookie verwendet. Wählst du „Angemeldet bleiben“, wird zusätzlich ein Cookie für 30 Tage gespeichert. Der Lernfortschritt wird außerdem im lokalen Speicher deines Browsers abgelegt; beim Abmelden wird er dort entfernt. Diese Speicherungen sind für den von dir gewünschten Dienst unbedingt erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG).</p>

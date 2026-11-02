@@ -35,7 +35,7 @@ check(dtp_page_content()===$defaults,'Zurücksetzen stellt alle Standardtexte he
 check(dtp_inline('<b>x</b> **fett** & "q"')==='&lt;b&gt;x&lt;/b&gt; <strong>fett</strong> &amp; &quot;q&quot;','Nur **fett** wird formatiert, HTML wird escaped');
 check(dtp_subtitle_parts('Verstehen · Üben | Anwenden, ')===['Verstehen','Üben','Anwenden'],'Untertitel wird in Begriffe zerlegt');
 $tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-check($tables===['apps','html_pages','inquiries','learner_attempts','learner_progress','learner_tokens','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten)');
+check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_progress','learner_stats','learner_tokens','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
 
 // --- Vorschaubilder ---
 check(str_contains(dtp_module_description(['title'=>'OSI-Schichten','description'=>'Easy OSI']),'sieben OSI-Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');

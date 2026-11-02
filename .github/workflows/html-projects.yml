@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/hero-fx.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
       - name: Test exam finder behavior
         run: node tests/dau_exam_finder.js
       - name: Test hover focus timing and module switching
@@ -28,6 +28,8 @@ jobs:
         run: php tests/learner_lib_test.php
       - name: Test learner accounts over HTTP (registration, login, progress API, module injection, admin)
         run: php tests/learner_http_test.php
+      - name: Test achievements, level and highscore
+        run: php tests/achievements_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
   landing-browser:
@@ -46,6 +48,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/dau_landing_browser.js
+      - name: Check achievements in the real learning modules
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/achievements
+        run: node tests/achievements_browser.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:

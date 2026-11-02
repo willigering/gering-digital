@@ -13,7 +13,7 @@ function dtp_lower(string $s): string {return function_exists('mb_strtolower')?m
 function dtp_upper(string $s): string {return function_exists('mb_strtoupper')?mb_strtoupper($s,'UTF-8'):strtoupper($s);}
 
 function dtp_topic(array $p): array {
-    $t=dtp_lower(($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
+    $t=dtp_lower(($p['subject']??'').' '.($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
     if(preg_match('/subnet|ipv4|ipv6|cidr|wildcard|bits|binär|binaer|hexadezimal|ip-adress/',$t))return ['subnet','IP & Subnetting','01'];
     if(preg_match('/osi|switch|router|wlan|netzwerk|topolog|routing|dhcp|dns|vlan/',$t))return ['netzwerk','Netzwerktechnik','02'];
     if(preg_match('/sicher|datenschutz|dsgvo|krypt|verschlüssel|verschluessel|hash|authentif/',$t))return ['sicherheit','IT-Sicherheit','03'];
@@ -128,10 +128,12 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
     $topic=$module['topic']??dtp_topic($module);
     $preview=dtp_preview_resolve($module);
     $title=(string)($module['title']??'');
+    // Formelles Thema als Etikett über dem (gern witzigen) Titel, sonst die Themengruppe.
+    $subject=trim((string)($module['subject']??''));
     $description=dtp_module_description($module);
     $tag=$link?'a':'div';
     $attrs=$link?' href="'.e($base.rawurlencode((string)($module['slug']??'')).'/').'"':'';
-    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e($title).' – Lernmodul öffnen">';
+    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e(($subject!==''?$subject.': ':'').$title).' – Lernmodul öffnen">';
     $html.='<div class="module-art'.($preview['src']!==''?' has-image':'').'">';
     if ($preview['src']!=='') {
         $srcset=$preview['small']!==''?' srcset="'.e($base.$preview['small']).' 640w, '.e($base.$preview['src']).' 1280w" sizes="(max-width: 610px) 92vw, (max-width: 1060px) 46vw, 380px"':'';
@@ -141,7 +143,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
         $html.='<span class="module-art-symbol" aria-hidden="true">'.e($symbols[$topic[0]]??'</>').'</span>';
     }
     $html.='<span class="module-art-number">'.e($topic[2]).'</span></div>';
-    $html.='<div class="module-body"><span class="module-category"><i></i>'.e($topic[1]).'</span>';
+    $html.='<div class="module-body"><span class="module-category"><i></i>'.e($subject!==''?$subject:$topic[1]).'</span>';
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
     $html.='<div class="module-footer"><span>Lernmodul öffnen</span><b aria-hidden="true">↗</b></div></div>';
@@ -495,15 +497,17 @@ function dtp_nav(string $page,?string $learner): string {
         // Angemeldet: „Mein Konto“ klappt ein kleines Menü auf (Fortschritt, Einstellungen, Abmelden).
         $logout='<form method="post" action="konto.php" class="nav-logout"><input type="hidden" name="csrf" value="'.e(csrf()).'"><input type="hidden" name="action" value="logout"><button type="submit">Abmelden</button></form>';
         $desktop.='      <div class="nav-account-menu">
-        <button type="button" class="nav-account'.($page==='konto'?' selected':'').'" aria-expanded="false" aria-controls="dtp-account-panel">Mein Konto <span aria-hidden="true">▾</span></button>
+        <button type="button" class="nav-account'.(in_array($page,['konto','highscore'],true)?' selected':'').'" aria-expanded="false" aria-controls="dtp-account-panel">Mein Konto <span aria-hidden="true">▾</span></button>
         <div class="nav-account-panel" id="dtp-account-panel" hidden>
           <p>Angemeldet als <strong>'.e($learner).'</strong></p>
           <a href="konto.php">Mein Fortschritt</a>
+          <a href="konto.php#achievements">Achievements</a>
+          <a href="highscore.php"'.($page==='highscore'?' aria-current="page"':'').'>Highscore</a>
           <a href="konto.php#einstellungen">Konto-Einstellungen</a>
           '.$logout.'
         </div>
       </div>'."\n";
-        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
+        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#achievements">Achievements</a><a href="highscore.php">Highscore</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">
@@ -567,11 +571,13 @@ HTML;
  * effect layer is aligned to a detail of exactly that image. The video is optional: without the file
  * the effect still works but no player is shown.
  */
-function dtp_hero_fx_attrs(array $hero): string {
+function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.png')) return '';
     $video=__DIR__.'/assets/dau-to-pro-easteregg.mp4';
     $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.png?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.png').'"';
     $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
+    // Mit Lernkonto meldet das Video das Achievement „Fremdscham erfolgreich freigeschaltet“ (200 XP).
+    if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
     return $attrs;
 }
 

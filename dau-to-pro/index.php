@@ -2,14 +2,14 @@
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../learner_lib.php';
 $learnerName=learner_current()['username']??null;
-$query=db()->prepare("SELECT slug,title,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
+$query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
 foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($module);
 $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
-$fx=dtp_hero_fx_attrs($hero);
+$fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen'];
 $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 ?>
