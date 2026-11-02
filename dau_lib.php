@@ -415,22 +415,35 @@ function dtp_hero_style(array $hero): string {
 function dtp_nav(string $page,?string $learner): string {
     $start=$page==='start';
     $section=$start?'':'./';
-    $account=$learner!==null?'Mein Fortschritt':'Anmelden';
-    $accountTitle=$learner!==null?' title="Angemeldet als '.e($learner).'"':'';
     $current=fn(bool $on): string => $on?' aria-current="page"':'';
     $links=[
-        ['../index.php','Startseite',false,''],
-        ['./','DAU TO PRO',$start,''],
-        [$section.'#lernmodule','Lernmodule',false,''],
-        [$section.'#konzept','So funktioniert\'s',false,''],
-        ['konto.php',$account,$page==='konto',' class="nav-account"'.$accountTitle],
+        ['../index.php','Startseite',false],
+        ['./','DAU TO PRO',$start],
+        [$section.'#lernmodule','Lernmodule',false],
+        [$section.'#konzept','So funktioniert\'s',false],
     ];
     $desktop='';$mobile='';
-    foreach($links as [$href,$text,$on,$attr]){
-        $selected=$on?' class="selected"':'';
-        if ($attr!=='' && $on) $attr=str_replace('class="nav-account"','class="nav-account selected"',$attr);
-        $desktop.='      <a'.($attr!==''?$attr:$selected).' href="'.e($href).'"'.$current($on).'>'.e($text).'</a>'."\n";
+    foreach($links as [$href,$text,$on]){
+        $desktop.='      <a'.($on?' class="selected"':'').' href="'.e($href).'"'.$current($on).'>'.e($text).'</a>'."\n";
         $mobile.='<a href="'.e($href).'"'.$current($on).'>'.e($text).'</a>';
+    }
+    if ($learner===null) {
+        $on=$page==='konto';
+        $desktop.='      <a class="nav-account'.($on?' selected':'').'" href="konto.php"'.$current($on).'>Anmelden</a>'."\n";
+        $mobile.='<a href="konto.php"'.$current($on).'>Anmelden</a>';
+    } else {
+        // Angemeldet: „Mein Konto“ klappt ein kleines Menü auf (Fortschritt, Einstellungen, Abmelden).
+        $logout='<form method="post" action="konto.php" class="nav-logout"><input type="hidden" name="csrf" value="'.e(csrf()).'"><input type="hidden" name="action" value="logout"><button type="submit">Abmelden</button></form>';
+        $desktop.='      <div class="nav-account-menu">
+        <button type="button" class="nav-account'.($page==='konto'?' selected':'').'" aria-expanded="false" aria-controls="dtp-account-panel">Mein Konto <span aria-hidden="true">▾</span></button>
+        <div class="nav-account-panel" id="dtp-account-panel" hidden>
+          <p>Angemeldet als <strong>'.e($learner).'</strong></p>
+          <a href="konto.php">Mein Fortschritt</a>
+          <a href="konto.php#einstellungen">Konto-Einstellungen</a>
+          '.$logout.'
+        </div>
+      </div>'."\n";
+        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">

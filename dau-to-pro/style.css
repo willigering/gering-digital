@@ -286,3 +286,25 @@ html.fx-locked{overflow:hidden}
 .dtp-parallax-clip{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
 .dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:translate}
 @media(prefers-reduced-motion:reduce){.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:auto;translate:none!important}}
+
+/* „Mein Konto“-Menü in der Navigation (nur angemeldet). */
+.nav-account-menu{position:relative}
+.nav-account-menu>.nav-account{font:inherit;font-size:13px;font-weight:650;color:#bfc4c6;background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.nav-account-menu>.nav-account:hover,.nav-account-menu>.nav-account[aria-expanded=true],.nav-account-menu>.nav-account.selected{color:var(--goldlite)}
+.nav-account-menu>.nav-account span{font-size:10px;transition:transform .2s}
+.nav-account-menu>.nav-account[aria-expanded=true] span{transform:rotate(180deg)}
+.nav-account-panel{position:absolute;right:-14px;top:calc(100% + 18px);z-index:60;min-width:230px;display:grid;gap:2px;padding:10px;background:linear-gradient(150deg,#141a1c,#0d1214);border:1px solid rgba(230,174,65,.4);border-radius:12px;box-shadow:0 18px 44px #000a;white-space:normal}
+.nav-account-panel[hidden]{display:none}
+.nav-account-panel p{margin:2px 8px 8px;font-size:12px;color:#9aa3a6}
+.nav-account-panel p strong{color:var(--cream)}
+.nav-account-panel a,.nav-account-panel button{display:block;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:600;color:#d9dcdc;background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer}
+.nav-account-panel a:hover,.nav-account-panel button:hover,.nav-account-panel a:focus-visible,.nav-account-panel button:focus-visible{background:#ffffff0d;color:var(--goldlite);outline:none}
+.nav-account-panel .nav-logout{margin:4px 0 0;padding-top:4px;border-top:1px solid #ffffff14}
+.dtp-nav{overflow:visible}
+.mobile-links .mobile-account-label{padding:14px 6px 4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.mobile-links .nav-logout button{width:100%;text-align:left;font:inherit;font-size:14px;color:inherit;background:none;border:0;border-bottom:1px solid #ffffff16;padding:10px 6px;cursor:pointer}
+/* Die schräge Navigationsform liegt jetzt auf einer Hintergrundebene, damit das Konto-Menü
+   über die Leiste hinausragen kann (clip-path schneidet sonst auch das Menü ab). */
+.dtp-nav{clip-path:none;background:none;border-color:transparent;box-shadow:none;z-index:50}
+.dtp-nav:before{content:"";position:absolute;inset:-1px;z-index:-1;pointer-events:none;border:1px solid rgba(230,174,65,.35);background:linear-gradient(140deg,rgba(13,15,16,.98),rgba(25,20,10,.94));clip-path:polygon(0 0,99.3% 0,100% 13%,100% 100%,.7% 100%,0 85%)}
+@media(max-width:610px){.dtp-nav:before{clip-path:none}}

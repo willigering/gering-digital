@@ -35,8 +35,8 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 konto_back('',['code'=>$code,'code_reason'=>'new'],$next);
             case 'login':
                 learner_login($username,(string)($_POST['password']??''),!empty($_POST['remember']));
-                if ($next!=='') {header('Location: ../'.$next.'/',true,303);exit;}
-                konto_back('',['ok'=>'Willkommen zurück!']);
+                // Nach der Anmeldung geht es zurück auf die DAU-TO-PRO-Hauptseite (oder direkt ins gewünschte Modul).
+                header('Location: '.($next!==''?'../'.$next.'/':'./'),true,303);exit;
             case 'recover':
                 learner_spam_check($_POST);
                 $code=learner_recover($username,(string)($_POST['code']??''),(string)($_POST['password']??''),(string)($_POST['password2']??''));
@@ -139,7 +139,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
     </div>
     <p class="konto-hint">Tipp: Speichere ihn im Passwort-Manager oder schreib ihn auf. Verlierst du Passwort <em>und</em> Code, kann nur der Betreiber das Passwort zurücksetzen.</p>
     <label class="confirm-check"><input type="checkbox" id="code-saved"> Ich habe den Code sicher aufbewahrt.</label>
-    <a class="primary-action is-disabled" id="code-continue" aria-disabled="true" href="<?=e($next!==''?'../'.$next.'/':'konto.php')?>"><?=e($next!==''?'Weiter zu „'.$nextTitle.'“':'Weiter zu „Mein Fortschritt“')?> <span aria-hidden="true">→</span></a>
+    <a class="primary-action is-disabled" id="code-continue" aria-disabled="true" href="<?=e($next!==''?'../'.$next.'/':'./')?>"><?=e($next!==''?'Weiter zu „'.$nextTitle.'“':'Weiter zu DAU TO PRO')?> <span aria-hidden="true">→</span></a>
   </section>
 
 <?php elseif ($learner): ?>
@@ -187,40 +187,45 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
     <p class="konto-hint">Hast du ein Modul schon vor der Anmeldung auf diesem Gerät bearbeitet, wird dieser Stand beim nächsten Öffnen des Moduls automatisch in dein Konto übernommen.</p>
   </section>
 
-  <section aria-labelledby="settings-title" class="konto-section">
-    <div class="konto-section-head"><h2 id="settings-title">Konto</h2><span class="konto-meta">Angemeldet als <strong><?=e($learner['username'])?></strong> · Konto seit <?=e(learner_format_time($learner['created_at']))?></span></div>
-    <div class="settings-grid">
-      <form method="post" class="konto-card" id="change_password">
-        <?=$hidden('change_password')?>
-        <h3>Passwort ändern</h3>
-        <input type="text" name="username" value="<?=e($learner['username'])?>" autocomplete="username" hidden>
-        <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
-        <label>Neues Passwort<input type="password" name="password" autocomplete="new-password" minlength="10" maxlength="200" required></label>
-        <label>Neues Passwort wiederholen<input type="password" name="password2" autocomplete="new-password" minlength="10" maxlength="200" required></label>
-        <button class="secondary-action" type="submit">Passwort ändern</button>
-      </form>
-      <form method="post" class="konto-card" id="new_code">
-        <?=$hidden('new_code')?>
-        <h3>Wiederherstellungscode</h3>
-        <p>Code verloren? Erzeuge einen neuen. Der alte wird dabei ungültig.</p>
-        <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
-        <button class="secondary-action" type="submit">Neuen Code erzeugen</button>
-      </form>
-      <div class="konto-card">
-        <h3>Daten &amp; Abmelden</h3>
-        <p>Lade alles, was zu deinem Konto gespeichert ist, als JSON-Datei herunter.</p>
-        <form method="post"><?=$hidden('export')?><button class="secondary-action" type="submit">Daten herunterladen</button></form>
-        <p>Beim Abmelden wird dein Fortschritt von diesem Gerät entfernt. Im Konto bleibt er erhalten.</p>
-        <form method="post"><?=$hidden('logout')?><button class="secondary-action" type="submit">Abmelden</button></form>
-      </div>
-      <form method="post" class="konto-card is-danger" id="delete_account" onsubmit="return confirm('Konto und gesamten Fortschritt endgültig löschen?')">
-        <?=$hidden('delete_account')?>
-        <h3>Konto löschen</h3>
-        <p>Löscht dein Konto und den gesamten gespeicherten Fortschritt sofort und endgültig.</p>
-        <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
-        <label><span>Zur Bestätigung <b>LÖSCHEN</b> eintippen</span><input type="text" name="confirm" autocomplete="off" required pattern="LÖSCHEN"></label>
-        <button class="mini-action is-danger" type="submit">Konto endgültig löschen</button>
-      </form>
+  <section aria-labelledby="settings-title" class="konto-section" id="einstellungen">
+    <div class="konto-section-head"><h2 id="settings-title">Konto-Einstellungen</h2><span class="konto-meta">Angemeldet als <strong><?=e($learner['username'])?></strong> · Konto seit <?=e(learner_format_time($learner['created_at']))?></span></div>
+    <div class="settings-list">
+      <details class="settings-item" id="change_password"<?=($flash['section']??'')==='change_password'?' open':''?>>
+        <summary><span><b>Passwort ändern</b><small>Danach werden deine anderen Geräte abgemeldet.</small></span></summary>
+        <form method="post" class="settings-body">
+          <?=$hidden('change_password')?>
+          <input type="text" name="username" value="<?=e($learner['username'])?>" autocomplete="username" hidden>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <label>Neues Passwort<input type="password" name="password" autocomplete="new-password" minlength="10" maxlength="200" required></label>
+          <label>Neues Passwort wiederholen<input type="password" name="password2" autocomplete="new-password" minlength="10" maxlength="200" required></label>
+          <button class="secondary-action" type="submit">Passwort ändern</button>
+        </form>
+      </details>
+      <details class="settings-item" id="new_code"<?=($flash['section']??'')==='new_code'?' open':''?>>
+        <summary><span><b>Wiederherstellungscode</b><small>Code verloren? Erzeuge einen neuen, der alte wird ungültig.</small></span></summary>
+        <form method="post" class="settings-body">
+          <?=$hidden('new_code')?>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <button class="secondary-action" type="submit">Neuen Code erzeugen</button>
+        </form>
+      </details>
+      <details class="settings-item" id="daten">
+        <summary><span><b>Daten herunterladen</b><small>Alles, was zu deinem Konto gespeichert ist, als JSON-Datei.</small></span></summary>
+        <form method="post" class="settings-body"><?=$hidden('export')?><button class="secondary-action" type="submit">Daten herunterladen</button></form>
+      </details>
+      <details class="settings-item" id="abmelden">
+        <summary><span><b>Abmelden</b><small>Entfernt deinen Fortschritt von diesem Gerät, im Konto bleibt er erhalten.</small></span></summary>
+        <form method="post" class="settings-body"><?=$hidden('logout')?><button class="secondary-action" type="submit">Abmelden</button></form>
+      </details>
+      <details class="settings-item is-danger" id="delete_account"<?=($flash['section']??'')==='delete_account'?' open':''?>>
+        <summary><span><b>Konto löschen</b><small>Löscht Konto und gesamten Fortschritt sofort und endgültig.</small></span></summary>
+        <form method="post" class="settings-body" onsubmit="return confirm('Konto und gesamten Fortschritt endgültig löschen?')">
+          <?=$hidden('delete_account')?>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <label><span>Zur Bestätigung <b>LÖSCHEN</b> eintippen</span><input type="text" name="confirm" autocomplete="off" required pattern="LÖSCHEN"></label>
+          <button class="mini-action is-danger" type="submit">Konto endgültig löschen</button>
+        </form>
+      </details>
     </div>
   </section>
 

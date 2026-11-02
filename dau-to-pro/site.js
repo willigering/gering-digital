@@ -129,6 +129,21 @@
     reduced.addEventListener('change',update);
     update();
   })();
+  // „Mein Konto“-Menü: auf-/zuklappen, Escape und Klick daneben schließen.
+  (() => {
+    const btn=document.querySelector('.nav-account-menu>.nav-account'),panel=document.getElementById('dtp-account-panel');
+    if(!btn||!panel)return;
+    const set=open=>{btn.setAttribute('aria-expanded',String(open));panel.hidden=!open};
+    btn.addEventListener('click',()=>set(btn.getAttribute('aria-expanded')!=='true'));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){set(false);btn.focus()}});
+    document.addEventListener('pointerdown',e=>{if(!e.target.closest('.nav-account-menu'))set(false)});
+    panel.addEventListener('focusout',e=>{if(!e.relatedTarget||!e.relatedTarget.closest('.nav-account-menu'))set(false)});
+  })();
+  // Konto-Einstellungen: Sprungziel (z. B. #change_password) gleich aufgeklappt zeigen.
+  (() => {
+    const open=()=>{const el=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el&&el.tagName==='DETAILS')el.open=true};
+    open();addEventListener('hashchange',open);
+  })();
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
