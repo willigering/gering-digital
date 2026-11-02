@@ -19,6 +19,7 @@ if (str_starts_with($source,'motif:')) {
 $module=[
     'slug'=>preg_replace('/[^a-z0-9-]/','',strtolower($text('slug',60))),
     'title'=>$text('title',100)!==''?$text('title',100):'Titel des Lernmoduls',
+    'subject'=>$text('subject',60),
     'description'=>$text('description',400),
     'preview_image'=>$image,
     'preview_fit'=>($_GET['fit']??'cover')==='contain'?'contain':'cover',

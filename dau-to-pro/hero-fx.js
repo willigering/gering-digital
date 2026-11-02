@@ -151,7 +151,19 @@
   const sound = el('button', 'fx-video-sound', overlay);
   sound.type = 'button'; sound.textContent = '🔊 Ton an'; sound.hidden = true;
   const xp = el('p', 'fx-xp', overlay);
-  xp.innerHTML = '<b>+1000 XP</b><span>Fremdscham erfolgreich freigeschaltet.</span>';
+  // XP gibt es nur mit Lernkonto: dann meldet das Video das versteckte Achievement an den Server.
+  const eggApi = wrap.dataset.fxEgg || '';
+  xp.innerHTML = eggApi
+    ? '<b>+200 XP</b><span>Fremdscham erfolgreich freigeschaltet.</span>'
+    : '<b>+0 XP</b><span>Fremdscham trotzdem freigeschaltet. XP gibt es nur mit Lernkonto.</span>';
+  let eggSent = false;
+  function reportEgg() {
+    if (!eggApi || eggSent || !window.fetch) return;
+    eggSent = true;
+    fetch(eggApi, { method: 'POST', credentials: 'same-origin', cache: 'no-store', headers: { 'X-DTP-CSRF': wrap.dataset.fxCsrf || '' } })
+      .then(r => r.json()).then(j => { if (j && j.ok && !j.new) { xp.querySelector('b').textContent = '+0 XP'; xp.querySelector('span').textContent = 'Fremdscham erneut freigeschaltet. Die 200 XP hast du schon.'; } })
+      .catch(() => { eggSent = false; });
+  }
   xp.setAttribute('role', 'status');
   let phase = 'closed', endTimer = 0;
 
@@ -166,6 +178,7 @@
     video.addEventListener('error', () => { video.remove(); video = null; if (phase === 'video') showXp(); });
   }
   function openVideo() {
+    reportEgg();
     lastFocus = document.activeElement;
     overlay.hidden = false;
     document.documentElement.classList.add('fx-locked');

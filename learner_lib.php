@@ -278,6 +278,8 @@ function learner_delete(int $learnerId): void {
     $db=db();
     $db->beginTransaction();
     $db->prepare('DELETE FROM learner_progress WHERE learner_id=?')->execute([$learnerId]);
+    $db->prepare('DELETE FROM learner_achievements WHERE learner_id=?')->execute([$learnerId]);
+    $db->prepare('DELETE FROM learner_stats WHERE learner_id=?')->execute([$learnerId]);
     $db->prepare('DELETE FROM learner_tokens WHERE learner_id=?')->execute([$learnerId]);
     $db->prepare('DELETE FROM learners WHERE id=?')->execute([$learnerId]);
     $db->commit();
@@ -349,7 +351,7 @@ function learner_progress_summary(int $learnerId): array {
     $q->execute([$learnerId]);
     $progress=[];
     foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row) $progress[$row['module_slug']]=$row;
-    $modules=db()->query("SELECT slug,title,description,preview_image,preview_fit,preview_x,preview_y,published FROM html_pages WHERE category='lernen' ORDER BY title COLLATE NOCASE")->fetchAll(PDO::FETCH_ASSOC);
+    $modules=db()->query("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y,published FROM html_pages WHERE category='lernen' ORDER BY title COLLATE NOCASE")->fetchAll(PDO::FETCH_ASSOC);
     $out=[];
     foreach($modules as $module){
         $p=$progress[$module['slug']]??null;
@@ -358,7 +360,7 @@ function learner_progress_summary(int $learnerId): array {
         $out[]=$module+['entries'=>(int)($p['entries']??0),'last_update'=>$p['last_update']??null,'bytes'=>(int)($p['bytes']??0)];
     }
     foreach($progress as $slug=>$p) // module was removed later: data stays visible and deletable
-        $out[]=['slug'=>$slug,'title'=>$slug,'description'=>'','preview_image'=>'','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>0,'published'=>0,'entries'=>(int)$p['entries'],'last_update'=>$p['last_update'],'bytes'=>(int)$p['bytes']];
+        $out[]=['slug'=>$slug,'title'=>$slug,'subject'=>'','description'=>'','preview_image'=>'','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>0,'published'=>0,'entries'=>(int)$p['entries'],'last_update'=>$p['last_update'],'bytes'=>(int)$p['bytes']];
     usort($out,fn($a,$b)=>[$b['last_update']!==null,(string)$b['last_update']]<=>[$a['last_update']!==null,(string)$a['last_update']]);
     return $out;
 }
@@ -407,8 +409,10 @@ function learner_admin_list(string $search=''): array {
     $sql='SELECT l.id,l.username,l.created_at,l.last_login_at,l.last_seen_at,
         (SELECT COUNT(*) FROM learner_progress p WHERE p.learner_id=l.id AND p.deleted=0) AS entries,
         (SELECT COUNT(DISTINCT module_slug) FROM learner_progress p WHERE p.learner_id=l.id AND p.deleted=0) AS modules,
-        (SELECT MAX(updated_at) FROM learner_progress p WHERE p.learner_id=l.id) AS last_progress
-        FROM learners l';
+        (SELECT MAX(updated_at) FROM learner_progress p WHERE p.learner_id=l.id) AS last_progress,
+        COALESCE(s.xp,0) AS xp,COALESCE(s.level,1) AS level,COALESCE(s.achievements,0) AS achievements,
+        COALESCE(s.highscore_visible,0) AS highscore_visible,COALESCE(s.highscore_blocked,0) AS highscore_blocked
+        FROM learners l LEFT JOIN learner_stats s ON s.learner_id=l.id';
     $params=[];
     if ($search!=='') {$sql.=" WHERE l.username LIKE ? ESCAPE '\\'";$params[]='%'.addcslashes($search,'%_\\').'%';}
     $sql.=' ORDER BY COALESCE(l.last_seen_at,l.created_at) DESC,l.id DESC LIMIT 500';

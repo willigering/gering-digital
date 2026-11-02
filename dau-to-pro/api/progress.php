@@ -1,7 +1,7 @@
 <?php
 // DAU TO PRO: speichert den Lernfortschritt eines angemeldeten Lernkontos (aufgerufen von dau-to-pro/sync.js).
 declare(strict_types=1);
-require __DIR__.'/../../learner_lib.php';
+require __DIR__.'/../../achievements_lib.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, private');
 header('X-Content-Type-Options: nosniff');
@@ -34,4 +34,17 @@ try {
 } catch (LearnerError $error) {
     progress_reply(422,['ok'=>false,'error'=>$error->getMessage()]);
 }
-progress_reply(200,['ok'=>true,'saved'=>count($set)+count($delete)]);
+// Achievements und Level: aus dem gespeicherten Stand neu berechnen. Ein Fehler hier darf das Speichern nie verhindern.
+$result=null;
+try {
+    $keys=array_map('strval',array_keys($set));
+    $solved=(bool)array_filter($keys,fn($key)=>str_ends_with($key,'-stats-v1'));
+    // Ein Lerntag zählt nur, wenn wirklich geübt wurde (nicht schon beim Wechseln eines Reiters).
+    $learned=$solved || (bool)array_filter($keys,fn($key)=>(bool)preg_match('/-(?:path|exam)-v1$/',$key));
+    $result=ach_evaluate((int)$learner['id'],['activity'=>$learned,'solved'=>$solved]);
+} catch (Throwable $error) {
+    error_log('DAU TO PRO Achievements: '.$error->getMessage());
+}
+$reply=['ok'=>true,'saved'=>count($set)+count($delete)];
+if ($result) $reply+=['achievements'=>$result['new'],'level'=>$result['level'],'level_up'=>$result['level_up']];
+progress_reply(200,$reply);
