@@ -361,7 +361,18 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+function d2Security(id) {
+  return `<text x="100" y="125" fill="${CYAN}" font-family="${MONO}" font-size="25" font-weight="800">D2 // IT-SICHERHEIT</text>
+  <text x="100" y="196" fill="${CREAM}" font-family="${SANS}" font-size="45" font-weight="900">PASSWORT123</text>
+  <text x="100" y="246" fill="${GOLD}" font-family="${SANS}" font-size="35" font-weight="900">IST KEIN KONZEPT.</text>
+  <g transform="translate(818 155)"><path d="M0 0 L148 55 V205 Q148 320 0 384 Q-148 320 -148 205 V55 Z" fill="#160f14" stroke="${CYAN}" stroke-width="5"/>
+  <path d="M-45 158 V115 A45 45 0 0 1 45 115 V158" fill="none" stroke="${GOLD}" stroke-width="19"/>
+  <rect x="-76" y="151" width="152" height="125" rx="7" fill="url(#${id}-gold)"/><circle cy="201" r="14" fill="#171016"/><path d="M-6 211 V239 H6 V211" fill="#171016"/></g>
+  <g font-family="${MONO}" font-size="22"><path d="M100 320 H490 M100 400 H490 M100 480 H490" stroke="${CYAN}" stroke-opacity=".35"/><text x="110" y="355" fill="${CREAM}">VERTRAULICHKEIT</text><text x="110" y="435" fill="${CREAM}">INTEGRITÄT</text><text x="110" y="515" fill="${CREAM}">VERFÜGBARKEIT</text></g>
+  <text x="100" y="620" fill="${GOLD}" font-family="${MONO}" font-size="22">PRÜFEN · BEGRÜNDEN · HANDELN</text>`;
+}
 export const motifs = [
+  { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
@@ -376,3 +387,4 @@ export function svgFor(motif) {
   CYAN = motif.accent || '#00dce8';
   return frame(motif.id, motif.draw, { seed: motif.seed, glowX: motif.glowX, glowY: motif.glowY });
 }
+
