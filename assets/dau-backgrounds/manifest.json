@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "baseColor": "#090e11",
   "repeat": false,
   "assets": [
@@ -57,6 +57,196 @@
           "width": 768,
           "height": 512,
           "bytes": 14612
+        }
+      ]
+    },
+    {
+      "id": "circuit-micro",
+      "title": "Mikroleiterbahnen",
+      "cssClass": "dtp-bg-circuit-micro",
+      "variants": [
+        {
+          "path": "circuit-micro-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 63556
+        },
+        {
+          "path": "circuit-micro-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 18708
+        }
+      ]
+    },
+    {
+      "id": "circuit-copper",
+      "title": "Kupferplatine",
+      "cssClass": "dtp-bg-circuit-copper",
+      "variants": [
+        {
+          "path": "circuit-copper-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 49256
+        },
+        {
+          "path": "circuit-copper-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 15260
+        }
+      ]
+    },
+    {
+      "id": "circuit-sockets",
+      "title": "Sockel und Kontakte",
+      "cssClass": "dtp-bg-circuit-sockets",
+      "variants": [
+        {
+          "path": "circuit-sockets-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 52504
+        },
+        {
+          "path": "circuit-sockets-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 15768
+        }
+      ]
+    },
+    {
+      "id": "cables-fiber",
+      "title": "Glasfaser",
+      "cssClass": "dtp-bg-cables-fiber",
+      "variants": [
+        {
+          "path": "cables-fiber-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 38338
+        },
+        {
+          "path": "cables-fiber-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 12184
+        }
+      ]
+    },
+    {
+      "id": "cables-patch",
+      "title": "Patchkabel",
+      "cssClass": "dtp-bg-cables-patch",
+      "variants": [
+        {
+          "path": "cables-patch-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 47286
+        },
+        {
+          "path": "cables-patch-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 13606
+        }
+      ]
+    },
+    {
+      "id": "cables-braided",
+      "title": "Geflochtene Kabel",
+      "cssClass": "dtp-bg-cables-braided",
+      "variants": [
+        {
+          "path": "cables-braided-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 48406
+        },
+        {
+          "path": "cables-braided-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 13988
+        }
+      ]
+    },
+    {
+      "id": "network-ports",
+      "title": "Netzwerkports",
+      "cssClass": "dtp-bg-network-ports",
+      "variants": [
+        {
+          "path": "network-ports-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 48520
+        },
+        {
+          "path": "network-ports-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 15206
+        }
+      ]
+    },
+    {
+      "id": "hardware-memory",
+      "title": "RAM und Speicher",
+      "cssClass": "dtp-bg-hardware-memory",
+      "variants": [
+        {
+          "path": "hardware-memory-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 63140
+        },
+        {
+          "path": "hardware-memory-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 18078
+        }
+      ]
+    },
+    {
+      "id": "hardware-connectors",
+      "title": "Steckverbindungen",
+      "cssClass": "dtp-bg-hardware-connectors",
+      "variants": [
+        {
+          "path": "hardware-connectors-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 42904
+        },
+        {
+          "path": "hardware-connectors-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 12304
+        }
+      ]
+    },
+    {
+      "id": "circuit-signal",
+      "title": "Signalwege",
+      "cssClass": "dtp-bg-circuit-signal",
+      "variants": [
+        {
+          "path": "circuit-signal-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 68834
+        },
+        {
+          "path": "circuit-signal-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 19366
         }
       ]
     }
