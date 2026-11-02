@@ -1,7 +1,7 @@
 <?php
 // Admin 2.0: DAU-TO-PRO-Lernkonten ansehen, Passwort zurücksetzen, Konten löschen.
 require __DIR__.'/../lib.php';
-require_once __DIR__.'/../learner_lib.php';
+require_once __DIR__.'/../achievements_lib.php';
 require __DIR__.'/admin2_layout.php';
 require_login();
 header('Cache-Control: no-store, private');
@@ -29,6 +29,11 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             learner_delete($id);
             learners_back(['ok'=>true,'message'=>'Lernkonto „'.$learner['username'].'“ samt Fortschritt gelöscht.'],$search);
         }
+        if ($action==='highscore_block' || $action==='highscore_unblock') {
+            if (!$learner) throw new LearnerError('Lernkonto nicht gefunden.');
+            ach_admin_block($id,$action==='highscore_block');
+            learners_back(['ok'=>true,'message'=>$action==='highscore_block'?'„'.$learner['username'].'“ erscheint nicht mehr im Highscore.':'„'.$learner['username'].'“ darf wieder im Highscore erscheinen (wenn die Person es eingeschaltet hat).'],$search);
+        }
         if ($action==='purge_empty') {
             $ids=learner_admin_empty_ids();
             foreach($ids as $emptyId) learner_delete($emptyId);
@@ -54,6 +59,7 @@ admin2_open('learners','Lernkonten','Lernkonten · Admin 2.0','<style>
 .learner-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.learner-actions form{display:flex;gap:6px;align-items:center}
 .learner-actions input{width:120px;min-height:34px;border:1px solid #4a3434;background:#1a1416;color:#f1f0ea;padding:6px 9px;border-radius:8px;font-size:11px}
 .learner-name{color:#f0f1ed;font-weight:780}
+.learner-inline{margin-top:6px}
 .learner-help{font-size:12px;color:#9ca7aa;line-height:1.7}
 @media(max-width:750px){.learner-stats{grid-template-columns:1fr 1fr}.learner-actions{justify-content:flex-start}}
 </style>');
@@ -74,15 +80,20 @@ admin2_open('learners','Lernkonten','Lernkonten · Admin 2.0','<style>
   <form class="learner-search" method="get"><input type="search" name="q" value="<?=e($search)?>" placeholder="Benutzername suchen" aria-label="Benutzername suchen"><button class="btn">Suchen</button><?php if($search!==''): ?><a class="btn btn-ghost" href="learners.php">Zurücksetzen</a><?php endif; ?></form>
   <div class="table-wrap">
   <table class="project-table">
-    <thead><tr><th>Benutzername</th><th>Erstellt</th><th>Zuletzt aktiv</th><th>Fortschritt</th><th class="table-end">Aktionen</th></tr></thead>
+    <thead><tr><th>Benutzername</th><th>Erstellt</th><th>Zuletzt aktiv</th><th>Fortschritt</th><th>Level</th><th>Highscore</th><th class="table-end">Aktionen</th></tr></thead>
     <tbody>
-    <?php if(!$rows): ?><tr><td colspan="5" class="empty-state"><?=$search!==''?'Kein Konto gefunden.':'Noch keine Lernkonten.'?></td></tr><?php endif; ?>
+    <?php if(!$rows): ?><tr><td colspan="7" class="empty-state"><?=$search!==''?'Kein Konto gefunden.':'Noch keine Lernkonten.'?></td></tr><?php endif; ?>
     <?php foreach($rows as $row): ?>
       <tr>
         <td><span class="learner-name"><?=e($row['username'])?></span></td>
         <td><?=e(learner_format_time($row['created_at']))?></td>
         <td><?=e(learner_format_time($row['last_seen_at']??$row['last_login_at']))?></td>
         <td><?=(int)$row['entries']>0?(int)$row['modules'].' '.((int)$row['modules']===1?'Modul':'Module').' · '.(int)$row['entries'].' Einträge':'<span class="text-muted">noch nichts gespeichert</span>'?></td>
+        <td><?=(int)$row['level']?> <span class="text-muted">· <?=number_format((int)$row['xp'],0,',','.')?> XP · <?=(int)$row['achievements']?> 🏆</span></td>
+        <td><?php if((int)$row['highscore_blocked']===1): ?><span class="text-muted">ausgeblendet</span><?php elseif((int)$row['highscore_visible']===1): ?>sichtbar<?php else: ?><span class="text-muted">aus</span><?php endif; ?>
+          <?php if((int)$row['highscore_visible']===1 || (int)$row['highscore_blocked']===1): ?>
+          <form method="post" class="learner-inline"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="<?=(int)$row['highscore_blocked']===1?'highscore_unblock':'highscore_block'?>"><input type="hidden" name="id" value="<?=(int)$row['id']?>"><input type="hidden" name="q" value="<?=e($search)?>"><button class="small-action" type="submit"><?=(int)$row['highscore_blocked']===1?'Wieder zulassen':'Aus Highscore nehmen'?></button></form>
+          <?php endif; ?></td>
         <td><div class="learner-actions">
           <form method="post" onsubmit="return confirm('Neues Passwort für <?=e($row['username'])?> erzeugen? Das alte Passwort gilt dann nicht mehr.')">
             <input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="reset_password"><input type="hidden" name="id" value="<?=(int)$row['id']?>"><input type="hidden" name="q" value="<?=e($search)?>">

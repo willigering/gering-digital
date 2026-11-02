@@ -77,7 +77,7 @@
   }
 
   // ------------------------------------------------------------------ Änderungen erkennen
-  var timer = 0, inflight = false, retryMs = 0, stopped = !loggedIn;
+  var timer = 0, inflight = false, retryMs = 0, stopped = !loggedIn, leaving = false, leaveQueued = false;
   function schedule(delay) {
     if (stopped) return;
     clearTimeout(timer);
@@ -124,6 +124,7 @@
         set(DIRTY, JSON.stringify(d));
         retryMs = 0;
         render('saved');
+        celebrate(r.json);
         if (diff().n) schedule(400);
         return;
       }
@@ -135,9 +136,16 @@
   function retry() { retryMs = Math.min(retryMs ? retryMs * 2 : 4000, 60000); schedule(retryMs); }
 
   if (loggedIn) {
+    // Beim Verlassen der Seite speichern Module oft noch etwas (z. B. die abgebrochene Prüfung).
+    // Das wird dann sofort hinterhergeschickt, statt auf einen Zeitgeber zu warten, der nie mehr läuft.
+    var afterLeave = function () {
+      if (!leaving || leaveQueued) return;
+      leaveQueued = true;
+      Promise.resolve().then(function () { leaveQueued = false; flush(true); });
+    };
     proto.setItem = function (k, v) {
       var r = rawSet.apply(this, arguments);
-      if (this === ls && !own(String(k))) schedule(1200);
+      if (this === ls && !own(String(k))) { schedule(1200); afterLeave(); }
       return r;
     };
     proto.removeItem = function (k) {
@@ -156,8 +164,11 @@
     };
     // Direkte Zuweisungen (localStorage.x = 1) laufen an setItem vorbei: regelmäßig vergleichen.
     setInterval(function () { if (!inflight && diff().n) flush(false); }, 5000);
-    addEventListener('pagehide', function () { flush(true); });
-    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') flush(true); });
+    addEventListener('pagehide', function () { leaving = true; flush(true); });
+    document.addEventListener('visibilitychange', function () {
+      leaving = document.visibilityState === 'hidden';
+      if (leaving) flush(true);
+    });
     addEventListener('online', function () { if (state === 'offline') flush(false); });
     // Änderungen aus einem anderen Tab desselben Geräts: der andere Tab überträgt sie selbst.
     addEventListener('storage', function (e) { if (e.storageArea === ls && e.key && !own(e.key)) { if (e.newValue === null) delete synced[e.key]; else synced[e.key] = e.newValue; } });
@@ -225,6 +236,62 @@
     render(state);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+
+  // ------------------------------------------------------------------ Achievements (Popup wie bei Steam)
+  var toastHost, toastList, queue = [], showing = false;
+  var shown = [];
+  function celebrate(json) {
+    if (!json) return;
+    (json.achievements || []).forEach(function (a) {
+      if (!a || shown.indexOf(a.code) >= 0) return;
+      shown.push(a.code);
+      queue.push({ kicker: 'Achievement freigeschaltet · ' + (a.tier_label || ''), title: a.name, text: a.desc, xp: '+' + a.xp + ' XP', tier: a.tier });
+    });
+    if (json.level_up && json.level) queue.push({ kicker: 'Level up!', title: 'Level ' + json.level.level + ' · ' + json.level.title, text: json.level.xp + ' XP gesammelt.', xp: '', tier: 'level' });
+    next();
+  }
+  function toastMount() {
+    if (toastHost || !document.body) return !!toastHost;
+    toastHost = document.createElement('dtp-achievement');
+    toastHost.setAttribute('style', 'all:initial;position:fixed;right:14px;bottom:14px;z-index:2147483001');
+    var root = toastHost.attachShadow ? toastHost.attachShadow({ mode: 'closed' }) : toastHost;
+    var css = document.createElement('style');
+    css.textContent = [
+      ':host{all:initial}',
+      '.t{display:grid;grid-template-columns:44px 1fr;gap:4px 12px;align-items:center;width:min(340px,calc(100vw - 28px));box-sizing:border-box;padding:12px 14px;',
+      'background:linear-gradient(135deg,rgba(18,22,26,.97),rgba(10,13,15,.97));border:1px solid rgba(234,180,72,.55);border-left:4px solid var(--c,#eab448);',
+      'box-shadow:0 14px 38px rgba(0,0,0,.55);font:500 12px/1.35 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;color:#f5f0df;',
+      'clip-path:polygon(0 0,96% 0,100% 18%,100% 100%,4% 100%,0 82%);transform:translateY(20px);opacity:0;transition:transform .35s ease,opacity .35s ease}',
+      '.t.on{transform:none;opacity:1}',
+      '.i{grid-row:span 3;width:44px;height:44px;display:grid;place-items:center;font-size:24px;background:rgba(255,255,255,.05);border:1px solid var(--c,#eab448)}',
+      '.k{font-size:10px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--c,#eab448)}',
+      '.n{font-size:15px;font-weight:800;color:#fff}.d{color:#c9cfcf}.x{color:#5fd99a;font-weight:800}',
+      '@media (prefers-reduced-motion:reduce){.t{transition:none}}@media print{.t{display:none}}'
+    ].join('');
+    toastList = document.createElement('div');
+    toastList.setAttribute('role', 'status');
+    toastList.setAttribute('aria-live', 'polite');
+    root.appendChild(css); root.appendChild(toastList);
+    document.body.appendChild(toastHost);
+    return true;
+  }
+  var COLORS = { bronze: '#d08b55', silber: '#c8d0d6', gold: '#eab448', platin: '#7fe0e6', witzig: '#c4a8ff', versteckt: '#ff7f8f', level: '#5fd99a' };
+  var ICONS = { bronze: '🏆', silber: '🏆', gold: '🏆', platin: '💎', witzig: '🤡', versteckt: '🍄', level: '⚡' };
+  function next() {
+    if (showing || !queue.length || !toastMount()) return;
+    showing = true;
+    var item = queue.shift();
+    var t = document.createElement('div');
+    t.className = 't';
+    t.style.setProperty('--c', COLORS[item.tier] || '#eab448');
+    [['span', 'i', ICONS[item.tier] || '🏆'], ['span', 'k', item.kicker], ['span', 'n', item.title], ['span', 'd', item.text + (item.xp ? ' ' : '')]].forEach(function (p) {
+      var n = document.createElement(p[0]); n.className = p[1]; n.textContent = p[2]; t.appendChild(n);
+    });
+    if (item.xp) { var x = document.createElement('b'); x.className = 'x'; x.textContent = item.xp; t.lastChild.appendChild(x); }
+    toastList.appendChild(t);
+    setTimeout(function () { t.classList.add('on'); }, 30);
+    setTimeout(function () { t.classList.remove('on'); setTimeout(function () { t.remove(); showing = false; next(); }, 400); }, 5200);
+  }
 
   // Für Tests und Fehlersuche (keine Daten, nur der Zustand).
   window.__dtpSyncStatus = function () { return { state: state, user: cfg.user || null, pending: Object.keys(dirty).length }; };

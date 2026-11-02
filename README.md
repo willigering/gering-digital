@@ -78,7 +78,7 @@ Lernende können unter `/dau-to-pro/konto.php` ein kostenloses Konto anlegen: **
 **Deployment (zusätzlich):** `learner_lib.php`, `lib.php`, `html_project.php`, `html_project_lib.php`, `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/konto.php`, `dau-to-pro/konto.css`, `dau-to-pro/sync.js`, `dau-to-pro/api/progress.php`, `admin/learners.php`, `admin/admin2_layout.php`, `datenschutz.php` (neuer Abschnitt 8 „DAU TO PRO Lernkonten“).
 
 ## Tests
-`php tests/dau_lib_test.php`, `php tests/admin_http_test.php` (startet PHPs eingebauten Server mit einer temporären Datenbank), `node tests/dau_card_hover.js`, `node tests/dau_parallax.js`, `node tests/dau_exam_finder.js`, `php tests/html_project_paths.php`, `php tests/learner_lib_test.php`, `php tests/learner_http_test.php`, `node tests/learner_sync.js`. Die produktive Datenbank wird dabei nie verwendet: `GD_DB_PATH` wirkt nur in der Kommandozeile und im eingebauten Testserver.
+`php tests/dau_lib_test.php`, `php tests/admin_http_test.php` (startet PHPs eingebauten Server mit einer temporären Datenbank), `node tests/dau_card_hover.js`, `node tests/dau_parallax.js`, `node tests/dau_exam_finder.js`, `php tests/html_project_paths.php`, `php tests/learner_lib_test.php`, `php tests/learner_http_test.php`, `node tests/learner_sync.js`, `php tests/achievements_test.php`, Browser: `node tests/achievements_browser.js`. Die produktive Datenbank wird dabei nie verwendet: `GD_DB_PATH` wirkt nur in der Kommandozeile und im eingebauten Testserver.
 
 ## DAU TO PRO: kompakte Hauptseite
 
@@ -117,3 +117,15 @@ Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu 
 Fertige DAU-TO-PRO-Module liegen als einzelne HTML-Dateien in `lernmodule/` (Liste in `lernmodule/manifest.json`). Der Ordner ist per `.htaccess` gesperrt und wird nie direkt ausgeliefert. Im Admin unter **HTML-Projekte → Mitgelieferte Lernmodule** zeigt jede Datei, ob live schon dieselbe Version läuft. „Als Entwurf übernehmen“ legt sie als neue Entwurfsversion des gewählten Projekts an (bei bestehenden Projekten bleibt die URL und damit der gespeicherte Lernfortschritt erhalten). Öffentlich wird sie erst mit „Veröffentlichen“. Neues Modul: HTML-Datei nach `lernmodule/<kürzel>.html`, Eintrag in `manifest.json`, Vorschaubild-Motiv wie oben beschrieben.
 
 **Deployment (zusätzlich):** Ordner `lernmodule/` (inkl. `.htaccess`), `html_project_lib.php`, `admin/html_projects.php`.
+
+## DAU TO PRO: Achievements, Level und Highscore
+
+Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige = 590 XP), dazu kommen 12 modulübergreifende (u. a. das versteckte Easter-Egg-Achievement, 200 XP, nur mit Lernkonto). Katalog, XP- und Level-Berechnung stehen in `achievements_lib.php`. Ausgewertet wird serverseitig aus dem ohnehin synchronisierten Fortschritt (`<präfix>-path-v1`, `-stats-v1`, `-subs-v1`, `-exam-v1`); die Moduldateien bleiben dafür unverändert. Einmal freigeschaltete Achievements bleiben erhalten, auch wenn Fortschritt gelöscht wird. Level: Gesamt-XP für Level L = 50 · L · (L − 1), höchstens Level 50.
+
+**Highscore** (`dau-to-pro/highscore.php`): nur für angemeldete Lernende sichtbar, standardmäßig aus. Eingeschaltet wird er unter **Mein Fortschritt → Konto-Einstellungen → Sichtbarkeit im Highscore**. Der Admin kann Konten unter **Lernkonten** aus dem Highscore nehmen.
+
+**Modulnamen:** Jedes Projekt hat zusätzlich ein formelles **Thema** (`html_pages.subject`, z. B. „OSI-Schichten“), das klein über dem witzigen Titel steht. Pflege im Admin unter HTML-Projekte; beim Übernehmen eines mitgelieferten Moduls können Titel, Thema und Beschreibung mit übernommen werden.
+
+**Datenbank:** neue Tabellen `learner_achievements`, `learner_stats` und neue Spalte `html_pages.subject` (werden beim ersten Aufruf automatisch angelegt).
+
+**Deployment (zusätzlich):** `lib.php`, `achievements_lib.php`, `learner_lib.php`, `dau_lib.php`, `html_project_lib.php`, `datenschutz.php`, `dau-to-pro/index.php`, `dau-to-pro/konto.php`, `dau-to-pro/konto.css`, `dau-to-pro/highscore.php`, `dau-to-pro/sync.js`, `dau-to-pro/hero-fx.js`, `dau-to-pro/api/progress.php`, `dau-to-pro/api/easteregg.php`, `admin/learners.php`, `admin/html_projects.php`, `admin/dau_card_preview.php`, Ordner `lernmodule/`. Danach im Admin die drei mitgelieferten Module übernehmen (Namen mit übernehmen) und veröffentlichen. Keine Datenbank und keine Uploads ersetzen.

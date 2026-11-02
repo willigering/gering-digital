@@ -2,7 +2,7 @@
 // DAU TO PRO: Lernkonto (Anmelden, Registrieren, Passwort vergessen) und „Mein Fortschritt“.
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
-require_once __DIR__.'/../learner_lib.php';
+require_once __DIR__.'/../achievements_lib.php';
 header('Cache-Control: no-store, private');
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -59,10 +59,14 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 $slug=(string)($_POST['slug']??'');
                 $count=hp_valid_slug($slug)?learner_progress_delete_module($id,$slug):0;
                 konto_back('',['ok'=>$count>0?'Fortschritt für dieses Modul gelöscht ('.$count.' '.($count===1?'Eintrag':'Einträge').'). Auch auf deinen anderen Geräten wird er beim nächsten Öffnen entfernt.':'Für dieses Modul war nichts gespeichert.']);
+            case 'highscore':
+                $visible=($_POST['visible']??'')==='1';
+                ach_set_visible($id,$visible);
+                konto_back('',['ok'=>$visible?'Du bist jetzt im Highscore sichtbar. Ausschalten geht jederzeit hier.':'Du bist im Highscore nicht mehr sichtbar.','section'=>'highscore']);
             case 'export':
                 header('Content-Type: application/json; charset=utf-8');
                 header('Content-Disposition: attachment; filename="dau-to-pro-fortschritt-'.preg_replace('/[^A-Za-z0-9._-]/','',$learner['username']).'.json"');
-                echo json_encode(learner_export($learner),JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+                echo json_encode(learner_export($learner)+['level_und_achievements'=>ach_export($id)],JSON_PRETTY_PRINT|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
                 exit;
             case 'delete_account':
                 if (($_POST['confirm']??'')!=='LÖSCHEN') throw new LearnerError('Bitte tippe LÖSCHEN in das Bestätigungsfeld.');
@@ -71,7 +75,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         }
         konto_back('',['error'=>'Unbekannte Aktion.']);
     } catch (LearnerError $error) {
-        $section=in_array($action,['change_password','new_code','delete_account'],true)?$action:'';
+        $section=in_array($action,['change_password','new_code','delete_account','highscore'],true)?$action:'';
         konto_back($mode,['error'=>$error->getMessage(),'username'=>$username,'section'=>$section,'remember'=>!empty($_POST['remember'])],$next);
     }
 }
@@ -88,6 +92,13 @@ if ($next!=='') {
     if ($nextTitle==='') $next='';
 }
 $summary=$learner?learner_progress_summary((int)$learner['id']):[];
+// Level und Achievements: beim Öffnen nachrechnen (z. B. „Willkommen, DAU“ für bestehende Konten).
+$ach=null;$achStats=null;
+if ($learner) {
+    try { ach_evaluate((int)$learner['id']); } catch (Throwable $error) { error_log('DAU TO PRO Achievements: '.$error->getMessage()); }
+    $achStats=ach_stats((int)$learner['id']);
+    $ach=ach_overview((int)$learner['id']);
+}
 $started=array_values(array_filter($summary,fn($m)=>$m['entries']>0));
 $publishedCount=count(array_filter($summary,fn($m)=>(int)$m['published']===1));
 $lastActivity=$started[0]['last_update']??null;
@@ -157,6 +168,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
     </dl>
   </section>
 
+    <section class="level-panel" aria-label="Dein Level">
+      <div class="level-badge"><small>LEVEL</small><b><?=$achStats['level']['level']?></b></div>
+      <div class="level-body">
+        <p class="level-title"><?=e($achStats['level']['title'])?></p>
+        <div class="level-bar" role="progressbar" aria-label="Fortschritt zum nächsten Level" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?=$achStats['level']['percent']?>"><i style="width:<?=$achStats['level']['percent']?>%"></i></div>
+        <p class="level-meta"><?=number_format($achStats['level']['xp'],0,',','.')?> XP<?php if(!$achStats['level']['max']): ?> · noch <?=number_format($achStats['level']['to']-$achStats['level']['xp'],0,',','.')?> XP bis Level <?=$achStats['level']['level']+1?><?php else: ?> · höchstes Level erreicht<?php endif; ?></p>
+      </div>
+      <a class="level-link" href="#achievements"><b><?=$ach['done']?></b><small>/ <?=$ach['total']?> Achievements</small></a>
+    </section>
+
   <section aria-labelledby="module-title" class="konto-section">
     <div class="konto-section-head"><h2 id="module-title">Deine Lernmodule</h2><a class="text-link" href="./#lernmodule">Alle Module ansehen →</a></div>
     <?php if (!$summary): ?>
@@ -167,6 +188,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       <article class="progress-card<?=$m['entries']>0?' is-started':''?>" style="--mod:<?=e($img['accent'])?>">
         <div class="progress-art"><?php if($img['src']!==''): ?><img src="../<?=e($img['small']!==''?$img['small']:$img['src'])?>" alt="" loading="lazy" decoding="async" style="object-fit:<?=e($img['fit'])?>;object-position:<?=(int)$img['x']?>% <?=(int)$img['y']?>%"><?php endif; ?></div>
         <div class="progress-body">
+          <?php if(trim((string)($m['subject']??''))!==''): ?><p class="progress-subject"><?=e($m['subject'])?></p><?php endif; ?>
           <h3><?=e($m['title'])?></h3>
           <p class="progress-state"><?php if($m['entries']>0): ?><span class="state-dot"></span> Begonnen · zuletzt <?=e(learner_format_time($m['last_update']))?><?php else: ?><span class="state-dot is-idle"></span> Noch nicht begonnen<?php endif; ?></p>
           <?php if($m['entries']>0): ?><p class="progress-meta"><?=$m['entries']?> gespeicherte <?=$m['entries']===1?'Angabe':'Angaben'?></p><?php endif; ?>
@@ -185,6 +207,25 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
     </div>
     <?php endif; ?>
     <p class="konto-hint">Hast du ein Modul schon vor der Anmeldung auf diesem Gerät bearbeitet, wird dieser Stand beim nächsten Öffnen des Moduls automatisch in dein Konto übernommen.</p>
+  </section>
+
+  <section aria-labelledby="ach-title" class="konto-section" id="achievements">
+    <div class="konto-section-head"><h2 id="ach-title">Achievements</h2><span class="konto-meta"><strong><?=$ach['done']?></strong> von <?=$ach['total']?> freigeschaltet · <a class="text-link" href="highscore.php">Highscore ansehen →</a></span></div>
+    <?php foreach($ach['groups'] as $group): $doneInGroup=count(array_filter($group['items'],fn($i)=>$i['unlocked'])); ?>
+    <details class="ach-group"<?=$doneInGroup>0||$group['id']==='global'?' open':''?>>
+      <summary><span><small class="ach-subject"><?=e($group['subject'])?></small><b><?=e($group['title'])?></b></span><span class="ach-count"><?=$doneInGroup?> / <?=count($group['items'])?></span></summary>
+      <ul class="ach-grid">
+        <?php foreach($group['items'] as $item): ?>
+        <li class="ach-item tier-<?=e($item['tier'])?><?=$item['unlocked']?' is-on':''?><?=$item['secret']?' is-secret':''?>">
+          <span class="ach-icon" aria-hidden="true"><?=$item['secret']?'?':($item['tier']==='witzig'?'🤡':($item['tier']==='platin'?'💎':($item['tier']==='versteckt'?'🍄':'🏆')))?></span>
+          <span class="ach-text"><b><?=e($item['name'])?></b><small><?=e($item['desc'])?></small>
+            <span class="ach-meta"><?=e($item['tier_label'])?><?php if(!$item['secret']): ?> · <?=$item['xp']?> XP<?php endif; ?><?php if($item['unlocked']): ?> · <span class="ach-date">✓ <?=e(learner_format_time($item['unlocked_at']))?></span><?php else: ?> · <span class="sr-only">noch </span>gesperrt<?php endif; ?></span></span>
+        </li>
+        <?php endforeach; ?>
+      </ul>
+    </details>
+    <?php endforeach; ?>
+    <p class="konto-hint">Achievements, Level und XP werden aus deinem gespeicherten Fortschritt berechnet. Einmal freigeschaltet bleiben sie, auch wenn du den Fortschritt eines Moduls löschst.</p>
   </section>
 
   <section aria-labelledby="settings-title" class="konto-section" id="einstellungen">
@@ -207,6 +248,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
           <?=$hidden('new_code')?>
           <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
           <button class="secondary-action" type="submit">Neuen Code erzeugen</button>
+        </form>
+      </details>
+      <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'?' open':''?>>
+        <summary><span><b>Sichtbarkeit im Highscore</b><small><?=$achStats['visible']?'Eingeschaltet: andere Lernende sehen dich im Highscore.':'Ausgeschaltet: du bist im Highscore unsichtbar.'?></small></span></summary>
+        <form method="post" class="settings-body">
+          <?=$hidden('highscore')?>
+          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Besucher ohne Konto sehen den Highscore nicht. Du kannst es jederzeit wieder ausschalten, dann verschwindest du sofort aus der Liste.</p>
+          <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
+          <label class="confirm-check"><input type="checkbox" name="visible" value="1"<?=$achStats['visible']?' checked':''?>> Ich möchte im Highscore sichtbar sein.</label>
+          <button class="secondary-action" type="submit">Speichern</button>
         </form>
       </details>
       <details class="settings-item" id="daten">

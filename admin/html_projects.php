@@ -23,6 +23,9 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if (!hp_valid_slug($slug)) throw new RuntimeException('URL: 3–60 Zeichen, nur Kleinbuchstaben, Zahlen und Bindestriche; keine reservierten Namen.');
             $title=trim((string)($_POST['title']??''));
             $description=trim((string)($_POST['description']??''));
+            // Formelles Thema (Etikett über dem Titel), z. B. „OSI-Schichten“. Optional.
+            $subject=trim((string)($_POST['subject']??($old['subject']??'')));
+            if (mb_strlen($subject,'UTF-8')>60) throw new RuntimeException('Das Thema darf höchstens 60 Zeichen lang sein.');
             $category=(string)($_POST['category']??'lernen');
             if ($title==='' || strlen($title)>400 || strlen($description)>1600)
                 throw new RuntimeException('Titel erforderlich (max. 100 Zeichen); Beschreibung max. 400 Zeichen.');
@@ -52,11 +55,11 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 if ($imageUploaded) $newImage=hp_import_preview($_FILES['preview_image']);
                 $preview=$newImage?:($chosenMotif?:(($removePreview||$previewSource==='auto')?'':($old['preview_image']??'')));
                 if ($old) {
-                    $sql=$db->prepare('UPDATE html_pages SET title=?,description=?,category=?,draft_version=?,preview_image=?,preview_fit=?,preview_x=?,preview_y=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
-                    $sql->execute([$title,$description,$category,$version?:$old['draft_version'],$preview,$previewFit,$previewX,$previewY,$id]);
+                    $sql=$db->prepare('UPDATE html_pages SET title=?,subject=?,description=?,category=?,draft_version=?,preview_image=?,preview_fit=?,preview_x=?,preview_y=?,updated_at=CURRENT_TIMESTAMP WHERE id=?');
+                    $sql->execute([$title,$subject,$description,$category,$version?:$old['draft_version'],$preview,$previewFit,$previewX,$previewY,$id]);
                 } else {
-                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,description,category,draft_version,preview_image,preview_fit,preview_x,preview_y) VALUES(?,?,?,?,?,?,?,?,?)');
-                    $sql->execute([$slug,$title,$description,$category,$version,$preview,$previewFit,$previewX,$previewY]);
+                    $sql=$db->prepare('INSERT INTO html_pages(slug,title,subject,description,category,draft_version,preview_image,preview_fit,preview_x,preview_y) VALUES(?,?,?,?,?,?,?,?,?,?)');
+                    $sql->execute([$slug,$title,$subject,$description,$category,$version,$preview,$previewFit,$previewX,$previewY]);
                 }
             } catch(Throwable $error) {
                 if ($version!=='') hp_delete_tree(hp_version_dir($slug,$version));
@@ -79,8 +82,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
                 if ((int)$exists->fetchColumn()>0) throw new RuntimeException('Das Kürzel /'.$bundle['slug'].'/ gibt es schon. Bitte das bestehende Projekt als Ziel wählen.');
                 $version=hp_import_local($bundle['path'],$bundle['slug']);
                 try {
-                    $db->prepare("INSERT INTO html_pages(slug,title,description,category,draft_version) VALUES(?,?,?,'lernen',?)")
-                       ->execute([$bundle['slug'],$bundle['title'],$bundle['description'],$version]);
+                    $db->prepare("INSERT INTO html_pages(slug,title,subject,description,category,draft_version) VALUES(?,?,?,?,'lernen',?)")
+                       ->execute([$bundle['slug'],$bundle['title'],$bundle['subject'],$bundle['description'],$version]);
                 } catch(Throwable $error) {hp_delete_tree(hp_version_dir($bundle['slug'],$version));throw $error;}
                 hp_notice('„'.$bundle['title'].'“ als neuer Entwurf angelegt (/'.$bundle['slug'].'/). Vorschau prüfen, dann „Veröffentlichen“.');
             }
@@ -91,6 +94,8 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             if ($current===$bundle['hash']) hp_notice('„'.$dest['title'].'“ hat diese Version bereits'.((string)$dest['draft_version']!==(string)$dest['live_version']||!$dest['published']?' als Entwurf. Jetzt nur noch „Veröffentlichen“.':'.'));
             $version=hp_import_local($bundle['path'],$dest['slug']);
             $db->prepare('UPDATE html_pages SET draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,(int)$dest['id']]);
+            // Optional auch Name, Thema und Beschreibung aus dem Paket übernehmen (z. B. nach einer Umbenennung).
+            if (!empty($_POST['take_names'])) $db->prepare('UPDATE html_pages SET title=?,subject=?,description=? WHERE id=?')->execute([$bundle['title'],$bundle['subject'],$bundle['description'],(int)$dest['id']]);
             hp_notice('Neue Version als Entwurf bei „'.$dest['title'].'“ hinterlegt. Die öffentliche Seite bleibt unverändert, bis du „Veröffentlichen“ klickst. Gespeicherter Fortschritt bleibt erhalten, weil die URL gleich bleibt.');
         }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
@@ -236,6 +241,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 .hp-source{display:block;margin:0 0 14px;color:#d8cbb1;font-size:13px}
 .hp-source select{display:block;width:100%;min-height:44px;margin-top:6px}
 .hp-source small{display:block;margin-top:6px;line-height:1.5}
+.hp-subject{display:block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:#76d8df}
 .hp-dau-title{margin:20px 0 10px;color:#f0c76c;font-weight:750;font-size:13px}
 .hp-dau-title code{color:#eac271}
 .hp-dau-frames{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
@@ -259,8 +265,9 @@ function hp_render_thumb_editor(array $page=[]): void {
 <section class="panel"><h2>＋ Neues HTML-Projekt</h2>
 <form class="form" action="html_projects.php" method="post" enctype="multipart/form-data">
 <input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="save">
-<div class="form-grid"><label>Projekttitel *<input name="title" required maxlength="100" placeholder="Subnet Sprint"></label>
+<div class="form-grid"><label>Projekttitel *<input name="title" required maxlength="100" placeholder="Wer teilt, gewinnt"></label>
 <label>URL-Kürzel *<input name="slug" required minlength="3" maxlength="60" pattern="[a-z0-9][a-z0-9\-]{2,59}" placeholder="subnet-sprint" autocomplete="off"></label></div>
+<label>Thema (Etikett über dem Titel, optional)<input name="subject" maxlength="60" placeholder="Subnetting"></label>
 <label>Beschreibung<textarea name="description" rows="2" maxlength="400" placeholder="Subnetting lernen, bis die Bits freiwillig kapitulieren."></textarea></label>
 <label>Kategorie<select name="category"><?php foreach($categories as $key=>$value): ?><option value="<?=e($key)?>" <?=$key==='lernen'?'selected':''?>><?=e($value)?></option><?php endforeach; ?></select></label>
 <label>HTML-Datei oder ZIP-Projekt *<input type="file" name="project_file" required accept=".html,.htm,.zip"></label>
@@ -281,14 +288,16 @@ function hp_render_thumb_editor(array $page=[]): void {
   elseif($draft===$b['hash']){$state=['soon','Als Entwurf übernommen – noch veröffentlichen'];}
   else{$state=['soon','Neuere Version verfügbar'];} ?>
 <article class="hp-project hp-bundle">
-<div class="hp-head"><div><h3><?=e($b['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($dest['slug']??$b['slug'])?>/</div><small class="hp-muted"><?=number_format($b['size']/1024,0,',','.')?> KB · Prüfsumme <?=e(substr($b['hash'],0,10))?></small></div>
+<div class="hp-head"><div><?php if($b['subject']!==''): ?><small class="hp-subject"><?=e($b['subject'])?></small><?php endif; ?><h3><?=e($b['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($dest['slug']??$b['slug'])?>/</div><small class="hp-muted"><?=number_format($b['size']/1024,0,',','.')?> KB · Prüfsumme <?=e(substr($b['hash'],0,10))?></small></div>
 <span class="status <?=$state[0]?>"><?=e($state[1])?></span></div>
 <form class="hp-actions" action="html_projects.php#lernmodule" method="post"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="bundle_import"><input type="hidden" name="bundle" value="<?=e($b['slug'])?>">
 <label class="hp-bundle-target">Ziel <select name="target">
 <?php if(!isset($bySlug[$b['slug']])): ?><option value="new"<?=$dest?'':' selected'?>>Neues Projekt /<?=e($b['slug'])?>/</option><?php endif; ?>
 <?php foreach($pages as $p): ?><option value="<?=(int)$p['id']?>"<?=$dest&&(int)$dest['id']===(int)$p['id']?' selected':''?>><?=e($p['title'])?> (/<?=e($p['slug'])?>/)</option><?php endforeach; ?>
 </select></label>
-<button class="btn" type="submit"<?=$state[1]==='✓ Live ist aktuell'?' disabled':''?>>Als Entwurf übernehmen</button>
+<?php $namesDiffer=$dest&&(($dest['title']??'')!==$b['title']||($dest['subject']??'')!==$b['subject']); ?>
+<?php if($dest): ?><label class="check"><input type="checkbox" name="take_names" value="1"<?=$namesDiffer?' checked':''?>> Titel, Thema und Beschreibung aus dem Paket übernehmen<?=$namesDiffer?' (bisher: „'.e(trim(($dest['subject']??'').' · '.$dest['title'],' ·')).'“)':''?></label><?php endif; ?>
+<button class="btn" type="submit"<?=$state[1]==='✓ Live ist aktuell'&&!$namesDiffer?' disabled':''?>>Als Entwurf übernehmen</button>
 </form>
 </article>
 <?php endforeach; ?>
@@ -298,7 +307,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 <?php if(!$pages): ?><p class="hp-muted">Noch nichts hochgeladen. Die Bits warten schon ungeduldig.</p><?php endif; ?>
 <?php foreach($pages as $page): ?>
 <article class="hp-project" id="projekt-<?=(int)$page['id']?>">
-<div class="hp-head"><div><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'DAU to Pro')?> · <?=e($page['updated_at'])?></small></div>
+<div class="hp-head"><div><?php if(($page['subject']??'')!==''): ?><small class="hp-subject"><?=e($page['subject'])?></small><?php endif; ?><h3><?=e($page['title'])?></h3><div class="hp-url">geringdigital.de/<?=e($page['slug'])?>/</div><small class="hp-muted"><?=e($categories[$page['category']]??'DAU to Pro')?> · <?=e($page['updated_at'])?></small></div>
 <span class="status <?=$page['published']?'live':'soon'?>"><?=$page['published']?'Öffentlich':'Entwurf / offline'?></span></div>
 <?php if($page['description']): ?><p class="hp-muted"><?=e($page['description'])?></p><?php endif; ?>
 
@@ -312,6 +321,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 <form class="form" method="post" action="html_projects.php" enctype="multipart/form-data" data-slug="<?=e($page['slug'])?>">
 <input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="save"><input type="hidden" name="id" value="<?=(int)$page['id']?>">
 <div class="form-grid"><label>Titel<input name="title" required maxlength="100" value="<?=e($page['title'])?>"></label><label>Kategorie<select name="category"><?php foreach($categories as $key=>$value): ?><option value="<?=e($key)?>" <?=$page['category']===$key?'selected':''?>><?=e($value)?></option><?php endforeach; ?></select></label></div>
+<label>Thema (Etikett über dem Titel, optional)<input name="subject" maxlength="60" value="<?=e($page['subject']??'')?>" placeholder="z. B. OSI-Schichten"></label>
 <label>Beschreibung<textarea name="description" maxlength="400" rows="2"><?=e($page['description'])?></textarea></label>
 <label>Neue HTML- oder ZIP-Version (optional)<input type="file" name="project_file" accept=".html,.htm,.zip"></label>
 <label>Vorschaubild austauschen (optional)<input type="file" name="preview_image" accept=".jpg,.jpeg,.png,.webp"><small class="hp-muted">Ein Screenshot im Querformat (16:9). Nur das Vorschaubild ändern ist auch ohne neue HTML-Datei möglich.</small></label>
@@ -430,7 +440,7 @@ function hp_render_thumb_editor(array $page=[]): void {
       if (!dau) return;
       const src = effectiveSource();
       const params = new URLSearchParams({
-        title: field('title')?.value || '', description: field('description')?.value || '',
+        title: field('title')?.value || '', subject: field('subject')?.value || '', description: field('description')?.value || '',
         slug: field('slug')?.value || form.dataset.slug || '',
         source: src === 'upload' ? 'auto' : src, image: dau.dataset.image || '',
         fit: fit.value, x: x.value, y: y.value
@@ -466,7 +476,7 @@ function hp_render_thumb_editor(array $page=[]): void {
     file?.addEventListener('change', () => {syncControls(); frames.forEach(pushLocal); reloadCards();});
     remove?.addEventListener('change', () => {syncControls(); reloadCards();});
     [fit, x, y].forEach(input => input.addEventListener('input', () => {syncControls(); frames.forEach(pushLocal);}));
-    ['title', 'description', 'slug'].forEach(name => field(name)?.addEventListener('input', scheduleReload));
+    ['title', 'subject', 'description', 'slug'].forEach(name => field(name)?.addEventListener('input', scheduleReload));
     category?.addEventListener('change', () => {toggleDau(); refresh();});
     toggleDau(); syncControls();
     // Lazy: Karten erst rendern, wenn der Editor sichtbar ist (z. B. aufgeklapptes <details>).

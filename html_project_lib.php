@@ -165,7 +165,7 @@ function hp_bundles(): array {
         if (!hp_valid_slug($slug) || !preg_match('~^[a-z0-9-]+\.html$~D',$file)) continue;
         $path=hp_bundle_dir().'/'.$file;
         if (!is_file($path)) continue;
-        $out[$slug]=['slug'=>$slug,'path'=>$path,'title'=>(string)($m['title']??$slug),'description'=>(string)($m['description']??''),
+        $out[$slug]=['slug'=>$slug,'path'=>$path,'title'=>(string)($m['title']??$slug),'subject'=>(string)($m['subject']??''),'description'=>(string)($m['description']??''),
             'hash'=>hash_file('sha256',$path),'size'=>filesize($path),'changed'=>filemtime($path)];
     }
     return $out;
