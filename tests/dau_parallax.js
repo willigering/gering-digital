@@ -12,5 +12,8 @@ assert.ok(/\.dtp-world-texture\{[^}]*position:fixed[^}]*height:128vh/.test(css),
 assert.ok(/\.dtp-parallax-clip\{[^}]*overflow:hidden/.test(css),'Verschobene Ebenen verlängern die Seite nicht');
 assert.ok(/prefers-reduced-motion: reduce/.test(js)&&/on=!reduced\.matches/.test(js),'Parallax aus bei reduzierter Bewegung');
 assert.ok(/requestAnimationFrame\(apply\)/.test(js)&&/addEventListener\('scroll',request,\{passive:true\}\)/.test(js),'Ein Frame pro Scroll, passive Listener');
+assert.ok(!/Math\.min\(110/.test(js)&&/progress\*lag/.test(js),'Ebenen laufen am Seitenfortschritt mit, ohne harte Grenze');
+assert.ok(/smooth\+\(target-smooth\)\*\.16/.test(js)&&/finePointer\.matches/.test(js),'Weiches Nachführen nur mit Maus/Trackpad');
+assert.ok(/\.module-art\.has-image img/.test(js)&&/objectFit!=='cover'/.test(js),'Modulbilder mit Fenster-Effekt, nur bei Ausfüllen');
 assert.ok(/\.style\.translate=/.test(js)&&!/art\.style\.transform/.test(js),'Hero nutzt translate, damit die Hero-Animation (transform) unberührt bleibt');
 console.log('Parallax/Hintergrund: alle Prüfungen bestanden');

@@ -38,3 +38,10 @@
   .hero-plane--brand{transform:translate(-1%,2%) scale(.86)}
 }
 @media(prefers-reduced-motion:reduce){.hero-plane{translate:none!important;transition:none;will-change:auto}}
+/* Schriftzug und Power-up als Vektor: keine Rasterkanten, kein Kasten. */
+.hero-brand{position:absolute;left:0;top:66.2%;width:100%;height:17.1%;overflow:visible;filter:drop-shadow(0 6px 14px #000a)}
+.hero-brand-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:178px;font-weight:900;font-style:italic;letter-spacing:-6px;paint-order:stroke;stroke:#0b0f12;stroke-width:10px;stroke-linejoin:round}
+.hero-brand-to{font-size:120px}
+.hero-powerup{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 10px #0008)}
+.hero-powerup-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:46px;font-weight:900;font-style:italic;letter-spacing:0;fill:#fff}
+.hero-pixelpilz{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;object-fit:contain;image-rendering:pixelated;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 10px #0008)}
