@@ -2,7 +2,7 @@
 
 Diese Datei ist der komplette Auftrag für eine KI (z. B. ChatGPT mit GitHub-Zugriff), die ein neues Lernmodul für DAU TO PRO baut. Alles, was du brauchst, liegt in diesem Repository. Lies diese Datei ganz, bevor du anfängst.
 
-**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du änderst nichts im Repository.
+**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du übernimmst eigenständig auch den vollständigen Einbau ins Repository: Konto-Anbindung, Fortschritt, XP, Achievements, Vorschaugrafik und Registrierung für die Hauptseite. Liefere alle Änderungen als vollständigen, prüfbaren Pull Request. Eine Übergabe an eine andere KI entfällt. Merge und Veröffentlichung erfolgen nur auf ausdrücklichen Auftrag; einen offenen PR nicht als bereits live eingebaut darstellen.
 
 ## 1. Was du aus dem Repository liest
 
@@ -11,8 +11,11 @@ Diese Datei ist der komplette Auftrag für eine KI (z. B. ChatGPT mit GitHub-Zug
 | Diese Anleitung | `docs/modul-auftraege/README.md` | Auftrag, Regeln, Modulliste |
 | Vorlage | `lernmodule/a1-zahlensysteme.html` | Aufbau, Design, CSS, Lernpfad-Logik, Statistik, Prüfungsmodus, Speicherlogik, Tooltips. **Vollständig lesen.** |
 | Zweites Beispiel | `lernmodule/osi-sprint.html` | Wie ein anderes Thema mit derselben Vorlage aussieht |
-| Hintergründe | `assets/dau-backgrounds/README.md`, `manifest.json` | Welches Motiv es gibt (das Bild selbst bettet Claude ein, siehe 4.) |
-| Achievements | `achievements_lib.php`, Funktion `ach_modules()` | Wie Achievements an Aufgabentyp-IDs und Stufen hängen |
+| Hintergründe | `assets/dau-backgrounds/README.md`, `manifest.json` | Passendes Motiv selbst als Base64 einbetten |
+| Achievements | `achievements_lib.php`, Funktion `ach_modules()` | Vorhandenen Katalog, Regeln und XP verwenden |
+| Modulregistrierung | `lernmodule/manifest.json` | Modul für Hauptseite und Auswahl registrieren |
+| Konto und Fortschritt | `dau-to-pro/sync.js`, `learner_lib.php` und bestehende Moduleinbindung | Vorhandene Synchronisierung und Konto-Anbindung wiederverwenden |
+| Vorschaugrafiken | `assets/dau-previews/manifest.json`, `tools/dau-previews/README.md` | Bestehenden Stil und Vorschau-Erzeugung übernehmen |
 
 Die Vorlage ist sehr groß (eingebettete Bilder als Base64). Lies den Code-Teil (CSS und `<script>`), die Base64-Zeichenketten kannst du überspringen.
 
@@ -100,16 +103,19 @@ Keine anderen Schlüssel, keine ohne Präfix.
 
 - **Aufgabentypen:** Liste `SUBS` mit `{id, cat, label, min}` (Teilthema, deutscher Name, ab Stufe). IDs bleiben für immer gleich.
 - **Testhaken:** `window.<KURZ>_TEST = {last, exam, SUBS, genTask, parseAnswer, showAnswer, CATS, STAGES, EXAM_PLAN, buildExam, gradeOf}` wie in der Vorlage (`KURZ` = Präfix groß ohne Bindestrich, z. B. `D1DSGVO_TEST`). `genTask(subId, level)` liefert für jeden Typ 1.000-mal hintereinander fehlerfrei eine lösbare Aufgabe.
-- **Hintergrund:** Ersetze das Array `B` der Vorlage durch `var B=[];` und schreibe direkt darüber den Kommentar `/* DTP-HINTERGRUND: <motiv-id> */` mit dem Motiv aus der Tabelle. Claude bettet das Bild beim Einbau ein. Die Seite muss ohne Bild gut aussehen (dunkle Grundfarbe bleibt).
+- **Hintergrund:** Bette das passende Repository-Bild selbst als Base64-Data-URL im Array `B` ein, wie in der Vorlage. Direkt darüber steht `/* DTP-HINTERGRUND: <motiv-id> */` mit dem Motiv aus der Tabelle. Dunkle Überlagerung verwenden; kein Lesetext direkt auf dem Bild. Die dunkle Grundfarbe bleibt auch bei fehlendem Bild lesbar.
 - **Verboten:** `fetch`/XHR, externe URLs außer Quellenlinks, `eval`, Formular-Submit, `confirm`/`alert`/`prompt`, `document.cookie`, `sessionStorage` für Fortschritt.
-- **Nicht selbst bauen** (macht Claude beim Einbau): Button „Zurück zur Modulauswahl“, Speicher-Synchronisierung, Achievements, Vorschaubild.
+- **Einbau selbst übernehmen:** Rückweg zur Modulauswahl, Speicher-Synchronisierung, Konto-Fortschritt, XP, Achievements und Hauptseiten-Vorschau gehören zum Auftrag. Die vorhandenen zentralen Komponenten und Einbindungswege wiederverwenden. Keine zweite Login-, Sync- oder Achievement-Lösung bauen. Die einzelne HTML-Datei bleibt offline lauffähig; die Plattform-Anbindung erfolgt über die bestehende Architektur. Keine Werbung mit „ohne Login“: Die Plattform hat bereits eine Login-Funktion.
+- **Vertrag durchgehend prüfen:** Präfix, Testhaken, Typ-IDs, Stufenindizes und Prüfungsdauer müssen zwischen Modul und zentraler Auswertung zusammenpassen. Bestehende Fortschritte bei nötigen Änderungen kompatibel übernehmen. Willis ausdrückliche Vorgaben gelten vor den Standardwerten dieser Anleitung. Für D1 sind 10/20/30 Minuten bei 20/40/60 Aufgaben vereinbart; auch die zentrale Prüfungs- und Achievement-Auswertung muss diese Zeiten unterstützen.
 
 ## 4. Lieferung
 
 1. Eine einzige HTML-Datei, UTF-8, offline lauffähig, Dateiname laut Tabelle, Version im Footer (`v1.0`). Bei Platzproblemen in Etappen bauen (Lernpfad + Nachschlagwerk, dann Trainingsraum, dann Prüfungsmodus), am Ende die komplette Datei als Download.
 2. Dazu eine Liste aller Aufgabentyp-IDs mit deutschem Namen, Teilthema und Stufe.
-3. Drei Vorschläge für witzige Achievements (je ein Aufgabentyp, bei dem 3 Fehler in Folge lustig sind) und je einen Satz Rätseltext.
-4. Kurz die Abnahme-Checkliste (Abschnitt 7) selbst durchgehen und Ergebnis nennen.
+3. Zehn passende Modul-Achievements vollständig im bestehenden System registrieren: 2 Bronze, 2 Silber, 2 Gold, 1 Platin und 3 witzige, entsprechend dem vorhandenen Katalog. Stabile IDs, echte Aufgabentyp-IDs und korrekte Stufenindizes verwenden. Bedingungen müssen erreichbar sein und mit Lernpfad, Statistik und Prüfungsdauer übereinstimmen. Für die drei witzigen Achievements je einen passenden Fehlertyp und einen Rätseltext wählen. Bestehende XP- und Rangregeln übernehmen; Auslösung und Schutz vor doppelter Vergabe prüfen. Reine Namensvorschläge reichen nicht.
+4. Eine passende Vorschaugrafik für die Modulkarte der Hauptseite erstellen, im bestehenden Vorschau-System registrieren und dem Modul zuweisen. Thema, Titel, Stil und Zuschnitt müssen zur Plattform passen. Die tatsächlich eingebundene Karte auf Desktop und Handy prüfen. Ein unreferenziertes Bild oder ein alter HTML-Screenshot ist keine fertige Vorschau.
+5. Moduldatei, Manifest, zentrale Integration und benötigte Assets gemeinsam als vollständigen Pull Request liefern. Bestehende Komponenten selbst anpassen, soweit für das Modul nötig. Keine Restaufgaben für eine andere KI hinterlassen. Im PR erklären, was geändert und wie es geprüft wurde; verbleibende Grenzen ehrlich nennen.
+6. Die Abnahme-Checkliste (Abschnitt 7) selbst durchgehen und Ergebnis nennen. Erst als vollständig bezeichnen, wenn sowohl Lernmodul als auch Plattform-Anbindung geprüft sind.
 
 ## 5. Modulliste mit festen Werten
 
@@ -210,7 +216,7 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 
 **H1–H8 (Anwendungsentwicklung, Zusatz):** jedes Modul zusätzlich mit Programmier-Sandbox: Editor (Textarea mit Zeilennummern), Ausführen-Knopf, Ausgabe, automatische Tests pro Aufgabe. JavaScript läuft in einem Web Worker mit Zeitlimit (Endlosschleifen abbrechen). Kein Pyodide und kein sql.js ohne Willis Zustimmung. Eine Sandbox-Aufgabe ist richtig, wenn alle Tests grün sind, und zählt im Speicher wie jede andere Aufgabe. Schwerpunkte: H1 Variablen bis Funktionen selbst schreiben; H2 Suchen, Sortieren, Rekursion, Stack/Queue, O-Notation mit Ablauf-Animation; H3 Klassen nach UML, Vererbung, Interfaces; H4 IHK-Pseudocode ergänzen und in JS übersetzen; H5 Unterabfragen, Views, Transaktionen, GRANT; H6 Testfälle mit Grenzwerten, Bugs finden, Git im Simulator; H7 JSON verarbeiten, SQL-Injection und XSS beheben; H8 MVC, Schichten, Entwurfsmuster, Clean Code.
 
-**G1, G2, W6 (Prüfungssimulationen):** kommen zum Schluss. Lernpfad = Ablauf, Bewertung, Zeitplanung und Aufgabentypen der Prüfung. Hauptteil ist der Prüfungsmodus (G1 90 Minuten, G2 Fachteile mit Zeitvorgabe, W6 60 Minuten mit 30 gebundenen Aufgaben). Claude kombiniert dafür die Generatoren der fertigen Module; du lieferst Oberfläche und neue Fallaufgaben.
+**G1, G2, W6 (Prüfungssimulationen):** kommen zum Schluss. Lernpfad = Ablauf, Bewertung, Zeitplanung und Aufgabentypen der Prüfung. Hauptteil ist der Prüfungsmodus (G1 90 Minuten, G2 Fachteile mit Zeitvorgabe, W6 60 Minuten mit 30 gebundenen Aufgaben). Du kombinierst selbst die Generatoren der fertigen Module und lieferst Oberfläche, neue Fallaufgaben und vollständige Plattform-Anbindung.
 
 ## 7. Abnahme-Checkliste
 
@@ -228,3 +234,14 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 - [ ] 390 px breit: kein seitliches Scrollen.
 - [ ] Im localStorage nur Schlüssel mit dem Präfix des Moduls.
 - [ ] `genTask` für jeden Typ 1.000-mal ohne Fehler.
+
+### Zusätzliche Abnahme für den vollständigen Einbau
+
+- [ ] Alle Inhalte des Modul-Steckbriefs sind abgedeckt; Auslassungen nicht als vollständiges Modul ausgeben.
+- [ ] Eine Aufgabe enthält genau einen Fall, eine Frage und eine bewertete Antwort. Keine Alles-oder-nichts-Bewertung mehrerer unabhängiger Fragen. Anspruch entsteht durch Anwendung und passende Fachbegriffe statt bloß offensichtlicher Wortzuordnung.
+- [ ] Ausgangslage und eigentliche Frage sind sichtbar getrennt. Einleitende Tatsachen stehen bei der Ausgangslage, nicht im Fragetext.
+- [ ] Nach Prüfungsabgabe sind eigene Eingabe, richtige Antwort und Lösungsweg pro Aufgabe sichtbar. Aufgabenpunkte und aufsummierte Themenpunkte sind eindeutig beschriftet.
+- [ ] Modul ist im Manifest und auf der Hauptseite mit passender, tatsächlich eingebundener Vorschaugrafik erreichbar.
+- [ ] Konto-Synchronisierung, Fortschritt, XP und Rückweg funktionieren über die vorhandenen zentralen Komponenten.
+- [ ] Zehn passende Achievements sind registriert; Regeln, Typ-IDs, Stufen und Prüfungslängen wurden gegen das Modul geprüft. Wiederholte Vergabe erzeugt keine doppelten Belohnungen.
+- [ ] Offline-Datei und Plattform-Einbindung wurden getrennt geprüft; der PR enthält sämtliche notwendigen Dateien und nennt die tatsächlichen Prüfergebnisse.
