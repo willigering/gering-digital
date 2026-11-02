@@ -35,7 +35,7 @@ let server,browser;
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
-      return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').length,
+      return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').filter(track=>parseFloat(track)>0).length,
         modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
         overflow:[...document.querySelectorAll('.hero-copy,.hero-actions,.exam-input-row,.module-card,.step')].filter(e=>{const b=e.getBoundingClientRect();return b.left<-.5||b.right>innerWidth+.5}).map(e=>e.className)};
     });
@@ -92,6 +92,26 @@ let server,browser;
   assert.equal(await page.locator('.filterbar').count(),0,'No empty category navigation');
   seed();
   await context.close();
+  // Shared navigation/styles also need to work on the account page.
+  const session=php(`db()->prepare('INSERT INTO learners(username,password_hash) VALUES(?,?)')->execute(['layout-tester',password_hash('test-password-for-layout',PASSWORD_DEFAULT)]); learner_start_session(learner_by_id((int)db()->lastInsertId()),false); echo session_name().'='.session_id(); session_write_close();`).trim();
+  const [cookieName,cookieValue]=session.split('=');
+  for(const width of [1440,320]){
+    const accountContext=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
+    await accountContext.addCookies([{name:cookieName,value:cookieValue,url:base}]);
+    const accountPage=await accountContext.newPage();accountPage.on('pageerror',e=>errors.push(e.message));
+    await accountPage.goto(base+'/dau-to-pro/');
+    if(width>860){
+      await accountPage.getByRole('button',{name:'Mein Konto',exact:false}).click();
+      assert.ok(await accountPage.locator('#dtp-account-panel').isVisible(),'Account dropdown opens');
+      await accountPage.keyboard.press('Escape');
+      assert.ok(await accountPage.locator('#dtp-account-panel').isHidden(),'Escape closes account dropdown');
+      await accountPage.getByRole('button',{name:'Mein Konto',exact:false}).click();
+    }else await accountPage.getByRole('button',{name:'Menü öffnen',exact:true}).click();
+    await accountPage.getByRole('link',{name:'Konto-Einstellungen',exact:true}).click();
+    assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
+    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
+    await accountContext.close();
+  }
   const noJs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const staticPage=await noJs.newPage();await staticPage.goto(base+'/dau-to-pro/');
   assert.equal(await staticPage.locator('.module-card:visible').count(),2,'Modules remain visible without effects');
