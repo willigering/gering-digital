@@ -191,6 +191,12 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     assert.equal(names[0],'anna (du)','Highscore: anna führt und ist markiert');
     assert.equal(names.length,3,'Highscore zeigt die drei sichtbaren Konten');
     if(shots)await page.screenshot({path:path.join(shots,'highscore-1366.png'),fullPage:true});
+    // Highscore auch auf der Hauptseite (Top 5).
+    await page.goto(base+'/dau-to-pro/#highscore',{waitUntil:'load'});
+    const top=await page.$$eval('#highscore .hs-who b',n=>n.map(x=>x.textContent.trim()));
+    assert.equal(top[0],'anna (du)','Hauptseite: Highscore-Vorschau zeigt anna oben');
+    assert.equal(top.length,3,'Hauptseite: alle drei sichtbaren Konten');
+    if(shots)await page.locator('#highscore').screenshot({path:path.join(shots,'hauptseite-highscore.png')});
 
     // Smartphone-Ansicht.
     const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,reducedMotion:'reduce',storageState:await context.storageState()});
@@ -207,6 +213,8 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     assert.equal(await gp.locator('.hs-table').count(),0,'Ohne Konto keine Highscore-Liste');
     assert.ok(await gp.locator('.hs-locked').isVisible(),'Ohne Konto: Hinweis „Nur mit Lernkonto“');
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
+    assert.equal(await gp.locator('#highscore .hs-row').count(),0,'Hauptseite ohne Konto: keine Namen im Highscore');
+    assert.ok(await gp.locator('#highscore .hs-teaser').isVisible(),'Hauptseite ohne Konto: Hinweis mit Anmelden');
     for(let i=0;i<5;i++){await gp.locator('.fx-shroom-hit').click({force:true});await pause(120);}
     await gp.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
     await gp.keyboard.press('Escape');

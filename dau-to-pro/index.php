@@ -1,7 +1,19 @@
 <?php
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../learner_lib.php';
-$learnerName=learner_current()['username']??null;
+require_once __DIR__.'/../achievements_lib.php';
+$learnerRow=learner_current();
+$learnerName=$learnerRow['username']??null;
+// Highscore-Vorschau: wie highscore.php nur für angemeldete Lernende, Gäste sehen einen Hinweis.
+$hsRows=[];$hsMe=null;$hsRank=0;$hsCount=0;
+try {
+    $hsCount=(int)db()->query('SELECT COUNT(*) FROM learner_stats WHERE highscore_visible=1 AND highscore_blocked=0')->fetchColumn();
+    if ($learnerRow) {
+        $hsRows=ach_highscore(5);
+        $hsMe=ach_stats((int)$learnerRow['id']);
+        $hsRank=ach_would_rank((int)$learnerRow['id']);
+    }
+} catch (Throwable $error) { error_log('DAU TO PRO Highscore: '.$error->getMessage()); }
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
@@ -98,6 +110,37 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 <p id="search-empty" class="search-empty" hidden>Keine Module gefunden. Versuche einen anderen Suchbegriff oder Themenfilter.</p>
 <?php endif; ?>
               </div>
+    </div>
+  </section>
+  <section class="hs-section" id="highscore" aria-labelledby="hs-title">
+    <div class="section-shell">
+      <div class="section-heading" data-reveal><div><span class="eyebrow">HIGHSCORE</span><h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2><p>Die besten Lernenden nach XP. In der Liste steht nur, wer die Sichtbarkeit im eigenen Konto eingeschaltet hat.</p></div><span class="section-count"><?=$hsCount?> <?=$hsCount===1?'Person':'Personen'?> sichtbar</span></div>
+<?php if (!$learnerRow): ?>
+      <div class="hs-teaser" data-reveal>
+        <div><strong>Nur mit Lernkonto</strong><p>Den Highscore sehen angemeldete Lernende. Mit Konto sammelst du XP, Level und Achievements und entscheidest selbst, ob du in der Liste auftauchst.</p></div>
+        <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
+      </div>
+<?php else: ?>
+      <div class="hs-board" data-reveal>
+<?php if (!$hsRows): ?>
+        <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
+<?php else: ?>
+        <ol class="hs-top">
+<?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
+          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>">
+            <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
+            <span class="hs-who"><b><?=e($r['username'])?><?php if($self): ?> <small>(du)</small><?php endif; ?></b><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
+            <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
+          </li>
+<?php endforeach; ?>
+        </ol>
+<?php endif; ?>
+        <div class="hs-foot">
+          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
+          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+<?php endif; ?>
     </div>
   </section>
   <section class="method-section" id="konzept" aria-labelledby="method-title">

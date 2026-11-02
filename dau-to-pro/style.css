@@ -228,3 +228,23 @@ main,.dtp-footer{position:relative;z-index:1}
   .dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.module-art img{will-change:auto;translate:none!important;scale:none!important}
   .disclaimer-toggle,.nav-account-menu>.nav-account span{transition:none}
 }
+
+/* Highscore-Vorschau auf der Hauptseite */
+.hs-section{padding:44px 0 52px;border-top:1px solid var(--stroke)}
+.hs-section .section-heading h2 span{color:var(--gold)}
+.hs-section .section-heading p{margin:8px 0 0;color:var(--muted);max-width:640px}
+.hs-teaser,.hs-board{border:1px solid var(--stroke);border-radius:14px;background:#10191fde;padding:22px 24px}
+.hs-teaser{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.hs-teaser strong{font-size:18px;color:var(--cream)}.hs-teaser p{margin:6px 0 0;color:var(--muted);max-width:640px}
+.hs-top{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.hs-row{display:grid;grid-template-columns:56px minmax(0,1fr) auto;align-items:center;gap:14px;padding:10px 16px;border:1px solid #ffffff12;border-radius:10px;background:#0b1317b3}
+.hs-row.top-1{border-color:#edc47766;background:linear-gradient(90deg,#edc4771f,#0b1317b3 60%)}
+.hs-row.is-self{border-color:var(--cyan)}
+.hs-pos{font-size:22px;font-weight:900;color:var(--goldlite);text-align:center}
+.hs-who{display:grid;min-width:0}.hs-who b{color:var(--cream);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hs-who small,.hs-xp small{color:var(--muted);font-size:12px}.hs-who b small{color:var(--cyan)}
+.hs-xp{display:grid;text-align:right;color:var(--muted);font-size:13px}.hs-xp b{color:var(--gold);font-size:18px}
+.hs-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 20px;margin-top:16px;color:var(--muted);font-size:14px}
+.hs-foot a:not(.secondary-action),.hs-empty a{color:var(--gold)}.hs-foot b{color:var(--cream)}
+.hs-empty{margin:0;color:var(--muted)}
+@media (max-width:640px){.hs-teaser{flex-direction:column;align-items:stretch}.hs-row{grid-template-columns:40px minmax(0,1fr) auto;gap:10px;padding:10px 12px}.hs-pos{font-size:18px}.hs-section{padding:32px 0 36px}}
