@@ -435,6 +435,36 @@ function dtp_hero_people_picture(): string {
     return '<picture><source type="image/webp" srcset="../assets/dau-to-pro-people-clean-768.webp 768w, ../assets/dau-to-pro-people-clean-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px"><img class="hero-part-image" src="../assets/dau-to-pro-people-clean-1448.webp" width="1448" height="1086" decoding="async" alt="" draggable="false"></picture>';
 }
 
+/** Schriftzug „DAU TO PRO“ in der Seitenschrift statt als Rastergrafik: gestochen scharf, ohne Kasten. */
+function dtp_hero_brand(): string {
+    return '<svg class="hero-brand" viewBox="0 0 1448 186" aria-hidden="true" focusable="false"><defs>'
+        .'<linearGradient id="dtp-brand-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9d3c4"/></linearGradient>'
+        .'<linearGradient id="dtp-brand-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#f2b53c"/><stop offset="1" stop-color="#d98a1c"/></linearGradient>'
+        .'</defs><text x="724" y="160" text-anchor="middle" class="hero-brand-text">'
+        .'<tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="22">TO</tspan><tspan fill="url(#dtp-brand-gold)" dx="22">PRO</tspan></text></svg>';
+}
+
+/** Power-up: Sprechblase, Pixelpilz und Funken als saubere Vektorgrafik (Pilz-Koordinaten wie im Original). */
+function dtp_hero_powerup(): string {
+    $step=static function(float $x,float $y,float $w,float $h,float $s): string {
+        // Rechteck mit zweistufig abgetreppten Ecken (Pixel-Look).
+        $a=$s;$b=2*$s;
+        return "M".($x+$b)." $y H".($x+$w-$b)." v$a h$a v$a h$a V".($y+$h-$b)." h-$a v$a h-$a v$a H".($x+$b)." v-$a h-$a v-$a h-$a V".($y+$b)." h$a v-$a h$a Z";
+    };
+    $outer=$step(1162,348,272,124,10);
+    $inner=$step(1172,358,252,104,8);
+    $tail='M1236 466 h44 v10 h-10 v10 h-10 v10 h-10 v10 h-14 Z';
+    $tailInner='M1244 462 h28 v8 h-8 v8 h-8 v8 h-8 v8 h-4 Z';
+    $svg='<svg class="hero-powerup" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false" shape-rendering="crispEdges">'
+        .'<path d="'.$outer.' '.$tail.'" fill="#ffd23f"/>'
+        .'<path d="'.$inner.' '.$tailInner.'" fill="#0d1114"/>'
+        .'<text x="1298" y="432" text-anchor="middle" class="hero-powerup-text" shape-rendering="auto">LEVEL UP!</text>'
+        .'<g fill="#ffd23f"><path d="M1352 478h12v34h-12z" transform="rotate(-24 1358 495)"/><path d="M1384 492h12v30h-12z" transform="rotate(18 1390 507)"/><path d="M1404 530h28v12h-28z" transform="rotate(-8 1418 536)"/></g>'
+        .'</svg>';
+    $pilz='../assets/dau-to-pro-pixelpilz.svg?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.svg');
+    return $svg.'<img class="hero-pixelpilz" src="'.e($pilz).'" alt="" width="191" height="174" decoding="async" draggable="false">';
+}
+
 /**
  * Native scene planes: clean character cutouts, original branding/power-up and a code-native backdrop.
  * Percentage polygons share one coordinate system with the mushroom and work in admin previews with a base URL.
@@ -462,6 +492,10 @@ function dtp_hero_scene(array $hero,string $alt): string {
         if($name==='ambient') {
             // Decorative native paths continue the circuit language of the page, without raster cut edges.
             $html.='<svg class="hero-circuit" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="scene-wire-cyan" d="M-120 460H230L450 230H680L760 150H1050L1220 320H1560 M-100 570H320L460 430H655L730 350 M540 270H690L780 180H940 M920 400H1110L1260 550H1550"/><path class="scene-wire-gold" d="M-100 750H255L510 495H660L810 345H1080L1280 145H1560 M930 660H1110L1215 765H1530"/><path class="scene-growth" d="M435 672L790 330L745 451 M790 330L664 369"/></g><g class="scene-bars"><path d="M533 711V629H578V711 M607 711V561H654V711 M681 711V486H730V711 M755 711V418H802V711"/></g><g class="scene-dots"><circle cx="680" cy="230" r="10"/><circle cx="655" cy="430" r="8"/><circle cx="1110" cy="660" r="8"/></g></svg>';
+        } elseif($name==='brand') {
+            $html.=dtp_hero_brand();
+        } elseif($name==='powerup' && is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) {
+            $html.=dtp_hero_powerup();
         } else {
             $picture=$cleanPeople && in_array($name,['dau','pro'],true)?dtp_hero_people_picture():dtp_hero_picture($hero,'','hero-part-image');
             $html.='<div class="hero-slice" aria-hidden="true" style="clip-path:'.$shapes[$name].'">'.$picture.'</div>';
@@ -572,9 +606,9 @@ HTML;
  * the effect still works but no player is shown.
  */
 function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
-    if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.png')) return '';
+    if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) return '';
     $video=__DIR__.'/assets/dau-to-pro-easteregg.mp4';
-    $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.png?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.png').'"';
+    $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.svg?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.svg').'"';
     $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
     // Mit Lernkonto meldet das Video das Achievement „Fremdscham erfolgreich freigeschaltet“ (200 XP).
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
