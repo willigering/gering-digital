@@ -155,6 +155,8 @@ $hs=ach_highscore();
 check(array_column($hs,'username')===['tina','anna','susi'],'Highscore sortiert nach XP');
 check($hs[0]['rank']===1 && $hs[0]['title']===ach_level_title((int)$hs[0]['level']),'Platz und Leveltitel');
 check(count($hs[0]['rare'])===3,'Die drei seltensten Achievements stehen dabei');
+check(count($hs[0]['unlocked'])===count(ach_unlocked((int)$hs[0]['id'])),'Highscore enthält alle freigeschalteten Achievements');
+foreach($hs as $entry) foreach($entry['unlocked'] as $item) check(isset(ach_unlocked((int)$entry['id'])[$item['code']]),'Highscore zeigt nur wirklich freigeschaltete Achievements');
 $higher=[];foreach(ach_highscore() as $row) if((int)$row['xp']>ach_stats($o)['level']['xp']) $higher[]=$row['username'];
 check(ach_would_rank($o)===count($higher)+1,'Unsichtbares Konto sieht, welchen Platz es hätte');
 ach_set_visible($a,false);
@@ -186,3 +188,4 @@ check(count(ach_overview($n)['groups'])===3,'Nicht veröffentlichte Module ersch
 @unlink($db);
 echo $failures===0?"Achievements: $count Prüfungen bestanden\n":"Achievements: $failures von $count Prüfungen fehlgeschlagen\n";
 exit($failures===0?0:1);
+
