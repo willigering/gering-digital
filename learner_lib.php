@@ -16,7 +16,7 @@ const LEARNER_KEYS_MAX=2000;            // Einträge pro Konto
 const LEARNER_FORM_MIN_SECONDS=3;       // menschliche Mindestzeit für Formulare
 const LEARNER_FORM_MAX_SECONDS=7200;
 const LEARNER_SYNC_PREFIX='dtp-sync:';  // eigene Hilfsschlüssel im Browser, werden nie gespeichert
-const LEARNER_RESERVED=['admin','administrator','root','system','support','moderator','mod','gering','geringdigital','gering-digital','willi','willigering','dau','dautopro','dau-to-pro','daupro','gast','guest','test','null','undefined','konto','info','kontakt','webmaster','hostmaster','postmaster','security','abuse'];
+const LEARNER_RESERVED=['admin','administrator','root','system','support','moderator','mod','gering','geringdigital','gering-digital','willigering','dau','dautopro','dau-to-pro','daupro','gast','guest','test','null','undefined','konto','info','kontakt','webmaster','hostmaster','postmaster','security','abuse'];
 
 final class LearnerError extends RuntimeException {}
 
