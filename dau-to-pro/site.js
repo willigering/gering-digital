@@ -85,17 +85,21 @@
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
     canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
   })();
-  // Begrenzte Tiefenbewegung: kein mit der Seitenlänge wachsender Versatz und kein Layout-Feedback.
+  // Tiefenbewegung als ein System: Je weiter hinten eine Ebene liegt, desto langsamer läuft sie mit.
+  // Alles hängt am Scrollfortschritt der ganzen Seite (keine harten Grenzen, an denen etwas plötzlich stehen bleibt)
+  // und wird auf Desktop weich nachgeführt. Vorne: Inhalt (1,0). Dahinter: Leiterbahnen, Lichtstrahlen, Platine.
   (() => {
     const reduced=motionReduced;
     const compact=matchMedia('(max-width: 860px)');
-    const layers=[['.dtp-world-traces',.10],['.dtp-eternal-rays',.05]]
-      .map(([sel,speed])=>[document.querySelector(sel),speed]).filter(([el])=>el);
+    const finePointer=matchMedia('(hover:hover) and (pointer:fine)');
+    // Rückstand der seitenlangen Ebenen gegenüber dem Inhalt am Seitenende (px): größer = weiter hinten.
+    const layers=[['.dtp-world-traces',150],['.dtp-eternal-rays',260]]
+      .map(([sel,lag])=>[document.querySelector(sel),lag]).filter(([el])=>el);
     const hero=document.querySelector('.hero');
     const art=document.querySelector('.hero-art-wrap');
     const planes=[...document.querySelectorAll('[data-hero-depth]')];
-    const finePointer=matchMedia('(hover:hover) and (pointer:fine)');
     const stage=document.querySelector('.dtp-world-texture');
+    const shots=[...document.querySelectorAll('.module-art.has-image img')];
     if(!layers.length&&!art&&!stage)return;
     if(layers.length){
       const clip=document.createElement('div');
@@ -104,26 +108,41 @@
       layers[0][0].before(clip);
       layers.forEach(([el])=>clip.append(el));
     }
-    let frame=0,on=false,pointerX=0,pointerY=0;
+    let frame=0,on=false,pointerX=0,pointerY=0,smooth=-1;
+    const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
     const apply=()=>{
       frame=0;
-      const y=on?Math.max(0,scrollY):0;
+      const target=on?Math.max(0,scrollY):0;
+      // Weiches Nachführen nur mit Maus/Trackpad; auf Touch-Geräten direkt, damit nichts schwimmt.
+      const glide=on&&finePointer.matches&&!compact.matches&&smooth>=0;
+      smooth=glide?smooth+(target-smooth)*.16:target;
+      if(Math.abs(target-smooth)<.3)smooth=target;
+      const y=smooth;
       const scale=compact.matches?.5:1;
-      if(stage){
-        const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
-        stage.style.translate=on&&y?`0 ${(-Math.min(1,y/max)*.28*innerHeight*scale).toFixed(1)}px`:'';
-      }
-      layers.forEach(([el,speed])=>{
-        el.style.translate=y?`0 ${Math.min(110,y*speed*scale).toFixed(1)}px`:'';
+      const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+      const progress=clamp(y/max,0,1);
+      if(stage)stage.style.translate=on&&y?`0 ${(-progress*.28*innerHeight*scale).toFixed(1)}px`:'';
+      layers.forEach(([el,lag])=>{
+        el.style.translate=on&&y?`0 ${(progress*lag*scale).toFixed(1)}px`:'';
       });
-      const inHero=hero&&y<hero.offsetTop+hero.offsetHeight+120;
-      if(art)art.style.translate=on&&!compact.matches&&inHero&&y?`0 ${(-Math.min(56,y*.10)).toFixed(1)}px`:'';
+      const heroEnd=hero?hero.offsetTop+hero.offsetHeight:0;
+      const heroProgress=heroEnd?clamp(y/heroEnd,0,1):0;
+      if(art)art.style.translate=on&&!compact.matches&&y?`0 ${(-heroProgress*56).toFixed(1)}px`:'';
       planes.forEach(plane=>{
         if(!on||compact.matches){plane.style.translate='';return;}
         const depth=Number(plane.dataset.heroDepth)||0;
-        const drift=inHero?Math.min(20,y*.04):0;
-        plane.style.translate=`${(pointerX*11*depth).toFixed(2)}px ${((pointerY*8-drift)*depth).toFixed(2)}px`;
+        plane.style.translate=`${(pointerX*11*depth).toFixed(2)}px ${((pointerY*8-heroProgress*20)*depth).toFixed(2)}px`;
       });
+      // Modulbilder: das Motiv gleitet im Kartenfenster leicht gegen die Scrollrichtung (Fenster-Effekt).
+      shots.forEach(img=>{
+        if(!on||getComputedStyle(img).objectFit!=='cover'){img.style.translate='';img.style.scale='';return;}
+        const box=img.parentElement.getBoundingClientRect();
+        if(box.bottom<-80||box.top>innerHeight+80)return;
+        const offset=clamp((box.top+box.height/2-innerHeight/2)/innerHeight,-1,1);
+        img.style.scale='1.08';
+        img.style.translate=`0 ${(offset*box.height*.035).toFixed(1)}px`;
+      });
+      if(smooth!==target)request();
     };
     const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
     const update=()=>{on=!reduced.matches;request()};
@@ -135,8 +154,8 @@
       hero.addEventListener('pointermove',event=>{
         if(!on||compact.matches||!finePointer.matches||event.pointerType!=='mouse')return;
         const box=hero.getBoundingClientRect();
-        pointerX=Math.max(-1,Math.min(1,(event.clientX-box.left)/box.width*2-1));
-        pointerY=Math.max(-1,Math.min(1,(event.clientY-box.top)/box.height*2-1));
+        pointerX=clamp((event.clientX-box.left)/box.width*2-1,-1,1);
+        pointerY=clamp((event.clientY-box.top)/box.height*2-1,-1,1);
         request();
       },{passive:true});
       hero.addEventListener('pointerleave',()=>{pointerX=0;pointerY=0;request()},{passive:true});
