@@ -162,8 +162,9 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     await page.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
     await pause(800);
     assert.ok(unlocked('anna').includes('g.easteregg'),'Easter Egg mit Konto schaltet das versteckte Achievement frei');
-    assert.ok((await page.locator('.fx-xp b').textContent()).includes('+200 XP'),'Popup nach dem Video zeigt +200 XP');
-    await page.keyboard.press('Escape');await page.keyboard.press('Escape');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>{const l=window.dtpAchievementToast&&window.dtpAchievementToast.last;return l&&/Fremdscham/.test(l.title)&&l.xp==='+200 XP';},null,{timeout:6000});
+    if(shots){await pause(700);await page.screenshot({path:path.join(shots,'easteregg-achievement.png'),clip:{x:966,y:700,width:400,height:200}});}
 
     // Highscore: standardmäßig aus, Opt-in in den Einstellungen.
     await page.goto(base+'/dau-to-pro/highscore.php');
@@ -203,7 +204,8 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     for(let i=0;i<5;i++){await gp.locator('.fx-shroom-hit').click({force:true});await pause(120);}
     await gp.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
-    assert.ok((await gp.locator('.fx-xp b').textContent()).includes('+0 XP'),'Easter Egg ohne Konto: keine XP');
+    await gp.keyboard.press('Escape');
+    await gp.waitForFunction(()=>{const l=window.dtpAchievementToast&&window.dtpAchievementToast.last;return l&&l.xp==='+0 XP';},null,{timeout:6000});
     assert.deepEqual(errors,[],'Keine JavaScript-Fehler');
     console.log('Achievements im Browser: alle Prüfungen bestanden');
   } finally {
