@@ -111,12 +111,24 @@ function dtp_preview_resolve(array $module): array {
     return ['src'=>$motif['src'],'small'=>$motif['small'],'fit'=>'cover','x'=>50,'y'=>50,'source'=>'auto','motif'=>$id,'label'=>$motif['label'],'accent'=>$motif['accent']];
 }
 
+/** Give legacy placeholder descriptions a useful summary without rewriting stored content. */
+function dtp_module_description(array $module): string {
+    $description=trim((string)($module['description']??''));
+    $placeholder=$description==='' || preg_match('/^(?:easy\s+osi|subnetting(?:[\s,.…!]+subnetting)*[\s,.…!]*)$/iu',$description);
+    if (!$placeholder) return $description;
+    return match(dtp_preview_match($module)) {
+        'osi-modell'=>'Die sieben OSI-Schichten verstehen, Aufgaben zuordnen und dein Wissen Schritt für Schritt festigen.',
+        'ipv4-subnetting'=>'Netzadresse, Broadcast und Hostbereiche berechnen. Mit Erklärungen und Übungen zum Subnetting.',
+        default=>'Interaktive Erklärungen, nachvollziehbare Beispiele und Übungen für deinen nächsten Aha-Moment.',
+    };
+}
+
 /** One public module card. Used by the landing page and by the exact admin preview. */
 function dtp_module_card(array $module, string $base='../', bool $link=true): string {
     $topic=$module['topic']??dtp_topic($module);
     $preview=dtp_preview_resolve($module);
     $title=(string)($module['title']??'');
-    $description=(string)($module['description']??'');
+    $description=dtp_module_description($module);
     $tag=$link?'a':'div';
     $attrs=$link?' href="'.e($base.rawurlencode((string)($module['slug']??'')).'/').'"':'';
     $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e($title).' – Lernmodul öffnen">';
@@ -131,8 +143,8 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
     $html.='<span class="module-art-number">'.e($topic[2]).'</span></div>';
     $html.='<div class="module-body"><span class="module-category"><i></i>'.e($topic[1]).'</span>';
     $html.='<h2>'.e($title).'</h2>';
-    $html.='<p>'.e($description!==''?$description:'Interaktives Lernprogramm mit Erklärungen und Übungen.').'</p>';
-    $html.='<div class="module-footer"><span>IM BROWSER STARTEN</span><b aria-hidden="true">↗</b></div></div>';
+    $html.='<p>'.e($description).'</p>';
+    $html.='<div class="module-footer"><span>Lernmodul öffnen</span><b aria-hidden="true">↗</b></div></div>';
     $html.='</'.$tag.'>';
     return $html;
 }
@@ -417,12 +429,10 @@ function dtp_nav(string $page,?string $learner): string {
     $section=$start?'':'./';
     $current=fn(bool $on): string => $on?' aria-current="page"':'';
     $links=[
-        ['../index.php','Startseite',false],
-        ['./','DAU TO PRO',$start],
-        [$section.'#lernmodule','Lernmodule',false],
-        [$section.'#konzept','So funktioniert\'s',false],
+        [$section.'#pruefungsfinder','Prüfungsfinder',false],
+        [$section.'#konzept','Lernkonzept',false],
     ];
-    $desktop='';$mobile='';
+    $desktop='';$mobile='<a href="'.e($section.'#lernmodule').'">Lernmodule</a>';
     foreach($links as [$href,$text,$on]){
         $desktop.='      <a'.($on?' class="selected"':'').' href="'.e($href).'"'.$current($on).'>'.e($text).'</a>'."\n";
         $mobile.='<a href="'.e($href).'"'.$current($on).'>'.e($text).'</a>';
@@ -447,17 +457,17 @@ function dtp_nav(string $page,?string $learner): string {
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">
-    <a class="gd-brand" href="../index.php" aria-label="Zur Gering-Digital-Startseite">
-      <img src="../assets/gering-digital-logo-icon.png" alt="" width="44" height="44">
-      <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
+    <a class="gd-brand" href="./" aria-label="DAU TO PRO – Startseite">
+      <img src="../assets/gering-digital-logo-icon-312.webp" alt="" width="36" height="36">
+      <span><strong>DAU TO <em>PRO</em></strong><small>DIE IT-LERNPLATTFORM</small></span>
     </a>
     <nav class="desktop-links" aria-label="Hauptnavigation">
 '.$desktop.'    </nav>
-    <a class="nav-cta" href="../index.php#apps">Meine Projekte <span aria-hidden="true">↗</span></a>
+    <a class="nav-cta" href="'.e($section.'#lernmodule').'">Jetzt lernen <span aria-hidden="true">↗</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
   </div>
   <nav class="mobile-links" id="dtp-mobile-menu" aria-label="Mobile Navigation" hidden>
-    '.$mobile.'<a href="../index.php#apps">Meine Projekte</a>
+    '.$mobile.'<a href="../index.php">Gering Digital ↗</a>
   </nav>
 </header>';
 }
@@ -514,3 +524,4 @@ function dtp_hero_fx_attrs(array $hero): string {
     $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
     return $attrs;
 }
+

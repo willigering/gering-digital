@@ -1,0 +1,57 @@
+/* Hero-Effekte (hero-fx.js): Ebene exakt über einem Bildausschnitt der Hero-Grafik. */
+.hero-art-wrap[data-fx]{position:relative}
+.fx-layer{position:absolute;z-index:3;pointer-events:none}
+.fx-shroom{position:absolute;inset:0;transform-origin:50% 88%;transform:scale(var(--fx-scale,1));will-change:transform}
+.fx-shroom.is-calm{transition:transform .7s cubic-bezier(.33,0,.25,1),filter .7s ease}
+.fx-shroom-img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;user-select:none;-webkit-user-drag:none;
+  filter:hue-rotate(var(--fx-hue,0deg)) saturate(calc(1 + var(--fx-glow,0) * .6)) drop-shadow(0 0 calc(var(--fx-glow,0) * 18px) rgba(255,214,90,calc(var(--fx-glow,0) * .9)));
+  transition:filter .35s ease}
+.fx-layer.is-active .fx-shroom-img{opacity:1}
+.fx-shroom-hit{position:absolute;inset:0;pointer-events:auto;margin:0;padding:0;border:0;background:transparent;cursor:default;-webkit-tap-highlight-color:transparent;
+  clip-path:polygon(22% 0,78% 0,100% 30%,100% 64%,82% 100%,18% 100%,0 64%,0 30%)}
+.fx-layer.is-active .fx-shroom-hit{cursor:pointer}
+.fx-shroom-hit:focus{outline:none}
+.fx-shroom-hit:focus-visible+.fx-shroom-img,.fx-shroom:has(.fx-shroom-hit:focus-visible) .fx-shroom-img{opacity:1;filter:hue-rotate(var(--fx-hue,0deg)) drop-shadow(0 0 3px #00dce8) drop-shadow(0 0 10px #00dce8aa)}
+.fx-count{position:absolute;left:50%;bottom:100%;margin-bottom:var(--fx-lift,0%);transform:translate(-50%,0) scale(.4);opacity:0;pointer-events:none;
+  font:900 calc(clamp(14px,2.2vw,24px) * var(--fx-size,1))/1 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.04em;color:#fff3b0;
+  text-shadow:2px 0 #b9640f,-2px 0 #b9640f,0 2px #b9640f,0 -2px #b9640f,3px 3px 0 #000,0 0 14px #ffcf4d;white-space:nowrap}
+.fx-count.is-on{animation:fx-count 1.05s cubic-bezier(.2,.9,.3,1.2) forwards}
+@keyframes fx-count{0%{opacity:0;transform:translate(-50%,30%) scale(.4)}22%{opacity:1;transform:translate(-50%,-25%) scale(1.15)}40%{transform:translate(-50%,-30%) scale(1)}78%{opacity:1;transform:translate(-50%,-55%) scale(1)}100%{opacity:0;transform:translate(-50%,-90%) scale(.9)}}
+.fx-pixel{position:absolute;left:50%;top:45%;width:7px;height:7px;pointer-events:none;box-shadow:0 0 6px currentColor}
+.fx-levelup{position:fixed;inset:0;z-index:9990;pointer-events:none}
+.fx-levelup:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at var(--fx-x,50%) var(--fx-y,50%),rgba(255,226,120,.55),rgba(255,170,30,.2) 26%,transparent 60%),radial-gradient(circle at 50% 44%,rgba(255,190,60,.22),transparent 45%),rgba(4,6,8,.72);animation:fx-flash 1.7s ease-out forwards}
+.fx-levelup.is-out{opacity:0;transition:opacity .45s}
+.fx-bolt{position:absolute;left:50%;top:44%;width:min(44vw,250px);height:auto;transform:translate(-50%,-60%) scale(.2) rotate(-8deg);fill:#ffd84d;filter:drop-shadow(5px 5px 0 #a8520c) drop-shadow(0 0 22px #ffcf4d) drop-shadow(0 0 50px #ff9d1a);animation:fx-bolt 1.7s cubic-bezier(.2,.9,.25,1.15) forwards}
+.fx-levelup b{position:absolute;left:50%;top:44%;transform:translate(-50%,80%) scale(.3);opacity:0;
+  font:900 clamp(30px,6.4vw,78px)/1 ui-monospace,"Cascadia Mono",Consolas,monospace;letter-spacing:.06em;color:#fff6c4;white-space:nowrap;
+  text-shadow:3px 0 #b9640f,-3px 0 #b9640f,0 3px #b9640f,0 -3px #b9640f,5px 5px 0 #000,0 0 30px #ffcf4d;animation:fx-word 1.7s cubic-bezier(.2,.9,.25,1.2) .12s forwards}
+@keyframes fx-flash{0%{opacity:0}12%{opacity:1}100%{opacity:.85}}
+@keyframes fx-bolt{0%{transform:translate(-50%,-60%) scale(.2) rotate(-8deg);opacity:0}18%{transform:translate(-50%,-60%) scale(1.15) rotate(4deg);opacity:1}30%{transform:translate(-50%,-60%) scale(.95) rotate(-2deg)}38%{opacity:.6}44%{opacity:1}100%{transform:translate(-50%,-62%) scale(1) rotate(0);opacity:1}}
+@keyframes fx-word{0%{opacity:0;transform:translate(-50%,80%) scale(.3)}30%{opacity:1;transform:translate(-50%,60%) scale(1.12)}45%{transform:translate(-50%,62%) scale(1)}100%{opacity:1;transform:translate(-50%,58%) scale(1)}}
+html.fx-locked{overflow:hidden}
+.fx-video{position:fixed;inset:0;z-index:9995;background:#000;display:grid;place-items:center;opacity:0;transition:opacity .45s ease}
+.fx-video[hidden]{display:none}
+.fx-video.is-open{opacity:1}
+.fx-video-stage{position:absolute;inset:0;display:grid;place-items:center;transition:opacity .5s ease}
+.fx-video-player{width:100%;height:100%;object-fit:contain;background:#000}
+.fx-video-close{position:absolute;top:max(14px,env(safe-area-inset-top));right:max(14px,env(safe-area-inset-right));z-index:2;width:46px;height:46px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.55);color:#fff;font:400 30px/1 system-ui,sans-serif;display:grid;place-items:center;cursor:pointer}
+.fx-video-close:hover{background:rgba(255,255,255,.15)}
+.fx-video-close:focus-visible,.fx-video-sound:focus-visible{outline:2px solid #00dce8;outline-offset:3px}
+.fx-video-sound{position:absolute;left:50%;bottom:max(22px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2;border:1px solid #ffd988;background:linear-gradient(110deg,#ffe2a1,#d9a13d);color:#17120a;font:800 15px/1 Inter,system-ui,sans-serif;padding:12px 20px;border-radius:999px;cursor:pointer}
+.fx-video-sound[hidden]{display:none}
+.fx-xp{position:absolute;inset:auto 20px;margin:0;text-align:center;opacity:0;transform:translateY(20px) scale(.9);transition:opacity .5s ease,transform .6s cubic-bezier(.2,.9,.3,1.25);pointer-events:none;color:#f5f0df}
+.fx-xp b{display:block;font:900 clamp(46px,11vw,128px)/1 ui-monospace,"Cascadia Mono",Consolas,monospace;color:#ffe27a;text-shadow:4px 0 #b9640f,-4px 0 #b9640f,0 4px #b9640f,0 -4px #b9640f,6px 6px 0 #000,0 0 40px #ffcf4d}
+.fx-xp span{display:block;margin-top:18px;font:800 clamp(17px,2.6vw,28px)/1.3 Inter,system-ui,sans-serif}
+.fx-video.show-xp .fx-video-stage{opacity:0}
+.fx-video.show-xp .fx-xp{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .fx-shroom,.fx-shroom.is-calm{transition:none}
+  .fx-count.is-on{animation:fx-count-calm 1.2s ease forwards}
+  @keyframes fx-count-calm{0%,100%{opacity:0;transform:translate(-50%,-30%)}15%,80%{opacity:1;transform:translate(-50%,-30%)}}
+  .fx-levelup:before,.fx-bolt,.fx-levelup b{animation-duration:.01s}
+  .fx-levelup b{opacity:1;transform:translate(-50%,58%)}
+  .fx-bolt{transform:translate(-50%,-62%)}
+  .fx-video,.fx-xp,.fx-video-stage{transition:none}
+}
+

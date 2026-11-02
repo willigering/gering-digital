@@ -46,4 +46,11 @@ assert.equal(visible().length,0,'Unbekannte Themen zeigen keine falschen Treffer
 assert.equal(empty.hidden,false,'Leerer Trefferhinweis wird angezeigt');
 reset.events.click();
 assert.equal(visible().length,4,'Zurücksetzen stellt alle Module wieder her');
+input.value='OSI';
+let prevented=false;
+form.events.submit({preventDefault(){prevented=true}});
+assert.equal(prevented,true,'Suchformular navigiert nicht von der Seite weg');
+assert.equal(visible().length,1,'Absenden filtert auf das passende Lernmodul');
+assert.equal(byId['module-grid'].dataset.count,'1','Ein Suchtreffer erhält eine passende Rasterbreite');
 console.log('Exam finder smoke tests passed');
+
