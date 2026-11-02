@@ -141,6 +141,7 @@
   })();
   // Konto-Einstellungen: Sprungziel (z. B. #change_password) gleich aufgeklappt zeigen.
   (() => {
+    if(!document.querySelector('details.settings-item'))return; // nur auf der Kontoseite
     const open=()=>{const el=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el&&el.tagName==='DETAILS')el.open=true};
     open();addEventListener('hashchange',open);
   })();
