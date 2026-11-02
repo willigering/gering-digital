@@ -71,39 +71,41 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
             hp_notice('Gespeichert. Das Vorschaubild erscheint bei veröffentlichten Projekten sofort auf der Projektkarte.');
         }
         if ($action==='bundle_import') {
-            // Mitgeliefertes Lernmodul aus dem Repository als Entwurf übernehmen. Live bleibt unverändert,
-            // bis du auf „Veröffentlichen“ klickst.
+            // Mitgeliefertes Lernmodul mit einem Klick installieren: Datei, Titel, Thema, Beschreibung und
+            // Vorschaubild aus dem Paket, sofort veröffentlicht. Alte Versionen des Projekts werden entfernt.
+            // Die URL bleibt gleich, gespeicherter Lernfortschritt bleibt also erhalten.
             $bundle=hp_bundles()[(string)($_POST['bundle']??'')]??null;
             if (!$bundle) throw new RuntimeException('Unbekanntes Lernmodul.');
             $target=(string)($_POST['target']??'');
+            $motif=hp_bundle_preview($bundle);
             if ($target==='new') {
                 $exists=$db->prepare('SELECT COUNT(*) FROM html_pages WHERE slug=?');
                 $exists->execute([$bundle['slug']]);
                 if ((int)$exists->fetchColumn()>0) throw new RuntimeException('Das Kürzel /'.$bundle['slug'].'/ gibt es schon. Bitte das bestehende Projekt als Ziel wählen.');
                 $version=hp_import_local($bundle['path'],$bundle['slug']);
                 try {
-                    $db->prepare("INSERT INTO html_pages(slug,title,subject,description,category,draft_version,preview_image) VALUES(?,?,?,?,'lernen',?,?)")
-                       ->execute([$bundle['slug'],$bundle['title'],$bundle['subject'],$bundle['description'],$version,hp_bundle_preview($bundle)]);
+                    $db->prepare("INSERT INTO html_pages(slug,title,subject,description,category,draft_version,live_version,published,preview_image) VALUES(?,?,?,?,'lernen',?,?,1,?)")
+                       ->execute([$bundle['slug'],$bundle['title'],$bundle['subject'],$bundle['description'],$version,$version,$motif]);
                 } catch(Throwable $error) {hp_delete_tree(hp_version_dir($bundle['slug'],$version));throw $error;}
-                hp_notice('„'.$bundle['title'].'“ als neuer Entwurf angelegt (/'.$bundle['slug'].'/). Vorschau prüfen, dann „Veröffentlichen“.');
+                hp_notice('„'.$bundle['title'].'“ installiert und veröffentlicht: /'.$bundle['slug'].'/');
             }
             $stmt->execute([(int)$target]);
             $dest=$stmt->fetch(PDO::FETCH_ASSOC);
             if (!$dest) throw new RuntimeException('Zielprojekt nicht gefunden.');
-            $current=hp_version_hash($dest['slug'],$dest['draft_version']?:$dest['live_version']);
-            if ($current===$bundle['hash']) hp_notice('„'.$dest['title'].'“ hat diese Version bereits'.((string)$dest['draft_version']!==(string)$dest['live_version']||!$dest['published']?' als Entwurf. Jetzt nur noch „Veröffentlichen“.':'.'));
-            $version=hp_import_local($bundle['path'],$dest['slug']);
-            $db->prepare('UPDATE html_pages SET draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,(int)$dest['id']]);
-            // Optional auch Name, Thema und Beschreibung aus dem Paket übernehmen (z. B. nach einer Umbenennung)
-            // und das passende Vorschaubild-Motiv statt eines alten Screenshots.
-            if (!empty($_POST['take_names'])) {
-                $motif=hp_bundle_preview($bundle);
-                $preview=$motif!==''?$motif:(string)($dest['preview_image']??'');
-                $db->prepare("UPDATE html_pages SET title=?,subject=?,description=?,preview_image=?,preview_fit='cover',preview_x=50,preview_y=50 WHERE id=?")
-                   ->execute([$bundle['title'],$bundle['subject'],$bundle['description'],$preview,(int)$dest['id']]);
-                if (!empty($dest['preview_image']) && $preview!==$dest['preview_image']) hp_delete_preview((string)$dest['preview_image']);
-            }
-            hp_notice('Neue Version als Entwurf bei „'.$dest['title'].'“ hinterlegt. Die öffentliche Seite bleibt unverändert, bis du „Veröffentlichen“ klickst. Gespeicherter Fortschritt bleibt erhalten, weil die URL gleich bleibt.');
+            $slug=(string)$dest['slug'];
+            $version='';
+            foreach(array_unique(array_filter([(string)$dest['live_version'],(string)$dest['draft_version']])) as $v)
+                if (hp_version_hash($slug,$v)===$bundle['hash']) {$version=$v;break;}
+            if ($version==='') $version=hp_import_local($bundle['path'],$slug);
+            $preview=$motif!==''?$motif:(string)($dest['preview_image']??'');
+            $db->prepare("UPDATE html_pages SET title=?,subject=?,description=?,category='lernen',draft_version=?,live_version=?,published=1,preview_image=?,preview_fit='cover',preview_x=50,preview_y=50,updated_at=CURRENT_TIMESTAMP WHERE id=?")
+               ->execute([$bundle['title'],$bundle['subject'],$bundle['description'],$version,$version,$preview,(int)$dest['id']]);
+            if (!empty($dest['preview_image']) && $preview!==$dest['preview_image']) hp_delete_preview((string)$dest['preview_image']);
+            // Alte Versionen dieses Projekts komplett entfernen.
+            $removed=0;
+            if (is_dir(hp_storage().'/'.$slug)) foreach(new FilesystemIterator(hp_storage().'/'.$slug,FilesystemIterator::SKIP_DOTS) as $item)
+                if ($item->isDir() && !$item->isLink() && preg_match('/^[a-f0-9]{24}$/D',$item->getFilename()) && $item->getFilename()!==$version) {hp_delete_tree($item->getPathname());$removed++;}
+            hp_notice('„'.$bundle['title'].'“ installiert und veröffentlicht: /'.$slug.'/'.($removed?' · '.$removed.' alte Version'.($removed===1?'':'en').' entfernt.':''));
         }
         if (!$old) throw new RuntimeException('Projekt nicht gefunden.');
         if ($action==='publish') {
@@ -284,7 +286,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 </form></section>
 <?php $bundles=hp_bundles(); if($bundles): $bySlug=array_column($pages,null,'slug'); ?>
 <section class="panel" id="lernmodule"><h2>📦 Mitgelieferte Lernmodule <span class="pill"><?=count($bundles)?></span></h2>
-<p class="hp-muted">Diese DAU-TO-PRO-Module kommen mit dem Website-Update aus GitHub. „Als Entwurf übernehmen“ legt sie als neue Version an. Öffentlich wird es erst mit „Veröffentlichen“ im Projekt unten. Bei einem bestehenden Projekt bleibt die URL gleich, gespeicherter Lernfortschritt bleibt also erhalten.</p>
+<p class="hp-muted">Diese DAU-TO-PRO-Module kommen mit dem Website-Update aus GitHub. „Lernmodul installieren“ übernimmt Datei, Namen und Vorschaubild, veröffentlicht sofort und entfernt alte Versionen. Bei einem bestehenden Projekt bleibt die URL gleich, gespeicherter Lernfortschritt bleibt also erhalten.</p>
 <?php foreach($bundles as $b): $dest=$bySlug[$b['slug']]??null;
   // Live-Kürzel kann anders heißen (z. B. /osi-schichten/): dann das DAU-Projekt mit demselben Thema vorschlagen.
   if(!$dest){$topic=dtp_preview_match(['slug'=>$b['slug'],'title'=>$b['title'],'description'=>'']);foreach($pages as $p){if(($p['category']??'')==='lernen'&&$topic!==''&&dtp_preview_match($p)===$topic){$dest=$p;break;}}}
@@ -302,10 +304,16 @@ function hp_render_thumb_editor(array $page=[]): void {
 <?php if(!isset($bySlug[$b['slug']])): ?><option value="new"<?=$dest?'':' selected'?>>Neues Projekt /<?=e($b['slug'])?>/</option><?php endif; ?>
 <?php foreach($pages as $p): ?><option value="<?=(int)$p['id']?>"<?=$dest&&(int)$dest['id']===(int)$p['id']?' selected':''?>><?=e($p['title'])?> (/<?=e($p['slug'])?>/)</option><?php endforeach; ?>
 </select></label>
-<?php $motif=hp_bundle_preview($b); $namesDiffer=$dest&&(($dest['title']??'')!==$b['title']||($dest['subject']??'')!==$b['subject']||($motif!==''&&($dest['preview_image']??'')!==$motif)); ?>
-<?php if($dest): ?><label class="check"><input type="checkbox" name="take_names" value="1"<?=$namesDiffer?' checked':''?>> Titel, Thema, Beschreibung<?=$motif!==''?' und Vorschaubild':''?> aus dem Paket übernehmen<?=$namesDiffer?' (bisher: „'.e(trim(($dest['subject']??'').' · '.$dest['title'],' ·')).'“)':''?></label><?php endif; ?>
-<button class="btn" type="submit"<?=$state[1]==='✓ Live ist aktuell'&&!$namesDiffer?' disabled':''?>>Als Entwurf übernehmen</button>
+<?php $current=$dest&&$live===$b['hash']&&($dest['title']??'')===$b['title']&&($dest['subject']??'')===$b['subject']&&(hp_bundle_preview($b)===''||($dest['preview_image']??'')===hp_bundle_preview($b)); ?>
+<button class="btn" type="submit"<?=$current?' disabled':''?>><?=$current?'✓ Installiert':'Lernmodul installieren'?></button>
+<small class="hp-muted">Übernimmt Datei, Titel, Thema, Beschreibung und Vorschaubild, veröffentlicht sofort und entfernt alte Versionen. Lernfortschritt bleibt erhalten.</small>
 </form>
+<?php $topic=dtp_preview_match(['slug'=>$b['slug'],'title'=>$b['title'],'description'=>'']);
+  $dupes=array_filter($pages,fn($p)=>($p['category']??'')==='lernen'&&$topic!==''&&dtp_preview_match($p)===$topic&&(!$dest||(int)$p['id']!==(int)$dest['id'])&&$p['slug']!==$b['slug']);
+  foreach($dupes as $p): ?>
+<form class="hp-actions hp-dupe" action="html_projects.php#lernmodule" method="post" onsubmit="return confirm('Altes Projekt „<?=e($p['title'])?>“ mit allen Versionen löschen? Lernfortschritt unter /<?=e($p['slug'])?>/ geht dabei verloren.');"><input type="hidden" name="csrf" value="<?=e(csrf())?>"><input type="hidden" name="action" value="delete"><input type="hidden" name="id" value="<?=(int)$p['id']?>">
+<small class="hp-muted">Älteres Projekt zum selben Thema: „<?=e($p['title'])?>“ (/<?=e($p['slug'])?>/<?=$p['published']?', online':''?>)</small><button class="hp-danger" type="submit">Altes Projekt löschen</button></form>
+<?php endforeach; ?>
 </article>
 <?php endforeach; ?>
 </section>
