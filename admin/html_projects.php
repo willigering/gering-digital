@@ -286,7 +286,7 @@ function hp_render_thumb_editor(array $page=[]): void {
 <button class="btn" type="submit">Entwurf speichern <b>→</b></button>
 </form></details>
 <?php $bundles=hp_bundles(); if($bundles): $bySlug=array_column($pages,null,'slug'); ?>
-<details class="panel" id="lernmodule"><summary>Mitgelieferte Module installieren / aktualisieren (<?=count($bundles)?>)</summary>
+<details class="panel" id="lernmodule"><summary>Mitgelieferte Lernmodule installieren / aktualisieren (<?=count($bundles)?>)</summary>
 <p class="hp-muted">Diese DAU-TO-PRO-Module kommen mit dem Website-Update aus GitHub. „Lernmodul installieren“ übernimmt Datei, Namen und Vorschaubild, veröffentlicht sofort und entfernt alte Versionen. Bei einem bestehenden Projekt bleibt die URL gleich, gespeicherter Lernfortschritt bleibt also erhalten.</p>
 <?php foreach($bundles as $b): $dest=$bySlug[$b['slug']]??null;
   // Live-Kürzel kann anders heißen (z. B. /osi-schichten/): dann das DAU-Projekt mit demselben Thema vorschlagen.
