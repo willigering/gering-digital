@@ -99,12 +99,18 @@ Die bestehenden Originalgrafiken, `dau-to-pro/hero-fx.js`, `assets/dau-to-pro-pi
 
 ### Hero als integrierte Szene
 
-Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Die Figuren, der Schriftzug und der Pilz verwenden dieselbe unveränderte Bildquelle mit nativen CSS-Ausschnitten und Masken; es entstehen keine neu gezeichneten Figuren oder zusätzlichen Bilddownloads. Dezente, direkt gezeichnete SVG-Leiterbahnen verbinden die Szene mit dem Seitenhintergrund. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
+Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Die Vordergrundteile werden mit nativen CSS-Ausschnitten und Masken angeordnet. Schriftzug und Pilz verwenden die unveränderte Originalquelle; die Figuren nutzen die neue transparente Quelle, sofern deren Dateien vorhanden sind. Dezente, direkt gezeichnete SVG-Leiterbahnen verbinden die Szene mit dem Seitenhintergrund. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
 
 Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickfläche, Farbwechsel, Wachstum, Zähler, Level-up, Video und XP-Abschluss bewegen sich dadurch zusammen. Eigene Hero-Uploads werden weiterhin als vollständiges Originalbild dargestellt.
 
 **Update zusätzlich zur kompakten Hauptseite:** `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/site.js`, `dau-to-pro/hero-fx.js` und die neue `dau-to-pro/hero-scene.css` gemeinsam übertragen. Keine Datenbank oder Uploads ersetzen. Der Browsertest prüft zusätzlich die Ebenenbewegung, Pilz-Ausrichtung nach Scrollen und die vollständige Fünf-Klick-/Video-/XP-Sequenz auf Desktop und Smartphone.
 
+
+### Sauber freigestellte Figuren
+
+Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu als transparentes Motiv erstellt, um matte und farbige Rückstände außerhalb der Konturen zu entfernen. Das neue Figurenmotiv enthält nur DAU mit Laptop und Sprechblasen sowie PRO. Schriftzug und Pilz einschließlich Level-up-Schild kommen weiterhin aus den Originaldateien. Die Pilzkoordinaten und seine Interaktionslogik bleiben unverändert.
+
+**Update:** `dau_lib.php`, `dau-to-pro/hero-scene.css` sowie `assets/dau-to-pro-people-clean-768.webp` und `assets/dau-to-pro-people-clean-1448.webp` gemeinsam übertragen. Fehlen die neuen Figuren-Dateien, wird die bisherige Originalgrafik weiter verwendet. Eigene Hero-Uploads bleiben unverändert.
 
 ## Mitgelieferte Lernmodule (`lernmodule/`)
 
