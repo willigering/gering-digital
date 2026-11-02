@@ -540,8 +540,8 @@ function dtp_hero_scene(array $hero,string $alt): string {
         .'<g stroke-linejoin="round" stroke-linecap="round"><path class="growth-outline" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
         .'<path class="growth-arrow" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
         .'<g class="growth-bars"><path d="M574 695V650H614V695Z M637 695V600H677V695Z M700 695V550H740V695Z M763 695V500H803V695Z"/></g></g>'
-        .'<text x="700" y="304" text-anchor="middle" class="growth-label">DEIN LERNFORTSCHRITT</text>'
-        .'<text x="700" y="341" text-anchor="middle" class="growth-caption">VOM DAU ZUM PRO</text></svg>';
+        .'<text x="900" y="110" text-anchor="middle" class="growth-label">DEIN LERNFORTSCHRITT</text>'
+        .'<text x="900" y="147" text-anchor="middle" class="growth-caption">VOM DAU ZUM PRO</text></svg>';
     return $html.'</div>';
 }
 

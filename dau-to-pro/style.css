@@ -185,7 +185,7 @@ main,.dtp-footer{position:relative;z-index:1}
 /* Ohne JavaScript bleibt alles sichtbar; nur beobachtete Elemente bekommen diese Klasse. */
 .will-reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
 .will-reveal.is-revealed{opacity:1;transform:none}
-@media(min-width:861px){.dtp-world-texture,.hero-art-wrap,.dtp-world-traces,.dtp-eternal-rays{will-change:translate}}
+@media(min-width:861px){.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays{will-change:translate}}
 @media(max-width:1060px){.nav-inner{gap:20px}.desktop-links{gap:18px}.hero-inner{gap:20px}.hero{padding-top:48px}.exam-finder{gap:24px;padding:26px}.hero h1{font-size:clamp(36px,4.8vw,50px)}}
 @media(max-width:860px){
   :root{--nav-height:68px}

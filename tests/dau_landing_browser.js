@@ -32,7 +32,9 @@ let server,browser;
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
-    assert.equal(await page.locator('[data-hero-depth]').count(),5,'Original artwork has five independent planes');
+    assert.equal(await page.locator('.hero-plane').count(),5,'Artwork retains its five fixed layers');
+    assert.equal(await page.locator('[data-hero-depth]').count(),0,'Artwork has no motion depths');
+    assert.equal(await page.locator('.hero-learning-growth').count(),1,'Learning progression has a separate visible graphic');
     assert.equal(await page.locator('.hero-canvas--clean-people .hero-part-image[src*="people-clean"]').count(),2,'Both character planes use the cleaned cutouts');
     assert.equal(await page.locator('[data-mushroom-anchor] .fx-layer').count(),1,'Mushroom interaction belongs to its moving plane');
     const geometry=await page.evaluate(()=>{
@@ -78,9 +80,9 @@ let server,browser;
   const originalHeight=await page.evaluate(()=>document.documentElement.scrollHeight);
   await page.evaluate(()=>scrollTo(0,300));await pause(150);
   assert.notEqual(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Background parallax runs');
-  assert.notEqual(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Hero has independent depth');
-  const shifts=await page.locator('[data-hero-depth]').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate));
-  assert.ok(new Set(shifts).size>=3,'Foreground, lettering and backdrop have distinct depth motion');
+  assert.equal(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Hero stays fixed while scrolling');
+  const shifts=await page.locator('.hero-plane').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate));
+  assert.ok(shifts.length===5 && shifts.every(t=>t==='none'),'All hero layers stay fixed');
   await page.locator('.hero-visual').hover();await pause(300);
   const anchorBox=await page.locator('[data-mushroom-anchor]').boundingBox();
   const layerBox=await page.locator('[data-mushroom-anchor] .fx-layer').boundingBox();
@@ -90,7 +92,7 @@ let server,browser;
   await page.emulateMedia({reducedMotion:'reduce'});await pause(100);
   assert.equal(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the artwork');
   assert.equal(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the backdrop');
-  assert.ok((await page.locator('[data-hero-depth]').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate))).every(t=>t==='none'),'Reduced motion also stops individual planes');
+  assert.ok((await page.locator('.hero-plane').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate))).every(t=>t==='none'),'Reduced motion also stops individual planes');
   await page.goto(base+'/dau-to-pro/#hinweis');
   assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Footer deep link opens full notice');
   await page.locator('.disclaimer-shell summary').click();
@@ -108,6 +110,7 @@ let server,browser;
   // Shared navigation/styles also need to work on the account page.
   const session=php(`db()->prepare('INSERT INTO learners(username,password_hash) VALUES(?,?)')->execute(['layout-tester',password_hash('test-password-for-layout',PASSWORD_DEFAULT)]); learner_start_session(learner_by_id((int)db()->lastInsertId()),false); echo session_name().'='.session_id(); session_write_close();`).trim();
   const [cookieName,cookieValue]=session.split('=');
+  php(`require_once ${JSON.stringify(root+'/achievements_lib.php')}; $id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); ach_set_visible($id,true);`);
   for(const width of [1440,320]){
     const accountContext=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
     await accountContext.addCookies([{name:cookieName,value:cookieValue,url:base}]);
@@ -123,6 +126,15 @@ let server,browser;
     await accountPage.getByRole('link',{name:'Konto-Einstellungen',exact:true}).click();
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
+    await accountPage.goto(base+'/dau-to-pro/highscore.php');
+    const achievements=accountPage.locator('.hs-achievements').first();
+    assert.ok(!(await achievements.evaluate(e=>e.open)),'Achievements initially collapsed');
+    await achievements.locator('summary').click();
+    assert.ok(await achievements.locator('.ach-item').count()>0,'Person has readable unlocked achievements');
+    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Highscore detail has no page overflow');
+    const achievementId=await achievements.getAttribute('id');
+    await accountPage.goto(base+'/dau-to-pro/highscore.php#'+achievementId);
+    assert.ok(await accountPage.locator('#'+achievementId).evaluate(e=>e.open),'Achievement deep link opens person');
     await accountContext.close();
   }
   const noJs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
@@ -159,3 +171,4 @@ let server,browser;
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{
   if(browser)await browser.close();if(server)server.kill();fs.rmSync(scratch,{recursive:true,force:true});
 });
+

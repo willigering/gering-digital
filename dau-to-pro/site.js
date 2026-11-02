@@ -144,6 +144,7 @@
     update();
   })();
   (() => {
+    if (!document.querySelector('.hs-achievements')) return;
     const openAchievements = () => {
       if (!/^#hs-achievements-\d+$/.test(location.hash)) return;
       const details = document.getElementById(location.hash.slice(1));
