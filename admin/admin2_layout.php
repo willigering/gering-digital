@@ -52,21 +52,20 @@ a.nav-link{font-weight:650}.small-action{border:1px solid #655236;padding:7px 10
 <div class="app-shell">
 <aside class="sidebar" id="sidebar">
  <div class="brand"><div class="brand-logo"><svg><use href="#i-code"/></svg></div><div><div class="brand-name">GERING <em>DIGITAL</em></div><div class="brand-sub">CONTROL CENTER 2.0</div></div></div>
- <div class="nav-label">ÜBERSICHT</div>
- <a class="nav-link <?=$active==='dashboard'?'active':''?>" href="index.php?view=dashboard"><svg><use href="#i-grid"/></svg> Dashboard</a>
- <div class="nav-label">PROJEKTE</div>
- <a class="nav-link <?=$active==='projects'?'active':''?>" href="index.php?view=projects"><svg><use href="#i-box"/></svg> Alle Projekte <span class="nav-count"><?=$counts['all']?></span></a>
- <a class="nav-link" href="legacy.php"><svg><use href="#i-plus"/></svg> Apps verwalten</a>
- <div class="nav-label">LERNPLATTFORM</div>
- <a class="nav-link <?=$active==='dau'?'active':''?>" href="index.php?view=dau"><svg><use href="#i-book"/></svg> DAU TO PRO <span class="nav-count"><?=$counts['dau']?></span></a>
- <a class="nav-link <?=$active==='dau_page'?'active':''?>" href="dau_page.php"><svg><use href="#i-edit"/></svg> Oberseite bearbeiten</a>
- <a class="nav-link" href="html_projects.php"><svg><use href="#i-code"/></svg> HTML-Projekte</a>
+ <a class="nav-link <?=$active==='dashboard'?'active':''?>" href="index.php"><svg><use href="#i-grid"/></svg> Übersicht</a>
+ <div class="nav-label">GERING DIGITAL</div>
+ <a class="nav-link <?=$active==='projects'?'active':''?>" href="index.php?view=projects"><svg><use href="#i-box"/></svg> Projekte &amp; Apps</a>
+ <a class="nav-link" href="legacy.php"><svg><use href="#i-edit"/></svg> Apps bearbeiten</a>
+ <div class="nav-label">DAU TO PRO</div>
+ <a class="nav-link <?=$active==='dau'?'active':''?>" href="index.php?view=dau"><svg><use href="#i-book"/></svg> Lernmodule <span class="nav-count"><?=$counts['dau']?></span></a>
+ <a class="nav-link <?=$active==='dau_page'?'active':''?>" href="dau_page.php"><svg><use href="#i-edit"/></svg> Startseite &amp; Texte</a>
  <a class="nav-link <?=$active==='learners'?'active':''?>" href="learners.php"><svg><use href="#i-users"/></svg> Lernkonten <span class="nav-count"><?=$counts['learners']?></span></a>
  <div class="nav-label">VERWALTUNG</div>
- <a class="nav-link <?=$active==='publications'?'active':''?>" href="index.php?view=publications"><svg><use href="#i-rocket"/></svg> Veröffentlichungen</a>
+ <a class="nav-link <?=$active==='html_projects'?'active':''?>" href="html_projects.php"><svg><use href="#i-code"/></svg> Dateien &amp; Vorschauen</a>
  <a class="nav-link <?=$active==='settings'?'active':''?>" href="index.php?view=settings"><svg><use href="#i-settings"/></svg> Einstellungen</a>
+ <a class="nav-link" href="logout.php"><svg><use href="#i-lock"/></svg> Abmelden</a>
  <div class="sidebar-bottom">
- <div class="preview-mode"><span class="dot" style="background:#74dcaa"></span><div><strong>Authentifiziert</strong><small>Live-Daten aus der bestehenden SQLite-Verwaltung. Änderungen erfolgen in geschützten Formularen (Login + CSRF).</small></div></div>
+ <div class="preview-mode"><span class="dot" style="background:#74dcaa"></span><div><strong>Authentifiziert</strong><small>Du bist als Administrator angemeldet.</small></div></div>
  <div class="side-legal">GERING DIGITAL · ADMIN 2.0</div></div>
 </aside>
 <div class="main">
@@ -89,3 +88,4 @@ function admin2_close(string $extraScript=''): void {
 </body></html>
 <?php
 }
+
