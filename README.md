@@ -117,3 +117,7 @@ Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu 
 Fertige DAU-TO-PRO-Module liegen als einzelne HTML-Dateien in `lernmodule/` (Liste in `lernmodule/manifest.json`). Der Ordner ist per `.htaccess` gesperrt und wird nie direkt ausgeliefert. Im Admin unter **HTML-Projekte → Mitgelieferte Lernmodule** zeigt jede Datei, ob live schon dieselbe Version läuft. „Als Entwurf übernehmen“ legt sie als neue Entwurfsversion des gewählten Projekts an (bei bestehenden Projekten bleibt die URL und damit der gespeicherte Lernfortschritt erhalten). Öffentlich wird sie erst mit „Veröffentlichen“. Neues Modul: HTML-Datei nach `lernmodule/<kürzel>.html`, Eintrag in `manifest.json`, Vorschaubild-Motiv wie oben beschrieben.
 
 **Deployment (zusätzlich):** Ordner `lernmodule/` (inkl. `.htaccess`), `html_project_lib.php`, `admin/html_projects.php`.
+
+## DAU TO PRO: Hintergrundpaket für Lernmodule
+
+Drei dezente IT-Motive (Leiterplatte, Netzwerkkabel, Servertechnik) mit zwei WebP-Größen, optionalem CSS und Motivliste liegen in [`assets/dau-backgrounds/`](assets/dau-backgrounds/README.md). Claude und andere Modulautoren finden dort Einbauhinweise für gehostete Module und einzelne Offline-HTML-Dateien. Visuelle Auswahl: `assets/dau-backgrounds/preview.html`. Für gehostete Nutzung den neuen Ordner zusätzlich nach STRATO übertragen; ein GitHub-Merge allein stellt ihn nicht live bereit.

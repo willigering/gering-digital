@@ -1,0 +1,28 @@
+/* Opt-in backgrounds for DAU TO PRO modules. Paths are relative to this file. */
+body.dtp-module-bg {
+  --dtp-module-image: none;
+  position: relative;
+  isolation: isolate;
+  background-color: #090e11;
+  color: #f3f3ed;
+}
+body.dtp-module-bg::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: #090e11;
+  background-image: linear-gradient(#090e112e, #090e1166), var(--dtp-module-image);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+body.dtp-bg-circuit { --dtp-module-image: url("./circuit-1536.webp"); }
+body.dtp-bg-cables { --dtp-module-image: url("./cables-1536.webp"); }
+body.dtp-bg-server { --dtp-module-image: url("./server-1536.webp"); }
+@media (max-width: 767px) {
+  body.dtp-bg-circuit { --dtp-module-image: url("./circuit-768.webp"); }
+  body.dtp-bg-cables { --dtp-module-image: url("./cables-768.webp"); }
+  body.dtp-bg-server { --dtp-module-image: url("./server-768.webp"); }
+}
