@@ -1,12 +1,22 @@
 # DAU TO PRO – dezente IT-Hintergründe
 
-Drei zusammengehörige, dunkle Hintergrundmotive für Lernmodule. Matte Anthrazitflächen, gedämpftes Cyan und wenig Gold; Details am Rand, freie Mitte. Dekoration, keine fachlichen Schaltbilder. Die Motive sind **nicht nahtlos kachelbar**.
+13 zusammengehörige, dunkle Hintergrundmotive für Lernmodule. Matte Anthrazitflächen, gedämpftes Cyan und wenig Gold; Details am Rand, freie Mitte. Dekoration, keine fachlichen Schaltbilder. Die Motive sind **nicht nahtlos kachelbar**.
 
 | ID | Motiv | Passende Module |
 | --- | --- | --- |
 | circuit | Leiterplatte mit Leiterbahnen und Bauteilen | Hardware, Zahlensysteme, Grundlagen |
 | cables | Geordnete Netzwerkkabel und RJ45-Stecker | Subnetting, Ethernet, VLAN, Netzwerk |
 | server | Serverracks, Metallgitter und Kabelführung | Server, Administration, Betriebssysteme |
+| circuit-micro | Mikroleiterbahnen | Hardware, Schnittstellen, IT-Grundlagen |
+| circuit-copper | Kupferplatine | Hardware, Schnittstellen, IT-Grundlagen |
+| circuit-sockets | Sockel und Kontakte | Hardware, Schnittstellen, IT-Grundlagen |
+| cables-fiber | Glasfaser | Netzwerke, Verkabelung, Übertragung |
+| cables-patch | Patchkabel | Netzwerke, Verkabelung, Übertragung |
+| cables-braided | Geflochtene Kabel | Netzwerke, Verkabelung, Übertragung |
+| network-ports | Netzwerkports | Netzwerke, Verkabelung, Übertragung |
+| hardware-memory | RAM und Speicher | Hardware, Schnittstellen, IT-Grundlagen |
+| hardware-connectors | Steckverbindungen | Hardware, Schnittstellen, IT-Grundlagen |
+| circuit-signal | Signalwege | Hardware, Schnittstellen, IT-Grundlagen |
 
 Pro Motiv: `*-1536.webp` (1536 × 1024) und `*-768.webp` (768 × 512). Dateigrößen und Pfade: [manifest.json](manifest.json). Kein Hochskalieren auf riesige Originaldateien nötig. [preview.html](preview.html) lokal oder nach Deployment im Browser öffnen.
 
@@ -29,7 +39,7 @@ Den kompletten Ordner nach `/assets/dau-backgrounds/` auf STRATO übertragen. Im
 </body>
 ```
 
-Klassen: `dtp-bg-circuit`, `dtp-bg-cables`, `dtp-bg-server`. Das Stylesheet betrifft nur die ausdrücklich gesetzten Klassen und aktiviert keine Bewegung. Es verwendet `body::before` als feste Hintergrundebene; wenn ein Modul diese Pseudoebene bereits nutzt, in einen eigenen dekorativen Container übertragen. Kein eigenes Parallax-Skript erforderlich.
+Klassen: `dtp-bg-<ID>` aus der Tabelle, beispielsweise `dtp-bg-circuit`, `dtp-bg-cables-fiber` oder `dtp-bg-hardware-memory`. Das Stylesheet betrifft nur die ausdrücklich gesetzten Klassen und aktiviert keine Bewegung. Es verwendet `body::before` als feste Hintergrundebene; wenn ein Modul diese Pseudoebene bereits nutzt, in einen eigenen dekorativen Container übertragen. Kein eigenes Parallax-Skript erforderlich.
 
 ### Einzelne HTML-Datei / offline / ZIP-Upload
 

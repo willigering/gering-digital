@@ -26,3 +26,27 @@ body.dtp-bg-server { --dtp-module-image: url("./server-1536.webp"); }
   body.dtp-bg-cables { --dtp-module-image: url("./cables-768.webp"); }
   body.dtp-bg-server { --dtp-module-image: url("./server-768.webp"); }
 }
+
+/* Zehn weitere Motive: gleiche ruhige Randgestaltung. */
+body.dtp-bg-circuit-micro { --dtp-module-image: url("./circuit-micro-1536.webp"); }
+body.dtp-bg-circuit-copper { --dtp-module-image: url("./circuit-copper-1536.webp"); }
+body.dtp-bg-circuit-sockets { --dtp-module-image: url("./circuit-sockets-1536.webp"); }
+body.dtp-bg-cables-fiber { --dtp-module-image: url("./cables-fiber-1536.webp"); }
+body.dtp-bg-cables-patch { --dtp-module-image: url("./cables-patch-1536.webp"); }
+body.dtp-bg-cables-braided { --dtp-module-image: url("./cables-braided-1536.webp"); }
+body.dtp-bg-network-ports { --dtp-module-image: url("./network-ports-1536.webp"); }
+body.dtp-bg-hardware-memory { --dtp-module-image: url("./hardware-memory-1536.webp"); }
+body.dtp-bg-hardware-connectors { --dtp-module-image: url("./hardware-connectors-1536.webp"); }
+body.dtp-bg-circuit-signal { --dtp-module-image: url("./circuit-signal-1536.webp"); }
+@media (max-width: 767px) {
+  body.dtp-bg-circuit-micro { --dtp-module-image: url("./circuit-micro-768.webp"); }
+  body.dtp-bg-circuit-copper { --dtp-module-image: url("./circuit-copper-768.webp"); }
+  body.dtp-bg-circuit-sockets { --dtp-module-image: url("./circuit-sockets-768.webp"); }
+  body.dtp-bg-cables-fiber { --dtp-module-image: url("./cables-fiber-768.webp"); }
+  body.dtp-bg-cables-patch { --dtp-module-image: url("./cables-patch-768.webp"); }
+  body.dtp-bg-cables-braided { --dtp-module-image: url("./cables-braided-768.webp"); }
+  body.dtp-bg-network-ports { --dtp-module-image: url("./network-ports-768.webp"); }
+  body.dtp-bg-hardware-memory { --dtp-module-image: url("./hardware-memory-768.webp"); }
+  body.dtp-bg-hardware-connectors { --dtp-module-image: url("./hardware-connectors-768.webp"); }
+  body.dtp-bg-circuit-signal { --dtp-module-image: url("./circuit-signal-768.webp"); }
+}
