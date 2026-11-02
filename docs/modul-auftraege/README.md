@@ -48,6 +48,40 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Muss auf dem Handy (390 px breit) ohne seitliches Scrollen funktionieren.
 - **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
 
+### Verständliche Sprache und konkrete Beispiele (verbindlich)
+
+**Schwierig darf das Denken sein, nicht die Formulierung.** Willi lernt die Inhalte noch. Ein Modul muss ihn vom ersten verständlichen Beispiel bis zum selbstständigen Lösen führen. Fachbegriffe gehören zum Lernziel; unnötig abstrakte Sätze sind kein Prüfungsniveau.
+
+- **Erst Alltagssituation, dann Fachregel:** Neue Inhalte mit einem konkreten, anschaulichen Fall einführen (z. B. Firmenlaptop, Kundenliste, Personalakte, verlorener USB-Stick). Zeige: Wer tut was? Welche Daten oder Geräte sind betroffen? Was soll entschieden werden?
+- **Fachbegriffe vor der ersten Anwendung erklären:** In einfachen Worten und direkt an der betreffenden Stelle, nicht erst im Nachschlagwerk. Beispiel: „Auftragsverarbeiter — ein Dienstleister, der Daten nach den Anweisungen einer Firma verarbeitet“. Abkürzungen beim ersten Auftreten ausschreiben.
+- **Kurze Sätze, eine Aussage pro Satz:** Aktive Verben und bekannte Wörter verwenden. Nominalketten, doppelte Verneinungen und verschachtelte Bedingungen vermeiden. Statt „nach dokumentierter Prüfung“ beispielsweise „Die Firma hat den Vorfall geprüft und das Ergebnis festgehalten“.
+- **Jede Aufgabe enthält die nötigen Tatsachen:** Keine ungenannten Voraussetzungen erraten lassen. Rechtlich wichtige Bedingungen und Ausnahmen erhalten, aber verständlich formulieren. Zum Beispiel bedeutet eine verschlüsselte Datei allein noch nicht, dass keine Meldung nötig ist.
+- **Eine klare Frage stellen:** Genau sagen, was gesucht wird und in welcher Form geantwortet werden soll. Keine unklaren Sammelfragen oder unnötigen juristischen Zusätze.
+- **Schrittweise aufbauen:** erklären → vollständig gelöstes Beispiel → ähnlicher Fall mit passendem Hinweis → selbstständig lösen. Spätere Aufgaben dürfen mehrere gelernte Schritte verbinden. Die Sprache bleibt auch im Prüfungsmodus verständlich.
+- **Lösungen erklären den Zusammenhang:** Nicht nur Artikelnummer und richtige Antwort nennen. Zeige: entscheidende Tatsache → passende Regel → Anwendung auf den Fall → Ergebnis. Bei einer falschen Antwort auch die typische Verwechslung erklären.
+- **Tooltip ist eine zweite Erklärung:** Die Frage wirklich anders und einfacher ausdrücken. Nicht lediglich den Wortlaut kopieren. Alle entscheidenden Angaben müssen bereits in der sichtbaren Aufgabe stehen; das Fragezeichen darf keine versteckte Voraussetzung und keine Lösung liefern.
+- **„IHK-Prüfungsstil“ meint fachliche Anforderungen und Anwendung:** Fachlich anspruchsvolle Fälle, begründete Entscheidungen und saubere Rechenwege. Künstlich komplizierte Sprache ist kein Qualitätsmerkmal. Eigene Aufgaben nicht als offizielle oder nachweislich typische IHK-Formulierungen ausgeben.
+
+#### Muster: Datenschutz verständlich erklären
+
+**Zu abstrakt:**
+
+> Eine Datenschutzverletzung liegt vor. Nach dokumentierter Prüfung ist ein Risiko für Rechte und Freiheiten unwahrscheinlich. Besteht eine Meldepflicht nach Art. 33 DSGVO?
+
+**So soll die Aufgabe aussehen:**
+
+> Ein verschlüsselter Firmenlaptop wurde gestohlen. Der Schlüssel ist sicher. Die Firma hat den Vorfall geprüft. Es ist sehr unwahrscheinlich, dass jemand die Daten lesen oder dass den betroffenen Menschen ein anderer Schaden entstehen kann. Die Firma hält diese Einschätzung fest. Muss sie den Vorfall der zuständigen Datenschutzbehörde melden? Antworte mit „ja“ oder „nein“.
+
+**Tooltip:**
+
+> Die Firma hat geprüft: Durch den Diebstahl sind Nachteile für die Menschen sehr unwahrscheinlich. Muss sie die Datenschutzbehörde trotzdem informieren?
+
+**Lösung mit Begründung:**
+
+> Nein, im beschriebenen Fall ist keine Meldung an die Datenschutzbehörde nötig. Die Firma hat geprüft, dass ein Risiko für die betroffenen Menschen sehr unwahrscheinlich ist. Dafür sieht Art. 33 Abs. 1 DSGVO eine Ausnahme vor. Trotzdem muss die Firma den Vorfall, seine Auswirkungen und die ergriffenen Maßnahmen festhalten (Art. 33 Abs. 5). Wichtig: „verschlüsselt“ allein reicht für diese Entscheidung nicht — die Bewertung hängt vom konkreten Fall ab.
+
+Das Beispiel zeigt das gewünschte Sprachniveau für **alle Module**, nicht nur Datenschutz. Bei anderen Themen entsprechend mit konkreten Netzwerk-, Hardware-, Programmier- oder Arbeitsalltagsfällen arbeiten.
+
 ## 3. Technischer Vertrag (nicht verhandelbar)
 
 Davon hängen Fortschritt im Konto, XP, Level und Achievements ab. Weicht ein Schlüssel oder Format ab, zählt das Modul nicht.
@@ -184,7 +218,10 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 - [ ] Oben nur Etikett, Titel und die 4 Kacheln. Keine Navigationsleiste, kein Logo oben, keine Warnstreifen.
 - [ ] Akzentfarbe laut Tabelle, Kommentar `DTP-HINTERGRUND` mit dem richtigen Motiv.
 - [ ] Stufe 2 gesperrt, bis Stufe 1 mit 8 von 10 gemeistert ist. Die ersten 3 Aufgaben zeigen einen Hinweis.
-- [ ] Jede Frage hat das eingekreiste ? mit einfacher Erklärung.
+- [ ] Jede Frage hat das eingekreiste ? mit einer tatsächlich einfacheren Erklärung; keine bloße Wiederholung und keine versteckten Voraussetzungen.
+- [ ] Verständlichkeitsprüfung: Die erste Lektion und mindestens 20 Aufgaben quer durch die Themen (einschließlich der schwersten) wurden inhaltlich gelesen, nicht nur technisch getestet. Jede ist ohne Vorwissen außerhalb der erklärten Grundlagen verständlich.
+- [ ] Jedes neue Konzept beginnt mit einem konkreten Beispiel; Fachbegriffe sind vor der ersten Anwendung erklärt. Lösungen zeigen Tatsache → Regel → Anwendung → Ergebnis.
+- [ ] Schwierigkeit entsteht durch die fachliche Entscheidung, nicht durch abstrakte Sprache. Das Laptop-Beispiel dient als Maßstab.
 - [ ] 20 Aufgaben im freien Training: keine falsch bewertete Antwort, jede mit Erklärung.
 - [ ] Sprint endet beim Tabwechsel. Prüfung wird beim Tabwechsel abgegeben und steht als „Seite verlassen“ im Verlauf.
 - [ ] 30/60/90-Minuten-Prüfung mit Note, Teilthemen und Lösungswegen.
