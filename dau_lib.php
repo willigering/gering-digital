@@ -519,10 +519,10 @@ function dtp_hero_scene(array $hero,string $alt): string {
     $shapes=['dau'=>$polygon($novice),'pro'=>$polygon($pro),'powerup'=>$polygon($powerup),'brand'=>$polygon($brand)];
     $html='<div class="hero-canvas'.($cleanPeople?' hero-canvas--clean-people':'').'"><div class="hero-reference">'.dtp_hero_picture($hero,$alt).'</div>';
     foreach(['ambient'=>-.4,'dau'=>.32,'pro'=>.62,'brand'=>.18,'powerup'=>.8] as $name=>$depth){
-        $html.='<div class="hero-plane hero-plane--'.$name.'" data-hero-depth="'.$depth.'">';
+        $html.='<div class="hero-plane hero-plane--'.$name.'">';
         if($name==='ambient') {
             // Decorative native paths continue the circuit language of the page, without raster cut edges.
-            $html.='<svg class="hero-circuit" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="scene-wire-cyan" d="M-120 460H230L450 230H680L760 150H1050L1220 320H1560 M-100 570H320L460 430H655L730 350 M540 270H690L780 180H940 M920 400H1110L1260 550H1550"/><path class="scene-wire-gold" d="M-100 750H255L510 495H660L810 345H1080L1280 145H1560 M930 660H1110L1215 765H1530"/><path class="scene-growth" d="M435 672L790 330L745 451 M790 330L664 369"/></g><g class="scene-bars"><path d="M533 711V629H578V711 M607 711V561H654V711 M681 711V486H730V711 M755 711V418H802V711"/></g><g class="scene-dots"><circle cx="680" cy="230" r="10"/><circle cx="655" cy="430" r="8"/><circle cx="1110" cy="660" r="8"/></g></svg>';
+            $html.='<svg class="hero-circuit" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="scene-wire-cyan" d="M-120 460H230L450 230H680L760 150H1050L1220 320H1560 M-100 570H320L460 430H655L730 350 M540 270H690L780 180H940 M920 400H1110L1260 550H1550"/><path class="scene-wire-gold" d="M-100 750H255L510 495H660L810 345H1080L1280 145H1560 M930 660H1110L1215 765H1530"/></g><g class="scene-dots"><circle cx="680" cy="230" r="10"/><circle cx="655" cy="430" r="8"/><circle cx="1110" cy="660" r="8"/></g></svg>';
         } elseif($name==='brand') {
             $html.=dtp_hero_brand();
         } elseif($name==='powerup' && is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) {
@@ -534,6 +534,14 @@ function dtp_hero_scene(array $hero,string $alt): string {
         if($name==='powerup')$html.='<div class="hero-mushroom-anchor" data-mushroom-anchor></div>';
         $html.='</div>';
     }
+    // Separate, fully opaque layer between the figures: visibly a learning progression.
+    $html.='<svg class="hero-learning-growth" viewBox="0 0 1448 1086" role="img" aria-label="Dein Lernfortschritt: vom DAU zum PRO">'
+        .'<title>Dein Lernfortschritt – vom DAU zum PRO</title>'
+        .'<g stroke-linejoin="round" stroke-linecap="round"><path class="growth-outline" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
+        .'<path class="growth-arrow" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
+        .'<g class="growth-bars"><path d="M574 695V650H614V695Z M637 695V600H677V695Z M700 695V550H740V695Z M763 695V500H803V695Z"/></g></g>'
+        .'<text x="700" y="304" text-anchor="middle" class="growth-label">DEIN LERNFORTSCHRITT</text>'
+        .'<text x="700" y="341" text-anchor="middle" class="growth-caption">VOM DAU ZUM PRO</text></svg>';
     return $html.'</div>';
 }
 
@@ -645,5 +653,6 @@ function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
     return $attrs;
 }
+
 
 

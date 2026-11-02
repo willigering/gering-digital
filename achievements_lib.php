@@ -329,7 +329,8 @@ function ach_highscore(int $limit=100): array {
         $codes->execute([$r['id']]);
         $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>isset($catalog[$c])));
         usort($own,fn($a,$b)=>[$rarity[$a]??0,-$catalog[$a]['xp']]<=>[$rarity[$b]??0,-$catalog[$b]['xp']]);
-        $r['rare']=array_map(fn($c)=>ach_public($catalog[$c]),array_slice($own,0,3));
+        $r['unlocked']=array_map(fn($c)=>ach_public($catalog[$c]),$own);
+        $r['rare']=array_slice($r['unlocked'],0,3);
     }
     return $rows;
 }
@@ -346,3 +347,4 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out];
 }
+

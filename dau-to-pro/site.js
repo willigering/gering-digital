@@ -95,12 +95,9 @@
     // Rückstand der seitenlangen Ebenen gegenüber dem Inhalt am Seitenende (px): größer = weiter hinten.
     const layers=[['.dtp-world-traces',150],['.dtp-eternal-rays',260]]
       .map(([sel,lag])=>[document.querySelector(sel),lag]).filter(([el])=>el);
-    const hero=document.querySelector('.hero');
-    const art=document.querySelector('.hero-art-wrap');
-    const planes=[...document.querySelectorAll('[data-hero-depth]')];
     const stage=document.querySelector('.dtp-world-texture');
     const shots=[...document.querySelectorAll('.module-art.has-image img')];
-    if(!layers.length&&!art&&!stage)return;
+    if(!layers.length&&!stage)return;
     if(layers.length){
       const clip=document.createElement('div');
       clip.className='dtp-parallax-clip';
@@ -108,7 +105,7 @@
       layers[0][0].before(clip);
       layers.forEach(([el])=>clip.append(el));
     }
-    let frame=0,on=false,pointerX=0,pointerY=0,smooth=-1;
+    let frame=0,on=false,smooth=-1;
     const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
     const apply=()=>{
       frame=0;
@@ -124,14 +121,6 @@
       if(stage)stage.style.translate=on&&y?`0 ${(-progress*.28*innerHeight*scale).toFixed(1)}px`:'';
       layers.forEach(([el,lag])=>{
         el.style.translate=on&&y?`0 ${(progress*lag*scale).toFixed(1)}px`:'';
-      });
-      const heroEnd=hero?hero.offsetTop+hero.offsetHeight:0;
-      const heroProgress=heroEnd?clamp(y/heroEnd,0,1):0;
-      if(art)art.style.translate=on&&!compact.matches&&y?`0 ${(-heroProgress*56).toFixed(1)}px`:'';
-      planes.forEach(plane=>{
-        if(!on||compact.matches){plane.style.translate='';return;}
-        const depth=Number(plane.dataset.heroDepth)||0;
-        plane.style.translate=`${(pointerX*11*depth).toFixed(2)}px ${((pointerY*8-heroProgress*20)*depth).toFixed(2)}px`;
       });
       // Modulbilder: das Motiv gleitet im Kartenfenster leicht gegen die Scrollrichtung (Fenster-Effekt).
       shots.forEach(img=>{
@@ -150,19 +139,17 @@
     addEventListener('resize',request,{passive:true});
     reduced.addEventListener('change',update);
     compact.addEventListener('change',request);
-    if(hero&&planes.length){
-      hero.addEventListener('pointermove',event=>{
-        if(!on||compact.matches||!finePointer.matches||event.pointerType!=='mouse')return;
-        const box=hero.getBoundingClientRect();
-        pointerX=clamp((event.clientX-box.left)/box.width*2-1,-1,1);
-        pointerY=clamp((event.clientY-box.top)/box.height*2-1,-1,1);
-        request();
-      },{passive:true});
-      hero.addEventListener('pointerleave',()=>{pointerX=0;pointerY=0;request()},{passive:true});
-    }
     // Details, Suchfilter, Bildnachladen und eigene Admin-Texte ändern die Seitenhöhe.
     if(typeof ResizeObserver!=='undefined')new ResizeObserver(request).observe(document.body);
     update();
+  })();
+  (() => {
+    const openAchievements = () => {
+      if (!/^#hs-achievements-\d+$/.test(location.hash)) return;
+      const details = document.getElementById(location.hash.slice(1));
+      if (details?.tagName === 'DETAILS') { details.open = true; details.scrollIntoView({block:'center'}); }
+    };
+    openAchievements(); addEventListener('hashchange',openAchievements);
   })();
   // Einmalige, kurze Einblendung. Ohne Observer oder bei reduzierter Bewegung bleibt alles sichtbar.
   (() => {
@@ -341,3 +328,4 @@
   document.querySelectorAll('a[href="#hinweis"]').forEach(link=>link.addEventListener('click',()=>{notice.open=true}));
   openNotice();addEventListener('hashchange',openNotice);
 })();
+

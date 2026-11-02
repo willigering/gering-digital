@@ -4,7 +4,7 @@
 .hero-reference{width:100%;opacity:0;pointer-events:none}
 .hero-reference .hero-logo{margin:0}
 .hero-plane,.hero-slice{position:absolute;inset:0;pointer-events:none}
-.hero-plane{transition:translate .25s ease-out;transform-origin:50% 65%}
+.hero-plane{transform-origin:50% 65%}
 .hero-slice picture,.hero-part-image{display:block;width:100%;height:100%;margin:0;max-width:none;user-select:none;-webkit-user-drag:none}
 .hero-part-image{object-fit:fill}
 /* Both cleaned silhouettes share one transparent source, fitted to their original scene positions. */
@@ -28,7 +28,6 @@
 .hero-mushroom-anchor{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;pointer-events:none}
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}
-  .hero-plane{will-change:translate}
 }
 @media(max-width:610px){
   .hero-plane--ambient{opacity:.24;transform:translate(0,-4%) scale(1.04)}
@@ -45,3 +44,12 @@
 .hero-powerup{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 10px #0008)}
 .hero-powerup-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:46px;font-weight:900;font-style:italic;letter-spacing:0;fill:#fff}
 .hero-pixelpilz{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;object-fit:contain;image-rendering:pixelated;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 10px #0008)}
+
+
+/* Lernfortschritt ist ein eigenes Motiv, unabhängig vom gedämpften Platinenhintergrund. */
+.hero-learning-growth{position:absolute;inset:0;width:100%;height:100%;z-index:1;overflow:visible;pointer-events:none;filter:drop-shadow(0 3px 5px #000b)}
+.growth-outline{fill:none;stroke:#0b1116;stroke-width:34}
+.growth-arrow{fill:none;stroke:#ffd16a;stroke-width:19}
+.growth-bars{fill:#4fd8dd;stroke:#0b1116;stroke-width:7}
+.growth-label,.growth-caption{font-family:Inter,ui-sans-serif,system-ui,sans-serif;paint-order:stroke;stroke:#0b1116;stroke-linejoin:round;stroke-width:9px;fill:#ffe3a0;font-size:31px;font-weight:900;letter-spacing:1px}
+.growth-caption{fill:#ecf7f8;font-size:25px;stroke-width:7px}
