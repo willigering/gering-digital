@@ -394,7 +394,8 @@ function learner_sync_config(string $slug,string $file): array {
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
 function learner_inject_sync(string $html,string $slug,string $file): string {
     $json=json_encode(learner_sync_config($slug,$file),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
-    $script=(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
+    // Achievement-Popup zuerst, damit sync.js es nach dem Speichern aufrufen kann.
+    $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
     $tag="<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
     if (preg_match('/<head\b[^>]*>/i',$html,$m,PREG_OFFSET_CAPTURE)) {
         $at=$m[0][1]+strlen($m[0][0]);

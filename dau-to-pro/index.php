@@ -27,6 +27,7 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 <?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
+  <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
 <?php endif; ?>
 </head>
