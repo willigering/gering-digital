@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "baseColor": "#090e11",
+  "repeat": false,
+  "assets": [
+    {
+      "id": "circuit",
+      "title": "Leiterplatte",
+      "cssClass": "dtp-bg-circuit",
+      "variants": [
+        {
+          "path": "circuit-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 62566
+        },
+        {
+          "path": "circuit-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 18768
+        }
+      ]
+    },
+    {
+      "id": "cables",
+      "title": "Netzwerkkabel",
+      "cssClass": "dtp-bg-cables",
+      "variants": [
+        {
+          "path": "cables-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 48272
+        },
+        {
+          "path": "cables-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 14264
+        }
+      ]
+    },
+    {
+      "id": "server",
+      "title": "Servertechnik",
+      "cssClass": "dtp-bg-server",
+      "variants": [
+        {
+          "path": "server-1536.webp",
+          "width": 1536,
+          "height": 1024,
+          "bytes": 43318
+        },
+        {
+          "path": "server-768.webp",
+          "width": 768,
+          "height": 512,
+          "bytes": 14612
+        }
+      ]
+    }
+  ]
+}

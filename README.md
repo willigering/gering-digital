@@ -129,3 +129,7 @@ Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin
 **Datenbank:** neue Tabellen `learner_achievements`, `learner_stats` und neue Spalte `html_pages.subject` (werden beim ersten Aufruf automatisch angelegt).
 
 **Deployment (zusätzlich):** `lib.php`, `achievements_lib.php`, `learner_lib.php`, `dau_lib.php`, `html_project_lib.php`, `datenschutz.php`, `dau-to-pro/index.php`, `dau-to-pro/konto.php`, `dau-to-pro/konto.css`, `dau-to-pro/highscore.php`, `dau-to-pro/sync.js`, `dau-to-pro/hero-fx.js`, `dau-to-pro/api/progress.php`, `dau-to-pro/api/easteregg.php`, `admin/learners.php`, `admin/html_projects.php`, `admin/dau_card_preview.php`, Ordner `lernmodule/`. Danach im Admin die drei mitgelieferten Module übernehmen (Namen mit übernehmen) und veröffentlichen. Keine Datenbank und keine Uploads ersetzen.
+
+## DAU TO PRO: Hintergrundpaket für Lernmodule
+
+Drei dezente IT-Motive (Leiterplatte, Netzwerkkabel, Servertechnik) mit zwei WebP-Größen, optionalem CSS und Motivliste liegen in [`assets/dau-backgrounds/`](assets/dau-backgrounds/README.md). Claude und andere Modulautoren finden dort Einbauhinweise für gehostete Module und einzelne Offline-HTML-Dateien. Visuelle Auswahl: `assets/dau-backgrounds/preview.html`. Für gehostete Nutzung den neuen Ordner zusätzlich nach STRATO übertragen; ein GitHub-Merge allein stellt ihn nicht live bereit.
