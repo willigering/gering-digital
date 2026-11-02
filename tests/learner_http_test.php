@@ -82,7 +82,8 @@ try {
     $code=$m[1]??'';
     check(str_contains($page['body'],'href="../'.$lern.'/"'),'Danach geht es zurück zum Modul');
     check(!str_contains(http('GET','/dau-to-pro/konto.php','','anna')['body'],$code),'Der Code wird nur einmal angezeigt');
-    check(str_contains(http('GET','/dau-to-pro/','','anna')['body'],'>Mein Fortschritt</a>'),'Angemeldet: Navigation zeigt „Mein Fortschritt“');
+    $startAnna=http('GET','/dau-to-pro/','','anna')['body'];
+    check(str_contains($startAnna,'aria-controls="dtp-account-panel">Mein Konto') && str_contains($startAnna,'<a href="konto.php">Mein Fortschritt</a>') && str_contains($startAnna,'href="konto.php#einstellungen">Konto-Einstellungen</a>') && str_contains($startAnna,'name="action" value="logout"'),'Angemeldet: „Mein Konto“-Menü mit Fortschritt, Einstellungen und Abmelden');
 
     // --- Speichern im Modul ---
     $cfg=sync_config(http('GET',"/$lern/",'','anna')['body']);
@@ -149,7 +150,8 @@ try {
     check((bool)preg_match('/<span class="learner-secret">([a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4})<\/span>/',$list['body'],$pm),'Admin-Reset zeigt das neue Passwort einmal');
     check(sync_config(http('GET',"/$lern/",'','fremd')['body'])['user']===null,'Admin-Reset meldet die Person überall ab');
     $login=http('GET','/dau-to-pro/konto.php','','fremd');
-    http('POST','/dau-to-pro/konto.php',['action'=>'login','csrf'=>token($login['body']),'username'=>'Anna.Lernt','password'=>$pm[1]??''],'fremd');
+    $r=http('POST','/dau-to-pro/konto.php',['action'=>'login','csrf'=>token($login['body']),'username'=>'Anna.Lernt','password'=>$pm[1]??''],'fremd');
+    check($r['status']===303 && preg_match('~Location: \./\r?\n~',$r['headers'])===1,'Anmeldung ohne Ziel führt auf die DAU-TO-PRO-Hauptseite');
     $konto=http('GET','/dau-to-pro/konto.php','','fremd')['body'];
     check(str_contains($konto,'Hallo, <span>Anna.Lernt</span>'),'Anmeldung mit dem Admin-Passwort klappt');
 
@@ -161,9 +163,11 @@ try {
     check(str_contains(http('GET','/dau-to-pro/konto.php','','fremd')['body'],'vollständig gelöscht'),'Bestätigung nach dem Löschen');
 
     // --- Registrierungslimit ---
+    // Von diesem Anschluss wurde oben schon „Anna.Lernt“ angelegt: noch 4 weitere sind erlaubt, das 6. Konto wird gebremst.
     for($i=0;$i<5;$i++) $register('bot',['username'=>'serie'.$i,'password'=>'ein-langes-passwort','password2'=>'ein-langes-passwort']);
-    $register('bot',['username'=>'serie9','password'=>'ein-langes-passwort','password2'=>'ein-langes-passwort']);
-    check(learner_find('serie4')!==null && learner_find('serie9')===null,'Ab dem 6. Konto pro Stunde und Anschluss wird gebremst');
+    $made=array_values(array_filter(range(0,4),fn($i)=>learner_find('serie'.$i)!==null));
+    check($made===[0,1,2,3],'Bis zu 5 Konten pro Stunde und Anschluss klappen');
+    check(learner_find('serie4')===null,'Ab dem 6. Konto pro Stunde und Anschluss wird gebremst');
 } finally {
     proc_terminate($server);
     foreach($versions as $dir) hp_delete_tree($dir);

@@ -30,13 +30,19 @@
 html{overflow-x:clip;background:#080c0e}
 body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!important}
 .dtp-world-texture{
-  position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background-image:var(--dtp-stone,url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.45' numOctaves='4' seed='8' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='256' height='256' fill='%230a0d0f'/%3E%3Crect width='256' height='256' filter='url(%23n)' opacity='.10'/%3E%3C/svg%3E")),
-  radial-gradient(circle at 48% 11%,rgba(0,209,222,.07),transparent 30%),
-  radial-gradient(circle at 82% 45%,rgba(255,191,55,.052),transparent 25%),
-  radial-gradient(circle at 24% 81%,rgba(0,194,220,.055),transparent 20%);
-  background-repeat:repeat,no-repeat,no-repeat,no-repeat;
-  background-size:640px 640px,auto,auto,auto
+  /* Willis Platinen-Motiv als feste Bühne hinter der Seite; site.js lässt sie beim Scrollen
+     langsam nach oben wandern (Parallax). Abdunkelung + Farbschimmer liegen darüber. */
+  position:fixed;top:0;left:0;width:100%;height:128vh;z-index:-1;pointer-events:none;
+  background-image:
+    linear-gradient(180deg,rgba(8,12,14,.42),rgba(8,12,14,.62) 55%,rgba(8,12,14,.78)),
+    radial-gradient(circle at 48% 11%,rgba(0,209,222,.07),transparent 30%),
+    radial-gradient(circle at 82% 45%,rgba(255,191,55,.052),transparent 25%),
+    radial-gradient(circle at 24% 81%,rgba(0,194,220,.055),transparent 20%),
+    var(--dtp-bg,none);
+  background-repeat:no-repeat;
+  background-size:100% 100%,auto,auto,auto,cover;
+  background-position:center,center,center,center,center top;
+  background-color:#080c0e
 }
 .dtp-world-traces{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
 .dtp-world-traces svg{width:100%;height:100%;display:block}
@@ -87,32 +93,6 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
 @media(max-width:900px){.dtp-exact-logo .hero-logo{width:calc(100% + 26px)!important;margin:0 -13px -6px!important}}
 @media(max-width:610px){.dtp-exact-logo .hero-logo{width:calc(100% + 30px)!important;margin:-2px -15px 0!important}.dtp-exact-logo .hero{padding-top:15px!important}}
 
-/* Focus spotlight: four backdrop-filter regions surround the unfiltered hovered card.
-   Einblenden ~2,8 s (sinusförmig: anfangs kaum sichtbar, gleichmäßiger Anstieg, sanftes Ende),
-   Ausblenden ~0,7 s. Laufende Übergänge kehren vom aktuellen Wert aus um, daher keine Sprünge. */
-@property --focus-y{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-bottom{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-height{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-x{syntax:"<length>";inherits:true;initial-value:0px}
-@property --focus-right{syntax:"<length>";inherits:true;initial-value:0px}
-.dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0;visibility:hidden;
-  transition:opacity .7s cubic-bezier(.33,0,.25,1),visibility 0s linear .7s;contain:layout style}
-.dtp-focus-overlay.is-active{opacity:1;visibility:visible;
-  transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s}
-/* Beim schnellen Wechsel zwischen Modulen gleitet die Aussparung zur neuen Karte. */
-.dtp-focus-overlay.is-moving{transition:opacity 2.8s cubic-bezier(.37,0,.63,1),visibility 0s,
-  --focus-y .38s cubic-bezier(.25,.1,.25,1),--focus-bottom .38s cubic-bezier(.25,.1,.25,1),--focus-height .38s cubic-bezier(.25,.1,.25,1),
-  --focus-x .38s cubic-bezier(.25,.1,.25,1),--focus-right .38s cubic-bezier(.25,.1,.25,1)}
-.dtp-focus-panel{position:fixed;pointer-events:none;background:rgba(3,7,10,.30);
-  -webkit-backdrop-filter:blur(5px) brightness(.70);
-  backdrop-filter:blur(5px) brightness(.70)}
-.dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
-.dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
-.dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
-.dtp-focus-right{right:0;top:var(--focus-y,0px);height:var(--focus-height,0px);left:var(--focus-right,0px)}
-.module-card.is-focus-target{border-color:rgba(255,219,142,.82);
-  box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
-@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
 
 
 /* PRÜFUNGSFINDER 2026 – echte veröffentlichte Module statt Demo-Einträge */
@@ -125,7 +105,7 @@ body{position:relative;isolation:isolate;overflow-x:clip;background:#080c0e!impo
   margin-bottom:-105px!important}
 .dtp-exact-logo .hero-strip{display:flex!important}
 .dtp-world-traces{opacity:.76}
-.dtp-world-texture{opacity:.8}
+
 .catalog-section{padding-top:67px}
 .exam-finder{position:relative;margin:4px 0 25px;padding:clamp(22px,3.2vw,38px);background:linear-gradient(140deg,rgba(24,30,30,.95),rgba(10,16,18,.98));border:1px solid #d6ad625e;box-shadow:0 15px 52px #0005;isolation:isolate}
 .exam-finder:before{content:"";position:absolute;left:0;top:0;width:170px;height:3px;background:linear-gradient(90deg,#edba61,#68bbc0,transparent)}
@@ -193,7 +173,7 @@ body{position:relative;isolation:isolate}
 .dtp-eternal-rays .beam-halo{fill:none;stroke:#ffbb51;stroke-width:7;stroke-linecap:round;opacity:.25;filter:blur(3px)}
 .dtp-eternal-rays .beam-core{fill:none;stroke:url(#dtp-line-gradient);stroke-width:2.5;stroke-linecap:round;opacity:.7}
 .dtp-eternal-rays .beam-echo{fill:none;stroke:#e7a143;stroke-width:1.1;stroke-linecap:round;opacity:.23}
-.dtp-world-texture{opacity:.88}
+
 .dtp-nav,main,.dtp-footer{position:relative;z-index:1}
 .hero,.catalog-section,.method-section,.end-cap,.dtp-footer{background:transparent!important}
 .dtp-disclaimer{background:transparent!important}
@@ -225,7 +205,6 @@ body{display:flow-root}
 .module-card .module-footer{border-top-color:color-mix(in srgb,var(--mod) 22%,transparent);color:color-mix(in srgb,var(--mod) 75%,#f5f0df)}
 .module-card .module-footer b{color:var(--mod)}
 .module-card:hover{border-color:var(--mod);box-shadow:0 15px 38px #0008,0 0 30px color-mix(in srgb,var(--mod) 18%,transparent)}
-.module-card.is-focus-target{border-color:var(--mod);box-shadow:0 0 0 1px color-mix(in srgb,var(--mod) 30%,transparent),0 12px 36px rgba(0,0,0,.55),0 0 28px color-mix(in srgb,var(--mod) 14%,transparent)}
 .module-card.is-search-result{border-color:var(--mod)}
 
 /* Hero-Effekte (hero-fx.js): Ebene exakt über einem Bildausschnitt der Hero-Grafik. */
@@ -284,3 +263,48 @@ html.fx-locked{overflow:hidden}
   .fx-bolt{transform:translate(-50%,-62%)}
   .fx-video,.fx-xp,.fx-video-stage{transition:none}
 }
+
+/* Modul-Fokus wie in der Designvorlage (DAU_TO_PRO_Pruefungsfinder_mehr_Farbe.html):
+   vier Flächen umschließen die Karte. Unschärfe, Abdunkelung, Helligkeit und Sättigung
+   werden in site.js pro Frame gemeinsam hochgezählt, statt die Deckkraft einer fertig
+   weichgezeichneten Ebene einzublenden. */
+.dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;visibility:hidden;contain:layout style}
+.dtp-focus-overlay.is-rendering{visibility:visible}
+.dtp-focus-panel{position:fixed;pointer-events:none;
+  background:rgba(4,7,9,var(--focus-dim,0));
+  -webkit-backdrop-filter:blur(var(--focus-blur,0px)) brightness(var(--focus-brightness,1)) saturate(var(--focus-saturation,1));
+  backdrop-filter:blur(var(--focus-blur,0px)) brightness(var(--focus-brightness,1)) saturate(var(--focus-saturation,1))}
+.dtp-focus-top{left:0;right:0;top:0;height:var(--focus-y,0px)}
+.dtp-focus-bottom{left:0;right:0;top:var(--focus-bottom,0px);bottom:0}
+.dtp-focus-left{left:0;top:var(--focus-y,0px);height:var(--focus-height,0px);width:var(--focus-x,0px)}
+.dtp-focus-right{right:0;top:var(--focus-y,0px);height:var(--focus-height,0px);left:var(--focus-right,0px)}
+.module-card.is-focus-target{transform:translateY(-2px);border-color:rgba(255,219,142,.82);
+  box-shadow:0 0 0 1px rgba(255,213,120,.20),0 12px 36px rgba(0,0,0,.55),0 0 28px rgba(0,224,238,.08)}
+@media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
+
+/* Parallax-Ebene: hält die verschobenen Hintergründe innerhalb der Seitenhöhe. */
+.dtp-parallax-clip{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:translate}
+@media(prefers-reduced-motion:reduce){.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays,.hero-art-wrap,.section-mark{will-change:auto;translate:none!important}}
+
+/* „Mein Konto“-Menü in der Navigation (nur angemeldet). */
+.nav-account-menu{position:relative}
+.nav-account-menu>.nav-account{font:inherit;font-size:13px;font-weight:650;color:#bfc4c6;background:none;border:0;padding:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.nav-account-menu>.nav-account:hover,.nav-account-menu>.nav-account[aria-expanded=true],.nav-account-menu>.nav-account.selected{color:var(--goldlite)}
+.nav-account-menu>.nav-account span{font-size:10px;transition:transform .2s}
+.nav-account-menu>.nav-account[aria-expanded=true] span{transform:rotate(180deg)}
+.nav-account-panel{position:absolute;right:-14px;top:calc(100% + 18px);z-index:60;min-width:230px;display:grid;gap:2px;padding:10px;background:linear-gradient(150deg,#141a1c,#0d1214);border:1px solid rgba(230,174,65,.4);border-radius:12px;box-shadow:0 18px 44px #000a;white-space:normal}
+.nav-account-panel[hidden]{display:none}
+.nav-account-panel p{margin:2px 8px 8px;font-size:12px;color:#9aa3a6}
+.nav-account-panel p strong{color:var(--cream)}
+.nav-account-panel a,.nav-account-panel button{display:block;width:100%;text-align:left;font:inherit;font-size:14px;font-weight:600;color:#d9dcdc;background:none;border:0;border-radius:8px;padding:9px 10px;cursor:pointer}
+.nav-account-panel a:hover,.nav-account-panel button:hover,.nav-account-panel a:focus-visible,.nav-account-panel button:focus-visible{background:#ffffff0d;color:var(--goldlite);outline:none}
+.nav-account-panel .nav-logout{margin:4px 0 0;padding-top:4px;border-top:1px solid #ffffff14}
+.dtp-nav{overflow:visible}
+.mobile-links .mobile-account-label{padding:14px 6px 4px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.mobile-links .nav-logout button{width:100%;text-align:left;font:inherit;font-size:14px;color:inherit;background:none;border:0;border-bottom:1px solid #ffffff16;padding:10px 6px;cursor:pointer}
+/* Die schräge Navigationsform liegt jetzt auf einer Hintergrundebene, damit das Konto-Menü
+   über die Leiste hinausragen kann (clip-path schneidet sonst auch das Menü ab). */
+.dtp-nav{clip-path:none;background:none;border-color:transparent;box-shadow:none;z-index:50}
+.dtp-nav:before{content:"";position:absolute;inset:-1px;z-index:-1;pointer-events:none;border:1px solid rgba(230,174,65,.35);background:linear-gradient(140deg,rgba(13,15,16,.98),rgba(25,20,10,.94));clip-path:polygon(0 0,99.3% 0,100% 13%,100% 100%,.7% 100%,0 85%)}
+@media(max-width:610px){.dtp-nav:before{clip-path:none}}

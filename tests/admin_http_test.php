@@ -31,6 +31,14 @@ function token(string $html): string {preg_match('/name="csrf" value="([a-f0-9]{
 function fields(array $values): array {$out=[];foreach($values as $k=>$v)$out["dtp[$k]"]=$v;return $out;}
 $cleanup=[];
 try {
+    // --- Startseite: DAU TO PRO nur als eine Karte unter „Sonstiges“, keine einzelnen Lernmodule ---
+    $home=http('GET','/index.php',[],false)['body'];
+    check(str_contains($home,'dtp-portal-card" data-category="sonstiges"'),'Startseite: DAU-TO-PRO-Karte steht unter „Sonstiges“');
+    check(!str_contains($home,'/osi-sprint/') && !str_contains($home,'OSI Sprint'),'Startseite: einzelne Lernmodule werden nicht gezeigt');
+    check(str_contains($home,'/fremd-projekt/'),'Startseite: andere HTML-Projekte bleiben sichtbar');
+    check(!str_contains($home,'data-category="lernen"'),'Startseite: kein eigener Filter „DAU to Pro“ mehr');
+    check((bool)preg_match('~data-category="sonstiges"[^>]*>Sonstiges <span>1</span>~',$home),'Startseite: Zähler „Sonstiges“ enthält die DAU-TO-PRO-Karte');
+    check(str_contains(http('GET','/dau-to-pro/',[],false)['body'],'OSI Sprint'),'Lernmodule bleiben auf /dau-to-pro/ sichtbar');
     // --- Zugriffsschutz ---
     foreach(['/admin/index.php','/admin/dau_page.php','/admin/dau_card_preview.php','/admin/html_projects.php'] as $path){
         $r=http('GET',$path,[],false);
@@ -87,7 +95,7 @@ try {
     $public=http('GET','/dau-to-pro/',[],false)['body'];
     check(str_contains($public,'src="../assets/dau-previews/osi-modell.webp"'),'Bestehendes Modul ohne Bild erhält automatisch sein Motiv');
     $home=http('GET','/',[],false)['body'];
-    check(str_contains($home,'src="assets/dau-previews/osi-modell-640.webp"')||str_contains($home,'src="assets/dau-previews/osi-modell.webp"'),'Startseite zeigt dasselbe Modulbild');
+    check(!str_contains($home,'assets/dau-previews/osi-modell'),'Startseite zeigt keine einzelnen Lernmodule (nur die DAU-TO-PRO-Karte)');
     $pm=http('GET','/admin/html_projects.php');$csrf2=token($pm['body']);
     check(str_contains($pm['body'],'value="motif:hardware"') && str_contains($pm['body'],'data-dau-previews'),'Modulverwaltung bietet Motive und Kartenvorschau');
     $id=(int)$pdo->query("SELECT id FROM html_pages WHERE slug='osi-sprint'")->fetchColumn();

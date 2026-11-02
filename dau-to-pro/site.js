@@ -1,79 +1,150 @@
 (() => {
-  // Transparent hero is a dedicated web asset, without sampling its pixels into the backdrop.
-  // Calm cinematic focus on a hovered learning module.
-  // Slow to appear, noticeably faster (but smooth) to disappear.
-  const pointerCanHover=matchMedia('(hover:hover) and (pointer:fine)');
-  const motionReduced=matchMedia('(prefers-reduced-motion:reduce)');
-  const focusCards=[...document.querySelectorAll('.module-card')];
-  if(pointerCanHover.matches && !motionReduced.matches && focusCards.length){
-    // Ruhiger Kino-Fokus: Umgebung dunkelt langsam ab (~2,8 s), löst sich schnell (~0,7 s).
-    // Zeiten stehen im CSS; hier nur Zustände, damit Übergänge nie neu bei 0 starten.
-    const EXIT_MS=700, LEAVE_GRACE_MS=90, ENTRY_DELAY_MS=120, MOVE_MS=380;
+  // Modul-Fokus wie in der Designvorlage: linearer Aufbau (~4,1 s), schnelles, weiches Ausblenden.
+  // Nicht die Deckkraft eines fertig weichgezeichneten Layers animieren:
+  // Blur, Helligkeit, Sättigung und Abdunkelung werden in jedem Frame gemeinsam gesetzt.
+  (() => {
+    const canHover=matchMedia('(hover:hover) and (pointer:fine)');
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const cards=[...document.querySelectorAll('.module-card')];
+    if(!cards.length||!canHover.matches||reduced.matches)return;
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
     overlay.innerHTML='<i class="dtp-focus-panel dtp-focus-top"></i><i class="dtp-focus-panel dtp-focus-bottom"></i><i class="dtp-focus-panel dtp-focus-left"></i><i class="dtp-focus-panel dtp-focus-right"></i>';
     document.body.append(overlay);
-    let current=null,entryTimer=0,leaveTimer=0,moveTimer=0,visibleUntil=0;
-    const positionSpotlight=()=>{
+    const ENTER_MS=4100,EXIT_MS=920,INTENT_MS=150;
+    let current=null,progress=0,frame=0,entryTimer=0,exitTimer=0;
+    const paint=value=>{
+      progress=Math.max(0,Math.min(1,value));
+      overlay.style.setProperty('--focus-blur',(5.5*progress).toFixed(3)+'px');
+      overlay.style.setProperty('--focus-dim',(0.22*progress).toFixed(4));
+      overlay.style.setProperty('--focus-brightness',(1-0.24*progress).toFixed(4));
+      overlay.style.setProperty('--focus-saturation',(1-0.35*progress).toFixed(4));
+      overlay.classList.toggle('is-rendering',progress>0);
+    };
+    paint(0);
+    const layout=()=>{
       if(!current)return;
-      const rect=current.getBoundingClientRect(),pad=9;
-      const top=Math.max(0,Math.round(rect.top-pad));
-      const bottom=Math.min(innerHeight,Math.round(rect.bottom+pad));
-      const left=Math.max(0,Math.round(rect.left-pad));
-      const right=Math.min(innerWidth,Math.round(rect.right+pad));
-      overlay.style.setProperty('--focus-y',top+'px');
+      if(current.hidden){hide(current);return;}
+      const b=current.getBoundingClientRect(),pad=9;
+      const y=Math.max(0,Math.round(b.top-pad));
+      const bottom=Math.min(innerHeight,Math.round(b.bottom+pad));
+      const x=Math.max(0,Math.round(b.left-pad));
+      const right=Math.min(innerWidth,Math.round(b.right+pad));
+      overlay.style.setProperty('--focus-y',y+'px');
       overlay.style.setProperty('--focus-bottom',bottom+'px');
-      overlay.style.setProperty('--focus-height',Math.max(0,bottom-top)+'px');
-      overlay.style.setProperty('--focus-x',left+'px');
+      overlay.style.setProperty('--focus-height',Math.max(0,bottom-y)+'px');
+      overlay.style.setProperty('--focus-x',x+'px');
       overlay.style.setProperty('--focus-right',right+'px');
     };
-    // Overlay sichtbar (aktiv oder noch beim Ausblenden)?
-    const overlayVisible=()=>overlay.classList.contains('is-active')||performance.now()<visibleUntil;
-    const focus=(card)=>{
-      clearTimeout(entryTimer);clearTimeout(leaveTimer);
-      if(current===card){
-        // Zurück auf dieselbe Karte: Abdunklung läuft vom aktuellen Wert aus weiter.
-        if(!overlay.classList.contains('is-active'))overlay.classList.add('is-active');
-        return;
-      }
-      // Auch während des Ausblendens gilt es als Wechsel: kein Sprung der Aussparung.
-      const switching=overlayVisible();
-      if(current)current.classList.remove('is-focus-target');
-      current=card;card.classList.add('is-focus-target');
-      if(switching){
-        // Schneller Wechsel: Aussparung gleitet zur neuen Karte, Abdunklung bleibt erhalten.
-        overlay.classList.add('is-moving');
-        clearTimeout(moveTimer);
-        moveTimer=setTimeout(()=>overlay.classList.remove('is-moving'),MOVE_MS+40);
-        positionSpotlight();
-        overlay.classList.add('is-active');
-        return;
-      }
-      positionSpotlight();
-      // Kurze Verzögerung, damit reines Überfahren auf dem Weg zu etwas anderem nichts auslöst.
-      entryTimer=setTimeout(()=>{if(current===card)overlay.classList.add('is-active')},ENTRY_DELAY_MS);
+    const animateTo=target=>{
+      cancelAnimationFrame(frame);
+      const from=progress,distance=Math.abs(target-from);
+      if(distance<.00001){paint(target);return;}
+      const started=performance.now();
+      const duration=(target>from?ENTER_MS:EXIT_MS)*distance;
+      const tick=now=>{
+        const t=Math.min(1,(now-started)/duration);
+        // Eintritt: exakt linear. Austritt: schneller Beginn, sanftes Ende.
+        paint(from+(target-from)*(target>from?t:1-Math.pow(1-t,3)));
+        if(t<1)frame=requestAnimationFrame(tick);
+      };
+      frame=requestAnimationFrame(tick);
     };
-    const unfocus=(card)=>{
+    const show=card=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      if(current&&current!==card)current.classList.remove('is-focus-target');
+      current=card;
+      layout();
+      card.classList.add('is-focus-target');
+      // Schnelles Vorbeistreichen soll keinen abgebrochenen Fokus hinterlassen.
+      entryTimer=setTimeout(()=>{if(current===card)animateTo(1)},INTENT_MS);
+    };
+    function hide(card){
       if(current!==card)return;
-      clearTimeout(entryTimer);clearTimeout(leaveTimer);
-      leaveTimer=setTimeout(()=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      exitTimer=setTimeout(()=>{
         if(current!==card)return;
-        if(overlay.classList.contains('is-active'))visibleUntil=performance.now()+EXIT_MS;
-        overlay.classList.remove('is-active');
-        card.classList.remove('is-focus-target');
+        current.classList.remove('is-focus-target');
         current=null;
-      },LEAVE_GRACE_MS);
+        animateTo(0);
+      },60);
+    }
+    const reset=()=>{
+      clearTimeout(entryTimer);clearTimeout(exitTimer);
+      if(current)current.classList.remove('is-focus-target');
+      current=null;cancelAnimationFrame(frame);paint(0);
     };
-    focusCards.forEach(card=>{
-      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')focus(card)});
-      card.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')unfocus(card)});
+    cards.forEach(card=>{
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(card)});
+      card.addEventListener('pointerleave',()=>hide(card));
     });
-    addEventListener('scroll',positionSpotlight,{passive:true});
-    addEventListener('resize',positionSpotlight,{passive:true});
-    document.addEventListener('visibilitychange',()=>{if(document.hidden && current)unfocus(current)});
-    pointerCanHover.addEventListener('change',()=>{if(current)unfocus(current)});
-  }
+    addEventListener('scroll',layout,{passive:true});
+    addEventListener('resize',layout,{passive:true});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
+    canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
+  })();
+  // Parallax: Hintergrund-Ebenen (Textur, Leiterbahnen, Lichtstrahlen) laufen langsamer als der Inhalt,
+  // das Hero-Bild zieht beim Wegscrollen etwas schneller nach oben weg. Nur transform/translate, ein rAF pro Frame.
+  // Bei reduzierter Bewegung komplett aus.
+  (() => {
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const layers=[['.dtp-world-traces',.14],['.dtp-eternal-rays',.08]]
+      .map(([sel,speed])=>[document.querySelector(sel),speed]).filter(([el])=>el);
+    const hero=document.querySelector('.hero');
+    const art=document.querySelector('.hero-art-wrap');
+    const marks=[...document.querySelectorAll('.section-mark')];
+    const stage=document.querySelector('.dtp-world-texture'); // fest stehende Hintergrundbühne (128vh hoch)
+    if(!layers.length&&!art&&!stage)return;
+    // Eigene Clip-Ebene, damit verschobene Hintergründe die Seite nicht verlängern.
+    // Ohne z-index/isolation: mix-blend-mode der Ebenen wirkt weiter auf den Seitenhintergrund.
+    if(layers.length){
+      const clip=document.createElement('div');
+      clip.className='dtp-parallax-clip';
+      clip.setAttribute('aria-hidden','true');
+      layers[0][0].before(clip);
+      layers.forEach(([el])=>clip.append(el));
+    }
+    let frame=0,on=false;
+    const apply=()=>{
+      frame=0;
+      const y=on?scrollY:0;
+      if(stage){
+        const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+        stage.style.translate=on&&y?`0 ${(-(y/max)*.28*innerHeight).toFixed(1)}px`:'';
+      }
+      layers.forEach(([el,speed])=>{el.style.translate=y?`0 ${(y*speed).toFixed(1)}px`:''});
+      const h=hero?hero.offsetHeight:0,inHero=on&&y<h+200;
+      if(art)art.style.translate=inHero&&y?`0 ${(-y*.1).toFixed(1)}px`:''; // Bild zieht etwas schneller nach oben weg als der Text
+      marks.forEach(el=>{
+        if(!on){el.style.translate='';return;}
+        const r=el.getBoundingClientRect(),mid=r.top+r.height/2-innerHeight/2;
+        el.style.translate=`0 ${(-mid*.18).toFixed(1)}px`;
+      });
+    };
+    const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
+    const update=()=>{on=!reduced.matches;request()};
+    addEventListener('scroll',request,{passive:true});
+    addEventListener('resize',request,{passive:true});
+    reduced.addEventListener('change',update);
+    update();
+  })();
+  // „Mein Konto“-Menü: auf-/zuklappen, Escape und Klick daneben schließen.
+  (() => {
+    const btn=document.querySelector('.nav-account-menu>.nav-account'),panel=document.getElementById('dtp-account-panel');
+    if(!btn||!panel)return;
+    const set=open=>{btn.setAttribute('aria-expanded',String(open));panel.hidden=!open};
+    btn.addEventListener('click',()=>set(btn.getAttribute('aria-expanded')!=='true'));
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){set(false);btn.focus()}});
+    document.addEventListener('pointerdown',e=>{if(!e.target.closest('.nav-account-menu'))set(false)});
+    panel.addEventListener('focusout',e=>{if(!e.relatedTarget||!e.relatedTarget.closest('.nav-account-menu'))set(false)});
+  })();
+  // Konto-Einstellungen: Sprungziel (z. B. #change_password) gleich aufgeklappt zeigen.
+  (() => {
+    if(!document.querySelector('details.settings-item'))return; // nur auf der Kontoseite
+    const open=()=>{const el=location.hash&&document.getElementById(decodeURIComponent(location.hash.slice(1)));if(el&&el.tagName==='DETAILS')el.open=true};
+    open();addEventListener('hashchange',open);
+  })();
   const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
   const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
   toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});

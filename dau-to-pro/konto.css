@@ -98,7 +98,6 @@
 .mini-action.is-gold{background:linear-gradient(105deg,#fff1bb,#efc261 58%,#cc8f25);color:#130f07;border-color:#ffd988}
 .mini-action.is-danger{color:#ffb1a8;border-color:#7a3a3a}
 .mini-action.is-danger:hover{background:#3a1c1e}
-.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
 
 @media(max-width:900px){
   .auth-layout{grid-template-columns:1fr;gap:30px}
@@ -107,7 +106,6 @@
   .konto-head .konto-next{grid-row:auto}
   .konto-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
   .konto-stats div{min-width:0}
-  .settings-grid{grid-template-columns:1fr}
 }
 @media(max-width:610px){
   .konto-main{padding:34px 14px 70px}
@@ -122,3 +120,26 @@
   .konto-main .primary-action{width:100%}
 }
 @media (prefers-reduced-motion:reduce){.confirm-check.nudge{animation:none}}
+
+/* Konto-Einstellungen als aufklappbare Liste statt großer Formular-Kacheln. */
+.settings-list{display:grid;gap:10px;max-width:760px}
+.settings-item{background:linear-gradient(150deg,rgba(25,32,36,.94),rgba(12,16,19,.96));border:1px solid rgba(233,174,56,.22);border-radius:14px;overflow:hidden;transition:border-color .2s}
+.settings-item[open]{border-color:rgba(233,174,56,.5)}
+.settings-item.is-danger{border-color:rgba(255,127,110,.28)}
+.settings-item.is-danger[open]{border-color:rgba(255,127,110,.55)}
+.settings-item.has-error{box-shadow:0 0 0 2px #ff7f6e88}
+.settings-item summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:16px;padding:16px 20px}
+.settings-item summary::-webkit-details-marker{display:none}
+.settings-item summary>span{display:grid;gap:2px;flex:1;min-width:0}
+.settings-item summary b{font-size:15px;color:var(--cream)}
+.settings-item.is-danger summary b{color:#ffb1a8}
+.settings-item summary small{font-size:13px;color:var(--muted)}
+.settings-item summary:after{content:"";width:9px;height:9px;border-right:2px solid var(--gold);border-bottom:2px solid var(--gold);transform:rotate(45deg) translateY(-3px);transition:transform .2s;flex:0 0 auto}
+.settings-item[open] summary:after{transform:rotate(-135deg) translateY(-1px)}
+.settings-item summary:hover b{color:var(--goldlite)}
+.settings-item summary:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.settings-body{display:grid;gap:14px;padding:4px 20px 20px;max-width:460px}
+.settings-body .secondary-action,.settings-body .mini-action{justify-self:start}
+/* Browser-Autofill nicht als olivgelbes Feld. */
+.konto-main input:-webkit-autofill{-webkit-text-fill-color:#f5f0df;-webkit-box-shadow:0 0 0 40px #0b1013 inset;caret-color:#f5f0df}
+@media(prefers-reduced-motion:reduce){.settings-item summary:after{transition:none}}
