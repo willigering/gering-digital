@@ -150,21 +150,33 @@
   close.type = 'button'; close.setAttribute('aria-label', 'Schließen'); close.textContent = '×';
   const sound = el('button', 'fx-video-sound', overlay);
   sound.type = 'button'; sound.textContent = '🔊 Ton an'; sound.hidden = true;
-  const xp = el('p', 'fx-xp', overlay);
   // XP gibt es nur mit Lernkonto: dann meldet das Video das versteckte Achievement an den Server.
+  // Nach dem Video erscheint das normale Achievement-Popup (achievement-toast.js) mit Ton, kein eigenes Fenster.
   const eggApi = wrap.dataset.fxEgg || '';
-  xp.innerHTML = eggApi
-    ? '<b>+200 XP</b><span>Fremdscham erfolgreich freigeschaltet.</span>'
-    : '<b>+0 XP</b><span>Fremdscham trotzdem freigeschaltet. XP gibt es nur mit Lernkonto.</span>';
-  let eggSent = false;
+  let eggSent = false, eggResult = null, toastDue = false;
   function reportEgg() {
     if (!eggApi || eggSent || !window.fetch) return;
     eggSent = true;
     fetch(eggApi, { method: 'POST', credentials: 'same-origin', cache: 'no-store', headers: { 'X-DTP-CSRF': wrap.dataset.fxCsrf || '' } })
-      .then(r => r.json()).then(j => { if (j && j.ok && !j.new) { xp.querySelector('b').textContent = '+0 XP'; xp.querySelector('span').textContent = 'Fremdscham erneut freigeschaltet. Die 200 XP hast du schon.'; } })
-      .catch(() => { eggSent = false; });
+      .then(r => r.json()).then(j => { eggResult = j || {}; if (toastDue) celebrate(); })
+      .catch(() => { eggSent = false; eggResult = {}; if (toastDue) celebrate(); });
   }
-  xp.setAttribute('role', 'status');
+  function celebrate() {
+    toastDue = false;
+    const toast = window.dtpAchievementToast;
+    if (!toast) return;
+    const r = eggResult || {}, egg = r.egg || {};
+    if (r.ok && r.new) { toast.celebrate(r); return; }
+    if (r.ok) {
+      toast.show({ kicker: 'Achievement · bereits freigeschaltet', title: egg.name || 'Fremdscham erfolgreich freigeschaltet', text: 'Die ' + (egg.xp || 200) + ' XP hast du schon.', xp: '', tier: 'versteckt' });
+      return;
+    }
+    toast.show({ kicker: 'Achievement freigeschaltet · Versteckt', title: 'Fremdscham erfolgreich freigeschaltet', text: 'XP gibt es nur mit Lernkonto.', xp: '+0 XP', tier: 'versteckt' });
+  }
+  function queueToast() {
+    if (eggApi && eggSent && !eggResult) { toastDue = true; return; }   // Antwort kommt gleich
+    celebrate();
+  }
   let phase = 'closed', endTimer = 0;
 
   function prepareVideo() {
@@ -174,8 +186,8 @@
     video.playsInline = true;
     video.setAttribute('playsinline', '');
     video.src = videoSrc;
-    video.addEventListener('ended', showXp);
-    video.addEventListener('error', () => { video.remove(); video = null; if (phase === 'video') showXp(); });
+    video.addEventListener('ended', finish);
+    video.addEventListener('error', () => { video.remove(); video = null; if (phase === 'video') finish(); });
   }
   function openVideo() {
     reportEgg();
@@ -185,27 +197,23 @@
     requestAnimationFrame(() => overlay.classList.add('is-open'));
     close.focus({ preventScroll: true });
     if (videoSrc) prepareVideo();
-    if (!video) { showXp(); return; }                 // keine Videodatei: kein kaputter Player
+    if (!video) { phase = 'video'; finish(); return; }   // keine Videodatei: kein kaputter Player
     phase = 'video';
-    overlay.classList.remove('show-xp');
     video.currentTime = 0;
     video.muted = false;
     const started = video.play();
     if (started && started.catch) started.catch(() => {
       // Browser erlaubt keinen Ton: stumm starten und Ton per Knopf anbieten.
       video.muted = true; sound.hidden = false;
-      video.play().catch(() => showXp());
+      video.play().catch(() => finish());
     });
   }
   sound.addEventListener('click', () => { if (video) { video.muted = false; video.play(); } sound.hidden = true; });
-  function showXp() {
-    if (phase === 'xp' || overlay.hidden) return;
-    phase = 'xp';
-    sound.hidden = true;
-    if (video) video.pause();
-    overlay.classList.add('show-xp');
-    clearTimeout(endTimer);
-    endTimer = setTimeout(closeVideo, 3800);
+  // Video zu Ende (oder übersprungen): Overlay schließen, dann das Achievement-Popup zeigen.
+  function finish() {
+    if (phase === 'closed' || overlay.hidden) return;
+    closeVideo();
+    queueToast();
   }
   function closeVideo() {
     clearTimeout(endTimer);
@@ -214,13 +222,13 @@
     if (video) video.pause();
     overlay.classList.remove('is-open');
     document.documentElement.classList.remove('fx-locked');
-    setTimeout(() => { overlay.hidden = true; overlay.classList.remove('show-xp'); }, reduce.matches ? 0 : 450);
+    setTimeout(() => { overlay.hidden = true; }, reduce.matches ? 0 : 450);
     (lastFocus && lastFocus.focus ? lastFocus : hit).focus({ preventScroll: true });
   }
-  close.addEventListener('click', () => (phase === 'video' ? showXp() : closeVideo()));
+  close.addEventListener('click', () => (phase === 'video' ? finish() : closeVideo()));
   document.addEventListener('keydown', e => {
     if (overlay.hidden) return;
-    if (e.key === 'Escape') { e.preventDefault(); phase === 'video' ? showXp() : closeVideo(); }
+    if (e.key === 'Escape') { e.preventDefault(); phase === 'video' ? finish() : closeVideo(); }
     if (e.key === 'Tab') { // Fokus im Overlay halten
       const items = [close, sound].filter(b => !b.hidden);
       const i = items.indexOf(document.activeElement);

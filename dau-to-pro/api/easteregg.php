@@ -18,4 +18,5 @@ $learner=learner_current();
 if (!$learner) egg_reply(401,['ok'=>false,'error'=>'Nicht angemeldet.']);
 if (!hash_equals((string)($_SESSION['csrf']??''),(string)($_SERVER['HTTP_X_DTP_CSRF']??''))) egg_reply(403,['ok'=>false]);
 $result=ach_evaluate((int)$learner['id'],['egg'=>true]);
-egg_reply(200,['ok'=>true,'new'=>array_values(array_filter($result['new'],fn($a)=>$a['code']==='g.easteregg'))!==[],'level'=>$result['level']]);
+$egg=ach_public(ach_catalog()['g.easteregg']);
+egg_reply(200,['ok'=>true,'new'=>array_values(array_filter($result['new'],fn($a)=>$a['code']==='g.easteregg'))!==[],'achievements'=>$result['new'],'egg'=>$egg,'level'=>$result['level'],'level_up'=>$result['level_up']]);
