@@ -3,19 +3,23 @@
 .hero-canvas{position:relative;width:100%;aspect-ratio:1448/1086;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%)}
 .hero-reference{width:100%;opacity:0;pointer-events:none}
 .hero-reference .hero-logo{margin:0}
-.hero-mask-defs{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .hero-plane,.hero-slice{position:absolute;inset:0;pointer-events:none}
 .hero-plane{transition:translate .25s ease-out;transform-origin:50% 65%}
 .hero-slice picture,.hero-part-image{display:block;width:100%;height:100%;margin:0;max-width:none;user-select:none;-webkit-user-drag:none}
 .hero-part-image{object-fit:fill}
 /* Circuits sit behind the figures, washed into the page's existing circuit backdrop. */
-.hero-plane--ambient{z-index:0;opacity:.32;transform:translate(0,-6%) scale(1.12);filter:saturate(.72) blur(.5px)}
-.hero-plane--ambient .hero-slice{mask-image:radial-gradient(ellipse at 50% 45%,#000 20%,#0009 57%,transparent 76%)}
+.hero-plane--ambient{z-index:0;opacity:.32;transform:translate(0,-6%) scale(1.12)}
+.hero-circuit{display:block;width:100%;height:100%;overflow:hidden;mask-image:radial-gradient(ellipse at 50% 45%,#000 24%,#000a 58%,transparent 76%)}
+.scene-wire-cyan{stroke:#56ddea;stroke-width:4}
+.scene-wire-gold{stroke:#e7bc6e;stroke-width:3}
+.scene-growth{stroke:#e7bc6e;stroke-width:13;opacity:.6}
+.scene-bars{fill:#55d3df18;stroke:#65d4df;stroke-width:3;stroke-linejoin:round}
+.scene-dots{fill:#76d8df;opacity:.7}
 .hero-plane--dau{z-index:2;transform:translate(-2.5%,-1.5%)}
 .hero-plane--pro{z-index:3;transform:translate(1.4%,-3%)}
 .hero-plane--dau .hero-slice,.hero-plane--pro .hero-slice{mask-image:linear-gradient(#000 0%,#000 59%,transparent 66%)}
 /* The lettering is its own smaller element, with breathing room around the figures. */
-.hero-plane--brand{z-index:4;transform:translate(-3%,6%) scale(.82);transform-origin:50% 85%}
+.hero-plane--brand{z-index:4;transform:translate(-3%,2%) scale(.82);transform-origin:50% 85%}
 .hero-plane--powerup{z-index:5;transform:translate(2.2%,-12%)}
 /* Original mushroom coordinates, relative to its moving plane (1448 × 1086). */
 .hero-mushroom-anchor{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;pointer-events:none}
@@ -28,6 +32,6 @@
   .hero-plane--dau{transform:translate(-1.1%,-1%)}
   .hero-plane--pro{transform:translate(.5%,-2%)}
   .hero-plane--powerup{transform:translate(1.2%,-9%)}
-  .hero-plane--brand{transform:translate(-1%,5%) scale(.86)}
+  .hero-plane--brand{transform:translate(-1%,2%) scale(.86)}
 }
 @media(prefers-reduced-motion:reduce){.hero-plane{translate:none!important;transition:none;will-change:auto}}
