@@ -11,6 +11,7 @@ const LEARNER_COOKIE='dtp_remember';
 const LEARNER_REMEMBER_DAYS=30;
 const LEARNER_KEY_MAX=200;              // Zeichen pro Speicherschlüssel
 const LEARNER_VALUE_MAX=262144;         // 256 KB pro Eintrag
+const LEARNER_D1_REVIEW_MAX=1048576;    // acht D1-Prüfungen samt Eingaben und Lösungswegen
 const LEARNER_TOTAL_MAX=5242880;        // 5 MB pro Konto
 const LEARNER_KEYS_MAX=2000;            // Einträge pro Konto
 const LEARNER_FORM_MIN_SECONDS=3;       // menschliche Mindestzeit für Formulare
@@ -340,7 +341,8 @@ function learner_progress_apply(int $learnerId,string $slug,array $set,array $de
         $key=(string)$key;
         if (!learner_valid_key($key)) throw new LearnerError('Ungültiger Speicherschlüssel.');
         if (!is_string($value) || !mb_check_encoding($value,'UTF-8')) throw new LearnerError('Ungültiger Speicherwert.');
-        if (strlen($value)>LEARNER_VALUE_MAX) throw new LearnerError('Ein Eintrag ist größer als 256 KB.');
+        $limit=$slug==='d1-datenschutz' && $key==='d1-dsgvo-exam-v1'?LEARNER_D1_REVIEW_MAX:LEARNER_VALUE_MAX;
+        if (strlen($value)>$limit) throw new LearnerError('Ein Eintrag ist größer als '.($limit/1024).' KB.');
     }
     foreach($delete as $key) if (!learner_valid_key($key)) throw new LearnerError('Ungültiger Speicherschlüssel.');
     $db=db();
@@ -481,3 +483,4 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+

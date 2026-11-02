@@ -221,7 +221,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       <ul class="ach-grid">
         <?php foreach($group['items'] as $item): ?>
         <li class="ach-item tier-<?=e($item['tier'])?><?=$item['unlocked']?' is-on':''?><?=$item['secret']?' is-secret':''?>">
-          <span class="ach-icon" aria-hidden="true"><?=$item['secret']?'?':($item['tier']==='witzig'?'🤡':($item['tier']==='platin'?'💎':($item['tier']==='versteckt'?'🍄':'🏆')))?></span>
+          <span class="ach-icon" aria-hidden="true"><?php if(!$item['secret'] && !empty($item['icon'])): ?><img src="<?=e($item['icon'])?>" alt="" width="42" height="42" loading="lazy" style="object-fit:contain;image-rendering:pixelated"><?php else: ?><?=$item['secret']?'?':($item['tier']==='witzig'?'🤡':($item['tier']==='platin'?'💎':($item['tier']==='versteckt'?'🍄':'🏆')))?><?php endif; ?></span>
           <span class="ach-text"><b><?=e($item['name'])?></b><small><?=e($item['desc'])?></small>
             <span class="ach-meta"><?=e($item['tier_label'])?><?php if(!$item['secret']): ?> · <?=$item['xp']?> XP<?php endif; ?><?php if($item['unlocked']): ?> · <span class="ach-date">✓ <?=e(learner_format_time($item['unlocked_at']))?></span><?php else: ?> · <span class="sr-only">noch </span>gesperrt<?php endif; ?></span></span>
         </li>
@@ -373,3 +373,4 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
 })();
 </script>
 </body></html>
+

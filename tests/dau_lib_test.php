@@ -57,7 +57,7 @@ $cases=[
  [['slug'=>'subnet-sprint','title'=>'Subnet Sprint','description'=>''],'ipv4-subnetting'],
  [['slug'=>'netzwerke-sprint','title'=>'Netzwerke Sprint','description'=>''],'netzwerke-routing'],
  [['slug'=>'a1','title'=>'A1 · Bits zum bitteren Ende','description'=>'Zahlensysteme binär'],'zahlensysteme'],
- [['slug'=>'dsgvo-kompakt','title'=>'DSGVO kompakt','description'=>''],'it-sicherheit'],
+ [['slug'=>'dsgvo-kompakt','title'=>'DSGVO kompakt','description'=>''],'datenschutz'],
  [['slug'=>'cpu-tour','title'=>'Prozessor & Mainboard','description'=>''],'hardware'],
  [['slug'=>'ihk-check','title'=>'IHK Prüfung 90 Minuten','description'=>'OSI und Subnetting gemischt'],'pruefung'],
  [['slug'=>'neu','title'=>'Etwas ganz anderes','description'=>''],'it-grundlagen'],
@@ -118,4 +118,5 @@ check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original
 @unlink($tmp);@unlink($db);
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"DAU-Bibliothek: $count Prüfungen bestanden\n";
 exit($failures?1:0);
+
 

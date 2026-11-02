@@ -77,7 +77,7 @@ $total=count(ach_catalog());
           <ul class="ach-grid">
             <?php foreach ($r['unlocked'] as $item): ?>
             <li class="ach-item is-on tier-<?=e($item['tier'])?>">
-              <span class="ach-icon" aria-hidden="true"><?=$item['tier']==='witzig'?'🤡':($item['tier']==='platin'?'💎':($item['tier']==='versteckt'?'🍄':'🏆'))?></span>
+              <span class="ach-icon" aria-hidden="true"><?php if(!empty($item['icon'])): ?><img src="<?=e($item['icon'])?>" alt="" width="42" height="42" loading="lazy" style="object-fit:contain;image-rendering:pixelated"><?php else: ?><?=$item['tier']==='witzig'?'🤡':($item['tier']==='platin'?'💎':($item['tier']==='versteckt'?'🍄':'🏆'))?><?php endif; ?></span>
               <span class="ach-text"><b><?=e($item['name'])?></b><small><?=e($item['subject'])?> · <?=e($item['desc'])?></small><small><?=e($item['tier_label'])?> · <?=(int)$item['xp']?> XP</small></span>
             </li>
             <?php endforeach; ?>
@@ -95,4 +95,5 @@ $total=count(ach_catalog());
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><a href="../index.php" class="footer-brand"><strong>GERING <em>DIGITAL</em></strong><small>DAU TO PRO · Ein Projekt von Gering Digital</small></a><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php#lernkonten">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
 </body></html>
+
 
