@@ -384,7 +384,7 @@ function learner_root_prefix(string $file): string { return str_repeat('../',sub
 function learner_sync_config(string $slug,string $file): array {
     $learner=learner_current();
     $root=learner_root_prefix($file);
-    $config=['v'=>1,'slug'=>$slug,'api'=>$root.'dau-to-pro/api/progress.php','account'=>$root.'dau-to-pro/konto.php?weiter='.rawurlencode($slug),'user'=>null];
+    $config=['v'=>1,'slug'=>$slug,'api'=>$root.'dau-to-pro/api/progress.php','account'=>$root.'dau-to-pro/konto.php?weiter='.rawurlencode($slug),'modules'=>$root.'dau-to-pro/#lernmodule','user'=>null];
     if ($learner) {
         $config+=['uid'=>(string)$learner['id'],'csrf'=>csrf(),'data'=>learner_progress_state((int)$learner['id'])];
         $config['user']=$learner['username'];
