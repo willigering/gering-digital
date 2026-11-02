@@ -12,8 +12,8 @@ $pdo=db();
 $pdo->exec("INSERT INTO html_pages(slug,title,category,published,live_version) VALUES('osi-sprint','OSI Sprint','lernen',1,'aaaaaaaaaaaaaaaaaaaaaaaa'),('subnet-sprint','Subnet Sprint','lernen',1,'bbbbbbbbbbbbbbbbbbbbbbbb'),('entwurf','Entwurf','lernen',0,''),('spiel-eins','Spiel','spiele',1,'cccccccccccccccccccccccc')");
 
 // --- Benutzername & Passwort ---
-foreach(['abc','Lern.Kevin_2','a-b','x9y'] as $ok) check(error_of(fn()=>learner_validate_username($ok))==='',"Benutzername „{$ok}“ ist erlaubt");
-foreach(['ab','-abc','abc.','ä-b-c','a b c','a..b',str_repeat('a',25),'Admin','WILLI','<script>','a@b.de'] as $bad) check(error_of(fn()=>learner_validate_username($bad))!=='',"Benutzername „{$bad}“ wird abgelehnt");
+foreach(['abc','Lern.Kevin_2','a-b','x9y','Willi','willi','WILLI'] as $ok) check(error_of(fn()=>learner_validate_username($ok))==='',"Benutzername „{$ok}“ ist erlaubt");
+foreach(['ab','-abc','abc.','ä-b-c','a b c','a..b',str_repeat('a',25),'Admin','<script>','a@b.de'] as $bad) check(error_of(fn()=>learner_validate_username($bad))!=='',"Benutzername „{$bad}“ wird abgelehnt");
 check(error_of(fn()=>learner_validate_password('kurz','kurz','name'))!=='','Passwort unter 10 Zeichen wird abgelehnt');
 check(error_of(fn()=>learner_validate_password('ein-gutes-passwort','ein-anderes-passwort','name'))!=='','Abweichende Wiederholung wird abgelehnt');
 check(error_of(fn()=>learner_validate_password('aaaaaaaaaaaa','aaaaaaaaaaaa','name'))!=='','Passwort aus einem Zeichen wird abgelehnt');
