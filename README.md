@@ -99,7 +99,7 @@ Die bestehenden Originalgrafiken, `dau-to-pro/hero-fx.js`, `assets/dau-to-pro-pi
 
 ### Hero als integrierte Szene
 
-Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Die Figuren, der Schriftzug und der Pilz verwenden dieselbe unveränderte Bildquelle mit nativen CSS-Ausschnitten und Masken; es entstehen keine neu gezeichneten Figuren oder zusätzlichen Bilddownloads. Dezente, direkt gezeichnete SVG-Leiterbahnen verbinden die Szene mit dem Seitenhintergrund. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
+Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Die Vordergrundteile werden mit nativen CSS-Ausschnitten und Masken angeordnet. Schriftzug und Pilz verwenden die unveränderte Originalquelle; die Figuren nutzen die neue transparente Quelle, sofern deren Dateien vorhanden sind. Dezente, direkt gezeichnete SVG-Leiterbahnen verbinden die Szene mit dem Seitenhintergrund. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
 
 Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickfläche, Farbwechsel, Wachstum, Zähler, Level-up, Video und XP-Abschluss bewegen sich dadurch zusammen. Eigene Hero-Uploads werden weiterhin als vollständiges Originalbild dargestellt.
 
