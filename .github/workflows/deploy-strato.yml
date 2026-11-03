@@ -1,0 +1,135 @@
+name: Deploy Gering Digital to STRATO (SFTP)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: strato-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    env:
+      STRATO_HOST: ${{ secrets.STRATO_HOST }}
+      STRATO_PORT: ${{ secrets.STRATO_PORT }}
+      STRATO_USER: ${{ secrets.STRATO_USER }}
+      STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
+      STRATO_REMOTE_PATH: ${{ secrets.STRATO_REMOTE_PATH }}
+      STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install SFTP client
+        run: python -m pip install --disable-pip-version-check 'paramiko>=3.4,<5'
+
+      - name: Upload tracked website files only (never delete remote files)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import pathlib
+          import posixpath
+          import subprocess
+          import tempfile
+
+          import paramiko
+
+          required = ('STRATO_HOST', 'STRATO_USER', 'STRATO_PASSWORD',
+                      'STRATO_REMOTE_PATH', 'STRATO_KNOWN_HOSTS')
+          missing = [name for name in required if not os.environ.get(name, '').strip()]
+          if missing:
+              raise SystemExit('Missing GitHub Secrets: ' + ', '.join(missing))
+
+          remote_root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/')
+          if not remote_root.startswith('/') or remote_root == '':
+              raise SystemExit('STRATO_REMOTE_PATH must be an absolute SFTP path')
+          port = int(os.environ.get('STRATO_PORT') or '22')
+          if not 1 <= port <= 65535:
+              raise SystemExit('Invalid SFTP port')
+
+          # Never upload application-generated content, account data, or secrets.
+          blocked_dirs = {'data', 'uploads', 'runtime', 'node_modules', '.git',
+                          '.github', 'tests', 'test', '__pycache__', 'vendor'}
+          blocked_suffixes = ('.sqlite', '.sqlite3', '.db', '.bak', '.log', '.sql',
+                              '.pem', '.key', '.p12', '.pfx', '.zip', '.tar', '.gz')
+          allowed_suffixes = {'.php', '.html', '.htm', '.css', '.js', '.mjs',
+                              '.json', '.png', '.jpg', '.jpeg', '.webp',
+                              '.svg', '.gif', '.ico', '.woff', '.woff2',
+                              '.ttf', '.otf', '.txt', '.xml', '.webmanifest',
+                              '.map', '.wasm'}
+          tracked = subprocess.check_output(['git', 'ls-files', '-z']).split(b'\0')
+          deploy_files = []
+          for raw in tracked:
+              if not raw:
+                  continue
+              relative = pathlib.PurePosixPath(os.fsdecode(raw))
+              parts = relative.parts
+              if (relative.is_absolute() or '..' in parts
+                      or any(p in blocked_dirs or p.lower().endswith('uploads') for p in parts[:-1])
+                      or any(p.startswith('.') for p in parts[:-1])
+                      or parts[-1].startswith('.env')
+                      or parts[-1].lower().endswith(blocked_suffixes)):
+                  continue
+              if relative.suffix.lower() not in allowed_suffixes and relative.name != '.htaccess':
+                  continue
+              path = pathlib.Path(*parts)
+              if not path.is_file() or path.is_symlink():
+                  continue
+              deploy_files.append((path, relative.as_posix()))
+
+          if not deploy_files:
+              raise SystemExit('No deployable website files found; refusing empty deployment')
+
+          with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8') as known_file:
+              known_file.write(os.environ['STRATO_KNOWN_HOSTS'].strip() + '\n')
+              known_file.flush()
+              ssh = paramiko.SSHClient()
+              ssh.load_host_keys(known_file.name)
+              ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+              ssh.connect(
+                  hostname=os.environ['STRATO_HOST'].strip(),
+                  port=port,
+                  username=os.environ['STRATO_USER'],
+                  password=os.environ['STRATO_PASSWORD'],
+                  look_for_keys=False,
+                  allow_agent=False,
+                  timeout=25,
+              )
+              try:
+                  sftp = ssh.open_sftp()
+                  try:
+                      sftp.stat(remote_root)  # The destination MUST already exist.
+                      # This account is chrooted to the website root. Verify expected site markers.
+                      for marker in ('index.php', 'lib.php', 'dau-to-pro'):
+                          sftp.stat(posixpath.join(remote_root, marker))
+                      directories = set()
+                      for local, relative in deploy_files:
+                          target = posixpath.join(remote_root, relative)
+                          parent = posixpath.dirname(target)
+                          if parent not in directories:
+                              current = remote_root
+                              for component in relative.split('/')[:-1]:
+                                  current = posixpath.join(current, component)
+                                  if current not in directories:
+                                      try:
+                                          sftp.stat(current)
+                                      except OSError:
+                                          sftp.mkdir(current)
+                                      directories.add(current)
+                          sftp.put(str(local), target, confirm=True)
+                          print('Uploaded:', relative)
+                      print(f'Deployed {len(deploy_files)} tracked website files. No remote deletes.')
+                  finally:
+                      sftp.close()
+              finally:
+                  ssh.close()
+          PY

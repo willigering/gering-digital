@@ -1,0 +1,68 @@
+name: Test STRATO SFTP connection (read only)
+
+on:
+  push:
+    branches:
+      - automation/strato-sftp-deploy
+
+permissions:
+  contents: read
+
+jobs:
+  check-connection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      STRATO_HOST: ${{ secrets.STRATO_HOST }}
+      STRATO_PORT: ${{ secrets.STRATO_PORT }}
+      STRATO_USER: ${{ secrets.STRATO_USER }}
+      STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
+      STRATO_REMOTE_PATH: ${{ secrets.STRATO_REMOTE_PATH }}
+      STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
+    steps:
+      - name: Install SSH library
+        run: python -m pip install --disable-pip-version-check 'paramiko>=3.4,<5'
+      - name: Verify SFTP authentication and read-only site directory
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import posixpath
+          import tempfile
+          import paramiko
+
+          required = ['STRATO_HOST', 'STRATO_USER', 'STRATO_PASSWORD',
+                      'STRATO_REMOTE_PATH', 'STRATO_KNOWN_HOSTS']
+          missing = [n for n in required if not os.environ.get(n, '').strip()]
+          if missing:
+              raise SystemExit('Missing secrets: ' + ', '.join(missing))
+          root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/') or '/'
+          if not root.startswith('/'):
+              raise SystemExit('Remote path must be absolute')
+          port = int(os.environ.get('STRATO_PORT') or '22')
+          with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8') as known:
+              known.write(os.environ['STRATO_KNOWN_HOSTS'].strip() + '\n')
+              known.flush()
+              ssh = paramiko.SSHClient()
+              ssh.load_host_keys(known.name)
+              ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+              ssh.connect(
+                  hostname=os.environ['STRATO_HOST'].strip(),
+                  port=port,
+                  username=os.environ['STRATO_USER'],
+                  password=os.environ['STRATO_PASSWORD'],
+                  allow_agent=False,
+                  look_for_keys=False,
+                  timeout=20,
+              )
+              try:
+                  sftp = ssh.open_sftp()
+                  try:
+                      for marker in ('index.php', 'lib.php', 'dau-to-pro'):
+                          sftp.stat(posixpath.join(root, marker))
+                      print('SUCCESS: SFTP login and website markers verified. No uploads or deletes.')
+                  finally:
+                      sftp.close()
+              finally:
+                  ssh.close()
+          PY
