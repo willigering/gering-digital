@@ -21,6 +21,62 @@
       ]
     },
     {
+      "id": "netzwerkdienste",
+      "accent": "#7ad0ff",
+      "label": "Netzwerkdienste & Protokolle",
+      "slugs": [
+        "b5-netzwerkdienste"
+      ],
+      "keywords": [
+        "netzwerkdienste",
+        "port 80, bitte",
+        "protokolle"
+      ],
+      "module": "B5"
+    },
+    {
+      "id": "ipv6",
+      "accent": "#4fd1c5",
+      "label": "IPv6 · Doppelpunkt, Doppelpunkt, Durchblick",
+      "slugs": [
+        "b4-ipv6",
+        "ipv6"
+      ],
+      "keywords": [
+        "ipv6",
+        "slaac",
+        "dhcpv6",
+        "eui-64",
+        "doppelpunkt"
+      ]
+    },
+    {
+      "id": "d2-it-sicherheit",
+      "accent": "#ff6b6b",
+      "label": "D2 · IT-Sicherheit & Schutzbedarf",
+      "slugs": [
+        "d2-it-sicherheit"
+      ],
+      "keywords": [
+        "passwort123 ist kein konzept"
+      ]
+    },
+    {
+      "id": "datenschutz",
+      "accent": "#ff8fa3",
+      "label": "Datenschutz · DSGVO",
+      "slugs": [
+        "d1-datenschutz",
+        "datenschutz"
+      ],
+      "keywords": [
+        "datenschutz",
+        "dsgvo",
+        "personenbezogen",
+        "tdddg"
+      ]
+    },
+    {
       "id": "zahlensysteme",
       "accent": "#a6f05a",
       "label": "Zahlensysteme · Bits & Bytes",
@@ -52,7 +108,6 @@
       "keywords": [
         "subnet",
         "ipv4",
-        "ipv6",
         "cidr",
         "ip-adress",
         "wildcard",
@@ -78,8 +133,7 @@
       "accent": "#ff7f8f",
       "label": "IT-Sicherheit & Datenschutz",
       "slugs": [
-        "it-sicherheit",
-        "datenschutz"
+        "it-sicherheit"
       ],
       "keywords": [
         "sicherheit",

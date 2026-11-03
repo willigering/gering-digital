@@ -361,6 +361,57 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+/* ---------- D1: Datenschutz ---------- */
+function privacy(id) {
+  const records = [0,1,2].map(i => `<g transform="translate(${180+i*19} ${208-i*19})">
+    <path d="M0 0H238L274 36V292H0Z" fill="#17151d" stroke="${CYAN}" stroke-width="3"/>
+    <circle cx="65" cy="78" r="22" fill="${CYAN}" opacity=".8"/><path d="M29 136v-12q36-40 72 0v12" fill="${CYAN}" opacity=".55"/>
+    <path d="M128 67h100M128 92h74M30 179h198M30 207h165M30 235h198" stroke="${CREAM}" stroke-width="9" opacity=".35"/>
+  </g>`).join('');
+  return `<text x="640" y="119" text-anchor="middle" font-family="${MONO}" font-size="24" font-weight="700" letter-spacing="7" fill="${CYAN}">D1 // DATENSCHUTZ</text>
+    ${records}
+    <path d="M505 359H750" stroke="${CYAN}" stroke-width="3" stroke-dasharray="8 10" opacity=".5"/>
+    <g filter="url(#${id}-glowf)"><path d="M843 202l154 56v111q0 113-154 170-154-57-154-170V258Z" fill="#17151d" stroke="url(#${id}-gold)" stroke-width="7"/></g>
+    <path d="M807 348v-36a36 36 0 0 1 72 0v36" fill="none" stroke="${GOLD_LITE}" stroke-width="13"/>
+    <path d="M792 343h102v86H792Z" fill="${GOLD}"/><circle cx="843" cy="376" r="11" fill="#18151b"/><path d="M843 381v21" stroke="#18151b" stroke-width="10"/>
+    <path d="M726 500l-33 14-15-35M976 196l30-21 18 31" fill="none" stroke="${CYAN}" stroke-width="3"/>
+    <text x="640" y="609" text-anchor="middle" font-family="${SANS}" font-size="42" font-weight="900" fill="${GOLD_LITE}">DEINE DATEN. KEIN BUFFET.</text>
+    <text x="640" y="650" text-anchor="middle" font-family="${MONO}" font-size="21" fill="${CREAM}" opacity=".7">Rechte verstehen. Fälle entscheiden.</text>`;
+}
+
+function d2Security(id) {
+  return `<text x="100" y="125" fill="${CYAN}" font-family="${MONO}" font-size="25" font-weight="800">D2 // IT-SICHERHEIT</text>
+  <text x="100" y="196" fill="${CREAM}" font-family="${SANS}" font-size="45" font-weight="900">PASSWORT123</text>
+  <text x="100" y="246" fill="${GOLD}" font-family="${SANS}" font-size="35" font-weight="900">IST KEIN KONZEPT.</text>
+  <g transform="translate(818 155)"><path d="M0 0 L148 55 V205 Q148 320 0 384 Q-148 320 -148 205 V55 Z" fill="#160f14" stroke="${CYAN}" stroke-width="5"/>
+  <path d="M-45 158 V115 A45 45 0 0 1 45 115 V158" fill="none" stroke="${GOLD}" stroke-width="19"/>
+  <rect x="-76" y="151" width="152" height="125" rx="7" fill="url(#${id}-gold)"/><circle cy="201" r="14" fill="#171016"/><path d="M-6 211 V239 H6 V211" fill="#171016"/></g>
+  <g font-family="${MONO}" font-size="22"><path d="M100 320 H490 M100 400 H490 M100 480 H490" stroke="${CYAN}" stroke-opacity=".35"/><text x="110" y="355" fill="${CREAM}">VERTRAULICHKEIT</text><text x="110" y="435" fill="${CREAM}">INTEGRITÄT</text><text x="110" y="515" fill="${CREAM}">VERFÜGBARKEIT</text></g>
+  <text x="100" y="620" fill="${GOLD}" font-family="${MONO}" font-size="22">PRÜFEN · BEGRÜNDEN · HANDELN</text>`;
+}
+// B4: acht Hex-Blöcke werden zur klaren Kurzform, Präfix und Geräteanteil sichtbar.
+function ipv6(id) {
+  let blocks='';
+  ['2001','0db8','0012','0034','0000','0000','0000','0007'].forEach((v,i)=>{
+    const x=130+i*130;
+    blocks+=`<rect x="${x}" y="210" width="118" height="90" fill="#0b1615" stroke="${i<4?GOLD:CYAN}" stroke-width="3"/><text x="${x+59}" y="265" text-anchor="middle" fill="${i<4?GOLD_LITE:CYAN}" font-family="${MONO}" font-size="30" font-weight="700">${v}</text>`;
+  });
+  return `<text x="640" y="155" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="38" font-weight="800">IPv6 · 128 BIT. EIN KLARER PLAN.</text>
+  ${blocks}<path d="M135 325 H640 M650 325 H1160" stroke="${GOLD}" stroke-width="2"/><text x="385" y="365" text-anchor="middle" fill="${GOLD_LITE}" font-family="${MONO}" font-size="25">NETZPRÄFIX /64</text><text x="910" y="365" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="25">INTERFACE-ID</text>
+  <path d="M640 393 V435 M620 418 L640 438 L660 418" fill="none" stroke="${GOLD}" stroke-width="5"/>
+  <text x="640" y="515" text-anchor="middle" fill="${CREAM}" font-family="${MONO}" font-size="53" font-weight="800">2001:db8:12:34::7</text>
+  <text x="640" y="575" text-anchor="middle" fill="${GOLD_LITE}" font-family="${SANS}" font-size="27" font-weight="700">DOPPELPUNKT, DOPPELPUNKT, DURCHBLICK</text>`;
+}
+
+function services(id) {
+  const ports = [ ['22','SSH'], ['53','DNS'], ['67','DHCP'], ['80','HTTP'], ['443','HTTPS'], ['993','IMAPS'] ];
+  return `<text x="640" y="140" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="42" font-weight="850">PORT 80, BITTE KOMMEN</text>
+    <text x="640" y="185" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="23">B5 // NETZWERKDIENSTE &amp; PROTOKOLLE</text>
+    <path d="M180 360 H1100 M640 235 V555" stroke="${GOLD}" stroke-width="3" stroke-opacity=".5"/>
+    ${ports.map(([port,name],i)=>{const x=220+(i%3)*330,y=245+Math.floor(i/3)*170;return `<g><rect x="${x}" y="${y}" width="180" height="120" rx="4" fill="#0c1a28" stroke="${CYAN}" stroke-width="2"/><text x="${x+90}" y="${y+56}" text-anchor="middle" font-family="${MONO}" font-size="44" font-weight="800" fill="${GOLD_LITE}">${port}</text><text x="${x+90}" y="${y+92}" text-anchor="middle" font-family="${MONO}" font-size="24" fill="${CYAN}">${name}</text></g>`}).join('')}
+    <text x="640" y="625" text-anchor="middle" fill="${MUTED}" font-family="${MONO}" font-size="23">SYN → SYN-ACK → DURCHBLICK</text>`;
+}
+
 function kalkulation(id) {
   return `
   <text x="640" y="110" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">KALKULATION &amp; BESCHAFFUNG</text>
@@ -389,6 +440,10 @@ function kalkulation(id) {
 
 export const motifs = [
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
+  { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
+  { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
+  { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
+  { id: 'datenschutz', accent: '#ff8fa3', label: 'Datenschutz · DSGVO', draw: privacy, seed: 31, glowX: 800, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
@@ -403,3 +458,4 @@ export function svgFor(motif) {
   CYAN = motif.accent || '#00dce8';
   return frame(motif.id, motif.draw, { seed: motif.seed, glowX: motif.glowX, glowY: motif.glowY });
 }
+

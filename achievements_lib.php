@@ -25,6 +25,42 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     return [
+        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','stages'=>10,'list'=>[
+            ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
+            ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
+            ['d2.maximum','silber','Maximum statt Mittelmaß','Stufe 4 „Schutzbedarf“ gemeistert.',['stage',3]],
+            ['d2.faktoren','silber','Doppelt hält verschieden','„Authentisierungsfaktor zuordnen“ 10 × in Folge richtig.',['clean',['p_factor']]],
+            ['d2.entropie','gold','Zufall mit System','„Modell-Entropie berechnen“ und „Zufallsraum berechnen“ je 10 × in Folge richtig.',['clean',['p_entropy','p_space']]],
+            ['d2.lernpfad','gold','Konzept statt Hoffnung','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['d2.marathon','platin','90 Minuten ohne Datenpanne','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['d2.passwort123','witzig','Sonderzeichen retten alles?','3 × in Folge falsch bei „Passwort123 ist kein Konzept“.',['fails','p_123'],'Ein Ausrufezeichen macht aus einem Klassiker noch keinen Zufall.'],
+            ['d2.prinz','witzig','Erbe mit Bearbeitungsgebühr','3 × in Folge falsch bei „Der Prinz aus Nigeria“.',['fails','e_prince'],'Erst zahlen, dann Millionen? Der Prinz wartet noch.'],
+            ['d2.usb','witzig','Parkplatz-Premiumstick','3 × in Folge falsch bei „USB-Stick vom Parkplatz“.',['fails','m_park'],'Gratis Speicherplatz. Die Zusatzsoftware verrät er erst später.'],
+        ]],
+        'b4'=>['prefix'=>'b4-ipv6','subject'=>'IPv6','title'=>'Doppelpunkt, Doppelpunkt, Durchblick','motif'=>'ipv6','stages'=>10,'list'=>[
+            ['b4.erste-bloecke','bronze','128 Bit, ein Anfang','Stufe 1 „128 Bit & Hex“ gemeistert.',['stage',0]],
+            ['b4.nullenschlucker','bronze','Nullenschlucker','„Adresse kanonisch kürzen“ 10 × in Folge richtig.',['clean',['s_short']]],
+            ['b4.praefix','silber','Vorne Netz, hinten Gerät','Stufe 4 „Präfix & Interface-ID“ gemeistert.',['stage',3]],
+            ['b4.slaac','silber','Selbst ist der Host','Stufe 7 „SLAAC & Router Advertisements“ gemeistert.',['stage',6]],
+            ['b4.netzplan','gold','65.536 gute Gründe','„n-tes /64-Subnetz bestimmen“ 10 × in Folge richtig.',['clean',['n_nth']]],
+            ['b4.lernpfad','gold','Doppelpunkt verstanden','Alle 10 IPv6-Stufen gemeistert.',['path']],
+            ['b4.marathon','platin','128 Bit Ausdauer','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['b4.doppelt','witzig','Doppelt hält nicht besser','3 × in Folge falsch bei „Doppelter Doppelpunkt“.',['fails','s_double'],'Zwei Abkürzungen, eine Adresse, null Eindeutigkeit.'],
+            ['b4.router','witzig','fe80 ist kein Dienstausweis','3 × in Folge falsch bei „fe80 ist kein Router“.',['fails','t_router'],'Auch ein Drucker darf lokal wohnen.'],
+            ['b4.nullen','witzig','Nullen im Überfluss','3 × in Folge falsch bei „Zu viele Nullen“.',['fails','v_zero'],'Weniger tippen bedeutet nicht weniger Bit.'],
+        ]],
+        'b5'=>['prefix'=>'b5-dienste','subject'=>'Netzwerkdienste & Protokolle','title'=>'Port 80, bitte kommen','motif'=>'netzwerkdienste','stages'=>10,'list'=>[
+            ['b5.transport','bronze','Verbindung steht','Stufe 1 „TCP oder UDP?“ gemeistert.',['stage',0]],
+            ['b5.portwart','bronze','Portwart des Monats','„Standardport zum Dienst“ 10 × in Folge richtig.',['clean',['p_port']]],
+            ['b5.lease','silber','Lease ist mehr','Stufe 4 „DHCP: Adresse gesucht“ gemeistert.',['stage',3]],
+            ['b5.ack','silber','ACK-zellent','„SYN bestätigen“ und „Datenbytes bestätigen“ je 10 × in Folge richtig.',['clean',['c_synack','c_ack']]],
+            ['b5.rueckweg','gold','Rückweg gefunden','„PAT-Antwort zurückübersetzen“ und „ARP-Ziel bei entferntem Netz“ je 10 × in Folge richtig.',['clean',['a_return','r_remote']]],
+            ['b5.lernpfad','gold','Alle Dienste im Dienst','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['b5.marathon','platin','Dauerverbindung','90-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',90,81]],
+            ['b5.dns','witzig',"It’s always DNS",'3 × hintereinander falsch bei „It’s always DNS – wirklich?“.',['fails','n_always'],'Die Nummer geht. Der Name nicht. Wer kennt sich mit Namen aus?'],
+            ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Ein anderer Port macht das Passwort nicht unsichtbar.'],
+            ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 klingt nach Adresse. Aber wer hat sie vergeben?'],
+        ]],
         'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','stages'=>10,'list'=>[
             ['f2.preisschild','bronze','Preisschild enttarnt','Stufe 1 „Angebote vergleichen“ gemeistert.',['stage',0]],
             ['f2.bezug','bronze','Fracht ist auch Geld','„Bezugspreis mit Fracht“ 10 × in Folge richtig.',['clean',['b_bezug']]],
@@ -60,6 +96,18 @@ function ach_modules(): array {
             ['osi.layer8','witzig','Layer-8-Problem','3 × hintereinander falsch bei „Fehlerbild → Schicht“.',['fails','t_layer'],'Das Problem sitzt meistens vor dem Bildschirm.'],
             ['osi.richtung','witzig','Von oben oder von unten?','3 × hintereinander falsch bei „Nummer einer Schicht“.',['fails','n_num'],'Schicht 1 ist … äh … welche Seite war nochmal unten?'],
             ['osi.getrennt','witzig','Verbindung getrennt','Probeprüfung durch Verlassen der Seite beendet.',['leave'],'Manchmal ist Weglaufen auch eine Lösung.'],
+        ]],
+        'd1'=>['prefix'=>'d1-dsgvo','subject'=>'Datenschutz','title'=>'Deine Daten sind kein Buffet.','motif'=>'datenschutz','stages'=>10,'exam_minutes'=>[10,20,30],'list'=>[
+            ['d1.personenbezug','bronze','Menschen hinter den Daten','Stufe 1 „Personenbezug erkennen“ gemeistert.',['stage',0]],
+            ['d1.grundsaetze','bronze','Sammelwut gebremst','Stufe 2 „Grundsätze anwenden“ gemeistert.',['stage',1]],
+            ['d1.rechte','silber','Rechte sind keine Extras','Stufe 5 „Betroffenenrechte bearbeiten“ gemeistert.',['stage',4]],
+            ['d1.kontrolle','silber','Die richtige Tür','„Klassische TOM-Kontrolle“ 10 × in Folge richtig.',['clean',['t_kontrolle']]],
+            ['d1.panne','gold','Ruhe bewahren. Richtig handeln.','Stufe 8 „Datenpannen bearbeiten“ gemeistert und „72-Stunden-Fenster“ 10 × in Folge richtig.',['all',[['stage',7],['clean',['v_stunden']]]]],
+            ['d1.lernpfad','gold','Datenschutz mit Durchblick','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['d1.pruefung','platin','Kein Buffet für Fehler','30-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',30,81]],
+            ['d1.cookie','witzig','Cookie-Monster auf Diät','3 × hintereinander falsch bei „Cookie-Zweck prüfen“.',['fails','a_cookie'],'Nicht jeder Krümel ist technisch notwendig.'],
+            ['d1.verbergen','witzig','Ich hab nichts zu verbergen','3 × hintereinander falsch bei „Personenbezug im Kontext“.',['fails','b_person'],'Die Kundenliste hat dazu eine andere Meinung.'],
+            ['d1.frist','witzig','72 Stunden sind keine drei Arbeitstage','3 × hintereinander falsch bei „72-Stunden-Fenster“.',['fails','v_stunden'],'Die Datenschutz-Uhr macht am Wochenende keine Pause.'],
         ]],
         'netz'=>['prefix'=>'netz-sprint','subject'=>'Netzwerkgrundlagen','title'=>'Jetzt ma Router bei die Switche!','motif'=>'netzwerke-routing','stages'=>10,'list'=>[
             ['netz.link-up','bronze','Link up','Stufe 1 „Netzwerkarten & Architektur“ gemeistert.',['stage',0]],
@@ -165,7 +213,7 @@ function ach_module_state(array $values,array $module): array {
     if (is_array($exams) && array_is_list($exams)) foreach(array_slice($exams,-8) as $e) {
         if (!is_array($e)) continue;
         $m=(int)($e['m']??0);$pct=(int)round((float)($e['p']??-1));
-        if (!in_array($m,[30,60,90],true) || $pct<0 || $pct>100) continue;
+        if (!in_array($m,$module['exam_minutes']??[30,60,90],true) || $pct<0 || $pct>100) continue;
         $state['exams'][]=['m'=>$m,'p'=>$pct,'left'=>($e['r']??'')==='Seite verlassen'];
     }
     return $state;
@@ -290,7 +338,8 @@ function ach_public(array $a): array {
     $modules=ach_modules();
     $tier=ach_tiers()[$a['tier']][0];
     return ['code'=>$a['code'],'name'=>$a['name'],'desc'=>$a['desc'],'tier'=>$a['tier'],'tier_label'=>$tier,'xp'=>$a['xp'],
-        'subject'=>$a['module']!==''?$modules[$a['module']]['subject']:'Modulübergreifend'];
+        'subject'=>$a['module']!==''?$modules[$a['module']]['subject']:'Modulübergreifend',
+        'icon'=>is_file(__DIR__.'/assets/achievement-icons/'.$a['code'].'.webp')?'/assets/achievement-icons/'.$a['code'].'.webp':null];
 }
 
 // ---------------------------------------------------------------- Kontoseite
@@ -371,4 +420,5 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out];
 }
+
 

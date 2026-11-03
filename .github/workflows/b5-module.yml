@@ -1,0 +1,28 @@
+name: B5 Netzwerkdienste
+on:
+  pull_request:
+    paths:
+      - 'lernmodule/b5-netzwerkdienste.html'
+      - 'lernmodule/manifest.json'
+      - 'achievements_lib.php'
+      - 'assets/dau-previews/**'
+      - 'tests/b5*'
+      - '.github/workflows/b5-module.yml'
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring, fileinfo
+      - run: npm install --no-save --package-lock=false playwright
+      - run: npx playwright install --with-deps chromium
+      - run: php tests/achievements_test.php
+      - run: php tests/b5_integration_test.php
+      - run: node tests/b5_browser.cjs
+      - run: node tests/b5_platform_browser.cjs

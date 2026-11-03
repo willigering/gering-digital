@@ -121,6 +121,12 @@ learner_logout();
 $guest=learner_sync_config('osi-sprint','index.html');
 check($guest['user']===null && !isset($guest['data']) && !isset($guest['csrf']),'Gäste bekommen keine Daten');
 
+// Alte importierte Footer bereinigen, fachliche Bilder ausdrücklich erhalten.
+$legacy='<html><head></head><body><img src="diagramm.svg" alt="Lerngrafik"><footer class="dtp-footer"><div class="foot-brand"><img src="altes-logo.webp" alt=""><div>Modul und Version</div></div></footer></body></html>';
+$filtered=learner_inject_sync($legacy,'osi-sprint','index.html');
+check(!str_contains($filtered,'altes-logo.webp'),'Altes Footer-Logo verschwindet auch aus importierten Modulversionen');
+check(str_contains($filtered,'<img src="diagramm.svg" alt="Lerngrafik">') && str_contains($filtered,'<div>Modul und Version</div>'),'Lernabbildung und Footer-Inhalt bleiben erhalten');
+
 // --- Admin ---
 $tempPassword=learner_admin_reset_password($id);
 check((bool)preg_match('/^[a-z2-9]{4}-[a-z2-9]{4}-[a-z2-9]{4}$/D',$tempPassword) && error_of(fn()=>learner_login('Anna.Lernt',$tempPassword))==='','Admin-Reset erzeugt funktionierendes Einmal-Passwort');
