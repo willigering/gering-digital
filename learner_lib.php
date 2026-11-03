@@ -347,7 +347,8 @@ function learner_progress_apply(int $learnerId,string $slug,array $set,array $de
     }
     foreach($delete as $key) if (!learner_valid_key($key)) throw new LearnerError('Ungültiger Speicherschlüssel.');
     $db=db();
-    $db->beginTransaction();
+    $ownsTransaction=!$db->inTransaction();
+    if($ownsTransaction)$db->beginTransaction();
     try {
         $now=learner_now();
         $upsert=$db->prepare('INSERT INTO learner_progress(learner_id,storage_key,module_slug,value,deleted,updated_at) VALUES(?,?,?,?,0,?)
@@ -364,9 +365,9 @@ function learner_progress_apply(int $learnerId,string $slug,array $set,array $de
             $db->prepare('DELETE FROM learner_progress WHERE learner_id=? AND deleted=1 AND storage_key IN (SELECT storage_key FROM learner_progress WHERE learner_id=? AND deleted=1 ORDER BY updated_at LIMIT ?)')
                ->execute([$learnerId,$learnerId,$rows-LEARNER_KEYS_MAX*2]);
         }
-        $db->commit();
+        if($ownsTransaction)$db->commit();
     } catch (Throwable $error) {
-        $db->rollBack();
+        if($ownsTransaction)$db->rollBack();
         throw $error;
     }
 }
