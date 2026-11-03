@@ -15,12 +15,12 @@ Der Webserver braucht dafür keine Bildgenerierung, keinen externen Dienst und k
 | `../../assets/dau-previews/<id>-640.webp` | 640 × 360, für Smartphones (`srcset`) |
 | `../../assets/dau-previews/manifest.json` | Motiv-Liste: Bezeichnung, zugehörige URL-Kürzel, Stichwörter |
 
-## Neues Lernmodul = neues Motiv (Ablauf für Claude)
+## Neues Lernmodul = neues Motiv (gehört zum Modulauftrag)
 
 1. In `motifs.mjs` eine neue Funktion `function <thema>(id) { … }` schreiben und in `motifs` eintragen
    (`id` in Kleinbuchstaben mit Bindestrichen, z. B. `routing-switching`). Gestaltung:
-   dunkler Hintergrund kommt aus `frame()`, Hauptakzent Orange/Gold, Cyan nur dezent, ein klares Motiv in der Mitte,
-   Ecken oben links (Nummer) und unten rechts (Warnstreifen) frei lassen, keine Wasserzeichen, Schrift mindestens 20 px.
+   dunkler Hintergrund kommt aus `frame()`, Hauptakzent Gold, Modulfarbe dezent, ein klares Motiv in der Mitte,
+   keine Warnstreifen, keine Wasserzeichen, Schrift mindestens 20 px. Die Grafik muss auch als kleine Karte verständlich sein.
 2. `node tools/dau-previews/render.mjs <id>` ausführen und beide WebP-Dateien ansehen (auch in 640 px Breite).
 3. In `motifs.mjs` und `manifest.json` dieselbe Modulfarbe als `accent` eintragen (eigene Farbe pro Modul, z. B. OSI violett `#c4a8ff`, Netzwerke Kupfer `#e0977a`, Subnetting Cyan `#5de7e4`, A1 Lime `#a6f05a`; Gold bleibt Hauptakzent). Die Karte auf `/dau-to-pro/` übernimmt die Farbe automatisch.
 4. In `manifest.json` einen Eintrag ergänzen. Das URL-Kürzel des Moduls in `slugs` eintragen – damit wird das Bild
@@ -38,3 +38,4 @@ oder ein eigenes Bild hochladen; Ausschnitt und „Einpassen/Ausfüllen“ werde
 1. Eigenes hochgeladenes Bild oder fest gewähltes Motiv aus `preview_image`.
 2. Sonst automatisch: URL-Kürzel in `slugs`, dann Stichwörter in Titel/URL, dann in der Beschreibung.
 3. Sonst das Standardmotiv (`default` im Manifest).
+

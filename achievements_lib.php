@@ -61,6 +61,18 @@ function ach_modules(): array {
             ['osi.richtung','witzig','Von oben oder von unten?','3 × hintereinander falsch bei „Nummer einer Schicht“.',['fails','n_num'],'Schicht 1 ist … äh … welche Seite war nochmal unten?'],
             ['osi.getrennt','witzig','Verbindung getrennt','Probeprüfung durch Verlassen der Seite beendet.',['leave'],'Manchmal ist Weglaufen auch eine Lösung.'],
         ]],
+        'd1'=>['prefix'=>'d1-dsgvo','subject'=>'Datenschutz','title'=>'Deine Daten sind kein Buffet.','motif'=>'datenschutz','stages'=>10,'exam_minutes'=>[10,20,30],'list'=>[
+            ['d1.personenbezug','bronze','Menschen hinter den Daten','Stufe 1 „Personenbezug erkennen“ gemeistert.',['stage',0]],
+            ['d1.grundsaetze','bronze','Sammelwut gebremst','Stufe 2 „Grundsätze anwenden“ gemeistert.',['stage',1]],
+            ['d1.rechte','silber','Rechte sind keine Extras','Stufe 5 „Betroffenenrechte bearbeiten“ gemeistert.',['stage',4]],
+            ['d1.kontrolle','silber','Die richtige Tür','„Klassische TOM-Kontrolle“ 10 × in Folge richtig.',['clean',['t_kontrolle']]],
+            ['d1.panne','gold','Ruhe bewahren. Richtig handeln.','Stufe 8 „Datenpannen bearbeiten“ gemeistert und „72-Stunden-Fenster“ 10 × in Folge richtig.',['all',[['stage',7],['clean',['v_stunden']]]]],
+            ['d1.lernpfad','gold','Datenschutz mit Durchblick','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['d1.pruefung','platin','Kein Buffet für Fehler','30-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',30,81]],
+            ['d1.cookie','witzig','Cookie-Monster auf Diät','3 × hintereinander falsch bei „Cookie-Zweck prüfen“.',['fails','a_cookie'],'Nicht jeder Krümel ist technisch notwendig.'],
+            ['d1.verbergen','witzig','Ich hab nichts zu verbergen','3 × hintereinander falsch bei „Personenbezug im Kontext“.',['fails','b_person'],'Die Kundenliste hat dazu eine andere Meinung.'],
+            ['d1.frist','witzig','72 Stunden sind keine drei Arbeitstage','3 × hintereinander falsch bei „72-Stunden-Fenster“.',['fails','v_stunden'],'Die Datenschutz-Uhr macht am Wochenende keine Pause.'],
+        ]],
         'netz'=>['prefix'=>'netz-sprint','subject'=>'Netzwerkgrundlagen','title'=>'Jetzt ma Router bei die Switche!','motif'=>'netzwerke-routing','stages'=>10,'list'=>[
             ['netz.link-up','bronze','Link up','Stufe 1 „Netzwerkarten & Architektur“ gemeistert.',['stage',0]],
             ['netz.kuerzel','bronze','PAN, LAN, GAN – Hauptsache Plan','Aufgabentyp „Kürzel PAN bis GAN“ 10 × in Folge richtig.',['clean',['b_kurz']]],
@@ -165,7 +177,7 @@ function ach_module_state(array $values,array $module): array {
     if (is_array($exams) && array_is_list($exams)) foreach(array_slice($exams,-8) as $e) {
         if (!is_array($e)) continue;
         $m=(int)($e['m']??0);$pct=(int)round((float)($e['p']??-1));
-        if (!in_array($m,[30,60,90],true) || $pct<0 || $pct>100) continue;
+        if (!in_array($m,$module['exam_minutes']??[30,60,90],true) || $pct<0 || $pct>100) continue;
         $state['exams'][]=['m'=>$m,'p'=>$pct,'left'=>($e['r']??'')==='Seite verlassen'];
     }
     return $state;
@@ -290,7 +302,8 @@ function ach_public(array $a): array {
     $modules=ach_modules();
     $tier=ach_tiers()[$a['tier']][0];
     return ['code'=>$a['code'],'name'=>$a['name'],'desc'=>$a['desc'],'tier'=>$a['tier'],'tier_label'=>$tier,'xp'=>$a['xp'],
-        'subject'=>$a['module']!==''?$modules[$a['module']]['subject']:'Modulübergreifend'];
+        'subject'=>$a['module']!==''?$modules[$a['module']]['subject']:'Modulübergreifend',
+        'icon'=>is_file(__DIR__.'/assets/achievement-icons/'.$a['code'].'.webp')?'/assets/achievement-icons/'.$a['code'].'.webp':null];
 }
 
 // ---------------------------------------------------------------- Kontoseite

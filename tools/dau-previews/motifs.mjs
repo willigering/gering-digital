@@ -361,6 +361,24 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+/* ---------- D1: Datenschutz ---------- */
+function privacy(id) {
+  const records = [0,1,2].map(i => `<g transform="translate(${180+i*19} ${208-i*19})">
+    <path d="M0 0H238L274 36V292H0Z" fill="#17151d" stroke="${CYAN}" stroke-width="3"/>
+    <circle cx="65" cy="78" r="22" fill="${CYAN}" opacity=".8"/><path d="M29 136v-12q36-40 72 0v12" fill="${CYAN}" opacity=".55"/>
+    <path d="M128 67h100M128 92h74M30 179h198M30 207h165M30 235h198" stroke="${CREAM}" stroke-width="9" opacity=".35"/>
+  </g>`).join('');
+  return `<text x="640" y="119" text-anchor="middle" font-family="${MONO}" font-size="24" font-weight="700" letter-spacing="7" fill="${CYAN}">D1 // DATENSCHUTZ</text>
+    ${records}
+    <path d="M505 359H750" stroke="${CYAN}" stroke-width="3" stroke-dasharray="8 10" opacity=".5"/>
+    <g filter="url(#${id}-glowf)"><path d="M843 202l154 56v111q0 113-154 170-154-57-154-170V258Z" fill="#17151d" stroke="url(#${id}-gold)" stroke-width="7"/></g>
+    <path d="M807 348v-36a36 36 0 0 1 72 0v36" fill="none" stroke="${GOLD_LITE}" stroke-width="13"/>
+    <path d="M792 343h102v86H792Z" fill="${GOLD}"/><circle cx="843" cy="376" r="11" fill="#18151b"/><path d="M843 381v21" stroke="#18151b" stroke-width="10"/>
+    <path d="M726 500l-33 14-15-35M976 196l30-21 18 31" fill="none" stroke="${CYAN}" stroke-width="3"/>
+    <text x="640" y="609" text-anchor="middle" font-family="${SANS}" font-size="42" font-weight="900" fill="${GOLD_LITE}">DEINE DATEN. KEIN BUFFET.</text>
+    <text x="640" y="650" text-anchor="middle" font-family="${MONO}" font-size="21" fill="${CREAM}" opacity=".7">Rechte verstehen. Fälle entscheiden.</text>`;
+}
+
 function d2Security(id) {
   return `<text x="100" y="125" fill="${CYAN}" font-family="${MONO}" font-size="25" font-weight="800">D2 // IT-SICHERHEIT</text>
   <text x="100" y="196" fill="${CREAM}" font-family="${SANS}" font-size="45" font-weight="900">PASSWORT123</text>
@@ -373,6 +391,7 @@ function d2Security(id) {
 }
 export const motifs = [
   { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
+  { id: 'datenschutz', accent: '#ff8fa3', label: 'Datenschutz · DSGVO', draw: privacy, seed: 31, glowX: 800, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
