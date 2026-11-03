@@ -158,7 +158,6 @@ let server,browser;
       assert.equal(await egg.locator('.fx-count').textContent(),`${n}x`,'Every click advances the counter');
     }
     assert.ok(await egg.locator('.fx-shroom').evaluate(e=>Number(e.style.getPropertyValue('--fx-scale'))>1.3),'Mushroom still grows');
-    await mushroom.press('Enter');
     const started=Date.now();
     await mushroom.press('Enter');
     const levelup=egg.locator('.fx-levelup-card');
