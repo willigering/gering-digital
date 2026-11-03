@@ -611,6 +611,51 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-UEBUNGSFOKUS END -->
+<!-- DTP-MODULEINSTIEG START -->
+<script>
+/* DAU TO PRO · Einstieg in ein Lernmodul.
+ * Zurück zur Lernpfad-Ansicht und zum Seitenanfang, ohne Lernstände zu löschen.
+ * Das Skript muss vor dem jeweiligen Modul-Startskript laufen.
+ */
+(function () {
+  'use strict';
+
+  // Keinen alten Scrollstand beim erneuten Öffnen / Browser-Zurück herstellen.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  // Ausschließlich die zuletzt gewählte Ansicht vergessen, niemals Fortschrittsdaten.
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && /^[a-z0-9][a-z0-9-]*-tab-v\d+$/i.test(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch (_) { /* Privater Modus ohne Storage: normales Laden erlauben. */ }
+
+  // Alte Lesezeichen mit #examTop, #trainTop, #ch... öffnen ebenfalls den Lernpfad.
+  if (location.hash) {
+    try { history.replaceState(history.state, '', location.pathname + location.search); }
+    catch (_) { /* Browser ohne History-API */ }
+  }
+
+  function toTop() { window.scrollTo(0, 0); }
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      // BFCache kann alte Tab-, Prüfungs- und Scrollzustände vollständig konservieren.
+      // Neu laden, damit die reguläre Initialisierung erneut den Lernpfad öffnet.
+      location.reload();
+      return;
+    }
+    toTop();
+    requestAnimationFrame(function () {
+      toTop();
+      requestAnimationFrame(toTop);
+    });
+  });
+})();
+</script>
+<!-- DTP-MODULEINSTIEG END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -2048,7 +2093,7 @@ function kiQ(){
  const e=state.exam,q=qById(e.qids[e.pos]),n=e.qids.filter(id=>(e.answers[id]||'').trim()).length;
  $('kiPos').textContent='FRAGE '+String(e.pos+1).padStart(2,'0')+' / '+e.qids.length;$('kiCount').textContent=n+' / '+e.qids.length+' BEANTWORTET · 4 PUNKTE';
  $('kiNav').innerHTML=e.qids.map((id,i)=>'<button type="button" data-ki="'+i+'" class="'+(i===e.pos?'cur ':'')+((e.answers[id]||'').trim()?'answered ':'')+(e.flags.includes(id)?'flag':'')+'" aria-label="Frage '+(i+1)+'">'+(i+1)+'</button>').join('');
- $('kiQ').innerHTML='<p class="subtle" style="margin:0 0 6px">'+esc(OLDCATS[q.cat])+' · '+esc(q.topic)+' '+esc(q.topicTitle)+'</p><p class="task-prompt">'+esc(q.ask)+'</p><label class="sr-only" for="kiAns">Deine Prüfungsantwort</label><textarea id="kiAns" class="ta" rows="7" placeholder="Hier deine Antwort formulieren …">'+esc(e.answers[q.id]||'')+'</textarea><p class="fmt">Wird automatisch gespeichert. Auch wenn du die Seite schließt, läuft die Prüfungszeit weiter.</p>';
+ $('kiQ').innerHTML='<p class="subtle" style="margin:0 0 6px">'+esc(OLDCATS[q.cat])+' · '+esc(q.topic)+' '+esc(q.topicTitle)+'</p><p class="task-prompt">'+esc(q.ask)+'</p><label class="sr-only" for="kiAns">Deine Prüfungsantwort</label><textarea id="kiAns" class="ta" rows="7" placeholder="Hier deine Antwort formulieren …">'+esc(e.answers[q.id]||'')+'</textarea><p class="fmt">Wird automatisch gespeichert. Beim Verlassen des Moduls wird die Prüfung abgegeben.</p>';
  $('kiAns').addEventListener('input',ev=>{e.answers[q.id]=ev.target.value;saveState();const m=e.qids.filter(id=>(e.answers[id]||'').trim()).length;$('kiCount').textContent=m+' / '+e.qids.length+' BEANTWORTET · 4 PUNKTE';const b=$('kiNav').querySelector('[data-ki="'+e.pos+'"]');if(b)b.classList.toggle('answered',!!ev.target.value.trim())});
  $('kiPrev').disabled=e.pos===0;$('kiNext').disabled=e.pos===e.qids.length-1;$('kiFlag').textContent=e.flags.includes(q.id)?'Markierung entfernen ⚑':'Markieren ⚑';$('kiConfirm').hidden=true;
 }
@@ -2074,6 +2119,12 @@ $('kiCopy').addEventListener('click',()=>{const t=$('kiExport');t.select();let o
 $('kiNew').addEventListener('click',()=>{const b=$('kiNew');if(!b.dataset.armed){b.dataset.armed='1';b.textContent='Sicher? Die alte Abgabe ist dann weg. Noch mal klicken';setTimeout(()=>{delete b.dataset.armed;b.textContent='Neue KI-Prüfung vorbereiten'},5000);return}delete b.dataset.armed;b.textContent='Neue KI-Prüfung vorbereiten';state.exam=null;saveState();kiRender()});
 
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)return;if(sprint.running)finishSprint(true);if(exam.running)submitExam('Seite verlassen');if(kiRunning()){state.exam.leaves=(state.exam.leaves||0)+1;saveState()}});
+function kiSubmitOnLeave(){
+ if(!kiRunning())return;
+ const e=state.exam;e.status='done';e.submitted=Math.min(Date.now(),e.ends);
+ state.lastSubmit=e.submitted;saveState(); // Freitext erhalten, aber Prüfung beim Verlassen beenden.
+}
+window.addEventListener('pagehide',kiSubmitOnLeave,{capture:true});
 window.addEventListener('beforeunload',e=>{if(exam.running){e.preventDefault();e.returnValue=''}});
 
 /* ================= Labore ================= */
@@ -2142,7 +2193,7 @@ $('resetBtn').addEventListener('click',()=>{
 
 /* Start */
 $('heroTypes').textContent=SUBS.length;
-{const h=location.hash;let t=/^#(ch\d+|src\d+|learnTop)$/.test(h)?'learn':h==='#examTop'?'exam':/^#(trainTop|trainer)/.test(h)?'train':null;if(!t){try{t=localStorage.getItem(TAB_STORE)}catch(_){}}if(t==='trainer')t='train';if(kiRunning())t='exam';showTab(ORDER.includes(t)?t:'path');
+{const h=location.hash;let t=/^#(ch\d+|src\d+|learnTop)$/.test(h)?'learn':h==='#examTop'?'exam':/^#(trainTop|trainer)/.test(h)?'train':null;if(!t){try{t=localStorage.getItem(TAB_STORE)}catch(_){}}if(t==='trainer')t='train';if(kiRunning())kiSubmitOnLeave();showTab(ORDER.includes(t)?t:'path');
  if(t==='learn'&&/^#ch\d+$/.test(h)&&document.querySelector(h))setTimeout(()=>document.querySelector(h).scrollIntoView({block:'start'}),0)}
 renderStats();renderHistory();setMode('free');selectStage(path.stage,false,true);kiRender();refreshLock();
 
