@@ -119,10 +119,11 @@ main,.dtp-footer{position:relative;z-index:1}
 .section-heading p{color:var(--muted);line-height:1.7;max-width:670px;font-size:14px;margin-bottom:0}
 .section-count{color:var(--muted);font-size:12px;white-space:nowrap;padding-bottom:4px}
 .catalog-panel{position:relative}
-.filterbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 22px}
-.filter-btn{padding:9px 14px;min-height:40px;background:#111b21;border:1px solid var(--stroke);border-radius:8px;color:var(--muted);font-size:12px;font-weight:600;transition:color .2s,background .2s}
-.filter-btn:hover{border-color:#76d8df70;color:var(--cream)}
-.filter-btn.active{background:#e8f1f2;color:#121b20;border-color:#e8f1f2}
+.filterbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:0 0 22px}
+.filterbar label{color:var(--muted);font-size:12px;font-weight:600}
+.filterbar select{box-sizing:border-box;max-width:100%;min-height:44px;padding:10px 38px 10px 14px;background:#111b21;border:1px solid var(--stroke);border-radius:0;color:var(--cream);font:inherit;font-size:14px;color-scheme:dark;cursor:pointer}
+.filterbar select:hover{border-color:#76d8df70}
+.filterbar select:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 .module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px;scroll-margin-top:calc(var(--nav-height) + 24px)}
 .module-grid[data-count="1"]{grid-template-columns:minmax(0,640px);justify-content:center}
 .module-card{--mod:var(--cyan);display:flex;flex-direction:column;min-width:0;background:#111b22;border:1px solid #ffffff1f;border-radius:var(--radius);transition:transform .2s,border-color .2s,box-shadow .2s;position:relative;overflow:hidden}
@@ -211,7 +212,7 @@ main,.dtp-footer{position:relative;z-index:1}
   .exam-input-row button{width:100%;min-height:44px;border-radius:0 0 9px 9px}
   .exam-examples span{flex:1 0 100%;margin-bottom:2px}.exam-examples button{min-height:36px}
   .catalog-section{padding:36px 0 40px}.section-heading{gap:12px;align-items:start}.section-heading h2{font-size:30px}.section-heading p{font-size:13px}.section-count{display:none}
-  .filterbar{gap:6px}.filter-btn{font-size:11px;padding:8px 11px}.module-grid{gap:18px;grid-template-columns:1fr}
+  .filterbar{gap:8px}.filterbar select{width:100%}.module-grid{gap:18px;grid-template-columns:1fr}
   .module-body{padding:21px}.module-body h2{font-size:22px}.module-body p{font-size:13px}
   .method-section{padding:34px 0 38px}.steps{grid-template-columns:1fr;gap:12px}.step{padding:22px}.step-symbol{margin-bottom:14px}.step p{margin-bottom:12px}
   .end-cap{padding:0 0 24px}.end-cap-content{padding:25px 22px}.end-cap h2{font-size:27px}.end-cap p{font-size:13px}
@@ -255,3 +256,4 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .section-heading h2,.dtp-landing .end-cap h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .exam-finder h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .module-card h3{font-weight:900;letter-spacing:-.03em}
+

@@ -199,7 +199,7 @@
   // Mehrthemen-Prüfungsfinder: findet ausschließlich tatsächlich veröffentlichte PHP-Module.
   const form=document.getElementById('exam-form');
   const input=document.getElementById('exam-topics');
-  const buttons=[...document.querySelectorAll('[data-filter]')];
+  const topicSelect=document.getElementById('module-topic');
   const cards=[...document.querySelectorAll('.module-card')];
   const indicator=document.getElementById('result-indicator');
   const empty=document.getElementById('search-empty');
@@ -256,11 +256,7 @@
   }
   function setFilter(filter){
     current=filter;
-    buttons.forEach(button=>{
-      const active=button.dataset.filter===filter;
-      button.classList.toggle('active',active);
-      button.setAttribute('aria-pressed',String(active));
-    });
+    if(topicSelect)topicSelect.value=filter;
     showResults();
   }
   input.addEventListener('input',showResults);
@@ -276,7 +272,7 @@
     input.focus();
   }));
   reset?.addEventListener('click',()=>{input.value='';setFilter('alle');input.focus()});
-  buttons.forEach(button=>button.addEventListener('click',()=>setFilter(button.dataset.filter)));
+  topicSelect?.addEventListener('change',()=>setFilter(topicSelect.value));
   showResults();
 })();
 
@@ -329,4 +325,5 @@
   document.querySelectorAll('a[href="#hinweis"]').forEach(link=>link.addEventListener('click',()=>{notice.open=true}));
   openNotice();addEventListener('hashchange',openNotice);
 })();
+
 
