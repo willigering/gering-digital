@@ -424,6 +424,15 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
     $html=preg_replace_callback('~<footer\b[^>]*>[\s\S]*?</footer>~i', static function(array $m): string {
         return preg_replace('~(<div\b[^>]*class="foot-brand"[^>]*>)\s*<img\b[^>]*>~i', '$1', $m[0]) ?? $m[0];
     }, $html) ?? $html;
+    // Gemeinsame Farben auch für bereits importierte Lernmodulversionen.
+    if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-MODULDESIGN START -->')) {
+        $theme=__DIR__.'/tools/module-theme.css';
+        if (is_file($theme)) {
+            $block="<!-- DTP-MODULDESIGN START -->\n<style>\n".(string)file_get_contents($theme)."\n</style>\n<!-- DTP-MODULDESIGN END -->\n";
+            $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
+        }
+    }
+    $html=str_replace('Offline · ohne Login', 'Lernen · Üben · Verstehen', $html);
     $json=json_encode(learner_sync_config($slug,$file),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
     // Achievement-Popup zuerst, damit sync.js es nach dem Speichern aufrufen kann.
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');

@@ -222,3 +222,14 @@ function hp_bundle_preview(array $bundle): string {
     if ($id==='' || !function_exists('dtp_preview_catalog') || !isset(dtp_preview_catalog()['motifs'][$id])) return '';
     return DTP_PREVIEW_DIR.'/'.$id.'.webp';
 }
+
+/** Legacy public routes keep their URL and progress keys while using the shipped module. */
+function hp_current_learning_html(string $html,string $slug,string $file): string {
+    if ($file!=='' && strtolower($file)!=='index.html') return $html;
+    $aliases=['subnetsprint'=>'subnet-sprint','osi'=>'osi-sprint'];
+    if (!isset($aliases[$slug])) return $html;
+    $bundle=hp_bundles()[$aliases[$slug]]??null;
+    if (!$bundle) return $html;
+    $current=file_get_contents($bundle['path']);
+    return $current===false?$html:$current;
+}
