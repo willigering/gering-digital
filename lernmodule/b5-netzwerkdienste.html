@@ -338,12 +338,9 @@ body:after{content:"";position:fixed;left:0;right:0;top:0;height:165vh;z-index:-
 
 .task-scene{border-left:2px solid var(--cyan);padding:10px 14px;background:#0c1724;margin:0 0 14px}.task-scene p{margin:5px 0 0}.lab-controls{display:flex;gap:12px;flex-wrap:wrap}.lab-controls label{display:grid;gap:4px;font-size:13px;min-width:0;max-width:100%}.lab-controls input,.lab-controls select{background:#09111c;border:1px solid #7ad0ff66;color:var(--cream);padding:10px;max-width:100%;min-width:0}.lab-out{white-space:pre-line;overflow-wrap:anywhere}.task-prompt,.task-scene,.review{overflow-wrap:anywhere}.task-prompt .qtip{white-space:normal}.bitwall{grid-template-columns:repeat(3,1fr)}.bitwall span{aspect-ratio:auto;min-height:65px;font-size:17px}.bitwall-cap{font:12px var(--mono);color:var(--cyan);display:block;letter-spacing:0}.hero .kicker{line-height:1.6}.panel h3{overflow-wrap:anywhere}
 
-/* Übungsfokus: nur den Hintergrund weichzeichnen, nie Aufgabe oder Rückweg. */
-body.practice-focus .hero,body.practice-focus .area-tabs,body.practice-focus #pathTop,
-body.practice-focus #stageMap,body.practice-focus #stagePanel,body.practice-focus #lessonPanel,
-body.practice-focus .end-cap,body.practice-focus .dtp-disclaimer,body.practice-focus .dtp-footer{
- filter:blur(3px) brightness(.42);
-}
+/* Wie beim Modul-Hover: animierter Blur, Helligkeit, Sättigung und dunkle Tönung. */
+.practice-focus-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none}
+.practice-focus-panel{position:fixed;pointer-events:none;background:rgba(4,7,9,var(--practice-dim,0));-webkit-backdrop-filter:blur(var(--practice-blur,0px)) brightness(var(--practice-brightness,1)) saturate(var(--practice-saturation,1));backdrop-filter:blur(var(--practice-blur,0px)) brightness(var(--practice-brightness,1)) saturate(var(--practice-saturation,1))}
 #practiceReturnBar{margin:0 0 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 #practiceReturnBar[hidden]{display:none}
 body.practice-focus #practicePanel{box-shadow:0 20px 70px #000b;border-color:var(--cyan)}
@@ -844,7 +841,44 @@ $('stepNext').addEventListener('click',()=>{shown++;renderSteps()});
 $('stepAll').addEventListener('click',()=>{shown=STAGES[path.stage].steps.length;renderSteps()});
 const lessonReturnButton=$('backToLesson'),lessonReturnHome=lessonReturnButton.parentNode;
 const lessonReturnSlot=document.createComment('Lektion-Rückweg');lessonReturnHome.insertBefore(lessonReturnSlot,lessonReturnButton);
-function refreshPracticeFocus(){document.body.classList.toggle('practice-focus',practicing&&!$('pathView').hidden)}
+// Vier Flächen lassen die ganze Aufgabe samt Rückweg als scharfes Fenster frei.
+const practiceOverlay=document.createElement('div');practiceOverlay.className='practice-focus-overlay';practiceOverlay.setAttribute('aria-hidden','true');practiceOverlay.hidden=true;
+practiceOverlay.innerHTML='<i class="practice-focus-panel"></i>'.repeat(4);document.body.appendChild(practiceOverlay);
+let practiceShade=0,practiceShadeFrame=0,practiceShadeActive=false;
+const practiceReduced=matchMedia('(prefers-reduced-motion: reduce)');
+function paintPracticeShade(p){
+ practiceShade=Math.max(0,Math.min(1,p));practiceOverlay.hidden=practiceShade===0;
+ practiceOverlay.style.setProperty('--practice-blur',(5.5*practiceShade).toFixed(3)+'px');
+ practiceOverlay.style.setProperty('--practice-dim',(0.22*practiceShade).toFixed(4));
+ practiceOverlay.style.setProperty('--practice-brightness',(1-0.24*practiceShade).toFixed(4));
+ practiceOverlay.style.setProperty('--practice-saturation',(1-0.35*practiceShade).toFixed(4));
+}
+function layoutPracticeShade(){
+ if(!practiceShadeActive)return;
+ const r=$('practicePanel').getBoundingClientRect(),pad=9;
+ const x=Math.max(0,Math.min(innerWidth,r.left-pad)),right=Math.max(x,Math.min(innerWidth,r.right+pad));
+ const y=Math.max(0,Math.min(innerHeight,r.top-pad)),bottom=Math.max(y,Math.min(innerHeight,r.bottom+pad));
+ const boxes=[[0,0,innerWidth,y],[0,bottom,innerWidth,innerHeight-bottom],[0,y,x,bottom-y],[right,y,innerWidth-right,bottom-y]];
+ [...practiceOverlay.children].forEach((e,i)=>{const [l,t,w,h]=boxes[i];Object.assign(e.style,{left:l+'px',top:t+'px',width:w+'px',height:h+'px'})});
+}
+function animatePracticeShade(target){
+ cancelAnimationFrame(practiceShadeFrame);
+ const from=practiceShade,distance=Math.abs(target-from);
+ if(practiceReduced.matches||distance<0.00001){paintPracticeShade(target);return}
+ const start=performance.now(),duration=(target>from?4100:920)*distance;
+ const tick=now=>{const t=Math.min(1,(now-start)/duration);paintPracticeShade(from+(target-from)*(target>from?t:1-Math.pow(1-t,3)));if(t<1)practiceShadeFrame=requestAnimationFrame(tick)};
+ practiceShadeFrame=requestAnimationFrame(tick);
+}
+function refreshPracticeFocus(){
+ const active=practicing&&!$('pathView').hidden;
+ document.body.classList.toggle('practice-focus',active);
+ if(active===practiceShadeActive){if(active)layoutPracticeShade();return}
+ practiceShadeActive=active;if(active)layoutPracticeShade();animatePracticeShade(active?1:0);
+}
+window.addEventListener('scroll',layoutPracticeShade,{passive:true});window.addEventListener('resize',layoutPracticeShade);
+new ResizeObserver(layoutPracticeShade).observe($('practicePanel'));
+practiceReduced.addEventListener('change',()=>{cancelAnimationFrame(practiceShadeFrame);paintPracticeShade(practiceShadeActive?1:0)});
+
 function setPracticing(on){
  practicing=on;$('lessonBody').hidden=on;$('lessonClosed').hidden=!on;$('practiceStart').hidden=on;$('practiceTask').hidden=!on;
  const bar=$('practiceReturnBar');bar.hidden=!on;
@@ -1082,6 +1116,7 @@ window.B5DIENSTE_TEST={last:()=>lastTask,exam:()=>ex,SUBS,genTask,parseAnswer,sh
 </script>
 </body>
 </html>
+
 
 
 
