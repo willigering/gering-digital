@@ -28,6 +28,8 @@
 .hero-mushroom-anchor{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;pointer-events:none}
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}
+  /* Fill roughly the full copy height, keeping the artwork proportional and right-aligned. */
+  .hero-art-wrap[data-scene=layers]{width:125%;margin-left:-25%}
 }
 @media(max-width:610px){
   .hero-plane--ambient{opacity:.24;transform:translate(0,-4%) scale(1.04)}
