@@ -7,6 +7,7 @@ START = '<!-- DTP-MODULDESIGN START -->'
 END = '<!-- DTP-MODULDESIGN END -->'
 
 def apply_theme(html):
+    html = html.replace('Offline · ohne Login', 'Lernen · Üben · Verstehen')
     html = re.sub(re.escape(START) + r'.*?' + re.escape(END) + r'\n?', '', html, flags=re.S)
     css = (ROOT / 'tools/module-theme.css').read_text()
     block = START + '\n<style>\n' + css.rstrip() + '\n</style>\n' + END + '\n'
