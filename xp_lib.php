@@ -45,7 +45,7 @@ function xp_initialize(int $id,array $row,array $values,int $now): bool {
     db()->prepare('INSERT INTO learner_xp_state(learner_id,version,observed) VALUES(?,?,?)')->execute([$id,xp_config()['version'],json_encode($observed)]);
     $remaining=(int)$row['xp'];
     foreach($best as $mid=>$b)foreach(xp_parts($b) as $source=>$n){$amount=min($remaining,$n);xp_add($id,'migration:'.$mid.':'.$source,$source,$amount,'Übernommener Lernfortschritt',$now,$mid);$remaining-=$amount;}
-    foreach(ach_unlocked($id) as $code=>$at){$n=min($remaining,(int)(ach_catalog()[$code]['xp']??0));xp_add($id,'achievement:'.$code,'achievements',$n,'Übernommenes Achievement',$now);$remaining-=$n;}
+    foreach(ach_unlocked($id) as $code=>$at){$n=min($remaining,(int)(ach_catalog()[$code]['xp']??0));xp_add($id,'migration:achievement:'.$code,'achievements',$n,'Übernommenes Achievement',$now);$remaining-=$n;}
     xp_add($id,'migration:other','legacy',$remaining,'Bisherige XP (unverändert übernommen)',$now);
     return (int)$row['xp']>0 || $values!==[] || $best!==[];
 }
@@ -93,7 +93,7 @@ function xp_dashboard(int $id,?int $now=null): array {
     $q=$db->prepare('SELECT * FROM learner_xp_events WHERE learner_id=? ORDER BY id DESC LIMIT 12');$q->execute([$id]);$history=$q->fetchAll(PDO::FETCH_ASSOC);
     $q=$db->prepare('SELECT day,qualified FROM learner_daily WHERE learner_id=? AND day>=?');$q->execute([$id,ach_berlin($now)->modify('-6 days')->format('Y-m-d')]);$days=array_column($q->fetchAll(PDO::FETCH_ASSOC),'qualified','day');
     $week=[];for($i=6;$i>=0;$i--){$d=ach_berlin($now)->modify('-'.$i.' days');$week[]=['day'=>$d->format('d.m.'),'done'=>!empty($days[$d->format('Y-m-d')])];}
-    $q=$db->prepare("SELECT COALESCE(SUM(xp),0) FROM learner_xp_events WHERE learner_id=? AND created_at>=? AND created_at<?");
+    $q=$db->prepare("SELECT COALESCE(SUM(xp),0) FROM learner_xp_events WHERE learner_id=? AND event_key NOT LIKE 'migration:%' AND created_at>=? AND created_at<?");
     $start=ach_berlin($now)->setTime(0,0);$q->execute([$id,$start->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s'),$start->modify('+1 day')->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s')]);
     return ['streak'=>$active,'record'=>(int)($state['best_streak']??0),'today'=>(int)$q->fetchColumn(),'next_week'=>7-$active%7,'week'=>$week,'sources'=>$sources,'history'=>$history];
 }
