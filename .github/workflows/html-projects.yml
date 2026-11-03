@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Test topic tab filters (without exam finder)
         run: node tests/dau_exam_finder.js
       - name: Test hover focus timing and module switching
