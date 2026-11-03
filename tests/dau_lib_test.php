@@ -38,8 +38,8 @@ $tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY 
 check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_daily','learner_practice','learner_progress','learner_showcase','learner_stats','learner_tokens','learner_xp_events','learner_xp_state','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
 
 // --- Vorschaubilder ---
-check(str_contains(dtp_module_description(['title'=>'OSI-Schichten','description'=>'Easy OSI']),'sieben OSI-Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
-check(str_contains(dtp_module_description(['title'=>'Subnet Sprint','description'=>'Subnetting, Subnetting, Subnetting...']),'Broadcast'),'Alter Subnetting-Platzhalter erklärt das Lernziel');
+check(str_contains(dtp_module_description(['slug'=>'osi-sprint','title'=>'OSI-Schichten','description'=>'Easy OSI']),'Sieben Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
+check(str_contains(dtp_module_description(['slug'=>'subnet-sprint','title'=>'Subnet Sprint','description'=>'Subnetting, Subnetting, Subnetting...']),'Broadcast'),'Alter Subnetting-Platzhalter erklärt das Lernziel');
 check(dtp_module_description(['title'=>'OSI','description'=>'Meine eigene Beschreibung'])==='Meine eigene Beschreibung','Eigene aussagekräftige Kartentexte bleiben erhalten');
 $catalog=dtp_preview_catalog();
 check(count($catalog['motifs'])>=8,'Mindestens acht mitgelieferte Motive');

@@ -91,14 +91,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
       <div class="catalog-panel">
         <?php if($modules): ?>
-        <div class="filterbar">
-          <label for="module-topic">Sortieren nach</label>
-          <select id="module-topic" name="module-topic" aria-controls="module-grid">
-            <option value="alle">Alle Module</option>
-            <?php foreach($topicLabels as $topic=>$label): ?>
-            <option value="<?=e($topic)?>"><?=e($label)?></option>
-            <?php endforeach; ?>
-          </select>
+        <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">
+          <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button>
+          <?php foreach($topicLabels as $topic=>$label): ?>
+          <button type="button" class="filter-btn" data-filter="<?=e($topic)?>" aria-pressed="false"><?=e($label)?></button>
+          <?php endforeach; ?>
         </div>
         <?php endif; ?>
                   <?php if (!$modules): ?>
