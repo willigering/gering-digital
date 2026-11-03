@@ -202,7 +202,7 @@ main,.dtp-footer{position:relative;z-index:1}
   .section-shell,.hero-inner,.footer-inner{padding-inline:20px}
   .nav-inner{padding-inline:20px}.gd-brand img{width:30px;height:30px}.gd-brand strong{font-size:17px}.gd-brand small{font-size:7px}
   .hero{padding-top:32px}.kicker{font-size:8px;letter-spacing:.06em;gap:6px;margin-bottom:18px}
-  .hero h1{font-size:clamp(33px,8vw,46px);margin-bottom:20px}
+  .hero h1{font-size:clamp(30px,7.5vw,40px);margin-bottom:20px}
   .hero-strip{font-size:9px;gap:9px;letter-spacing:.08em}.hero-strip i{width:12px}
   .hero-lead{font-size:14px;line-height:1.75;margin-bottom:22px}
   .hero-actions{gap:9px}.hero-actions a{padding-inline:15px;font-size:12px}.hero-meta{font-size:10px;gap:8px 12px}
@@ -267,9 +267,13 @@ main,.dtp-footer{position:relative;z-index:1}
 
 
 /* Schriftbild wie in den Lernmodulen: kräftige Titel und Bedienelemente. */
-.dtp-landing .hero h1{font-size:clamp(38px,6.2vw,76px);font-weight:950}
-.dtp-landing .section-heading h2{font-size:clamp(28px,4.2vw,48px);font-weight:950}
-.dtp-landing .end-cap h2{font-size:clamp(32px,5vw,58px);font-weight:950}
+.dtp-landing .hero h1{font-size:clamp(34px,4.4vw,56px);font-weight:1000}
+.dtp-landing .section-heading h2{font-size:clamp(26px,3.3vw,38px);font-weight:1000}
+.dtp-landing .end-cap h2{font-size:clamp(28px,3vw,38px);font-weight:1000}
 .dtp-landing .filter-btn,.dtp-landing .primary-action,.dtp-landing .secondary-action,.dtp-landing .nav-cta,.dtp-landing .exam-input-row button{font-weight:850}
 .dtp-landing .module-category,.dtp-landing .module-footer,.dtp-landing .hero-strip{font-weight:800}
-@media(max-width:610px){.dtp-landing .hero h1{font-size:clamp(33px,8vw,46px)}.dtp-landing .section-heading h2{font-size:30px}.dtp-landing .end-cap h2{font-size:32px}}
+@media(max-width:610px){.dtp-landing .hero h1{font-size:clamp(33px,8vw,46px)}.dtp-landing .section-heading h2{font-size:28px}.dtp-landing .end-cap h2{font-size:28px}}
+
+/* Leicht verstärkte Kontur hält die kleineren Titel sichtbar kräftig. */
+.dtp-landing h1,.dtp-landing h2,.dtp-landing .step h3{font-weight:1000;-webkit-text-stroke:.3px currentColor}
+.dtp-landing .module-body h2{font-size:22px}
