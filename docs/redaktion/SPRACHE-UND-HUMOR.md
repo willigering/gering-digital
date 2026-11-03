@@ -94,6 +94,8 @@ IDs, Lösungsschlüssel, Berechnung, Speicherung, Konto-Sync und Achievements ni
 
 Auf Desktop und 390 px lesen: Passen Überschriften, Feedback und Tooltips? Kein abgeschnittener Text, keine seitliche Überbreite. Neue Textlängen können Darstellung verändern, auch wenn das CSS gleich bleibt.
 
+Beim nächsten Durchlauf jedes bestehenden Moduls den abgenommenen B5-Fokus-Effekt als ausdrücklich beauftragte Darstellungsänderung übernehmen: Hintergrund weich unscharf und dunkler, Aufgabe und „Lektion wieder ansehen“ scharf und erreichbar. Vollständige Werte, Zustandswechsel und Abnahme: Projektanleitung, Abschnitt „Übungsansicht mit weichem Fokus-Effekt“. Vorhandene B5-Tests auf das jeweilige Modul anpassen. Diese Darstellung getrennt von der sprachlichen Überarbeitung dokumentieren; Überschriften bleiben erhalten.
+
 ### 8. Abschluss und Übernahme
 
 - Änderungen und **tatsächlich geprüfte** Textbereiche im Modulprotokoll festhalten. Ein neuer Einstieg ist keine vollständige Überarbeitung eines Moduls.

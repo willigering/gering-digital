@@ -52,6 +52,19 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - **Kein altes Logo im Fußbereich:** Das Markenbild aus `.foot-brand` der Vorlage nicht übernehmen. Im Footer bleiben nur der Text DAU to PRO, Modulname, Version, Rückweg und Bedienelemente. Auch bestehende Module erhalten kein altes Footer-Logo.
 - **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
 
+### Übungsansicht mit weichem Fokus-Effekt (verbindlich)
+
+Gilt für neue Module und beim nächsten Überarbeitungsdurchlauf bestehender Module. Referenz ist die von Willi abgenommene Übungsansicht in `lernmodule/b5-netzwerkdienste.html`.
+
+- Beim Start über „Jetzt üben“ den Hintergrund weich unscharf und dunkler werden lassen; zusätzlich die Helligkeit und Farbsättigung reduzieren, wie beim Hover über die Modulkarten. Aufgabe, Eingaben, Rückmeldungen und „Lektion wieder ansehen“ bleiben sichtbar, scharf und normal hell.
+- B5-Richtwerte übernehmen: 5,5 px Blur, dunkle Überlagerung mit 22 % Deckkraft, Helligkeit 76 %, Sättigung 65 %. Gemeinsam über 4,1 Sekunden linear einblenden; beim Schließen über 0,92 Sekunden weich ausblenden. Bei schnellem Öffnen/Schließen vom aktuellen Zwischenstand weiterlaufen, ohne Sprung.
+- Effekt nur während der offenen Übungsansicht im Lernpfad aktiv halten. Beim Bereichswechsel ausblenden; bei Rückkehr zur noch offenen Übung wieder einblenden. Beim Schließen vollständig entfernen.
+- Den scharfen Ausschnitt bei Scrollen, Größenänderungen und wechselnder Aufgabenhöhe mitführen. Keine unscharfen Vorfahren um Aufgabe oder Rückweg legen. Die Überlagerung darf keine Klicks oder Tastatureingaben abfangen.
+- Nach „Jetzt üben“ und „Nächste Aufgabe“ die Aufgabe sichtbar halten und das Antwortfeld ohne zusätzlichen Scrollsprung fokussieren. „Lektion wieder ansehen“ bleibt direkt an der Aufgabe erreichbar.
+- `prefers-reduced-motion: reduce` beachten: den Endzustand ohne Animation anzeigen; Abdunklung und Unschärfe bleiben erhalten.
+
+Abnahme auf Desktop sowie bei 390 und 320 px: weicher Ein- und Ausblendverlauf, scharfe Aufgabe und Rückweg, kein Fokus-/Scrollsprung, korrekter Bereichswechsel, schnelle Richtungswechsel, mitgeführter Ausschnitt und reduzierte Bewegung. B5-Referenztests: `tests/b5_focus.cjs`, `tests/b5_blur.cjs`, `tests/b5_fade.cjs`; für andere Module passend anpassen.
+
 ### Verständliche Sprache und konkrete Beispiele (verbindlich)
 
 **Schwierig darf das Denken sein, nicht die Formulierung.** Willi lernt die Inhalte noch. Ein Modul muss ihn vom ersten verständlichen Beispiel bis zum selbstständigen Lösen führen. Fachbegriffe gehören zum Lernziel; unnötig abstrakte Sätze sind kein Prüfungsniveau.
@@ -233,6 +246,7 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 - [ ] Sprint endet beim Tabwechsel. Prüfung wird beim Tabwechsel abgegeben und steht als „Seite verlassen“ im Verlauf.
 - [ ] 30/60/90-Minuten-Prüfung mit Note, Teilthemen und Lösungswegen.
 - [ ] 390 px breit: kein seitliches Scrollen.
+- [ ] Übungsansicht gemäß Fokus-Vorgabe: Blur, Abdunklung und Helligkeit weich ein-/ausblenden; Aufgabe und Rückweg scharf; Fokus, Bereichswechsel, Scrollen, mobile Größen und reduzierte Bewegung geprüft.
 - [ ] Im localStorage nur Schlüssel mit dem Präfix des Moduls.
 - [ ] `genTask` für jeden Typ 1.000-mal ohne Fehler.
 

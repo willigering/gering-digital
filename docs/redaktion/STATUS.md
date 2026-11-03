@@ -40,3 +40,10 @@ Downloadname: **Port 80, bitte kommen.html**. Technischer Repository-Pfad und Mo
 Technisch geprüft: 50.000 Aufgaben gegen identisch gesetzte Zufallsfolgen der vorherigen Fassung verglichen. Lösungen, Antwortarten, Alternativantworten, Einheiten und Rundungsvorgaben unverändert. Alle Musterantworten werden weiterhin akzeptiert. Skriptsyntax und unveränderte Überschriften separat geprüft. Browserabnahme prüft Lernpfad, Training, alle Prüfungsgrößen, Tabwechsel und 1440/390/320 px.
 
 Humor bleibt eine redaktionelle Einschätzung. Willis Rückmeldung ist die abschließende Stilkontrolle. Kein Live-Update behaupten, solange die öffentlich ausgelieferte Modulversion nicht geprüft wurde.
+
+
+## Übungsfokus als Standard aufgenommen (03.11.2026)
+
+Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. Projektanleitung, Redaktionsworkflow und AGENTS.md schreiben ihn für neue Module und den nächsten Durchlauf bestehender Module vor: gemeinsamer Fade von Blur, Abdunklung, reduzierter Helligkeit und Sättigung; Aufgabe und Rückweg bleiben scharf. Enthalten sind Referenzwerte, Fokus-/Scrollverhalten, Bereichswechsel, schnelle Richtungswechsel, mobile Abnahme und reduzierte Bewegung.
+
+In B5 bereits umgesetzt; lokale Fokus-, Blur- und Fade-Prüfungen erfolgreich. Übernahme in andere Module steht noch aus. Dieser Schritt ändert nur Workflow-Dokumentation, keine weiteren Module, Überschriften oder Veröffentlichung.

@@ -23,3 +23,6 @@ Datei erweitert sie nicht.
 Bei der sprachlichen Überarbeitung bestehender Module **nur die Inhalte ändern, keine Überschriften**: Seitentitel, Modulname, Kapitel-/Stufentitel, Abschnitts- und Labortitel erhalten. Erklärungen, Fälle, Fragen, Hinweise, Lösungen und Rückmeldungen dürfen redigiert werden. Ausdrücklich beauftragte Darstellungsänderungen wie der Buchstabenabstand werden getrennt dokumentiert.
 
 Die ausgelieferte HTML-Datei nach der unveränderten Hauptüberschrift benennen, bei B5 **`Port 80, bitte kommen.html`**. Technische Repository-Pfade und URL-Kürzel beibehalten, damit vorhandene Kontofortschritte und Installationen nicht ihre Zuordnung verlieren.
+
+
+Für neue Module und den nächsten Durchlauf bestehender Module ist auch der B5-Fokus-Effekt verbindlich: Hintergrund weich unscharf und dunkler, Aufgabe und „Lektion wieder ansehen“ scharf. Die vollständige Vorgabe und Abnahme stehen unter „Übungsansicht mit weichem Fokus-Effekt“ in der Projektanleitung. Dies ist eine ausdrücklich beauftragte Darstellungsänderung; die Regel zum Erhalt der Überschriften gilt weiter.
