@@ -449,6 +449,13 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
     $tag='<link rel="icon" type="image/svg+xml" href="/assets/dau-to-pro-pixelpilz.svg?v=20261103">'."\n"
         ."<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
+    // Auch manuell importierte, ältere Modulversionen erhalten den neuen Einstieg.
+    // Erst nach sync.js: ein vom Konto geladener letzter Reiter darf nicht gewinnen.
+    if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-MODULEINSTIEG START -->')
+        && is_file(__DIR__.'/tools/module-entry.js')) {
+        $entry=(string)file_get_contents(__DIR__.'/tools/module-entry.js');
+        $tag.="<!-- DTP-MODULEINSTIEG START -->\n<script>".str_ireplace('</script','<\\/script',$entry)."</script>\n<!-- DTP-MODULEINSTIEG END -->\n";
+    }
     if (preg_match('/<head\b[^>]*>/i',$html,$m,PREG_OFFSET_CAPTURE)) {
         $at=$m[0][1]+strlen($m[0][0]);
         return substr($html,0,$at)."\n".$tag.substr($html,$at);
