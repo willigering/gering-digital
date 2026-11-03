@@ -56,7 +56,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 
 ### Aufgabenfokus – verbindlich für bestehende und neue Module
 
-- Beim Start einer Lernpfad-Übung steht das echte Bearbeitungsfeld zentriert in einem Dialog über der Seite. Der Hintergrund bleibt während der gesamten Bearbeitung weichgezeichnet und deutlich abgedunkelt. Sanftes Ein-/Ausblenden; reduzierte Bewegung respektieren.
+- Beim Start einer Lernpfad-Übung steht das echte Bearbeitungsfeld zentriert in einem Dialog über der Seite. Der Hintergrund baut Blur, Abdunklung, Helligkeit und Sättigung **progressiv** auf – wie beim Hover über die Modulkacheln: linear 4,1 s hinein, sanfter Rückgang in 0,92 s. Keine sofort voll unscharfe Ebene mit lediglich animierter Deckkraft; Zwischenstände müssen sichtbar sein. Das Aufgabenfeld selbst blendet sich innerhalb von ca. 0,65 s weich ein. Bei reduzierter Bewegung ohne Animation. Schnelles Öffnen/Schließen setzt den Effekt ohne Sprung vom aktuellen Stand fort.
 - „Lektion wieder ansehen“ bleibt im Dialog scharf, sichtbar und bedienbar, auch bei langen Aufgaben und auf kleinen Displays. Rückkehr und Escape verwerfen die offene Aufgabe über die bestehende Modul-Logik ohne Bewertung.
 - Tastaturfokus beim Öffnen ins Antwortfeld; kein Scrollsprung beim Tippen oder Bewerten. Lange Aufgaben scrollen im Dialog. Nach Rückkehr zur Lektion ist die normale Seite wieder bedienbar.
 - Gemeinsame Umsetzung: `tools/module-focus.css` und `tools/module-focus.js`, eingebettet durch `tools/module_theme.py`. Bereits veröffentlichte importierte Versionen erhalten denselben Baustein über `learner_inject_sync()`. Keine zweite Aufgaben-/Punkte-/Fortschrittslogik bauen und keine Bedienelemente kopieren.
