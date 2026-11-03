@@ -128,14 +128,16 @@ let server,browser;
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
     await accountPage.goto(base+'/dau-to-pro/highscore.php');
-    const achievements=accountPage.locator('.hs-achievements').first();
-    assert.ok(!(await achievements.evaluate(e=>e.open)),'Achievements initially collapsed');
-    await achievements.locator('summary').click();
-    assert.ok(await achievements.locator('.ach-item').count()>0,'Person has readable unlocked achievements');
-    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Highscore detail has no page overflow');
-    const achievementId=await achievements.getAttribute('id');
-    await accountPage.goto(base+'/dau-to-pro/highscore.php#'+achievementId);
-    assert.ok(await accountPage.locator('#'+achievementId).evaluate(e=>e.open),'Achievement deep link opens person');
+    const opener=accountPage.locator('[data-profile]').first();
+    const profileId=await opener.getAttribute('data-profile');
+    assert.ok(!(await accountPage.locator('#learner-profile').isVisible()),'Profile initially closed');
+    await opener.click();
+    await accountPage.locator('#profile-content .ach-item').first().waitFor();
+    assert.ok(await accountPage.locator('#profile-content .ach-item.is-on').count()>0,'Person has readable unlocked achievements');
+    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Highscore profile has no page overflow');
+    await accountPage.goto(base+'/dau-to-pro/highscore.php?profil='+profileId);
+    await accountPage.locator('#profile-content .ach-item').first().waitFor();
+    assert.ok(await accountPage.locator('#learner-profile').isVisible(),'Achievement deep link opens person');
     await accountContext.close();
   }
   const noJs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
@@ -172,5 +174,6 @@ let server,browser;
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{
   if(browser)await browser.close();if(server)server.kill();fs.rmSync(scratch,{recursive:true,force:true});
 });
+
 
 
