@@ -256,11 +256,7 @@
   }
   function setFilter(filter){
     current=filter;
-    buttons.forEach(button=>{
-      const active=button.dataset.filter===filter;
-      button.classList.toggle('active',active);
-      button.setAttribute('aria-pressed',String(active));
-    });
+    buttons.forEach(button=>{const active=button.dataset.filter===filter;button.classList.toggle('active',active);button.setAttribute('aria-pressed',String(active));});
     showResults();
   }
   input.addEventListener('input',showResults);
@@ -329,4 +325,5 @@
   document.querySelectorAll('a[href="#hinweis"]').forEach(link=>link.addEventListener('click',()=>{notice.open=true}));
   openNotice();addEventListener('hashchange',openNotice);
 })();
+
 

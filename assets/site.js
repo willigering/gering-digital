@@ -126,7 +126,7 @@
       if(empty)empty.hidden=visible>0;
     };
     buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
-    applyCategory('alle');
+    applyCategory(buttons.find(button=>button.classList.contains('is-active'))?.dataset.category||buttons[0]?.dataset.category);
   }
   document.querySelectorAll('.app-card').forEach((card,index)=>{
     const text=card.querySelector('.card-body>p'),button=card.querySelector('.app-details');

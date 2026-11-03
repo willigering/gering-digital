@@ -132,16 +132,15 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
         </div>
       </div>
       <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
-        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle <span><?=count($apps)+1?></span></button>
         <?php foreach($categories as $key=>$label): ?>
-        <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
+        <button type="button" class="catalog-filter<?=$key===array_key_first($categories)?' is-active':''?>" data-category="<?=e($key)?>" aria-pressed="<?=$key===array_key_first($categories)?'true':'false'?>"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
         <?php endforeach; ?>
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards">
         <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
-          <div class="dtp-portal-art"><img src="assets/dau-to-pro-logo.webp" loading="lazy" width="1150" height="864" alt=""></div>
+          <div class="dtp-portal-art"><img src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
           <span class="dtp-portal-cta">Lernplattform öffnen <b>↗</b></span></div>

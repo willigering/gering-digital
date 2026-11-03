@@ -9,7 +9,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
 (async()=>{
  const browser=await chromium.launch();
  try{
-  const colours=new Map();
+  const colours=new Map(),overflows=[];
   for(const m of modules){
    const page=await browser.newPage({viewport:{width:1440,height:1000},reducedMotion:'reduce'}),errors=[];
    page.on('pageerror',e=>errors.push(e.message));
@@ -31,7 +31,8 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
     await page.setViewportSize({width,height:width===390?844:1000});
     for(const tab of ['path','learn','train','exam']){
      await page.locator('#tab-'+tab).click();
-     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),m.slug+': overflow '+width+' '+tab);
+     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth,items:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.right>innerWidth+1}).slice(0,12).map(e=>({tag:e.tagName,cls:e.className,text:e.textContent.slice(0,70),width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))}));
+     if(overflow.width>width){overflows.push({module:m.slug,tab,...overflow});console.log('OVERFLOW '+JSON.stringify(overflows.at(-1)));}
     }
     await page.locator('#tab-path').click();await page.evaluate(()=>scrollTo(0,0));
     assert.ok(await page.locator('.hero h1').evaluate(h=>h.scrollWidth<=h.clientWidth+1),m.slug+': title fits '+width);
@@ -63,5 +64,6 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
    console.log(m.slug+': '+design.accent+', desktop/mobile, four areas passed');
    await page.close();
   }
+  assert.deepEqual(overflows,[],'No horizontal overflow in any module area');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1)});

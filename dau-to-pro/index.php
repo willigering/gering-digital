@@ -23,7 +23,6 @@ $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
-$topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 ?>
 <!doctype html>
 <html lang="de">
@@ -92,9 +91,9 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
       <div class="catalog-panel">
         <?php if($modules): ?>
-        <div class="filterbar" role="group" aria-label="Lernmodule nach Thema filtern">
+        <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">
           <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button>
-          <?php foreach($topicLabels as $topic=>$label): if(empty($topicCounts[$topic]))continue; ?>
+          <?php foreach($topicLabels as $topic=>$label): ?>
           <button type="button" class="filter-btn" data-filter="<?=e($topic)?>" aria-pressed="false"><?=e($label)?></button>
           <?php endforeach; ?>
         </div>
@@ -168,4 +167,5 @@ $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><a href="../index.php" class="footer-brand"><strong>GERING <em>DIGITAL</em></strong><small>DAU TO PRO · Ein Projekt von Gering Digital</small></a><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
 </body></html>
+
 
