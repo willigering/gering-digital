@@ -841,12 +841,22 @@ function renderPracticeStatus(){
  const auto=Math.max(0,3-st.solved);
  $('practiceNote').textContent=auto?'Die nächsten '+auto+' Aufgabe'+(auto>1?'n':'')+' kommen mit Hinweis. Danach bist du auf dich gestellt.':'Selbst angeforderte Hinweise sind erlaubt, die Aufgabe zählt dann aber nicht für die 8 von 10.';
 }
+// Nach dem Einklappen der Lektion den neuen Aufgabenbereich gezielt ausrichten.
+// preventScroll beim Fokus verhindert einen zweiten, browserabhängigen Sprung.
+function focusPracticeTask(){
+ requestAnimationFrame(()=>{
+  if(!practicing||$('pathView').hidden)return;
+  const panel=$('practicePanel'),input=$('practiceTask').querySelector('input:not(:disabled),.opt:not(:disabled)');
+  window.scrollTo({top:Math.max(0,window.scrollY+panel.getBoundingClientRect().top-24),behavior:'instant'});
+  if(input)input.focus({preventScroll:true});
+ });
+}
 function practiceNew(focus){
  const i=path.stage,g=STAGES[i],st=stState(i);
  const lv=g.cat==='mix'?3:st.solved<4?1:2;
  const t=genTask(g.cat,lv,prRecent);prRecent.push(t.key);if(prRecent.length>8)prRecent.shift();
  const auto=st.solved<3;
- renderTask($('practiceTask'),t,{hint:auto,focus,onNext:()=>practiceNew(true),onAnswer:(ok,hinted,tt)=>{
+ renderTask($('practiceTask'),t,{hint:auto,focus:false,onNext:()=>practiceNew(true),onAnswer:(ok,hinted,tt)=>{
   count(ok,tt.sub);st.solved++;
   if(!hinted){st.hist.push(!!ok);if(st.hist.length>30)st.hist=st.hist.slice(-30)}
   let just=false;if(!st.mastered&&last10(i).n===10&&last10(i).c>=8){st.mastered=true;just=true}
@@ -854,6 +864,7 @@ function practiceNew(focus){
   if(just){$('stageBanner').innerHTML=masteredBanner(i);$('practiceTask').querySelector('[data-r="res"]').insertAdjacentHTML('beforeend','<p style="margin:10px 0 0">'+masteredBanner(i)+'</p>')}
  }});
  renderPracticeStatus();
+ if(focus)focusPracticeTask();
 }
 $('stageMap').addEventListener('click',e=>{const b=e.target.closest('[data-stage]');if(b)selectStage(Number(b.dataset.stage),true)});
 $('stageRef').addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const id=STAGES[path.stage].ch;if(showTab('learn'))$(id).scrollIntoView({block:'start'})});
@@ -1052,6 +1063,7 @@ window.B5DIENSTE_TEST={last:()=>lastTask,exam:()=>ex,SUBS,genTask,parseAnswer,sh
 </script>
 </body>
 </html>
+
 
 
 

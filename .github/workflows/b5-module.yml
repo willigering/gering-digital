@@ -26,3 +26,5 @@ jobs:
       - run: php tests/b5_integration_test.php
       - run: node tests/b5_browser.cjs
       - run: node tests/b5_platform_browser.cjs
+
+      - run: node tests/b5_focus.cjs
