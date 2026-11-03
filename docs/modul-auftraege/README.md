@@ -49,6 +49,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Die Akzentfarbe des Moduls (Tabelle unten) ersetzt das Cyan der Vorlage überall (`--cyan` und alle `rgba(0,220,232,…)`). Dunkle Flächen leicht in dieser Farbe tönen.
 - Hero: kleines Etikett „MODUL D1 // DATENSCHUTZ“, darunter der witzige Titel groß, zweite Zeile in Gold. Browser-Tab: „Thema · Titel“.
 - Muss auf dem Handy (390 px breit) ohne seitliches Scrollen funktionieren.
+- **Kein altes Logo im Fußbereich:** Das Markenbild aus `.foot-brand` der Vorlage nicht übernehmen. Im Footer bleiben nur der Text DAU to PRO, Modulname, Version, Rückweg und Bedienelemente. Auch bestehende Module erhalten kein altes Footer-Logo.
 - **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
 
 ### Verständliche Sprache und konkrete Beispiele (verbindlich)
