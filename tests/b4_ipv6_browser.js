@@ -33,6 +33,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
   assert.equal(await page.locator('#examNav button').count(),k*20);
   await page.locator('#exIn').fill(await page.evaluate(()=>String(B4IPV6_TEST.exam().tasks[0].answer)));
   await page.locator('#examSubmit').click();await page.locator('#examYes').click();
+  await page.locator('#examResult details').first().locator('summary').click();
   assert.match(await page.locator('#examResult').innerText(),/Deine Antwort:/);assert.match(await page.locator('#examResult').innerText(),/Richtig:/);
   const last=await page.evaluate(()=>JSON.parse(localStorage.getItem('b4-ipv6-exam-v1')).at(-1));assert.equal(last.m,k*30);assert.equal(last.r,'Abgegeben');
   await page.locator('#examAgain').click();
