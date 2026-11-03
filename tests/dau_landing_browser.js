@@ -41,17 +41,18 @@ let server,browser;
       const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
       return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').filter(track=>parseFloat(track)>0).length,
-        modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
+        cardWidth:document.querySelector('.module-card').getBoundingClientRect().width,modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
         overflow:[...document.querySelectorAll('.hero-copy,.hero-actions,.exam-input-row,.module-card,.step')].filter(e=>{const b=e.getBoundingClientRect();return b.left<-.5||b.right>innerWidth+.5}).map(e=>e.className)};
     });
     if(screenshots&&[1440,390,320].includes(width))await page.screenshot({path:path.join(screenshots,`desktop-${width}.png`),fullPage:true});
     assert.ok(geometry.scrollWidth<=width,`No page overflow at ${width}: ${JSON.stringify(geometry)}`);
     assert.deepEqual(geometry.overflow,[],`No clipped controls at ${width}`);
     if(width>=1024||width<=610)assert.ok(geometry.ctaBottom<height,`Learning action visible on first screen at ${width}: ${geometry.ctaBottom}`);
-    if(width>=1024){assert.equal(geometry.columns,2,'Two modules use two columns');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
+    if(width>=1024){assert.ok(geometry.columns>=2,'Desktop keeps the fixed card grid independent of module count');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
     await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('OSI');
     await page.getByRole('button',{name:'Module finden',exact:false}).click();
     assert.equal(await page.locator('.module-card:visible').count(),1,'Search submission shows one result');
+    assert.ok(Math.abs(await page.locator('.module-card:visible').evaluate(e=>e.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtering keeps the original module-card width');
     assert.equal(await page.locator('#module-grid').getAttribute('data-count'),'1');
     await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
     assert.equal(await page.locator('.module-card:visible').count(),2);
@@ -172,5 +173,6 @@ let server,browser;
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{
   if(browser)await browser.close();if(server)server.kill();fs.rmSync(scratch,{recursive:true,force:true});
 });
+
 
 
