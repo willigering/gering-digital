@@ -255,7 +255,10 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .hero h1{font-weight:950;line-height:1.02;letter-spacing:-.055em;text-transform:uppercase}
 .dtp-landing .section-heading h2,.dtp-landing .end-cap h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .exam-finder h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
-.dtp-landing .module-card h3{font-weight:900;letter-spacing:-.03em}
+.dtp-landing .module-body h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
+.dtp-landing .step h3,.dtp-landing .empty-state h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
+.dtp-landing .eyebrow,.dtp-landing .exam-eyebrow,.dtp-landing .kicker{font-weight:850;letter-spacing:.24em;text-transform:uppercase}
+.dtp-landing .module-art-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
 
 
 .filter-btn{min-height:44px;padding:10px 15px;border:1px solid var(--stroke);border-radius:8px;background:#111b21;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}.filter-btn:hover{color:var(--cream);border-color:#76d8df70}.filter-btn.active{background:var(--cream);color:#111b21}.filter-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
