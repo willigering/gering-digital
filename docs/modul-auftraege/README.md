@@ -41,7 +41,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Jede Antwort bekommt eine Erklärung, bei Rechenaufgaben mit Rechenweg.
 - Jede Aufgabe hat genau eine richtige Lösung. Zahlen tolerant einlesen (Komma/Punkt, Einheiten).
 
-**Ton:** frech und witzig wie die Vorlage („Für den Computer gibt es nur 0 und 1. Für dich gibt es ab heute keine Ausreden mehr.“). Witz in Überschriften, Rückmeldungen und Erfolgsbannern, Fachliches immer korrekt und klar. Keine Beleidigungen.
+**Ton:** verständlich, trocken, frech und situationsbezogen witzig. Verbindlich ist der [Redaktionsworkflow für Sprache und Humor](../redaktion/SPRACHE-UND-HUMOR.md), auch für bereits bestehende/veröffentlichte Module. Erst verständlich erklären, dann gezielt eine passende Pointe hinzufügen. Humor und Fachlichkeit getrennt prüfen. Sparsame Ausdrücke wie „So eine Scheiße“, „Was soll der Scheiß?“ oder harmlose Metaphern wie „nackt rumlaufen“ sind erlaubt; sie richten sich gegen die Situation, nie gegen Lernende. Keine konstruierten Vergleiche, keine Pflichtquote für Sprüche, keine persönlichen Beschimpfungen. Ein technischer Test ersetzt keine inhaltliche Humorprüfung.
 
 **Design:**
 
@@ -246,3 +246,4 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 - [ ] Konto-Synchronisierung, Fortschritt, XP und Rückweg funktionieren über die vorhandenen zentralen Komponenten.
 - [ ] Zehn passende Achievements sind registriert; Regeln, Typ-IDs, Stufen und Prüfungslängen wurden gegen das Modul geprüft. Wiederholte Vergabe erzeugt keine doppelten Belohnungen.
 - [ ] Offline-Datei und Plattform-Einbindung wurden getrennt geprüft; der PR enthält sämtliche notwendigen Dateien und nennt die tatsächlichen Prüfergebnisse.
+
