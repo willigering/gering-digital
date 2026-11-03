@@ -88,29 +88,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse,#4ccddc12,transparent 65%);pointer-events:none}
 .hero-art-wrap{position:relative;display:flow-root;width:100%;margin:0;pointer-events:none}
 .hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain}
-/* Prüfungsfinder als unmittelbarer Einstieg, mit einer klaren Suchaktion. */
-.finder-section{padding:0 0 18px}
-.exam-finder{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:36px;padding:30px 34px;border:1px solid #ffffff22;border-radius:var(--radius);background:linear-gradient(115deg,#18252cf5,#101a21f5);box-shadow:0 16px 50px #0002}
-.exam-eyebrow,.eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}
-.exam-finder h2{font-size:clamp(24px,2.6vw,32px);font-weight:750;line-height:1.2;letter-spacing:-.035em;margin:12px 0}
-.exam-finder h2 em{font-style:normal;color:var(--gold)}
-.exam-finder p{color:var(--muted);font-size:13px;line-height:1.7;margin-bottom:0;max-width:440px}
-.exam-controls{min-width:0}
-.exam-controls label{display:block;margin-bottom:10px;font-size:10px;letter-spacing:.11em;color:var(--muted);font-weight:700}
-.exam-input-row{display:flex;align-items:stretch;min-height:58px;border:1px solid #56676e;background:#0b1318;border-radius:11px;padding:5px;transition:border-color .2s,box-shadow .2s}
-.exam-input-row:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px #76d8df20}
-.exam-input-row input{background:none;color:var(--cream);border:0;outline:none;min-width:0;width:100%;flex:1;padding:10px 11px;font-size:14px}
-.exam-input-row input:focus-visible{outline:none}
-.exam-input-row input::placeholder{color:#8c9da5}
-.exam-input-row button{background:var(--gold);border:0;border-radius:7px;white-space:nowrap;color:#171a1a;font-size:12px;font-weight:750;padding:10px 15px}
-.exam-input-row button:hover{background:var(--goldlite)}
-.exam-examples{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px}
-.exam-examples span{font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-right:3px}
-.exam-examples button{font-size:10px;color:#c5d3d9;padding:6px 9px;background:transparent;border:1px solid #ffffff1c;border-radius:6px;min-height:32px}
-.exam-examples button:hover{color:white;border-color:var(--cyan);background:#ffffff08}
-.exam-feedback{margin-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.exam-feedback strong{font-size:11px;color:var(--muted);font-weight:500}
-.exam-feedback button{background:none;border:0;color:var(--gold);font-size:11px;padding:5px 0;text-decoration:underline;text-underline-offset:4px}
+.eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}
 /* Der Katalog passt seine Spalten an tatsächlich sichtbare Module an. */
 .catalog-section{padding:52px 0 60px}
 .section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px}
@@ -189,7 +167,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .will-reveal{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s cubic-bezier(.2,.7,.3,1)}
 .will-reveal.is-revealed{opacity:1;transform:none}
 @media(min-width:861px){.dtp-world-texture,.dtp-world-traces,.dtp-eternal-rays{will-change:translate}}
-@media(max-width:1060px){.nav-inner{gap:20px}.desktop-links{gap:18px}.hero-inner{gap:20px}.hero{padding-top:48px}.exam-finder{gap:24px;padding:26px}.hero h1{font-size:clamp(36px,4.8vw,50px)}}
+@media(max-width:1060px){.nav-inner{gap:20px}.desktop-links{gap:18px}.hero-inner{gap:20px}.hero{padding-top:48px}.hero h1{font-size:clamp(36px,4.8vw,50px)}}
 @media(max-width:860px){
   :root{--nav-height:68px}
   .desktop-links,.nav-cta{display:none}.nav-toggle{display:flex}
@@ -197,7 +175,6 @@ main,.dtp-footer{position:relative;z-index:1}
   .hero{padding:40px 0 34px}.hero-inner{grid-template-columns:1fr;gap:26px}
   .hero-copy{max-width:660px}.hero h1{font-size:clamp(36px,6vw,48px);max-width:620px}
   .hero-lead{max-width:600px}.hero-visual{max-width:480px;width:100%;justify-self:center}
-  .exam-finder{grid-template-columns:1fr;gap:22px}.exam-finder p{max-width:none}
   .steps{gap:14px}.step{padding:22px 18px}.step-no{right:18px}.hero-meta{margin-top:16px}
 }
 @media(max-width:610px){
@@ -209,10 +186,6 @@ main,.dtp-footer{position:relative;z-index:1}
   .hero-lead{font-size:14px;line-height:1.75;margin-bottom:22px}
   .hero-actions{gap:9px}.hero-actions a{padding-inline:15px;font-size:12px}.hero-meta{font-size:10px;gap:8px 12px}
   .hero-meta span+span:before{display:none}.hero-visual{max-width:360px}
-  .exam-finder{padding:23px 20px;gap:20px;border-radius:14px}.exam-finder h2{font-size:26px}.exam-finder p{font-size:12px}
-  .exam-input-row{flex-wrap:wrap;padding:0;overflow:visible}.exam-input-row input{flex:1 1 100%;min-height:52px;padding:12px;font-size:14px}
-  .exam-input-row button{width:100%;min-height:44px;border-radius:0 0 9px 9px}
-  .exam-examples span{flex:1 0 100%;margin-bottom:2px}.exam-examples button{min-height:36px}
   .catalog-section{padding:36px 0 40px}.section-heading{gap:12px;align-items:start}.section-heading h2{font-size:30px}.section-heading p{font-size:13px}.section-count{display:none}
   .filterbar{gap:8px}.filterbar select{width:100%}.module-grid{gap:18px;grid-template-columns:1fr}
   .module-body{padding:21px}.module-body h2{font-size:22px}.module-body p{font-size:13px}
@@ -222,7 +195,7 @@ main,.dtp-footer{position:relative;z-index:1}
   .dtp-footer{padding:24px 0}.footer-inner{flex-direction:column;align-items:flex-start;gap:18px}.footer-links{gap:14px}
   .dtp-world-traces{opacity:.14}.dtp-eternal-rays{opacity:.20}
 }
-@media(max-width:360px){.hero-actions{flex-direction:column;align-items:stretch}.hero-meta{gap:6px 10px}.hero-strip{font-size:8px;gap:8px}.exam-finder{padding:22px 16px}.exam-examples{gap:5px}.exam-examples button{font-size:9px;padding-inline:7px}}
+@media(max-width:360px){.hero-actions{flex-direction:column;align-items:stretch}.hero-meta{gap:6px 10px}.hero-strip{font-size:8px;gap:8px}}
 @media(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){.dtp-focus-overlay{display:none!important}}
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -256,10 +229,9 @@ main,.dtp-footer{position:relative;z-index:1}
 /* Überschriften wie in den Lernmodulen: kräftig, kompakt, in Großbuchstaben. */
 .dtp-landing .hero h1{font-weight:950;line-height:1.02;letter-spacing:-.055em;text-transform:uppercase}
 .dtp-landing .section-heading h2,.dtp-landing .end-cap h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
-.dtp-landing .exam-finder h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .module-body h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .step h3,.dtp-landing .empty-state h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
-.dtp-landing .eyebrow,.dtp-landing .exam-eyebrow,.dtp-landing .kicker{font-weight:850;letter-spacing:.24em;text-transform:uppercase}
+.dtp-landing .eyebrow,.dtp-landing .kicker{font-weight:850;letter-spacing:.24em;text-transform:uppercase}
 .dtp-landing .module-art-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
 
 
@@ -272,7 +244,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .hero h1{font-size:clamp(34px,4.4vw,56px);font-weight:1000}
 .dtp-landing .section-heading h2{font-size:clamp(26px,3.3vw,38px);font-weight:1000}
 .dtp-landing .end-cap h2{font-size:clamp(28px,3vw,38px);font-weight:1000}
-.dtp-landing .filter-btn,.dtp-landing .primary-action,.dtp-landing .secondary-action,.dtp-landing .nav-cta,.dtp-landing .exam-input-row button{font-weight:850}
+.dtp-landing .filter-btn,.dtp-landing .primary-action,.dtp-landing .secondary-action,.dtp-landing .nav-cta{font-weight:850}
 .dtp-landing .module-category,.dtp-landing .module-footer,.dtp-landing .hero-strip{font-weight:800}
 @media(max-width:610px){.dtp-landing .hero h1{font-size:clamp(33px,8vw,46px)}.dtp-landing .section-heading h2{font-size:28px}.dtp-landing .end-cap h2{font-size:28px}}
 
