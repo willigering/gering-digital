@@ -77,7 +77,9 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
   const web=await browser.newContext(),p=await web.newPage();
   let ready=false;for(let i=0;i<50;i++){try{await p.goto('http://127.0.0.1:'+port+'/fixture/');ready=true;break}catch(e){await new Promise(r=>setTimeout(r,100))}}assert(ready,'PHP fixture started');
   await p.waitForFunction(()=>!!window.B4IPV6_TEST);
-  await p.locator('#tab-train').click();await p.locator('#trainTask input').fill(await p.evaluate(()=>String(B4IPV6_TEST.last().answer)));await p.locator('#trainTask [data-r="check"]').click();
+  await p.locator('#tab-train').click();await p.locator('#trainTask input').fill(await p.evaluate(()=>String(B4IPV6_TEST.last().answer)));
+  const persisted=p.waitForResponse(r=>r.url().includes('/api/progress.php')&&r.request().method()==='POST'&&JSON.parse(r.request().postData()||'{}').set?.['b4-ipv6-stats-v1']&&r.status()===200);
+  await p.locator('#trainTask [data-r="check"]').click();await persisted;
   await p.waitForFunction(()=>typeof window.__dtpSyncStatus==='function'&&window.__dtpSyncStatus().state==='saved');
   await p.reload();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('b4-ipv6-stats-v1')).correct),1);
   for(const width of [1440,390]){await p.setViewportSize({width,height:1000});await p.goto('http://127.0.0.1:'+port+'/card');await p.locator('.module-art img').waitFor();
