@@ -58,9 +58,10 @@ let server,browser;
     await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('Nichtvorhanden');
     assert.ok(await page.locator('#search-empty').isVisible(),'No-result state visible');
     await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
-    await page.locator('.filter-btn[data-filter="subnet"]').click();
+    assert.deepEqual(await page.locator('#module-topic option').evaluateAll(options=>options.map(option=>option.value)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
+    await page.locator('#module-topic').selectOption('subnet');
     assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works');
-    await page.locator('.filter-btn[data-filter="alle"]').click();
+    await page.locator('#module-topic').selectOption('alle');
     if(width<=860){
       await page.getByRole('button',{name:'Menü öffnen',exact:true}).click();
       assert.ok(await page.locator('#dtp-mobile-menu').isVisible());
@@ -171,4 +172,5 @@ let server,browser;
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{
   if(browser)await browser.close();if(server)server.kill();fs.rmSync(scratch,{recursive:true,force:true});
 });
+
 
