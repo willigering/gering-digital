@@ -35,6 +35,9 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
+          import hashlib
+          import io
+          import json
           import os
           import pathlib
           import posixpath
@@ -88,7 +91,7 @@ jobs:
 
           # Install additive XP dependencies before PHP entry points can reference them.
           # The compatibility guard in xp_lib.php lets old/new achievement code coexist during upload.
-          first = ['xp-config.json', 'xp_lib.php', 'lib.php',
+          first = ['module_release_lib.php', 'xp-config.json', 'xp_lib.php', 'lib.php',
                    'dau-to-pro/profiles.js', 'dau-to-pro/progress-panels.php',
                    'dau-to-pro/api/profile.php']
           priority = {name: i for i, name in enumerate(first)}
@@ -135,10 +138,21 @@ jobs:
                                       directories.add(current)
                           sftp.put(str(local), target, confirm=True)
                           print('Uploaded:', relative)
+                      # Publish the activation receipt LAST, atomically. Partial uploads never activate modules.
+                      manifest_path = pathlib.Path('lernmodule/manifest.json')
+                      manifest = json.loads(manifest_path.read_text())
+                      release_files = ['manifest.json'] + [m['file'] for m in manifest['modules']]
+                      receipt = json.dumps({'files': {
+                          name: hashlib.sha256((pathlib.Path('lernmodule') / name).read_bytes()).hexdigest()
+                          for name in release_files
+                      }}, sort_keys=True).encode()
+                      release_target = posixpath.join(remote_root, 'lernmodule/release.json')
+                      sftp.putfo(io.BytesIO(receipt), release_target + '.tmp', confirm=True)
+                      sftp.posix_rename(release_target + '.tmp', release_target)
+                      print('Activated complete learning-module release.')
                       print(f'Deployed {len(deploy_files)} tracked website files. No remote deletes.')
                   finally:
                       sftp.close()
               finally:
                   ssh.close()
           PY
-

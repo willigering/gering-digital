@@ -1,5 +1,5 @@
 {
-  "info": "Mitgelieferte DAU-TO-PRO-Lernmodule. Werden im Admin unter HTML-Projekte als Entwurf übernommen und dort veröffentlicht. preview = Motiv-ID aus assets/dau-previews/manifest.json.",
+  "info": "Mitgelieferte DAU-TO-PRO-Lernmodule. Werden nach vollständigem GitHub-Deployment automatisch veröffentlicht. Admin bleibt für manuelle Änderungen verfügbar. preview = Motiv-ID aus assets/dau-previews/manifest.json.",
   "modules": [
     {
       "slug": "a1-zahlensysteme",

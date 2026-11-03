@@ -34,6 +34,8 @@ jobs:
         run: php tests/d2_integration_test.php
       - name: Test D1 registration, achievements and stored exam reviews
         run: php tests/d1_integration_test.php
+      - name: Test automatic learning-module publication
+        run: php tests/module_release_test.php
       - name: Test published module design delivery
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
