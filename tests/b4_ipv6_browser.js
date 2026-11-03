@@ -86,7 +86,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
   await p.locator('#trainTask [data-r="check"]').click();await persisted;
   await p.waitForFunction(()=>typeof window.__dtpSyncStatus==='function'&&window.__dtpSyncStatus().state==='saved');
   await p.reload();assert.equal(await p.evaluate(()=>JSON.parse(localStorage.getItem('b4-ipv6-stats-v1')).correct),1);
-  for(const width of [1440,390]){await p.setViewportSize({width,height:1000});await p.goto('http://127.0.0.1:'+port+'/card');await p.locator('.module-art img').waitFor();
+  for(const width of [1440,390]){await p.setViewportSize({width,height:1000});await p.goto('http://127.0.0.1:'+port+'/card');await p.locator('.module-art img').scrollIntoViewIfNeeded();await p.waitForFunction(()=>{const i=document.querySelector('.module-art img');return i&&i.complete&&i.naturalWidth>0;});
    assert(await p.locator('.module-art img').evaluate(i=>i.complete&&i.naturalWidth>0));assert.match(await p.locator('.module-art img').getAttribute('src'),/ipv6.webp/);
    assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await p.screenshot({path:path.join(out,'b4-card-'+width+'.png'),fullPage:true});
   }
