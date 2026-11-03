@@ -27,7 +27,7 @@ $total=count(ach_catalog());
   <meta name="theme-color" content="#090c0e">
   <meta name="robots" content="noindex, nofollow">
   <title>Highscore · DAU TO PRO</title>
-  <link rel="icon" type="image/png" href="../assets/favicon-64.png">
+  <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
   <script src="profiles.js" defer></script>
