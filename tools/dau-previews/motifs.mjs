@@ -361,7 +361,34 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+function kalkulation(id) {
+  return `
+  <text x="640" y="110" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">KALKULATION &amp; BESCHAFFUNG</text>
+  <g transform="translate(210 180)">
+    <path d="M0 0H340L370 30V390H0Z" fill="#11191b" stroke="${GOLD}" stroke-width="3"/>
+    <text x="32" y="57" font-family="${MONO}" font-size="25" font-weight="800" fill="${GOLD_LITE}">ANGEBOT</text>
+    <g font-family="${MONO}" font-size="24" fill="${CREAM}">
+      <text x="32" y="115">Liste    1.000 €</text>
+      <text x="32" y="165">Rabatt   −100 €</text>
+      <text x="32" y="215">Skonto    −18 €</text>
+      <text x="32" y="265">Fracht    +20 €</text>
+    </g>
+    <path d="M30 295H335" stroke="${CYAN}" stroke-width="2"/>
+    <text x="32" y="351" font-family="${MONO}" font-size="40" font-weight="900" fill="${GOLD_LITE}">902 €</text>
+  </g>
+  <g transform="translate(700 235)">
+    <path d="M0 0H300V290H0Z" fill="#11191b" stroke="${CYAN}" stroke-width="3"/>
+    <path d="M34 230H270M34 230V40" fill="none" stroke="${MUTED}" stroke-width="2"/>
+    <path d="M34 210L265 50" fill="none" stroke="${GOLD}" stroke-width="7"/>
+    <path d="M34 125L265 100" fill="none" stroke="${CYAN}" stroke-width="5"/>
+    <circle cx="178" cy="110" r="12" fill="${GOLD_LITE}"/>
+    <text x="150" y="272" text-anchor="middle" font-family="${MONO}" font-size="23" font-weight="800" fill="${CYAN}">BREAK-EVEN</text>
+  </g>
+  <text x="640" y="640" text-anchor="middle" font-family="${SANS}" font-size="38" font-weight="900" fill="${GOLD_LITE}">RECHNET SICH DAS?</text>`;
+}
+
 export const motifs = [
+  { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },

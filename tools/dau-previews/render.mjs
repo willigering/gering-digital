@@ -22,7 +22,7 @@ const only = process.argv.slice(2);
 const selected = only.length ? motifs.filter(m => only.includes(m.id)) : motifs;
 if (!selected.length) { console.error('Unbekanntes Motiv:', only.join(', ')); process.exit(1); }
 
-const browser = await chromium.launch();
+const browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } : {});
 const page = await browser.newPage();
 await page.setContent('<!doctype html><body style="margin:0;background:#000"></body>');
 for (const motif of selected) {

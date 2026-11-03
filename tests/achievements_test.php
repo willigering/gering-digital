@@ -44,7 +44,7 @@ foreach($modules as $mid=>$m) {
     }
 }
 $catalog=ach_catalog();
-check(count($catalog)===4*10+12,'Heute 52 Achievements (4 Module × 10 + 12 übergreifend)');
+check(count($catalog)===count($modules)*10+count(ach_globals()),'10 Achievements pro Modul plus modulübergreifende');
 check(count(array_unique(array_column($catalog,'name')))===count($catalog),'Alle Achievement-Namen sind verschieden');
 check(array_sum(array_column(ach_globals(),1))===2250,'Modulübergreifende Achievements bringen 2.250 XP');
 check($catalog['g.easteregg']['xp']===200 && $catalog['g.easteregg']['hidden']===true,'Easter Egg: 200 XP und versteckt');

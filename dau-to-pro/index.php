@@ -22,7 +22,7 @@ $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
-$topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen'];
+$topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
 $topicCounts=array_count_values(array_column(array_column($modules,'topic'),0));
 ?>
 <!doctype html>
