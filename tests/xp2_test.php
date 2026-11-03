@@ -9,8 +9,8 @@ function state(int $id,int $correct,array $stages=[],string $prefix='osi-sprint'
  foreach([$prefix.'-stats-v1'=>['solved'=>$correct,'correct'=>$correct],$prefix.'-path-v1'=>['st'=>$st]] as $key=>$v)db()->prepare('INSERT INTO learner_progress(learner_id,storage_key,module_slug,value) VALUES(?,?,?,?) ON CONFLICT(learner_id,storage_key) DO UPDATE SET value=excluded.value')->execute([$id,$key,'osi-sprint',json_encode($v)]);
 }
 $time=strtotime('2026-03-20 12:00 Europe/Berlin');$id=user('tester');
-$r=ach_evaluate($id,['time'=>$time]);ok(count($r['new'])===1,'first achievement');$xp=$r['level']['xp'];ok(ach_evaluate($id,['time'=>$time])['new']===[],'replay no event');ok(xp_total($id)===$xp,'replay no XP');
-state($id,5,[0]);$r=ach_evaluate($id,['activity'=>true,'solved'=>true,'time'=>$time]);ok(in_array('osi.kabel',array_column($r['new'],'code'),true),'module unlock');ok(xp_dashboard($id,$time)['streak']===1,'first daily goal');ok(xp_sum($id,'daily','')===10&&xp_sum($id,'streak','')===5,'daily + streak');$xp=xp_total($id);ok(ach_evaluate($id,['activity'=>true,'time'=>$time+1])['new']===[]&&xp_total($id)===$xp,'duplicate sync');
+$r=ach_evaluate($id,['time'=>$time]);ok($r['new']===[]&&$r['level']['xp']===0,'no achievement or XP at registration');$xp=$r['level']['xp'];ok(ach_evaluate($id,['time'=>$time])['new']===[],'replay no event');ok(xp_total($id)===$xp,'replay no XP');
+state($id,5,[0]);$r=ach_evaluate($id,['activity'=>true,'solved'=>true,'time'=>$time]);ok(in_array('osi.kabel',array_column($r['new'],'code'),true),'module unlock');ok(in_array('g.willkommen',array_column($r['new'],'code'),true),'first correct task unlocks welcome');ok(xp_dashboard($id,$time)['streak']===1,'first daily goal');ok(xp_sum($id,'daily','')===10&&xp_sum($id,'streak','')===5,'daily + streak');$xp=xp_total($id);ok(ach_evaluate($id,['activity'=>true,'time'=>$time+1])['new']===[]&&xp_total($id)===$xp,'duplicate sync');
 state($id,10,[0]);ach_evaluate($id,['activity'=>true,'time'=>$time+100]);ok(xp_sum($id,'daily','')===10,'second goal same day never paid');
 for($day=1;$day<30;$day++){state($id,10+$day*5,[0]);ach_evaluate($id,['activity'=>true,'solved'=>true,'time'=>strtotime('+'.$day.' days',$time)]);}
 $d=xp_dashboard($id,strtotime('+29 days',$time));ok($d['streak']===30&&$d['record']===30,'30 days crossing DST');ok(xp_sum($id,'daily','')===300,'30 daily claims');ok(xp_sum($id,'streak','')===30*5+4*40+150,'4 weeks and one month');
@@ -34,7 +34,7 @@ $dst=user('dst');$t=strtotime('2026-10-25 00:30 UTC');ach_evaluate($dst,['time'=
 // Independent workers share the same SQLite DB: only one gets the new event.
 $c=user('concurrent');ach_evaluate($c,['time'=>$time]);$workers=[];
 for($i=0;$i<2;$i++){$code='putenv('.var_export('GD_DB_PATH='.$path,true).');require '.var_export(realpath(__DIR__.'/../achievements_lib.php'),true).';echo json_encode(ach_evaluate('.$c.',["egg"=>true]));';$proc=proc_open([PHP_BINARY,'-c',php_ini_loaded_file(),'-r',$code],[1=>['pipe','w'],2=>['pipe','w']],$pipes);$workers[]=[$proc,$pipes];}
-$events=0;foreach($workers as [$proc,$pipes]){$out=stream_get_contents($pipes[1]);$err=stream_get_contents($pipes[2]);$exit=proc_close($proc);ok($exit===0,'concurrent process '.$err);$events+=count(json_decode($out,true)['new']);}ok($events===1&&xp_sum($c,'achievements','')===210,'concurrent egg exactly once');
+$events=0;foreach($workers as [$proc,$pipes]){$out=stream_get_contents($pipes[1]);$err=stream_get_contents($pipes[2]);$exit=proc_close($proc);ok($exit===0,'concurrent process '.$err);$events+=count(json_decode($out,true)['new']);}ok($events===1&&xp_sum($c,'achievements','')===200,'concurrent egg exactly once');
 // Repeating milestones remain repeatable and unique after the first month.
 $series=user('sixty-days');ach_evaluate($series,['time'=>$time]);
 for($day=0;$day<60;$day++){state($series,($day+1)*5);ach_evaluate($series,['activity'=>true,'time'=>strtotime('+'.$day.' days',$time)]);}
@@ -42,5 +42,5 @@ ok(xp_dashboard($series,strtotime('+59 days',$time))['streak']===60,'sixty conse
 // Planned modules use the same central awards without implementing their own XP logic.
 $future=user('future');ach_evaluate($future,['time'=>$time]);state($future,5,[0],'f1-pm');ach_evaluate($future,['activity'=>true,'time'=>$time]);ok(xp_sum($future,'tasks','f1')===10&&xp_sum($future,'paths','f1')===75,'planned prefix integrates automatically');ok(xp_dashboard($future,$time)['streak']===1,'planned module daily goal');
 // Explicit reset and account deletion include every new table.
-$l=db()->query('SELECT * FROM learners WHERE id='.$id)->fetch(PDO::FETCH_ASSOC);learner_reset_all($l,'test-password');ok(xp_total($id)===0&&xp_showcase($id)===[]&&ach_unlocked($id)===[],'full reset');ach_evaluate($id);ok(xp_total($id)===10,'reset starts new progress');learner_delete($old);ok(xp_total($old)===0,'account cascade deletion');
+$l=db()->query('SELECT * FROM learners WHERE id='.$id)->fetch(PDO::FETCH_ASSOC);learner_reset_all($l,'test-password');ok(xp_total($id)===0&&xp_showcase($id)===[]&&ach_unlocked($id)===[],'full reset');ach_evaluate($id);ok(xp_total($id)===0&&ach_unlocked($id)===[],'reset starts without a welcome reward');learner_delete($old);ok(xp_total($old)===0,'account cascade deletion');
 unlink($path);echo "XP 2.0: $n checks passed\n";

@@ -141,7 +141,7 @@ function ach_modules(): array {
 /** Modulübergreifende Achievements: code => [Stufe, XP, Name, Bedingung, Rätselhinweis|null, versteckt]. */
 function ach_globals(): array {
     return [
-        'g.willkommen'=>['bronze',10,'Willkommen, DAU','Lernkonto angelegt.',null,false],
+        'g.willkommen'=>['bronze',10,'Willkommen, DAU','Erste Aufgabe richtig gelöst. Ein DAU mit Potenzial!',null,false],
         'g.allrounder'=>['silber',100,'Allrounder','In 3 verschiedenen Modulen Stufe 1 gemeistert.',null,false],
         'g.7tage'=>['silber',100,'Wiederholungstäter','An 7 verschiedenen Tagen gelernt.',null,false],
         'g.1000'=>['gold',100,'Tausendsassa','1.000 Aufgaben richtig gelöst, über alle Module.',null,false],
@@ -293,7 +293,7 @@ function ach_evaluate_locked(int $learnerId,array $events=[]): array {
     $unlocked=ach_unlocked($learnerId);
     $before=$best;
     $migrated=xp_initialize($learnerId,$row,$values,$now);
-    $met=['g.willkommen'=>true];
+    $met=[];
     $completePaths=0;$firstStages=0;$totalCorrect=0;
     foreach(xp_modules() as $mid=>$module) {
         $state=ach_module_state($values,$module);
@@ -304,6 +304,8 @@ function ach_evaluate_locked(int $learnerId,array $events=[]): array {
         if (in_array(0,$b['m'],true)) $firstStages++;
         $totalCorrect+=$b['c'];
     }
+    // Registrierung und Anmeldung sind keine Lernleistungen. Der erste richtige Treffer zählt.
+    if ($totalCorrect>=1) $met['g.willkommen']=true;
     // Lerntage (Kalendertage in Deutschland), nur wenn wirklich gelernt wurde.
     $days=(int)$row['days'];$lastDay=(string)$row['last_day'];
     $activity=xp_activity($learnerId,$before,$best,$now,!$migrated && !empty($events['activity']));

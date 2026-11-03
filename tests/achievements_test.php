@@ -61,8 +61,14 @@ check(ach_level_info(366100)['max']===true,'PRO ist höchstes Level');
 // --- Modulregeln einzeln ---
 $a=learner('anna');
 $r=ach_evaluate($a);
-check(has($a,'g.willkommen') && count($r['new'])===1,'Neues Konto bekommt „Willkommen, DAU“');
-check(ach_stats($a)['level']['xp']===10,'Willkommen bringt 10 XP');
+check(!has($a,'g.willkommen') && $r['new']===[],'Neue Registrierung schaltet kein Achievement frei');
+check(ach_stats($a)['level']['xp']===0,'Anmeldung vergibt keine XP');
+$r=put($a,'a1-zahlensysteme',['a1-bits-stats-v1'=>['solved'=>1,'correct'=>0]]);
+check(!has($a,'g.willkommen') && $r['new']===[],'Falsche erste Antwort vergibt kein Achievement');
+$r=put($a,'a1-zahlensysteme',['a1-bits-stats-v1'=>['solved'=>2,'correct'=>1]]);
+check(has($a,'g.willkommen') && array_column($r['new'],'code')===['g.willkommen'],'Erste richtige Antwort schaltet „Willkommen, DAU“ frei');
+check(ach_stats($a)['level']['xp']===12,'Erste richtige Antwort: 10 Achievement-XP und 2 Aufgaben-XP');
+check(ach_evaluate($a)['new']===[],'Erfolg wird bei erneutem Auswerten nicht wiederholt');
 put($a,'a1-zahlensysteme',['a1-bits-path-v1'=>path([0])]);
 check(has($a,'a1.erstes-bit') && !has($a,'a1.hex'),'Stufe 1 gemeistert schaltet nur „Erstes Bit gekippt“ frei');
 put($a,'a1-zahlensysteme',['a1-bits-path-v1'=>path([0,1,2,3])]);
