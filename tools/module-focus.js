@@ -16,10 +16,48 @@
     const note=document.createElement('small');note.textContent='Zurück zur Lektion: Die offene Aufgabe wird nicht gewertet. Auch mit Esc.';
     note.id='dtp-focus-note';dialog.setAttribute('aria-describedby',note.id);
     toolbar.append(note);dialog.append(toolbar);document.body.append(dialog);
-    let timer=0,frame=0,closing=false;
+
+    // Native ::backdrop is not an ordinary DOM element. Drive a real CSS rule
+    // instead of fading the opacity of an already-blurred layer: exactly as
+    // with the smooth module-card hover, every effect grows frame by frame.
+    const sheetNode=document.createElement('style');
+    sheetNode.textContent='.dtp-practice-dialog::backdrop{}';
+    document.head.append(sheetNode);
+    const backdropRule=sheetNode.sheet&&sheetNode.sheet.cssRules[0];
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const ENTER_MS=4100,EXIT_MS=920;
+    let progress=0,animationFrame=0,frame=0,timer=0,closing=false;
+    const paint=value=>{
+      progress=Math.max(0,Math.min(1,value));
+      if(!backdropRule)return;
+      const blur=(7*progress).toFixed(3)+'px';
+      const brightness=(1-.24*progress).toFixed(4);
+      const saturation=(1-.35*progress).toFixed(4);
+      const effect='blur('+blur+') brightness('+brightness+') saturate('+saturation+')';
+      backdropRule.style.background='rgba(3,7,9,'+(.72*progress).toFixed(4)+')';
+      backdropRule.style.backdropFilter=effect;
+      backdropRule.style.webkitBackdropFilter=effect;
+    };
+    const animateTo=target=>{
+      cancelAnimationFrame(animationFrame);
+      if(reduced.matches){paint(target);return 0;}
+      const from=progress,distance=Math.abs(target-from);
+      if(distance<.0001){paint(target);return 0;}
+      const duration=(target>from?ENTER_MS:EXIT_MS)*distance;
+      const started=performance.now();
+      const step=now=>{
+        const t=Math.min(1,(now-started)/duration);
+        // Enter is deliberately linear like card hover. Exit eases out.
+        paint(from+(target-from)*(target>from?t:1-Math.pow(1-t,3)));
+        if(t<1)animationFrame=requestAnimationFrame(step);
+      };
+      animationFrame=requestAnimationFrame(step);
+      return duration;
+    };
+    paint(0);
     const restore=()=>{
-      clearTimeout(timer);cancelAnimationFrame(frame);closing=false;
-      dialog.classList.remove('dtp-focus-visible');
+      clearTimeout(timer);cancelAnimationFrame(frame);cancelAnimationFrame(animationFrame);closing=false;
+      dialog.classList.remove('dtp-focus-visible');paint(0);
       if(dialog.open)dialog.close();
       slot.after(panel);backSlot.after(back);document.body.classList.remove('dtp-exercise-open');
     };
@@ -32,13 +70,19 @@
         document.body.classList.add('dtp-exercise-open');
         if(!dialog.open)dialog.showModal();
         dialog.scrollTop=0;
-        // Let the initial invisible frame paint before fading in. No scrollIntoView race.
-        frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>dialog.classList.add('dtp-focus-visible'));});
-        const input=task.querySelector('input:not([disabled]),textarea:not([disabled]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Paint the initial clear frame before bringing in the real question.
+        cancelAnimationFrame(frame);
+        frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>{
+          dialog.classList.add('dtp-focus-visible');
+          animateTo(1);
+        });});
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
-        closing=true;cancelAnimationFrame(frame);dialog.classList.remove('dtp-focus-visible');
-        timer=setTimeout(restore,matchMedia('(prefers-reduced-motion: reduce)').matches?0:300);
+        closing=true;cancelAnimationFrame(frame);
+        dialog.classList.remove('dtp-focus-visible');
+        const duration=animateTo(0);
+        timer=setTimeout(restore,reduced.matches?0:Math.max(650,Math.ceil(duration)+60));
       }
     };
     // Escape uses the module's real handler, so abandoning a question never awards points.
@@ -46,12 +90,11 @@
     back.addEventListener('click',()=>{
       sync();
       const lesson=document.getElementById('lessonTitle');
-      // Restore first, then let keyboard users continue at the lesson.
-      setTimeout(()=>{if(!dialog.open&&lesson){lesson.setAttribute('tabindex','-1');lesson.focus({preventScroll:true});}},320);
+      // Return keyboard focus only after the dialog and fading backdrop close.
+      setTimeout(()=>{if(!dialog.open&&lesson){lesson.setAttribute('tabindex','-1');lesson.focus({preventScroll:true});}},reduced.matches?0:1100);
     });
     new MutationObserver(sync).observe(task,{attributes:true,attributeFilter:['hidden'],childList:true});
     new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:['hidden']});
-    // A new task starts at its question; answering/typing never moves the viewport.
     dialog.addEventListener('click',event=>{if(event.target.closest('[data-r="next"]'))requestAnimationFrame(()=>{dialog.scrollTop=0;});});
     sync();
   };
