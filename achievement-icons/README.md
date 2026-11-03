@@ -1,8 +1,8 @@
 # DAU TO PRO – Achievement-Symbole
 
-42 transparente PNGs, jeweils 512 × 512 px. Motive zentriert, rund 10 % transparenter Rand. Zielgrößen der Oberfläche: 42 px im Konto, 48 px im Popup.
+52 transparente PNGs, jeweils 512 × 512 px. Motive zentriert, rund 10 % transparenter Rand. Zielgrößen der Oberfläche: 42 px im Konto, 48 px im Popup.
 
-10 Zahlensysteme (`a1.*`), 10 OSI (`osi.*`), 10 Subnetting (`subnet.*`), 12 modulübergreifend (`g.*`). Dateinamen sind die Achievement-Codes. Rahmen und Sperrzustände stellt die Oberfläche dar. Die PNGs enthalten keine Achievement-Rahmen oder Medaillen.
+10 Zahlensysteme (`a1.*`), 10 OSI (`osi.*`), 10 Subnetting (`subnet.*`), 12 modulübergreifend (`g.*`), 10 Datenschutz (`d1.*`). Dateinamen sind die Achievement-Codes. Rahmen und Sperrzustände stellt die Oberfläche dar. Die PNGs enthalten keine Achievement-Rahmen oder Medaillen.
 
 Erstellt einzeln mit dem integrierten Bildgenerator. Das erste Symbol diente als gemeinsame Stilreferenz. Für `g.easteregg.png` wurde zusätzlich der originale rote Pixelpilz als Referenz verwendet. Ziffern und Symbole erscheinen nur als Bestandteil des Motivs. Der Level-Up-Effekt des Pilzes ist ein Funkeln ohne Schriftzug.
 
@@ -60,3 +60,21 @@ Für neue Module denselben Stil beibehalten und je 10 eigene Motive ergänzen. D
 | `g.rampensau.png` | a spotlight shining on a small stage with a microphone |
 | `g.nachteule.png` | an owl wearing headphones in front of a glowing laptop at night, isolated transparent vignette |
 | `g.easteregg.png` | Originaler roter Pixelpilz mit weißem Punktemuster, cremefarbenem Stiel und gold/türkisem Level-Up-Funkeln ohne Text |
+
+
+## D1 Datenschutz
+
+Die zehn D1-Motive erweitern den vorhandenen Pixel-Stil. Editierbare SVG-Quellen liegen unter `tools/dau-previews/svg/icons/`. `node tools/dau-previews/d1-icons.mjs` erzeugt daraus transparente PNGs (512 px) und WebP-Dateien (96/192 px) unter `assets/achievement-icons/`. Konto, Highscore und Popup verwenden diese WebP-Dateien.
+
+| Code | Motiv |
+| --- | --- |
+| d1.personenbezug | Personenkarte mit Funkeln |
+| d1.grundsaetze | Aufgeschlagenes Regelbuch mit Haken |
+| d1.rechte | Erhobene Hand |
+| d1.kontrolle | Geschützte Tür |
+| d1.panne | Laptop mit Warnsymbol und kleinem Löscher |
+| d1.lernpfad | Schild mit Haken |
+| d1.pruefung | Schloss mit Funkeln |
+| d1.cookie | Angebissener Cookie |
+| d1.verbergen | Kleiner Datengespenst-Geist |
+| d1.frist | Uhr mit Bewegungslinien |

@@ -10,7 +10,7 @@
     (json.achievements || []).forEach(function (a) {
       if (!a || shown.indexOf(a.code) >= 0) return;
       shown.push(a.code);
-      queue.push({ kicker: 'Achievement freigeschaltet · ' + (a.tier_label || ''), title: a.name, text: a.desc, xp: '+' + a.xp + ' XP', tier: a.tier });
+      queue.push({ kicker: 'Achievement freigeschaltet · ' + (a.tier_label || ''), title: a.name, text: a.desc, xp: '+' + a.xp + ' XP', tier: a.tier, icon: a.icon });
     });
     if (json.level_up && json.level) queue.push({ kicker: 'Level up!', title: 'Level ' + json.level.level + ' · ' + json.level.title, text: json.level.xp + ' XP gesammelt.', xp: '', tier: 'level' });
     next();
@@ -34,6 +34,7 @@
       '.n{font-size:15px;font-weight:800;color:#fff}.d{color:#c9cfcf}.x{color:#5fd99a;font-weight:800}',
       '@media (prefers-reduced-motion:reduce){.t{transition:none}}@media print{.t{display:none}}'
     ].join('');
+    css.textContent += '.i img{width:42px;height:42px;object-fit:contain;image-rendering:pixelated}';
     toastList = document.createElement('div');
     toastList.setAttribute('role', 'status');
     toastList.setAttribute('aria-live', 'polite');
@@ -75,6 +76,9 @@
     [['span', 'i', ICONS[item.tier] || '🏆'], ['span', 'k', item.kicker], ['span', 'n', item.title], ['span', 'd', item.text + (item.xp ? ' ' : '')]].forEach(function (p) {
       var n = document.createElement(p[0]); n.className = p[1]; n.textContent = p[2]; t.appendChild(n);
     });
+    if (typeof item.icon === 'string' && /^\/assets\/achievement-icons\/[a-z0-9.-]+\.webp$/.test(item.icon)) {
+      var img = document.createElement('img'); img.src = item.icon; img.alt = ''; t.firstChild.textContent = ''; t.firstChild.appendChild(img);
+    }
     if (item.xp) { var x = document.createElement('b'); x.className = 'x'; x.textContent = item.xp; t.lastChild.appendChild(x); }
     toastList.appendChild(t);
     setTimeout(function () { t.classList.add('on'); ping(item.tier); }, 30);
@@ -83,3 +87,4 @@
 
   window.dtpAchievementToast = { celebrate: celebrate, show: function (item) { if (item) { queue.push(item); next(); } } };
 })();
+
