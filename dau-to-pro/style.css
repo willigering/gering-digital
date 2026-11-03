@@ -265,3 +265,11 @@ main,.dtp-footer{position:relative;z-index:1}
 .hs-showcase{display:flex;gap:6px;align-items:center;margin:6px 0}.hs-showcase .showcase-icon,.hs-showcase-empty{display:grid;place-items:center;width:34px;height:34px;position:relative;background:#ffffff06;border:1px solid #ffffff20;border-radius:6px;color:inherit}.hs-showcase img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}.hs-showcase-empty{opacity:.25}.hs-showcase [role=tooltip]{display:none;pointer-events:none;position:absolute;bottom:100%;left:0;z-index:3;width:max-content;max-width:180px;padding:8px;background:#10171b;border:1px solid #eab448;font-size:12px}.hs-showcase button:hover [role=tooltip],.hs-showcase button:focus [role=tooltip]{display:block}.hs-showcase button:focus-visible{outline:2px solid #eab448}
 .filter-btn{min-height:44px;padding:10px 15px;border:1px solid var(--stroke);border-radius:8px;background:#111b21;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}.filter-btn:hover{color:var(--cream);border-color:#76d8df70}.filter-btn.active{background:var(--cream);color:#111b21}.filter-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
+
+/* Schriftbild wie in den Lernmodulen: kräftige Titel und Bedienelemente. */
+.dtp-landing .hero h1{font-size:clamp(38px,6.2vw,76px);font-weight:950}
+.dtp-landing .section-heading h2{font-size:clamp(28px,4.2vw,48px);font-weight:950}
+.dtp-landing .end-cap h2{font-size:clamp(32px,5vw,58px);font-weight:950}
+.dtp-landing .filter-btn,.dtp-landing .primary-action,.dtp-landing .secondary-action,.dtp-landing .nav-cta,.dtp-landing .exam-input-row button{font-weight:850}
+.dtp-landing .module-category,.dtp-landing .module-footer,.dtp-landing .hero-strip{font-weight:800}
+@media(max-width:610px){.dtp-landing .hero h1{font-size:clamp(33px,8vw,46px)}.dtp-landing .section-heading h2{font-size:30px}.dtp-landing .end-cap h2{font-size:32px}}
