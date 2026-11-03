@@ -28,3 +28,5 @@ jobs:
       - run: node tests/b5_platform_browser.cjs
 
       - run: node tests/b5_focus.cjs
+
+      - run: node tests/b5_blur.cjs
