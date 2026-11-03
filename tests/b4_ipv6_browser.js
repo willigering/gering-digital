@@ -20,6 +20,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
  assert.equal(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),null);
  const state=await page.evaluate(()=>({path:JSON.parse(localStorage.getItem('b4-ipv6-path-v1')),stats:JSON.parse(localStorage.getItem('b4-ipv6-stats-v1'))}));
  assert.equal(state.path.st[0].hist.length,10);assert.equal(state.stats.solved,13);assert.equal(state.stats.correct,13);
+await page.locator('#backToLesson').click();await page.locator('.dtp-practice-dialog').waitFor({state:'hidden'});
  await page.locator('#tab-train').click();
  for(let i=0;i<20;i++){
   const t=await page.evaluate(()=>B4IPV6_TEST.last());await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();
