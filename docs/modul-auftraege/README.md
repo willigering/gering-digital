@@ -47,10 +47,23 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 
 - Wie die Vorlage: dunkle Basis, Gold `#eab448` als Hausfarbe, Creme-Text, schräge Kacheln, Kartenraster.
 - Die Akzentfarbe des Moduls (Tabelle unten) ersetzt das Cyan der Vorlage überall (`--cyan` und alle `rgba(0,220,232,…)`). Dunkle Flächen leicht in dieser Farbe tönen.
-- Hero: kleines Etikett „MODUL D1 // DATENSCHUTZ“, darunter der witzige Titel groß, zweite Zeile in Gold. Browser-Tab: „Thema · Titel“.
+- Hero: Einheitliche Hierarchie **„THEMENBEREICH // UNTERTHEMA // MODULKÜRZEL“**, z. B. „IT-SICHERHEIT // DATENSCHUTZ // MODUL D1“. Darunter der bestehende witzige Modultitel groß; vorhandene Titel niemals allein zur Vereinheitlichung ändern. Browser-Tab: „Thema · Titel“.
 - Muss auf dem Handy (390 px breit) ohne seitliches Scrollen funktionieren.
 - **Kein altes Logo im Fußbereich:** Das Markenbild aus `.foot-brand` der Vorlage nicht übernehmen. Im Footer bleiben nur der Text DAU to PRO, Modulname, Version, Rückweg und Bedienelemente. Auch bestehende Module erhalten kein altes Footer-Logo.
 - **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
+
+### Themenhierarchie und Vorschaukarten – verbindlich für ALLE Module
+
+Diese Regeln gelten **rückwirkend für jedes fertige/veröffentlichte Modul** und für **jedes künftig neu erstellte Modul**. Nicht nur das aktuelle Auftragsmodul berücksichtigen. Neue Module müssen diese Vorgaben bereits bei Erstellung und Abnahme erfüllen.
+
+- Die Hauptthemen der Plattform sind: **Grundlagen**, **Netzwerke**, **IP & Subnetting**, **IT-Sicherheit**, **Wirtschaft & Projekte**. **Prüfung** bezeichnet einen Lern-/Prüfungsmodus und soll keine zusätzliche fachliche Hauptkategorie sein. Vor einer Kategorienmigration bestehende produktive Datenbankwerte berücksichtigen; keine veröffentlichten Zuordnungen stillschweigend zerstören.
+- Jedes Lernmodul erhält drei eindeutige, konsistente Metadaten: **Themenbereich → Unterthema → Modulkürzel** (z. B. „NETZWERKE // NETZWERKDIENSTE & PROTOKOLLE // MODUL B5“). Das Kürzel ist eine Kennung und ersetzt kein Unterthema.
+- **Direkt über der großen Hero-Überschrift** steht in jedem HTML-Modul dieselbe Abfolge, Großschreibung, Trennung mit `//` und optisch einheitliche Kicker-Darstellung. Nicht in einigen Modulen „Modul // Thema“ und in anderen „Thema // Modul“ verwenden.
+- **Modulüberschriften unangetastet lassen**, sofern Willi keine Umbenennung ausdrücklich verlangt. Nur Metadaten/Anzeigen ändern; bestehende Funktionen, Akzentfarben, Fortschritt, Achievements und Aufgabentexte dabei nicht beschädigen.
+- In `lernmodule/manifest.json` den zugehörigen `subject`, Titel und die Beschreibung passend pflegen. Die öffentliche Kartenanzeige (`dau_lib.php`, `dtp_module_card()`/`dtp_module_description()`) muss dieselbe fachliche Einordnung widerspiegeln. Kategorien nicht allein aus zufälligen Schlüsselwörtern ableiten, wenn explizite Metadaten vorliegen.
+- **Jede Modulvorschau benötigt einen individuellen, kurzen, humorvollen Inhaltstext**: konkret sagen, was man dort lernt, gern mit frechem DAU-TO-PRO-Humor, aber fachlich korrekt. **Keine** immer gleichen Funktionsaufzählungen („mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus“), keine bloße Liste der zehn Stufen und kein generischer Marketingtext.
+- Bei existierenden Modulen dieselben Vorgaben nachziehen, **auch wenn deren Beschreibungen in der produktiven Datenbank gespeichert sind**. Die Anzeigenlogik muss alte Standardtexte sinnvoll ersetzen oder die zuständigen gespeicherten Felder kontrolliert aktualisieren; produktive Daten nicht blind überschreiben. Der Admin muss künftig individuell passende Beschreibungen bearbeiten können.
+- Jede neue Modul-PR prüft Hero-Kicker, richtige Themenzuordnung, Kartenbeschreibung, mobile Darstellung, Eintrag im Manifest sowie Anzeige auf der DAU-TO-PRO-Hauptseite und Admin-Vorschau. Wenn sich die globale Regel ändert, **alle bereits vorhandenen Module** auf Abweichungen prüfen.
 
 ### Verständliche Sprache und konkrete Beispiele (verbindlich)
 
