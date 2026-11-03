@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Test topic tab filters (without exam finder)
         run: node tests/dau_exam_finder.js
       - name: Test hover focus timing and module switching
@@ -40,6 +40,8 @@ jobs:
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
+      - name: Test private OpenAI bridge without paid API calls
+        run: php tests/ai_bridge_test.php
       - name: Test fresh module entry, scroll reset and retained progress
         run: node tests/module_entry_test.cjs
       - name: Test B4 IPv6 domain and platform integration
