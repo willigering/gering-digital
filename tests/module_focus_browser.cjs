@@ -25,7 +25,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         const before=await page.evaluate(()=>JSON.stringify(localStorage));
         await page.evaluate(()=>{window.focusOriginalPanel=document.getElementById('practicePanel');window.focusOriginalBack=document.getElementById('backToLesson');});
         await page.locator('#practiceGo').click();
-        const dialog=page.locator('.dtp-practice-dialog');await dialog.waitFor({state:'visible'});await page.waitForTimeout(400);
+        const dialog=page.locator('.dtp-practice-dialog');await dialog.waitFor({state:'visible'});await page.waitForFunction(()=>{const d=document.querySelector('.dtp-practice-dialog');return getComputedStyle(d).opacity==='1'&&getComputedStyle(d,'::backdrop').backdropFilter==='blur(7px)';});
         const state=await page.evaluate(()=>{
           const d=document.querySelector('.dtp-practice-dialog'),r=d.getBoundingClientRect(),b=getComputedStyle(d,'::backdrop');
           return {open:d.open,modal:d.matches(':modal'),same:document.getElementById('practicePanel')===window.focusOriginalPanel&&document.getElementById('backToLesson')===window.focusOriginalBack,
