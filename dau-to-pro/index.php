@@ -32,7 +32,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <meta name="theme-color" content="#090c0e">
   <meta name="description" content="<?=e($c['meta_description'])?>">
   <title><?=e($c['page_title'])?></title>
-  <link rel="icon" type="image/png" href="../assets/favicon-64.png">
+  <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <?php if(!$hero['custom']): ?>  <link rel="stylesheet" href="hero-scene.css?v=<?=filemtime(__DIR__.'/hero-scene.css')?>">
 <?php endif; ?>
