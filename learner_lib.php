@@ -440,10 +440,15 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
         $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
     }
     $html=str_replace('Offline · ohne Login', 'Lernen · Üben · Verstehen', $html);
+    // In allen veröffentlichten Lernmodulen denselben Pixelpilz im Browser-Tab zeigen.
+    // Auch ältere, bereits importierte HTML-Versionen bringen eigene (oft Base64-)Favicons mit.
+    // Diese vor der zentralen Einbindung entfernen; Apple-Touch-Icons bleiben erhalten.
+    $html=preg_replace('~<link\\b(?=[^>]*\\brel\\s*=\\s*["\\\'](?:shortcut\\s+)?icon["\\\'])[^>]*>~i', '', $html) ?? $html;
     $json=json_encode(learner_sync_config($slug,$file),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
     // Achievement-Popup zuerst, damit sync.js es nach dem Speichern aufrufen kann.
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
-    $tag="<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
+    $tag='<link rel="icon" type="image/svg+xml" href="/assets/dau-to-pro-pixelpilz.svg?v=20261103">'."\n"
+        ."<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
     if (preg_match('/<head\b[^>]*>/i',$html,$m,PREG_OFFSET_CAPTURE)) {
         $at=$m[0][1]+strlen($m[0][0]);
         return substr($html,0,$at)."\n".$tag.substr($html,$at);
