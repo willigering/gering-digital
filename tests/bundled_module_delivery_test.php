@@ -18,5 +18,7 @@ foreach(['subnetsprint'=>'subnet-sprint','osi'=>'osi-sprint'] as $alias=>$canoni
 }
 delivery_check(hp_current_learning_html('custom','my-custom-module','index.html')==='custom','Custom modules remain unchanged');
 delivery_check(hp_current_learning_html('draft','subnet-sprint','index.html')==='draft','Canonical imported content is preserved');
+delivery_check(substr_count($out,'<!-- DTP-UEBUNGSFOKUS START -->')===1,'Imported module receives exercise focus');
+delivery_check(substr_count($twice,'<!-- DTP-UEBUNGSFOKUS START -->')===1,'No duplicate exercise focus');
 echo "Published module delivery: legacy routes, theme, idempotence and custom content passed.\n";
 @unlink($tmp);

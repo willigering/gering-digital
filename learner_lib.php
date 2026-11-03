@@ -432,6 +432,13 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
             $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
         }
     }
+    // Imported versions receive the same exercise focus as standalone modules.
+    if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-UEBUNGSFOKUS START -->')
+        && is_file(__DIR__.'/tools/module-focus.css') && is_file(__DIR__.'/tools/module-focus.js')) {
+        $block="<!-- DTP-UEBUNGSFOKUS START -->\n<style>\n".file_get_contents(__DIR__.'/tools/module-focus.css')."\n</style>\n<script>\n"
+            .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-focus.js'))."\n</script>\n<!-- DTP-UEBUNGSFOKUS END -->\n";
+        $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
+    }
     $html=str_replace('Offline · ohne Login', 'Lernen · Üben · Verstehen', $html);
     $json=json_encode(learner_sync_config($slug,$file),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
     // Achievement-Popup zuerst, damit sync.js es nach dem Speichern aufrufen kann.

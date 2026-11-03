@@ -1,0 +1,65 @@
+const {chromium}=require('playwright');
+const http=require('http');
+const fs=require('fs');
+const path=require('path');
+const assert=require('assert/strict');
+const root=path.resolve(__dirname,'..');
+const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.json'))).modules;
+(async()=>{
+  const server=http.createServer((req,res)=>{
+    const name=path.basename(new URL(req.url,'http://localhost').pathname);
+    const file=path.join(root,'lernmodule',name);
+    if(!modules.some(m=>m.file===name)){res.writeHead(404);res.end();return;}
+    res.setHeader('Content-Type','text/html; charset=utf-8');res.end(fs.readFileSync(file));
+  });
+  await new Promise(r=>server.listen(0,'127.0.0.1',r));
+  const browser=await chromium.launch({headless:true});
+  const shots=process.env.DTP_SCREENSHOT_DIR||path.join('/tmp','dtp-focus');fs.mkdirSync(shots,{recursive:true});
+  try{
+    for(const viewport of [{width:1440,height:1000},{width:390,height:844}]){
+      for(const m of modules){
+        const context=await browser.newContext({viewport});const page=await context.newPage();const errors=[];
+        page.on('pageerror',e=>errors.push(e.message));
+        await page.goto(`http://127.0.0.1:${server.address().port}/${m.file}`);
+        await page.locator('#tab-path').click();
+        const before=await page.evaluate(()=>JSON.stringify(localStorage));
+        await page.evaluate(()=>{window.focusOriginalPanel=document.getElementById('practicePanel');window.focusOriginalBack=document.getElementById('backToLesson');});
+        await page.locator('#practiceGo').click();
+        const dialog=page.locator('.dtp-practice-dialog');await dialog.waitFor({state:'visible'});await page.waitForTimeout(400);
+        const state=await page.evaluate(()=>{
+          const d=document.querySelector('.dtp-practice-dialog'),r=d.getBoundingClientRect(),b=getComputedStyle(d,'::backdrop');
+          return {open:d.open,modal:d.matches(':modal'),same:document.getElementById('practicePanel')===window.focusOriginalPanel&&document.getElementById('backToLesson')===window.focusOriginalBack,
+            focused:document.getElementById('practiceTask').contains(document.activeElement),blur:b.backdropFilter,shade:b.backgroundColor,opacity:getComputedStyle(d).opacity,
+            left:r.left,right:r.right,top:r.top,bottom:r.bottom,centerX:(r.left+r.right)/2,centerY:(r.top+r.bottom)/2,overflow:document.documentElement.scrollWidth>innerWidth};
+        });
+        assert.ok(state.open&&state.modal&&state.same&&state.focused,`${m.slug}: modal uses real focused controls`);
+        assert.match(state.blur,/blur\(7px\)/);assert.match(state.shade,/0\.72\)/);assert.equal(state.opacity,'1');
+        assert.ok(Math.abs(state.centerX-viewport.width/2)<3&&Math.abs(state.centerY-viewport.height/2)<3,`${m.slug}: centered`);
+        assert.ok(state.left>=0&&state.right<=viewport.width&&state.top>=0&&state.bottom<=viewport.height&&!state.overflow,`${m.slug}: fits viewport`);
+        // Answer entry must not jump around.
+        const input=dialog.locator('#practiceTask input').first();
+        if(await input.count()){
+          const y=await dialog.evaluate(d=>d.scrollTop);await input.fill('test');
+          assert.equal(await dialog.evaluate(d=>d.scrollTop),y,'Typing preserves position');
+        }
+        await page.screenshot({path:path.join(shots,`${m.slug}-${viewport.width}.png`)});
+        // Long exercises scroll internally while the real return button stays reachable.
+        await page.evaluate(()=>{const f=document.createElement('div');f.id='focus-long-test';f.style.height='1800px';document.getElementById('practiceTask').append(f);document.querySelector('.dtp-practice-dialog').scrollTop=9999;});
+        const back=await page.locator('#backToLesson').boundingBox();const bounds=await dialog.boundingBox();
+        assert.ok(back.y>=bounds.y&&back.y+back.height<=bounds.y+bounds.height,'Return button remains visible when scrolled');
+        await page.keyboard.press('Escape');await page.waitForTimeout(450);
+        assert.equal(await dialog.evaluate(d=>d.open),false);
+        assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),before,'Abandoning task awards nothing');
+        assert.equal(await page.locator('#pathView #practicePanel').count(),1,'Panel returns to learning path');
+        await page.locator('#practiceGo').click();await dialog.waitFor({state:'visible'});await page.locator('#backToLesson').click();await page.waitForTimeout(450);
+        assert.equal(await dialog.evaluate(d=>d.open),false,'Return button closes exercise');
+        assert.equal(await page.evaluate(()=>document.body.classList.contains('dtp-exercise-open')),false,'Normal scrolling restored');
+        assert.deepEqual(errors,[],m.slug+' console errors');await context.close();
+      }
+    }
+    const context=await browser.newContext({reducedMotion:'reduce'});const page=await context.newPage();
+    await page.goto(`http://127.0.0.1:${server.address().port}/${modules[0].file}`);await page.locator('#practiceGo').click();
+    assert.equal(await page.locator('.dtp-practice-dialog').evaluate(d=>getComputedStyle(d).transitionDuration),'0s');await context.close();
+    console.log('Exercise focus: nine modules, desktop/mobile, centering, blur/dim, real controls, stable typing, sticky return, Escape, no rewards and reduced motion passed.');
+  }finally{await browser.close();await new Promise(r=>server.close(r));}
+})().catch(e=>{console.error(e);process.exit(1);});
