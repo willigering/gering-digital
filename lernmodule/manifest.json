@@ -1,11 +1,53 @@
 {
   "info": "Mitgelieferte DAU-TO-PRO-Lernmodule. Werden im Admin unter HTML-Projekte als Entwurf übernommen und dort veröffentlicht. preview = Motiv-ID aus assets/dau-previews/manifest.json.",
   "modules": [
-    {"slug": "a1-zahlensysteme", "preview": "zahlensysteme", "file": "a1-zahlensysteme.html", "subject": "Zahlensysteme", "title": "Bits zum bitteren Ende", "description": "Zahlensysteme, Binär und Hex, Einheiten und Datenraten – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "osi-sprint", "preview": "osi-modell", "file": "osi-sprint.html", "subject": "OSI-Schichten", "title": "Easy OSI for FISI", "description": "Das OSI-Modell endlich verstehen: Schichten, PDUs, Kapselung, Geräte, Ports und Fehlersuche – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "subnet-sprint", "preview": "ipv4-subnetting", "file": "subnet-sprint.html", "subject": "Subnetting", "title": "Wer teilt, gewinnt", "description": "IPv4-Subnetting mit Präfix, Maske, Netz-ID, Broadcast, Hostanzahl und VLSM – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "netzwerke-sprint", "preview": "netzwerke-routing", "file": "netzwerke-sprint.html", "subject": "Netzwerkgrundlagen", "title": "Jetzt ma Router bei die Switche!", "description": "Netzwerkarten, Topologien, Komponenten, Switching, OSI und TCP/IP, Protokolle, WLAN, IPv6 und Fehleranalyse – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "d1-datenschutz", "preview": "datenschutz", "file": "d1-datenschutz.html", "subject": "Datenschutz", "title": "Deine Daten sind kein Buffet.", "description": "DSGVO verstehen und Fälle entscheiden: Rechte, Rechtsgrundlagen, Schutzmaßnahmen, Datenpannen, Cookies und Haftung. Mit 10 Lernstufen, 67 Aufgabentypen und Prüfungen über 10, 20 oder 30 Minuten."}
+    {
+      "slug": "a1-zahlensysteme",
+      "preview": "zahlensysteme",
+      "file": "a1-zahlensysteme.html",
+      "subject": "Zahlensysteme",
+      "title": "Bits zum bitteren Ende",
+      "description": "Zahlensysteme, Binär und Hex, Einheiten und Datenraten – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "osi-sprint",
+      "preview": "osi-modell",
+      "file": "osi-sprint.html",
+      "subject": "OSI-Schichten",
+      "title": "Easy OSI for FISI",
+      "description": "Das OSI-Modell endlich verstehen: Schichten, PDUs, Kapselung, Geräte, Ports und Fehlersuche – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "subnet-sprint",
+      "preview": "ipv4-subnetting",
+      "file": "subnet-sprint.html",
+      "subject": "Subnetting",
+      "title": "Wer teilt, gewinnt",
+      "description": "IPv4-Subnetting mit Präfix, Maske, Netz-ID, Broadcast, Hostanzahl und VLSM – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "netzwerke-sprint",
+      "preview": "netzwerke-routing",
+      "file": "netzwerke-sprint.html",
+      "subject": "Netzwerkgrundlagen",
+      "title": "Jetzt ma Router bei die Switche!",
+      "description": "Netzwerkarten, Topologien, Komponenten, Switching, OSI und TCP/IP, Protokolle, WLAN, IPv6 und Fehleranalyse – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "d1-datenschutz",
+      "preview": "datenschutz",
+      "file": "d1-datenschutz.html",
+      "subject": "Datenschutz",
+      "title": "Deine Daten sind kein Buffet.",
+      "description": "DSGVO verstehen und Fälle entscheiden: Rechte, Rechtsgrundlagen, Schutzmaßnahmen, Datenpannen, Cookies und Haftung. Mit 10 Lernstufen, 67 Aufgabentypen und Prüfungen über 10, 20 oder 30 Minuten."
+    },
+    {
+      "slug": "d2-it-sicherheit",
+      "preview": "d2-it-sicherheit",
+      "file": "d2-it-sicherheit.html",
+      "subject": "IT-Sicherheit & Schutzbedarf",
+      "title": "Passwort123 ist kein Konzept",
+      "description": "Schutzziele, Risiken, BSI-Grundschutz, Schutzbedarf, Malware, Angriffe, Social Engineering, Passwörter, MFA, Netzschutz und Notfallmanagement. Zehn Lernstufen, 51 Aufgabentypen und interaktive Labore."
+    }
   ]
 }
-

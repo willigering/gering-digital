@@ -30,6 +30,8 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Test D2 module integration and achievement rules
+        run: php tests/d2_integration_test.php
       - name: Test D1 registration, achievements and stored exam reviews
         run: php tests/d1_integration_test.php
       - name: Test progress sync in modules
@@ -55,6 +57,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/achievements
         run: node tests/achievements_browser.js
+      - name: Check D2 learning flow and generators
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          D2_ARTIFACTS: ${{ runner.temp }}/dtp-screenshots/d2
+        run: mkdir -p "$D2_ARTIFACTS" && node tests/d2_browser.js
       - name: Check D1 generators, learning path, exams and account restore
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

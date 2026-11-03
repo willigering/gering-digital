@@ -25,6 +25,18 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     return [
+        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','stages'=>10,'list'=>[
+            ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
+            ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
+            ['d2.maximum','silber','Maximum statt Mittelmaß','Stufe 4 „Schutzbedarf“ gemeistert.',['stage',3]],
+            ['d2.faktoren','silber','Doppelt hält verschieden','„Authentisierungsfaktor zuordnen“ 10 × in Folge richtig.',['clean',['p_factor']]],
+            ['d2.entropie','gold','Zufall mit System','„Modell-Entropie berechnen“ und „Zufallsraum berechnen“ je 10 × in Folge richtig.',['clean',['p_entropy','p_space']]],
+            ['d2.lernpfad','gold','Konzept statt Hoffnung','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['d2.marathon','platin','90 Minuten ohne Datenpanne','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['d2.passwort123','witzig','Sonderzeichen retten alles?','3 × in Folge falsch bei „Passwort123 ist kein Konzept“.',['fails','p_123'],'Ein Ausrufezeichen macht aus einem Klassiker noch keinen Zufall.'],
+            ['d2.prinz','witzig','Erbe mit Bearbeitungsgebühr','3 × in Folge falsch bei „Der Prinz aus Nigeria“.',['fails','e_prince'],'Erst zahlen, dann Millionen? Der Prinz wartet noch.'],
+            ['d2.usb','witzig','Parkplatz-Premiumstick','3 × in Folge falsch bei „USB-Stick vom Parkplatz“.',['fails','m_park'],'Gratis Speicherplatz. Die Zusatzsoftware verrät er erst später.'],
+        ]],
         'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],
             ['a1.farbcodes','bronze','Farbenblind war gestern','Aufgabentyp „Farbcodes“ 10 × in Folge richtig.',['clean',['h_color']]],

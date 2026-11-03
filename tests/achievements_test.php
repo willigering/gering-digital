@@ -190,3 +190,4 @@ echo $failures===0?"Achievements: $count Prüfungen bestanden\n":"Achievements: 
 exit($failures===0?0:1);
 
 
+
