@@ -150,7 +150,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endforeach; ?>
       </div>
       <div class="end-cap method-conclusion" data-reveal>
-        <h2><?=e($c['end_title'])?><?php if($c['end_title_highlight']!==''): ?> <em><?=e($c['end_title_highlight'])?></em><?php endif; ?></h2>
         <?php if($c['end_text']!==''): ?><p><?=dtp_inline($c['end_text'])?></p><?php endif; ?>
         <a class="primary-action" href="#lernmodule"><?=e($c['end_cta'])?> <span aria-hidden="true">↑</span></a>
       </div>
