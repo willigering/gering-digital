@@ -19,6 +19,32 @@
       ]
     },
     {
+      "id": "d2-it-sicherheit",
+      "accent": "#ff6b6b",
+      "label": "D2 · IT-Sicherheit & Schutzbedarf",
+      "slugs": [
+        "d2-it-sicherheit"
+      ],
+      "keywords": [
+        "passwort123 ist kein konzept"
+      ]
+    },
+    {
+      "id": "datenschutz",
+      "accent": "#ff8fa3",
+      "label": "Datenschutz · DSGVO",
+      "slugs": [
+        "d1-datenschutz",
+        "datenschutz"
+      ],
+      "keywords": [
+        "datenschutz",
+        "dsgvo",
+        "personenbezogen",
+        "tdddg"
+      ]
+    },
+    {
       "id": "zahlensysteme",
       "accent": "#a6f05a",
       "label": "Zahlensysteme · Bits & Bytes",
@@ -75,8 +101,7 @@
       "accent": "#ff7f8f",
       "label": "IT-Sicherheit & Datenschutz",
       "slugs": [
-        "it-sicherheit",
-        "datenschutz"
+        "it-sicherheit"
       ],
       "keywords": [
         "sicherheit",

@@ -30,6 +30,10 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Test D2 module integration and achievement rules
+        run: php tests/d2_integration_test.php
+      - name: Test D1 registration, achievements and stored exam reviews
+        run: php tests/d1_integration_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
       - name: Test B4 IPv6 domain and platform integration
@@ -60,11 +64,22 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/achievements
         run: node tests/achievements_browser.js
+      - name: Check D2 learning flow and generators
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          D2_ARTIFACTS: ${{ runner.temp }}/dtp-screenshots/d2
+        run: mkdir -p "$D2_ARTIFACTS" && node tests/d2_browser.js
+      - name: Check D1 generators, learning path, exams and account restore
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/d1
+        run: node tests/d1_browser.js && node tests/d1_account_browser.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dau-main-desktop-mobile
           path: ${{ runner.temp }}/dtp-screenshots
           retention-days: 7
+
 
 
