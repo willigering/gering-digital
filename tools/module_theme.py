@@ -17,6 +17,11 @@ def apply_theme(html):
     focus_css = (ROOT / 'tools/module-focus.css').read_text()
     focus_js = (ROOT / 'tools/module-focus.js').read_text()
     block += start + '\n<style>\n' + focus_css.rstrip() + '\n</style>\n<script>\n' + focus_js.rstrip() + '\n</script>\n' + end + '\n'
+    entry_start = '<!-- DTP-MODULEINSTIEG START -->'
+    entry_end = '<!-- DTP-MODULEINSTIEG END -->'
+    html = re.sub(re.escape(entry_start) + r'.*?' + re.escape(entry_end) + r'\n?', '', html, flags=re.S)
+    entry_js = (ROOT / 'tools/module-entry.js').read_text()
+    block += entry_start + '\n<script>\n' + entry_js.rstrip() + '\n</script>\n' + entry_end + '\n'
     return html.replace('</head>', block + '</head>', 1)
 
 if __name__ == '__main__':
