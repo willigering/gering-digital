@@ -73,6 +73,10 @@ Kurve: `round(366100 × (L−1) × L / (49 × 50))`. Der erste vollständige Ref
 | 49 | 351.456 |
 | 50 | 366.100 |
 
+## Erste Lernleistung
+
+„Willkommen, DAU“ (+10 XP) wird erst nach der ersten **richtig gelösten Aufgabe** freigeschaltet, unabhängig vom Modul. Registrierung, Anmeldung und falsche Antworten lösen es nicht aus. Bereits freigeschaltete Achievements und historische XP bleiben unangetastet; der einmalige Erfolg wird auch bei erneutem Sync nicht wiederholt.
+
 ## Wiederholung und Tagesziele
 
 Die bisherigen 2 XP für die ersten 1.000 richtigen Antworten pro Modul bleiben erhalten. Danach weiterhin 2 XP je neu gezählter richtiger Antwort, höchstens **50 pro Modul und Berliner Kalendertag**, insgesamt **100 pro Konto/Tag**. Der Server öffnet ein Anfangsbudget von fünf Antworten und danach einen Platz alle acht Sekunden. Nicht vergütete Überschüsse werden nicht beim nächsten Reload nachträglich ausgezahlt. Übermittelte Zähler müssen den bisherigen Höchststand übersteigen; alte Daten, Löschungen, zweite Tabs und identische Synchronisationen zählen nicht neu. Das begrenzt auch triviale Dauerwiederholungen auf maximal 100 XP pro Modul/Tag. Unbegrenztes Weiterlernen bleibt über erneuerte Tagesbudgets möglich.
