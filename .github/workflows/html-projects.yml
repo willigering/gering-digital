@@ -40,6 +40,8 @@ jobs:
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
+      - name: Test private OpenAI bridge without paid API calls
+        run: php tests/ai_bridge_test.php
       - name: Test fresh module entry, scroll reset and retained progress
         run: node tests/module_entry_test.cjs
       - name: Test B4 IPv6 domain and platform integration
