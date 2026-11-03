@@ -1,6 +1,6 @@
 # DAU TO PRO – Achievement-Symbole
 
-52 transparente PNGs, jeweils 512 × 512 px. Motive zentriert, rund 10 % transparenter Rand. Zielgrößen der Oberfläche: 42 px im Konto, 48 px im Popup.
+62 transparente PNGs, jeweils 512 × 512 px. Motive zentriert, rund 10 % transparenter Rand. Zielgrößen der Oberfläche: 42 px im Konto, 48 px im Popup.
 
 10 Zahlensysteme (`a1.*`), 10 OSI (`osi.*`), 10 Subnetting (`subnet.*`), 12 modulübergreifend (`g.*`), 10 Datenschutz (`d1.*`). Dateinamen sind die Achievement-Codes. Rahmen und Sperrzustände stellt die Oberfläche dar. Die PNGs enthalten keine Achievement-Rahmen oder Medaillen.
 
@@ -78,3 +78,7 @@ Die zehn D1-Motive erweitern den vorhandenen Pixel-Stil. Editierbare SVG-Quellen
 | d1.cookie | Angebissener Cookie |
 | d1.verbergen | Kleiner Datengespenst-Geist |
 | d1.frist | Uhr mit Bewegungslinien |
+
+## D2 IT-Sicherheit & Schutzbedarf
+
+Zehn einzeln generierte Pixelmotive mit transparentem Hintergrund, PNG 512 px und WebP 96/192 px. Darstellungsprüfung bei 42 px; Zuordnung über die bestehenden Achievement-Codes. Schild/Schloss (`cia`), Risikorechner (`risiko`), höchster Schutzbedarf (`maximum`), Schlüssel und Smartphone (`faktoren`), Würfel (`entropie`), Checkliste (`lernpfad`), Server/Sanduhr (`marathon`), kaputtes Schloss (`passwort123`), gekrönte Phishing-Mail (`prinz`), verdächtiger USB-Stick (`usb`).
