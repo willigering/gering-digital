@@ -62,30 +62,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       </div>
     </div>
   </section>
-  <section class="finder-section" id="pruefungsfinder" aria-labelledby="exam-title">
-    <div class="section-shell">
-      <div class="exam-finder" data-reveal>
-        <div class="exam-intro">
-        <span class="exam-eyebrow">⌕ &nbsp; <?=e($c['finder_eyebrow'])?></span>
-        <h2 id="exam-title"><?=e($c['finder_title'])?><?php if($c['finder_title_highlight']!==''): ?> <em><?=e($c['finder_title_highlight'])?></em><?php endif; ?></h2>
-        <?php if($c['finder_intro']!==''): ?><p><?=dtp_inline($c['finder_intro'])?></p><?php endif; ?>
-        </div>
-        <div class="exam-controls">
-        <form id="exam-form" role="search">
-          <label for="exam-topics"><?=e($c['finder_label'])?></label>
-          <div class="exam-input-row"><input id="exam-topics" type="search" maxlength="260" placeholder="<?=e($c['finder_placeholder'])?>" autocomplete="off">
-          <button type="submit"><?=e($c['finder_button'])?> <span aria-hidden="true">→</span></button></div>
-        </form>
-        <div class="exam-examples"><span>PROBIER MAL:</span>
-          <button type="button" data-example="OSI, VLAN, Router">Netzwerke</button>
-          <button type="button" data-example="IPv4, Subnetting, Binär">IPv4 &amp; Subnetting</button>
-          <button type="button" data-example="DSGVO, Hash, Verschlüsselung">IT-Sicherheit</button>
-        </div>
-        <div class="exam-feedback" aria-live="polite"><strong id="result-indicator"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?> verfügbar</strong><button id="exam-reset" type="button" hidden>Suche zurücksetzen ×</button></div>
-        </div>
-      </div>
-    </div>
-  </section>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
@@ -106,7 +82,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?=dtp_module_card($module,'../')?>
 <?php endforeach; ?>
 </div>
-<p id="search-empty" class="search-empty" hidden>Keine Module gefunden. Versuche einen anderen Suchbegriff oder Themenfilter.</p>
+<p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
               </div>
     </div>

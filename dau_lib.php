@@ -227,15 +227,6 @@ function dtp_page_fields(): array {
             'empty_title'=>['Überschrift ohne Module','text',80,'Deine Trainingszone wächst.',true],
             'empty_text'=>['Text ohne Module','textarea',300,'Hier erscheinen alle Lernmodule, die über den Admin-Bereich in der Kategorie „DAU to Pro“ veröffentlicht werden.',false],
         ],
-        'Prüfungsfinder' => [
-            'finder_eyebrow'=>['Kennzeile','text',60,'DEIN PRÜFUNGSFINDER',false],
-            'finder_title'=>['Überschrift','text',80,'Du willst dich auf eine',true],
-            'finder_title_highlight'=>['Überschrift – Gold','text',60,'Prüfung vorbereiten?',false],
-            'finder_intro'=>['Einleitung','textarea',400,'Prima! Gib die Themen ein, die drankommen. Ich zeige dir die passenden Lernmodule – ganz ohne Fachchinesisch-Bingo.',false],
-            'finder_label'=>['Beschriftung des Suchfelds','text',60,'WELCHE THEMEN KOMMEN DRAN?',true],
-            'finder_placeholder'=>['Platzhaltertext im Suchfeld','text',60,'z. B. OSI, IPv4, Datenschutz',false],
-            'finder_button'=>['Suchbutton','text',30,'Module finden',true],
-        ],
         'Dein Weg' => [
             'method_eyebrow'=>['Kennzeile','text',40,'02 / DEIN WEG',false],
             'method_title'=>['Überschrift','text',60,'Vom Fragezeichen',true],
@@ -563,10 +554,10 @@ function dtp_nav(string $page,?string $learner): string {
     $section=$start?'':'./';
     $current=fn(bool $on): string => $on?' aria-current="page"':'';
     $links=[
-        [$section.'#pruefungsfinder','Prüfungsfinder',false],
+        [$section.'#lernmodule','Lernmodule',false],
         [$section.'#konzept','Lernkonzept',false],
     ];
-    $desktop='';$mobile='<a href="'.e($section.'#lernmodule').'">Lernmodule</a>';
+    $desktop='';$mobile='';
     foreach($links as [$href,$text,$on]){
         $desktop.='      <a'.($on?' class="selected"':'').' href="'.e($href).'"'.$current($on).'>'.e($text).'</a>'."\n";
         $mobile.='<a href="'.e($href).'"'.$current($on).'>'.e($text).'</a>';

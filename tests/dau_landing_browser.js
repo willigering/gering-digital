@@ -42,27 +42,26 @@ let server,browser;
       const grid=getComputedStyle(document.querySelector('.module-grid'));
       return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').filter(track=>parseFloat(track)>0).length,
         cardWidth:document.querySelector('.module-card').getBoundingClientRect().width,modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
-        overflow:[...document.querySelectorAll('.hero-copy,.hero-actions,.exam-input-row,.module-card,.step')].filter(e=>{const b=e.getBoundingClientRect();return b.left<-.5||b.right>innerWidth+.5}).map(e=>e.className)};
+        overflow:[...document.querySelectorAll('.hero-copy,.hero-actions,.module-card,.step')].filter(e=>{const b=e.getBoundingClientRect();return b.left<-.5||b.right>innerWidth+.5}).map(e=>e.className)};
     });
     if(screenshots&&[1440,390,320].includes(width))await page.screenshot({path:path.join(screenshots,`desktop-${width}.png`),fullPage:true});
     assert.ok(geometry.scrollWidth<=width,`No page overflow at ${width}: ${JSON.stringify(geometry)}`);
     assert.deepEqual(geometry.overflow,[],`No clipped controls at ${width}`);
     if(width>=1024||width<=610)assert.ok(geometry.ctaBottom<height,`Learning action visible on first screen at ${width}: ${geometry.ctaBottom}`);
     if(width>=1024){assert.ok(geometry.columns>=2,'Desktop retains a stable multi-column grid');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
-    await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('OSI');
-    await page.getByRole('button',{name:'Module finden',exact:false}).click();
-    assert.equal(await page.locator('.module-card:visible').count(),1,'Search submission shows one result');
-    assert.equal(await page.locator('#module-grid').getAttribute('data-count'),'1');
-    assert.ok(Math.abs(await page.locator('.module-card:visible').evaluate(n=>n.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtered cards retain their width');
-    await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
-    assert.equal(await page.locator('.module-card:visible').count(),2);
-    await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('Nichtvorhanden');
-    assert.ok(await page.locator('#search-empty').isVisible(),'No-result state visible');
-    await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
+    assert.equal(await page.locator('#pruefungsfinder').count(),0,'Prüfungsfinder was removed');
+    assert.equal(await page.locator('#exam-form').count(),0,'No exam search field remains');
+    assert.equal(await page.locator('.module-card:visible').count(),2,'All modules initially visible');
     assert.deepEqual(await page.locator('.filterbar [data-filter]').evaluateAll(options=>options.map(option=>option.dataset.filter)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
     await page.locator('[data-filter="subnet"]').click();
-    assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works');
+    assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works without exam finder');
+    assert.equal(await page.locator('#module-grid').getAttribute('data-count'),'1','Visible module count updates');
+    assert.ok(Math.abs(await page.locator('.module-card:visible').evaluate(n=>n.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtered cards retain their width');
+    await page.locator('[data-filter="wirtschaft"]').click();
+    assert.ok(await page.locator('#search-empty').isVisible(),'Empty topic state is visible');
     await page.locator('[data-filter="alle"]').click();
+    assert.equal(await page.locator('.module-card:visible').count(),2,'All modules restored');
+    assert.ok(await page.locator('#search-empty').isHidden(),'Empty topic state dismissed');
     if(width<=860){
       await page.getByRole('button',{name:'Menü öffnen',exact:true}).click();
       assert.ok(await page.locator('#dtp-mobile-menu').isVisible());
@@ -73,7 +72,7 @@ let server,browser;
     assert.ok(await page.locator('.disclaimer-body').isVisible(),'Full disclaimer can be opened');
     await page.getByRole('button',{name:'Pixelpilz',exact:true}).click();
     assert.equal(await page.locator('.fx-count').textContent(),'1x','Easter egg still responds');
-    console.log(`${width}×${height}: layout, search, filters, navigation and mushroom passed; modules y=${Math.round(geometry.modulesY)}`);
+    console.log(`${width}×${height}: layout, topic tabs, navigation and mushroom passed; modules y=${Math.round(geometry.modulesY)}`);
     await context.close();
   }
   const context=await browser.newContext({viewport:{width:1440,height:900}});
