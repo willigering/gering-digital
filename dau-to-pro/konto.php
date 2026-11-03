@@ -363,7 +363,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
   </section>
 <?php endif; ?>
 </main>
-<footer class="dtp-footer"><div class="footer-inner"><a href="../index.php" class="footer-brand"><strong>GERING <em>DIGITAL</em></strong><small>DAU TO PRO · Ein Projekt von Gering Digital</small></a><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
+<footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
 <script>
 (function(){
   var code=document.getElementById('recovery-code');
