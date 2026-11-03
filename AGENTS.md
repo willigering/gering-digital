@@ -15,3 +15,11 @@ Den Umfang einer Überarbeitung und ihre tatsächlichen Prüfergebnisse in
 bearbeiteten Durchlauf nicht als vollständig oder live geprüft darstellen.
 Vorhandene Autorisierung für Merge und Veröffentlichung beachten; diese
 Datei erweitert sie nicht.
+
+
+
+### Willis verbindliche Ergänzung vom 03.11.2026
+
+Bei der sprachlichen Überarbeitung bestehender Module **nur die Inhalte ändern, keine Überschriften**: Seitentitel, Modulname, Kapitel-/Stufentitel, Abschnitts- und Labortitel erhalten. Erklärungen, Fälle, Fragen, Hinweise, Lösungen und Rückmeldungen dürfen redigiert werden. Ausdrücklich beauftragte Darstellungsänderungen wie der Buchstabenabstand werden getrennt dokumentiert.
+
+Die ausgelieferte HTML-Datei nach der unveränderten Hauptüberschrift benennen, bei B5 **`Port 80, bitte kommen.html`**. Technische Repository-Pfade und URL-Kürzel beibehalten, damit vorhandene Kontofortschritte und Installationen nicht ihre Zuordnung verlieren.

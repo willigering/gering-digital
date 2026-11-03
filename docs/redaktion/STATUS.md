@@ -4,7 +4,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 
 | Modul | Datei | Redaktionsstand | Nächster Umfang |
 | --- | --- | --- | --- |
-| B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Teilweise redigiert: Einstieg von Stufe/Kapitel 1 und drei Feedback-Pools | Übrige Lektionen, Nachschlagwerk, Labs, Aufgaben, Tooltips, Lösungen, Prüfungstexte und Achievements vollständig lesen |
+| B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Inhaltlicher Redaktionsdurchlauf aller zehn Stufen/Kapitel abgeschlossen; technische Abnahme siehe Protokoll | Willis Sichtprüfung; Merge-/Live-Status nach tatsächlicher Übernahme aktualisieren |
 | A1 Zahlensysteme | `a1-zahlensysteme.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B1 OSI | `osi-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B2 Netzwerke | `netzwerke-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
@@ -25,3 +25,18 @@ Weitere Module beim Anlegen oder beim nächsten Bestandsabgleich ergänzen. Dies
 - Umfang bewusst begrenzt: übrige B5-Texte und andere Module sind noch nicht vollständig redigiert.
 - Prüfungen: siehe PR. Fachregeln, Lösungen, IDs, Speicherpräfixe und Bewertungen bleiben bei dieser Redaktion unverändert.
 - Merge und öffentliche Auslieferung sind erst nach tatsächlicher Durchführung als erledigt einzutragen.
+
+
+## Vollständiger B5-Inhaltsdurchlauf (03.11.2026)
+
+Geprüfter Umfang: alle zehn Lernpfad-Lektionen und Nachschlagekapitel einschließlich Beispielen, Rechenschritten, Fallen und Laboren; alle 50 Generator-Typen mit ihren Fallvarianten, sichtbaren Fragen, vereinfachten Tooltips und Lösungen; zehn Themenhinweise; Feedback- und Notentexte sowie Sprint-/Prüfungsregeln. Bereits klare Texte und die Beispielrechnungen wurden erhalten. Keine fachliche Neuentwicklung und keine neuen Aufgaben.
+
+Überarbeitet: insbesondere abstrakte Fachsprache (Bytestrom, Nachrichtengrenzen, Flags, Rebinding, DNS-Zone, Cache, API und Integrität). Passende kurze Pointen in den Erklärungen; eine situationsbezogene derbe Telnet-Pointe. Unverständliche IT-Metaphern und unterstelltes Schummeln bei einem Tabwechsel entfernt.
+
+Nutzergrenzen: sämtliche vorhandenen HTML-Überschriften, Stufentitel, Labortitel, Typ-IDs und Labels bleiben gleich. Der zusätzliche Darstellungsauftrag ändert nur `letter-spacing` der großen Hero-Überschrift von -0,055 em auf +0,03 em, damit die T in BITTE nicht mehr aneinanderkleben.
+
+Downloadname: **Port 80, bitte kommen.html**. Technischer Repository-Pfad und Modul-URL bleiben erhalten. Die Regel „nur Inhalte, keine Überschriften; Downloadname wie Haupttitel“ ist in AGENTS.md, Projektanleitung und Redaktionsworkflow dauerhaft festgehalten.
+
+Technisch geprüft: 50.000 Aufgaben gegen identisch gesetzte Zufallsfolgen der vorherigen Fassung verglichen. Lösungen, Antwortarten, Alternativantworten, Einheiten und Rundungsvorgaben unverändert. Alle Musterantworten werden weiterhin akzeptiert. Skriptsyntax und unveränderte Überschriften separat geprüft. Browserabnahme prüft Lernpfad, Training, alle Prüfungsgrößen, Tabwechsel und 1440/390/320 px.
+
+Humor bleibt eine redaktionelle Einschätzung. Willis Rückmeldung ist die abschließende Stilkontrolle. Kein Live-Update behaupten, solange die öffentlich ausgelieferte Modulversion nicht geprüft wurde.

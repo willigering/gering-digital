@@ -119,3 +119,11 @@ Diese Pointe ist ein Vorschlag, kein Spruch, der in jedem Modul wiederholt werde
 ## Arbeitsauftrag für den nächsten Durchlauf
 
 > Lies diesen Workflow und die aktuelle Modul-Anleitung. Wähle das beauftragte Modul oder das nächste offene Modul aus STATUS.md. Lies alle dort genannten Textbereiche, vereinfache zuerst die Erklärung und füge dann nur passende, verständliche Pointen hinzu. Derbe Sprache ist sparsam und situationsbezogen erlaubt. Prüfe Humor und Fachlichkeit getrennt, bewahre Aufgabenbewertung und gespeicherten Fortschritt. Teste die tatsächlich betroffenen Funktionen und die Textdarstellung. Dokumentiere den Umfang ehrlich und liefere einen prüfbaren PR. Veröffentliche nur im Rahmen der vorhandenen Autorisierung.
+
+
+
+### Willis verbindliche Ergänzung vom 03.11.2026
+
+Bei der sprachlichen Überarbeitung bestehender Module **nur die Inhalte ändern, keine Überschriften**: Seitentitel, Modulname, Kapitel-/Stufentitel, Abschnitts- und Labortitel erhalten. Erklärungen, Fälle, Fragen, Hinweise, Lösungen und Rückmeldungen dürfen redigiert werden. Ausdrücklich beauftragte Darstellungsänderungen wie der Buchstabenabstand werden getrennt dokumentiert.
+
+Die ausgelieferte HTML-Datei nach der unveränderten Hauptüberschrift benennen, bei B5 **`Port 80, bitte kommen.html`**. Technische Repository-Pfade und URL-Kürzel beibehalten, damit vorhandene Kontofortschritte und Installationen nicht ihre Zuordnung verlieren.
