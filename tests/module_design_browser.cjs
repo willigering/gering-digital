@@ -31,7 +31,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
     await page.setViewportSize({width,height:width===390?844:1000});
     for(const tab of ['path','learn','train','exam']){
      await page.locator('#tab-'+tab).click();
-     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth,items:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();return r.width&&r.right>innerWidth+1}).slice(0,12).map(e=>({tag:e.tagName,cls:e.className,text:e.textContent.slice(0,70),width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))}));
+     const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,viewport:innerWidth,items:[...document.querySelectorAll('body *')].filter(e=>{const r=e.getBoundingClientRect();if(!r.width||r.right<=innerWidth+1)return false;for(let p=e.parentElement;p&&p!==document.body;p=p.parentElement){if(/auto|scroll|hidden|clip/.test(getComputedStyle(p).overflowX))return false;}return true}).slice(0,12).map(e=>({tag:e.tagName,cls:e.className,text:e.textContent.slice(0,70),width:e.getBoundingClientRect().width,right:e.getBoundingClientRect().right}))}));
      if(overflow.width>width){overflows.push({module:m.slug,tab,...overflow});console.log('OVERFLOW '+JSON.stringify(overflows.at(-1)));}
     }
     await page.locator('#tab-path').click();await page.evaluate(()=>scrollTo(0,0));
