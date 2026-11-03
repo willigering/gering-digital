@@ -17,11 +17,13 @@ function xp_schema(PDO $db): void {
     $db->exec('CREATE INDEX IF NOT EXISTS learner_xp_history ON learner_xp_events(learner_id,id DESC)');
 }
 /** Serialize read / award / XP total / high-water marks, including independent sessions and tabs. */
+if (!function_exists('ach_evaluate')) {
 function ach_evaluate(int $learnerId,array $events=[]): array {
     $db=db();if($db->inTransaction())return ach_evaluate_locked($learnerId,$events);
     $db->exec('BEGIN IMMEDIATE');
     try { $r=ach_evaluate_locked($learnerId,$events);$db->exec('COMMIT');return $r; }
     catch(Throwable $e) {$db->exec('ROLLBACK');throw $e;}
+}
 }
 function xp_add(int $id,string $key,string $source,int $xp,string $label,int $now,string $module=''): void {
     if($xp<=0)return;

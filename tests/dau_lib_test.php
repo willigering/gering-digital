@@ -93,7 +93,7 @@ foreach([768,1448] as $width){
     imagedestroy($cutout);
 }
 check(substr_count($scene,'class="hero-plane hero-plane--')===5 && !str_contains($scene,'data-hero-depth='),'Originalgrafik hat fünf feste Ebenen ohne Parallax');
-check(str_contains($scene,'hero-learning-growth') && str_contains($scene,'DEIN LERNFORTSCHRITT'),'Fortschritt wird als eigene beschriftete Grafik gerendert');
+check(str_contains($scene,'hero-learning-growth') && str_contains($scene,'aria-label="Dein Lernfortschritt: vom DAU zum PRO"') && !str_contains($scene,'DEIN LERNFORTSCHRITT'),'Fortschrittsgrafik behält ihren zugänglichen Namen ohne sichtbare Beschriftung');
 check(str_contains($scene,'data-mushroom-anchor'),'Der Pilz besitzt einen eigenen mitbewegten Anker');
 check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true]),'Eigener Hero'),'hero-plane'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');
 check($hero['src']==='assets/dau-to-pro-hero-freigestellt.png' && !$hero['custom'],'Standard-Hero ist die freigestellte Originalgrafik');
