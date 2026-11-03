@@ -25,7 +25,23 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         const before=await page.evaluate(()=>JSON.stringify(localStorage));
         await page.evaluate(()=>{window.focusOriginalPanel=document.getElementById('practicePanel');window.focusOriginalBack=document.getElementById('backToLesson');});
         await page.locator('#practiceGo').click();
-        const dialog=page.locator('.dtp-practice-dialog');await dialog.waitFor({state:'visible'});await page.waitForFunction(()=>{const d=document.querySelector('.dtp-practice-dialog');return getComputedStyle(d).opacity==='1'&&getComputedStyle(d,'::backdrop').backdropFilter==='blur(7px)';});
+        const dialog=page.locator('.dtp-practice-dialog');await dialog.waitFor({state:'visible'});
+        if(viewport.width===1440&&m.slug===modules[0].slug){
+          // Regression: the backdrop really interpolates; it must not instantly jump
+          // to the finished dark/blurred state like the previous 300 ms dialog.
+          await page.waitForTimeout(680);
+          const mid=await page.evaluate(()=>{
+            const d=document.querySelector('.dtp-practice-dialog'),b=getComputedStyle(d,'::backdrop');
+            return {blur:(Number(b.backdropFilter.split('blur(')[1]?.split('px')[0])||0),
+              shade:(Number(b.backgroundColor.split(',').at(-1).replace(')','').trim())||0)};
+          });
+          assert.ok(mid.blur>0&&mid.blur<6&&mid.shade>0&&mid.shade<.72,
+            'Opening backdrop builds blur and dimming gradually, not abruptly: '+JSON.stringify(mid));
+        }
+        await page.waitForFunction(()=>{
+          const d=document.querySelector('.dtp-practice-dialog'),b=getComputedStyle(d,'::backdrop');
+          return getComputedStyle(d).opacity==='1'&&b.backdropFilter.includes('blur(7px)')&&b.backgroundColor.includes('0.72');
+        },null,{timeout:9500});
         const state=await page.evaluate(()=>{
           const d=document.querySelector('.dtp-practice-dialog'),r=d.getBoundingClientRect(),b=getComputedStyle(d,'::backdrop');
           return {open:d.open,modal:d.matches(':modal'),same:document.getElementById('practicePanel')===window.focusOriginalPanel&&document.getElementById('backToLesson')===window.focusOriginalBack,
@@ -51,11 +67,18 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         await page.evaluate(()=>{const f=document.createElement('div');f.id='focus-long-test';f.style.height='1800px';document.getElementById('practiceTask').append(f);document.querySelector('.dtp-practice-dialog').scrollTop=9999;});
         const back=await page.locator('#backToLesson').boundingBox();const bounds=await dialog.boundingBox();
         assert.ok(back.y>=bounds.y&&back.y+back.height<=bounds.y+bounds.height,'Return button remains visible when scrolled');
-        await page.keyboard.press('Escape');await page.waitForTimeout(450);
+        await page.keyboard.press('Escape');
+        if(viewport.width===1440&&m.slug===modules[0].slug){
+          await page.waitForTimeout(170);
+          const fade=await dialog.evaluate(d=>{const b=getComputedStyle(d,'::backdrop');return {open:d.open,blur:(Number(b.backdropFilter.split('blur(')[1]?.split('px')[0])||0)};});
+          assert.ok(fade.open&&fade.blur>0&&fade.blur<7,'Backdrop fades back instead of disappearing at once: '+JSON.stringify(fade));
+        }
+        await page.waitForFunction(()=>!document.querySelector('.dtp-practice-dialog').open,null,{timeout:3000});
         assert.equal(await dialog.evaluate(d=>d.open),false);
         assert.equal(await page.evaluate(()=>JSON.stringify(localStorage)),before,'Abandoning task awards nothing');
         assert.equal(await page.locator('#pathView #practicePanel').count(),1,'Panel returns to learning path');
-        await page.locator('#practiceGo').click();await dialog.waitFor({state:'visible'});await page.locator('#backToLesson').click();await page.waitForTimeout(450);
+        await page.locator('#practiceGo').click();await dialog.waitFor({state:'visible'});await page.locator('#backToLesson').click();
+        await page.waitForFunction(()=>!document.querySelector('.dtp-practice-dialog').open,null,{timeout:3000});
         assert.equal(await dialog.evaluate(d=>d.open),false,'Return button closes exercise');
         assert.equal(await page.evaluate(()=>document.body.classList.contains('dtp-exercise-open')),false,'Normal scrolling restored');
         assert.deepEqual(errors,[],m.slug+' console errors');await context.close();
@@ -64,6 +87,6 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
     const context=await browser.newContext({reducedMotion:'reduce'});const page=await context.newPage();
     await page.goto(`http://127.0.0.1:${server.address().port}/${modules[0].file}`);await page.locator('#practiceGo').click();
     assert.equal(await page.locator('.dtp-practice-dialog').evaluate(d=>getComputedStyle(d).transitionDuration),'0s');await context.close();
-    console.log('Exercise focus: nine modules, desktop/mobile, centering, blur/dim, real controls, stable typing, sticky return, Escape, no rewards and reduced motion passed.');
+    console.log('Exercise focus: nine modules, desktop/mobile, centering, progressive 4.1 s blur/dim and 0.92 s fade-out, real controls, stable typing, sticky return, Escape, no rewards and reduced motion passed.');
   }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exit(1);});

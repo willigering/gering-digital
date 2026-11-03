@@ -411,18 +411,21 @@ var B=["data:image/webp;base64,UklGRhDNAABXRUJQVlA4IATNAAAwXASdASoABgAEPnk8mkqko
 <!-- DTP-MODULDESIGN END -->
 <!-- DTP-UEBUNGSFOKUS START -->
 <style>
-/* Shared learning-path exercise dialog, also embedded in standalone modules. */
-.dtp-practice-dialog{box-sizing:border-box;width:min(900px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid var(--cyan);border-radius:10px;background:#0b1212;color:var(--text,#f2f0e7);overflow:auto;overscroll-behavior:contain;box-shadow:0 24px 100px #000b;opacity:0;transform:translateY(12px) scale(.985);transition:opacity .3s ease,transform .3s ease}
+/* Shared learning-path exercise dialog, also embedded in standalone modules.
+   Match the landing-page module-hover rhythm: a gradual 4.1 s focus build,
+   and a softer but faster 0.92 s return. The native backdrop is painted
+   frame by frame by module-focus.js so it never suddenly jumps to full blur. */
+.dtp-practice-dialog{box-sizing:border-box;width:min(900px,calc(100vw - 32px));max-width:none;max-height:calc(100dvh - 32px);margin:auto;padding:0;border:1px solid var(--cyan);border-radius:10px;background:#0b1212;color:var(--text,#f2f0e7);overflow:auto;overscroll-behavior:contain;box-shadow:0 24px 100px #000b;opacity:0;transform:translateY(12px) scale(.985);transition:opacity .65s cubic-bezier(.2,.7,.3,1),transform .65s cubic-bezier(.2,.7,.3,1)}
 .dtp-practice-dialog.dtp-focus-visible{opacity:1;transform:translateY(0) scale(1)}
-.dtp-practice-dialog::backdrop{background:rgba(3,7,9,0);backdrop-filter:blur(0px);-webkit-backdrop-filter:blur(0px);transition:background .3s ease,backdrop-filter .3s ease,-webkit-backdrop-filter .3s ease}
-.dtp-practice-dialog.dtp-focus-visible::backdrop{background:rgba(3,7,9,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+/* Transparent on opening, JS interpolates actual blur/dim/brightness/saturation. */
+.dtp-practice-dialog::backdrop{background:rgba(3,7,9,0);backdrop-filter:blur(0px) brightness(1) saturate(1);-webkit-backdrop-filter:blur(0px) brightness(1) saturate(1)}
 .dtp-practice-dialog #practicePanel{margin:0;border:0;border-radius:0;box-shadow:none;clip-path:none;overflow:visible}
 .dtp-focus-toolbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 20px;background:#0b1212;border-bottom:1px solid #ffffff20}
 .dtp-focus-toolbar .btn{margin:0;white-space:normal}
 .dtp-focus-toolbar small{flex:1;min-width:140px;color:var(--muted,#bac5c4);font-size:12px;line-height:1.4}
 body.dtp-exercise-open{overflow:hidden}
 @media(max-width:600px){.dtp-practice-dialog{width:calc(100vw - 16px);max-height:calc(100dvh - 16px)}.dtp-focus-toolbar{padding:10px 14px;gap:6px}.dtp-focus-toolbar small{flex-basis:100%}.dtp-practice-dialog #practicePanel{padding:16px}}
-@media(prefers-reduced-motion:reduce){.dtp-practice-dialog,.dtp-practice-dialog::backdrop{transition:none;transform:none}}
+@media(prefers-reduced-motion:reduce){.dtp-practice-dialog{transition:none;transform:none}.dtp-practice-dialog::backdrop{transition:none}}
 </style>
 <script>
 /* Move the real controls, not copies: existing task, scoring and lesson handlers stay in charge. */
@@ -443,10 +446,48 @@ body.dtp-exercise-open{overflow:hidden}
     const note=document.createElement('small');note.textContent='Zurück zur Lektion: Die offene Aufgabe wird nicht gewertet. Auch mit Esc.';
     note.id='dtp-focus-note';dialog.setAttribute('aria-describedby',note.id);
     toolbar.append(note);dialog.append(toolbar);document.body.append(dialog);
-    let timer=0,frame=0,closing=false;
+
+    // Native ::backdrop is not an ordinary DOM element. Drive a real CSS rule
+    // instead of fading the opacity of an already-blurred layer: exactly as
+    // with the smooth module-card hover, every effect grows frame by frame.
+    const sheetNode=document.createElement('style');
+    sheetNode.textContent='.dtp-practice-dialog::backdrop{}';
+    document.head.append(sheetNode);
+    const backdropRule=sheetNode.sheet&&sheetNode.sheet.cssRules[0];
+    const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+    const ENTER_MS=4100,EXIT_MS=920;
+    let progress=0,animationFrame=0,frame=0,timer=0,closing=false;
+    const paint=value=>{
+      progress=Math.max(0,Math.min(1,value));
+      if(!backdropRule)return;
+      const blur=(7*progress).toFixed(3)+'px';
+      const brightness=(1-.24*progress).toFixed(4);
+      const saturation=(1-.35*progress).toFixed(4);
+      const effect='blur('+blur+') brightness('+brightness+') saturate('+saturation+')';
+      backdropRule.style.background='rgba(3,7,9,'+(.72*progress).toFixed(4)+')';
+      backdropRule.style.backdropFilter=effect;
+      backdropRule.style.webkitBackdropFilter=effect;
+    };
+    const animateTo=target=>{
+      cancelAnimationFrame(animationFrame);
+      if(reduced.matches){paint(target);return 0;}
+      const from=progress,distance=Math.abs(target-from);
+      if(distance<.0001){paint(target);return 0;}
+      const duration=(target>from?ENTER_MS:EXIT_MS)*distance;
+      const started=performance.now();
+      const step=now=>{
+        const t=Math.min(1,(now-started)/duration);
+        // Enter is deliberately linear like card hover. Exit eases out.
+        paint(from+(target-from)*(target>from?t:1-Math.pow(1-t,3)));
+        if(t<1)animationFrame=requestAnimationFrame(step);
+      };
+      animationFrame=requestAnimationFrame(step);
+      return duration;
+    };
+    paint(0);
     const restore=()=>{
-      clearTimeout(timer);cancelAnimationFrame(frame);closing=false;
-      dialog.classList.remove('dtp-focus-visible');
+      clearTimeout(timer);cancelAnimationFrame(frame);cancelAnimationFrame(animationFrame);closing=false;
+      dialog.classList.remove('dtp-focus-visible');paint(0);
       if(dialog.open)dialog.close();
       slot.after(panel);backSlot.after(back);document.body.classList.remove('dtp-exercise-open');
     };
@@ -459,13 +500,19 @@ body.dtp-exercise-open{overflow:hidden}
         document.body.classList.add('dtp-exercise-open');
         if(!dialog.open)dialog.showModal();
         dialog.scrollTop=0;
-        // Let the initial invisible frame paint before fading in. No scrollIntoView race.
-        frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>dialog.classList.add('dtp-focus-visible'));});
-        const input=task.querySelector('input:not([disabled]),textarea:not([disabled]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Paint the initial clear frame before bringing in the real question.
+        cancelAnimationFrame(frame);
+        frame=requestAnimationFrame(()=>{frame=requestAnimationFrame(()=>{
+          dialog.classList.add('dtp-focus-visible');
+          animateTo(1);
+        });});
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
-        closing=true;cancelAnimationFrame(frame);dialog.classList.remove('dtp-focus-visible');
-        timer=setTimeout(restore,matchMedia('(prefers-reduced-motion: reduce)').matches?0:300);
+        closing=true;cancelAnimationFrame(frame);
+        dialog.classList.remove('dtp-focus-visible');
+        const duration=animateTo(0);
+        timer=setTimeout(restore,reduced.matches?0:Math.max(650,Math.ceil(duration)+60));
       }
     };
     // Escape uses the module's real handler, so abandoning a question never awards points.
@@ -473,12 +520,11 @@ body.dtp-exercise-open{overflow:hidden}
     back.addEventListener('click',()=>{
       sync();
       const lesson=document.getElementById('lessonTitle');
-      // Restore first, then let keyboard users continue at the lesson.
-      setTimeout(()=>{if(!dialog.open&&lesson){lesson.setAttribute('tabindex','-1');lesson.focus({preventScroll:true});}},320);
+      // Return keyboard focus only after the dialog and fading backdrop close.
+      setTimeout(()=>{if(!dialog.open&&lesson){lesson.setAttribute('tabindex','-1');lesson.focus({preventScroll:true});}},reduced.matches?0:1100);
     });
     new MutationObserver(sync).observe(task,{attributes:true,attributeFilter:['hidden'],childList:true});
     new MutationObserver(sync).observe(view,{attributes:true,attributeFilter:['hidden']});
-    // A new task starts at its question; answering/typing never moves the viewport.
     dialog.addEventListener('click',event=>{if(event.target.closest('[data-r="next"]'))requestAnimationFrame(()=>{dialog.scrollTop=0;});});
     sync();
   };
