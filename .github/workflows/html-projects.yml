@@ -40,6 +40,8 @@ jobs:
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
+      - name: Test fresh module entry, scroll reset and retained progress
+        run: node tests/module_entry_test.cjs
       - name: Test B4 IPv6 domain and platform integration
         run: node tests/b4_ipv6_unit.js && php tests/b4_ipv6_integration.php
   landing-browser:
@@ -109,7 +111,7 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-design-screenshots
-        run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs
+        run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs && node tests/module_entry_browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
