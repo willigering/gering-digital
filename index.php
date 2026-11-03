@@ -141,7 +141,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <div class="cards">
         <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
-          <div class="dtp-portal-art"><img src="assets/dau-to-pro-logo.webp" loading="lazy" width="1150" height="864" alt=""></div>
+          <div class="dtp-portal-art"><img src="assets/dau-to-pro-preview.svg" loading="lazy" width="1280" height="720" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
           <span class="dtp-portal-cta">Lernplattform öffnen <b>↗</b></span></div>
