@@ -1,0 +1,54 @@
+/* DTP-MODULDESIGN: gemeinsame Gestaltung, inline für die Offline-Datei.
+   --cyan ist die bestehende Modulfarbe; --gold bleibt für fachliche Farbcodes. */
+:root{
+  --module-accent:var(--cyan);
+  --module-light:color-mix(in srgb,var(--module-accent) 48%,#fff);
+  --module-line:color-mix(in srgb,var(--module-accent) 30%,transparent);
+  --module-soft:color-mix(in srgb,var(--module-accent) 8%,transparent);
+  --module-panel:color-mix(in srgb,var(--module-accent) 5%,#0b1015);
+  --acc:var(--module-accent);
+}
+.hero{background:radial-gradient(ellipse at 80% 25%,var(--module-soft),transparent 65%);border-bottom-color:var(--module-line)}
+.hero-grid>*{min-width:0}
+.hero-grid>div:first-child{background:color-mix(in srgb,var(--module-panel) 92%,transparent);padding:22px;will-change:auto}
+.hero h1,.section-heading h2,.end-cap h2{color:var(--cream)}
+.hero h1 span,.section-heading h2 span,.end-cap h2 em{color:var(--module-accent)}
+.section-heading .path-title .path-title-lead{color:var(--cream)}
+.kicker{color:var(--module-light);border-color:var(--module-line);background:var(--module-soft);flex-wrap:wrap}
+.hero-meta span+span:before{border-color:var(--module-line)}
+.hero-meta b,.eyebrow,.counter,.ch-no,.area-sym{color:var(--module-accent);text-shadow:none}
+.content-zone{background:radial-gradient(ellipse at 85% 6%,var(--module-soft),transparent 48%)}
+.panel{border-color:var(--module-line);background:linear-gradient(140deg,color-mix(in srgb,var(--module-panel) 93%,transparent),color-mix(in srgb,#080c10 94%,transparent))}
+.panel.go:before,.panel.cy:before,.panel.ac:before{background:var(--module-accent);box-shadow:0 0 18px var(--module-soft)}
+.panel h3{color:var(--cream)}
+.panel h4{color:var(--module-light)}
+.area-tab,.stage-tile,.ch-tile,.mode-tile{border-color:var(--module-line);background:radial-gradient(ellipse at 85% 0%,var(--module-soft),transparent 62%),var(--module-panel)}
+.area-tab:before{background:linear-gradient(90deg,var(--module-accent),transparent)}
+.area-tab strong,.mode-tile strong,.ch-tile strong{color:var(--cream)}
+.area-tab small,.mode-tile small,.stage-tile .no,.ch-tile>span{color:var(--module-light)}
+.area-no{color:var(--module-soft)}
+.stage-tile .no,.ch-tile>span{border-color:var(--module-line)}
+.stage-tile:after{background:linear-gradient(135deg,transparent 49%,var(--module-accent) 50%)}
+.area-tab[aria-selected="true"],.stage-tile.cur,.mode-tile.active{border-color:var(--module-accent);background:radial-gradient(ellipse at 85% 0%,color-mix(in srgb,var(--module-accent) 15%,transparent),transparent 62%),var(--module-panel);box-shadow:0 10px 30px #0005,0 0 24px var(--module-soft)}
+.area-tab:hover,.stage-tile:hover:not([aria-disabled="true"]),.ch-tile:hover,.mode-tile:hover{border-color:var(--module-accent)}
+.stage-tile.done{border-color:color-mix(in srgb,var(--ok) 55%,transparent)}
+.btn.primary{color:#080e12;background:linear-gradient(105deg,var(--module-light),var(--module-accent));box-shadow:0 9px 26px var(--module-soft)}
+.btn.secondary{color:var(--cream);border-color:var(--module-line);outline-color:var(--module-line);background:var(--module-panel)}
+.btn.ghost{color:var(--module-accent);outline-color:var(--module-line);background:var(--module-panel)}
+.ref-link,.backtop,.question-label,.task-question>.task-label,.answer-compare>div>strong,.case-decision{color:var(--module-accent)}
+.memo{border-left-color:var(--module-accent);background:var(--module-soft);color:var(--text)}
+.how span,.tag{color:var(--module-light);border-color:var(--module-line);background:var(--module-panel)}
+.steps-list li:before,.mk-l{background:var(--module-accent);color:#080e12}
+.track:after{background:var(--module-accent)}
+.filter-btn.active,.filter-btn[aria-pressed="true"]{color:#080e12;background:var(--module-accent);border-color:var(--module-accent)}
+.qnav button.cur{background:var(--module-accent);color:#080e12;border-color:var(--module-accent)}
+.grade-big{color:var(--module-accent);text-shadow:0 0 30px var(--module-soft)}
+.bitwall,.ipwall{border-color:var(--module-line);background:linear-gradient(140deg,var(--module-panel),#090e12)}
+.bitwall-cap,.bitwall .bitwall-cap span,.ipwall-cap{color:var(--module-light)}
+.security-dossier>b,.bitwall .cash,.footer-inner em{color:var(--module-accent)}
+.end-cap{border-top-color:var(--module-line);background:radial-gradient(ellipse at 72% 45%,var(--module-soft),transparent 60%)}
+.dtp-footer{border-top-color:var(--module-line)}
+@media(max-width:610px){.hero-grid>div:first-child{padding:16px}.hero h1{font-size:clamp(34px,10vw,54px)}}
+/* Breite Lerntabellen scrollen in ihrer eigenen Fläche statt die Seite zu verbreitern. */
+@media(max-width:610px){table.t{display:block;min-width:0;max-width:100%;overflow-x:auto}.two>*,.workspace>*,.panel{min-width:0}}
+@media(max-width:610px){.panel{overflow-wrap:anywhere}.field-row>*,.lab>*,.readout>*,.sort-item>*{min-width:0;max-width:100%}.task-prompt .val,.val{white-space:normal;overflow-wrap:anywhere}.sort-item{grid-template-columns:34px minmax(0,1fr) 40px 40px}}

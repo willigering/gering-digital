@@ -1,5 +1,6 @@
 """Rebuild the standalone F2 module from the shared A1 shell and F2 content."""
 from pathlib import Path
+from module_theme import apply_theme
 import re, json, base64
 ROOT=Path(__file__).resolve().parents[1]
 shell=(ROOT/'lernmodule/a1-zahlensysteme.html').read_text()
@@ -73,7 +74,7 @@ shell=shell.replace('window.F2KALK_TEST={last:', 'window.F2KALK_TEST={last:')
 shell=shell.replace('Erste eine Antwort','Erst eine Antwort')
 shell=shell.replace("Ein paar Bits wackeln noch, aber das Fundament steht.","Ein paar Nachkommastellen wackeln noch, aber das Fundament steht.")
 shell=shell.replace("Sehr gut! Du bist offiziell kein DAU mehr. Höchstens noch ein DAU mit Root-Rechten.","Sehr gut! Deine Rechnung hält sogar einer Buchhaltungsbesprechung stand. Fast schade um die schönen Ausreden.")
-(ROOT/'lernmodule/f2-kalkulation.html').write_text(shell)
+(ROOT/'lernmodule/f2-kalkulation.html').write_text(apply_theme(shell))
 rows=['# F2 – Kalkulation & Beschaffung','', '| ID | Name | Teilthema | Stufe |','| --- | --- | --- | --- |']
 # The JS registry is also exported during the browser tests; use its explicit metadata here.
 for i,c in enumerate(content):
@@ -81,3 +82,4 @@ for i,c in enumerate(content):
 (ROOT/'docs/modul-auftraege').mkdir(parents=True,exist_ok=True)
 (ROOT/'docs/modul-auftraege/f2-aufgabentypen.md').write_text('\n'.join(rows)+'\n')
 print('F2 rebuilt:',len(shell),'characters')
+

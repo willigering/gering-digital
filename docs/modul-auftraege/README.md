@@ -45,7 +45,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 
 **Design:**
 
-- Wie die Vorlage: dunkle Basis, Gold `#eab448` als Hausfarbe, Creme-Text, schräge Kacheln, Kartenraster.
+- Wie die Vorlage: dunkle Basis, Creme-Text, schräge Kacheln und Kartenraster. Zweifarbige Titel bleiben Creme/Weiß plus jeweilige Modul-Akzentfarbe. Kacheln, Buttons, Überschriften und Zierlinien greifen dieselbe Modulfarbe auf; kein pauschales Orange/Gold für den farbigen Titelteil. Gold bleibt nur dort, wo es eine fachliche Unterscheidung trägt (z. B. Hostanteil gegenüber Netzanteil).\n- Die gemeinsame Farbgestaltung liegt in `tools/module-theme.css`. `python tools/module_theme.py` bettet sie am Ende von `<head>` in alle Modul-HTMLs ein. Für Builder steht `apply_theme(html)` bereit. Die Offline-Dateien benötigen keine externe CSS-Datei.
 - Die Akzentfarbe des Moduls (Tabelle unten) ersetzt das Cyan der Vorlage überall (`--cyan` und alle `rgba(0,220,232,…)`). Dunkle Flächen leicht in dieser Farbe tönen.
 - Hero: Einheitliche Hierarchie **„THEMENBEREICH // UNTERTHEMA // MODULKÜRZEL“**, z. B. „IT-SICHERHEIT // DATENSCHUTZ // MODUL D1“. Darunter der bestehende witzige Modultitel groß; vorhandene Titel niemals allein zur Vereinheitlichung ändern. Browser-Tab: „Thema · Titel“.
 - Muss auf dem Handy (390 px breit) ohne seitliches Scrollen funktionieren.
@@ -259,3 +259,4 @@ Quellen: dsgvo-gesetz.de, gesetze-im-internet.de (BDSG, TDDDG), BfDI, Kurzpapier
 - [ ] Konto-Synchronisierung, Fortschritt, XP und Rückweg funktionieren über die vorhandenen zentralen Komponenten.
 - [ ] Zehn passende Achievements sind registriert; Regeln, Typ-IDs, Stufen und Prüfungslängen wurden gegen das Modul geprüft. Wiederholte Vergabe erzeugt keine doppelten Belohnungen.
 - [ ] Offline-Datei und Plattform-Einbindung wurden getrennt geprüft; der PR enthält sämtliche notwendigen Dateien und nennt die tatsächlichen Prüfergebnisse.
+
