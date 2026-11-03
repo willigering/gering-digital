@@ -107,21 +107,23 @@
   function levelUp() {
     busy = true;
     clearTimeout(resetTimer);
-    live.textContent = 'Level up!';
+    live.textContent = 'Easter Egg entdeckt!';
     const flash = el('div', 'fx-levelup', document.body);
     flash.setAttribute('aria-hidden', 'true');
-    flash.innerHTML = '<svg class="fx-bolt" viewBox="-1 -1 12 16" shape-rendering="crispEdges"><path d="' + BOLT + '"/></svg><b>LEVEL UP!</b>';
+    // Kompakte Belohnung statt eines langen, bildschirmfüllenden Blitzes.
+    // Der Film und die echte XP-/Achievement-Meldung bleiben davon unabhängig.
+    flash.innerHTML = '<div class="fx-levelup-card"><span class="fx-levelup-icon"><svg class="fx-bolt" viewBox="-1 -1 12 16" shape-rendering="crispEdges" aria-hidden="true"><path d="' + BOLT + '"/></svg></span><span class="fx-levelup-copy"><span class="fx-levelup-kicker">EASTER EGG ENTDECKT</span><b>LEVEL UP!</b></span></div>';
     const r = layer.getBoundingClientRect();
     flash.style.setProperty('--fx-x', (r.left + r.width / 2) + 'px');
     flash.style.setProperty('--fx-y', (r.top + r.height / 2) + 'px');
-    if (!reduce.matches) burst(48, 2.2);
+    if (!reduce.matches) burst(18, 1.2);
     setTimeout(() => {
       flash.classList.add('is-out');
-      setTimeout(() => flash.remove(), 500);
+      setTimeout(() => flash.remove(), reduce.matches ? 0 : 180);
       reset(true);
       busy = false;
       openVideo();
-    }, reduce.matches ? 1300 : 1700);
+    }, reduce.matches ? 450 : 900);
   }
 
   hit.addEventListener('click', () => {
