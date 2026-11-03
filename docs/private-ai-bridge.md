@@ -22,7 +22,7 @@
 5. Den Client-Zugangstoken im Passwortmanager ablegen. **Nicht** in Chat, GitHub, öffentlichen Skripten oder Screenshots zeigen.
 6. Via FileZilla/SFTP **nur** `data/ai-bridge.php` in den gleichnamigen `data/`-Ordner der STRATO-Webseite kopieren (neben `index.php`, **nicht** in `api/`). Die vorhandene `data/.htaccess` **nicht löschen**.
 7. Vor der ersten KI-Abfrage prüfen, ob `https://geringdigital.de/data/ai-bridge.php` **HTTP 403** liefert. Bei anderem Status **nicht aktiv verwenden**: erst Webserver-Verzeichnisschutz reparieren oder Konfiguration außerhalb des Webroots ablegen.
-8. Lokal im Tampermonkey das Beispiel `tools/ai-bridge-tampermonkey.user.js` installieren. Über das Tampermonkey-Menü **„KI-Zugangstoken einrichten/ändern“** den separaten Token speichern. Nicht den OpenAI-Schlüssel dort hineinkopieren.
+8. Lokal im Tampermonkey das Beispiel `tools/ai-bridge-tampermonkey.user.js` installieren. **Zuerst `https://geringdigital.de/` öffnen** und dort über das Tampermonkey-Menü **„KI-Zugangstoken einrichten/ändern“** den separaten Token speichern. Den Token aus Sicherheitsgründen nicht auf einer fremden Webseite eingeben! Nicht den OpenAI-Schlüssel hineinkopieren.
 9. Text auf der Supportia-Seite markieren und den Menüeintrag **„Markierten Text mit KI erklären“** ausführen.
 
 **Kein erneuter GitHub-Merge oder STRATO-Deploy ist bei einem Token-Wechsel erforderlich:** nur die private Datei austauschen und den Client-Token aktualisieren. Eine bestehende Konfiguration wird durch das Setup-Skript absichtlich nicht überschrieben.
