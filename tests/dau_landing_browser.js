@@ -58,10 +58,10 @@ let server,browser;
     await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('Nichtvorhanden');
     assert.ok(await page.locator('#search-empty').isVisible(),'No-result state visible');
     await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
-    assert.deepEqual(await page.locator('#module-topic option').evaluateAll(options=>options.map(option=>option.value)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
-    await page.locator('#module-topic').selectOption('subnet');
+    assert.deepEqual(await page.locator('.filterbar [data-filter]').evaluateAll(buttons=>buttons.map(button=>button.dataset.filter)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
+    await page.locator('.filterbar [data-filter="subnet"]').click();
     assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works');
-    await page.locator('#module-topic').selectOption('alle');
+    await page.locator('.filterbar [data-filter="alle"]').click();
     if(width<=860){
       await page.getByRole('button',{name:'Menü öffnen',exact:true}).click();
       assert.ok(await page.locator('#dtp-mobile-menu').isVisible());
