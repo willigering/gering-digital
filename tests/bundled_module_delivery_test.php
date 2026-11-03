@@ -20,5 +20,11 @@ delivery_check(hp_current_learning_html('custom','my-custom-module','index.html'
 delivery_check(hp_current_learning_html('draft','subnet-sprint','index.html')==='draft','Canonical imported content is preserved');
 delivery_check(substr_count($out,'<!-- DTP-UEBUNGSFOKUS START -->')===1,'Imported module receives exercise focus');
 delivery_check(substr_count($twice,'<!-- DTP-UEBUNGSFOKUS START -->')===1,'No duplicate exercise focus');
+delivery_check(substr_count($out,'<!-- DTP-MODULEINSTIEG START -->')===1,'Legacy module receives learning path reset');
+delivery_check(substr_count($twice,'<!-- DTP-MODULEINSTIEG START -->')===1,'Entry reset is injected only once');
+delivery_check(strpos($out,'<!-- DTP-MODULEINSTIEG START -->')>strpos($out,'window.__DTP_SYNC__'),'Sync must hydrate storage before tab reset');
+$bundled=file_get_contents(__DIR__.'/../lernmodule/a1-zahlensysteme.html');
+$bundledOut=learner_inject_sync($bundled,'a1-zahlensysteme','index.html');
+delivery_check(substr_count($bundledOut,'<!-- DTP-MODULEINSTIEG START -->')===1,'Bundled module is not double-injected');
 echo "Published module delivery: legacy routes, theme, idempotence and custom content passed.\n";
 @unlink($tmp);
