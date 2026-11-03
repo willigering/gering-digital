@@ -64,6 +64,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
  $uri=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
  if(is_file($root.$uri))return false;
  require_once $root.'/achievements_lib.php';
+ require_once $root.'/dau_lib.php';
  if($uri==='/fixture/'){
  db()->exec("INSERT OR IGNORE INTO html_pages(slug,title,subject,category,published,live_version) VALUES('b4-ipv6','Doppelpunkt, Doppelpunkt, Durchblick','IPv6','lernen',1,'aaaaaaaaaaaaaaaaaaaaaaaa')");
  db()->exec("INSERT OR IGNORE INTO learners(username,password_hash) VALUES('b4-browser','unused')");
