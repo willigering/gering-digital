@@ -165,8 +165,9 @@ let server,browser;
     assert.ok((await egg.locator('.fx-video-player').getAttribute('src')).includes('dau-to-pro-easteregg.mp4'),'Existing Easter egg video is loaded');
     await egg.keyboard.press('Escape');
     await egg.locator('.fx-video').waitFor({state:'hidden'});
-    await egg.waitForFunction(()=>window.dtpAchievementToast&&window.dtpAchievementToast.last&&/Fremdscham/.test(window.dtpAchievementToast.last.title),null,{timeout:5000});
-    assert.equal(await egg.locator('.fx-xp').count(),0,'No large XP window any more: the achievement popup follows the video');
+    await egg.waitForTimeout(300);
+    assert.equal(await egg.locator('dtp-achievement').count(),0,'Guest video never pretends to unlock an account achievement');
+    assert.equal(await egg.locator('.fx-xp').count(),0,'Guest video creates neither a large XP window nor an achievement popup');
     assert.equal(await egg.evaluate(()=>document.documentElement.classList.contains('fx-locked')),false,'Closing the egg restores scrolling');
     await eggContext.close();
   }
