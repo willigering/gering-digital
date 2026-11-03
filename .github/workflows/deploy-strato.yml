@@ -49,7 +49,7 @@ jobs:
           if missing:
               raise SystemExit('Missing GitHub Secrets: ' + ', '.join(missing))
 
-          remote_root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/')
+          remote_root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/') or '/'
           if not remote_root.startswith('/') or remote_root == '':
               raise SystemExit('STRATO_REMOTE_PATH must be an absolute SFTP path')
           port = int(os.environ.get('STRATO_PORT') or '22')
