@@ -1,9 +1,45 @@
 {
   "info": "Mitgelieferte DAU-TO-PRO-Lernmodule. Werden im Admin unter HTML-Projekte als Entwurf übernommen und dort veröffentlicht. preview = Motiv-ID aus assets/dau-previews/manifest.json.",
   "modules": [
-    {"slug": "a1-zahlensysteme", "preview": "zahlensysteme", "file": "a1-zahlensysteme.html", "subject": "Zahlensysteme", "title": "Bits zum bitteren Ende", "description": "Zahlensysteme, Binär und Hex, Einheiten und Datenraten – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "osi-sprint", "preview": "osi-modell", "file": "osi-sprint.html", "subject": "OSI-Schichten", "title": "Easy OSI for FISI", "description": "Das OSI-Modell endlich verstehen: Schichten, PDUs, Kapselung, Geräte, Ports und Fehlersuche – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "subnet-sprint", "preview": "ipv4-subnetting", "file": "subnet-sprint.html", "subject": "Subnetting", "title": "Wer teilt, gewinnt", "description": "IPv4-Subnetting mit Präfix, Maske, Netz-ID, Broadcast, Hostanzahl und VLSM – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."},
-    {"slug": "netzwerke-sprint", "preview": "netzwerke-routing", "file": "netzwerke-sprint.html", "subject": "Netzwerkgrundlagen", "title": "Jetzt ma Router bei die Switche!", "description": "Netzwerkarten, Topologien, Komponenten, Switching, OSI und TCP/IP, Protokolle, WLAN, IPv6 und Fehleranalyse – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."}
+    {
+      "slug": "a1-zahlensysteme",
+      "preview": "zahlensysteme",
+      "file": "a1-zahlensysteme.html",
+      "subject": "Zahlensysteme",
+      "title": "Bits zum bitteren Ende",
+      "description": "Zahlensysteme, Binär und Hex, Einheiten und Datenraten – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "osi-sprint",
+      "preview": "osi-modell",
+      "file": "osi-sprint.html",
+      "subject": "OSI-Schichten",
+      "title": "Easy OSI for FISI",
+      "description": "Das OSI-Modell endlich verstehen: Schichten, PDUs, Kapselung, Geräte, Ports und Fehlersuche – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "subnet-sprint",
+      "preview": "ipv4-subnetting",
+      "file": "subnet-sprint.html",
+      "subject": "Subnetting",
+      "title": "Wer teilt, gewinnt",
+      "description": "IPv4-Subnetting mit Präfix, Maske, Netz-ID, Broadcast, Hostanzahl und VLSM – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "netzwerke-sprint",
+      "preview": "netzwerke-routing",
+      "file": "netzwerke-sprint.html",
+      "subject": "Netzwerkgrundlagen",
+      "title": "Jetzt ma Router bei die Switche!",
+      "description": "Netzwerkarten, Topologien, Komponenten, Switching, OSI und TCP/IP, Protokolle, WLAN, IPv6 und Fehleranalyse – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+    },
+    {
+      "slug": "b5-netzwerkdienste",
+      "preview": "netzwerkdienste",
+      "file": "b5-netzwerkdienste.html",
+      "subject": "Netzwerkdienste & Protokolle",
+      "title": "Port 80, bitte kommen",
+      "description": "TCP/UDP, Ports, DHCP, DNS, NAT/PAT, ARP, ICMP, HTTP/HTTPS, Mail und Fernzugriff – zehn Lernstufen mit Laboren, Training und Prüfung."
+    }
   ]
 }

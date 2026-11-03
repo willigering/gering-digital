@@ -361,7 +361,17 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+function services(id) {
+  const ports = [ ['22','SSH'], ['53','DNS'], ['67','DHCP'], ['80','HTTP'], ['443','HTTPS'], ['993','IMAPS'] ];
+  return `<text x="640" y="140" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="42" font-weight="850">PORT 80, BITTE KOMMEN</text>
+    <text x="640" y="185" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="23">B5 // NETZWERKDIENSTE &amp; PROTOKOLLE</text>
+    <path d="M180 360 H1100 M640 235 V555" stroke="${GOLD}" stroke-width="3" stroke-opacity=".5"/>
+    ${ports.map(([port,name],i)=>{const x=220+(i%3)*330,y=245+Math.floor(i/3)*170;return `<g><rect x="${x}" y="${y}" width="180" height="120" rx="4" fill="#0c1a28" stroke="${CYAN}" stroke-width="2"/><text x="${x+90}" y="${y+56}" text-anchor="middle" font-family="${MONO}" font-size="44" font-weight="800" fill="${GOLD_LITE}">${port}</text><text x="${x+90}" y="${y+92}" text-anchor="middle" font-family="${MONO}" font-size="24" fill="${CYAN}">${name}</text></g>`}).join('')}
+    <text x="640" y="625" text-anchor="middle" fill="${MUTED}" font-family="${MONO}" font-size="23">SYN → SYN-ACK → DURCHBLICK</text>`;
+}
+
 export const motifs = [
+  { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
@@ -376,3 +386,4 @@ export function svgFor(motif) {
   CYAN = motif.accent || '#00dce8';
   return frame(motif.id, motif.draw, { seed: motif.seed, glowX: motif.glowX, glowY: motif.glowY });
 }
+

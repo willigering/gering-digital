@@ -25,6 +25,18 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     return [
+        'b5'=>['prefix'=>'b5-dienste','subject'=>'Netzwerkdienste & Protokolle','title'=>'Port 80, bitte kommen','motif'=>'netzwerkdienste','stages'=>10,'list'=>[
+            ['b5.transport','bronze','Verbindung steht','Stufe 1 „TCP oder UDP?“ gemeistert.',['stage',0]],
+            ['b5.portwart','bronze','Portwart des Monats','„Standardport zum Dienst“ 10 × in Folge richtig.',['clean',['p_port']]],
+            ['b5.lease','silber','Lease ist mehr','Stufe 4 „DHCP: Adresse gesucht“ gemeistert.',['stage',3]],
+            ['b5.ack','silber','ACK-zellent','„SYN bestätigen“ und „Datenbytes bestätigen“ je 10 × in Folge richtig.',['clean',['c_synack','c_ack']]],
+            ['b5.rueckweg','gold','Rückweg gefunden','„PAT-Antwort zurückübersetzen“ und „ARP-Ziel bei entferntem Netz“ je 10 × in Folge richtig.',['clean',['a_return','r_remote']]],
+            ['b5.lernpfad','gold','Alle Dienste im Dienst','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
+            ['b5.marathon','platin','Dauerverbindung','90-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',90,81]],
+            ['b5.dns','witzig',"It’s always DNS",'3 × hintereinander falsch bei „It’s always DNS – wirklich?“.',['fails','n_always'],'Die Nummer geht. Der Name nicht. Wer kennt sich mit Namen aus?'],
+            ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Ein anderer Port macht das Passwort nicht unsichtbar.'],
+            ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 klingt nach Adresse. Aber wer hat sie vergeben?'],
+        ]],
         'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],
             ['a1.farbcodes','bronze','Farbenblind war gestern','Aufgabentyp „Farbcodes“ 10 × in Folge richtig.',['clean',['h_color']]],
@@ -359,4 +371,5 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out];
 }
+
 
