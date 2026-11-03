@@ -593,9 +593,9 @@ function dtp_nav(string $page,?string $learner): string {
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">
-    <a class="gd-brand" href="./" aria-label="DAU TO PRO – Startseite">
+    <a class="gd-brand" href="../index.php" aria-label="Gering Digital – Startseite">
       <img src="../assets/gering-digital-logo-icon-312.webp" alt="" width="36" height="36">
-      <span><strong>DAU TO <em>PRO</em></strong><small>DIE IT-LERNPLATTFORM</small></span>
+      <span><strong>GERING <em>DIGITAL</em></strong></span>
     </a>
     <nav class="desktop-links" aria-label="Hauptnavigation">
 '.$desktop.'    </nav>
@@ -606,6 +606,11 @@ function dtp_nav(string $page,?string $learner): string {
     '.$mobile.'<a href="../index.php">Gering Digital ↗</a>
   </nav>
 </header>';
+}
+
+/** Das DAU-TO-PRO-Logo wird auf allen Unterseiten in der Fußzeile einheitlich ausgegeben. */
+function dtp_footer_brand(): string {
+    return '<a class="footer-brand" href="./" aria-label="DAU TO PRO – Startseite"><img src="../assets/gering-digital-logo-icon-312.webp" alt="" width="30" height="30"><span><strong>DAU TO <em>PRO</em></strong><small>Ein Projekt von Gering Digital</small></span></a>';
 }
 
 /** Shared page background of the DAU TO PRO pages (texture, full-height orange rays drawn by site.js, circuit traces). */

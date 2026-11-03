@@ -170,7 +170,9 @@ main,.dtp-footer{position:relative;z-index:1}
 .disclaimer-body strong{color:var(--cream)}
 .dtp-footer{border-top:1px solid var(--stroke);padding:28px 0;background:#090f13}
 .footer-inner{width:min(100%,var(--content));margin:auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-.footer-brand strong{display:block;font-size:14px;letter-spacing:.01em}
+.footer-brand{display:inline-flex;align-items:center;gap:11px;min-width:0}
+.footer-brand img{width:30px;height:30px;flex:none;object-fit:contain}
+.footer-brand strong{display:block;font-size:15px;letter-spacing:.01em}
 .footer-brand small,.dtp-footer small{display:block;color:#91a3ac;font-size:10px;margin-top:4px}
 .footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
 .footer-links a:hover{color:var(--goldlite)}
