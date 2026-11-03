@@ -47,7 +47,9 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
  await page.setViewportSize({width:390,height:844});
  for(const tab of ['path','learn','train','exam']){
   await page.locator('#tab-'+tab).click();
-  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=390),'No overflow in '+tab);
+  await page.screenshot({path:path.join(out,'b4-mobile-'+tab+'.png'),fullPage:true});
+  const overflow=await page.evaluate(()=>({width:document.documentElement.scrollWidth,items:[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>391).slice(0,8).map(e=>({tag:e.tagName,cls:e.className,text:e.textContent.slice(0,80)}))}));
+  assert(overflow.width<=390,'No overflow in '+tab+': '+JSON.stringify(overflow));
  }
  await page.locator('#tab-path').click();await page.screenshot({path:path.join(out,'b4-mobile.png'),fullPage:true});
  assert(await page.evaluate(()=>Object.keys(localStorage).every(k=>k.startsWith('b4-ipv6-'))));assert.deepEqual(errors,[]);
