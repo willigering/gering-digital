@@ -289,6 +289,7 @@ function learner_reset_all(array $learner,string $current): int {
         $q=$db->prepare("UPDATE learner_progress SET value='',deleted=1,updated_at=? WHERE learner_id=? AND deleted=0");
         $q->execute([$now,$id]);
         $count=$q->rowCount();
+        foreach(['learner_xp_events','learner_xp_state','learner_daily','learner_practice','learner_showcase'] as $table) $db->prepare("DELETE FROM $table WHERE learner_id=?")->execute([$id]);
         $db->prepare('DELETE FROM learner_achievements WHERE learner_id=?')->execute([$id]);
         $db->prepare('INSERT OR IGNORE INTO learner_stats(learner_id) VALUES(?)')->execute([$id]);
         $db->prepare("UPDATE learner_stats SET xp=0,level=1,achievements=0,best='{}',days=0,last_day='',highscore_visible=0,xp_changed_at=?,updated_at=? WHERE learner_id=?")
@@ -488,4 +489,5 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+
 

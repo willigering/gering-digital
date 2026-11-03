@@ -126,7 +126,7 @@ Fertige DAU-TO-PRO-Module liegen als einzelne HTML-Dateien in `lernmodule/` (Lis
 
 ## DAU TO PRO: Achievements, Level und Highscore
 
-Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige = 590 XP), dazu kommen 12 modulübergreifende (u. a. das versteckte Easter-Egg-Achievement, 200 XP, nur mit Lernkonto). Katalog, XP- und Level-Berechnung stehen in `achievements_lib.php`. Ausgewertet wird serverseitig aus dem ohnehin synchronisierten Fortschritt (`<präfix>-path-v1`, `-stats-v1`, `-subs-v1`, `-exam-v1`); die Moduldateien bleiben dafür unverändert. Einmal freigeschaltete Achievements bleiben erhalten, auch wenn Fortschritt gelöscht wird. Level: Gesamt-XP für Level L = 50 · L · (L − 1), höchstens Level 50.
+Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige = 590 XP), dazu kommen 12 modulübergreifende (u. a. das versteckte Easter-Egg-Achievement, 200 XP, nur mit Lernkonto). Katalog, XP- und Level-Berechnung stehen in `achievements_lib.php`. Ausgewertet wird serverseitig aus dem ohnehin synchronisierten Fortschritt (`<präfix>-path-v1`, `-stats-v1`, `-subs-v1`, `-exam-v1`); die Moduldateien bleiben dafür unverändert. Einmal freigeschaltete Achievements bleiben erhalten, auch wenn Fortschritt gelöscht wird. Level: versionierte XP-2.0-Kurve, Gesamt-XP für Level L = round(366100 · L · (L − 1) / 2450), höchstens Level 50. Details und Migrationsstrategie siehe `docs/xp2.md`.
 
 **Highscore** (`dau-to-pro/highscore.php`): nur für angemeldete Lernende sichtbar, standardmäßig aus. Eingeschaltet wird er unter **Mein Fortschritt → Konto-Einstellungen → Sichtbarkeit im Highscore**. Der Admin kann Konten unter **Lernkonten** aus dem Highscore nehmen.
 
@@ -139,3 +139,8 @@ Jedes Lernmodul hat 10 eigene Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin
 ## DAU TO PRO: Hintergrundpaket für Lernmodule
 
 13 dezente IT-Motive (Platinen, Netzwerk- und Glasfaserkabel, Ports, Speichermodule, Steckverbindungen und Servertechnik) mit jeweils zwei WebP-Größen, optionalem CSS und Motivliste liegen in [`assets/dau-backgrounds/`](assets/dau-backgrounds/README.md). Claude und andere Modulautoren finden dort Einbauhinweise für gehostete Module und einzelne Offline-HTML-Dateien. Visuelle Auswahl: `assets/dau-backgrounds/preview.html`. Für gehostete Nutzung den neuen Ordner zusätzlich nach STRATO übertragen; ein GitHub-Merge allein stellt ihn nicht live bereit.
+
+
+## XP 2.0 (Balanceversion 2)
+
+Die zentrale Konfiguration `xp-config.json` setzt PRO auf **366.100 XP**, das Doppelte der konservativen Erstlauf-Referenz für alle 40 geplanten Module (**183.050 XP**). Vorhandene XP werden einmalig übernommen; Level folgen der neuen Kurve. Vitrine, letzte Erfolge, sortierbare Highscore-Profile und tägliche Lernserien sind kontobasiert. Ausführliche Berechnung, Leveltabelle, Migration, Wiederholungsbudgets und Tests: [docs/xp2.md](docs/xp2.md). Neue Tabellen werden additiv angelegt; produktive Datenbanken und Uploads niemals ersetzen. Der vorhandene SFTP-Workflow stellt die Codeänderungen nach dem Merge bereit.

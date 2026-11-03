@@ -76,7 +76,7 @@
     [['span', 'i', ICONS[item.tier] || '🏆'], ['span', 'k', item.kicker], ['span', 'n', item.title], ['span', 'd', item.text + (item.xp ? ' ' : '')]].forEach(function (p) {
       var n = document.createElement(p[0]); n.className = p[1]; n.textContent = p[2]; t.appendChild(n);
     });
-    if (typeof item.icon === 'string' && /^\/assets\/achievement-icons\/[a-z0-9.-]+\.webp$/.test(item.icon)) {
+    if (typeof item.icon === 'string' && /^\/(?:assets\/achievement-icons\/[a-z0-9.-]+\.webp|achievement-icons\/[a-z0-9.-]+\.png)$/.test(item.icon)) {
       var img = document.createElement('img'); img.src = item.icon; img.alt = ''; t.firstChild.textContent = ''; t.firstChild.appendChild(img);
     }
     if (item.xp) { var x = document.createElement('b'); x.className = 'x'; x.textContent = item.xp; t.lastChild.appendChild(x); }
@@ -87,4 +87,5 @@
 
   window.dtpAchievementToast = { celebrate: celebrate, show: function (item) { if (item) { queue.push(item); next(); } } };
 })();
+
 

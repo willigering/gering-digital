@@ -1,0 +1,38 @@
+name: XP 2.0 regression checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  xp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring, curl, fileinfo
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: PHP and JavaScript syntax
+        run: |
+          for file in xp_lib.php achievements_lib.php lib.php learner_lib.php dau-to-pro/konto.php dau-to-pro/progress-panels.php dau-to-pro/highscore.php dau-to-pro/api/profile.php; do php -l "$file"; done
+          node --check dau-to-pro/profiles.js
+          node --check dau-to-pro/achievement-toast.js
+      - name: Balance, awards, migration, concurrent unlocks and account regression
+        run: |
+          php tools/xp-balance.php
+          php tests/xp2_test.php
+          php tests/achievements_test.php
+          php tests/learner_lib_test.php
+          php tests/learner_http_test.php
+          node tests/learner_sync.js
+      - name: Install browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Desktop and smartphone profiles, showcase, privacy and accessibility
+        run: node tests/xp2_browser.cjs

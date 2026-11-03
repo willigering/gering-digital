@@ -4,10 +4,11 @@
 // (dau-to-pro/sync.js → learner_progress). Die Module selbst müssen dafür nichts wissen.
 declare(strict_types=1);
 require_once __DIR__.'/learner_lib.php';
+require_once __DIR__.'/xp_lib.php';
 
-const ACH_STAGE_XP=75;        // pro gemeisterter Lernpfad-Stufe
-const ACH_TASK_XP=2;          // pro richtig gelöster Aufgabe
-const ACH_TASK_CAP=1000;      // höchstens so viele richtige Aufgaben zählen pro Modul für XP
+define('ACH_STAGE_XP',xp_config()['stage_xp']);        // pro gemeisterter Lernpfad-Stufe
+define('ACH_TASK_XP',xp_config()['task_xp']);          // pro richtig gelöster Aufgabe
+define('ACH_TASK_CAP',xp_config()['first_correct_cap']);      // höchstens so viele richtige Aufgaben zählen pro Modul für XP
 const ACH_LEVEL_MAX=50;
 const ACH_EGG_XP=200;
 
@@ -24,7 +25,7 @@ function ach_tiers(): array {
  *         fails (Aufgabentyp 3 × falsch in Folge), exam (Prüfungslänge in Minuten + Mindestprozent), leave (Prüfung durch Verlassen beendet)
  */
 function ach_modules(): array {
-    return [
+    $modules=[
         'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','stages'=>10,'list'=>[
             ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
             ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
@@ -134,6 +135,7 @@ function ach_modules(): array {
             ['subnet.leere','witzig','Broadcast ins Leere','3 × hintereinander falsch bei „Broadcastadresse“.',['fails','b_bc'],'Alle hören zu. Nur leider an der falschen Adresse.'],
         ]],
     ];
+    return $modules;
 }
 
 /** Modulübergreifende Achievements: code => [Stufe, XP, Name, Bedingung, Rätselhinweis|null, versteckt]. */
@@ -167,8 +169,8 @@ function ach_catalog(): array {
 }
 
 // ---------------------------------------------------------------- Level
-function ach_xp_for_level(int $level): int { return 50*$level*($level-1); }
-function ach_level(int $xp): int { return max(1,min(ACH_LEVEL_MAX,(int)floor((1+sqrt(1+0.08*max(0,$xp)))/2))); }
+function ach_xp_for_level(int $level): int { $n=max(1,min(50,$level))-1; return (int)round(xp_config()['pro_xp']*$n*($n+1)/(49*50)); }
+function ach_level(int $xp): int { for($l=50;$l>1;$l--) if($xp>=ach_xp_for_level($l)) return $l; return 1; }
 function ach_level_title(int $level): string {
     $titles=[50=>'PRO',45=>'Guru',40=>'Sysadmin',35=>'Netzwerk-Ninja',30=>'Root-Anwärter',25=>'Paket-Flüsterer',20=>'Bit-Schubser',15=>'Ping-Profi',10=>'Kabelträger',5=>'Klick-Azubi',1=>'DAU'];
     foreach($titles as $from=>$title) if ($level>=$from) return $title;
@@ -249,7 +251,7 @@ function ach_rule_met(array $rule,array $state,array $best,array $module): bool 
 /** XP, die ein Modul ohne Achievements bringt (Aufgaben, Stufen, beste Prüfung je Länge). */
 function ach_module_xp(array $best): int {
     $xp=min((int)($best['c']??0),ACH_TASK_CAP)*ACH_TASK_XP+count((array)($best['m']??[]))*ACH_STAGE_XP;
-    foreach((array)($best['e']??[]) as $minutes=>$pct) $xp+=(int)round(min(100,max(0,(int)$pct))*2*((int)$minutes/30));
+    foreach((array)($best['e']??[]) as $minutes=>$pct) $xp+=(int)round(min(100,max(0,(int)$pct))*xp_config()['exam_xp_per_30_min']/100*((int)$minutes/30));
     return $xp;
 }
 
@@ -282,16 +284,18 @@ function ach_berlin(?int $time=null): DateTimeImmutable {
  * $events: activity (Fortschritt gespeichert), solved (Aufgabe gelöst, für Nachteule), egg (Easter Egg), time (Tests).
  * @return array{new:list<array>,level:array,level_up:bool}
  */
-function ach_evaluate(int $learnerId,array $events=[]): array {
+function ach_evaluate_locked(int $learnerId,array $events=[]): array {
     $db=db();
     $now=(int)($events['time']??time());
     $row=ach_stats_row($learnerId);
     $best=ach_json($row['best']);if (!is_array($best)) $best=[];
     $values=learner_progress_state($learnerId)['values'];
     $unlocked=ach_unlocked($learnerId);
+    $before=$best;
+    $migrated=xp_initialize($learnerId,$row,$values,$now);
     $met=['g.willkommen'=>true];
     $completePaths=0;$firstStages=0;$totalCorrect=0;
-    foreach(ach_modules() as $mid=>$module) {
+    foreach(xp_modules() as $mid=>$module) {
         $state=ach_module_state($values,$module);
         $b=ach_merge_best((array)($best[$mid]??[]),$state);
         if ($b!==['m'=>[],'c'=>0,'e'=>[]]) $best[$mid]=$b;
@@ -302,7 +306,8 @@ function ach_evaluate(int $learnerId,array $events=[]): array {
     }
     // Lerntage (Kalendertage in Deutschland), nur wenn wirklich gelernt wurde.
     $days=(int)$row['days'];$lastDay=(string)$row['last_day'];
-    if (!empty($events['activity'])) { $today=ach_berlin($now)->format('Y-m-d'); if ($today!==$lastDay) {$days++;$lastDay=$today;} }
+    $activity=xp_activity($learnerId,$before,$best,$now,!$migrated && !empty($events['activity']));
+    if ($activity) { $today=ach_berlin($now)->format('Y-m-d'); if ($today!==$lastDay) {$days++;$lastDay=$today;} }
     if ($firstStages>=3) $met['g.allrounder']=true;
     if ($days>=7) $met['g.7tage']=true;
     if ($days>=30) $met['g.30tage']=true;
@@ -313,7 +318,7 @@ function ach_evaluate(int $learnerId,array $events=[]): array {
     $live=ach_live_modules();
     if ($live && !array_filter($live,fn($id)=>count((array)($best[$id]['m']??[]))<ach_modules()[$id]['stages'])) $met['g.komplett']=true;
     if ((int)$row['highscore_visible']===1) $met['g.rampensau']=true;
-    if (!empty($events['solved']) && (int)ach_berlin($now)->format('G')<4) $met['g.nachteule']=true;
+    if ($activity && !empty($events['solved']) && (int)ach_berlin($now)->format('G')<4) $met['g.nachteule']=true;
     if (!empty($events['egg'])) $met['g.easteregg']=true;
 
     $catalog=ach_catalog();$new=[];
@@ -322,12 +327,11 @@ function ach_evaluate(int $learnerId,array $events=[]): array {
     foreach(array_keys($met) as $code) {
         if (isset($unlocked[$code]) || !isset($catalog[$code])) continue;
         $insert->execute([$learnerId,$code,$stamp]);
-        if ($insert->rowCount()>0) { $unlocked[$code]=$stamp; $new[]=ach_public($catalog[$code]); }
+        if ($insert->rowCount()>0) { $unlocked[$code]=$stamp; $new[]=ach_public($catalog[$code]); xp_add($learnerId,'achievement:'.$code,'achievements',(int)$catalog[$code]['xp'],$catalog[$code]['name'],$now); }
     }
-    $xp=0;
-    foreach($best as $b) $xp+=ach_module_xp((array)$b);
-    foreach(array_keys($unlocked) as $code) $xp+=(int)($catalog[$code]['xp']??0);
-    $oldLevel=(int)$row['level'];$level=ach_level($xp);
+    xp_progress($learnerId,$before,$best,$now,!$migrated && !empty($events['activity']));
+    $xp=xp_total($learnerId);
+    $oldLevel=ach_level((int)$row['xp']);$level=ach_level($xp);
     $changed=$xp!==(int)$row['xp'];
     $db->prepare('UPDATE learner_stats SET xp=?,level=?,achievements=?,best=?,days=?,last_day=?,xp_changed_at=CASE WHEN ? THEN ? ELSE xp_changed_at END,updated_at=? WHERE learner_id=?')
        ->execute([$xp,$level,count(array_intersect_key($unlocked,$catalog)),json_encode($best,JSON_UNESCAPED_UNICODE),$days,$lastDay,$changed?1:0,$stamp,$stamp,$learnerId]);
@@ -339,7 +343,7 @@ function ach_public(array $a): array {
     $tier=ach_tiers()[$a['tier']][0];
     return ['code'=>$a['code'],'name'=>$a['name'],'desc'=>$a['desc'],'tier'=>$a['tier'],'tier_label'=>$tier,'xp'=>$a['xp'],
         'subject'=>$a['module']!==''?$modules[$a['module']]['subject']:'Modulübergreifend',
-        'icon'=>is_file(__DIR__.'/assets/achievement-icons/'.$a['code'].'.webp')?'/assets/achievement-icons/'.$a['code'].'.webp':null];
+        'icon'=>is_file(__DIR__.'/assets/achievement-icons/'.$a['code'].'.webp')?'/assets/achievement-icons/'.$a['code'].'.webp':(is_file(__DIR__.'/achievement-icons/'.$a['code'].'.png')?'/achievement-icons/'.$a['code'].'.png':null)];
 }
 
 // ---------------------------------------------------------------- Kontoseite
@@ -398,7 +402,7 @@ function ach_highscore(int $limit=100): array {
     $rarity=ach_rarity();$catalog=ach_catalog();
     $codes=db()->prepare('SELECT code FROM learner_achievements WHERE learner_id=?');
     foreach($rows as $i=>&$r) {
-        $r['rank']=$i+1;$r['title']=ach_level_title((int)$r['level']);
+        $r['rank']=$i+1;$r['level']=ach_level((int)$r['xp']);$r['title']=ach_level_title((int)$r['level']);$r['showcase']=xp_showcase((int)$r['id']);
         $codes->execute([$r['id']]);
         $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>isset($catalog[$c])));
         usort($own,fn($a,$b)=>[$rarity[$a]??0,-$catalog[$a]['xp']]<=>[$rarity[$b]??0,-$catalog[$b]['xp']]);
@@ -418,7 +422,8 @@ function ach_would_rank(int $learnerId): int {
 function ach_export(int $learnerId): array {
     $stats=ach_stats($learnerId);$catalog=ach_catalog();$out=[];
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
-    return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out];
+    return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out,'xp_system_version'=>xp_config()['version'],'fortschritt'=>xp_dashboard($learnerId),'vitrine'=>xp_showcase($learnerId)];
 }
+
 
 

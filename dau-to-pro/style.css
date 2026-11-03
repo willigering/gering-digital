@@ -257,3 +257,6 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .exam-finder h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .module-card h3{font-weight:900;letter-spacing:-.03em}
 
+
+/* Personal achievement showcase in the compact top-five preview. */
+.hs-showcase{display:flex;gap:6px;align-items:center;margin:6px 0}.hs-showcase .showcase-icon,.hs-showcase-empty{display:grid;place-items:center;width:34px;height:34px;position:relative;background:#ffffff06;border:1px solid #ffffff20;border-radius:6px;color:inherit}.hs-showcase img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}.hs-showcase-empty{opacity:.25}.hs-showcase [role=tooltip]{display:none;pointer-events:none;position:absolute;bottom:100%;left:0;z-index:3;width:max-content;max-width:180px;padding:8px;background:#10171b;border:1px solid #eab448;font-size:12px}.hs-showcase button:hover [role=tooltip],.hs-showcase button:focus [role=tooltip]{display:block}.hs-showcase button:focus-visible{outline:2px solid #eab448}
