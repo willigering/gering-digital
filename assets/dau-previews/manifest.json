@@ -3,6 +3,24 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "kalkulation",
+      "accent": "#f6c177",
+      "label": "Kalkulation & Beschaffung",
+      "slugs": [
+        "f2-kalkulation"
+      ],
+      "keywords": [
+        "kalkulation",
+        "beschaffung",
+        "nutzwert",
+        "amortisation",
+        "break-even",
+        "make or buy",
+        "stundensatz",
+        "leasing"
+      ]
+    },
+    {
       "id": "netzwerkdienste",
       "accent": "#7ad0ff",
       "label": "Netzwerkdienste & Protokolle",

@@ -14,6 +14,7 @@ function dtp_upper(string $s): string {return function_exists('mb_strtoupper')?m
 
 function dtp_topic(array $p): array {
     $t=dtp_lower(($p['subject']??'').' '.($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
+    if(preg_match('/kalkulation|beschaffung|f2-kalkulation/',$t))return ['wirtschaft','Wirtschaft & Projekte','06'];
     if(preg_match('/subnet|ipv4|ipv6|cidr|wildcard|bits|binär|binaer|hexadezimal|ip-adress/',$t))return ['subnet','IP & Subnetting','01'];
     if(preg_match('/osi|switch|router|wlan|netzwerk|topolog|routing|dhcp|dns|vlan/',$t))return ['netzwerk','Netzwerktechnik','02'];
     if(preg_match('/sicher|datenschutz|dsgvo|krypt|verschlüssel|verschluessel|hash|authentif/',$t))return ['sicherheit','IT-Sicherheit','03'];

@@ -61,6 +61,18 @@ function ach_modules(): array {
             ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Ein anderer Port macht das Passwort nicht unsichtbar.'],
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 klingt nach Adresse. Aber wer hat sie vergeben?'],
         ]],
+        'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','stages'=>10,'list'=>[
+            ['f2.preisschild','bronze','Preisschild enttarnt','Stufe 1 „Angebote vergleichen“ gemeistert.',['stage',0]],
+            ['f2.bezug','bronze','Fracht ist auch Geld','„Bezugspreis mit Fracht“ 10 × in Folge richtig.',['clean',['b_bezug']]],
+            ['f2.nutzwert','silber','Gewicht hat Gewicht','Stufe 4 „Nutzwertanalyse“ gemeistert.',['stage',3]],
+            ['f2.afa','silber','Wertverlust mit System','„Jährliche Abschreibung“ 10 × in Folge richtig.',['clean',['d_jahr']]],
+            ['f2.break-even','gold','Schwarze Zahlen','„Break-even-Menge“ und „Kritische Menge“ je 10 × in Folge richtig.',['clean',['e_menge','o_krit']]],
+            ['f2.lernpfad','gold','Das rechnet sich','Alle 10 Stufen gemeistert.',['path']],
+            ['f2.marathon','platin','Controlling im Endspiel','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['f2.skonto','witzig','Skonto im Urlaub','3 × in Folge falsch bei „Skonto vergessen“.',['fails','b_skonto'],'Schnell bezahlt. Trotzdem zu viel überwiesen?'],
+            ['f2.leasing','witzig','Nur 99 Euro im Monat','3 × in Folge falsch bei „Leasing klingt billiger“.',['fails','k_billig'],'Die kleine Rate hat eine große Verwandtschaft.'],
+            ['f2.null','witzig','Nutzwert: Luftnummer','3 × in Folge falsch bei „Nutzwert null“.',['fails','n_null'],'Null mal wichtig bleibt manchmal einfach null.'],
+        ]],
         'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],
             ['a1.farbcodes','bronze','Farbenblind war gestern','Aufgabentyp „Farbcodes“ 10 × in Folge richtig.',['clean',['h_color']]],

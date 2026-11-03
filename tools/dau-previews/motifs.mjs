@@ -412,7 +412,34 @@ function services(id) {
     <text x="640" y="625" text-anchor="middle" fill="${MUTED}" font-family="${MONO}" font-size="23">SYN → SYN-ACK → DURCHBLICK</text>`;
 }
 
+function kalkulation(id) {
+  return `
+  <text x="640" y="110" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">KALKULATION &amp; BESCHAFFUNG</text>
+  <g transform="translate(210 180)">
+    <path d="M0 0H340L370 30V390H0Z" fill="#11191b" stroke="${GOLD}" stroke-width="3"/>
+    <text x="32" y="57" font-family="${MONO}" font-size="25" font-weight="800" fill="${GOLD_LITE}">ANGEBOT</text>
+    <g font-family="${MONO}" font-size="24" fill="${CREAM}">
+      <text x="32" y="115">Liste    1.000 €</text>
+      <text x="32" y="165">Rabatt   −100 €</text>
+      <text x="32" y="215">Skonto    −18 €</text>
+      <text x="32" y="265">Fracht    +20 €</text>
+    </g>
+    <path d="M30 295H335" stroke="${CYAN}" stroke-width="2"/>
+    <text x="32" y="351" font-family="${MONO}" font-size="40" font-weight="900" fill="${GOLD_LITE}">902 €</text>
+  </g>
+  <g transform="translate(700 235)">
+    <path d="M0 0H300V290H0Z" fill="#11191b" stroke="${CYAN}" stroke-width="3"/>
+    <path d="M34 230H270M34 230V40" fill="none" stroke="${MUTED}" stroke-width="2"/>
+    <path d="M34 210L265 50" fill="none" stroke="${GOLD}" stroke-width="7"/>
+    <path d="M34 125L265 100" fill="none" stroke="${CYAN}" stroke-width="5"/>
+    <circle cx="178" cy="110" r="12" fill="${GOLD_LITE}"/>
+    <text x="150" y="272" text-anchor="middle" font-family="${MONO}" font-size="23" font-weight="800" fill="${CYAN}">BREAK-EVEN</text>
+  </g>
+  <text x="640" y="640" text-anchor="middle" font-family="${SANS}" font-size="38" font-weight="900" fill="${GOLD_LITE}">RECHNET SICH DAS?</text>`;
+}
+
 export const motifs = [
+  { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
   { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
   { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
