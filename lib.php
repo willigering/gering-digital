@@ -51,6 +51,8 @@ function db(){
     // DAU TO PRO Achievements, XP/Level und Highscore (Opt-in). Neue Tabellen, bestehende Daten bleiben unverändert.
     $db->exec("CREATE TABLE IF NOT EXISTS learner_achievements(learner_id INTEGER NOT NULL REFERENCES learners(id) ON DELETE CASCADE, code TEXT NOT NULL, unlocked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(learner_id,code))");
     $db->exec("CREATE TABLE IF NOT EXISTS learner_stats(learner_id INTEGER PRIMARY KEY REFERENCES learners(id) ON DELETE CASCADE, xp INTEGER NOT NULL DEFAULT 0, level INTEGER NOT NULL DEFAULT 1, achievements INTEGER NOT NULL DEFAULT 0, best TEXT NOT NULL DEFAULT '{}', days INTEGER NOT NULL DEFAULT 0, last_day TEXT NOT NULL DEFAULT '', highscore_visible INTEGER NOT NULL DEFAULT 0, highscore_blocked INTEGER NOT NULL DEFAULT 0, xp_changed_at TEXT, updated_at TEXT)");
+    require_once __DIR__.'/xp_lib.php';
+    xp_schema($db);
     // Formelles Thema eines Lernmoduls (Etikett über dem witzigen Titel, z. B. „OSI-Schichten“).
     if (!in_array('subject',$htmlNames,true)) $db->exec("ALTER TABLE html_pages ADD COLUMN subject TEXT NOT NULL DEFAULT ''");
 
@@ -82,3 +84,4 @@ function setting($key,$default=''){
     if ($key==='site_email') { $v=db()->query("SELECT value FROM settings WHERE key='site_email'")->fetchColumn(); return $v!==false && $v!=='' ? $v : $defaults[$key]; }
     return $defaults[$key]??$default;
 }
+

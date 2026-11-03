@@ -59,6 +59,11 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 $slug=(string)($_POST['slug']??'');
                 $count=hp_valid_slug($slug)?learner_progress_delete_module($id,$slug):0;
                 konto_back('',['ok'=>$count>0?'Fortschritt für dieses Modul gelöscht ('.$count.' '.($count===1?'Eintrag':'Einträge').'). Auch auf deinen anderen Geräten wird er beim nächsten Öffnen entfernt.':'Für dieses Modul war nichts gespeichert.']);
+            case 'showcase':
+                $slots=$_POST['slots']??[];
+                if(!is_array($slots)) throw new LearnerError('Ungültige Vitrine.');
+                xp_set_showcase($id,$slots);
+                konto_back('',['ok'=>'Vitrine gespeichert.','section'=>'vitrine']);
             case 'highscore':
                 $visible=($_POST['visible']??'')==='1';
                 ach_set_visible($id,$visible);
@@ -181,6 +186,8 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       </div>
       <a class="level-link" href="#achievements"><b><?=$ach['done']?></b><small>/ <?=$ach['total']?> Achievements</small></a>
     </section>
+
+  <?php require __DIR__.'/progress-panels.php'; ?>
 
   <section aria-labelledby="module-title" class="konto-section">
     <div class="konto-section-head"><h2 id="module-title">Deine Lernmodule</h2><a class="text-link" href="./#lernmodule">Alle Module ansehen →</a></div>
@@ -373,4 +380,5 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
 })();
 </script>
 </body></html>
+
 

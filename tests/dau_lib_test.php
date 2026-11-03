@@ -35,11 +35,11 @@ check(dtp_page_content()===$defaults,'Zurücksetzen stellt alle Standardtexte he
 check(dtp_inline('<b>x</b> **fett** & "q"')==='&lt;b&gt;x&lt;/b&gt; <strong>fett</strong> &amp; &quot;q&quot;','Nur **fett** wird formatiert, HTML wird escaped');
 check(dtp_subtitle_parts('Verstehen · Üben | Anwenden, ')===['Verstehen','Üben','Anwenden'],'Untertitel wird in Begriffe zerlegt');
 $tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_progress','learner_stats','learner_tokens','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
+check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_daily','learner_practice','learner_progress','learner_showcase','learner_stats','learner_tokens','learner_xp_events','learner_xp_state','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
 
 // --- Vorschaubilder ---
-check(str_contains(dtp_module_description(['title'=>'OSI-Schichten','description'=>'Easy OSI']),'sieben OSI-Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
-check(str_contains(dtp_module_description(['title'=>'Subnet Sprint','description'=>'Subnetting, Subnetting, Subnetting...']),'Broadcast'),'Alter Subnetting-Platzhalter erklärt das Lernziel');
+check(str_contains(dtp_module_description(['slug'=>'osi-sprint','title'=>'OSI-Schichten','description'=>'Easy OSI']),'Sieben Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
+check(str_contains(dtp_module_description(['slug'=>'subnet-sprint','title'=>'Subnet Sprint','description'=>'Subnetting, Subnetting, Subnetting...']),'Broadcast'),'Alter Subnetting-Platzhalter erklärt das Lernziel');
 check(dtp_module_description(['title'=>'OSI','description'=>'Meine eigene Beschreibung'])==='Meine eigene Beschreibung','Eigene aussagekräftige Kartentexte bleiben erhalten');
 $catalog=dtp_preview_catalog();
 check(count($catalog['motifs'])>=8,'Mindestens acht mitgelieferte Motive');
@@ -93,7 +93,7 @@ foreach([768,1448] as $width){
     imagedestroy($cutout);
 }
 check(substr_count($scene,'class="hero-plane hero-plane--')===5 && !str_contains($scene,'data-hero-depth='),'Originalgrafik hat fünf feste Ebenen ohne Parallax');
-check(str_contains($scene,'hero-learning-growth') && str_contains($scene,'DEIN LERNFORTSCHRITT'),'Fortschritt wird als eigene beschriftete Grafik gerendert');
+check(str_contains($scene,'hero-learning-growth') && str_contains($scene,'aria-label="Dein Lernfortschritt: vom DAU zum PRO"') && !str_contains($scene,'DEIN LERNFORTSCHRITT'),'Fortschrittsgrafik behält ihren zugänglichen Namen ohne sichtbare Beschriftung');
 check(str_contains($scene,'data-mushroom-anchor'),'Der Pilz besitzt einen eigenen mitbewegten Anker');
 check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true]),'Eigener Hero'),'hero-plane'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');
 check($hero['src']==='assets/dau-to-pro-hero-freigestellt.png' && !$hero['custom'],'Standard-Hero ist die freigestellte Originalgrafik');
@@ -118,5 +118,6 @@ check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original
 @unlink($tmp);@unlink($db);
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"DAU-Bibliothek: $count Prüfungen bestanden\n";
 exit($failures?1:0);
+
 
 

@@ -41,27 +41,28 @@ let server,browser;
       const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
       return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').filter(track=>parseFloat(track)>0).length,
-        modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
+        cardWidth:document.querySelector('.module-card').getBoundingClientRect().width,modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
         overflow:[...document.querySelectorAll('.hero-copy,.hero-actions,.exam-input-row,.module-card,.step')].filter(e=>{const b=e.getBoundingClientRect();return b.left<-.5||b.right>innerWidth+.5}).map(e=>e.className)};
     });
     if(screenshots&&[1440,390,320].includes(width))await page.screenshot({path:path.join(screenshots,`desktop-${width}.png`),fullPage:true});
     assert.ok(geometry.scrollWidth<=width,`No page overflow at ${width}: ${JSON.stringify(geometry)}`);
     assert.deepEqual(geometry.overflow,[],`No clipped controls at ${width}`);
     if(width>=1024||width<=610)assert.ok(geometry.ctaBottom<height,`Learning action visible on first screen at ${width}: ${geometry.ctaBottom}`);
-    if(width>=1024){assert.equal(geometry.columns,2,'Two modules use two columns');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
+    if(width>=1024){assert.ok(geometry.columns>=2,'Desktop retains a stable multi-column grid');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
     await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('OSI');
     await page.getByRole('button',{name:'Module finden',exact:false}).click();
     assert.equal(await page.locator('.module-card:visible').count(),1,'Search submission shows one result');
     assert.equal(await page.locator('#module-grid').getAttribute('data-count'),'1');
+    assert.ok(Math.abs(await page.locator('.module-card:visible').evaluate(n=>n.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtered cards retain their width');
     await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
     assert.equal(await page.locator('.module-card:visible').count(),2);
     await page.getByLabel('WELCHE THEMEN KOMMEN DRAN?',{exact:true}).fill('Nichtvorhanden');
     assert.ok(await page.locator('#search-empty').isVisible(),'No-result state visible');
     await page.getByRole('button',{name:'Suche zurücksetzen',exact:false}).click();
-    assert.deepEqual(await page.locator('#module-topic option').evaluateAll(options=>options.map(option=>option.value)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
-    await page.locator('#module-topic').selectOption('subnet');
+    assert.deepEqual(await page.locator('.filterbar [data-filter]').evaluateAll(options=>options.map(option=>option.dataset.filter)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
+    await page.locator('[data-filter="subnet"]').click();
     assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works');
-    await page.locator('#module-topic').selectOption('alle');
+    await page.locator('[data-filter="alle"]').click();
     if(width<=860){
       await page.getByRole('button',{name:'Menü öffnen',exact:true}).click();
       assert.ok(await page.locator('#dtp-mobile-menu').isVisible());
@@ -128,14 +129,16 @@ let server,browser;
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
     await accountPage.goto(base+'/dau-to-pro/highscore.php');
-    const achievements=accountPage.locator('.hs-achievements').first();
-    assert.ok(!(await achievements.evaluate(e=>e.open)),'Achievements initially collapsed');
-    await achievements.locator('summary').click();
-    assert.ok(await achievements.locator('.ach-item').count()>0,'Person has readable unlocked achievements');
-    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Highscore detail has no page overflow');
-    const achievementId=await achievements.getAttribute('id');
-    await accountPage.goto(base+'/dau-to-pro/highscore.php#'+achievementId);
-    assert.ok(await accountPage.locator('#'+achievementId).evaluate(e=>e.open),'Achievement deep link opens person');
+    const opener=accountPage.locator('[data-profile]').first();
+    const profileId=await opener.getAttribute('data-profile');
+    assert.ok(!(await accountPage.locator('#learner-profile').isVisible()),'Profile initially closed');
+    await opener.click();
+    await accountPage.locator('#profile-content .ach-item').first().waitFor();
+    assert.ok(await accountPage.locator('#profile-content .ach-item.is-on').count()>0,'Person has readable unlocked achievements');
+    assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Highscore profile has no page overflow');
+    await accountPage.goto(base+'/dau-to-pro/highscore.php?profil='+profileId);
+    await accountPage.locator('#profile-content .ach-item').first().waitFor();
+    assert.ok(await accountPage.locator('#learner-profile').isVisible(),'Achievement deep link opens person');
     await accountContext.close();
   }
   const noJs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
@@ -162,8 +165,9 @@ let server,browser;
     assert.ok((await egg.locator('.fx-video-player').getAttribute('src')).includes('dau-to-pro-easteregg.mp4'),'Existing Easter egg video is loaded');
     await egg.keyboard.press('Escape');
     await egg.locator('.fx-video').waitFor({state:'hidden'});
-    await egg.waitForFunction(()=>window.dtpAchievementToast&&window.dtpAchievementToast.last&&/Fremdscham/.test(window.dtpAchievementToast.last.title),null,{timeout:5000});
-    assert.equal(await egg.locator('.fx-xp').count(),0,'No large XP window any more: the achievement popup follows the video');
+    await egg.waitForTimeout(300);
+    assert.equal(await egg.locator('dtp-achievement').count(),0,'Guest video never pretends to unlock an account achievement');
+    assert.equal(await egg.locator('.fx-xp').count(),0,'Guest video creates neither a large XP window nor an achievement popup');
     assert.equal(await egg.evaluate(()=>document.documentElement.classList.contains('fx-locked')),false,'Closing the egg restores scrolling');
     await eggContext.close();
   }
@@ -172,5 +176,6 @@ let server,browser;
 })().catch(error=>{console.error(error);process.exitCode=1}).finally(async()=>{
   if(browser)await browser.close();if(server)server.kill();fs.rmSync(scratch,{recursive:true,force:true});
 });
+
 
 

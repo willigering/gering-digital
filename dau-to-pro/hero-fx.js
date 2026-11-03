@@ -165,13 +165,8 @@
     toastDue = false;
     const toast = window.dtpAchievementToast;
     if (!toast) return;
-    const r = eggResult || {}, egg = r.egg || {};
-    if (r.ok && r.new) { toast.celebrate(r); return; }
-    if (r.ok) {
-      toast.show({ kicker: 'Achievement · bereits freigeschaltet', title: egg.name || 'Fremdscham erfolgreich freigeschaltet', text: 'Die ' + (egg.xp || 200) + ' XP hast du schon.', xp: '', tier: 'versteckt' });
-      return;
-    }
-    toast.show({ kicker: 'Achievement freigeschaltet · Versteckt', title: 'Fremdscham erfolgreich freigeschaltet', text: 'XP gibt es nur mit Lernkonto.', xp: '+0 XP', tier: 'versteckt' });
+    const r = eggResult || {};
+    if (r.ok && r.new) toast.celebrate(r);
   }
   function queueToast() {
     if (eggApi && eggSent && !eggResult) { toastDue = true; return; }   // Antwort kommt gleich
@@ -239,4 +234,5 @@
 
   window.__dtpFx = { state: () => ({ count, busy, phase, video: !!video }) };
 })();
+
 

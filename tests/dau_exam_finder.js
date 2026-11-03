@@ -13,7 +13,7 @@ function element(id){
     focus(){},scrollIntoView(){}};
 }
 const input=element('exam-topics'),form=element('exam-form'),indicator=element('result-indicator');
-const reset=element('exam-reset'),empty=element('search-empty'),topicSelect=element('module-topic');
+const reset=element('exam-reset'),empty=element('search-empty'),topicSelect=element('unused-legacy-select');
 const toggle=element('toggle'),menu=element('menu');
 const cards=[
  {dataset:{topic:'netzwerk',search:'OSI Sprint sieben Schichten OSI-Modell'}},
@@ -23,11 +23,11 @@ const cards=[
 ].map(c=>Object.assign(element('card'),c));
 const byId={'exam-topics':input,'exam-form':form,'result-indicator':indicator,'exam-reset':reset,
  'search-empty':empty,'dtp-mobile-menu':menu,'module-grid':element('module-grid'),'module-topic':topicSelect};
-const filter=element('filter');filter.dataset.filter='alle';
+const filters=['alle','subnet','wirtschaft'].map(topic=>{const button=element('filter-'+topic);button.dataset.filter=topic;return button;});
 const document={
  querySelector(q){return q==='.nav-toggle'?toggle:null},
  getElementById(id){return byId[id]??null},
- querySelectorAll(q){return q==='.module-card'?cards:q==='[data-filter]'?[filter]:[]},
+ querySelectorAll(q){return q==='.module-card'?cards:q==='[data-filter]'?filters:[]},
  addEventListener(){}
 };
 const sandbox={
@@ -37,13 +37,13 @@ const sandbox={
 vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../dau-to-pro/site.js'),'utf8'),sandbox);
 const visible=()=>cards.filter(c=>!c.hidden).map(c=>c.dataset.search);
 assert.equal(visible().length,4,'Anfangs alle Module sichtbar');
-topicSelect.value='subnet';topicSelect.events.change();
+filters[1].events.click();
 assert.equal(visible().length,2,'Themenauswahl zeigt nur passende Module');
-topicSelect.value='wirtschaft';topicSelect.events.change();
+filters[2].events.click();
 assert.equal(visible().length,0,'Thema ohne Module zeigt keine fremden Treffer');
 assert.equal(empty.hidden,false,'Thema ohne Module zeigt den Leerhinweis');
 reset.events.click();
-assert.equal(topicSelect.value,'alle','Zurücksetzen synchronisiert die Auswahl');
+assert.equal(visible().length,4,'Zurücksetzen hebt den Themenfilter auf');
 assert.equal(visible().length,4,'Alle Module sind wieder sichtbar');
 input.value='OSI, Datenschutz'; input.events.input();
 assert.equal(visible().length,2,'Mehrere Themen liefern die Vereinigung, nicht einen wörtlichen Treffer');
@@ -61,5 +61,6 @@ assert.equal(prevented,true,'Suchformular navigiert nicht von der Seite weg');
 assert.equal(visible().length,1,'Absenden filtert auf das passende Lernmodul');
 assert.equal(byId['module-grid'].dataset.count,'1','Ein Suchtreffer erhält eine passende Rasterbreite');
 console.log('Exam finder smoke tests passed');
+
 
 

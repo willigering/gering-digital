@@ -261,4 +261,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .module-art-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
 
 
+/* Personal achievement showcase in the compact top-five preview. */
+.hs-showcase{display:flex;gap:6px;align-items:center;margin:6px 0}.hs-showcase .showcase-icon,.hs-showcase-empty{display:grid;place-items:center;width:34px;height:34px;position:relative;background:#ffffff06;border:1px solid #ffffff20;border-radius:6px;color:inherit}.hs-showcase img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}.hs-showcase-empty{opacity:.25}.hs-showcase [role=tooltip]{display:none;pointer-events:none;position:absolute;bottom:100%;left:0;z-index:3;width:max-content;max-width:180px;padding:8px;background:#10171b;border:1px solid #eab448;font-size:12px}.hs-showcase button:hover [role=tooltip],.hs-showcase button:focus [role=tooltip]{display:block}.hs-showcase button:focus-visible{outline:2px solid #eab448}
 .filter-btn{min-height:44px;padding:10px 15px;border:1px solid var(--stroke);border-radius:8px;background:#111b21;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}.filter-btn:hover{color:var(--cream);border-color:#76d8df70}.filter-btn.active{background:var(--cream);color:#111b21}.filter-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+

@@ -173,6 +173,14 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     await page.waitForFunction(()=>{const l=window.dtpAchievementToast&&window.dtpAchievementToast.last;return l&&/Fremdscham/.test(l.title)&&l.xp==='+200 XP';},null,{timeout:6000});
     if(shots){await pause(700);await page.screenshot({path:path.join(shots,'easteregg-achievement.png'),clip:{x:966,y:700,width:400,height:200}});}
 
+    // Replaying the video on a fresh page must not notify or award XP again.
+    const eggXP=Number(php("$l=learner_find('anna');echo ach_stats((int)$l['id'])['level']['xp'];"));
+    await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
+    for(let i=0;i<5;i++){await page.locator('.fx-shroom-hit').click({force:true});await pause(120);}
+    await page.waitForSelector('.fx-video:not([hidden])',{timeout:8000});await pause(800);await page.keyboard.press('Escape');await pause(500);
+    assert.equal(await page.locator('dtp-achievement').count(),0,'Erneutes Video zeigt kein altes Achievement');
+    assert.equal(Number(php("$l=learner_find('anna');echo ach_stats((int)$l['id'])['level']['xp'];")),eggXP,'Erneutes Video vergibt keine XP');
+
     // Highscore: standardmäßig aus, Opt-in in den Einstellungen.
     await page.goto(base+'/dau-to-pro/highscore.php');
     assert.ok((await page.locator('.hs-hint').textContent()).includes('unsichtbar'),'Highscore: eigenes Konto ist standardmäßig unsichtbar');
@@ -189,7 +197,7 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
       await page.locator('#einstellungen').screenshot({path:path.join(shots,'konto-einstellungen-highscore.png')});
     }
     await page.goto(base+'/dau-to-pro/highscore.php');
-    const names=await page.$$eval('.hs-name',n=>n.map(x=>x.textContent.trim()));
+    const names=await page.$$eval('.hs-name',n=>n.map(x=>x.querySelector('.profile-open').textContent.trim()+(x.querySelector(':scope > small')?' (du)':'')));
     assert.equal(names[0],'anna (du)','Highscore: anna führt und ist markiert');
     assert.equal(names.length,3,'Highscore zeigt die drei sichtbaren Konten');
     if(shots)await page.screenshot({path:path.join(shots,'highscore-1366.png'),fullPage:true});
@@ -220,7 +228,8 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     for(let i=0;i<5;i++){await gp.locator('.fx-shroom-hit').click({force:true});await pause(120);}
     await gp.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
     await gp.keyboard.press('Escape');
-    await gp.waitForFunction(()=>{const l=window.dtpAchievementToast&&window.dtpAchievementToast.last;return l&&l.xp==='+0 XP';},null,{timeout:6000});
+    await pause(500);
+    assert.equal(await gp.locator('dtp-achievement').count(),0,'Ohne Konto kein vorgetäuschtes Achievement-Popup');
     assert.deepEqual(errors,[],'Keine JavaScript-Fehler');
     console.log('Achievements im Browser: alle Prüfungen bestanden');
   } finally {
@@ -230,3 +239,4 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     fs.rmSync(scratch,{recursive:true,force:true});
   }
 })().catch(e=>{console.error(e);process.exit(1);});
+
