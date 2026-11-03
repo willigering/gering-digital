@@ -834,7 +834,7 @@ function parseAnswer(t,raw){
   const m=s.replace(/[−–]/g,'-').match(/^([+-]?\d+(?:[.,]\d+)?)\s*([^\d]*)$/u);
   if(!m)return {valid:false,msg:'Zahl mit Komma oder Punkt eingeben, ohne Tausendertrennzeichen.'};
   const u=norm(m[2]),wanted=norm(t.unit||'');const aliases={h:['h','stunden','stunde'],Tage:['tage','tag'],Personen:['personen','person'],Felder:['felder','feld'],Konten:['konten','konto'],Einträge:['eintraege','eintrag'],Bestände:['bestaende','bestand'],Einheiten:['einheiten','einheit'],'Mio. €':['mio','mio euro','mio eur','millionen','millionen euro','millionen eur']};
-  if(u&&u!==wanted&&!(aliases[t.unit]||[]).includes(u))return {valid:false,msg:'Gefragt ist '+t.unit+'. Bitte diese Einheit verwenden.'};
+  if((m[2].trim()&&!u&&m[2].trim()!==(t.unit||''))||(u&&u!==wanted&&!(aliases[t.unit]||[]).includes(u)))return {valid:false,msg:'Gefragt ist '+t.unit+'. Bitte diese Einheit verwenden.'};
   const v=Number(m[1].replace(',','.'));return {valid:true,ok:Math.abs(v-t.answer)<=(t.tol||1e-9),given:String(v).replace('.',',')+(u?' '+m[2]:'')};
  }
  return {valid:false,msg:'Unbekanntes Antwortformat.'};
