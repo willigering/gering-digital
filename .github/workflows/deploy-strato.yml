@@ -50,8 +50,8 @@ jobs:
               raise SystemExit('Missing GitHub Secrets: ' + ', '.join(missing))
 
           remote_root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/')
-          if not remote_root.startswith('/') or remote_root in ('', '/'):
-              raise SystemExit('STRATO_REMOTE_PATH must be an absolute non-root SFTP path')
+          if not remote_root.startswith('/') or remote_root == '':
+              raise SystemExit('STRATO_REMOTE_PATH must be an absolute SFTP path')
           port = int(os.environ.get('STRATO_PORT') or '22')
           if not 1 <= port <= 65535:
               raise SystemExit('Invalid SFTP port')
@@ -108,6 +108,9 @@ jobs:
                   sftp = ssh.open_sftp()
                   try:
                       sftp.stat(remote_root)  # The destination MUST already exist.
+                      # This account is chrooted to the website root. Verify expected site markers.
+                      for marker in ('index.php', 'lib.php', 'dau-to-pro'):
+                          sftp.stat(posixpath.join(remote_root, marker))
                       directories = set()
                       for local, relative in deploy_files:
                           target = posixpath.join(remote_root, relative)
