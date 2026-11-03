@@ -403,7 +403,17 @@ function ipv6(id) {
   <text x="640" y="575" text-anchor="middle" fill="${GOLD_LITE}" font-family="${SANS}" font-size="27" font-weight="700">DOPPELPUNKT, DOPPELPUNKT, DURCHBLICK</text>`;
 }
 
+function services(id) {
+  const ports = [ ['22','SSH'], ['53','DNS'], ['67','DHCP'], ['80','HTTP'], ['443','HTTPS'], ['993','IMAPS'] ];
+  return `<text x="640" y="140" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="42" font-weight="850">PORT 80, BITTE KOMMEN</text>
+    <text x="640" y="185" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="23">B5 // NETZWERKDIENSTE &amp; PROTOKOLLE</text>
+    <path d="M180 360 H1100 M640 235 V555" stroke="${GOLD}" stroke-width="3" stroke-opacity=".5"/>
+    ${ports.map(([port,name],i)=>{const x=220+(i%3)*330,y=245+Math.floor(i/3)*170;return `<g><rect x="${x}" y="${y}" width="180" height="120" rx="4" fill="#0c1a28" stroke="${CYAN}" stroke-width="2"/><text x="${x+90}" y="${y+56}" text-anchor="middle" font-family="${MONO}" font-size="44" font-weight="800" fill="${GOLD_LITE}">${port}</text><text x="${x+90}" y="${y+92}" text-anchor="middle" font-family="${MONO}" font-size="24" fill="${CYAN}">${name}</text></g>`}).join('')}
+    <text x="640" y="625" text-anchor="middle" fill="${MUTED}" font-family="${MONO}" font-size="23">SYN → SYN-ACK → DURCHBLICK</text>`;
+}
+
 export const motifs = [
+  { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
   { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
   { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
   { id: 'datenschutz', accent: '#ff8fa3', label: 'Datenschutz · DSGVO', draw: privacy, seed: 31, glowX: 800, glowY: 360 },

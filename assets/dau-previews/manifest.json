@@ -3,6 +3,20 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "netzwerkdienste",
+      "accent": "#7ad0ff",
+      "label": "Netzwerkdienste & Protokolle",
+      "slugs": [
+        "b5-netzwerkdienste"
+      ],
+      "keywords": [
+        "netzwerkdienste",
+        "port 80, bitte",
+        "protokolle"
+      ],
+      "module": "B5"
+    },
+    {
       "id": "ipv6",
       "accent": "#4fd1c5",
       "label": "IPv6 · Doppelpunkt, Doppelpunkt, Durchblick",
