@@ -159,8 +159,15 @@ let server,browser;
       assert.equal(await egg.locator('.fx-count').textContent(),`${n}x`,'Every click advances the counter');
     }
     assert.ok(await egg.locator('.fx-shroom').evaluate(e=>Number(e.style.getPropertyValue('--fx-scale'))>1.3),'Mushroom still grows');
+    const started=Date.now();
     await mushroom.press('Enter');
-    await egg.locator('.fx-video.is-open').waitFor({state:'visible',timeout:7000});
+    const levelup=egg.locator('.fx-levelup-card');
+    await levelup.waitFor({state:'visible',timeout:1000});
+    const geometry=await levelup.boundingBox();
+    assert.ok(geometry.width<=370&&geometry.height<=130,'Easter egg shows a compact Level-up card, not a giant bolt');
+    assert.ok(await levelup.getByText('EASTER EGG ENTDECKT').isVisible(),'Level-up explains the Easter egg');
+    await egg.locator('.fx-video.is-open').waitFor({state:'visible',timeout:2500});
+    assert.ok(Date.now()-started<1600,'Easter egg transitions into its video in under 1.6 seconds');
     await egg.locator('.fx-video-player').waitFor({state:'attached',timeout:7000});
     assert.ok((await egg.locator('.fx-video-player').getAttribute('src')).includes('dau-to-pro-easteregg.mp4'),'Existing Easter egg video is loaded');
     await egg.keyboard.press('Escape');
