@@ -36,10 +36,14 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         assert.match(state.blur,/blur\(7px\)/);assert.match(state.shade,/0\.72\)/);assert.equal(state.opacity,'1');
         assert.ok(Math.abs(state.centerX-viewport.width/2)<3&&Math.abs(state.centerY-viewport.height/2)<3,`${m.slug}: centered`);
         assert.ok(state.left>=0&&state.right<=viewport.width&&state.top>=0&&state.bottom<=viewport.height&&!state.overflow,`${m.slug}: fits viewport`);
-        // Answer entry must not jump around.
-        const input=dialog.locator('#practiceTask input').first();
+        // Only type into real, visible, editable answer fields. Assignment tasks can
+        // contain hidden/read-only inputs for their internal state: those must never be filled.
+        const input=dialog.locator(
+          '#practiceTask input:visible:not([readonly]):not([disabled]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="button"]):not([type="submit"]):not([type="file"]):not([type="range"]), '+
+          '#practiceTask textarea:visible:not([readonly]):not([disabled])'
+        ).first();
         if(await input.count()){
-          const y=await dialog.evaluate(d=>d.scrollTop);await input.fill('test');
+          const y=await dialog.evaluate(d=>d.scrollTop);await input.fill('1');
           assert.equal(await dialog.evaluate(d=>d.scrollTop),y,'Typing preserves position');
         }
         await page.screenshot({path:path.join(shots,`${m.slug}-${viewport.width}.png`)});
