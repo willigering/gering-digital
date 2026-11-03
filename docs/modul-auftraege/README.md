@@ -61,6 +61,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Tastaturfokus beim Öffnen ins Antwortfeld; kein Scrollsprung beim Tippen oder Bewerten. Lange Aufgaben scrollen im Dialog. Nach Rückkehr zur Lektion ist die normale Seite wieder bedienbar.
 - Gemeinsame Umsetzung: `tools/module-focus.css` und `tools/module-focus.js`, eingebettet durch `tools/module_theme.py`. Bereits veröffentlichte importierte Versionen erhalten denselben Baustein über `learner_inject_sync()`. Keine zweite Aufgaben-/Punkte-/Fortschrittslogik bauen und keine Bedienelemente kopieren.
 - Abnahme für jedes Modul: Desktop und 390 px, Zentrierung, Blur plus Abdunkeln, Fade-in, Eingabefokus, stabile Eingabe, nächste Aufgabe, sichtbarer Rückweg, Escape, erneutes Öffnen und unveränderte Bewertung prüfen.
+- **Modul-Einstieg (auch nach Browser-Zurück):** Jeder neue Besuch beginnt im **Lernpfad, am Seitenanfang**, auch wenn zuvor Nachschlagwerk, Trainingsraum oder Prüfungsmodus aktiv waren. Niemals den zuletzt geöffneten Tab oder die Scrollposition wiederherstellen. Die gemeinsame Umsetzung steht in `tools/module-entry.js` und wird über `tools/module_theme.py` für Offline-Dateien bzw. `learner_inject_sync()` für veröffentlichte Module eingebunden. Lernstufe, Aufgabenstatistik, XP, Achievements und Prüfungsergebnisse bleiben erhalten. Unvollständige Prüfungen folgen beim tatsächlichen Verlassen den bestehenden Abgaberegeln; keine hängenden Sperren beim nächsten Einstieg.
 
 ### Themenhierarchie und Vorschaukarten – verbindlich für ALLE Module
 
