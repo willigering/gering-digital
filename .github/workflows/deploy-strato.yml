@@ -86,6 +86,14 @@ jobs:
                   continue
               deploy_files.append((path, relative.as_posix()))
 
+          # Install additive XP dependencies before PHP entry points can reference them.
+          # The compatibility guard in xp_lib.php lets old/new achievement code coexist during upload.
+          first = ['xp-config.json', 'xp_lib.php', 'lib.php',
+                   'dau-to-pro/profiles.js', 'dau-to-pro/progress-panels.php',
+                   'dau-to-pro/api/profile.php']
+          priority = {name: i for i, name in enumerate(first)}
+          deploy_files.sort(key=lambda item: (priority.get(item[1], len(first)), item[1]))
+
           if not deploy_files:
               raise SystemExit('No deployable website files found; refusing empty deployment')
 
@@ -133,3 +141,4 @@ jobs:
               finally:
                   ssh.close()
           PY
+

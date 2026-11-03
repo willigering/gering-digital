@@ -29,13 +29,17 @@ $input=json_decode((string)file_get_contents('php://input',false,null,0,LEARNER_
 if (!is_array($input) || !is_string($input['slug']??null)) progress_reply(400,['ok'=>false,'error'=>'Ungültige Anfrage.']);
 $set=$input['set']??[];$delete=$input['delete']??[];
 if (!is_array($set) || !is_array($delete) || ($delete!==[] && !array_is_list($delete))) progress_reply(400,['ok'=>false,'error'=>'Ungültige Anfrage.']);
+$progressDb=db();
+$progressDb->beginTransaction();
 try {
     learner_progress_apply((int)$learner['id'],$input['slug'],$set,$delete);
 } catch (LearnerError $error) {
+    $progressDb->rollBack();
     progress_reply(422,['ok'=>false,'error'=>$error->getMessage()]);
 }
 // Achievements und Level: aus dem gespeicherten Stand neu berechnen. Ein Fehler hier darf das Speichern nie verhindern.
 $result=null;
+$progressDb->exec('SAVEPOINT rewards');
 try {
     $keys=array_map('strval',array_keys($set));
     $solved=(bool)array_filter($keys,fn($key)=>str_ends_with($key,'-stats-v1'));
@@ -43,8 +47,12 @@ try {
     $learned=$solved || (bool)array_filter($keys,fn($key)=>(bool)preg_match('/-(?:path|exam)-v1$/',$key));
     $result=ach_evaluate((int)$learner['id'],['activity'=>$learned,'solved'=>$solved]);
 } catch (Throwable $error) {
+    $progressDb->exec('ROLLBACK TO rewards');
     error_log('DAU TO PRO Achievements: '.$error->getMessage());
 }
+$progressDb->exec('RELEASE rewards');
+$progressDb->commit();
 $reply=['ok'=>true,'saved'=>count($set)+count($delete)];
 if ($result) $reply+=['achievements'=>$result['new'],'level'=>$result['level'],'level_up'=>$result['level_up']];
 progress_reply(200,$reply);
+

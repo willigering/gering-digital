@@ -51,12 +51,12 @@ check($catalog['g.easteregg']['xp']===200 && $catalog['g.easteregg']['hidden']==
 foreach(['SPRINT','Sprint'] as $word) foreach($modules as $m) check(!str_contains($m['subject'].$m['title'],$word),'Modulname ohne „Sprint“: '.$m['subject'].' · '.$m['title']);
 
 // --- Level ---
-check(ach_xp_for_level(1)===0 && ach_xp_for_level(2)===100 && ach_xp_for_level(5)===1000 && ach_xp_for_level(10)===4500 && ach_xp_for_level(50)===122500,'Levelkurve 50 × L × (L − 1)');
-foreach([0=>1,99=>1,100=>2,299=>2,300=>3,999=>4,1000=>5,4499=>9,4500=>10,122499=>49,122500=>50,999999=>50] as $xp=>$level) check(ach_level($xp)===$level,"$xp XP = Level $level");
-check(ach_level_title(1)==='DAU' && ach_level_title(9)==='Klick-Azubi' && ach_level_title(10)==='Kabelträger' && ach_level_title(50)==='PRO','Leveltitel von DAU bis PRO');
-$info=ach_level_info(150);
-check($info['level']===2 && $info['from']===100 && $info['to']===300 && $info['percent']===25,'Fortschrittsbalken zum nächsten Level');
-check(ach_level_info(200000)['max']===true,'Level 50 ist das höchste');
+check(ach_xp_for_level(1)===0 && ach_xp_for_level(50)===366100,'Versionierte Levelkurve bis 366.100 XP');
+foreach(range(2,50) as $level) {check(ach_level(ach_xp_for_level($level))===$level,"Level $level Grenze");check(ach_level(ach_xp_for_level($level)-1)===$level-1,"Vor Level $level");}
+check(ach_level_title(1)==='DAU' && ach_level_title(50)==='PRO','Leveltitel erhalten');
+$info=ach_level_info(ach_xp_for_level(10));
+check($info['level']===10 && $info['percent']===0,'Fortschrittsbalken an neuer Grenze');
+check(ach_level_info(366100)['max']===true,'PRO ist höchstes Level');
 
 // --- Modulregeln einzeln ---
 $a=learner('anna');
@@ -118,22 +118,24 @@ $x=learner('xaver');
 ach_evaluate($x);
 put($x,'osi-sprint',['osi-sprint-stats-v1'=>['solved'=>1500,'correct'=>1200,'streak'=>3,'best'=>9],'osi-sprint-path-v1'=>path([0,1]),'osi-sprint-exam-v1'=>[['m'=>30,'p'=>50],['m'=>30,'p'=>90],['m'=>60,'p'=>75]]]);
 // 1000 × 2 (Obergrenze) + 2 × 75 + 90 % × 2 × 1 + 75 % × 2 × 2 + Achievements (10 Willkommen + 25 Kabel steckt + 100 Tausendsassa)
-check(ach_stats($x)['level']['xp']===2000+150+180+300+10+25+100,'XP: Aufgaben (gedeckelt), Stufen, beste Prüfung je Länge, Achievements');
+check(ach_stats($x)['level']['xp']===2000+150+180+300+10+25+100+15+10,'XP: erste Aufgaben, begrenzte Wiederholung, Stufen, Prüfungen, Erfolge, Tagesziel');
 put($x,'osi-sprint',['osi-sprint-stats-v1'=>['solved'=>3,'correct'=>2],'osi-sprint-path-v1'=>path([]),'osi-sprint-exam-v1'=>[]]);
-check(ach_stats($x)['level']['xp']===2765,'Höchststände bleiben, auch wenn der Browser weniger meldet');
+check(ach_stats($x)['level']['xp']===2790,'Höchststände bleiben, auch wenn der Browser weniger meldet');
 learner_progress_delete_module($x,'osi-sprint');
-check(ach_evaluate($x)['level']['xp']===2765 && has($x,'osi.kabel'),'Fortschritt löschen nimmt weder XP noch Achievements weg');
+check(ach_evaluate($x)['level']['xp']===2790 && has($x,'osi.kabel'),'Fortschritt löschen nimmt weder XP noch Achievements weg');
 
 // --- Lerntage, Nachteule, Easter Egg, Sammelziele ---
 $t=learner('tina');
 $day=strtotime('2026-11-02 12:00:00 Europe/Berlin');
-for($i=0;$i<7;$i++) { ach_evaluate($t,['activity'=>true,'time'=>$day+$i*86400]); ach_evaluate($t,['activity'=>true,'time'=>$day+$i*86400+3600]); }
+ach_evaluate($t,['time'=>$day]);
+for($i=0;$i<7;$i++) { learner_progress_apply($t,'osi-sprint',['osi-sprint-stats-v1'=>json_encode(['solved'=>($i+1)*5,'correct'=>($i+1)*5])],[]); ach_evaluate($t,['activity'=>true,'time'=>$day+$i*86400]); ach_evaluate($t,['activity'=>true,'time'=>$day+$i*86400+3600]); }
 check((int)ach_stats_row($t)['days']===7 && has($t,'g.7tage') && !has($t,'g.30tage'),'7 verschiedene Lerntage (zweimal am Tag zählt einmal)');
 ach_evaluate($t,['activity'=>false,'time'=>$day+30*86400]);
 check((int)ach_stats_row($t)['days']===7,'Ohne Lernaktivität kein neuer Lerntag');
 ach_evaluate($t,['solved'=>true,'time'=>strtotime('2026-11-03 23:59:00 Europe/Berlin')]);
 check(!has($t,'g.nachteule'),'23:59 Uhr ist noch keine Nachteule');
-ach_evaluate($t,['solved'=>true,'time'=>strtotime('2026-11-04 02:30:00 Europe/Berlin')]);
+learner_progress_apply($t,'osi-sprint',['osi-sprint-stats-v1'=>json_encode(['solved'=>40,'correct'=>40])],[]);
+ach_evaluate($t,['activity'=>true,'solved'=>true,'time'=>strtotime('2026-11-04 02:30:00 Europe/Berlin')]);
 check(has($t,'g.nachteule'),'02:30 Uhr deutscher Zeit: Nachteule');
 $before=ach_stats($t)['level']['xp'];
 $r=ach_evaluate($t,['egg'=>true]);
@@ -188,6 +190,7 @@ check(count(ach_overview($n)['groups'])===3,'Nicht veröffentlichte Module ersch
 @unlink($db);
 echo $failures===0?"Achievements: $count Prüfungen bestanden\n":"Achievements: $failures von $count Prüfungen fehlgeschlagen\n";
 exit($failures===0?0:1);
+
 
 
 

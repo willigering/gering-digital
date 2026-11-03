@@ -289,6 +289,7 @@ function learner_reset_all(array $learner,string $current): int {
         $q=$db->prepare("UPDATE learner_progress SET value='',deleted=1,updated_at=? WHERE learner_id=? AND deleted=0");
         $q->execute([$now,$id]);
         $count=$q->rowCount();
+        foreach(['learner_xp_events','learner_xp_state','learner_daily','learner_practice','learner_showcase'] as $table) $db->prepare("DELETE FROM $table WHERE learner_id=?")->execute([$id]);
         $db->prepare('DELETE FROM learner_achievements WHERE learner_id=?')->execute([$id]);
         $db->prepare('INSERT OR IGNORE INTO learner_stats(learner_id) VALUES(?)')->execute([$id]);
         $db->prepare("UPDATE learner_stats SET xp=0,level=1,achievements=0,best='{}',days=0,last_day='',highscore_visible=0,xp_changed_at=?,updated_at=? WHERE learner_id=?")
@@ -346,7 +347,8 @@ function learner_progress_apply(int $learnerId,string $slug,array $set,array $de
     }
     foreach($delete as $key) if (!learner_valid_key($key)) throw new LearnerError('Ungültiger Speicherschlüssel.');
     $db=db();
-    $db->beginTransaction();
+    $ownsTransaction=!$db->inTransaction();
+    if($ownsTransaction)$db->beginTransaction();
     try {
         $now=learner_now();
         $upsert=$db->prepare('INSERT INTO learner_progress(learner_id,storage_key,module_slug,value,deleted,updated_at) VALUES(?,?,?,?,0,?)
@@ -363,9 +365,9 @@ function learner_progress_apply(int $learnerId,string $slug,array $set,array $de
             $db->prepare('DELETE FROM learner_progress WHERE learner_id=? AND deleted=1 AND storage_key IN (SELECT storage_key FROM learner_progress WHERE learner_id=? AND deleted=1 ORDER BY updated_at LIMIT ?)')
                ->execute([$learnerId,$learnerId,$rows-LEARNER_KEYS_MAX*2]);
         }
-        $db->commit();
+        if($ownsTransaction)$db->commit();
     } catch (Throwable $error) {
-        $db->rollBack();
+        if($ownsTransaction)$db->rollBack();
         throw $error;
     }
 }
@@ -488,4 +490,5 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+
 

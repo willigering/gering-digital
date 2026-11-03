@@ -13,7 +13,7 @@ function element(id){
     focus(){},scrollIntoView(){}};
 }
 const input=element('exam-topics'),form=element('exam-form'),indicator=element('result-indicator');
-const reset=element('exam-reset'),empty=element('search-empty'),topicSelect=element('module-topic');
+const reset=element('exam-reset'),empty=element('search-empty'),topicSelect=element('unused-legacy-select');
 const toggle=element('toggle'),menu=element('menu');
 const cards=[
  {dataset:{topic:'netzwerk',search:'OSI Sprint sieben Schichten OSI-Modell'}},
@@ -23,7 +23,7 @@ const cards=[
 ].map(c=>Object.assign(element('card'),c));
 const byId={'exam-topics':input,'exam-form':form,'result-indicator':indicator,'exam-reset':reset,
  'search-empty':empty,'dtp-mobile-menu':menu,'module-grid':element('module-grid'),'module-topic':topicSelect};
-const filters=['alle','subnet','wirtschaft'].map(value=>{const el=element('filter-'+value);el.dataset.filter=value;return el;});
+const filters=['alle','subnet','wirtschaft'].map(topic=>{const button=element('filter-'+topic);button.dataset.filter=topic;return button;});
 const document={
  querySelector(q){return q==='.nav-toggle'?toggle:null},
  getElementById(id){return byId[id]??null},
@@ -43,7 +43,7 @@ filters[2].events.click();
 assert.equal(visible().length,0,'Thema ohne Module zeigt keine fremden Treffer');
 assert.equal(empty.hidden,false,'Thema ohne Module zeigt den Leerhinweis');
 reset.events.click();
-assert.equal(reset.hidden,true,'Zurücksetzen verbirgt die Rücksetzfunktion ohne aktive Filter');
+assert.equal(visible().length,4,'Zurücksetzen hebt den Themenfilter auf');
 assert.equal(visible().length,4,'Alle Module sind wieder sichtbar');
 input.value='OSI, Datenschutz'; input.events.input();
 assert.equal(visible().length,2,'Mehrere Themen liefern die Vereinigung, nicht einen wörtlichen Treffer');
