@@ -415,6 +415,11 @@ function learner_sync_config(string $slug,string $file): array {
 }
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
 function learner_inject_sync(string $html,string $slug,string $file): string {
+    // Auch bereits importierte Modulversionen ohne das alte Footer-Logo ausliefern.
+    // Nur das Markenbild entfernen; Lernabbildungen und Footer-Texte bleiben erhalten.
+    $html=preg_replace_callback('~<footer\b[^>]*>[\s\S]*?</footer>~i', static function(array $m): string {
+        return preg_replace('~(<div\b[^>]*class="foot-brand"[^>]*>)\s*<img\b[^>]*>~i', '$1', $m[0]) ?? $m[0];
+    }, $html) ?? $html;
     $json=json_encode(learner_sync_config($slug,$file),JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE|JSON_INVALID_UTF8_SUBSTITUTE);
     // Achievement-Popup zuerst, damit sync.js es nach dem Speichern aufrufen kann.
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
