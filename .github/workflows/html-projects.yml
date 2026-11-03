@@ -88,3 +88,27 @@ jobs:
 
 
 
+
+
+  module-design:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser test dependency
+        run: npm install --prefix "$RUNNER_TEMP/dtp-design" --no-package-lock playwright@1.62.1
+      - name: Install Chromium
+        run: node "$RUNNER_TEMP/dtp-design/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Check all module colours and Subnetting on desktop and mobile
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-design-screenshots
+        run: node tests/module_design_browser.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: module-design-desktop-mobile
+          path: ${{ runner.temp }}/dtp-design-screenshots
+          retention-days: 7
