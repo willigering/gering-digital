@@ -11,6 +11,12 @@ def apply_theme(html):
     html = re.sub(re.escape(START) + r'.*?' + re.escape(END) + r'\n?', '', html, flags=re.S)
     css = (ROOT / 'tools/module-theme.css').read_text()
     block = START + '\n<style>\n' + css.rstrip() + '\n</style>\n' + END + '\n'
+    start = '<!-- DTP-UEBUNGSFOKUS START -->'
+    end = '<!-- DTP-UEBUNGSFOKUS END -->'
+    html = re.sub(re.escape(start) + r'.*?' + re.escape(end) + r'\n?', '', html, flags=re.S)
+    focus_css = (ROOT / 'tools/module-focus.css').read_text()
+    focus_js = (ROOT / 'tools/module-focus.js').read_text()
+    block += start + '\n<style>\n' + focus_css.rstrip() + '\n</style>\n<script>\n' + focus_js.rstrip() + '\n</script>\n' + end + '\n'
     return html.replace('</head>', block + '</head>', 1)
 
 if __name__ == '__main__':

@@ -100,6 +100,7 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
         await page.locator('#practiceTask [data-r="next"]:visible, #practiceGo:visible').first().click().catch(()=>{});
         await pause(30);
       }
+await page.locator('#backToLesson').click();await page.locator('.dtp-practice-dialog').waitFor({state:'hidden'});
       // Trainingsraum: gezielt die Aufgabentypen der Achievements.
       await page.click('[data-tab="train"]');
       const todo=[...m.clean.map(s=>[s,true]),...m.fails.map(s=>[s,false])];

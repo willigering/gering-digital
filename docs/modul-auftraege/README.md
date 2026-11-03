@@ -52,6 +52,14 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - **Kein altes Logo im Fußbereich:** Das Markenbild aus `.foot-brand` der Vorlage nicht übernehmen. Im Footer bleiben nur der Text DAU to PRO, Modulname, Version, Rückweg und Bedienelemente. Auch bestehende Module erhalten kein altes Footer-Logo.
 - **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
 
+### Aufgabenfokus – verbindlich für bestehende und neue Module
+
+- Beim Start einer Lernpfad-Übung steht das echte Bearbeitungsfeld zentriert in einem Dialog über der Seite. Der Hintergrund bleibt während der gesamten Bearbeitung weichgezeichnet und deutlich abgedunkelt. Sanftes Ein-/Ausblenden; reduzierte Bewegung respektieren.
+- „Lektion wieder ansehen“ bleibt im Dialog scharf, sichtbar und bedienbar, auch bei langen Aufgaben und auf kleinen Displays. Rückkehr und Escape verwerfen die offene Aufgabe über die bestehende Modul-Logik ohne Bewertung.
+- Tastaturfokus beim Öffnen ins Antwortfeld; kein Scrollsprung beim Tippen oder Bewerten. Lange Aufgaben scrollen im Dialog. Nach Rückkehr zur Lektion ist die normale Seite wieder bedienbar.
+- Gemeinsame Umsetzung: `tools/module-focus.css` und `tools/module-focus.js`, eingebettet durch `tools/module_theme.py`. Bereits veröffentlichte importierte Versionen erhalten denselben Baustein über `learner_inject_sync()`. Keine zweite Aufgaben-/Punkte-/Fortschrittslogik bauen und keine Bedienelemente kopieren.
+- Abnahme für jedes Modul: Desktop und 390 px, Zentrierung, Blur plus Abdunkeln, Fade-in, Eingabefokus, stabile Eingabe, nächste Aufgabe, sichtbarer Rückweg, Escape, erneutes Öffnen und unveränderte Bewertung prüfen.
+
 ### Themenhierarchie und Vorschaukarten – verbindlich für ALLE Module
 
 Diese Regeln gelten **rückwirkend für jedes fertige/veröffentlichte Modul** und für **jedes künftig neu erstellte Modul**. Nicht nur das aktuelle Auftragsmodul berücksichtigen. Neue Module müssen diese Vorgaben bereits bei Erstellung und Abnahme erfüllen.

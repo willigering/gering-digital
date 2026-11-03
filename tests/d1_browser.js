@@ -33,6 +33,7 @@ const {chromium}=require('playwright');
   if(i<10)await page.locator('#practiceTask [data-r="next"]').click();
  }
  assert.notEqual(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),'true');
+await page.locator('#backToLesson').click();await page.locator('.dtp-practice-dialog').waitFor({state:'hidden'});
  await page.click('#tab-exam');
  for(const k of [1,2,3]){
   await page.click('[data-len="'+k+'"]');await page.click('#examStart');

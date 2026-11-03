@@ -38,6 +38,7 @@ const root=path.resolve(__dirname,'..'),url='file://'+root+'/lernmodule/f2-kalku
  for(let i=0;i<9;i++){await answer('#practiceTask');assert.equal(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),'true');await page.locator('#practiceTask [data-r="next"]').click();}
  await answer('#practiceTask');assert.equal(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),null);
  const state=await page.evaluate(()=>JSON.parse(localStorage.getItem('f2-kalk-path-v1')).st[0]);assert.equal(state.solved,13);assert.equal(state.hist.length,10);assert.equal(state.mastered,true);
+await page.locator('#backToLesson').click();await page.locator('.dtp-practice-dialog').waitFor({state:'hidden'});
  // All labs react to invalid and changed input without console failures.
  await page.locator('#tab-learn').click();for(let i=0;i<10;i++){const lab=page.locator('[data-lab="'+i+'"]');const input=lab.locator('input').first();await input.fill('oops');assert.match(await lab.locator('.lab-out').innerText(),/gültige/);await input.fill('2000');assert.doesNotMatch(await lab.locator('.lab-out').innerText(),/NaN|Infinity/);}
  // Matching awards each row separately, with one deliberately wrong row.

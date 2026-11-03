@@ -109,7 +109,7 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-design-screenshots
-        run: node tests/module_design_browser.cjs
+        run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
