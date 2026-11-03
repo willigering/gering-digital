@@ -25,6 +25,6 @@ $preview=dtp_preview_resolve(['slug'=>'b4-ipv6','title'=>'IPv6']);check($preview
 $html=file_get_contents(__DIR__.'/../lernmodule/b4-ipv6.html');
 $injected=learner_inject_sync($html,'b4-ipv6','index.html');
 check(strpos($injected,'window.__DTP_SYNC__=')<strpos($injected,'DTP-HINTERGRUND'),'Sync injected before module');
-check(str_contains($injected,'../dau-to-pro/api/progress.php'),'Uses shared API');
+check(learner_sync_config('b4-ipv6','index.html')['api']==='../dau-to-pro/api/progress.php','Uses shared API');
 check(in_array('b4',ach_live_modules(),true),'Published module recognised');
 @unlink($db);echo "B4: progress, ten awards, XP, idempotency, preview and shared sync injection passed.\n";

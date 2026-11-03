@@ -675,7 +675,7 @@ function parseAnswer(t,raw){
  let x,v;
  switch(t.kind){
   case 'dec':
-   x=s.replace(/\s+/g,'').replace(/(?:bit|byte|bits|bytes|netze)$/i,'').replace(/([.,]0+)$/,'');if(/^-?\d{1,3}(\.\d{3})+$/.test(x))x=x.replace(/\./g,'');
+   x=s.replace(/\s+/g,'').replace(/(?:bits?|bytes?|netze)$/i,'');if(/^-?\d{1,3}(\.\d{3})+$/.test(x))x=x.replace(/\./g,'');else x=x.replace(/([.,]0+)$/,'');
    if(!/^-?\d+$/.test(x))return {valid:false,msg:'Bitte eine ganze Zahl eingeben, z. B. 255 oder −45.'};
    v=Number(x);return {valid:true,ok:v===t.answer,given:gi(v)};
   case 'num':

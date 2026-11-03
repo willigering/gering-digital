@@ -29,6 +29,7 @@ for(const k of [1,2,3]){const a=T.buildExam(k);assert.equal(a.length,k*20);asser
 const canonical={kind:'ip',answer:'2001:db8::1',ipMode:'canonical'};
 assert(!T.parseAnswer(canonical,'2001:0db8::1').ok);assert(T.parseAnswer({...canonical,ipMode:'equiv'},'2001:0DB8:0:0:0:0:0:1').ok);
 assert(!T.parseAnswer({...canonical,ipMode:'full'},'2001:db8::1').ok);
+assert(T.parseAnswer({kind:'dec',answer:1000},'1.000').ok);assert(T.parseAnswer({kind:'dec',answer:128},'128,0 bit').ok);assert(T.parseAnswer({kind:'dec',answer:128},'128.0').ok);
 const doc='# B4 IPv6 – Aufgabentypen\n\n50 stabile IDs. Jede Aufgabe bewertet eine Antwort. Stufe zählt ab 1. `min` im Modul bezeichnet die minimale Generator-Schwierigkeit.\n\n| ID | Name | Teilthema | Stufe |\n| --- | --- | --- | --- |\n'+T.SUBS.map(s=>'| `'+s.id+'` | '+s.label+' | '+T.CATS.find(c=>c[0]===s.cat)[1]+' | '+(T.CATS.findIndex(c=>c[0]===s.cat)+1)+' |').join('\n')+'\n';
 fs.writeFileSync(__dirname+'/../docs/modul-auftraege/b4-aufgabentypen.md',doc);
 console.log('B4: '+generated+' generated and assessed cases, independent IPv6 checks, EUI-64, prefix masking, 20/40/60-task exams passed.');
