@@ -149,9 +149,13 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <article class="step" data-reveal><span class="step-no"><?=$no?></span><div class="step-symbol"><?=$symbol?></div><h3><?=e($c['step'.$n.'_title'])?></h3><?php if($c['step'.$n.'_text']!==''): ?><p><?=dtp_inline($c['step'.$n.'_text'])?></p><?php endif; ?><?php if($c['step'.$n.'_key']!==''): ?><span class="step-key"><?=e($c['step'.$n.'_key'])?></span><?php endif; ?></article>
 <?php endforeach; ?>
       </div>
+      <div class="end-cap method-conclusion" data-reveal>
+        <h2><?=e($c['end_title'])?><?php if($c['end_title_highlight']!==''): ?> <em><?=e($c['end_title_highlight'])?></em><?php endif; ?></h2>
+        <?php if($c['end_text']!==''): ?><p><?=dtp_inline($c['end_text'])?></p><?php endif; ?>
+        <a class="primary-action" href="#lernmodule"><?=e($c['end_cta'])?> <span aria-hidden="true">↑</span></a>
+      </div>
     </div>
   </section>
-  <section class="end-cap"><div class="section-shell"><div class="end-cap-content" data-reveal><span class="eyebrow"><?=e($c['end_eyebrow'])?></span><h2><?=e($c['end_title'])?><?php if($c['end_title_highlight']!==''): ?> <em><?=e($c['end_title_highlight'])?></em><?php endif; ?></h2><?php if($c['end_text']!==''): ?><p><?=dtp_inline($c['end_text'])?></p><?php endif; ?><a class="primary-action" href="#lernmodule"><?=e($c['end_cta'])?> <span aria-hidden="true">↑</span></a></div></div></section>
   <section class="dtp-disclaimer" id="hinweis" aria-labelledby="dtp-disclaimer-title">
     <div class="section-shell">
       <details class="disclaimer-shell">

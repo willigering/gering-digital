@@ -277,3 +277,8 @@ main,.dtp-footer{position:relative;z-index:1}
 /* Leicht verstärkte Kontur hält die kleineren Titel sichtbar kräftig. */
 .dtp-landing h1,.dtp-landing h2,.dtp-landing .step h3{font-weight:1000;-webkit-text-stroke:.3px currentColor}
 .dtp-landing .module-body h2{font-size:22px}
+
+/* Shared learning-method section and its conclusion, without a second framed panel. */
+.method-section .method-conclusion{margin-top:28px;padding:0;border:0;background:none}
+.method-conclusion h2{margin-top:0}.method-conclusion p{max-width:800px}
+@media(max-width:610px){.method-section .method-conclusion{margin-top:24px}}
