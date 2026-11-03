@@ -141,14 +141,23 @@ function dtp_retire_legacy_previews(): void {
 
 /** Give legacy placeholder descriptions a useful summary without rewriting stored content. */
 function dtp_module_description(array $module): string {
+    $slug=(string)($module['slug']??'');
+    $humor=[
+        'a1-zahlensysteme'=>'01001000? Keine Panik, das ist keine Drohung. Hier übersetzt du Binär, Hex und Datenraten, bis selbst dein Taschenrechner Respekt bekommt.',
+        'osi-sprint'=>'Sieben Schichten, null Ausreden: Finde heraus, wer im Netzwerk was macht und warum der Router nicht für jeden Mist zuständig ist.',
+        'subnet-sprint'=>'Netze teilen, Hosts zählen, Broadcast finden. Damit aus /27 endlich eine Adresse wird statt einer persönlichen Beleidigung.',
+        'netzwerke-sprint'=>'Von LAN und WLAN über Topologien und Switches bis OSI und TCP/IP: Hier erfährst du, warum ein eingestecktes Kabel noch lange kein funktionierendes Netzwerk macht.',
+        'd1-datenschutz'=>'Personenbezogene Daten sind kein Selbstbedienungsbuffet. Lerne, wer was speichern darf und wann die DSGVO die rote Karte zieht.',
+        'd2-it-sicherheit'=>'Passwort123, offene Ports und Phishing: Erkenne Risiken, bestimme den Schutzbedarf und verhindere, dass dein Netzwerk zur Einladung wird.',
+        'b4-ipv6'=>'128 Bit und gefühlt 800 Doppelpunkte. Lerne IPv6-Adressen, Präfixe, SLAAC und DHCPv6 kennen, ohne den Überblick zu verlieren.',
+        'b5-netzwerkdienste'=>'DNS sucht Namen, DHCP verteilt Adressen und TCP will Quittungen. Hier lernst du, wer im Netz welchen Job macht – und wer wieder nicht antwortet.',
+        'f2-kalkulation'=>'Rabatt, Skonto, Leasing oder Kauf? Rechne Angebote durch, bevor der Chef begeistert Geld verbrennt und du es erklären musst.',
+    ];
+    if(isset($humor[$slug])) return $humor[$slug];
     $description=trim((string)($module['description']??''));
-    $placeholder=$description==='' || preg_match('/^(?:easy\s+osi|subnetting(?:[\s,.…!]+subnetting)*[\s,.…!]*)$/iu',$description);
-    if (!$placeholder) return $description;
-    return match(dtp_preview_match($module)) {
-        'osi-modell'=>'Die sieben OSI-Schichten verstehen, Aufgaben zuordnen und dein Wissen Schritt für Schritt festigen.',
-        'ipv4-subnetting'=>'Netzadresse, Broadcast und Hostbereiche berechnen. Mit Erklärungen und Übungen zum Subnetting.',
-        default=>'Interaktive Erklärungen, nachvollziehbare Beispiele und Übungen für deinen nächsten Aha-Moment.',
-    };
+    $description=preg_replace('/\\s*[–—-]\\s*mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus\\.?$/iu','',$description);
+    if($description!=='')return $description;
+    return 'Hier gibt es IT-Wissen statt Buzzword-Bingo. Verstehen, ausprobieren und am Ende hoffentlich weniger fluchen.';
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
