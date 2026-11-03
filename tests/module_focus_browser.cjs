@@ -32,8 +32,8 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
           await page.waitForTimeout(680);
           const mid=await page.evaluate(()=>{
             const d=document.querySelector('.dtp-practice-dialog'),b=getComputedStyle(d,'::backdrop');
-            return {blur:parseFloat(b.backdropFilter.match(/blur\\(([^)]+)px\\)/)?.[1]||0),
-              shade:parseFloat(b.backgroundColor.match(/[\\d.]+(?=\\)$)/)?.[0]||0)};
+            return {blur:(Number(b.backdropFilter.split('blur(')[1]?.split('px')[0])||0),
+              shade:(Number(b.backgroundColor.split(',').at(-1).replace(')','').trim())||0)};
           });
           assert.ok(mid.blur>0&&mid.blur<6&&mid.shade>0&&mid.shade<.72,
             'Opening backdrop builds blur and dimming gradually, not abruptly: '+JSON.stringify(mid));
@@ -70,7 +70,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         await page.keyboard.press('Escape');
         if(viewport.width===1440&&m.slug===modules[0].slug){
           await page.waitForTimeout(170);
-          const fade=await dialog.evaluate(d=>{const b=getComputedStyle(d,'::backdrop');return {open:d.open,blur:parseFloat(b.backdropFilter.match(/blur\\(([^)]+)px\\)/)?.[1]||0)};});
+          const fade=await dialog.evaluate(d=>{const b=getComputedStyle(d,'::backdrop');return {open:d.open,blur:(Number(b.backdropFilter.split('blur(')[1]?.split('px')[0])||0)};});
           assert.ok(fade.open&&fade.blur>0&&fade.blur<7,'Backdrop fades back instead of disappearing at once: '+JSON.stringify(fade));
         }
         await page.waitForFunction(()=>!document.querySelector('.dtp-practice-dialog').open,null,{timeout:3000});
