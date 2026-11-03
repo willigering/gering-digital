@@ -2,13 +2,169 @@
   "_hinweis": "Mitgelieferte DAU-TO-PRO-Vorschaubilder. Erzeugt mit tools/dau-previews/render.mjs. Reihenfolge = Priorität der automatischen Zuordnung.",
   "default": "it-grundlagen",
   "motifs": [
-    {"id": "zahlensysteme", "accent": "#a6f05a", "label": "Zahlensysteme · Bits & Bytes", "slugs": ["a1-zahlensysteme", "bits-zum-bitteren-ende", "zahlensysteme"], "keywords": ["zahlensystem", "binär", "binaer", "hexadezimal", "dezimal", "bits zum", "bit und byte", "bits & bytes"]},
-    {"id": "ipv4-subnetting", "accent": "#5de7e4", "label": "IPv4 & Subnetting", "slugs": ["subnet-sprint", "subnetting", "ipv4-subnetting"], "keywords": ["subnet", "ipv4", "ipv6", "cidr", "ip-adress", "wildcard", "netzmaske"]},
-    {"id": "osi-modell", "accent": "#c4a8ff", "label": "OSI-Modell", "slugs": ["osi-sprint", "osi-modell"], "keywords": ["osi", "schichtenmodell", "tcp/ip-modell"]},
-    {"id": "it-sicherheit", "accent": "#ff7f8f", "label": "IT-Sicherheit & Datenschutz", "slugs": ["it-sicherheit", "datenschutz"], "keywords": ["sicherheit", "datenschutz", "dsgvo", "krypt", "verschlüssel", "verschluessel", "hash", "authentif", "schadsoftware", "schutzbedarf"]},
-    {"id": "hardware", "accent": "#6fe3c1", "label": "Hardware & Architektur", "slugs": ["hardware"], "keywords": ["hardware", "prozessor", "cpu", "mainboard", "platine", "arbeitsspeicher", "rechnerarchitektur"]},
-    {"id": "netzwerke-routing", "accent": "#e0977a", "label": "Netzwerke · Routing & Switching", "slugs": ["netzwerke-sprint", "netzwerke", "routing-switching"], "keywords": ["netzwerk", "routing", "router", "switch", "vlan", "dhcp", "dns", "wlan", "topolog"]},
-    {"id": "pruefung", "accent": "#7aa2ff", "label": "Prüfungsvorbereitung", "slugs": ["pruefung", "pruefungsvorbereitung", "klausur"], "keywords": ["prüfung", "pruefung", "klausur", "ihk", "wiso", "exam", "90:00"]},
-    {"id": "it-grundlagen", "accent": "#b9c4d0", "label": "IT-Grundlagen", "slugs": ["it-grundlagen", "grundlagen"], "keywords": ["grundlagen", "terminal", "betriebssystem", "linux", "windows", "programmier", "skript"]}
+    {
+      "id": "ipv6",
+      "accent": "#4fd1c5",
+      "label": "IPv6 · Doppelpunkt, Doppelpunkt, Durchblick",
+      "slugs": [
+        "b4-ipv6",
+        "ipv6"
+      ],
+      "keywords": [
+        "ipv6",
+        "slaac",
+        "dhcpv6",
+        "eui-64",
+        "doppelpunkt"
+      ]
+    },
+    {
+      "id": "zahlensysteme",
+      "accent": "#a6f05a",
+      "label": "Zahlensysteme · Bits & Bytes",
+      "slugs": [
+        "a1-zahlensysteme",
+        "bits-zum-bitteren-ende",
+        "zahlensysteme"
+      ],
+      "keywords": [
+        "zahlensystem",
+        "binär",
+        "binaer",
+        "hexadezimal",
+        "dezimal",
+        "bits zum",
+        "bit und byte",
+        "bits & bytes"
+      ]
+    },
+    {
+      "id": "ipv4-subnetting",
+      "accent": "#5de7e4",
+      "label": "IPv4 & Subnetting",
+      "slugs": [
+        "subnet-sprint",
+        "subnetting",
+        "ipv4-subnetting"
+      ],
+      "keywords": [
+        "subnet",
+        "ipv4",
+        "cidr",
+        "ip-adress",
+        "wildcard",
+        "netzmaske"
+      ]
+    },
+    {
+      "id": "osi-modell",
+      "accent": "#c4a8ff",
+      "label": "OSI-Modell",
+      "slugs": [
+        "osi-sprint",
+        "osi-modell"
+      ],
+      "keywords": [
+        "osi",
+        "schichtenmodell",
+        "tcp/ip-modell"
+      ]
+    },
+    {
+      "id": "it-sicherheit",
+      "accent": "#ff7f8f",
+      "label": "IT-Sicherheit & Datenschutz",
+      "slugs": [
+        "it-sicherheit",
+        "datenschutz"
+      ],
+      "keywords": [
+        "sicherheit",
+        "datenschutz",
+        "dsgvo",
+        "krypt",
+        "verschlüssel",
+        "verschluessel",
+        "hash",
+        "authentif",
+        "schadsoftware",
+        "schutzbedarf"
+      ]
+    },
+    {
+      "id": "hardware",
+      "accent": "#6fe3c1",
+      "label": "Hardware & Architektur",
+      "slugs": [
+        "hardware"
+      ],
+      "keywords": [
+        "hardware",
+        "prozessor",
+        "cpu",
+        "mainboard",
+        "platine",
+        "arbeitsspeicher",
+        "rechnerarchitektur"
+      ]
+    },
+    {
+      "id": "netzwerke-routing",
+      "accent": "#e0977a",
+      "label": "Netzwerke · Routing & Switching",
+      "slugs": [
+        "netzwerke-sprint",
+        "netzwerke",
+        "routing-switching"
+      ],
+      "keywords": [
+        "netzwerk",
+        "routing",
+        "router",
+        "switch",
+        "vlan",
+        "dhcp",
+        "dns",
+        "wlan",
+        "topolog"
+      ]
+    },
+    {
+      "id": "pruefung",
+      "accent": "#7aa2ff",
+      "label": "Prüfungsvorbereitung",
+      "slugs": [
+        "pruefung",
+        "pruefungsvorbereitung",
+        "klausur"
+      ],
+      "keywords": [
+        "prüfung",
+        "pruefung",
+        "klausur",
+        "ihk",
+        "wiso",
+        "exam",
+        "90:00"
+      ]
+    },
+    {
+      "id": "it-grundlagen",
+      "accent": "#b9c4d0",
+      "label": "IT-Grundlagen",
+      "slugs": [
+        "it-grundlagen",
+        "grundlagen"
+      ],
+      "keywords": [
+        "grundlagen",
+        "terminal",
+        "betriebssystem",
+        "linux",
+        "windows",
+        "programmier",
+        "skript"
+      ]
+    }
   ]
 }

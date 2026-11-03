@@ -32,6 +32,8 @@ jobs:
         run: php tests/achievements_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
+      - name: Test B4 IPv6 domain and platform integration
+        run: node tests/b4_ipv6_unit.js && php tests/b4_ipv6_integration.php
   landing-browser:
     runs-on: ubuntu-latest
     steps:
@@ -53,10 +55,16 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/achievements
         run: node tests/achievements_browser.js
+      - name: Check B4 IPv6 offline and platform in real browsers
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/b4
+        run: node tests/b4_ipv6_browser.js
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dau-main-desktop-mobile
           path: ${{ runner.temp }}/dtp-screenshots
           retention-days: 7
+
 

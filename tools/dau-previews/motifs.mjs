@@ -361,7 +361,22 @@ function basics(id) {
   <rect x="${x + 128}" y="${y + 104 + 5 * 47 + 12}" width="16" height="30" fill="${CYAN}"/>`;
 }
 
+// B4: acht Hex-Blöcke werden zur klaren Kurzform, Präfix und Geräteanteil sichtbar.
+function ipv6(id) {
+  let blocks='';
+  ['2001','0db8','0012','0034','0000','0000','0000','0007'].forEach((v,i)=>{
+    const x=130+i*130;
+    blocks+=`<rect x="${x}" y="210" width="118" height="90" fill="#0b1615" stroke="${i<4?GOLD:CYAN}" stroke-width="3"/><text x="${x+59}" y="265" text-anchor="middle" fill="${i<4?GOLD_LITE:CYAN}" font-family="${MONO}" font-size="30" font-weight="700">${v}</text>`;
+  });
+  return `<text x="640" y="155" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="38" font-weight="800">IPv6 · 128 BIT. EIN KLARER PLAN.</text>
+  ${blocks}<path d="M135 325 H640 M650 325 H1160" stroke="${GOLD}" stroke-width="2"/><text x="385" y="365" text-anchor="middle" fill="${GOLD_LITE}" font-family="${MONO}" font-size="25">NETZPRÄFIX /64</text><text x="910" y="365" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="25">INTERFACE-ID</text>
+  <path d="M640 393 V435 M620 418 L640 438 L660 418" fill="none" stroke="${GOLD}" stroke-width="5"/>
+  <text x="640" y="515" text-anchor="middle" fill="${CREAM}" font-family="${MONO}" font-size="53" font-weight="800">2001:db8:12:34::7</text>
+  <text x="640" y="575" text-anchor="middle" fill="${GOLD_LITE}" font-family="${SANS}" font-size="27" font-weight="700">DOPPELPUNKT, DOPPELPUNKT, DURCHBLICK</text>`;
+}
+
 export const motifs = [
+  { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
   { id: 'netzwerke-routing', accent: '#e0977a', label: 'Netzwerke · Routing & Switching', draw: network, seed: 7, glowX: 640, glowY: 300 },
@@ -376,3 +391,4 @@ export function svgFor(motif) {
   CYAN = motif.accent || '#00dce8';
   return frame(motif.id, motif.draw, { seed: motif.seed, glowX: motif.glowX, glowY: motif.glowY });
 }
+

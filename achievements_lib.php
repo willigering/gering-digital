@@ -25,6 +25,18 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     return [
+        'b4'=>['prefix'=>'b4-ipv6','subject'=>'IPv6','title'=>'Doppelpunkt, Doppelpunkt, Durchblick','motif'=>'ipv6','stages'=>10,'list'=>[
+            ['b4.erste-bloecke','bronze','128 Bit, ein Anfang','Stufe 1 „128 Bit & Hex“ gemeistert.',['stage',0]],
+            ['b4.nullenschlucker','bronze','Nullenschlucker','„Adresse kanonisch kürzen“ 10 × in Folge richtig.',['clean',['s_short']]],
+            ['b4.praefix','silber','Vorne Netz, hinten Gerät','Stufe 4 „Präfix & Interface-ID“ gemeistert.',['stage',3]],
+            ['b4.slaac','silber','Selbst ist der Host','Stufe 7 „SLAAC & Router Advertisements“ gemeistert.',['stage',6]],
+            ['b4.netzplan','gold','65.536 gute Gründe','„n-tes /64-Subnetz bestimmen“ 10 × in Folge richtig.',['clean',['n_nth']]],
+            ['b4.lernpfad','gold','Doppelpunkt verstanden','Alle 10 IPv6-Stufen gemeistert.',['path']],
+            ['b4.marathon','platin','128 Bit Ausdauer','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['b4.doppelt','witzig','Doppelt hält nicht besser','3 × in Folge falsch bei „Doppelter Doppelpunkt“.',['fails','s_double'],'Zwei Abkürzungen, eine Adresse, null Eindeutigkeit.'],
+            ['b4.router','witzig','fe80 ist kein Dienstausweis','3 × in Folge falsch bei „fe80 ist kein Router“.',['fails','t_router'],'Auch ein Drucker darf lokal wohnen.'],
+            ['b4.nullen','witzig','Nullen im Überfluss','3 × in Folge falsch bei „Zu viele Nullen“.',['fails','v_zero'],'Weniger tippen bedeutet nicht weniger Bit.'],
+        ]],
         'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],
             ['a1.farbcodes','bronze','Farbenblind war gestern','Aufgabentyp „Farbcodes“ 10 × in Folge richtig.',['clean',['h_color']]],
@@ -359,4 +371,5 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out];
 }
+
 
