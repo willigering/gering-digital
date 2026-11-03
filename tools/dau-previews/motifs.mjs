@@ -389,7 +389,22 @@ function d2Security(id) {
   <g font-family="${MONO}" font-size="22"><path d="M100 320 H490 M100 400 H490 M100 480 H490" stroke="${CYAN}" stroke-opacity=".35"/><text x="110" y="355" fill="${CREAM}">VERTRAULICHKEIT</text><text x="110" y="435" fill="${CREAM}">INTEGRITÄT</text><text x="110" y="515" fill="${CREAM}">VERFÜGBARKEIT</text></g>
   <text x="100" y="620" fill="${GOLD}" font-family="${MONO}" font-size="22">PRÜFEN · BEGRÜNDEN · HANDELN</text>`;
 }
+// B4: acht Hex-Blöcke werden zur klaren Kurzform, Präfix und Geräteanteil sichtbar.
+function ipv6(id) {
+  let blocks='';
+  ['2001','0db8','0012','0034','0000','0000','0000','0007'].forEach((v,i)=>{
+    const x=130+i*130;
+    blocks+=`<rect x="${x}" y="210" width="118" height="90" fill="#0b1615" stroke="${i<4?GOLD:CYAN}" stroke-width="3"/><text x="${x+59}" y="265" text-anchor="middle" fill="${i<4?GOLD_LITE:CYAN}" font-family="${MONO}" font-size="30" font-weight="700">${v}</text>`;
+  });
+  return `<text x="640" y="155" text-anchor="middle" fill="${CREAM}" font-family="${SANS}" font-size="38" font-weight="800">IPv6 · 128 BIT. EIN KLARER PLAN.</text>
+  ${blocks}<path d="M135 325 H640 M650 325 H1160" stroke="${GOLD}" stroke-width="2"/><text x="385" y="365" text-anchor="middle" fill="${GOLD_LITE}" font-family="${MONO}" font-size="25">NETZPRÄFIX /64</text><text x="910" y="365" text-anchor="middle" fill="${CYAN}" font-family="${MONO}" font-size="25">INTERFACE-ID</text>
+  <path d="M640 393 V435 M620 418 L640 438 L660 418" fill="none" stroke="${GOLD}" stroke-width="5"/>
+  <text x="640" y="515" text-anchor="middle" fill="${CREAM}" font-family="${MONO}" font-size="53" font-weight="800">2001:db8:12:34::7</text>
+  <text x="640" y="575" text-anchor="middle" fill="${GOLD_LITE}" font-family="${SANS}" font-size="27" font-weight="700">DOPPELPUNKT, DOPPELPUNKT, DURCHBLICK</text>`;
+}
+
 export const motifs = [
+  { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
   { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
   { id: 'datenschutz', accent: '#ff8fa3', label: 'Datenschutz · DSGVO', draw: privacy, seed: 31, glowX: 800, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },

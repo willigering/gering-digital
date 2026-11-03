@@ -3,6 +3,22 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "ipv6",
+      "accent": "#4fd1c5",
+      "label": "IPv6 · Doppelpunkt, Doppelpunkt, Durchblick",
+      "slugs": [
+        "b4-ipv6",
+        "ipv6"
+      ],
+      "keywords": [
+        "ipv6",
+        "slaac",
+        "dhcpv6",
+        "eui-64",
+        "doppelpunkt"
+      ]
+    },
+    {
       "id": "d2-it-sicherheit",
       "accent": "#ff6b6b",
       "label": "D2 · IT-Sicherheit & Schutzbedarf",
@@ -60,7 +76,6 @@
       "keywords": [
         "subnet",
         "ipv4",
-        "ipv6",
         "cidr",
         "ip-adress",
         "wildcard",

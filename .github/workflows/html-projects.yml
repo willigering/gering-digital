@@ -36,6 +36,8 @@ jobs:
         run: php tests/d1_integration_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
+      - name: Test B4 IPv6 domain and platform integration
+        run: node tests/b4_ipv6_unit.js && php tests/b4_ipv6_integration.php
   landing-browser:
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +49,11 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Check B4 IPv6 offline and platform in real browsers
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/b4
+        run: node tests/b4_ipv6_browser.js
       - name: Check landing page in desktop and mobile browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -73,5 +80,6 @@ jobs:
           name: dau-main-desktop-mobile
           path: ${{ runner.temp }}/dtp-screenshots
           retention-days: 7
+
 
 

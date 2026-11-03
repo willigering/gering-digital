@@ -48,6 +48,14 @@
       "subject": "IT-Sicherheit & Schutzbedarf",
       "title": "Passwort123 ist kein Konzept",
       "description": "Schutzziele, Risiken, BSI-Grundschutz, Schutzbedarf, Malware, Angriffe, Social Engineering, Passwörter, MFA, Netzschutz und Notfallmanagement. Zehn Lernstufen, 51 Aufgabentypen und interaktive Labore."
+    },
+    {
+      "slug": "b4-ipv6",
+      "preview": "ipv6",
+      "file": "b4-ipv6.html",
+      "subject": "IPv6",
+      "title": "Doppelpunkt, Doppelpunkt, Durchblick",
+      "description": "IPv6 von 128 Bit bis Dual Stack: RFC-5952-Kurzformen, Präfixe, Adresstypen, EUI-64, SLAAC, DHCPv6 und /48-Subnetting. Zehn Stufen, 50 Aufgabentypen und zehn interaktive Labore."
     }
   ]
 }
