@@ -71,6 +71,12 @@ function db(){
         foreach ($seed as $a) { $status = $a[2] ? 'google' : 'bald_verfuegbar'; $stmt->execute([$a[0],$a[1],$a[2],$a[3],$a[4],$status]); }
     }
 
+    // Reconcile a completed repository release once; admin remains available for overrides.
+    if (is_file(__DIR__.'/module_release_lib.php')) {
+        require_once __DIR__.'/module_release_lib.php';
+        try { module_release_sync($db); }
+        catch (Throwable $error) { error_log('DAU TO PRO module release: '.$error->getMessage()); }
+    }
     return $db;
 }
 function project_categories(){return ['apps'=>'Android-Apps','lernen'=>'DAU to Pro','windows'=>'Windows-Apps','spiele'=>'Spiele','sonstiges'=>'Sonstiges'];}
@@ -84,4 +90,3 @@ function setting($key,$default=''){
     if ($key==='site_email') { $v=db()->query("SELECT value FROM settings WHERE key='site_email'")->fetchColumn(); return $v!==false && $v!=='' ? $v : $defaults[$key]; }
     return $defaults[$key]??$default;
 }
-
