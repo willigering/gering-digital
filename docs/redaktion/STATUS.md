@@ -57,3 +57,7 @@ Die Runde bearbeitet in jedem der neun Module zwei Lehrtextstellen oder Lehransi
 ### Vertiefter Durchlauf A1 · Zahlensysteme
 
 Alle zehn Einstiege im Lernpfad im Zusammenhang gelesen. Nach dem bereits überarbeiteten Einstieg zu Stellenwerten wurden die neun weiteren Lerntexte neu formuliert. Im Nachschlagwerk wurden ergänzend Erklärungen zu Umrechnungen, Logik, Zweierkomplement, Einheiten, Datenrate und Speicherbedarf bearbeitet. Die Rechenbeispiele bleiben als Bezug zu den Texten erhalten. Im Generator wurde der falsche Vergleich der Stellenwerte durch einen Hinweis ersetzt, der für jede Basis gilt. Der Hinweis zu −128 nennt jetzt ausdrücklich 8 Bit. Eine abwertende Rückmeldung wurde ersetzt. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten, Lösungsformulierungen und Rückmeldungen ist noch offen.
+
+### Vertiefter Durchlauf B1 · OSI
+
+Alle zehn Einstiege im Lernpfad neu formuliert. Im Nachschlagwerk wurden die Einstiege zu Kapselung und Netzwerkgeräten vertieft. In den Übungen wurden Texte zu Ziel-MAC, Ziel-IP, Rahmengröße und Transportprotokollen präzisiert, im Lernpfad außerdem die Aussagekraft von Ping begrenzt. Überschriften und JavaScript-Syntax geprüft. Bei 20.880 erzeugten Aufgaben blieben Lösungsdaten und Antwortoptionen identisch. Die Durchsicht aller übrigen Nachschlage-, Aufgaben- und Feedbacktexte steht noch aus.
