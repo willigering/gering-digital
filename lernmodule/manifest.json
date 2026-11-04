@@ -23,7 +23,7 @@
       "file": "subnet-sprint.html",
       "subject": "Subnetting",
       "title": "Wer teilt, gewinnt",
-      "description": "IPv4-Subnetting mit Präfix, Maske, Netz-ID, Broadcast, Hostanzahl und VLSM – mit Lernpfad, Nachschlagwerk, Trainingsraum und Prüfungsmodus."
+      "description": "Finde mit Präfix und Maske heraus, wo ein IPv4-Netz anfängt, wo der Broadcast sitzt und wie viele Geräte dazwischen passen. Mit VLSM verteilst du die Blöcke, bevor der Drucker den falschen Platz bekommt."
     },
     {
       "slug": "netzwerke-sprint",
