@@ -15,7 +15,7 @@
 .dtp-feedback-dock {
     position: fixed;
     right: max(.65rem, env(safe-area-inset-right));
-    bottom: max(1rem, env(safe-area-inset-bottom));
+    bottom: 24%;
     z-index: 30;
 }
 
