@@ -152,6 +152,7 @@ function ach_globals(): array {
         'g.komplett'=>['platin',500,'Komplettist','Die Lernpfade aller veröffentlichten Module gemeistert.',null,false],
         'g.rampensau'=>['witzig',10,'Rampensau','„Sichtbarkeit im Highscore“ eingeschaltet.','Wer gesehen werden will, muss sich zeigen.',false],
         'g.nachteule'=>['witzig',30,'Nachteule','Zwischen 0 und 4 Uhr eine Aufgabe gelöst.','Schlaf wird überbewertet.',false],
+        'g.cheater'=>['witzig',30,'Cheater','Abkürzung gesucht. Staub gefunden.',null,true],
         'g.easteregg'=>['versteckt',ACH_EGG_XP,'Fremdscham erfolgreich freigeschaltet','Easter Egg auf der DAU-TO-PRO-Seite gefunden und angesehen.',null,true],
     ];
 }
@@ -351,6 +352,7 @@ function ach_evaluate_locked(int $learnerId,array $events=[]): array {
     if ($live && !array_filter($live,fn($id)=>count((array)($best[$id]['m']??[]))<ach_modules()[$id]['stages'])) $met['g.komplett']=true;
     if ((int)$row['highscore_visible']===1) $met['g.rampensau']=true;
     if ($activity && !empty($events['solved']) && (int)ach_berlin($now)->format('G')<4) $met['g.nachteule']=true;
+    if (!empty($events['cheater'])) $met['g.cheater']=true;
     if (!empty($events['egg'])) $met['g.easteregg']=true;
 
     $catalog=ach_catalog();$new=[];
@@ -456,6 +458,7 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out,'xp_system_version'=>xp_config()['version'],'fortschritt'=>xp_dashboard($learnerId),'vitrine'=>xp_showcase($learnerId)];
 }
+
 
 
 

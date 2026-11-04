@@ -21,7 +21,7 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`highscore no overflow ${width}`);
   await page.locator('.showcase-inline button').first().focus();assert.equal(await page.locator('.showcase-inline [role=tooltip]').first().isVisible(),true);
   await page.locator('[data-profile]').click();await page.getByRole('dialog').waitFor();await page.locator('#profile-content .ach-grid .ach-item').first().waitFor();
-  assert.equal(await page.locator('#profile-content .ach-item').count(),22);assert.ok(await page.locator('#profile-content .ach-item:not(.is-on)').count()>0);
+  assert.equal(await page.locator('#profile-content .ach-item').count(),23);assert.ok(await page.locator('#profile-content .ach-item:not(.is-on)').count()>0);
   for(const value of ['module','rarity','recent'])await page.locator('#profile-content select').selectOption(value);
   assert.ok(await page.locator('#learner-profile').evaluate(n=>n.scrollWidth<=n.clientWidth),`modal no overflow ${width}`);
   await page.waitForTimeout(300);await page.screenshot({path:path.join(temp,'profile-'+width+'.png')});await page.keyboard.press('Escape');await page.locator('dialog').waitFor({state:'hidden'});assert.equal(await page.locator('dialog').isVisible(),false);assert.equal(await page.locator('[data-profile]').evaluate(n=>n===document.activeElement),true);
@@ -29,5 +29,35 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
  // Private profile authorization is checked on every fetch, not cached into the highscore HTML.
  php(`ach_set_visible(${id},false);`);const response=await page.request.get(base+'/dau-to-pro/api/profile.php?id='+id);assert.equal(response.status(),404);
  const anonymous=await browser.newContext();assert.equal((await anonymous.request.get(base+'/dau-to-pro/api/profile.php?id='+id)).status(),401);
+ // The calculator opens in the visible viewport even from a low task inside the exercise dialog.
+ await page.setViewportSize({width:390,height:640});
+ await page.setContent('<dialog style="height:400px"><div style="height:600px"></div><div id="task"></div></dialog>');
+ await page.addStyleTag({path:path.join(root,'dau-to-pro/module-calculator.css')});
+ await page.addScriptTag({path:path.join(root,'dau-to-pro/module-calculator.js')});
+ await page.evaluate(()=>{
+   document.querySelector('dialog').showModal();
+   window.dtpMountCalculator(document.querySelector('#task'),{sub:'d_plain',kind:'num'},'zahlen');
+ });
+ await page.getByRole('button',{name:'Taschenrechner',exact:true}).click();
+ const calculator=page.locator('.dtp-calculator-panel:popover-open');
+ await calculator.getByRole('button',{name:'Taschenrechner schließen'}).waitFor();
+ assert.ok(await calculator.evaluate(panel=>{
+   const r=panel.getBoundingClientRect();
+   return r.top>=0 && r.left>=0 && r.bottom<=innerHeight && r.right<=innerWidth;
+ }));
+ await page.evaluate(()=>document.addEventListener('dtp:calculator-cheater',()=>{document.body.dataset.cheater='yes';}));
+ await calculator.getByRole('button',{name:'BIN → DEC'}).click();
+ assert.equal(await page.locator('body').getAttribute('data-cheater'),'yes');
+ assert.match(await calculator.locator('.dtp-calculator-joke').textContent(),/^GESPERRT/);
+ await page.keyboard.press('Escape');
+ await calculator.waitFor({state:'hidden'});
+ assert.equal(await page.locator('dialog').isVisible(),true);
+ await page.evaluate(()=>{
+   const task=document.querySelector('#task');
+   task.replaceChildren();
+   window.dtpMountCalculator(task,{sub:'u_same',kind:'num'},'zahlen');
+ });
+ await page.getByRole('button',{name:'Taschenrechner',exact:true}).click();
+ assert.equal(await calculator.getByRole('button',{name:'BIN → DEC'}).count(),0);
  assert.deepEqual(errors,[]);console.log('XP 2.0 browser: desktop 1440, mobile 390/320; showcase, profile, sort, privacy, focus and overflow passed. Screenshots: '+temp);
 }finally{if(browser)await browser.close();server.kill();}})().catch(e=>{console.error(e);process.exitCode=1;});

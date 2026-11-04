@@ -266,8 +266,26 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
 
   // Achievements und Level-up zeigt dau-to-pro/achievement-toast.js (wird zusammen mit diesem Skript eingebunden).
+  var cheaterClaimed = false;
+  document.addEventListener('dtp:calculator-cheater', async function () {
+    if (!loggedIn || !cfg.cheater || cheaterClaimed) return;
+    cheaterClaimed = true;
+    try {
+      var response = await fetch(cfg.cheater, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'X-DTP-CSRF': cfg.csrf }
+      });
+      if (!response.ok) throw new Error('Achievement request failed');
+      celebrate(await response.json());
+    } catch (_) {
+      cheaterClaimed = false;
+    }
+  });
+
   function celebrate(json) { if (window.dtpAchievementToast) window.dtpAchievementToast.celebrate(json); }
 
   // Für Tests und Fehlersuche (keine Daten, nur der Zustand).
   window.__dtpSyncStatus = function () { return { state: state, user: cfg.user || null, pending: Object.keys(dirty).length }; };
 })();
+
