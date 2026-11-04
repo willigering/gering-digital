@@ -2,7 +2,7 @@
 
 Diese Datei ist der komplette Auftrag für eine KI (z. B. ChatGPT mit GitHub-Zugriff), die ein neues Lernmodul für DAU TO PRO baut. Alles, was du brauchst, liegt in diesem Repository. Lies diese Datei ganz, bevor du anfängst.
 
-**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du übernimmst eigenständig auch den vollständigen Einbau ins Repository: Konto-Anbindung, Fortschritt, XP, Achievements, Vorschaugrafik und Registrierung für die Hauptseite. Liefere alle Änderungen als vollständigen, prüfbaren Pull Request. Eine Übergabe an eine andere KI entfällt. Merge und Veröffentlichung erfolgen nur auf ausdrücklichen Auftrag; einen offenen PR nicht als bereits live eingebaut darstellen.
+**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du übernimmst eigenständig auch den vollständigen Einbau ins Repository: Konto-Anbindung, Fortschritt, XP, Achievements, Vorschaugrafik und Registrierung für die Hauptseite. Liefere alle Änderungen als vollständigen, prüfbaren Pull Request. Eine Übergabe an eine andere KI entfällt. Bei einem beauftragten Gesamtauftrag dürfen Merge und Veröffentlichung nach erfolgreichen Prüfungen automatisch erfolgen, sofern die Berechtigungen es erlauben. Bei fehlgeschlagenen Tests nicht mergen oder veröffentlichen; einen offenen PR nicht als bereits live eingebaut darstellen.
 
 ## 1. Was du aus dem Repository liest
 
@@ -25,7 +25,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 
 **Vorlage übernehmen:** Aus `a1-zahlensysteme.html` übernimmst du 1:1 Seitenaufbau, Design, CSS-Variablen, Kacheln, Lernpfad-Logik, Statistik, Prüfungsmodus, Speicherlogik, Hintergrund-Einbindung und Tooltips. Neu schreibst du nur Inhalt, Aufgaben-Generatoren, Texte und Akzentfarbe. Keine Bibliotheken, kein Framework.
 
-**Aufbau:** genau 4 Bereiche als Kacheln oben, keine Navigationsleiste, kein Logo oben.
+**Aufbau:** genau 4 Bereiche als Kacheln oben. Veröffentlichte Module erhalten die gemeinsame Kopfzeile mit Modulauswahl und Textmarke.
 
 1. **Lernpfad:** 10 Stufen, jede trainiert genau eine Fähigkeit. Ablauf je Stufe: erklären → vorrechnen → mit Hinweis üben → allein. Die ersten 3 Aufgaben einer Stufe zeigen automatisch einen Hinweis. Gemeistert bei 8 von den letzten 10 Aufgaben ohne Hilfe richtig, erst dann öffnet die nächste Stufe. Lektion und Aufgabe nie gleichzeitig sichtbar.
 2. **Nachschlagwerk:** 10 Kapitel passend zu den 10 Stufen, mit Erklärung, Beispielen, mindestens einem interaktiven Lab pro Kapitel, Kurz-Check und Spickzettel „Typische Fallen“. Am Ende Quellen mit Link (Gesetze, BSI, Normen, Fachliteratur).
@@ -52,7 +52,14 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Hero: Einheitliche Hierarchie **„THEMENBEREICH // UNTERTHEMA // MODULKÜRZEL“**, z. B. „IT-SICHERHEIT // DATENSCHUTZ // MODUL D1“. Darunter der bestehende witzige Modultitel groß; vorhandene Titel niemals allein zur Vereinheitlichung ändern. Browser-Tab: „Thema · Titel“.
 - Muss auf dem Handy (390 px breit) ohne seitliches Scrollen funktionieren.
 - **Kein altes Logo im Fußbereich:** Das Markenbild aus `.foot-brand` der Vorlage nicht übernehmen. Im Footer bleiben nur der Text DAU to PRO, Modulname, Version, Rückweg und Bedienelemente. Auch bestehende Module erhalten kein altes Footer-Logo.
-- **Verboten:** orange-schwarze Warnstreifen, obere Navigationsleiste, Logo oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
+- **Verboten:** orange-schwarze Warnstreifen, modulspezifische zusätzliche Navigationsleisten und Bildlogos oben, das Wort „Sprint“ im Modulnamen, `<form>`-Submit, `confirm()`, `alert()`, `prompt()`, externe Skripte oder Schriften, Cookies, Tracking.
+
+### Modulauswahl und Taschenrechner
+
+- Veröffentlichte Module zeigen oben links „Modulauswahl“ und rechts „DAU TO PRO“ in der gemeinsamen Kopfzeile. Der Rückweg führt zu den Modulkacheln.
+- Rechenaufgaben erhalten das kleine aufklappbare Rechner-Symbol in der Akzentfarbe des Moduls. Den Rechner mit dem Aufgabentyp aus dem vorhandenen Renderer einbinden. Eingaben und Ergebnisse des Rechners sind getrennt von der bewerteten Antwort.
+- In Binäraufgaben löst sich „Binär → Dezimal“ beim Anklicken in Staub auf und zeigt eine von mehreren Rückmeldungen. Die Schaltfläche führt keine Umrechnung aus. Bei reduzierter Bewegung verschwindet sie unmittelbar.
+- Neue Module verwenden `tools/module-calculator.js` und `tools/module-calculator.css` über `tools/module_theme.py`. Prüfen, ob Rechner, Antwortfeld, mobiler Dialog und Prüfungsnavigation zusammen funktionieren.
 
 ### Aufgabenfokus – verbindlich für bestehende und neue Module
 

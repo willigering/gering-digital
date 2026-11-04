@@ -577,6 +577,296 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-MODULEINSTIEG END -->
+<!-- DTP-TASCHENRECHNER START -->
+<style>
+.dtp-calculator {
+  --calculator-accent: var(--cyan, #65dce0);
+  --calculator-shell: color-mix(in srgb, var(--calculator-accent) 8%, #101418);
+  --calculator-line: color-mix(in srgb, var(--calculator-accent) 28%, #151a1e);
+  color: inherit;
+  margin-top: .65rem;
+}
+.dtp-calculator > summary {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--calculator-line);
+  border-radius: 11px;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+}
+.dtp-calculator > summary::-webkit-details-marker { display: none; }
+.dtp-calculator[open] > summary,
+.dtp-calculator > summary:hover { border-color: var(--calculator-accent); }
+.dtp-calculator-panel {
+  box-sizing: border-box;
+  width: min(100%, 21rem);
+  margin-top: .55rem;
+  padding: .8rem;
+  border: 1px solid var(--calculator-line);
+  border-top: 2px solid var(--calculator-accent);
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--calculator-shell), #0c1013 75%);
+  box-shadow: 0 12px 26px #0005, inset 0 1px #fff1;
+}
+.dtp-calculator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .5rem;
+  color: var(--calculator-accent);
+  font: 700 .7rem/1.2 ui-monospace, monospace;
+  letter-spacing: .13em;
+}
+.dtp-calculator-display {
+  min-width: 0;
+  padding: .6rem .65rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 9px;
+  background: #080d10;
+  box-shadow: inset 0 2px 6px #0008;
+}
+.dtp-calculator-display label { display: grid; gap: .2rem; color: #bac6cd; font-size: .75rem; }
+.dtp-calculator-display input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: .15rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #edf5f8;
+  text-align: right;
+  font: 500 1rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display input::placeholder { color: #9cabb4; opacity: 1; }
+.dtp-calculator-display output {
+  display: block;
+  min-height: 1.55em;
+  margin-top: .25rem;
+  color: var(--calculator-accent);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font: 700 1.15rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display output:empty::before { content: '—'; opacity: .45; }
+.dtp-calculator-display output[data-error] { color: #ffbd8d; font: 500 .8rem/1.4 system-ui, sans-serif; }
+.dtp-calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .35rem;
+  margin-top: .6rem;
+}
+.dtp-calculator-panel button {
+  min-height: 44px;
+  padding: .2rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 8px;
+  background: linear-gradient(#222a30, #161d22);
+  box-shadow: 0 2px #050709, inset 0 1px #fff1;
+  color: #edf5f8;
+  font: 700 1rem/1 ui-monospace, monospace;
+  cursor: pointer;
+}
+.dtp-calculator-keys [data-tone="operator"] { background: var(--calculator-shell); color: var(--calculator-accent); }
+.dtp-calculator-keys [data-tone="equals"] { background: var(--calculator-accent); color: #081013; border-color: var(--calculator-accent); }
+.dtp-calculator-panel button:hover { border-color: var(--calculator-accent); filter: brightness(1.2); }
+.dtp-calculator-panel button:active { box-shadow: inset 0 2px 4px #0006; transform: translateY(1px); }
+.dtp-calculator-panel .dtp-calculator-clear { min-width: 44px; background: var(--calculator-shell); font-size: .8rem; }
+.dtp-calculator :focus-visible { outline: 2px solid var(--calculator-accent); outline-offset: 2px; }
+.dtp-calculator-prank { position: relative; margin-top: .65rem; }
+.dtp-calculator-prank:empty { display: none; }
+.dtp-calculator-prank button {
+  width: 100%;
+  border-style: dashed;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+  font-size: .85rem;
+}
+.dtp-calculator-dust { position: absolute; inset: 0; pointer-events: none; }
+.dtp-calculator-dust i { position: absolute; width: 3px; height: 3px; background: var(--calculator-accent); }
+.dtp-calculator-joke { margin: 0; }
+.dtp-calculator-joke:not(:empty) { margin-top: .5rem; }
+</style>
+<script>
+(() => {
+  'use strict';
+
+  const calculationTypes = {
+    osi: /^(d_count|d_topo|e_mss|e_frame|e_ttl|e_hops|o_seq)$/,
+    netzwerke: /^(b_rate|t_mesh|t_ports|t_meshr|t_meshd|c_coll|c_bcast|c_lenrest|s_flood|s_vlan|v_zero|v_bits|x_dom|mesh_freitext)$/,
+    ipv6: /^(b_total|b_block|b_hex|b_bytes|b_zeros|p_net|p_rest|u_iid|u_flip|u_mac|n_count|n_nth|n_number|n_need|n_last)$/,
+    dienste: /^(t_header|c_synack|c_ack|c_fin|d_t1|d_t2|n_ttl|i_ttl)$/
+  };
+  const jokes = [
+    'Haha, hättest du wohl gern?',
+    'Netter Versuch. Die Bits zählst du heute noch selbst.',
+    'Der Knopf war kurz vor der Lösung. Jetzt ist er Staub.',
+    'Umrechnen per Klick? Der Button hat sich gerade aus dem Staub gemacht.'
+  ];
+
+  function evaluate(expression) {
+    const source = expression.replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!source || source.length > 120) throw new Error();
+    const tokens = source.match(/\d+(?:\.\d*)?|\.\d+|[()+*/^%-]/g) || [];
+    if (tokens.join('') !== source) throw new Error();
+    let index = 0;
+    function primary() {
+      const token = tokens[index++];
+      if (token === '(') {
+        const value = sum();
+        if (tokens[index++] !== ')') throw new Error();
+        return value;
+      }
+      if (!token || !/^(?:\d|\.)/.test(token)) throw new Error();
+      return Number(token);
+    }
+    function power() {
+      if (tokens[index] === '+' || tokens[index] === '-') {
+        return (tokens[index++] === '-' ? -1 : 1) * power();
+      }
+      let value = primary();
+      if (tokens[index] === '%') {
+        index++;
+        value /= 100;
+      }
+      if (tokens[index] === '^') {
+        index++;
+        value **= power();
+      }
+      return value;
+    }
+    function product() {
+      let value = power();
+      while (tokens[index] === '*' || tokens[index] === '/') {
+        value = tokens[index++] === '*' ? value * power() : value / power();
+      }
+      return value;
+    }
+    function sum() {
+      let value = product();
+      while (tokens[index] === '+' || tokens[index] === '-') {
+        value = tokens[index++] === '+' ? value + product() : value - product();
+      }
+      return value;
+    }
+    const value = sum();
+    if (index !== tokens.length || !Number.isFinite(value)) throw new Error();
+    return Number(value.toPrecision(15)).toLocaleString('de-DE', {useGrouping: false, maximumSignificantDigits: 15});
+  }
+
+  function mount(host, task, module) {
+    const binary = module === 'zahlen' && (/^(b2d|d2b|calc|neg)$/.test(task.cat) || /^h_(b2h|h2b)$/.test(task.sub)) && task.sub !== 'n_method'
+      || module === 'subnet' && (/^o_(b2d|d2b|maskval|ones|and|bin2ip)$/.test(task.sub) || task.sub === 'm_bin')
+      || module === 'ipv6' && /^(u_iid|u_flip|u_mac)$/.test(task.sub);
+    const arithmetic = calculationTypes[module]?.test(task.sub)
+      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
+      || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
+      || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);
+    if (!binary && !arithmetic) return;
+
+    const box = document.createElement('details');
+    box.className = 'dtp-calculator';
+    box.innerHTML = '<summary aria-label="Taschenrechner" title="Taschenrechner">'
+      + '<svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="1.5" width="12" height="17" rx="2"/><path d="M7 5h6M7 9h2m2 0h2m-6 3h2m2 0h2m-6 3h2m2 0h2"/></svg></summary>';
+    box.addEventListener('toggle', function initialise() {
+      if (!box.open) return;
+      box.removeEventListener('toggle', initialise);
+      const panel = document.createElement('div');
+      panel.className = 'dtp-calculator-panel';
+      panel.innerHTML = '<div class="dtp-calculator-heading"><span aria-hidden="true">Taschenrechner</span>'
+        + '<button type="button" class="dtp-calculator-clear" aria-label="Rechnung löschen" title="Rechnung löschen">C</button></div>'
+        + '<div class="dtp-calculator-display"><label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<output aria-live="polite"></output></div><div class="dtp-calculator-keys"></div>';
+      const input = panel.querySelector('input');
+      const output = panel.querySelector('output');
+      const keys = panel.querySelector('.dtp-calculator-keys');
+      const button = label => {
+        const key = document.createElement('button');
+        key.type = 'button';
+        key.textContent = label;
+        return key;
+      };
+      const calculate = () => {
+        output.removeAttribute('data-error');
+        try { output.textContent = '= ' + evaluate(input.value); }
+        catch (_) {
+          output.setAttribute('data-error', '');
+          output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.';
+        }
+      };
+      panel.querySelector('.dtp-calculator-clear').addEventListener('click', () => {
+        input.value = output.textContent = '';
+        output.removeAttribute('data-error');
+      });
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=']) {
+        const key = button(label);
+        if (label === '=') {
+          key.dataset.tone = 'equals';
+          key.addEventListener('click', calculate);
+        } else {
+          if (!/[0-9,]/.test(label)) key.dataset.tone = 'operator';
+          key.addEventListener('click', () => {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
+          });
+        }
+        keys.append(key);
+      }
+      input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        event.stopPropagation();
+        calculate();
+      });
+      if (binary) {
+        const trick = button('Binär → Dezimal');
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.className = 'dtp-calculator-joke';
+        trick.addEventListener('click', () => {
+          message.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+          box.querySelector('summary').focus({preventScroll: true});
+          trick.disabled = true;
+          if (!matchMedia('(prefers-reduced-motion: reduce)').matches && trick.animate) {
+            const dust = document.createElement('span');
+            dust.className = 'dtp-calculator-dust';
+            dust.setAttribute('aria-hidden', 'true');
+            trick.after(dust);
+            const particles = Array.from({length: 18}, (_, index) => {
+              const grain = document.createElement('i');
+              grain.style.left = (index * 37 % 100) + '%';
+              grain.style.top = (index * 29 % 100) + '%';
+              dust.append(grain);
+              return grain.animate([
+                {opacity: 1, transform: 'translate(0, 0)'},
+                {opacity: 0, transform: 'translate(' + ((index * 13 % 75) - 37) + 'px, ' + (-12 - index * 7 % 28) + 'px) scale(.3)'}
+              ], {duration: 480, delay: index % 4 * 35, fill: 'both'}).finished;
+            });
+            trick.animate([{opacity: 1}, {opacity: 0, filter: 'blur(4px)'}], {duration: 420, fill: 'forwards'});
+            Promise.allSettled(particles).then(() => { trick.remove(); dust.remove(); });
+          } else trick.remove();
+        }, {once: true});
+        const prank = document.createElement('div');
+        prank.className = 'dtp-calculator-prank';
+        prank.append(trick);
+        panel.append(prank, message);
+      }
+      box.append(panel);
+    });
+    host.append(box);
+  }
+  window.dtpMountCalculator = mount;
+})();
+</script>
+<!-- DTP-TASCHENRECHNER END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -839,7 +1129,7 @@ cases('risk','r_term','Bedrohung und Schwachstelle',[
  ['Ein Brand könnte das Rechenzentrum zerstören. Ist der mögliche Brand eine Bedrohung oder eine Schwachstelle?','Was ist ein mögliches Schadensereignis: Bedrohung oder Schwachstelle?','Bedrohung','Feuer ist eine mögliche Schadensursache und damit eine Bedrohung. Fehlender Brandschutz wäre eine Schwachstelle.',['Threat']],
  ['Ein unverschlossener Serverschrank erleichtert unberechtigten Zugriff. Ist die fehlende Sicherung eine Bedrohung oder eine Schwachstelle?','Die Tür ist nicht gesichert. Welcher Begriff beschreibt diese ausnutzbare Schwäche?','Schwachstelle','Die ungesicherte Tür ist die Schwachstelle. Eine Person, die unberechtigt zugreift, nutzt diese Schwäche aus.']
 ]);
-S('risk','r_score','Risikowert berechnen',1,()=>{const p=rint(1,5),d=rint(1,5);return numberTask('r_score',`Die Übung bewertet Eintritt und Schaden jeweils von 1 bis 5. Ein Risiko hat Eintritt ${p} und Schaden ${d}. Welcher Risikowert ergibt sich nach Eintritt × Schaden?`,`Multipliziere die beiden Skalenwerte ${p} und ${d}. Welcher Wert kommt heraus?`,p*d,`${p} × ${d} = <b>${p*d}</b>. Das ist ein Wert in dieser festgelegten Übungsmatrix, keine universelle BSI-Formel und kein Eurobetrag.`)});
+S('risk','r_score','Risikowert berechnen',1,()=>{const p=rint(1,5),d=rint(1,5);return numberTask('r_score',`Die Übung bewertet Eintritt und Schaden jeweils von 1 bis 5. Ein Risiko hat Eintritt ${p} und Schaden ${d}. Wie hoch ist der Risikowert in dieser Übung? Multipliziere Eintrittswert und Schadenswert.`,`Multipliziere die beiden Skalenwerte ${p} und ${d}. Welcher Wert kommt heraus?`,p*d,`${p} × ${d} = <b>${p*d}</b>. Das ist ein Wert in dieser festgelegten Übungsmatrix, keine universelle BSI-Formel und kein Eurobetrag.`)});
 S('risk','r_expect','Erwarteten Jahresschaden berechnen',1,()=>{const p=pick([2,5,10,20,25,40]),d=rint(2,30)*1000;return numberTask('r_expect',`Ein einzelnes Ereignis verursacht ${gi(d)} €. Seine Eintrittswahrscheinlichkeit in einem Jahr beträgt ${p} %. Welcher erwartete Jahresschaden ergibt sich im einfachen Modell?`,`Rechne ${p} % von ${gi(d)} €. Gesucht ist der durchschnittliche Modellwert für ein Jahr.`,d*p/100,`${p} % = ${p/100}. ${gi(d)} € × ${p/100} = <b>${gi(d*p/100)} € pro Jahr</b>. Ein einzelnes echtes Ereignis verursacht trotzdem ${gi(d)} €. Der Erwartungswert ist keine Schadensobergrenze.`,'€')});
 cases('risk','r_treat','Risikobehandlung zuordnen',[
  ['Eine Firma schaltet einen unnötigen öffentlichen Dienst vollständig ab. Wie behandelt sie das Risiko dieses Dienstes: vermeiden, reduzieren, übertragen oder akzeptieren?','Die riskante Tätigkeit wird beendet. Welche der vier Behandlungen passt?','Vermeiden','Der unnötige Dienst entfällt. Damit vermeidet die Firma das mit seinem Betrieb verbundene Risiko.'],
@@ -957,7 +1247,7 @@ choice('social','e_verify','Auftrag unabhängig prüfen',[
  ['Eine Mail vom angeblichen Chef verlangt eine ungewöhnliche Überweisung. Wie prüfst du den Auftrag verlässlich?','Welcher Rückfrageweg ist unabhängig von der möglicherweise gefälschten Mail?','Über eine bereits bekannte Nummer beim Chef rückfragen',['Die Nummer aus der verdächtigen Mail anrufen','Auf die Mail antworten und nachfragen','Nur den Anzeigenamen ansehen'],'Ein bereits bekannter Kontaktweg ist unabhängig von den Angaben des Angreifers. Zusätzlich gelten interne Freigabe- und Vieraugenregeln.'],
  ['Eine Mail mit Firmenlogo fordert eine Passwortanmeldung. Was belegt das Logo?','Kann das kopierte Firmenlogo die Echtheit beweisen?','Allein keine Echtheit',['Eine geprüfte Absenderidentität','Eine sichere Ende-zu-Ende-Verschlüsselung','Eine Freigabe der IT'],'Logos und Anzeigenamen lassen sich kopieren. Den Dienst über einen bekannten Weg aufrufen und Auffälligkeiten melden.']
 ]);
-S('pass','p_entropy','Modell-Entropie berechnen',1,()=>{const b=pick([2,4,8,16,32,64]),l=rint(4,20),a=l*Math.log2(b);return numberTask('p_entropy',`Ein Passwort wird mit ${l} unabhängigen, gleichverteilten Zufallszeichen aus ${b} Zeichen erzeugt. Wie groß ist die Entropie H = Länge × log₂(Zeichenvorrat) in Bit?`,`Jede der ${l} Positionen trägt log₂(${b}) = ${Math.log2(b)} Bit bei. Wie viele Bit sind es zusammen?`,a,`H = ${l} × log₂(${b}) = ${l} × ${Math.log2(b)} = <b>${a} Bit</b>. Das gilt nur für unabhängige, gleichverteilte Zufallsauswahl; ein erdachtes Muster hat nicht automatisch diese Stärke.`,'Bit')});
+S('pass','p_entropy','Modell-Entropie berechnen',1,()=>{const b=pick([2,4,8,16,32,64]),l=rint(4,20),a=l*Math.log2(b);return numberTask('p_entropy',`Ein Passwort wird mit ${l} unabhängigen, gleichverteilten Zufallszeichen aus ${b} Zeichen erzeugt. Wie viele Bit Entropie hat das Passwort nach H = Länge × log₂(Zeichenvorrat)?`,`Jede der ${l} Positionen trägt log₂(${b}) = ${Math.log2(b)} Bit bei. Wie viele Bit sind es zusammen?`,a,`H = ${l} × log₂(${b}) = ${l} × ${Math.log2(b)} = <b>${a} Bit</b>. Das gilt nur für unabhängige, gleichverteilte Zufallsauswahl; ein erdachtes Muster hat nicht automatisch diese Stärke.`,'Bit')});
 S('pass','p_space','Zufallsraum berechnen',1,()=>{const b=pick([2,4,8,10,16]),l=rint(3,6),a=b**l;return numberTask('p_space',`Ein Testcode hat ${l} Stellen. Jede Stelle wird unabhängig aus ${b} Zeichen gewählt; Wiederholungen sind erlaubt. Wie viele verschiedene Codes sind möglich?`,`Für jede der ${l} Stellen gibt es ${b} Möglichkeiten. Rechne ${b} hoch ${l}.`,a,`${b}^${l} = <b>${gi(a)} Möglichkeiten</b>. Man multipliziert die Möglichkeiten jeder Position. Keine Regel verbietet hier Wiederholungen.`)});
 S('pass','p_time','Ratezeit im Modell berechnen',1,()=>{const N=pick([10000,100000,1000000]),r=pick([10,100,1000]);return numberTask('p_time',`Ein rein hypothetischer Offline-Test prüft ${gi(r)} Kandidaten pro Sekunde ohne Wiederholung. Der Raum umfasst ${gi(N)} Kandidaten. Wie viele Sekunden braucht er im schlechtesten Fall für alle Kandidaten?`,`Teile ${gi(N)} Kandidaten durch ${gi(r)} Kandidaten je Sekunde. Gesucht ist die volle Suchzeit, nicht der Mittelwert.`,N/r,`${gi(N)} : ${gi(r)} = <b>${gi(N/r)} Sekunden</b>. Unter Gleichverteilung liegt die mittlere Suchzeit ungefähr bei der Hälfte. Reale Raten hängen etwa vom Passwort-Hashverfahren ab.`,'s')});
 cases('pass','p_factor','Authentisierungsfaktor zuordnen',[
@@ -1011,16 +1301,16 @@ choice('emergency','f_restore','Wiederherstellung und Menschen',[
 ]);
 /* Lernpfad und zehn inhaltlich entsprechende Nachschlagekapitel. */
 const STAGES=[
- {title:'Schutzziele: CIA und Freunde',cat:'cia',ch:'ch1',goal:'Das betroffene Schutzziel aus einem konkreten Fall ableiten.',intro:'<p>Die Gehaltsliste ist da. Jetzt gibt es drei Arten, sich den Zahltag zu versauen. Kann jemand die Liste lesen, der sie nicht sehen darf, leidet die <b>Vertraulichkeit</b>. Ändert jemand unbefugt eine Kontonummer, leidet die <b>Integrität</b>. Die Daten sollen richtig und unverfälscht bleiben. Ist die Liste wegen eines Ausfalls nicht erreichbar, fehlt die <b>Verfügbarkeit</b>. Zusammen heißen diese Ziele CIA: Confidentiality, Integrity, Availability.</p><p>Zusätzlich zählt die <b>Authentizität</b>: Ist die Person oder Gegenstelle echt? <b>Nichtabstreitbarkeit</b> zielt auf belastbare Nachweise gegen späteres Bestreiten. <b>Nachvollziehbarkeit</b> macht Abläufe rekonstruierbar. Ein Vorfall kann mehrere Ziele treffen. Die Aufgaben nennen deshalb genau, was verändert wurde und welches Ziel gesucht ist.</p>',visual:'<div class="security-flow"><b>LESEN → Vertraulichkeit</b><b>ÄNDERN → Integrität</b><b>NUTZEN → Verfügbarkeit</b></div>',memo:'Erst den Schaden beschreiben, dann das Ziel benennen. Ein Schloss löst nicht jedes Problem.',example:'Jemand ändert die Kontonummer einer Rechnung. Der Server läuft weiter. Welches CIA-Ziel wurde verletzt?',steps:['Tatsache: Die Rechnung enthält nach dem Eingriff falsche Zahlungsdaten.','Regel: Integrität schützt vor unbemerkter oder unberechtigter Veränderung.','Anwendung: Die Änderung verfälscht den Rechnungsinhalt.','Ergebnis: <b>Integrität</b>. Erreichbarkeit allein macht Daten nicht richtig.'],detail:'<h4>Maßnahmen richtig zuordnen</h4><p>Verschlüsselung unterstützt hier Geheimhaltung. Geschützte Prüfwerte und Signaturen können Manipulationen erkennbar machen. Redundanz und eine unterbrechungsfreie Stromversorgung (USV) unterstützen Verfügbarkeit. Ein Backup hilft beim Wiederherstellen; es verhindert allein kein Mitlesen.</p><p><b>Least Privilege</b> heißt Minimalprinzip: nur notwendige Rechte. <b>Need to know</b> beschränkt Informationen auf den Arbeitsbedarf. Persönliche Konten erleichtern die Zuordnung von Handlungen. Im Alltag werden normale Arbeit und Administration getrennt.</p>',trap:'Eine Prüfsumme ist nur so vertrauenswürdig wie ihr Vergleichswert. Ersetzt ein Angreifer Datei und ungeschützten Hash, reicht der Hash nicht als Echtheitsbeweis.'},
- {title:'Risiko: Bauchgefühl mit Rechenweg',cat:'risk',ch:'ch2',goal:'Bedrohung, Schwachstelle und Risiko trennen und ein vorgegebenes Modell rechnen.',intro:'<p>Die Hintertür im Lager schließt nicht richtig. Das ist die <b>Schwachstelle</b>. Jemand könnte deshalb einbrechen. Das ist die <b>Bedrohung</b>. Für das <b>Risiko</b> fragst du, wie wahrscheinlich der Einbruch ist und was er kosten würde. Beim Server übernimmt die ungepatchte Lücke die Rolle der Tür. Das Ticket „Tür ist doch angelehnt“ können wir uns sparen. Ein Schaden kann finanziell sein, Menschen gefährden oder den Betrieb und Ruf treffen.</p><p>Eine einfache Übungsmatrix multipliziert Eintritt und Schaden auf festgelegten Skalen. Das ist ein Lernmodell, keine universelle BSI-Rechenvorschrift. Bei echten Bewertungen werden Kriterien, Unsicherheit und Zuständigkeit festgelegt.</p>',visual:'<div class="security-flow"><b>Schwachstelle</b><b>+ Bedrohung</b><b>→ mögliches Risiko</b></div>',memo:'Schwachstelle = Lücke. Bedrohung = Schadensursache. Risiko = Bewertung unter Unsicherheit.',example:'Die Übung nutzt Eintritt 1–5 und Schaden 1–5. Ein Risiko hat Eintritt 3 und Schaden 4. Wie groß ist der Matrixwert?',steps:['Gegeben sind zwei Skalenwerte, keine Prozent- oder Euroangaben.','Die Aufgabe legt fest: Wert = Eintritt × Schaden.','3 × 4 = 12.','Ergebnis: <b>12</b> innerhalb dieser Matrix. Ein Grenzwert zur Maßnahmenpflicht müsste zusätzlich festgelegt sein.'],detail:'<h4>Vier Behandlungen</h4><p><b>Vermeiden:</b> die riskante Tätigkeit beenden. <b>Reduzieren:</b> Wahrscheinlichkeit oder Folgen senken. <b>Übertragen:</b> bestimmte Folgen vertraglich weitergeben, zum Beispiel versichern. <b>Akzeptieren:</b> den geprüften Rest bewusst durch Zuständige übernehmen lassen.</p><h4>Erwartungswert</h4><p>Bei einem möglichen Ereignis mit 10 % Jahreswahrscheinlichkeit und 20.000 € Schaden ist der erwartete Jahreswert 0,10 × 20.000 = 2.000 €. Dieser Durchschnitt bedeutet weder eine jährliche Rechnung über 2.000 € noch eine Schadensobergrenze. Nach Maßnahmen bleibt oft ein <b>Restrisiko</b>, das erneut beurteilt wird.</p>',trap:'Hoher möglicher Schaden ist nicht automatisch hohe Eintrittswahrscheinlichkeit. Eine Versicherung überträgt bestimmte Kostenfolgen, aber nicht jede Verantwortung.'},
- {title:'BSI: Sicherheit mit System',cat:'bsi',ch:'ch3',goal:'Standards und Arbeitsschritte der klassischen IT-Grundschutz-Methodik zuordnen.',intro:'<p>Eine Firma weiß nicht genau, welche Systeme ihre Warenwirtschaft benötigt. Vor dem Einkauf von Schutzprodukten braucht sie Übersicht und Zuständige. Das <b>Bundesamt für Sicherheit in der Informationstechnik (BSI)</b> beschreibt dafür unter anderem die klassische IT-Grundschutz-Methodik der Reihe 200-x.</p><p>Ein <b>ISMS</b> ist ein Informationssicherheitsmanagementsystem. Es legt fest, wie Sicherheit geplant, umgesetzt, kontrolliert und verbessert wird. <b>200-1</b> behandelt das ISMS. <b>200-2</b> beschreibt die Methodik. <b>200-3</b> die Risikoanalyse. <b>200-4</b> behandelt die Geschäftsfortführung bei Notfällen (Business Continuity Management).</p>',visual:'<div class="security-flow"><b>200-1 Management</b><b>200-2 Methodik</b><b>200-3 Risiko · 200-4 BCM</b></div>',memo:'Erfassen → Bedarf bestimmen → passende Bausteine zuordnen → Soll und Ist prüfen → offene Punkte behandeln.',example:'Die IT erstellt eine Übersicht aller Anwendungen, Systeme, Räume und Verbindungen. Wie heißt dieser Schritt?',steps:['Tatsache: Es wird aufgenommen, was im betrachteten Bereich vorhanden ist.','Regel: Diese Bestands- und Abhängigkeitsaufnahme heißt Strukturanalyse.','Sie liefert die Grundlage für Schutzbedarf und passende Sicherheitsbausteine.','Ergebnis: <b>Strukturanalyse</b>. Noch wird nicht der Umsetzungsgrad aller Anforderungen bewertet.'],detail:'<h4>Begriffe im Arbeitsalltag</h4><p>Der <b>Informationsverbund</b> ist der abgegrenzte Bereich mit Menschen, Prozessen, Informationen und Technik. Die <b>Modellierung</b> ordnet passende Bausteine aus dem IT-Grundschutz-Kompendium zu. Der <b>IT-Grundschutz-Check</b> prüft, welche Anforderungen erfüllt, teilweise erfüllt oder nicht erfüllt sind.</p><p>Bei erhöhtem Bedarf und besonderen Bedingungen wird zusätzlicher Analysebedarf geprüft. Die Leitung trägt die Gesamtverantwortung; eine IT-Abteilung kann operative Aufgaben übernehmen. Sicherheit ist ein laufender Verbesserungsprozess, kein einmaliger Produktkauf. Dieses Kapitel behandelt ausdrücklich die klassische 200-x-Methodik, keine Behauptung über neue Grundschutz++-Verfahrensstände.</p>',trap:'Ein Virenscanner ist kein ISMS. Eine Liste abgehakter Maßnahmen ist kein automatischer Beleg für angemessene Sicherheit.'},
- {title:'Schutzbedarf: Das Maximum zählt',cat:'need',ch:'ch4',goal:'Schutzbedarf je Schutzziel ableiten und Sondereffekte begründen.',intro:'<p>Auf einem Server laufen drei Anwendungen. Eine enthält sehr vertrauliche Forschungsdaten. Die anderen brauchen wenig Geheimhaltung. Ohne besondere Gegengründe muss der Server den höchsten Vertraulichkeitsbedarf tragen. Das ist das <b>Maximumprinzip</b>.</p><p>Die klassische IT-Grundschutz-Methodik verwendet <b>normal</b> für begrenzte und überschaubare Folgen, <b>hoch</b> für beträchtliche Folgen und <b>sehr hoch</b> für existenzbedrohende oder katastrophale Folgen. Eine Organisation konkretisiert die Kategorien für ihren Bereich. Vertraulichkeit, Integrität und Verfügbarkeit werden getrennt bewertet.</p>',visual:'<div class="security-flow"><b>normal</b><b>hoch</b><b>sehr hoch ← Maximum</b></div>',memo:'Höchster Bedarf je Ziel. Nicht den Mittelwert bilden und nicht blind zwischen Schutzzielen übertragen.',example:'Zwei Anwendungen haben Integritätsbedarf normal und hoch. Beide laufen auf einem Host. Sondereffekte sind ausgeschlossen. Welcher Integritätsbedarf gilt für den Host?',steps:['Gefragt ist nur Integrität, also der Schutz unverfälschter Daten.','Die Anwendungen brauchen normal beziehungsweise hoch.','Ohne Sondereffekte wird das höhere Niveau geerbt.','Ergebnis: <b>hoch</b>. Vertraulichkeit und Verfügbarkeit müssen separat betrachtet werden.'],detail:'<h4>Wenn das Maximum nicht allein reicht</h4><p>Beim <b>Kumulationseffekt</b> kommen viele einzelne Folgen zusammen. Ein Hostausfall kann alle Kassen gleichzeitig treffen und mehr Schaden anrichten als jeder Einzelausfall. Der Bedarf kann dadurch steigen.</p><p>Beim <b>Verteilungseffekt</b> kann nachgewiesene Verteilung oder unabhängige Redundanz den Bedarf einer einzelnen Komponente mindern. Zwei virtuelle Maschinen auf demselben Host sind nicht automatisch unabhängig. Gemeinsamer Speicher, Strom oder Standort können beide treffen.</p><p>Jede Abweichung wird begründet. Der Kaufpreis eines Geräts ersetzt keine Bewertung der Geschäftsfolgen. Auch Systeme mit normalem Bedarf brauchen angemessene Schutzmaßnahmen.</p>',trap:'Kategorien sind keine Zahlen zum Mitteln. Vertraulichkeit normal und Verfügbarkeit sehr hoch ergeben nicht automatisch für beide sehr hoch.'},
- {title:'Malware: Besuch ohne Einladung',cat:'mal',ch:'ch5',goal:'Schadsoftware am beschriebenen Verhalten erkennen und nach Vorgabe reagieren.',intro:'<p>Ein Anhang sieht wie eine Rechnung aus. Nach dem Öffnen werden Dateien verschlüsselt. <b>Malware</b> bedeutet Schadsoftware. Kategorien beschreiben unterschiedliche Eigenschaften und können sich überschneiden: Ein getarnter Trojaner kann zum Beispiel Ransomware installieren.</p><p><b>Ransomware</b> erpresst durch Verschlüsselung oder andere Druckmittel. Ein <b>Trojaner</b> tarnt schädliche Funktionen als nützliche Software. Ein klassischer <b>Virus</b> hängt an Wirtsdateien oder Wirtsbereichen. Ein <b>Wurm</b> verbreitet sich selbstständig. Ein <b>Keylogger</b> zeichnet Eingaben auf. Ein <b>Botnetz</b> verbindet fremdgesteuerte befallene Geräte.</p>',visual:'<div class="security-flow"><b>Erkennen</b><b>Nach Plan eindämmen</b><b>Zuständige informieren</b></div>',memo:'Verhalten lesen. Nicht jede Schadsoftware ist ein Virus, und ein fehlender Fund ist kein Reinheitszertifikat.',example:'Ein Rechner verschlüsselt Dateien. Der Firmenplan verlangt sofortige Netztrennung. Welche technische Maßnahme führst du zuerst aus?',steps:['Tatsache: Aktive Verschlüsselung kann weitere erreichbare Bestände gefährden.','Die vorgegebene Maßnahme ist Isolation vom Netz.','Netzverbindungen nach Plan trennen und die zuständige Stelle informieren.','Ergebnis: <b>Netzwerk trennen</b>. Nicht eigenmächtig löschen, neu installieren oder ohne Vorgabe ausschalten.'],detail:'<h4>Schichten statt Wunderwaffe</h4><p>Updates beseitigen bekannte Schwachstellen. Minimale Rechte begrenzen Folgen. Netzsegmentierung erschwert Ausbreitung. Erkennungssysteme und geschulte Menschen helfen bei der Entdeckung. Getrennte, getestete Sicherungen ermöglichen Wiederherstellung.</p><p>Ein unbekannter USB-Stick darf nicht aus Neugier an einen Firmen- oder Privat-PC. Auch manipulierte Hardware kann gefährlich sein. Fundgeräte gehen nach Regel an die zuständige IT. Bei einem Vorfall gelten der Notfallplan, die Meldewege und die Beweissicherung. Unüberlegte Bereinigung kann Spuren vernichten.</p>',trap:'Ein beschreibbares Backup im gleichen erreichbaren Netz kann mitverschlüsselt werden. Auch ein Cloud-Laufwerk ist nicht automatisch eine unabhängige Sicherung.'},
- {title:'Angriffe: Muster statt Panik',cat:'attack',ch:'ch6',goal:'Angriffsmuster unterscheiden und einen passenden Schutzansatz nennen.',intro:'<p>Der Maildienst sieht viele fehlgeschlagene Logins. Doch nicht jeder Rateangriff läuft gleich. <b>Brute Force</b> probiert viele Kandidaten für ein Ziel. <b>Password Spraying</b> verteilt wenige häufige Passwörter auf viele Konten. <b>Credential Stuffing</b> testet schon gestohlene Zugangspaare bei anderen Diensten.</p><p><b>DoS</b> bedeutet Denial of Service: Ein Dienst wird unbenutzbar gemacht. <b>DDoS</b> ist die verteilte Form mit vielen Angriffsquellen. Bei einer <b>SQL-Injection</b> gelangen Daten als Befehle in eine Datenbankabfrage. Parametrisierte Abfragen trennen Werte von Code.</p>',visual:'<div class="security-flow"><b>Viele Kandidaten → Brute Force</b><b>Viele Konten → Spraying</b><b>Bekannte Paare → Stuffing</b></div>',memo:'Beschreibe Quelle, Ziel und Vorgehen. Ein Name hilft erst, wenn du das Muster verstanden hast.',example:'Gestohlene Shop-Zugangspaare werden beim Mailanbieter getestet. Welche Angriffsart ist das?',steps:['Die Kandidaten sind bereits bekannte Paare aus Benutzername und Passwort.','Der Angreifer nutzt die mögliche Wiederverwendung bei einem anderen Dienst.','Dieses Vorgehen heißt Credential Stuffing.','Ergebnis: <b>Credential Stuffing</b>. Einzigartige Passwörter und geeignete MFA begrenzen dieses Risiko.'],detail:'<h4>Verkehr umlenken</h4><p>Ein <b>Man-in-the-Middle</b> sitzt zwischen Kommunikationspartnern. <b>ARP-Spoofing</b> fälscht Zuordnungen zwischen IP- und MAC-Adressen im lokalen Netz. Ein <b>Evil Twin</b> imitiert einen echten WLAN-Zugangspunkt. Gleiche Namen beweisen keine Identität.</p><h4>Modellrechnung</h4><p>Erlaubt ein Testsystem 5 Versuche pro Minute, ergeben genau 12 volle Minuten höchstens 5 × 12 = 60 Versuche. Das ist ein klar definiertes Modell. Bei echten Diensten können Verzögerungen, Sperren, Parallelität und andere Begrenzungen gelten. Offline-Tests gegen entwendete Prüfwerte folgen nicht denselben Online-Limits.</p>',trap:'HTTPS schützt den Transport bei korrekter Prüfung. Auch eine Betrugsseite kann ein gültiges Zertifikat für ihre eigene Adresse besitzen.'},
- {title:'Social Engineering: Chef sagt nein',cat:'social',ch:'ch7',goal:'Täuschungsmerkmale und sichere unabhängige Rückfragen erkennen.',intro:'<p>Eine Mail vom angeblichen Chef verlangt sofort eine geheime Überweisung. Die technische Schwachstelle soll diesmal der Mensch sein. <b>Social Engineering</b> manipuliert Menschen, damit sie Informationen preisgeben oder Sicherheitsregeln umgehen.</p><p><b>Phishing</b> ködert Zugangsdaten oder Handlungen über gefälschte Nachrichten und Seiten. <b>Spear-Phishing</b> ist gezielt auf die Person vorbereitet. <b>Smishing</b> kommt per SMS, <b>Vishing</b> per Sprache oder Telefon. Häufige Hebel sind Zeitdruck, Angst, Neugier und angebliche Autorität.</p>',visual:'<div class="security-flow"><b>STOPP</b><b>Bekannten Kanal nutzen</b><b>Prüfen und melden</b></div>',memo:'Ein bekanntes Logo ist kopierbar. Ein bekannter, unabhängig gewählter Rückfrageweg ist wertvoller.',example:'Eine Chef-Mail enthält eine neue Telefonnummer und fordert eine sofortige Überweisung. Wie prüfst du den Auftrag?',steps:['Die Mail selbst ist die verdächtige Quelle. Ihre neue Telefonnummer ist daher kein unabhängiger Nachweis.','Verwende einen bereits bekannten Kontaktweg aus dem Firmenverzeichnis.','Prüfe den Auftrag zusätzlich nach den internen Freigaberegeln.','Ergebnis: Über die <b>bekannte Nummer</b> rückfragen, statt die mitgeschickte Nummer zu übernehmen.'],detail:'<h4>Die beliebten Köder</h4><p>Beim <b>Vorschussbetrug</b> soll eine Vorabgebühr den Weg zu einem angeblichen großen Gewinn oder Erbe öffnen. Beim <b>Tailgating</b> schleicht sich jemand hinter einer berechtigten Person durch eine gesicherte Tür. Ein erfundener plausibler Vorwand heißt <b>Pretexting</b>.</p><p>Einmalcodes, Passwörter und Freigaben bleiben bei der berechtigten Person. Viele unerwartete MFA-Anfragen können <b>MFA Fatigue</b> sein: Der Angreifer will Zustimmung durch Ermüdung. Nicht bestätigen, wenn kein eigener Login dahintersteht; nach Regel melden. Wer schon etwas eingegeben hat, meldet das rasch. Frühe Meldungen helfen mehr als Vertuschen.</p>',trap:'Nicht über den verdächtigen Link „zur Sicherheit anmelden“. Öffne den Dienst über einen bereits bekannten Weg.'},
- {title:'Passwörter: Zufall schlägt Fantasie',cat:'pass',ch:'ch8',goal:'Faktoren unterscheiden und ein klar definiertes Zufallsmodell berechnen.',intro:'<p>„Passwort123!“ hat Großbuchstaben, Ziffern und ein Sonderzeichen. Trotzdem ist es ein bekanntes Muster. Einzigartige, ausreichend lange zufällige Kennwörter aus einem Passwortmanager vermeiden solche einfachen Wiederverwendungen. Passwortwechsel erfolgen bei Anlass wie Preisgabe; das Modul legt keine pauschale Zeichenlänge für jeden Dienst fest.</p><p><b>MFA</b> bedeutet Multi-Faktor-Authentisierung. Sie kombiniert unterschiedliche Kategorien: <b>Wissen</b> (Passwort), <b>Besitz</b> (Hardware-Schlüssel) und <b>Biometrie</b> (körperliches Merkmal). Passwort und zusätzliche PIN sind beides Wissen. FIDO2/WebAuthn kann die Anmeldung kryptografisch an den echten Dienst binden.</p>',visual:'<div class="security-flow"><b>Wissen</b><b>Besitz</b><b>Biometrie</b></div>',memo:'H = L × log₂(N) gilt nur bei unabhängiger, gleichverteilter Zufallsauswahl. Ein langes Muster ist keine Zufallsquelle.',example:'Ein Generator wählt 12 Zeichen unabhängig aus 64 gleich wahrscheinlichen Zeichen. Wie groß ist die Modell-Entropie?',steps:['Jede Position hat N = 64 Möglichkeiten. log₂(64) = 6, weil 2⁶ = 64.','Es gibt L = 12 unabhängig gewählte Positionen.','H = 12 × 6 = 72 Bit.','Ergebnis: <b>72 Bit im Zufallsmodell</b>. Für ein selbst erdachtes 12-Zeichen-Muster folgt diese Stärke nicht.'],detail:'<h4>Suchraum und Zeit</h4><p>Bei L unabhängigen Stellen aus N Zeichen mit erlaubter Wiederholung gibt es Nᴸ Möglichkeiten. Zehn mögliche Zeichen und vier Stellen ergeben 10⁴ = 10.000 Codes. Prüft ein hypothetischer Test 100 Kandidaten pro Sekunde ohne Wiederholung, dauert der vollständige Raum 100 Sekunden. Der Durchschnitt liegt bei gleichverteiltem Geheimnis ungefähr bei der Hälfte.</p><p>Reale Offline-Raten hängen von Hashverfahren und Hardware ab. Online bremsen zusätzliche Maßnahmen. Gewöhnliche Einmalcodes sind abphishbar; MFA ist nicht gleich MFA. Wiederherstellungscodes und Kontorücksetzung brauchen ebenfalls Schutz. Einen echten persönlichen Zugang oder ein echtes Passwort gibst du in diesen Laboren niemals ein.</p>',trap:'Zwei Kennwörter sind zwei Nachweise derselben Kategorie. Und ein Einmalcode ist nicht dafür da, einem vermeintlichen Supporter diktiert zu werden.'},
- {title:'Netzschutz: Türsteher mit Regelwerk',cat:'net',ch:'ch9',goal:'Filter, Erkennung und Netztrennung gezielt unterscheiden.',intro:'<p>Ein öffentlicher Webserver braucht Verbindungen aus dem Internet, aber keinen freien Zugriff auf Personalakten. Eine <b>Firewall</b> erlaubt oder blockiert Verkehr nach Regeln. <b>Default Deny</b> bedeutet: Ohne passende Erlaubnis wird verworfen. Die Aufgaben geben an, ob die erste passende Regel entscheidet.</p><p>Eine <b>DMZ</b> (demilitarisierte Zone) trennt öffentliche Dienste vom internen Netz. <b>Segmentierung</b> teilt Netze in kontrollierte Bereiche. Ein <b>IDS</b> (Intrusion Detection System) erkennt und meldet. Ein <b>IPS</b> (Intrusion Prevention System) kann aktiv eingreifen.</p>',visual:'<div class="security-flow"><b>Internet</b><b>Firewall · DMZ</b><b>Kontrollierter LAN-Zugriff</b></div>',memo:'Nur benötigte Wege öffnen. Ein Alarm ist keine Blockade und ein erlaubter Port kein Gütesiegel.',example:'R1 erlaubt eine bestimmte HTTPS-Verbindung. R2 verbietet dieselbe Verbindung. Die Firewall verwendet „erste passende Regel“. Welche entscheidet?',steps:['Prüfe die Regeln von oben nach unten.','R1 passt bereits zu Quelle, Ziel und Dienst.','Nach der vorgegebenen Logik stoppt die Prüfung dort.','Ergebnis: <b>Regel 1</b> entscheidet. Die widersprechende Regel darunter kommt nicht mehr zum Zug.'],detail:'<h4>Grenzen kennen</h4><p><b>Stateful Inspection</b> berücksichtigt den Zustand einer Verbindung und ordnet Antwortpakete zu. Ein einfacher zustandsloser Paketfilter beurteilt einzelne Pakete ohne diesen Kontext. Regeln brauchen enge Quellen, Ziele und Dienste, dokumentierte Gründe und regelmäßige Überprüfung.</p><p>Ein Webzugriff über HTTPS kann trotzdem Schadcode transportieren. Verschlüsselung schützt den Transport; sie macht Inhalte nicht automatisch gutartig. IDS- und IPS-Systeme haben Erkennungsgrenzen und können Fehlalarme auslösen. VLANs schaffen ohne kontrollierte Übergänge keine vollständige Sicherheitsgrenze. Logging und Alarmreaktion müssen zur Organisation passen.</p>',trap:'Eine DMZ ist kein Freifahrtschein vom öffentlichen Webserver ins gesamte interne Netz. Gerade dieser Zugriff wird beschränkt.'},
- {title:'Notfall: Plan schlägt hektisch',cat:'emergency',ch:'ch10',goal:'Reaktion, Wiederherstellung und zeitliche Ziele sicher einordnen.',intro:'<p>Die Bestellannahme steht. Was muss zuerst wieder laufen, wer entscheidet und wie wird gearbeitet, bis die Technik zurück ist? <b>Business Continuity Management (BCM)</b> plant die Fortführung zeitkritischer Geschäftsprozesse. Die <b>Business Impact Analyse (BIA)</b> untersucht Unterbrechungsfolgen und Zeitbedarf.</p><p><b>RTO</b> (Recovery Time Objective) ist das angestrebte Zeitlimit bis zur Wiederherstellung. <b>RPO</b> (Recovery Point Objective) ist die maximal tolerierte Datenverlust-Zeitspanne. Der <b>Notfallplan</b> nennt Rollen, Meldewege und Schritte. Personenschutz hat bei Gefahr Vorrang.</p>',visual:'<div class="security-flow"><b>Eindämmen</b><b>Bereinigen</b><b>Geprüft wiederherstellen</b></div>',memo:'RTO fragt: Wie schnell wieder nutzbar? RPO fragt: Wie weit dürfen Daten zurückliegen?',example:'Ausfall um 10:40 Uhr. Der jüngste nutzbare Datenstand ist von 10:00 Uhr. Wie groß ist die mögliche Datenlücke?',steps:['Vergleiche Datenstand und Ausfallzeit, nicht die Dauer der Rücksicherung.','Von 10:00 Uhr bis 10:40 Uhr liegen 40 Minuten.','Änderungen aus dieser Zeit können fehlen.','Ergebnis: <b>40 Minuten</b>. Eine festgelegte RPO von 30 Minuten wäre damit nicht eingehalten.'],detail:'<h4>Koordiniert handeln</h4><p>Menschen schützen, nach Plan melden, den Schaden eindämmen, Ursache und Spuren untersuchen, bereinigen und kontrolliert wiederherstellen. Die genaue Reihenfolge und parallele Aufgaben hängen vom Vorfallplan ab. Pauschales Abschalten jedes Geräts kann Spuren vernichten; der Plan und die zuständige Einsatzleitung geben das Vorgehen vor.</p><p>Sicherungen müssen erreichbar, ausreichend getrennt und zurückspielbar sein. Schlüssel, Zugangsdaten, benötigte Software und Abhängigkeiten gehören dazu. Regelmäßige Rücksicherungstests prüfen Daten und Verfahren. Nach dem Vorfall folgen <b>Lessons Learned</b>: Erkenntnisse in konkrete Verbesserungen mit Zuständigen und Terminen überführen.</p>',trap:'Ein grünes Backupsymbol ist kein Wiederherstellungstest. RTO ist keine Datenverlustspanne, und RPO sagt nicht, wie lange die Reparatur dauert.'}
+ {title:'Schutzziele: CIA und Freunde',cat:'cia',ch:'ch1',goal:'Das betroffene Schutzziel aus einem konkreten Fall ableiten.',intro:'<p>Die Gehaltsliste kann auf drei verschiedene Arten Ärger machen. Fremde können sie lesen, jemand kann Beträge ändern oder die Buchhaltung kommt zum Zahltag nicht dran. Je nach Fall ist ein anderes Schutzziel betroffen.</p><p>Stell dir die Gehaltsliste einer Firma vor. Liest sie eine fremde Person, ist die <b>Vertraulichkeit</b> verletzt. Ändert jemand eine Kontonummer, betrifft das die <b>Integrität</b>: Daten sollen richtig und unverfälscht bleiben. Ist die Liste wegen eines Ausfalls nicht erreichbar, fehlt <b>Verfügbarkeit</b>. Zusammen heißen diese Ziele CIA: Confidentiality, Integrity, Availability.</p><p>Zusätzlich zählt die <b>Authentizität</b>: Ist die Person oder Gegenstelle echt? <b>Nichtabstreitbarkeit</b> zielt auf belastbare Nachweise gegen späteres Bestreiten. <b>Nachvollziehbarkeit</b> macht Abläufe rekonstruierbar. Ein Vorfall kann mehrere Ziele treffen. Die Aufgaben nennen deshalb genau, was verändert wurde und welches Ziel gesucht ist.</p>',visual:'<div class="security-flow"><b>LESEN → Vertraulichkeit</b><b>ÄNDERN → Integrität</b><b>NUTZEN → Verfügbarkeit</b></div>',memo:'Erst den Schaden beschreiben, dann das Ziel benennen. Ein Schloss löst nicht jedes Problem.',example:'Jemand ändert die Kontonummer einer Rechnung. Der Server läuft weiter. Welches CIA-Ziel wurde verletzt?',steps:['Tatsache: Die Rechnung enthält nach dem Eingriff falsche Zahlungsdaten.','Regel: Integrität schützt vor unbemerkter oder unberechtigter Veränderung.','Anwendung: Die Änderung verfälscht den Rechnungsinhalt.','Ergebnis: <b>Integrität</b>. Erreichbarkeit allein macht Daten nicht richtig.'],detail:'<h4>Maßnahmen richtig zuordnen</h4><p>Verschlüsselung unterstützt hier Geheimhaltung. Geschützte Prüfwerte und Signaturen können Manipulationen erkennbar machen. Redundanz und eine unterbrechungsfreie Stromversorgung (USV) unterstützen Verfügbarkeit. Ein Backup hilft beim Wiederherstellen; es verhindert allein kein Mitlesen.</p><p><b>Least Privilege</b> heißt Minimalprinzip: nur notwendige Rechte. <b>Need to know</b> beschränkt Informationen auf den Arbeitsbedarf. Persönliche Konten erleichtern die Zuordnung von Handlungen. Im Alltag werden normale Arbeit und Administration getrennt.</p>',trap:'Eine Prüfsumme ist nur so vertrauenswürdig wie ihr Vergleichswert. Ersetzt ein Angreifer Datei und ungeschützten Hash, reicht der Hash nicht als Echtheitsbeweis.'},
+ {title:'Risiko: Bauchgefühl mit Rechenweg',cat:'risk',ch:'ch2',goal:'Bedrohung, Schwachstelle und Risiko trennen und ein vorgegebenes Modell rechnen.',intro:'<p>Eine ungepatchte Lücke ist eine Schwachstelle. Ein möglicher Angriff darauf ist eine Bedrohung. Für das Risiko schaust du auf Eintritt und Folgen. „Wird schon gutgehen“ ist bisher keine Maßeinheit.</p><p>Ein Firmenserver hat eine ungepatchte Lücke. Diese Lücke ist eine <b>Schwachstelle</b>. Dass ein Angreifer sie ausnutzen könnte, ist eine <b>Bedrohung</b>. Das <b>Risiko</b> berücksichtigt die möglichen Folgen und deren Eintritt. Ein Schaden kann finanziell sein, Menschen gefährden oder den Betrieb und Ruf treffen.</p><p>Eine einfache Übungsmatrix multipliziert Eintritt und Schaden auf festgelegten Skalen. Das ist ein Lernmodell, keine universelle BSI-Rechenvorschrift. Bei echten Bewertungen werden Kriterien, Unsicherheit und Zuständigkeit festgelegt.</p>',visual:'<div class="security-flow"><b>Schwachstelle</b><b>+ Bedrohung</b><b>→ mögliches Risiko</b></div>',memo:'Schwachstelle = Lücke. Bedrohung = Schadensursache. Risiko = Bewertung unter Unsicherheit.',example:'Die Übung nutzt Eintritt 1–5 und Schaden 1–5. Ein Risiko hat Eintritt 3 und Schaden 4. Wie groß ist der Matrixwert?',steps:['Gegeben sind zwei Skalenwerte, keine Prozent- oder Euroangaben.','Die Aufgabe legt fest: Wert = Eintritt × Schaden.','3 × 4 = 12.','Ergebnis: <b>12</b> innerhalb dieser Matrix. Ein Grenzwert zur Maßnahmenpflicht müsste zusätzlich festgelegt sein.'],detail:'<h4>Vier Behandlungen</h4><p><b>Vermeiden:</b> die riskante Tätigkeit beenden. <b>Reduzieren:</b> Wahrscheinlichkeit oder Folgen senken. <b>Übertragen:</b> bestimmte Folgen vertraglich weitergeben, zum Beispiel versichern. <b>Akzeptieren:</b> den geprüften Rest bewusst durch Zuständige übernehmen lassen.</p><h4>Erwartungswert</h4><p>Bei einem möglichen Ereignis mit 10 % Jahreswahrscheinlichkeit und 20.000 € Schaden ist der erwartete Jahreswert 0,10 × 20.000 = 2.000 €. Dieser Durchschnitt bedeutet weder eine jährliche Rechnung über 2.000 € noch eine Schadensobergrenze. Nach Maßnahmen bleibt oft ein <b>Restrisiko</b>, das erneut beurteilt wird.</p>',trap:'Hoher möglicher Schaden ist nicht automatisch hohe Eintrittswahrscheinlichkeit. Eine Versicherung überträgt bestimmte Kostenfolgen, aber nicht jede Verantwortung.'},
+ {title:'BSI: Sicherheit mit System',cat:'bsi',ch:'ch3',goal:'Standards und Arbeitsschritte der klassischen IT-Grundschutz-Methodik zuordnen.',intro:'<p>Bevor die Firma das nächste Sicherheitsprodukt bestellt, zeichnet sie auf, wovon ihre Warenwirtschaft abhängt. Ein Karton mit Firewall-Aufdruck beantwortet nämlich nicht, wer für den Betrieb zuständig ist.</p><p>Eine Firma weiß nicht genau, welche Systeme ihre Warenwirtschaft benötigt. Vor dem Einkauf von Schutzprodukten braucht sie Übersicht und Zuständige. Das <b>Bundesamt für Sicherheit in der Informationstechnik (BSI)</b> beschreibt dafür unter anderem die klassische IT-Grundschutz-Methodik der Reihe 200-x.</p><p>Ein <b>ISMS</b> ist ein Informationssicherheitsmanagementsystem. Es legt fest, wie Sicherheit geplant, umgesetzt, kontrolliert und verbessert wird. <b>200-1</b> behandelt das ISMS. <b>200-2</b> beschreibt die Methodik. <b>200-3</b> die Risikoanalyse. <b>200-4</b> behandelt die Geschäftsfortführung bei Notfällen (Business Continuity Management).</p>',visual:'<div class="security-flow"><b>200-1 Management</b><b>200-2 Methodik</b><b>200-3 Risiko · 200-4 BCM</b></div>',memo:'Erfassen → Bedarf bestimmen → passende Bausteine zuordnen → Soll und Ist prüfen → offene Punkte behandeln.',example:'Die IT erstellt eine Übersicht aller Anwendungen, Systeme, Räume und Verbindungen. Wie heißt dieser Schritt?',steps:['Tatsache: Es wird aufgenommen, was im betrachteten Bereich vorhanden ist.','Regel: Diese Bestands- und Abhängigkeitsaufnahme heißt Strukturanalyse.','Sie liefert die Grundlage für Schutzbedarf und passende Sicherheitsbausteine.','Ergebnis: <b>Strukturanalyse</b>. Noch wird nicht der Umsetzungsgrad aller Anforderungen bewertet.'],detail:'<h4>Begriffe im Arbeitsalltag</h4><p>Der <b>Informationsverbund</b> ist der abgegrenzte Bereich mit Menschen, Prozessen, Informationen und Technik. Die <b>Modellierung</b> ordnet passende Bausteine aus dem IT-Grundschutz-Kompendium zu. Der <b>IT-Grundschutz-Check</b> prüft, welche Anforderungen erfüllt, teilweise erfüllt oder nicht erfüllt sind.</p><p>Bei erhöhtem Bedarf und besonderen Bedingungen wird zusätzlicher Analysebedarf geprüft. Die Leitung trägt die Gesamtverantwortung; eine IT-Abteilung kann operative Aufgaben übernehmen. Sicherheit ist ein laufender Verbesserungsprozess, kein einmaliger Produktkauf. Dieses Kapitel behandelt ausdrücklich die klassische 200-x-Methodik, keine Behauptung über neue Grundschutz++-Verfahrensstände.</p>',trap:'Ein Virenscanner ist kein ISMS. Eine Liste abgehakter Maßnahmen ist kein automatischer Beleg für angemessene Sicherheit.'},
+ {title:'Schutzbedarf: Das Maximum zählt',cat:'need',ch:'ch4',goal:'Schutzbedarf je Schutzziel ableiten und Sondereffekte begründen.',intro:'<p>Eine kritische Anwendung und zwei harmlose Tools laufen auf demselben Server. Der niedrigere Schutzbedarf der Tools drückt den höheren Bedarf der Anwendung nicht weg. So funktioniert der Durchschnitt hier nicht.</p><p>Auf einem Server laufen drei Anwendungen. Eine enthält sehr vertrauliche Forschungsdaten. Die anderen brauchen wenig Geheimhaltung. Ohne besondere Gegengründe muss der Server den höchsten Vertraulichkeitsbedarf tragen. Das ist das <b>Maximumprinzip</b>.</p><p>Die klassische IT-Grundschutz-Methodik verwendet <b>normal</b> für begrenzte und überschaubare Folgen, <b>hoch</b> für beträchtliche Folgen und <b>sehr hoch</b> für existenzbedrohende oder katastrophale Folgen. Eine Organisation konkretisiert die Kategorien für ihren Bereich. Vertraulichkeit, Integrität und Verfügbarkeit werden getrennt bewertet.</p>',visual:'<div class="security-flow"><b>normal</b><b>hoch</b><b>sehr hoch ← Maximum</b></div>',memo:'Höchster Bedarf je Ziel. Nicht den Mittelwert bilden und nicht blind zwischen Schutzzielen übertragen.',example:'Zwei Anwendungen haben Integritätsbedarf normal und hoch. Beide laufen auf einem Host. Sondereffekte sind ausgeschlossen. Welcher Integritätsbedarf gilt für den Host?',steps:['Gefragt ist nur Integrität, also der Schutz unverfälschter Daten.','Die Anwendungen brauchen normal beziehungsweise hoch.','Ohne Sondereffekte wird das höhere Niveau geerbt.','Ergebnis: <b>hoch</b>. Vertraulichkeit und Verfügbarkeit müssen separat betrachtet werden.'],detail:'<h4>Wenn das Maximum nicht allein reicht</h4><p>Beim <b>Kumulationseffekt</b> kommen viele einzelne Folgen zusammen. Ein Hostausfall kann alle Kassen gleichzeitig treffen und mehr Schaden anrichten als jeder Einzelausfall. Der Bedarf kann dadurch steigen.</p><p>Beim <b>Verteilungseffekt</b> kann nachgewiesene Verteilung oder unabhängige Redundanz den Bedarf einer einzelnen Komponente mindern. Zwei virtuelle Maschinen auf demselben Host sind nicht automatisch unabhängig. Gemeinsamer Speicher, Strom oder Standort können beide treffen.</p><p>Jede Abweichung wird begründet. Der Kaufpreis eines Geräts ersetzt keine Bewertung der Geschäftsfolgen. Auch Systeme mit normalem Bedarf brauchen angemessene Schutzmaßnahmen.</p>',trap:'Kategorien sind keine Zahlen zum Mitteln. Vertraulichkeit normal und Verfügbarkeit sehr hoch ergeben nicht automatisch für beide sehr hoch.'},
+ {title:'Malware: Besuch ohne Einladung',cat:'mal',ch:'ch5',goal:'Schadsoftware am beschriebenen Verhalten erkennen und nach Vorgabe reagieren.',intro:'<p>Eine angebliche Rechnung verschlüsselt beim Öffnen deine Dateien. Für die Einordnung zählt das Verhalten. Das Dateisymbol hat seinen Teil der Bewerbung offenbar nur erfunden.</p><p>Ein Anhang sieht wie eine Rechnung aus. Nach dem Öffnen werden Dateien verschlüsselt. <b>Malware</b> bedeutet Schadsoftware. Kategorien beschreiben unterschiedliche Eigenschaften und können sich überschneiden: Ein getarnter Trojaner kann zum Beispiel Ransomware installieren.</p><p><b>Ransomware</b> erpresst durch Verschlüsselung oder andere Druckmittel. Ein <b>Trojaner</b> tarnt schädliche Funktionen als nützliche Software. Ein klassischer <b>Virus</b> hängt an Wirtsdateien oder Wirtsbereichen. Ein <b>Wurm</b> verbreitet sich selbstständig. Ein <b>Keylogger</b> zeichnet Eingaben auf. Ein <b>Botnetz</b> verbindet fremdgesteuerte befallene Geräte.</p>',visual:'<div class="security-flow"><b>Erkennen</b><b>Nach Plan eindämmen</b><b>Zuständige informieren</b></div>',memo:'Verhalten lesen. Nicht jede Schadsoftware ist ein Virus, und ein fehlender Fund ist kein Reinheitszertifikat.',example:'Ein Rechner verschlüsselt Dateien. Der Firmenplan verlangt sofortige Netztrennung. Welche technische Maßnahme führst du zuerst aus?',steps:['Tatsache: Aktive Verschlüsselung kann weitere erreichbare Bestände gefährden.','Die vorgegebene Maßnahme ist Isolation vom Netz.','Netzverbindungen nach Plan trennen und die zuständige Stelle informieren.','Ergebnis: <b>Netzwerk trennen</b>. Nicht eigenmächtig löschen, neu installieren oder ohne Vorgabe ausschalten.'],detail:'<h4>Schichten statt Wunderwaffe</h4><p>Updates beseitigen bekannte Schwachstellen. Minimale Rechte begrenzen Folgen. Netzsegmentierung erschwert Ausbreitung. Erkennungssysteme und geschulte Menschen helfen bei der Entdeckung. Getrennte, getestete Sicherungen ermöglichen Wiederherstellung.</p><p>Ein unbekannter USB-Stick darf nicht aus Neugier an einen Firmen- oder Privat-PC. Auch manipulierte Hardware kann gefährlich sein. Fundgeräte gehen nach Regel an die zuständige IT. Bei einem Vorfall gelten der Notfallplan, die Meldewege und die Beweissicherung. Unüberlegte Bereinigung kann Spuren vernichten.</p>',trap:'Ein beschreibbares Backup im gleichen erreichbaren Netz kann mitverschlüsselt werden. Auch ein Cloud-Laufwerk ist nicht automatisch eine unabhängige Sicherung.'},
+ {title:'Angriffe: Muster statt Panik',cat:'attack',ch:'ch6',goal:'Angriffsmuster unterscheiden und einen passenden Schutzansatz nennen.',intro:'<p>Viele Anfragen kommen in kurzer Zeit an. Ob du einen Angriff erkennst, hängt von Ziel und Muster ab. Viele Anfragen allein können auch der ganz gewöhnliche Montagmorgen sein.</p><p>Der Maildienst sieht viele fehlgeschlagene Logins. Doch nicht jeder Rateangriff läuft gleich. <b>Brute Force</b> probiert viele Kandidaten für ein Ziel. <b>Password Spraying</b> verteilt wenige häufige Passwörter auf viele Konten. <b>Credential Stuffing</b> testet schon gestohlene Zugangspaare bei anderen Diensten.</p><p><b>DoS</b> bedeutet Denial of Service: Ein Dienst wird unbenutzbar gemacht. <b>DDoS</b> ist die verteilte Form mit vielen Angriffsquellen. Bei einer <b>SQL-Injection</b> gelangen Daten als Befehle in eine Datenbankabfrage. Parametrisierte Abfragen trennen Werte von Code.</p>',visual:'<div class="security-flow"><b>Viele Kandidaten → Brute Force</b><b>Viele Konten → Spraying</b><b>Bekannte Paare → Stuffing</b></div>',memo:'Beschreibe Quelle, Ziel und Vorgehen. Ein Name hilft erst, wenn du das Muster verstanden hast.',example:'Gestohlene Shop-Zugangspaare werden beim Mailanbieter getestet. Welche Angriffsart ist das?',steps:['Die Kandidaten sind bereits bekannte Paare aus Benutzername und Passwort.','Der Angreifer nutzt die mögliche Wiederverwendung bei einem anderen Dienst.','Dieses Vorgehen heißt Credential Stuffing.','Ergebnis: <b>Credential Stuffing</b>. Einzigartige Passwörter und geeignete MFA begrenzen dieses Risiko.'],detail:'<h4>Verkehr umlenken</h4><p>Ein <b>Man-in-the-Middle</b> sitzt zwischen Kommunikationspartnern. <b>ARP-Spoofing</b> fälscht Zuordnungen zwischen IP- und MAC-Adressen im lokalen Netz. Ein <b>Evil Twin</b> imitiert einen echten WLAN-Zugangspunkt. Gleiche Namen beweisen keine Identität.</p><h4>Modellrechnung</h4><p>Erlaubt ein Testsystem 5 Versuche pro Minute, ergeben genau 12 volle Minuten höchstens 5 × 12 = 60 Versuche. Das ist ein klar definiertes Modell. Bei echten Diensten können Verzögerungen, Sperren, Parallelität und andere Begrenzungen gelten. Offline-Tests gegen entwendete Prüfwerte folgen nicht denselben Online-Limits.</p>',trap:'HTTPS schützt den Transport bei korrekter Prüfung. Auch eine Betrugsseite kann ein gültiges Zertifikat für ihre eigene Adresse besitzen.'},
+ {title:'Social Engineering: Chef sagt nein',cat:'social',ch:'ch7',goal:'Täuschungsmerkmale und sichere unabhängige Rückfragen erkennen.',intro:'<p>Der angebliche Chef schreibt von einer fremden Nummer. Die Überweisung soll sofort raus. Wenn ein Anruf über die bekannte Nummer alles klären kann, ist „bloß nicht anrufen“ ein ziemlich interessanter Zusatz.</p><p>Eine Mail vom angeblichen Chef verlangt sofort eine geheime Überweisung. Die technische Schwachstelle soll diesmal der Mensch sein. <b>Social Engineering</b> manipuliert Menschen, damit sie Informationen preisgeben oder Sicherheitsregeln umgehen.</p><p><b>Phishing</b> ködert Zugangsdaten oder Handlungen über gefälschte Nachrichten und Seiten. <b>Spear-Phishing</b> ist gezielt auf die Person vorbereitet. <b>Smishing</b> kommt per SMS, <b>Vishing</b> per Sprache oder Telefon. Häufige Hebel sind Zeitdruck, Angst, Neugier und angebliche Autorität.</p>',visual:'<div class="security-flow"><b>STOPP</b><b>Bekannten Kanal nutzen</b><b>Prüfen und melden</b></div>',memo:'Ein bekanntes Logo ist kopierbar. Ein bekannter, unabhängig gewählter Rückfrageweg ist wertvoller.',example:'Eine Chef-Mail enthält eine neue Telefonnummer und fordert eine sofortige Überweisung. Wie prüfst du den Auftrag?',steps:['Die Mail selbst ist die verdächtige Quelle. Ihre neue Telefonnummer ist daher kein unabhängiger Nachweis.','Verwende einen bereits bekannten Kontaktweg aus dem Firmenverzeichnis.','Prüfe den Auftrag zusätzlich nach den internen Freigaberegeln.','Ergebnis: Über die <b>bekannte Nummer</b> rückfragen, statt die mitgeschickte Nummer zu übernehmen.'],detail:'<h4>Die beliebten Köder</h4><p>Beim <b>Vorschussbetrug</b> soll eine Vorabgebühr den Weg zu einem angeblichen großen Gewinn oder Erbe öffnen. Beim <b>Tailgating</b> schleicht sich jemand hinter einer berechtigten Person durch eine gesicherte Tür. Ein erfundener plausibler Vorwand heißt <b>Pretexting</b>.</p><p>Einmalcodes, Passwörter und Freigaben bleiben bei der berechtigten Person. Viele unerwartete MFA-Anfragen können <b>MFA Fatigue</b> sein: Der Angreifer will Zustimmung durch Ermüdung. Nicht bestätigen, wenn kein eigener Login dahintersteht; nach Regel melden. Wer schon etwas eingegeben hat, meldet das rasch. Frühe Meldungen helfen mehr als Vertuschen.</p>',trap:'Nicht über den verdächtigen Link „zur Sicherheit anmelden“. Öffne den Dienst über einen bereits bekannten Weg.'},
+ {title:'Passwörter: Zufall schlägt Fantasie',cat:'pass',ch:'ch8',goal:'Faktoren unterscheiden und ein klar definiertes Zufallsmodell berechnen.',intro:'<p>Passwort123! sieht mit Ausrufezeichen sehr entschlossen aus. Ein vorhersehbares Muster bleibt trotzdem vorhersehbar. In den Rechenaufgaben steht deshalb ausdrücklich, wann die Zeichen wirklich zufällig gewählt werden.</p><p>„Passwort123!“ hat Großbuchstaben, Ziffern und ein Sonderzeichen. Trotzdem ist es ein bekanntes Muster. Einzigartige, ausreichend lange zufällige Kennwörter aus einem Passwortmanager vermeiden solche einfachen Wiederverwendungen. Passwortwechsel erfolgen bei Anlass wie Preisgabe; das Modul legt keine pauschale Zeichenlänge für jeden Dienst fest.</p><p><b>MFA</b> bedeutet Multi-Faktor-Authentisierung. Sie kombiniert unterschiedliche Kategorien: <b>Wissen</b> (Passwort), <b>Besitz</b> (Hardware-Schlüssel) und <b>Biometrie</b> (körperliches Merkmal). Passwort und zusätzliche PIN sind beides Wissen. FIDO2/WebAuthn kann die Anmeldung kryptografisch an den echten Dienst binden.</p>',visual:'<div class="security-flow"><b>Wissen</b><b>Besitz</b><b>Biometrie</b></div>',memo:'H = L × log₂(N) gilt nur bei unabhängiger, gleichverteilter Zufallsauswahl. Ein langes Muster ist keine Zufallsquelle.',example:'Ein Generator wählt 12 Zeichen unabhängig aus 64 gleich wahrscheinlichen Zeichen. Wie groß ist die Modell-Entropie?',steps:['Jede Position hat N = 64 Möglichkeiten. log₂(64) = 6, weil 2⁶ = 64.','Es gibt L = 12 unabhängig gewählte Positionen.','H = 12 × 6 = 72 Bit.','Ergebnis: <b>72 Bit im Zufallsmodell</b>. Für ein selbst erdachtes 12-Zeichen-Muster folgt diese Stärke nicht.'],detail:'<h4>Suchraum und Zeit</h4><p>Bei L unabhängigen Stellen aus N Zeichen mit erlaubter Wiederholung gibt es Nᴸ Möglichkeiten. Zehn mögliche Zeichen und vier Stellen ergeben 10⁴ = 10.000 Codes. Prüft ein hypothetischer Test 100 Kandidaten pro Sekunde ohne Wiederholung, dauert der vollständige Raum 100 Sekunden. Der Durchschnitt liegt bei gleichverteiltem Geheimnis ungefähr bei der Hälfte.</p><p>Reale Offline-Raten hängen von Hashverfahren und Hardware ab. Online bremsen zusätzliche Maßnahmen. Gewöhnliche Einmalcodes sind abphishbar; MFA ist nicht gleich MFA. Wiederherstellungscodes und Kontorücksetzung brauchen ebenfalls Schutz. Einen echten persönlichen Zugang oder ein echtes Passwort gibst du in diesen Laboren niemals ein.</p>',trap:'Zwei Kennwörter sind zwei Nachweise derselben Kategorie. Und ein Einmalcode ist nicht dafür da, einem vermeintlichen Supporter diktiert zu werden.'},
+ {title:'Netzschutz: Türsteher mit Regelwerk',cat:'net',ch:'ch9',goal:'Filter, Erkennung und Netztrennung gezielt unterscheiden.',intro:'<p>Die Firewall-Regel prüfst du an einer konkreten Verbindung. Wer sendet wohin, über welchen Dienst und welche Regel trifft zuerst zu? Die Regel „alles verbieten“ am Ende ist keine Zeitmaschine.</p><p>Ein öffentlicher Webserver braucht Verbindungen aus dem Internet, aber keinen freien Zugriff auf Personalakten. Eine <b>Firewall</b> erlaubt oder blockiert Verkehr nach Regeln. <b>Default Deny</b> bedeutet: Ohne passende Erlaubnis wird verworfen. Die Aufgaben geben an, ob die erste passende Regel entscheidet.</p><p>Eine <b>DMZ</b> (demilitarisierte Zone) trennt öffentliche Dienste vom internen Netz. <b>Segmentierung</b> teilt Netze in kontrollierte Bereiche. Ein <b>IDS</b> (Intrusion Detection System) erkennt und meldet. Ein <b>IPS</b> (Intrusion Prevention System) kann aktiv eingreifen.</p>',visual:'<div class="security-flow"><b>Internet</b><b>Firewall · DMZ</b><b>Kontrollierter LAN-Zugriff</b></div>',memo:'Nur benötigte Wege öffnen. Ein Alarm ist keine Blockade und ein erlaubter Port kein Gütesiegel.',example:'R1 erlaubt eine bestimmte HTTPS-Verbindung. R2 verbietet dieselbe Verbindung. Die Firewall verwendet „erste passende Regel“. Welche entscheidet?',steps:['Prüfe die Regeln von oben nach unten.','R1 passt bereits zu Quelle, Ziel und Dienst.','Nach der vorgegebenen Logik stoppt die Prüfung dort.','Ergebnis: <b>Regel 1</b> entscheidet. Die widersprechende Regel darunter kommt nicht mehr zum Zug.'],detail:'<h4>Grenzen kennen</h4><p><b>Stateful Inspection</b> berücksichtigt den Zustand einer Verbindung und ordnet Antwortpakete zu. Ein einfacher zustandsloser Paketfilter beurteilt einzelne Pakete ohne diesen Kontext. Regeln brauchen enge Quellen, Ziele und Dienste, dokumentierte Gründe und regelmäßige Überprüfung.</p><p>Ein Webzugriff über HTTPS kann trotzdem Schadcode transportieren. Verschlüsselung schützt den Transport; sie macht Inhalte nicht automatisch gutartig. IDS- und IPS-Systeme haben Erkennungsgrenzen und können Fehlalarme auslösen. VLANs schaffen ohne kontrollierte Übergänge keine vollständige Sicherheitsgrenze. Logging und Alarmreaktion müssen zur Organisation passen.</p>',trap:'Eine DMZ ist kein Freifahrtschein vom öffentlichen Webserver ins gesamte interne Netz. Gerade dieser Zugriff wird beschränkt.'},
+ {title:'Notfall: Plan schlägt hektisch',cat:'emergency',ch:'ch10',goal:'Reaktion, Wiederherstellung und zeitliche Ziele sicher einordnen.',intro:'<p>Der Dienst ist ausgefallen. Wie schnell soll er wieder da sein, und wie viele Änderungen dürfen fehlen? Zwei verschiedene Fragen. Das frisch gefundene Backup beantwortet erst mal nur, dass irgendwo ein Backup liegt.</p><p>Die Bestellannahme steht. Was muss zuerst wieder laufen, wer entscheidet und wie wird gearbeitet, bis die Technik zurück ist? <b>Business Continuity Management (BCM)</b> plant die Fortführung zeitkritischer Geschäftsprozesse. Die <b>Business Impact Analyse (BIA)</b> untersucht Unterbrechungsfolgen und Zeitbedarf.</p><p><b>RTO</b> (Recovery Time Objective) ist das angestrebte Zeitlimit bis zur Wiederherstellung. <b>RPO</b> (Recovery Point Objective) ist die maximal tolerierte Datenverlust-Zeitspanne. Der <b>Notfallplan</b> nennt Rollen, Meldewege und Schritte. Personenschutz hat bei Gefahr Vorrang.</p>',visual:'<div class="security-flow"><b>Eindämmen</b><b>Bereinigen</b><b>Geprüft wiederherstellen</b></div>',memo:'RTO fragt: Wie schnell wieder nutzbar? RPO fragt: Wie weit dürfen Daten zurückliegen?',example:'Ausfall um 10:40 Uhr. Der jüngste nutzbare Datenstand ist von 10:00 Uhr. Wie groß ist die mögliche Datenlücke?',steps:['Vergleiche Datenstand und Ausfallzeit, nicht die Dauer der Rücksicherung.','Von 10:00 Uhr bis 10:40 Uhr liegen 40 Minuten.','Änderungen aus dieser Zeit können fehlen.','Ergebnis: <b>40 Minuten</b>. Eine festgelegte RPO von 30 Minuten wäre damit nicht eingehalten.'],detail:'<h4>Koordiniert handeln</h4><p>Menschen schützen, nach Plan melden, den Schaden eindämmen, Ursache und Spuren untersuchen, bereinigen und kontrolliert wiederherstellen. Die genaue Reihenfolge und parallele Aufgaben hängen vom Vorfallplan ab. Pauschales Abschalten jedes Geräts kann Spuren vernichten; der Plan und die zuständige Einsatzleitung geben das Vorgehen vor.</p><p>Sicherungen müssen erreichbar, ausreichend getrennt und zurückspielbar sein. Schlüssel, Zugangsdaten, benötigte Software und Abhängigkeiten gehören dazu. Regelmäßige Rücksicherungstests prüfen Daten und Verfahren. Nach dem Vorfall folgen <b>Lessons Learned</b>: Erkenntnisse in konkrete Verbesserungen mit Zuständigen und Terminen überführen.</p>',trap:'Ein grünes Backupsymbol ist kein Wiederherstellungstest. RTO ist keine Datenverlustspanne, und RPO sagt nicht, wie lange die Reparatur dauert.'}
 ];
 
 function genTask(cat,lv,recent,subId){
@@ -1032,8 +1322,8 @@ function genTask(cat,lv,recent,subId){
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;if(!t.key)t.key=sub.id+'-'+t.prompt;return finP(t);
 }
 /* ================= Sprüche ================= */
-const Q_OK=['Richtig. Der Angreifer muss sich ein anderes Hobby suchen.','Sitzt. Dein Sicherheitskonzept hat gerade ein Fundament bekommen.','Sauber. Ein offener Port weniger im Kopf.','Korrekt. Der USB-Stick bleibt heute draußen.','Treffer. Die Firewall deines Bauchgefühls hat ein Update erhalten.','Richtig. Selbst der angebliche Chef muss jetzt warten.','Gut begründet. So wird aus Hoffnung eine Maßnahme.','Stark. Das war kein Glück, das war Lagebewertung.'];
-const Q_BAD=['Noch nicht. Lies die Begründung, bevor das Bauchgefühl wieder Adminrechte bekommt.','Daneben. Gut, dass hier nur die Übung brennt.','Nicht ganz. Der Fehler ist jetzt dokumentiert; als Nächstes wird er behoben.','Leider falsch. Aber besser hier als im echten Notfall.','Noch eine Lücke gefunden. Genau dafür gibt es Training.'];
+const Q_OK=["Stimmt. Damit kann man arbeiten, auch ohne Alarmton.", "Sauber entschieden. Die Begründung hält im nächsten Meeting.", "Passt. Erst der Befund, dann der große rote Knopf."];
+const Q_BAD=["Noch nicht. Welche Beobachtung im Fall grenzt die Lösung ein?", "Schau in den Lösungsweg. Beim nächsten Fall prüfst du genau diesen Unterschied.", "Der Befund passt noch nicht. Gut, dass hier die Übung einen Wiederanlaufplan hat."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat eine Sicherheitslücke geschlossen.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
 const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
 
@@ -1092,6 +1382,7 @@ function renderTask(host,t,o){
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
  host.innerHTML=h;
+ window.dtpMountCalculator?.(host,t,'sicherheit');
  const q=r=>host.querySelector('[data-r="'+r+'"]');
  let done=false,usedHint=!!o.hint;
  const tip=q('tip');if(tip)tip.addEventListener('click',()=>{q('hint').classList.remove('hidden');tip.hidden=true;usedHint=true});
@@ -1323,6 +1614,7 @@ function renderExamQ(){
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+((t.kind==='hex'||t.kind==='text')?'text':t.kind==='num'?'decimal':'numeric')+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'">'+(t.unit?'<span class="ans-unit">'+esc(t.unit)+'</span>':'')+'</div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
+ window.dtpMountCalculator?.($('examQ'),t,'sicherheit');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
  if(inp){const chk=()=>{const v=inp.value;ex.ans[i]=v.trim()?v:null;const p=v.trim()?parseAnswer(t,v):null;$('exFmt').innerHTML=p&&!p.valid?'<span style="color:var(--warn)">⚠ '+esc(p.msg)+' So würde die Antwort als falsch gewertet.</span>':(t.fmt||FMT[t.kind]);renderExamNav()};inp.addEventListener('input',chk);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});inp.focus({preventScroll:true});if(inp.value)chk()}

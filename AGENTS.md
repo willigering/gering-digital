@@ -26,3 +26,14 @@ Die ausgelieferte HTML-Datei nach der unveränderten Hauptüberschrift benennen,
 
 
 Für alle neuen und bestehenden Module gilt der gemeinsame Aufgabenfokus aus der Projektanleitung, Abschnitt „Aufgabenfokus“: Lernaufgaben stehen im zentrierten Dialog, der Hintergrund wird abgedunkelt und weichgezeichnet, die Rückkehr zur Lektion bleibt bedienbar. Die gemeinsame Umsetzung aus PR #76 ersetzt ältere, modulindividuelle B5-Fokuslösungen.
+
+
+## Vereinfachter Entwicklungs- und Veröffentlichungsworkflow (04.11.2026)
+
+- Ein Nutzerauftrag wird möglichst in einem zusammenhängenden Änderungsbranch und einem PR bearbeitet. Keine künstliche Aufteilung auf viele PRs.
+- Die KI bearbeitet die vereinbarten Schritte einschließlich Tests, Fehlerbehebungen, Integration und Abschlussbericht selbstständig, soweit ihre Werkzeuge und Berechtigungen dies zulassen. Keine wiederholten „Weiter“-Aufforderungen einfordern.
+- Standard: PR mit Tests, anschließend automatischer Merge, wenn GitHub dies zulässt und alle erforderlichen Prüfungen erfolgreich sind. Bei Fehlern nicht mergen; Probleme beheben und Tests erneut ausführen.
+- Ein Push auf main veröffentlicht erst nach erfolgreichen Hauptseiten-, Moduldesign-, PHP-/Browser- und XP-Regressionstests über den wiederverwendbaren STRATO-Deploy-Workflow. Separate manuelle Veröffentlichung über workflow_dispatch bleibt als Notfallweg verfügbar.
+- Bestehende Benutzerkonten, Lernstände, XP, Achievements und Serverdaten dürfen nicht überschrieben oder gelöscht werden. Änderungen müssen rückverfolgbar bleiben.
+- Bei sicherheitsrelevanten, destruktiven oder unklaren Eingriffen keine unbeaufsichtigte Veröffentlichung.
+- Eine Änderung gilt erst nach erfolgreichem Deployment und einer soweit technisch möglichen Liveprüfung als „live“; andernfalls den tatsächlichen Status melden.

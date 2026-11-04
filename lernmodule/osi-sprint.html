@@ -656,6 +656,296 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-MODULEINSTIEG END -->
+<!-- DTP-TASCHENRECHNER START -->
+<style>
+.dtp-calculator {
+  --calculator-accent: var(--cyan, #65dce0);
+  --calculator-shell: color-mix(in srgb, var(--calculator-accent) 8%, #101418);
+  --calculator-line: color-mix(in srgb, var(--calculator-accent) 28%, #151a1e);
+  color: inherit;
+  margin-top: .65rem;
+}
+.dtp-calculator > summary {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--calculator-line);
+  border-radius: 11px;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+}
+.dtp-calculator > summary::-webkit-details-marker { display: none; }
+.dtp-calculator[open] > summary,
+.dtp-calculator > summary:hover { border-color: var(--calculator-accent); }
+.dtp-calculator-panel {
+  box-sizing: border-box;
+  width: min(100%, 21rem);
+  margin-top: .55rem;
+  padding: .8rem;
+  border: 1px solid var(--calculator-line);
+  border-top: 2px solid var(--calculator-accent);
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--calculator-shell), #0c1013 75%);
+  box-shadow: 0 12px 26px #0005, inset 0 1px #fff1;
+}
+.dtp-calculator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .5rem;
+  color: var(--calculator-accent);
+  font: 700 .7rem/1.2 ui-monospace, monospace;
+  letter-spacing: .13em;
+}
+.dtp-calculator-display {
+  min-width: 0;
+  padding: .6rem .65rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 9px;
+  background: #080d10;
+  box-shadow: inset 0 2px 6px #0008;
+}
+.dtp-calculator-display label { display: grid; gap: .2rem; color: #bac6cd; font-size: .75rem; }
+.dtp-calculator-display input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: .15rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #edf5f8;
+  text-align: right;
+  font: 500 1rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display input::placeholder { color: #9cabb4; opacity: 1; }
+.dtp-calculator-display output {
+  display: block;
+  min-height: 1.55em;
+  margin-top: .25rem;
+  color: var(--calculator-accent);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font: 700 1.15rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display output:empty::before { content: '—'; opacity: .45; }
+.dtp-calculator-display output[data-error] { color: #ffbd8d; font: 500 .8rem/1.4 system-ui, sans-serif; }
+.dtp-calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .35rem;
+  margin-top: .6rem;
+}
+.dtp-calculator-panel button {
+  min-height: 44px;
+  padding: .2rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 8px;
+  background: linear-gradient(#222a30, #161d22);
+  box-shadow: 0 2px #050709, inset 0 1px #fff1;
+  color: #edf5f8;
+  font: 700 1rem/1 ui-monospace, monospace;
+  cursor: pointer;
+}
+.dtp-calculator-keys [data-tone="operator"] { background: var(--calculator-shell); color: var(--calculator-accent); }
+.dtp-calculator-keys [data-tone="equals"] { background: var(--calculator-accent); color: #081013; border-color: var(--calculator-accent); }
+.dtp-calculator-panel button:hover { border-color: var(--calculator-accent); filter: brightness(1.2); }
+.dtp-calculator-panel button:active { box-shadow: inset 0 2px 4px #0006; transform: translateY(1px); }
+.dtp-calculator-panel .dtp-calculator-clear { min-width: 44px; background: var(--calculator-shell); font-size: .8rem; }
+.dtp-calculator :focus-visible { outline: 2px solid var(--calculator-accent); outline-offset: 2px; }
+.dtp-calculator-prank { position: relative; margin-top: .65rem; }
+.dtp-calculator-prank:empty { display: none; }
+.dtp-calculator-prank button {
+  width: 100%;
+  border-style: dashed;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+  font-size: .85rem;
+}
+.dtp-calculator-dust { position: absolute; inset: 0; pointer-events: none; }
+.dtp-calculator-dust i { position: absolute; width: 3px; height: 3px; background: var(--calculator-accent); }
+.dtp-calculator-joke { margin: 0; }
+.dtp-calculator-joke:not(:empty) { margin-top: .5rem; }
+</style>
+<script>
+(() => {
+  'use strict';
+
+  const calculationTypes = {
+    osi: /^(d_count|d_topo|e_mss|e_frame|e_ttl|e_hops|o_seq)$/,
+    netzwerke: /^(b_rate|t_mesh|t_ports|t_meshr|t_meshd|c_coll|c_bcast|c_lenrest|s_flood|s_vlan|v_zero|v_bits|x_dom|mesh_freitext)$/,
+    ipv6: /^(b_total|b_block|b_hex|b_bytes|b_zeros|p_net|p_rest|u_iid|u_flip|u_mac|n_count|n_nth|n_number|n_need|n_last)$/,
+    dienste: /^(t_header|c_synack|c_ack|c_fin|d_t1|d_t2|n_ttl|i_ttl)$/
+  };
+  const jokes = [
+    'Haha, hättest du wohl gern?',
+    'Netter Versuch. Die Bits zählst du heute noch selbst.',
+    'Der Knopf war kurz vor der Lösung. Jetzt ist er Staub.',
+    'Umrechnen per Klick? Der Button hat sich gerade aus dem Staub gemacht.'
+  ];
+
+  function evaluate(expression) {
+    const source = expression.replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!source || source.length > 120) throw new Error();
+    const tokens = source.match(/\d+(?:\.\d*)?|\.\d+|[()+*/^%-]/g) || [];
+    if (tokens.join('') !== source) throw new Error();
+    let index = 0;
+    function primary() {
+      const token = tokens[index++];
+      if (token === '(') {
+        const value = sum();
+        if (tokens[index++] !== ')') throw new Error();
+        return value;
+      }
+      if (!token || !/^(?:\d|\.)/.test(token)) throw new Error();
+      return Number(token);
+    }
+    function power() {
+      if (tokens[index] === '+' || tokens[index] === '-') {
+        return (tokens[index++] === '-' ? -1 : 1) * power();
+      }
+      let value = primary();
+      if (tokens[index] === '%') {
+        index++;
+        value /= 100;
+      }
+      if (tokens[index] === '^') {
+        index++;
+        value **= power();
+      }
+      return value;
+    }
+    function product() {
+      let value = power();
+      while (tokens[index] === '*' || tokens[index] === '/') {
+        value = tokens[index++] === '*' ? value * power() : value / power();
+      }
+      return value;
+    }
+    function sum() {
+      let value = product();
+      while (tokens[index] === '+' || tokens[index] === '-') {
+        value = tokens[index++] === '+' ? value + product() : value - product();
+      }
+      return value;
+    }
+    const value = sum();
+    if (index !== tokens.length || !Number.isFinite(value)) throw new Error();
+    return Number(value.toPrecision(15)).toLocaleString('de-DE', {useGrouping: false, maximumSignificantDigits: 15});
+  }
+
+  function mount(host, task, module) {
+    const binary = module === 'zahlen' && (/^(b2d|d2b|calc|neg)$/.test(task.cat) || /^h_(b2h|h2b)$/.test(task.sub)) && task.sub !== 'n_method'
+      || module === 'subnet' && (/^o_(b2d|d2b|maskval|ones|and|bin2ip)$/.test(task.sub) || task.sub === 'm_bin')
+      || module === 'ipv6' && /^(u_iid|u_flip|u_mac)$/.test(task.sub);
+    const arithmetic = calculationTypes[module]?.test(task.sub)
+      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
+      || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
+      || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);
+    if (!binary && !arithmetic) return;
+
+    const box = document.createElement('details');
+    box.className = 'dtp-calculator';
+    box.innerHTML = '<summary aria-label="Taschenrechner" title="Taschenrechner">'
+      + '<svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="1.5" width="12" height="17" rx="2"/><path d="M7 5h6M7 9h2m2 0h2m-6 3h2m2 0h2m-6 3h2m2 0h2"/></svg></summary>';
+    box.addEventListener('toggle', function initialise() {
+      if (!box.open) return;
+      box.removeEventListener('toggle', initialise);
+      const panel = document.createElement('div');
+      panel.className = 'dtp-calculator-panel';
+      panel.innerHTML = '<div class="dtp-calculator-heading"><span aria-hidden="true">Taschenrechner</span>'
+        + '<button type="button" class="dtp-calculator-clear" aria-label="Rechnung löschen" title="Rechnung löschen">C</button></div>'
+        + '<div class="dtp-calculator-display"><label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<output aria-live="polite"></output></div><div class="dtp-calculator-keys"></div>';
+      const input = panel.querySelector('input');
+      const output = panel.querySelector('output');
+      const keys = panel.querySelector('.dtp-calculator-keys');
+      const button = label => {
+        const key = document.createElement('button');
+        key.type = 'button';
+        key.textContent = label;
+        return key;
+      };
+      const calculate = () => {
+        output.removeAttribute('data-error');
+        try { output.textContent = '= ' + evaluate(input.value); }
+        catch (_) {
+          output.setAttribute('data-error', '');
+          output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.';
+        }
+      };
+      panel.querySelector('.dtp-calculator-clear').addEventListener('click', () => {
+        input.value = output.textContent = '';
+        output.removeAttribute('data-error');
+      });
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=']) {
+        const key = button(label);
+        if (label === '=') {
+          key.dataset.tone = 'equals';
+          key.addEventListener('click', calculate);
+        } else {
+          if (!/[0-9,]/.test(label)) key.dataset.tone = 'operator';
+          key.addEventListener('click', () => {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
+          });
+        }
+        keys.append(key);
+      }
+      input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        event.stopPropagation();
+        calculate();
+      });
+      if (binary) {
+        const trick = button('Binär → Dezimal');
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.className = 'dtp-calculator-joke';
+        trick.addEventListener('click', () => {
+          message.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+          box.querySelector('summary').focus({preventScroll: true});
+          trick.disabled = true;
+          if (!matchMedia('(prefers-reduced-motion: reduce)').matches && trick.animate) {
+            const dust = document.createElement('span');
+            dust.className = 'dtp-calculator-dust';
+            dust.setAttribute('aria-hidden', 'true');
+            trick.after(dust);
+            const particles = Array.from({length: 18}, (_, index) => {
+              const grain = document.createElement('i');
+              grain.style.left = (index * 37 % 100) + '%';
+              grain.style.top = (index * 29 % 100) + '%';
+              dust.append(grain);
+              return grain.animate([
+                {opacity: 1, transform: 'translate(0, 0)'},
+                {opacity: 0, transform: 'translate(' + ((index * 13 % 75) - 37) + 'px, ' + (-12 - index * 7 % 28) + 'px) scale(.3)'}
+              ], {duration: 480, delay: index % 4 * 35, fill: 'both'}).finished;
+            });
+            trick.animate([{opacity: 1}, {opacity: 0, filter: 'blur(4px)'}], {duration: 420, fill: 'forwards'});
+            Promise.allSettled(particles).then(() => { trick.remove(); dust.remove(); });
+          } else trick.remove();
+        }, {once: true});
+        const prank = document.createElement('div');
+        prank.className = 'dtp-calculator-prank';
+        prank.append(trick);
+        panel.append(prank, message);
+      }
+      box.append(panel);
+    });
+    host.append(box);
+  }
+  window.dtpMountCalculator = mount;
+})();
+</script>
+<!-- DTP-TASCHENRECHNER END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -666,7 +956,7 @@ body.dtp-exercise-open{overflow:hidden}
     <div>
       <div class="kicker"><span class="live-dot"></span> NETZWERKE <b>//</b> OSI-MODELL <b>//</b> MODUL B1</div>
       <h1>Easy OSI <span>for FISI.</span></h1>
-      <p class="hero-lead">Sieben Schichten. Null Ausreden. Von der Bitübertragung bis zur Anwendung: PDUs, Adressen, Kapselung, Geräte, Ports und Fehlersuche. Wenn das Netz streikt, weißt du ab heute, auf welcher Etage du klingeln musst.</p>
+      <p class="hero-lead">Sieben Schichten zwischen Browser und Kabel. Von der Bitübertragung bis zur Anwendung: PDUs, Adressen, Kapselung, Geräte, Ports und Fehlersuche. Wenn das Netz streikt, weißt du ab heute, auf welcher Etage du klingeln musst.</p>
       <div class="hero-meta"><span><b>10</b> Stufen</span><span><b>10</b> Kapitel</span><span><b id="heroTypes">50+</b> Aufgabentypen</span><span>Lernen · Üben · Verstehen</span></div>
     </div>
     <div class="layerwall" id="layerwall" aria-hidden="true"></div>
@@ -744,8 +1034,8 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Warum überhaupt Schichten?</h3><p>Ein großes Problem wird in sieben kleine, austauschbare Aufgaben zerlegt.</p></div></div>
-      <p>Du öffnest am Windows-Laptop eine Webseite, die auf einem Linux-Server liegt. Damit die Anfrage ankommt, muss das Signal raus, der nächste Empfänger erreicht und der Weg durch die Netze gefunden werden. Auch Zeichenformat und Anwendungsprotokoll müssen passen. Beim Support ist die Aufteilung Gold wert. Wenn der Stecker draußen ist, kann der Webserver noch so motiviert sein. Das <strong>OSI-Referenzmodell</strong> (Open Systems Interconnection) ordnet diese Aufgaben in <strong>sieben Schichten</strong>. Es wurde von der ISO als <strong>ISO 7498</strong> (1984, überarbeitet als <strong>ISO/IEC 7498-1:1994</strong>) und textgleich von der ITU-T als <strong>Empfehlung X.200</strong> veröffentlicht <a href="#src1" class="ref-link">[1]</a> <a href="#src2" class="ref-link">[2]</a>.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Warum überhaupt Schichten?</h3><p>Ein großes Problem wird in sieben kleine, austauschbare Aufgaben zerlegt.</p></div></div><p>Eine Website lädt. Dabei passiert einiges zwischen Browser und Netzwerkkabel. Im OSI-Modell sortierst du diese Aufgaben in sieben Schichten. So kannst du später sagen, wo es klemmt, statt dem Internet insgesamt zu kündigen.</p>
+      <p>Damit ein Browser auf einem Windows-Laptop mit einem Webserver unter Linux sprechen kann, müssen sehr viele Dinge zusammenpassen: Stecker und Signale, lokale Zustellung, Wegewahl durchs Internet, Zuverlässigkeit, Zeichenformate und schließlich das Anwendungsprotokoll. Das <strong>OSI-Referenzmodell</strong> (Open Systems Interconnection) ordnet diese Aufgaben in <strong>sieben Schichten</strong>. Es wurde von der ISO als <strong>ISO 7498</strong> (1984, überarbeitet als <strong>ISO/IEC 7498-1:1994</strong>) und textgleich von der ITU-T als <strong>Empfehlung X.200</strong> veröffentlicht <a href="#src1" class="ref-link">[1]</a> <a href="#src2" class="ref-link">[2]</a>.</p>
       <div class="two">
         <div class="box"><h4>Die Grundregeln</h4><ul><li>Jede Schicht <strong>bietet der Schicht darüber einen Dienst</strong> an und <strong>nutzt den Dienst der Schicht darunter</strong>.</li><li>Gleiche Schichten auf zwei Rechnern sprechen über ein <strong>Protokoll</strong> miteinander (horizontal). Tatsächlich übertragen wird aber nur auf Schicht 1.</li><li>Die Schnittstellen zwischen den Schichten heißen <strong>Dienstzugangspunkte</strong> (SAP).</li></ul></div>
         <div class="box"><h4>Was du davon hast</h4><ul><li><strong>Austauschbarkeit:</strong> WLAN statt Kabel? Nur Schicht 1 und 2 ändern sich, der Browser merkt nichts.</li><li><strong>Gemeinsame Sprache:</strong> „Das ist ein Layer-2-Problem“ versteht jede Admin.</li><li><strong>Fehlersuche:</strong> Man prüft Schicht für Schicht und grenzt systematisch ein.</li></ul></div>
@@ -760,7 +1050,7 @@ body.dtp-exercise-open{overflow:hidden}
     </section>
 
     <section id="ch2" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Die sieben Schichten im Detail</h3><p>Aufgabe, Dateneinheit, Adressen, typische Protokolle und Geräte. Klick dich durch.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Die sieben Schichten im Detail</h3><p>Aufgabe, Dateneinheit, Adressen, typische Protokolle und Geräte. Klick dich durch.</p></div></div><p>Ein Datenstück geht unterwegs verloren und muss erneut gesendet werden. Frag, welche Schicht für genau diese Aufgabe zuständig ist. Die Frage nach dem kaputten Kabel wäre eine andere Schicht.</p>
       <div class="lab"><div class="lab-head"><strong>SCHICHTEN-EXPLORER</strong><span class="tag">Schicht anklicken</span></div>
         <div class="explorer"><div class="stack" id="explorerStack" role="group" aria-label="OSI-Schichten"></div><div class="layer-detail" id="explorerDetail" aria-live="polite"></div></div>
       </div>
@@ -781,7 +1071,7 @@ body.dtp-exercise-open{overflow:hidden}
     </section>
 
     <section id="ch3" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Dateneinheiten (PDUs) und Adressen</h3><p>Jede Schicht gibt ihrem Datenpaket einen eigenen Namen, und manche eine eigene Adresse.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Dateneinheiten (PDUs) und Adressen</h3><p>Jede Schicht gibt ihrem Datenpaket einen eigenen Namen, und manche eine eigene Adresse.</p></div></div><p>Im Mitschnitt steht Frame. Damit weißt du, dass du gerade die lokale Übertragung auf Schicht 2 ansiehst. Für die IP-Adressen schaust du ins Paket darin. Zwei Adressarten, und ausnahmsweise ist keine doppelt gemoppelt.</p>
       <p>Die Dateneinheit einer Schicht heißt <strong>PDU</strong> (Protocol Data Unit). Sie besteht aus den Nutzdaten der Schicht darüber (<strong>SDU</strong>, Service Data Unit) plus dem eigenen Header. Wer die PDU-Namen kennt, erkennt in jeder Aufgabe sofort, über welche Schicht gesprochen wird.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Schicht</th><th>PDU</th><th>Adresse</th><th>Beispiel</th><th>Länge</th></tr></thead><tbody>
         <tr><td><span class="lnum" style="--lc:var(--l7)">5–7</span></td><td>Daten / Nachricht</td><td>– (Anwendung nutzt z. B. Hostnamen, URLs)</td><td class="m">www.example.de</td><td>–</td></tr>
@@ -802,7 +1092,7 @@ body.dtp-exercise-open{overflow:hidden}
     </section>
 
     <section id="ch4" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Kapselung und Entkapselung</h3><p>Beim Senden kommen Angaben wie Ports und Adressen dazu. Beim Empfänger werden sie Schicht für Schicht gelesen. So findet der Inhalt den richtigen Dienst.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Kapselung und Entkapselung</h3><p>Beim Senden kommt auf jeder Schicht ein Umschlag dazu. Beim Empfänger wird ausgepackt.</p></div></div><p>Beim Senden kommen pro Schicht die passenden Steuerinformationen dazu. Auf dem Rückweg liest die Gegenseite sie in umgekehrter Reihenfolge. Beim Auspacken hilft es, den äußeren Umschlag zuerst zu öffnen.</p>
       <p>Beim Senden reicht jede Schicht ihre Daten nach unten weiter. Die Schicht darunter behandelt alles als Nutzlast und setzt ihren eigenen <strong>Header</strong> davor, wie ein Brief, der in immer neue Umschläge gesteckt wird. Das heißt <strong>Kapselung</strong> (Encapsulation). Schicht 2 hängt zusätzlich einen <strong>Trailer</strong> an: die Prüfsumme <strong>FCS</strong> (Frame Check Sequence, ein CRC-Wert). Beim Empfänger läuft alles umgekehrt: <strong>Entkapselung</strong> von unten nach oben.</p>
       <div class="lab"><div class="lab-head"><strong>KAPSELUNGS-LABOR</strong><span class="tag">Schritt für Schritt</span></div>
         <p class="subtle" style="margin-top:0">Ein Browser sendet eine HTTP-Anfrage. Klicke auf „Eine Schicht tiefer“ und beobachte, was jede Schicht hinzufügt.</p>
@@ -838,7 +1128,7 @@ Rahmen auf dem Kabel = 1.500 + 14 + 4 = 1.518 Byte</div></div>
     </section>
 
     <section id="ch5" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Netzwerkgeräte, Kollisions- und Broadcastdomänen</h3><p>Schau, welche Information das Gerät für seine Entscheidung braucht. Der Hub wiederholt Signale, der Switch schaut auf MAC-Adressen, der Router auf IP-Adressen.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Netzwerkgeräte, Kollisions- und Broadcastdomänen</h3><p>Ein Gerät gehört zur höchsten Schicht, deren Informationen es auswertet.</p></div></div><p>Der Hub verteilt Signale, der Switch schaut auf MAC-Adressen, der Router auf IP-Adressen. Welches Gerät du brauchst, entscheidet die Aufgabe. Drei blinkende Kästen sind leider noch kein Konzept.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Gerät</th><th>Schicht</th><th>Wertet aus</th><th>Was es tut</th></tr></thead><tbody>
         <tr><td>Repeater, Hub, Medienkonverter</td><td><span class="lnum" style="--lc:var(--l1)">1</span></td><td>nur Signale</td><td>verstärkt bzw. wiederholt Signale. Ein Hub schickt alles an alle Ports</td></tr>
         <tr><td>Bridge, Switch, WLAN-Access-Point</td><td><span class="lnum" style="--lc:var(--l2)">2</span></td><td>MAC-Adressen</td><td>lernt MAC-Adressen in der MAC-Adresstabelle (CAM) und leitet gezielt an einen Port weiter</td></tr>
@@ -865,7 +1155,7 @@ Kollisionsdomänen: 6 · Broadcastdomänen: 2</div></div>
     </section>
 
     <section id="ch6" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">06</span><div><h3>OSI-Modell und TCP/IP-Modell</h3><p>Sieben Schichten im Referenzmodell, vier im Internet-Modell.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">06</span><div><h3>OSI-Modell und TCP/IP-Modell</h3><p>Sieben Schichten im Referenzmodell, vier im Internet-Modell.</p></div></div><p>OSI hat sieben Schichten. Das TCP/IP-Modell fasst Aufgaben gröber zusammen. Beim Wechsel zwischen den Modellen ordnest du Funktionen zu. Die Schichtnummer einfach mitzunehmen spart nur scheinbar Zeit.</p>
       <p>Das <strong>TCP/IP-Modell</strong> (auch DoD- oder Internet-Modell) beschreibt die Protokollfamilie, auf der das Internet tatsächlich läuft. <strong>RFC 1122</strong> nennt vier Schichten: Application, Transport, Internet und Link <a href="#src5" class="ref-link">[5]</a>. In deutschen Lehrbüchern heißt die unterste meist <strong>Netzzugangsschicht</strong>. Manche Lehrbücher (z. B. Tanenbaum, Kurose/Ross) nutzen ein <strong>hybrides Fünf-Schichten-Modell</strong>, das die Netzzugangsschicht wieder in Bitübertragung und Sicherung trennt <a href="#src9" class="ref-link">[9]</a> <a href="#src10" class="ref-link">[10]</a>.</p>
       <div class="map-grid" id="mapGrid" aria-label="Zuordnung OSI zu TCP/IP"></div>
       <div class="two">
@@ -877,7 +1167,7 @@ Kollisionsdomänen: 6 · Broadcastdomänen: 2</div></div>
     </section>
 
     <section id="ch7" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Ports, TCP und UDP</h3><p>Schicht 4 entscheidet, welches Programm die Daten bekommt und wie zuverlässig sie ankommen.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Ports, TCP und UDP</h3><p>Schicht 4 entscheidet, welches Programm die Daten bekommt und wie zuverlässig sie ankommen.</p></div></div><p>Ein Server bietet Web und SSH unter derselben IP an. Die Ports helfen bei der Zuordnung zur richtigen Anwendung. Der Webaufruf soll schließlich nicht beim Kollegen im Terminal landen.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead><tbody>
         <tr><td>Verbindung</td><td>verbindungsorientiert (Drei-Wege-Handshake)</td><td>verbindungslos</td></tr>
         <tr><td>Zuverlässigkeit</td><td>Bestätigungen (ACK), Neusenden, richtige Reihenfolge</td><td>keine Garantie, keine Reihenfolge</td></tr>
@@ -900,7 +1190,7 @@ Client → Server: ACK      Seq=1001  ACK=5001</div><p>Die <strong>ACK-Nummer</s
     </section>
 
     <section id="ch8" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">08</span><div><h3>Fehlersuche mit dem OSI-Modell</h3><p>Systematisch statt raten: Schicht für Schicht eingrenzen.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">08</span><div><h3>Fehlersuche mit dem OSI-Modell</h3><p>Systematisch statt raten: Schicht für Schicht eingrenzen.</p></div></div><p>Bei der Fehlersuche lohnt sich der Blick auf die Link-LED, bevor du den DNS-Server neu einrichtest. Eine Etage höher zu suchen bringt wenig, wenn die Treppe unten fehlt.</p>
       <div class="two">
         <div class="box"><h4>Bottom-up</h4><p>Von Schicht 1 nach oben: Kabel, Link-LED → VLAN, MAC → IP-Konfiguration, Gateway → Ports → Dienst. Gründlich und für Einsteiger der sicherste Weg, wenn „gar nichts geht“.</p></div>
         <div class="box"><h4>Top-down</h4><p>Von der Anwendung nach unten. Sinnvoll, wenn nur <strong>eine</strong> Anwendung streikt, andere aber laufen. Dann sind die unteren Schichten sehr wahrscheinlich in Ordnung.</p></div>
@@ -1159,7 +1449,7 @@ const WORDS=[[7,'Alle'],[6,'Deutschen'],[5,'Studenten'],[4,'Trinken'],[3,'Versch
 const NB='(nur die Schicht zählt, die Namen siehst du erst nach der Antwort)';
 
 /* ---------- names: Schichten & Reihenfolge ---------- */
-S('names','n_num','Nummer einer Schicht',1,()=>{const n=1+rnd(7);return DEC('nn'+n,P('Geben Sie an, die wievielte Schicht des OSI-Referenzmodells die '+K(L[n].de)+' ist.','Das OSI-Modell hat 7 Schichten. Schicht 1 liegt ganz unten beim Kabel, Schicht 7 ganz oben beim Programm. Welche Nummer hat die '+K(L[n].de)+'?'),n,'Die '+L[n].de+' ('+L[n].en+') ist Schicht '+n+'. Merksatz von oben: <strong>A</strong>lle <strong>D</strong>eutschen <strong>S</strong>tudenten <strong>T</strong>rinken <strong>V</strong>erschiedene <strong>S</strong>orten <strong>B</strong>ier.','Zahl von 1 bis 7')});
+S('names','n_num','Nummer einer Schicht',1,()=>{const n=1+rnd(7);return DEC('nn'+n,P('Welche Nummer hat im OSI-Modell die '+K(L[n].de)+'?','Das OSI-Modell hat 7 Schichten. Schicht 1 liegt ganz unten beim Kabel, Schicht 7 ganz oben beim Programm. Welche Nummer hat die '+K(L[n].de)+'?'),n,'Die '+L[n].de+' ('+L[n].en+') ist Schicht '+n+'. Merksatz von oben: <strong>A</strong>lle <strong>D</strong>eutschen <strong>S</strong>tudenten <strong>T</strong>rinken <strong>V</strong>erschiedene <strong>S</strong>orten <strong>B</strong>ier.','Zahl von 1 bis 7')});
 S('names','n_de','Deutscher Name einer Schicht',1,()=>{const n=1+rnd(7);return mc(P('Wie lautet die deutsche Bezeichnung der '+K('Schicht '+n)+' im OSI-Referenzmodell?','Welcher deutsche Name gehört zur '+K('Schicht '+n)+'? (Schicht 1 ist ganz unten, Schicht 7 ganz oben.)'),L[n].de,DENAMES,'Schicht '+n+' ist die '+L[n].de+' ('+L[n].en+').',{key:'nd'+n})});
 S('names','n_en','Englisch → Deutsch',1,()=>{const n=1+rnd(7);return mc(P('Welcher deutschen Schichtbezeichnung entspricht der '+K(L[n].en)+'?','In englischen Unterlagen heißt eine Schicht '+K(L[n].en)+'. Wie heißt sie auf Deutsch?'),L[n].de,DENAMES,L[n].en+' = '+L[n].de+' (Schicht '+n+').',{key:'ne'+n})});
 S('names','n_en2','Deutsch → Englisch',2,()=>{const n=1+rnd(7);return mc(P('Wie lautet die englische Bezeichnung der '+K(L[n].de)+'?','Herstellerhandbücher sind meist auf Englisch. Wie heißt die '+K(L[n].de)+' dort?'),L[n].en,ENNAMES,L[n].de+' = '+L[n].en+' (Schicht '+n+').',{key:'nE'+n})});
@@ -1185,7 +1475,7 @@ S('func','f_concept','Grundbegriffe',1,()=>pick([
  ()=>mc(P('Wie nennt man die Regeln, nach denen '+K('gleiche Schichten')+' zweier Systeme miteinander kommunizieren?','Schicht 4 auf Rechner A spricht mit Schicht 4 auf Rechner B. Wie heißen die vereinbarten Regeln dafür?'),'Protokoll',['Dienst','Schnittstelle','Topologie'],'Gleiche Schichten sprechen über ein <strong>Protokoll</strong> (horizontal). Übereinander liegende Schichten nutzen <strong>Dienste</strong> (vertikal).',{key:'fc1'}),
  ()=>mc(P('Wie heißt die Stelle, an der eine Schicht der darüberliegenden Schicht ihren Dienst anbietet?','Zwischen zwei übereinander liegenden Schichten gibt es eine Übergabestelle. Wie heißt sie?'),'Dienstzugangspunkt (SAP)',['Protokolldateneinheit (PDU)','Standardgateway','Prüfsumme (FCS)'],'Ein Service Access Point (SAP) ist die Schnittstelle zwischen zwei benachbarten Schichten.',{key:'fc2'}),
  ()=>mc(P('Auf welcher Schicht findet die tatsächliche '+K('physische Übertragung')+' der Daten statt?','Alle Schichten „reden“ miteinander, aber nur eine schickt wirklich Signale über das Kabel. Welche?'),'Nur auf Schicht 1',['Auf jeder Schicht','Auf Schicht 2','Auf Schicht 7'],'Die Schichten 2 bis 7 kommunizieren nur logisch. Wirklich übertragen werden Bits erst auf Schicht 1.',{key:'fc3'}),
- ()=>mc(P('Welcher Vorteil ergibt sich aus der Aufteilung in Schichten?','Warum teilt man Netzwerkkommunikation überhaupt in Schichten auf? Was bringt das?'),'Eine Schicht kann ausgetauscht werden, ohne dass sich die anderen ändern',['Die Datenübertragung wird dadurch automatisch verschlüsselt','Es werden weniger Kabel benötigt','Jede Schicht braucht ein eigenes Gerät'],'Beispiel: WLAN statt Kabel ändert nur Schicht 1 und 2. Der Browser merkt davon nichts.',{key:'fc4'}),
+ ()=>mc(P('Was bringt es, Netzwerkaufgaben auf mehrere Schichten zu verteilen?','Warum teilt man Netzwerkkommunikation überhaupt in Schichten auf? Was bringt das?'),'Eine Schicht kann ausgetauscht werden, ohne dass sich die anderen ändern',['Die Datenübertragung wird dadurch automatisch verschlüsselt','Es werden weniger Kabel benötigt','Jede Schicht braucht ein eigenes Gerät'],'Beispiel: WLAN statt Kabel ändert nur Schicht 1 und 2. Der Browser merkt davon nichts.',{key:'fc4'}),
  ()=>mc(P('Was erhält eine Schicht beim Senden von der Schicht direkt darüber?','Beim Senden reicht jede Schicht etwas nach unten weiter. Was bekommt die nächste Schicht?'),'Nutzdaten (SDU), die sie mit einem eigenen Header versieht',['Nur die Zieladresse','Ein fertiges elektrisches Signal','Nichts, jede Schicht erzeugt eigene Daten'],'Die Daten von oben sind für die Schicht darunter Nutzlast (SDU). Sie setzt ihren Header davor, so entsteht ihre PDU.',{key:'fc5'})
 ])());
 
@@ -1398,60 +1688,60 @@ const VIS={
 /* Die ersten 8 Stufen stehen an derselben Position wie in Version 1.x, damit gespeicherter Fortschritt passt. */
 const STAGES=[
  {title:'Die 7 Schichten',cat:'names',ch:'ch2',goal:'Alle sieben Schichten mit Nummer, deutschem und englischem Namen sicher nennen.',vis:'stack',
-  intro:'Du klickst auf einen Link. Der Browser formuliert die Anfrage. Die Netzwerkkarte kümmert sich darum, dass Bits als Signale rausgehen. Dazwischen wird unter anderem entschieden, wohin die Daten sollen. Das OSI-Referenzmodell sortiert diese Aufgaben in sieben Schichten. Jede nutzt die Dienste der Schicht direkt darunter. Wenn der Stecker draußen ist, kann der Webserver noch so motiviert sein.',
+  intro:'Eine Website lädt. Dabei passiert einiges zwischen Browser und Netzwerkkabel. Im OSI-Modell sortierst du diese Aufgaben in sieben Schichten. So kannst du später sagen, wo es klemmt, statt dem Internet insgesamt zu kündigen. Das OSI-Referenzmodell (ISO/IEC 7498-1) teilt die Kommunikation zwischen zwei Rechnern in sieben Schichten. Jede Schicht erledigt eine klar umrissene Aufgabe und nutzt nur die Dienste der Schicht direkt darunter. Wer die Reihenfolge im Schlaf kann, kann jede weitere Frage einordnen.',
   example:'Du rufst im Browser eine Webseite auf. Welche Schichten durchläuft deine Anfrage auf dem eigenen PC?',
   steps:['<strong>Schicht 7, Anwendung:</strong> Der Browser formuliert eine HTTP-Anfrage („GET /index.html“).','<strong>Schicht 6, Darstellung:</strong> Die Zeichen werden kodiert (z. B. UTF-8), bei HTTPS wird verschlüsselt.','<strong>Schicht 5, Sitzung:</strong> Die Kommunikationssitzung wird aufgebaut und verwaltet.','<strong>Schicht 4, Transport:</strong> TCP verpackt die Daten in Segmente mit Zielport 443.','<strong>Schicht 3, Vermittlung:</strong> IP ergänzt Quell- und Ziel-IP-Adresse.','<strong>Schicht 2, Sicherung:</strong> Ethernet bildet einen Rahmen mit MAC-Adressen und Prüfsumme.','<strong>Schicht 1, Bitübertragung:</strong> Die Netzwerkkarte sendet die Bits als Signale über das Kabel.'],
   memo:'<strong>Merksatz von 7 nach 1:</strong> Alle Deutschen Studenten Trinken Verschiedene Sorten Bier. <strong>Englisch von 1 nach 7:</strong> Please Do Not Throw Sausage Pizza Away.'},
  {title:'Aufgaben der Schichten',cat:'func',ch:'ch2',goal:'Zu einer beschriebenen Aufgabe die zuständige Schicht bestimmen.',vis:'jobs',
-  intro:'Frag zuerst, was gerade schiefgeht. Kommt kein Signal an? Landet der Rahmen am falschen Gerät im LAN? Oder fehlt ein Stück der Übertragung? Das sind verschiedene Aufgaben. Wer bei jeder Störung gleich DNS sagt, liegt irgendwann richtig. Für die anderen Tickets hilft das Schichtenmodell.',
+  intro:'Ein Datenstück geht unterwegs verloren und muss erneut gesendet werden. Frag, welche Schicht für genau diese Aufgabe zuständig ist. Die Frage nach dem kaputten Kabel wäre eine andere Schicht. Jede Schicht beantwortet eine eigene Leitfrage. Wenn du eine Aufgabe zuordnen sollst, stellst du dir die Leitfragen von unten nach oben und nimmst die erste, die wirklich passt.',
   example:'Welche Schicht sorgt dafür, dass ein unterwegs verlorenes Datenstück erneut gesendet wird?',
   steps:['Geht es um Signale oder Kabel? Nein, es geht um ganze Datenstücke, also <strong>nicht Schicht 1</strong>.','Lokale Zustellung per MAC? Schicht 2 erkennt Fehler per FCS und <strong>verwirft</strong> defekte Rahmen, fordert bei Ethernet aber nichts neu an.','Weg durchs Netz? Schicht 3 (IP) arbeitet nach „best effort“ und garantiert keine Zustellung.','Ende-zu-Ende zwischen zwei Programmen, mit Bestätigung und Neusenden: Das ist TCP auf <strong>Schicht 4</strong>.'],
   memo:'Die Leitfragen: <strong>1</strong> Kommt das Signal an? <strong>2</strong> Erreicht der Rahmen den Nachbarn im LAN? <strong>3</strong> Findet das Paket das Zielnetz? <strong>4</strong> Erreichen die Daten vollständig den richtigen Prozess? <strong>5</strong> Steht der Dialog? <strong>6</strong> Passt das Format? <strong>7</strong> Funktioniert der Dienst?'},
  {title:'PDUs & Adressen',cat:'pdu',ch:'ch3',goal:'Dateneinheit und Adressart jeder Schicht kennen und Ziel-MAC sowie Ziel-IP richtig bestimmen.',vis:'pdu',
-  intro:'Beim Senden hat jede Schicht ihre eigene Dateneinheit. Das Fachwort dafür ist PDU. Der Port nennt den Dienst, die Ziel-IP das Zielgerät und die Ziel-MAC den nächsten Empfänger auf dem lokalen Abschnitt. Der Router ist bei einem Ziel im Internet also die nächste Station. Er muss deswegen noch lange nicht die Webseite hosten.',
+  intro:'Im Mitschnitt steht Frame. Damit weißt du, dass du gerade die lokale Übertragung auf Schicht 2 ansiehst. Für die IP-Adressen schaust du ins Paket darin. Zwei Adressarten, und ausnahmsweise ist keine doppelt gemoppelt. Jede Schicht nennt ihre Dateneinheit (PDU) anders, und die Schichten 2, 3 und 4 haben jeweils eine eigene Adresse. Diese Begriffe verraten dir in jeder Prüfungsfrage sofort, um welche Schicht es geht. Und sie erklären die Lieblingsfalle der IHK: Welche MAC steht im Rahmen?',
   example:'Dein PC (192.168.1.20/24) ruft einen Webserver im Internet per HTTPS auf. Welche Adressen stehen in den Headern?',
   steps:['<strong>Schicht 4 (Segment):</strong> Quellport zufällig, z. B. 51734. Zielport 443 für HTTPS.','<strong>Schicht 3 (Paket):</strong> Quell-IP 192.168.1.20. Ziel-IP ist die öffentliche IP des Webservers.','<strong>Schicht 2 (Rahmen):</strong> Quell-MAC deiner Netzwerkkarte. Ziel-MAC ist die des <strong>Standardgateways</strong>, nicht die des Webservers! Der Server liegt in einem anderen Netz. Die Gateway-MAC holt sich der PC per ARP.','<strong>Gegenprobe:</strong> Läge der Server im eigenen Netz 192.168.1.0/24, ginge der Rahmen direkt an die MAC des Servers.','<strong>Schicht 1 (Bits):</strong> keine Adressen, nur Signale auf dem Kabel.'],
   memo:'PDU von unten: <strong>Bit → Rahmen → Paket → Segment → Daten</strong>. Adressen: <strong>MAC (48 Bit) · IP (32/128 Bit) · Port (16 Bit)</strong>. Ziel im fremden Netz → Ziel-MAC = Gateway, Ziel-IP = Server.'},
  {title:'Protokolle & Standards',cat:'proto',ch:'ch9',goal:'Gängige Protokolle, Formate und Standards der richtigen Schicht zuordnen und benennen.',vis:'proto',
-  intro:'Ordne ein Protokoll danach ein, was es tut. TCP arbeitet mit Ports und bestätigt Daten. IP sorgt für Adressierung und Weiterleitung zwischen Netzen. DNS liefert Namensauflösung für Anwendungen. Ein Protokoll bekommt seine Schicht nach seiner Aufgabe. DHCP steigt also nicht auf Schicht 3 um, nur weil es IP-Adressen verteilt.',
+  intro:'Du siehst ein Protokoll im Mitschnitt. Frag zuerst, was es erledigt. Ein Name mit drei Buchstaben sagt über die Schicht ungefähr so viel wie das Passwort auf dem Post-it über die Sicherheit. In Prüfungen kommen immer wieder dieselben Protokolle vor. Ordne sie nicht nach Gefühl ein, sondern nach dem, womit sie arbeiten: Ports, IP-Adressen, MAC-Adressen, Signale oder ein Dienst für eine Anwendung.',
   example:'Ordne DNS, TCP, IPv4 und Ethernet den Schichten zu.',
   steps:['<strong>DNS</strong> übersetzt Namen in IP-Adressen. Ein Dienst für Anwendungen, also <strong>Schicht 7</strong> (läuft über UDP/TCP Port 53).','<strong>TCP</strong> arbeitet mit Ports, Verbindungen und Bestätigungen: <strong>Schicht 4</strong>.','<strong>IPv4</strong> adressiert logisch und wird geroutet: <strong>Schicht 3</strong>.','<strong>Ethernet</strong> bildet Rahmen mit MAC-Adressen: <strong>Schicht 2</strong> (die Kabelnorm 1000BASE-T gehört zu Schicht 1).'],
   memo:'<strong>Falle DHCP:</strong> verteilt IP-Adressen, ist aber ein Anwendungsprotokoll (7). <strong>Falle ICMP:</strong> steckt im IP-Paket, gehört aber zu Schicht 3. <strong>ARP:</strong> zwischen 2 und 3, meist als 2 gezählt.'},
  {title:'Geräte & Domänen',cat:'dev',ch:'ch5',goal:'Netzwerkgeräte einordnen, Domänen in ganzen Topologien zählen und Switch-Entscheidungen erklären.',vis:'dev',
-  intro:'Ein Hub wiederholt Signale an die anderen Ports. Ein Switch schaut auf MAC-Adressen. Ein Router liest IP-Adressen und verbindet Netze. An diesen Infos erkennst du, welche Schicht ein Gerät für die jeweilige Aufgabe braucht. Der Hub hat dabei ungefähr das Sendekonzept einer Durchsage im Supermarkt.',
+  intro:'Der Hub verteilt Signale, der Switch schaut auf MAC-Adressen, der Router auf IP-Adressen. Welches Gerät du brauchst, entscheidet die Aufgabe. Drei blinkende Kästen sind leider noch kein Konzept. Ein Gerät gehört zur höchsten Schicht, deren Informationen es auswertet. Daraus folgt direkt, welche Domänen es trennt und wie es mit einem Rahmen umgeht.',
   example:'Ein Router hat zwei Schnittstellen. An der einen hängt ein Switch mit 4 PCs, an der anderen ein Hub mit 3 PCs. Wie viele Kollisions- und Broadcastdomänen gibt es?',
   steps:['<strong>Switch-Seite:</strong> Jeder Switchport ist eine eigene Kollisionsdomäne: 4 PC-Ports plus 1 Port zum Router = <strong>5</strong>.','<strong>Hub-Seite:</strong> Ein Hub wiederholt alles an alle, die 3 PCs und die Router-Leitung teilen sich <strong>1</strong> Kollisionsdomäne.','<strong>Kollisionsdomänen gesamt:</strong> 5 + 1 = <strong>6</strong>.','<strong>Broadcastdomänen:</strong> Nur der Router trennt sie, jede Schnittstelle eine: <strong>2</strong>.'],
   memo:'<strong>Switch trennt Kollisionsdomänen, Router trennt Broadcastdomänen.</strong> VLANs teilen einen Switch zusätzlich in mehrere Broadcastdomänen. Unbekannte Ziel-MAC oder Broadcast: Der Switch flutet an alle Ports außer dem Eingangsport.'},
  {title:'Kapselung',cat:'encap',ch:'ch4',goal:'Kapselung erklären, Header-Felder zuordnen und mit MTU, Rahmengröße und TTL rechnen.',vis:'encap',
-  intro:'Beim Senden bekommt das Datenstück auf den beteiligten Schichten zusätzliche Informationen. Ein TCP-Header enthält zum Beispiel Ports. Der IP-Header ergänzt IP-Adressen. Beim Empfänger geht es in umgekehrter Reihenfolge. Die Header brauchen Platz. Wer bei der MTU nur die Nutzdaten zählt, hat den Karton ohne Verpackung gemessen.',
+  intro:'Beim Senden kommen pro Schicht die passenden Steuerinformationen dazu. Auf dem Rückweg liest die Gegenseite sie in umgekehrter Reihenfolge. Beim Auspacken hilft es, den äußeren Umschlag zuerst zu öffnen. Beim Senden setzt jede Schicht ihren Header vor die Daten der Schicht darüber (Kapselung). Beim Empfänger wird in umgekehrter Reihenfolge ausgepackt (Entkapselung). Weil Header Platz kosten, kannst du damit auch rechnen.',
   example:'Wie viele Byte Nutzdaten passen in ein TCP-Segment, wenn die MTU 1.500 Byte beträgt und IPv4 benutzt wird?',
   steps:['Bei Ethernet sagt die <strong>MTU</strong>, wie groß das IP-Paket auf diesem Abschnitt höchstens sein darf. Ethernet-Header und FCS zählen nicht dazu.','Vom Paket geht der <strong>IPv4-Header</strong> ab: 1.500 − 20 = 1.480 Byte.','Davon geht der <strong>TCP-Header</strong> ab: 1.480 − 20 = <strong>1.460 Byte</strong>. Das ist die bekannte MSS.','Der komplette Rahmen auf dem Kabel wäre 1.500 + 14 (Ethernet-Header) + 4 (FCS) = 1.518 Byte.','<strong>Unterwegs:</strong> Der Switch liest nur den Ethernet-Header. Der Router packt bis IP aus, senkt die TTL um 1 und baut einen neuen Rahmen mit neuen MAC-Adressen.'],
   memo:'Senden = Kapselung (7 → 1), Empfangen = Entkapselung (1 → 7). <strong>MAC-Adressen ändern sich bei jedem Hop, IP-Adressen und Ports bleiben gleich</strong> (ohne NAT). Jeder Router: TTL − 1.'},
  {title:'OSI ↔ TCP/IP',cat:'tcpip',ch:'ch6',goal:'Das TCP/IP-Modell kennen und auf die OSI-Schichten abbilden.',vis:'tcpip',
-  intro:'Im TCP/IP-Modell reichen vier Schichten. Aufgaben, die OSI auf Sitzung, Darstellung und Anwendung verteilt, stehen dort zusammen unter Anwendung. Unten fasst der Netzzugang die Aufgaben von OSI-Schicht 1 und 2 zusammen. Transport und Internet liegen dazwischen. Vier Schilder am Büro ändern nichts daran, dass die Arbeit gemacht werden muss.',
+  intro:'OSI hat sieben Schichten. Das TCP/IP-Modell fasst Aufgaben gröber zusammen. Beim Wechsel zwischen den Modellen ordnest du Funktionen zu. Die Schichtnummer einfach mitzunehmen spart nur scheinbar Zeit. Das Internet läuft auf der TCP/IP-Protokollfamilie. Ihr Modell (RFC 1122) hat nur vier Schichten. In Prüfungen sollst du beide Modelle gegenüberstellen können.',
   example:'Wie passen die vier TCP/IP-Schichten auf die sieben OSI-Schichten?',
   steps:['<strong>Anwendungsschicht</strong> (TCP/IP) = OSI 5, 6 und 7. Die Anwendung kümmert sich selbst um Sitzung und Format.','<strong>Transportschicht</strong> = OSI 4 (TCP, UDP).','<strong>Internetschicht</strong> = OSI 3 (IP, ICMP).','<strong>Netzzugangsschicht</strong> (Link) = OSI 1 und 2 (Ethernet, WLAN).'],
   memo:'<strong>4 zu 7:</strong> Anwendung = 5 bis 7 · Transport = 4 · Internet = 3 · Netzzugang = 1 und 2. OSI ist das Referenzmodell, TCP/IP das tatsächlich genutzte.'},
  {title:'Fehleranalyse',cat:'trouble',ch:'ch8',goal:'Ein beschriebenes Fehlerbild der verursachenden Schicht zuordnen und aus Testergebnissen die richtige Schlussfolgerung ziehen.',vis:'trouble',
-  intro:'Ein Ping auf eine IP-Adresse beantwortet eine konkrete Frage: Kam die ICMP-Antwort von diesem Ziel zurück? Wenn ja, hat dieser Weg zum Testzeitpunkt funktioniert. DNS und HTTPS prüfst du damit noch nicht. Ein Ping ist eine Rückmeldung aus dem Netz. Ein ausgefülltes Entstörungsprotokoll ist er deshalb noch lange nicht.',
+  intro:'Bei der Fehlersuche lohnt sich der Blick auf die Link-LED, bevor du den DNS-Server neu einrichtest. Eine Etage höher zu suchen bringt wenig, wenn die Treppe unten fehlt. Mit dem OSI-Modell grenzt du Fehler systematisch ein, statt zu raten. Die wichtigste Abkürzung: Ein erfolgreicher ping beweist, dass die Schichten 1 bis 3 bis zum Ziel funktionieren.',
   example:'Ein Kollege meldet: „Das Internet geht nicht.“ ping 8.8.8.8 klappt, aber www.example.de lässt sich nicht öffnen.',
   steps:['Der Ping auf 8.8.8.8 bekommt eine Antwort. Für dieses Ziel klappt die Verbindung auf IP-Ebene. Das sagt noch nichts über die Namensauflösung oder den Webserver.','Der Aufruf scheitert erst beim Namen. Test: <code>nslookup www.example.de</code>.','nslookup meldet einen Fehler oder Timeout: Der eingetragene DNS-Server ist falsch oder nicht erreichbar.','DNS ist ein Anwendungsprotokoll: Die Ursache liegt auf <strong>Schicht 7</strong>.'],
   memo:'<strong>Bottom-up</strong>, wenn gar nichts geht. <strong>Top-down</strong>, wenn nur eine Anwendung streikt. <strong>Divide and Conquer</strong>: mit ping (Schicht 3) beginnen und je nach Ergebnis oben oder unten weitersuchen.'},
  {title:'Ports, TCP & UDP',cat:'ports',ch:'ch7',goal:'Standardports kennen, TCP und UDP begründet wählen und mit Sequenz- und Bestätigungsnummern rechnen.',vis:'ports',
-  intro:'Die IP-Adresse bringt die Daten zum Rechner. Der Port hilft dort, sie der richtigen Anwendung zuzuordnen. TCP liefert Daten geordnet und kann fehlende Daten erneut senden. UDP liefert diese Zusagen von sich aus nicht. Bei einem Livegespräch hilft ein verspätetes Stück vom Hallo ungefähr so viel wie ein Wecker nach Feierabend.',
+  intro:'Ein Server bietet Web und SSH unter derselben IP an. Die Ports helfen bei der Zuordnung zur richtigen Anwendung. Der Webaufruf soll schließlich nicht beim Kollegen im Terminal landen. Auf Schicht 4 entscheidet sich, welches Programm die Daten bekommt (Port) und wie zuverlässig sie ankommen (TCP oder UDP). In der Prüfung kommen Portnummern, der Drei-Wege-Handshake und die Frage „TCP oder UDP?“ fast immer dran.',
   example:'Ein Client schickt ein SYN mit der Sequenznummer 1000, der Server antwortet mit SYN/ACK und eigener Sequenznummer 5000. Welche Nummern stehen in den Bestätigungen?',
   steps:['Ein SYN zählt wie ein Byte. Der Server bestätigt die <strong>nächste erwartete</strong> Nummer: ACK = 1000 + 1 = <strong>1001</strong>.','Im dritten Schritt bestätigt der Client das SYN des Servers: ACK = 5000 + 1 = <strong>5001</strong>.','Schickt der Client danach 500 Byte ab Seq 1001, antwortet der Server mit ACK = 1001 + 500 = <strong>1501</strong>.','UDP kennt nichts davon: kein Handshake, keine Bestätigung, keine Nummern. Dafür schneller.'],
   memo:'<strong>ACK = nächstes erwartetes Byte.</strong> Wichtige Ports: 20/21 FTP · 22 SSH · 23 Telnet · 25 SMTP · 53 DNS · 67/68 DHCP · 80 HTTP · 110 POP3 · 123 NTP · 143 IMAP · 161 SNMP · 443 HTTPS · 3389 RDP.'},
  {title:'Endgegner: alles gemischt',cat:'mix',ch:'ch9',goal:'Alle Themen durcheinander und auf Prüfungsniveau. Wer hier 8 von 10 schafft, ist bereit für den Prüfungsmodus.',vis:'mix',
-  intro:'In der gemischten Runde steht die Schicht nicht über der Aufgabe. Schau zuerst, was gefragt ist. Die Ziel-IP bleibt auf dem Weg ohne NAT gleich, während der Ethernet-Rahmen auf dem nächsten Abschnitt neue MAC-Adressen bekommt. Wer am Ende die richtige IP in das Feld für die MAC schreibt, hat den richtigen Brief in den falschen Kasten geworfen.',
+  intro:'Du bekommst eine Störung, einen Mitschnitt und drei plausible Erklärungen. Finde erst die Schicht, die zu den beobachteten Daten passt. Dann prüfst du, ob die Erklärung dort überhaupt etwas bewirken kann. Jetzt kommt alles gemischt, wie in der Prüfung. Kein Thema kündigt sich an, und es kommen auch die Rechen- und Szenarioaufgaben dran. Lies jede Aufgabe genau: Wird nach der MAC oder nach der IP gefragt? Nach Kollisions- oder Broadcastdomänen? Nach Quell- oder Zielport?',
   example:'Ein PC sendet über IPv4 und TCP an einen Server, der über 3 Router entfernt ist. Wie viele Ethernet-Rahmen entstehen, und welche TTL kommt bei Start-TTL 64 an?',
   steps:['3 Router teilen den Weg in <strong>4 Teilstrecken</strong>.','Jede Teilstrecke bekommt einen eigenen Rahmen mit eigenen MAC-Adressen: <strong>4 Rahmen</strong>.','Jeder Router verringert die TTL um 1: 64 − 3 = <strong>61</strong>.','Gleich bleiben dabei: Quell- und Ziel-IP sowie die Ports.'],
   memo:'Prüfungs-Trick: <strong>Schlüsselwort unterstreichen</strong> (MAC oder IP, Kollision oder Broadcast, Quelle oder Ziel), bevor du antwortest. So merkst du vor dem Antworten, welche Adresse oder welche Domäne gesucht ist.'}
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=['Richtig! Das war Layer-8-frei.','Sauber zugestellt. Kein Paketverlust, kein Neusenden nötig.','Richtig. Der Switch in deinem Kopf hat die richtige MAC gelernt.','Treffer! Das ACK geht raus.','Korrekt. TTL deiner Unwissenheit: 0. Paket verworfen.','Läuft. Drei-Wege-Handshake mit der Prüfung erfolgreich.','Richtig! Bitfehler: keine. Die FCS ist zufrieden.','Genau. Router würden dich weiterempfehlen.','Volltreffer. Direkt an den richtigen Port zugestellt.','Stark. Das war Schicht 7 auf Profi-Niveau.','Korrekt. Die IHK hat kurz Angst bekommen.','Richtig. Der DAU in dir hat gerade einen Timeout.','Sitzt. Kein Raten, nur saubere Kapselung im Kopf.','Ja! So zuverlässig wie TCP, nur schneller.','Richtig. Deine Broadcastdomäne jubelt.','Exakt. Ping erfolgreich, Antwortzeit unter 1 ms.','Korrekt. Selbst Wireshark hätte es nicht besser aufgeschlüsselt.','Richtig. Du hast gerade ein ganzes Paket Wissen entkapselt.'];
-const Q_BAD=['Noch nicht. Schau zuerst, welche Aufgabe im Fall beschrieben wird.','Nope. Paket verworfen, TTL abgelaufen.','Leider falsch. Ist aber nur ein Paketverlust, TCP sendet neu.','Nicht ganz. Selbst ein Hub hätte das eher zufällig richtig gehabt.','Falsch. Kein Drama, Fehlersuche ist schließlich ein eigenes Kapitel.','Daneben. Destination Host Unreachable.','Nein. Das war ein Broadcast ins Leere.','Fast. Aber fast ist im Netzwerk ein Timeout.','Error 404: Richtige Schicht nicht gefunden. Lies die Erklärung.','Leider nein. Das Kabel ist okay, es liegt weiter oben. Im Kopf.','Nicht richtig. Die FCS sagt: Da ist ein Bit umgekippt.','Falsch, aber mutig. Mut gibt in der IHK leider keine Punkte.','Nope. Erst lesen, dann routen.','Daneben. Jetzt weißt du wenigstens, wo die Falle liegt.','Leider falsch. Selbst Spanning Tree hätte diese Schleife nicht verhindert.'];
+const Q_OK=["Stimmt. Das Ticket ist auf der richtigen Etage.", "Passt. Dafür braucht der Router kein neues Ticket.", "Richtig. Die Aufgabe ist bei der passenden Schicht gelandet."];
+const Q_BAD=["Schau unten nach, welche Aufgabe die richtige Schicht übernimmt.", "Noch nicht. Geh den Fall vom Kabel bis zur Anwendung durch.", "Die Erklärung zeigt, an welcher Stelle sich die Zuständigkeit ändert."];
 const Q_MASTER=['Stufe gemeistert! Nächste Schicht freigeschaltet.','Gemeistert. Dein Wissen wurde erfolgreich gekapselt.','Stufe geschafft! ACK vom Lernpfad erhalten.','8 von 10. Das ist kein Glück mehr, das ist Routing im Kopf.'];
 const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
 
@@ -1490,6 +1780,7 @@ function renderTask(host,t,o){
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
  host.innerHTML=h;
+ window.dtpMountCalculator?.(host,t,'osi');
  const q=r=>host.querySelector('[data-r="'+r+'"]');
  let done=false,usedHint=!!o.hint;
  const tip=q('tip');if(tip)tip.addEventListener('click',()=>{q('hint').classList.remove('hidden');tip.hidden=true;usedHint=true});
@@ -1708,6 +1999,7 @@ function renderExamQ(){
  else if(t.kind==='layer')h+=chipsHtml(t,ex.ans[i]).replace(/data-v=/g,'data-k=')+'<p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+(t.kind==='dec'?'numeric':'text')+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
+ window.dtpMountCalculator?.($('examQ'),t,'osi');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
  if(inp){const chk=()=>{const v=inp.value;ex.ans[i]=v.trim()?v:null;const p=v.trim()?parseAnswer(t,v):null;$('exFmt').innerHTML=p&&!p.valid?'<span style="color:var(--warn)">⚠ '+esc(p.msg)+' So würde die Antwort als falsch gewertet.</span>':(t.fmt||FMT[t.kind]);renderExamNav()};inp.addEventListener('input',chk);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});inp.focus({preventScroll:true});if(inp.value)chk()}

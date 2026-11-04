@@ -642,6 +642,296 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-MODULEINSTIEG END -->
+<!-- DTP-TASCHENRECHNER START -->
+<style>
+.dtp-calculator {
+  --calculator-accent: var(--cyan, #65dce0);
+  --calculator-shell: color-mix(in srgb, var(--calculator-accent) 8%, #101418);
+  --calculator-line: color-mix(in srgb, var(--calculator-accent) 28%, #151a1e);
+  color: inherit;
+  margin-top: .65rem;
+}
+.dtp-calculator > summary {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  list-style: none;
+  border: 1px solid var(--calculator-line);
+  border-radius: 11px;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+}
+.dtp-calculator > summary::-webkit-details-marker { display: none; }
+.dtp-calculator[open] > summary,
+.dtp-calculator > summary:hover { border-color: var(--calculator-accent); }
+.dtp-calculator-panel {
+  box-sizing: border-box;
+  width: min(100%, 21rem);
+  margin-top: .55rem;
+  padding: .8rem;
+  border: 1px solid var(--calculator-line);
+  border-top: 2px solid var(--calculator-accent);
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--calculator-shell), #0c1013 75%);
+  box-shadow: 0 12px 26px #0005, inset 0 1px #fff1;
+}
+.dtp-calculator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .5rem;
+  color: var(--calculator-accent);
+  font: 700 .7rem/1.2 ui-monospace, monospace;
+  letter-spacing: .13em;
+}
+.dtp-calculator-display {
+  min-width: 0;
+  padding: .6rem .65rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 9px;
+  background: #080d10;
+  box-shadow: inset 0 2px 6px #0008;
+}
+.dtp-calculator-display label { display: grid; gap: .2rem; color: #bac6cd; font-size: .75rem; }
+.dtp-calculator-display input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: .15rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #edf5f8;
+  text-align: right;
+  font: 500 1rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display input::placeholder { color: #9cabb4; opacity: 1; }
+.dtp-calculator-display output {
+  display: block;
+  min-height: 1.55em;
+  margin-top: .25rem;
+  color: var(--calculator-accent);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font: 700 1.15rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display output:empty::before { content: '—'; opacity: .45; }
+.dtp-calculator-display output[data-error] { color: #ffbd8d; font: 500 .8rem/1.4 system-ui, sans-serif; }
+.dtp-calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .35rem;
+  margin-top: .6rem;
+}
+.dtp-calculator-panel button {
+  min-height: 44px;
+  padding: .2rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 8px;
+  background: linear-gradient(#222a30, #161d22);
+  box-shadow: 0 2px #050709, inset 0 1px #fff1;
+  color: #edf5f8;
+  font: 700 1rem/1 ui-monospace, monospace;
+  cursor: pointer;
+}
+.dtp-calculator-keys [data-tone="operator"] { background: var(--calculator-shell); color: var(--calculator-accent); }
+.dtp-calculator-keys [data-tone="equals"] { background: var(--calculator-accent); color: #081013; border-color: var(--calculator-accent); }
+.dtp-calculator-panel button:hover { border-color: var(--calculator-accent); filter: brightness(1.2); }
+.dtp-calculator-panel button:active { box-shadow: inset 0 2px 4px #0006; transform: translateY(1px); }
+.dtp-calculator-panel .dtp-calculator-clear { min-width: 44px; background: var(--calculator-shell); font-size: .8rem; }
+.dtp-calculator :focus-visible { outline: 2px solid var(--calculator-accent); outline-offset: 2px; }
+.dtp-calculator-prank { position: relative; margin-top: .65rem; }
+.dtp-calculator-prank:empty { display: none; }
+.dtp-calculator-prank button {
+  width: 100%;
+  border-style: dashed;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+  font-size: .85rem;
+}
+.dtp-calculator-dust { position: absolute; inset: 0; pointer-events: none; }
+.dtp-calculator-dust i { position: absolute; width: 3px; height: 3px; background: var(--calculator-accent); }
+.dtp-calculator-joke { margin: 0; }
+.dtp-calculator-joke:not(:empty) { margin-top: .5rem; }
+</style>
+<script>
+(() => {
+  'use strict';
+
+  const calculationTypes = {
+    osi: /^(d_count|d_topo|e_mss|e_frame|e_ttl|e_hops|o_seq)$/,
+    netzwerke: /^(b_rate|t_mesh|t_ports|t_meshr|t_meshd|c_coll|c_bcast|c_lenrest|s_flood|s_vlan|v_zero|v_bits|x_dom|mesh_freitext)$/,
+    ipv6: /^(b_total|b_block|b_hex|b_bytes|b_zeros|p_net|p_rest|u_iid|u_flip|u_mac|n_count|n_nth|n_number|n_need|n_last)$/,
+    dienste: /^(t_header|c_synack|c_ack|c_fin|d_t1|d_t2|n_ttl|i_ttl)$/
+  };
+  const jokes = [
+    'Haha, hättest du wohl gern?',
+    'Netter Versuch. Die Bits zählst du heute noch selbst.',
+    'Der Knopf war kurz vor der Lösung. Jetzt ist er Staub.',
+    'Umrechnen per Klick? Der Button hat sich gerade aus dem Staub gemacht.'
+  ];
+
+  function evaluate(expression) {
+    const source = expression.replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!source || source.length > 120) throw new Error();
+    const tokens = source.match(/\d+(?:\.\d*)?|\.\d+|[()+*/^%-]/g) || [];
+    if (tokens.join('') !== source) throw new Error();
+    let index = 0;
+    function primary() {
+      const token = tokens[index++];
+      if (token === '(') {
+        const value = sum();
+        if (tokens[index++] !== ')') throw new Error();
+        return value;
+      }
+      if (!token || !/^(?:\d|\.)/.test(token)) throw new Error();
+      return Number(token);
+    }
+    function power() {
+      if (tokens[index] === '+' || tokens[index] === '-') {
+        return (tokens[index++] === '-' ? -1 : 1) * power();
+      }
+      let value = primary();
+      if (tokens[index] === '%') {
+        index++;
+        value /= 100;
+      }
+      if (tokens[index] === '^') {
+        index++;
+        value **= power();
+      }
+      return value;
+    }
+    function product() {
+      let value = power();
+      while (tokens[index] === '*' || tokens[index] === '/') {
+        value = tokens[index++] === '*' ? value * power() : value / power();
+      }
+      return value;
+    }
+    function sum() {
+      let value = product();
+      while (tokens[index] === '+' || tokens[index] === '-') {
+        value = tokens[index++] === '+' ? value + product() : value - product();
+      }
+      return value;
+    }
+    const value = sum();
+    if (index !== tokens.length || !Number.isFinite(value)) throw new Error();
+    return Number(value.toPrecision(15)).toLocaleString('de-DE', {useGrouping: false, maximumSignificantDigits: 15});
+  }
+
+  function mount(host, task, module) {
+    const binary = module === 'zahlen' && (/^(b2d|d2b|calc|neg)$/.test(task.cat) || /^h_(b2h|h2b)$/.test(task.sub)) && task.sub !== 'n_method'
+      || module === 'subnet' && (/^o_(b2d|d2b|maskval|ones|and|bin2ip)$/.test(task.sub) || task.sub === 'm_bin')
+      || module === 'ipv6' && /^(u_iid|u_flip|u_mac)$/.test(task.sub);
+    const arithmetic = calculationTypes[module]?.test(task.sub)
+      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
+      || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
+      || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);
+    if (!binary && !arithmetic) return;
+
+    const box = document.createElement('details');
+    box.className = 'dtp-calculator';
+    box.innerHTML = '<summary aria-label="Taschenrechner" title="Taschenrechner">'
+      + '<svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="1.5" width="12" height="17" rx="2"/><path d="M7 5h6M7 9h2m2 0h2m-6 3h2m2 0h2m-6 3h2m2 0h2"/></svg></summary>';
+    box.addEventListener('toggle', function initialise() {
+      if (!box.open) return;
+      box.removeEventListener('toggle', initialise);
+      const panel = document.createElement('div');
+      panel.className = 'dtp-calculator-panel';
+      panel.innerHTML = '<div class="dtp-calculator-heading"><span aria-hidden="true">Taschenrechner</span>'
+        + '<button type="button" class="dtp-calculator-clear" aria-label="Rechnung löschen" title="Rechnung löschen">C</button></div>'
+        + '<div class="dtp-calculator-display"><label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<output aria-live="polite"></output></div><div class="dtp-calculator-keys"></div>';
+      const input = panel.querySelector('input');
+      const output = panel.querySelector('output');
+      const keys = panel.querySelector('.dtp-calculator-keys');
+      const button = label => {
+        const key = document.createElement('button');
+        key.type = 'button';
+        key.textContent = label;
+        return key;
+      };
+      const calculate = () => {
+        output.removeAttribute('data-error');
+        try { output.textContent = '= ' + evaluate(input.value); }
+        catch (_) {
+          output.setAttribute('data-error', '');
+          output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.';
+        }
+      };
+      panel.querySelector('.dtp-calculator-clear').addEventListener('click', () => {
+        input.value = output.textContent = '';
+        output.removeAttribute('data-error');
+      });
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=']) {
+        const key = button(label);
+        if (label === '=') {
+          key.dataset.tone = 'equals';
+          key.addEventListener('click', calculate);
+        } else {
+          if (!/[0-9,]/.test(label)) key.dataset.tone = 'operator';
+          key.addEventListener('click', () => {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
+          });
+        }
+        keys.append(key);
+      }
+      input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        event.stopPropagation();
+        calculate();
+      });
+      if (binary) {
+        const trick = button('Binär → Dezimal');
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.className = 'dtp-calculator-joke';
+        trick.addEventListener('click', () => {
+          message.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+          box.querySelector('summary').focus({preventScroll: true});
+          trick.disabled = true;
+          if (!matchMedia('(prefers-reduced-motion: reduce)').matches && trick.animate) {
+            const dust = document.createElement('span');
+            dust.className = 'dtp-calculator-dust';
+            dust.setAttribute('aria-hidden', 'true');
+            trick.after(dust);
+            const particles = Array.from({length: 18}, (_, index) => {
+              const grain = document.createElement('i');
+              grain.style.left = (index * 37 % 100) + '%';
+              grain.style.top = (index * 29 % 100) + '%';
+              dust.append(grain);
+              return grain.animate([
+                {opacity: 1, transform: 'translate(0, 0)'},
+                {opacity: 0, transform: 'translate(' + ((index * 13 % 75) - 37) + 'px, ' + (-12 - index * 7 % 28) + 'px) scale(.3)'}
+              ], {duration: 480, delay: index % 4 * 35, fill: 'both'}).finished;
+            });
+            trick.animate([{opacity: 1}, {opacity: 0, filter: 'blur(4px)'}], {duration: 420, fill: 'forwards'});
+            Promise.allSettled(particles).then(() => { trick.remove(); dust.remove(); });
+          } else trick.remove();
+        }, {once: true});
+        const prank = document.createElement('div');
+        prank.className = 'dtp-calculator-prank';
+        prank.append(trick);
+        panel.append(prank, message);
+      }
+      box.append(panel);
+    });
+    host.append(box);
+  }
+  window.dtpMountCalculator = mount;
+})();
+</script>
+<!-- DTP-TASCHENRECHNER END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -652,7 +942,7 @@ body.dtp-exercise-open{overflow:hidden}
     <div>
       <div class="kicker"><span class="live-dot"></span> IP &amp; SUBNETTING <b>//</b> SUBNETTING <b>//</b> MODUL B3</div>
       <h1>Wer teilt, <span>gewinnt.</span></h1>
-      <p class="hero-lead">Präfix, Maske, Netz-ID, Broadcast, VLSM. Wer Subnetting kann, hat in der Prüfung leichte Punkte. Wer es nicht kann, hat 32 Bits Ratlosigkeit. Ab heute rechnest du, statt zu raten.</p>
+      <p class="hero-lead">Ein /27 taucht im Ticket auf. Wie groß ist das Netz, welche Adresse hat der Broadcast und wo darf der Drucker wohnen? Rechne es aus, bevor der Drucker den falschen Platz bekommt.</p>
       <div class="hero-meta"><span><b>10</b> Stufen</span><span><b>10</b> Kapitel</span><span><b id="heroTypes">50+</b> Aufgabentypen</span><span>Lernen · Üben · Verstehen</span></div>
     </div>
     <div class="ipwall" id="ipwall" aria-hidden="true"></div>
@@ -730,8 +1020,8 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>32 Bits. Vier Oktette. Ein Netzwerk.</h3><p>Verstehe zuerst das System. Danach werden alle Rechenwege logisch.</p></div></div>
-      <p>Wenn der Support nach deiner IPv4-Adresse fragt, liest du vier Zahlen vor. Das geht schneller als 32 Nullen und Einsen am Telefon. Genau diese <strong>32 Bits</strong> stecken darin, aufgeteilt in vier Blöcke zu je acht. So ein Block heißt <strong>Oktett</strong> und hat einen Dezimalwert von <strong>0 bis 255</strong>. Geschrieben wird das in der Punktschreibweise: <span class="val">192.168.42.134</span>.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>32 Bits. Vier Oktette. Ein Netzwerk.</h3><p>Verstehe zuerst das System. Danach werden alle Rechenwege logisch.</p></div></div><p>192.168.42.134 sieht nach vier Zahlen aus. Im Rechner sind es vier Gruppen mit je acht Bits. Beim Umrechnen rettet dich die Tabelle mit den Stellenwerten, falls die 128 mal wieder zu früh auftaucht.</p>
+      <p>Eine IPv4-Adresse besteht aus <strong>32 Bits</strong>, aufgeteilt in vier Blöcke zu je 8 Bit. So ein Block heißt <strong>Oktett</strong> und hat einen Dezimalwert von <strong>0 bis 255</strong>. Geschrieben wird das in der Punktschreibweise: <span class="val">192.168.42.134</span>.</p>
       <div class="two">
         <div class="box"><h4>Die acht Stellenwerte</h4><div class="calc">128  64  32  16 │  8   4   2   1
   1   0   0   0 │  0   1   1   0   = 128 + 4 + 2 = 134</div><p>Umgekehrt zerlegst du von groß nach klein: Passt der Wert noch in den Rest, schreib eine 1 und zieh ihn ab.</p></div>
@@ -757,7 +1047,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch2" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Zweierpotenzen: das Einmaleins des Subnettings</h3><p>Jedes Bit verdoppelt. Wer das verinnerlicht, rechnet Netzgrößen im Kopf.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Zweierpotenzen: das Einmaleins des Subnettings</h3><p>Jedes Bit verdoppelt. Wer das verinnerlicht, rechnet Netzgrößen im Kopf.</p></div></div><p>Jedes zusätzliche Hostbit verdoppelt die Anzahl der Adressen. Wenn du von 256 Adressen aus startest, kommst du mit Halbieren schnell zu 128, 64 und 32. Das geht meist schneller als der Blick in die Tabelle.</p>
       <p>Mit n Bit gibt es 2ⁿ verschiedene Kombinationen. Im Subnetting ist n fast immer die Zahl der <strong>Hostbits</strong> und 2ⁿ die Zahl der <strong>Adressen</strong> im Netz. Drei Anker reichen, den Rest erreichst du durch Verdoppeln oder Halbieren: <strong>2⁸ = 256</strong>, <strong>2¹⁰ = 1.024</strong>, <strong>2¹⁶ = 65.536</strong>.</p>
       <div class="table-wrap"><table class="t" style="max-width:560px"><thead><tr><th>Potenz</th><th>Wert</th><th>Potenz</th><th>Wert</th></tr></thead><tbody id="powTable"></tbody></table></div>
       <div class="two">
@@ -769,7 +1059,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch3" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Präfix, Subnetzmaske und Wildcard</h3><p>Alle drei beschreiben dieselbe Grenze zwischen Netz und Host. Nur anders aufgeschrieben.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Präfix, Subnetzmaske und Wildcard</h3><p>Alle drei beschreiben dieselbe Grenze zwischen Netz und Host. Nur anders aufgeschrieben.</p></div></div><p>Ein /26 und die passende Subnetzmaske beschreiben dieselbe Bitgrenze. Zähl bei der Maske die führenden Einsen. Wenn nach einer Null wieder eine Eins kommt, darfst du mit der Maske noch mal von vorne anfangen.</p>
       <p>Eine Subnetzmaske besteht binär aus <strong>durchgehenden Einsen</strong> für die Netzbits und danach <strong>nur Nullen</strong> für die Hostbits. Das Präfix zählt einfach die Einsen.</p>
       <div class="two">
         <div class="box"><h4>Präfix → Maske</h4><p><span class="val">/26</span>: 24 Bits füllen drei Oktette mit 255. Zwei weitere Einsen im vierten Oktett: 1100 0000 = 192.</p><p class="mono">/26 = 255.255.255.192<br>/20 = 255.255.240.0</p></div>
@@ -786,7 +1076,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch4" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Hostanzahl und Sonderfälle</h3><p>Hier entscheiden die Hostbits. Und die Präfixe, bei denen du genau hinschauen musst.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Hostanzahl und Sonderfälle</h3><p>Hier entscheiden die Hostbits. Und die Präfixe, bei denen du genau hinschauen musst.</p></div></div><p>Du brauchst Platz für Geräte und siehst, wie viele Adressen der Block hat. Im üblichen IPv4-Subnetz sind Netz-ID und Broadcast bereits verplant. Für /31 und /32 gelten die gesonderten Regeln aus dem Beispiel.</p>
       <div class="two">
         <div class="box"><h4>Wie viele Adressen hat ein Netz?</h4><p class="mono">Hostbits = 32 − Präfix<br>Adressen = 2<sup>Hostbits</sup><br>Nutzbar  = Adressen − 2</p><p>Bei /26: 6 Hostbits, 2⁶ = 64 Adressen, <strong>62 nutzbare Hosts</strong>.</p></div>
         <div class="box"><h4>Warum minus 2?</h4><p>Die erste Adresse (alle Hostbits 0) ist die <strong>Netz-ID</strong>, die letzte (alle Hostbits 1) der <strong>Broadcast</strong>. Beide kann kein Gerät bekommen.</p></div>
@@ -806,7 +1096,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch5" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Fünf Wege zur Netz-ID</h3><p>Alle führen zum selben Ergebnis. Im Kopf ist Weg A meist am schnellsten, Weg C ist das, was der Computer wirklich tut.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Fünf Wege zur Netz-ID</h3><p>Alle führen zum selben Ergebnis. Im Kopf ist Weg A meist am schnellsten, Weg C ist das, was der Computer wirklich tut.</p></div></div><p>Eine Adresse liegt mitten im Block. Teile das entscheidende Oktett durch die Sprungweite, wirf den Rest weg und rechne zurück. Aufrunden landet hier zuverlässig im Nachbargrundstück.</p>
       <div class="callout">Beispiel für alle Wege: <span class="val">192.168.42.134/26</span>. Gesucht: die Netz-ID.</div>
       <div class="methods">
         <div class="box"><h4><span class="mk-l">A</span> Sprungweite (Magic Number)</h4><ol><li>Maske /26 = 255.255.255.192. Entscheidend ist das 4. Oktett.</li><li>Sprungweite = 256 − 192 = <strong>64</strong>.</li><li>Netze beginnen bei 0, 64, 128, 192.</li><li>134 liegt im Block 128 bis 191 → <strong>192.168.42.128</strong>.</li></ol></div>
@@ -828,7 +1118,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch6" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Broadcast und Hostbereich</h3><p>Wenn die Netz-ID steht, ist der Rest Formsache. Fast.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Broadcast und Hostbereich</h3><p>Wenn die Netz-ID steht, ist der Rest Formsache. Fast.</p></div></div><p>Du kennst die Netz-ID und willst wissen, wo der Block endet. Geh zur nächsten Netz-ID und eine Adresse zurück. So findest du den Broadcast, bevor ihn jemand dem Drucker gibt.</p>
       <div class="two">
         <div class="box"><h4>Broadcast</h4><p>Letzte Adresse des Blocks: Im entscheidenden Oktett Netz-ID + Sprungweite − 1, alle Oktette dahinter <strong>255</strong>. Oder: nächste Netz-ID minus 1.</p><p class="mono">192.168.42.128/26 → .191</p></div>
         <div class="box"><h4>Hostbereich</h4><p class="mono">Erster Host  = Netz-ID + 1<br>Letzter Host = Broadcast − 1</p><p>Bei /26 ab .128: Hosts .129 bis .190.</p></div>
@@ -847,7 +1137,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch7" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Subnetze planen: rückwärts rechnen und gleich groß teilen</h3><p>Du bekommst 50 Geräte oder 8 Abteilungen und sollst das passende Präfix liefern.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Subnetze planen: rückwärts rechnen und gleich groß teilen</h3><p>Du bekommst 50 Geräte oder 8 Abteilungen und sollst das passende Präfix liefern.</p></div></div><p>Die neue Abteilung hat 50 Geräte. Entscheide zuerst, wie viele nutzbare Adressen nötig sind, und suche dann den kleinsten passenden Block. 50 Plätze auf dem Papier reichen wenig, wenn zwei davon reserviert sind.</p>
       <div class="two">
         <div class="box"><h4>Vorgabe: mindestens 50 Hosts</h4><ol><li>50 Hosts + 2 = <strong>52 Adressen</strong>.</li><li>Kleinste Zweierpotenz ≥ 52: <strong>64 = 2⁶</strong>.</li><li>6 Hostbits → 32 − 6 = <strong>/26</strong>.</li><li>/26 bietet 62 Hosts. /27 mit 30 wäre zu klein.</li></ol></div>
         <div class="box"><h4>Vorgabe: 8 gleich große Netze</h4><p>Aus <span class="val">192.168.10.0/24</span> sollen 8 Subnetze werden: 2³ = 8, also <strong>3 Bits leihen</strong>.</p><p class="mono">/24 + 3 = /27</p><p>Netze bei .0, .32, .64 … .224, je 30 Hosts.</p></div>
@@ -863,7 +1153,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch8" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">08</span><div><h3>VLSM und Routenzusammenfassung</h3><p>Unterschiedlich große Netze sparen Adressen. Zusammengefasste Routen sparen Router-Nerven.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">08</span><div><h3>VLSM und Routenzusammenfassung</h3><p>Unterschiedlich große Netze sparen Adressen. Zusammengefasste Routen sparen Router-Nerven.</p></div></div><p>Die große Abteilung bekommt ihren Block zuerst. Für VLSM ist das praktisch, weil die kleinen Netze danach leichter auf passende Grenzen rutschen. Umgekehrt ist es wie Schrankaufbau mit der größten Platte ganz unten im Stapel.</p>
       <p><strong>VLSM</strong> (Variable Length Subnet Mask): Jede Abteilung bekommt ein Netz passend zu ihrem Bedarf. Regel: <strong>größter Bedarf zuerst</strong>, sonst passt der große Block später nicht mehr auf eine saubere Grenze.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Bedarf</th><th>Netz</th><th>Netz-ID</th><th>Broadcast</th><th>Hosts</th></tr></thead><tbody>
         <tr><td>100 Hosts</td><td class="m">/25</td><td class="m">192.168.50.0</td><td class="m">192.168.50.127</td><td class="m">126</td></tr>
@@ -890,7 +1180,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch9" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Adressen prüfen und Fehler finden</h3><p>„PC A erreicht PC B nicht.“ Die Antwort steckt fast immer in der Rechnung.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Adressen prüfen und Fehler finden</h3><p>„PC A erreicht PC B nicht.“ Die Antwort steckt fast immer in der Rechnung.</p></div></div><p>Zwei PCs können sich nicht erreichen. Rechne für beide die Netz-ID aus und prüfe die Masken und das Gateway. Fast gleiche IP-Adressen sind als Diagnose ungefähr so gut wie fast eingesteckte Kabel.</p>
       <h4>Gleiches Netz oder nicht?</h4>
       <p>Zwei Geräte können nur direkt miteinander sprechen, wenn ihre <strong>Netz-IDs gleich</strong> sind. Sonst brauchen sie einen Router. Also: für beide Adressen die Netz-ID ausrechnen und vergleichen.</p>
       <div class="lab"><div class="lab-head"><strong>NETZ-VERGLEICHER</strong><span class="subtle">Zwei Adressen, ein Präfix.</span></div>
@@ -1163,7 +1453,7 @@ S('bits','o_b2d','Binär → Dezimal (Oktett)',1,lv=>{
 });
 S('bits','o_d2b','Dezimal → Binär (Oktett)',1,lv=>{
  const n=lv===1&&rnd(2)?pick(MASKV):rint(1,255),b=binRaw(n,8),ones=PLACES.filter((w,i)=>b[i]==='1');
- return {kind:'bin',key:'od'+n,prompt:P('Geben Sie den Dezimalwert '+V(n)+' als 8-stellige Binärzahl an.','Schreib die Zahl '+V(n)+' mit 8 Stellen aus Nullen und Einsen. '+SM('Geh die Werte 128, 64, 32, 16, 8, 4, 2, 1 durch: Passt der Wert noch in den Rest, schreib eine 1 und zieh ihn ab, sonst eine 0.')),answer:n,show:grp(b),
+ return {kind:'bin',key:'od'+n,prompt:P('Schreib den Dezimalwert '+V(n)+' als 8-stellige Binärzahl.','Schreib die Zahl '+V(n)+' mit 8 Stellen aus Nullen und Einsen. '+SM('Geh die Werte 128, 64, 32, 16, 8, 4, 2, 1 durch: Passt der Wert noch in den Rest, schreib eine 1 und zieh ihn ab, sonst eine 0.')),answer:n,show:grp(b),
   why:W(['Stellenwerte: 128 · 64 · 32 · 16 · 8 · 4 · 2 · 1.','Zerlegen von groß nach klein: '+n+' = '+ones.join(' + ')+'.','Diese Stellen sind 1, alle anderen 0: <b>'+grp(b)+'</b>.']),
   diag:(v,raw)=>raw&&raw.padStart(8,'0').split('').reverse().join('')===b?'Die Reihenfolge ist vertauscht: Links steht die 128.':'Deine Bitfolge ergibt '+v+', nicht '+n+'.'};
 });
@@ -1181,13 +1471,13 @@ S('bits','o_ones','Einsen im Maskenoktett',1,lv=>{
 });
 S('bits','o_and','Bitweises UND (AND)',1,lv=>{
  const m=pick(MASKV.slice(0,7)),a=rint(1,254),r=a&m;
- return {kind:'dec',key:'oa'+a+'_'+m,prompt:P('Berechnen Sie die bitweise UND-Verknüpfung '+V(a)+' AND '+V(m)+'. Geben Sie das Ergebnis dezimal an.','Schreib beide Zahlen binär untereinander. Nur wo bei <strong>beiden</strong> eine 1 steht, kommt eine 1 heraus. Welche Dezimalzahl ergibt '+V(a)+' UND '+V(m)+'?'),answer:r,
+ return {kind:'dec',key:'oa'+a+'_'+m,prompt:P('Verknüpfe die beiden Zahlen bitweise mit UND: '+V(a)+' AND '+V(m)+'. Schreib das Ergebnis als Dezimalzahl.','Schreib beide Zahlen binär untereinander. Nur wo bei <strong>beiden</strong> eine 1 steht, kommt eine 1 heraus. Welche Dezimalzahl ergibt '+V(a)+' UND '+V(m)+'?'),answer:r,
   why:'<div class="calc">    '+binRaw(a,8)+'  ('+a+')\nAND '+binRaw(m,8)+'  ('+m+')\n    ────────\n    '+binRaw(r,8)+'  ('+r+')</div>'+W(['Nur wo beide Bits 1 sind, bleibt eine 1 stehen.','Ergebnis: <b>'+r+'</b>. Genau so rechnet ein Router die Netz-ID aus: IP AND Maske.']),
   diag:v=>v===a?'Das ist die Zahl selbst. Durch AND mit der Maske fallen die hinteren Bits weg.':v===(a|m)?'Das ist ODER (OR), nicht UND.':v===m?'Das ist der Maskenwert. Vergleiche Bit für Bit.':''};
 });
 S('bits','o_bin2ip','Binäre IP → Dezimal',2,lv=>{
  const u=randPrivate(24),bs=[0,1,2,3].map(i=>binRaw(OCT(u,i),8)).join('.');
- return {kind:'ip',key:'oi'+u,prompt:P('Eine IPv4-Adresse ist in Binärschreibweise gegeben: '+V(bs)+'. Geben Sie die Adresse in der Punktschreibweise (dezimal) an.','Hier steht eine IP-Adresse in Nullen und Einsen, jeweils 8 Bit zwischen den Punkten: '+V(bs)+'. Rechne jedes der vier Oktette einzeln in eine Dezimalzahl um und schreib sie mit Punkten dazwischen.'),answer:u,
+ return {kind:'ip',key:'oi'+u,prompt:P('Eine IPv4-Adresse ist in Binärschreibweise gegeben: '+V(bs)+'. Schreib die vier Oktette als Dezimalzahlen mit Punkten dazwischen.','Hier steht eine IP-Adresse in Nullen und Einsen, jeweils 8 Bit zwischen den Punkten: '+V(bs)+'. Rechne jedes der vier Oktette einzeln in eine Dezimalzahl um und schreib sie mit Punkten dazwischen.'),answer:u,
   why:W([0,1,2,3].map(i=>ORDN[i]+' Oktett: '+binRaw(OCT(u,i),8)+' = '+(PLACES.filter((w,j)=>binRaw(OCT(u,i),8)[j]==='1').join(' + ')||'0')+' = '+OCT(u,i)).concat(['Zusammen: <b>'+IP(u)+'</b>.']))};
 });
 S('bits','o_valid','Gültige IPv4-Adresse',1,lv=>{
@@ -1568,61 +1858,61 @@ function bitRow(u,p,label,mode){
 const ex1=U([192,168,42,134]);
 const STAGES=[
  {title:'Bits & Oktette',cat:'bits',ch:'ch1',goal:'Ein Oktett zwischen Binär und Dezimal umrechnen und die bitweise UND-Verknüpfung beherrschen. Das ist das Fundament für alles Weitere.',
-  intro:'<p>Du liest <span class="val">192.168.42.134</span>. Der Rechner arbeitet mit <strong>32 Bits</strong>. Die vier Zahlen mit Punkten sind die Kurzfassung für Menschen. Versuch mal, 32 Nullen und Einsen am Telefon durchzugeben. Die Bits sind in vier Blöcke zu je acht aufgeteilt. So ein Block heißt <strong>Oktett</strong> und kann Werte von 0 bis 255 annehmen. Jede der acht Stellen hat einen festen Wert, von links: 128, 64, 32, 16, 8, 4, 2, 1. Steht dort eine 1, zählt der Wert. Steht dort eine 0, nicht.</p>',
+  intro:'<p>192.168.42.134 sieht nach vier Zahlen aus. Im Rechner sind es vier Gruppen mit je acht Bits. Beim Umrechnen rettet dich die Tabelle mit den Stellenwerten, falls die 128 mal wieder zu früh auftaucht.</p><p>Eine IPv4-Adresse wie <span class="val">192.168.42.134</span> sieht nach vier Zahlen aus. In Wahrheit sind es <strong>32 Bits</strong>, aufgeteilt in vier Blöcke zu je 8 Bit. So ein Block heißt <strong>Oktett</strong> und kann Werte von 0 bis 255 annehmen. Jede der acht Stellen hat einen festen Wert, von links: 128, 64, 32, 16, 8, 4, 2, 1. Steht dort eine 1, zählt der Wert. Steht dort eine 0, nicht.</p>',
   visual:bitRow(ex1,32,'192.168.42.134'),
   memo:'<strong>128 · 64 · 32 · 16 · 8 · 4 · 2 · 1</strong>. Nur die Einsen zählen. Und beim UND (AND) kommt nur dort eine 1 heraus, wo <strong>beide</strong> Bits 1 sind.',
   example:'Welchen Dezimalwert hat 1000 0110₂, und was ergibt 134 AND 192?',
   steps:['Stellenwerte über die Bits schreiben: 128 64 32 16 │ 8 4 2 1. Einsen stehen unter 128, 4 und 2.','128 + 4 + 2 = <strong>134</strong>.','Für AND beide Zahlen untereinander: 134 = 1000 0110, 192 = 1100 0000.','Nur wo beide Bits 1 sind, bleibt eine 1: 1000 0000 = <strong>128</strong>. Genau so findet ein Router später die Netz-ID.']},
  {title:'Zweierpotenzen',cat:'pow',ch:'ch2',goal:'2¹ bis 2¹⁶ sofort wissen und zu jeder Anzahl die passende Zweierpotenz finden. Damit rechnest du Netzgrößen im Kopf.',
-  intro:'<p>Jedes zusätzliche Bit verdoppelt die Zahl der Möglichkeiten. Mit 1 Bit gibt es 2 Zustände, mit 2 Bit 4, mit 3 Bit 8. Im Subnetting ist die Hochzahl fast immer die Zahl der <strong>Hostbits</strong>, das Ergebnis die Zahl der <strong>Adressen</strong> im Netz. Du musst nicht alles auswendig lernen: Drei Anker reichen, den Rest erreichst du durch Verdoppeln oder Halbieren.</p>',
+  intro:'<p>Jedes zusätzliche Hostbit verdoppelt die Anzahl der Adressen. Wenn du von 256 Adressen aus startest, kommst du mit Halbieren schnell zu 128, 64 und 32. Das geht meist schneller als der Blick in die Tabelle.</p><p>Jedes zusätzliche Bit verdoppelt die Zahl der Möglichkeiten. Mit 1 Bit gibt es 2 Zustände, mit 2 Bit 4, mit 3 Bit 8. Im Subnetting ist die Hochzahl fast immer die Zahl der <strong>Hostbits</strong>, das Ergebnis die Zahl der <strong>Adressen</strong> im Netz. Du musst nicht alles auswendig lernen: Drei Anker reichen, den Rest erreichst du durch Verdoppeln oder Halbieren.</p>',
   visual:'<div class="calc">n:    1   2   3    4    5    6     7     8     9      10      11      12\n2ⁿ:   2   4   8   16   32   64   128   256   512   1.024   2.048   4.096\n\nAnker: 2⁸ = 256 · 2¹⁰ = 1.024 · 2¹⁶ = 65.536</div>',
   memo:'<strong>n Hostbits → 2ⁿ Adressen.</strong> Für N Adressen suchst du das kleinste n mit 2ⁿ ≥ N.',
   example:'Wie viel ist 2¹³, und wie viele Bits brauchst du für 300 Adressen?',
   steps:['Anker 2¹⁰ = 1.024. Dreimal verdoppeln: 2.048, 4.096, <strong>8.192 = 2¹³</strong>.','Für 300 Adressen: 2⁸ = 256 ist zu klein.','2⁹ = 512 reicht.','Also <strong>9 Bits</strong>. Merke: Es wird immer aufgerundet, nie abgerundet.']},
  {title:'Präfix ↔ Maske',cat:'mask',ch:'ch3',goal:'Zu jedem Präfix die Subnetzmaske und die Wildcard nennen und umgekehrt.',
-  intro:'<p>Das Präfix (die Zahl hinter dem Schrägstrich) und die Subnetzmaske sagen dasselbe, nur in anderer Schreibweise. <span class="val">/26</span> heißt: Die Maske beginnt mit 26 Einsen, danach kommen 6 Nullen. Jedes volle Oktett mit 8 Einsen ist 255. Das angebrochene Oktett ist einer der Teilwerte 128, 192, 224, 240, 248, 252 oder 254.</p>',
+  intro:'<p>Ein /26 und die passende Subnetzmaske beschreiben dieselbe Bitgrenze. Zähl bei der Maske die führenden Einsen. Wenn nach einer Null wieder eine Eins kommt, darfst du mit der Maske noch mal von vorne anfangen.</p><p>Das Präfix (die Zahl hinter dem Schrägstrich) und die Subnetzmaske sagen dasselbe, nur in anderer Schreibweise. <span class="val">/26</span> heißt: Die Maske beginnt mit 26 Einsen, danach kommen 6 Nullen. Jedes volle Oktett mit 8 Einsen ist 255. Das angebrochene Oktett ist einer der Teilwerte 128, 192, 224, 240, 248, 252 oder 254.</p>',
   visual:bitRow(MASK(26),26,'Maske /26'),
   memo:'Teilwerte: <strong>1 Bit = 128 · 2 = 192 · 3 = 224 · 4 = 240 · 5 = 248 · 6 = 252 · 7 = 254 · 8 = 255</strong>. Wildcard = 255 − jedes Maskenoktett.',
   example:'Wie lautet die Maske zu /20, und welches Präfix gehört zu 255.255.255.224?',
   steps:['/20 = 2 × 8 + 4: zwei volle Oktette (255.255), dann 4 Einsen.','4 Einsen = 1111 0000 = 240. Rest Nullen: <strong>255.255.240.0</strong>.','Rückweg 255.255.255.224: drei mal 255 = 24 Einsen, 224 = 1110 0000 hat 3 Einsen.','24 + 3 = <strong>/27</strong>. Die Wildcard dazu ist 0.0.0.31.']},
  {title:'Hostbits & Hostanzahl',cat:'hosts',ch:'ch4',goal:'Aus dem Präfix Hostbits, alle Adressen und die nutzbaren Hosts bestimmen und die Sonderfälle kennen.',
-  intro:'<p>Was nicht Netz ist, ist Host. Bei <span class="val">/26</span> bleiben 32 − 26 = 6 Hostbits. Mit 6 Bits gibt es 2⁶ = 64 Adressen. Zwei davon sind reserviert: Die erste (alle Hostbits 0) ist die <strong>Netz-ID</strong>, die letzte (alle Hostbits 1) der <strong>Broadcast</strong>. Bleiben 62 Adressen für Geräte.</p>',
+  intro:'<p>Du brauchst Platz für Geräte und siehst, wie viele Adressen der Block hat. Im üblichen IPv4-Subnetz sind Netz-ID und Broadcast bereits verplant. Für /31 und /32 gelten die gesonderten Regeln aus dem Beispiel.</p><p>Was nicht Netz ist, ist Host. Bei <span class="val">/26</span> bleiben 32 − 26 = 6 Hostbits. Mit 6 Bits gibt es 2⁶ = 64 Adressen. Zwei davon sind reserviert: Die erste (alle Hostbits 0) ist die <strong>Netz-ID</strong>, die letzte (alle Hostbits 1) der <strong>Broadcast</strong>. Bleiben 62 Adressen für Geräte.</p>',
   visual:'<div class="host-strip" aria-hidden="true"><span class="edge">Netz-ID</span><span class="active-range">62 nutzbare Hostadressen</span><span class="edge">Broadcast</span></div>',
   memo:'<strong>Hostbits = 32 − Präfix</strong>, Adressen = 2<sup>Hostbits</sup>, nutzbar = Adressen − 2. Ausnahmen: /31 (2 Endpunkte) und /32 (eine Adresse).',
   example:'Wie viele Geräte passen in ein /21-Netz?',
   steps:['Hostbits: 32 − 21 = 11.','Adressen: 2¹¹ = 2.048.','Minus Netz-ID und Broadcast: 2.048 − 2 = <strong>2.046</strong> nutzbare Hosts.','Typischer Fehler: 2 × 11 = 22 rechnen. 2¹¹ heißt elfmal verdoppeln.']},
  {title:'Netz-ID im 4. Oktett',cat:'net4',ch:'ch5',goal:'Bei /25 bis /30 die Netz-ID in Sekunden finden: Maske, Sprungweite, Block.',
-  intro:'<p>Die Netz-ID ist die erste Adresse eines Netzes. Bei Präfixen von /25 bis /30 liegt die Grenze zwischen Netz und Host im <strong>vierten Oktett</strong>. Der schnellste Weg ist die <strong>Sprungweite</strong>: 256 minus Maskenwert. In diesen Schritten beginnen die Netze. Du suchst den Block, in dem deine IP liegt.</p>',
+  intro:'<p>Eine Adresse liegt mitten im Block. Teile das entscheidende Oktett durch die Sprungweite, wirf den Rest weg und rechne zurück. Aufrunden landet hier zuverlässig im Nachbargrundstück.</p><p>Die Netz-ID ist die erste Adresse eines Netzes. Bei Präfixen von /25 bis /30 liegt die Grenze zwischen Netz und Host im <strong>vierten Oktett</strong>. Der schnellste Weg ist die <strong>Sprungweite</strong>: 256 minus Maskenwert. In diesen Schritten beginnen die Netze. Du suchst den Block, in dem deine IP liegt.</p>',
   visual:'<div class="range-blocks" aria-hidden="true"><span>0</span><span>64</span><span class="hit">128</span><span>192</span></div><p class="subtle" style="margin:6px 0 0">/26: Sprungweite 64. Die 134 liegt im Block 128 bis 191.</p>',
   memo:'<strong>Maske → Sprungweite (256 − Maskenwert) → Block finden → Netz-ID.</strong> Die IP einfach abzuschneiden ist der häufigste Fehler.',
   example:'Wie lautet die Netz-ID von 192.168.42.134/26?',
   steps:['/26 → Maske 255.255.255.192. Entscheidend ist das 4. Oktett.','Sprungweite: 256 − 192 = 64. Netze beginnen bei 0, 64, 128, 192.','134 liegt zwischen 128 und 191. Rechnerisch: 134 : 64 = 2 Rest 6, 2 × 64 = 128.','Netz-ID: <strong>192.168.42.128</strong>.']},
  {title:'Netz-ID im 3. und 2. Oktett',cat:'net3',ch:'ch5',goal:'Die Netz-ID bei /9 bis /23 finden, wenn die Grenze weiter vorne liegt.',
-  intro:'<p>Bei /20 oder /22 liegt die Grenze im <strong>dritten</strong> Oktett, bei /12 sogar im zweiten. Die Methode bleibt dieselbe, du musst nur das richtige Oktett finden: Präfix durch 8, der Rest zeigt, wie viele Netzbits im nächsten Oktett stecken. Danach gilt: Davor bleibt alles gleich, dahinter wird bei der Netz-ID alles 0.</p>',
+  intro:'<p>Bei einem kürzeren Präfix liegt der Schnitt weiter links. Rechne nur im entscheidenden Oktett und setz bei der Netz-ID die Oktette rechts davon auf null. Die 134 am Ende muss dieses Mal gar nichts beitragen.</p><p>Bei /20 oder /22 liegt die Grenze im <strong>dritten</strong> Oktett, bei /12 sogar im zweiten. Die Methode bleibt dieselbe, du musst nur das richtige Oktett finden: Präfix durch 8, der Rest zeigt, wie viele Netzbits im nächsten Oktett stecken. Danach gilt: Davor bleibt alles gleich, dahinter wird bei der Netz-ID alles 0.</p>',
   visual:bitRow(U([10,23,71,206]),20,'10.23.71.206/20'),
   memo:'<strong>Präfix : 8 → entscheidendes Oktett.</strong> Dort Sprungweite anwenden. Alle Oktette dahinter: 0 bei der Netz-ID, 255 beim Broadcast.',
   example:'Wie lautet die Netz-ID von 10.23.71.206/20?',
   steps:['20 : 8 = 2 Rest 4. Zwei Oktette sind ganz Netz, das 3. Oktett ist entscheidend.','Maske 255.255.240.0. Sprungweite im 3. Oktett: 256 − 240 = 16.','71 liegt im Block 64 bis 79 (71 : 16 = 4 Rest 7, 4 × 16 = 64).','Das 4. Oktett wird 0: Netz-ID <strong>10.23.64.0</strong>. Nicht 10.23.71.0 und schon gar nicht .206!']},
  {title:'Broadcast & Hostbereich',cat:'bc',ch:'ch6',goal:'Broadcast, ersten und letzten nutzbaren Host für jedes Präfix sicher bestimmen.',
-  intro:'<p>Wenn du die Netz-ID hast, ist der Rest Formsache. Der <strong>Broadcast</strong> ist die letzte Adresse des Blocks, also Netz-ID plus Sprungweite minus 1 im entscheidenden Oktett. Alle Oktette dahinter werden 255. Der <strong>erste Host</strong> ist die Netz-ID plus 1, der <strong>letzte Host</strong> der Broadcast minus 1.</p>',
+  intro:'<p>Du kennst die Netz-ID und willst wissen, wo der Block endet. Geh zur nächsten Netz-ID und eine Adresse zurück. So findest du den Broadcast, bevor ihn jemand dem Drucker gibt.</p><p>Wenn du die Netz-ID hast, ist der Rest Formsache. Der <strong>Broadcast</strong> ist die letzte Adresse des Blocks, also Netz-ID plus Sprungweite minus 1 im entscheidenden Oktett. Alle Oktette dahinter werden 255. Der <strong>erste Host</strong> ist die Netz-ID plus 1, der <strong>letzte Host</strong> der Broadcast minus 1.</p>',
   visual:'<div class="calc">Netz-ID     192.168.42.128   (alle Hostbits 0)\nerster Host 192.168.42.129\nletzter Host 192.168.42.190\nBroadcast   192.168.42.191   (alle Hostbits 1)</div>',
   memo:'<strong>Broadcast = nächstes Netz − 1.</strong> Erster Host = Netz + 1, letzter Host = Broadcast − 1.',
   example:'Bestimme Broadcast und Hostbereich von 10.23.71.206/20.',
   steps:['Netz-ID wie gelernt: 10.23.64.0 (Block 64 bis 79 im 3. Oktett).','Broadcast: Blockende 79 im 3. Oktett, dahinter 255 → <strong>10.23.79.255</strong>.','Erster Host: 10.23.64.1. Letzter Host: <strong>10.23.79.254</strong>.','Probe: Das nächste Netz beginnt bei 10.23.80.0. Eine Adresse davor ist der Broadcast. Passt.']},
  {title:'Subnetze planen',cat:'plan',ch:'ch7',goal:'Rückwärts rechnen: aus einer Hostzahl das Präfix bestimmen und ein Netz in gleich große Subnetze teilen.',
-  intro:'<p>In der Prüfung bekommst du oft kein Präfix, sondern eine Anforderung: „50 Arbeitsplätze“ oder „8 Abteilungen“. Dann rechnest du rückwärts. Für Hosts addierst du 2 (Netz-ID und Broadcast) und rundest auf die nächste Zweierpotenz auf. Für eine Anzahl von Subnetzen leihst du so viele Bits vom Hostteil, bis 2ⁿ reicht.</p>',
+  intro:'<p>Die neue Abteilung hat 50 Geräte. Entscheide zuerst, wie viele nutzbare Adressen nötig sind, und suche dann den kleinsten passenden Block. 50 Plätze auf dem Papier reichen wenig, wenn zwei davon reserviert sind.</p><p>In der Prüfung bekommst du oft kein Präfix, sondern eine Anforderung: „50 Arbeitsplätze“ oder „8 Abteilungen“. Dann rechnest du rückwärts. Für Hosts addierst du 2 (Netz-ID und Broadcast) und rundest auf die nächste Zweierpotenz auf. Für eine Anzahl von Subnetzen leihst du so viele Bits vom Hostteil, bis 2ⁿ reicht.</p>',
   visual:'<div class="calc">50 Hosts  → 50 + 2 = 52 → 64 = 2⁶ → 6 Hostbits → /26\n8 Netze   → 2³ = 8      → 3 Bits leihen → /24 + 3 = /27</div>',
   memo:'<strong>Hosts:</strong> + 2, aufrunden, 32 − Hostbits. <strong>Netze:</strong> 2ⁿ ≥ N, altes Präfix + n.',
   example:'192.168.10.0/24 soll in 6 gleich große, möglichst große Subnetze. Welches Präfix, wie viele Hosts je Netz?',
   steps:['6 Netze: 2² = 4 reicht nicht, 2³ = 8 reicht. Also 3 Bits leihen.','Neues Präfix: /24 + 3 = /27. Zwei Netze bleiben als Reserve.','Hostbits: 32 − 27 = 5 → 2⁵ − 2 = <strong>30 Hosts</strong> pro Netz.','Die Netze beginnen bei .0, .32, .64, .96, .128, .160, .192, .224.']},
  {title:'VLSM & Zusammenfassen',cat:'vlsm',ch:'ch8',goal:'Ein Netz für unterschiedlich große Abteilungen aufteilen und mehrere Netze zu einer Sammelroute zusammenfassen.',
-  intro:'<p>Bei <strong>VLSM</strong> (Variable Length Subnet Mask) bekommt jede Abteilung ein passend großes Netz statt alle gleich groß. Regel Nummer eins: <strong>Größter Bedarf zuerst</strong>, sonst passt der große Block hinterher nicht mehr sauber hinein. Der Gegenweg ist das <strong>Zusammenfassen</strong> (Supernetting): Mehrere Netze werden zu einer kürzeren Route, indem man nur die gemeinsamen Bits von links behält.</p>',
+  intro:'<p>Die große Abteilung bekommt ihren Block zuerst. Für VLSM ist das praktisch, weil die kleinen Netze danach leichter auf passende Grenzen rutschen. Umgekehrt ist es wie Schrankaufbau mit der größten Platte ganz unten im Stapel.</p><p>Bei <strong>VLSM</strong> (Variable Length Subnet Mask) bekommt jede Abteilung ein passend großes Netz statt alle gleich groß. Regel Nummer eins: <strong>Größter Bedarf zuerst</strong>, sonst passt der große Block hinterher nicht mehr sauber hinein. Der Gegenweg ist das <strong>Zusammenfassen</strong> (Supernetting): Mehrere Netze werden zu einer kürzeren Route, indem man nur die gemeinsamen Bits von links behält.</p>',
   visual:'<div class="vlsm-band" aria-hidden="true"><div class="vlsm-part a"><strong>/25</strong><span>100 Hosts</span><small>.0–127</small></div><div class="vlsm-part b"><strong>/26</strong><span>50 Hosts</span><small>.128–191</small></div><div class="vlsm-part c"><strong>/27</strong><span>20</span><small>.192–223</small></div><div class="vlsm-part free"><strong>/27</strong><span>frei</span><small>.224–255</small></div></div>',
   memo:'<strong>VLSM:</strong> sortieren, je Bedarf + 2 aufrunden, lückenlos vergeben. <strong>Zusammenfassen:</strong> gleiche Bits von links zählen, Rest auf 0.',
   example:'192.168.50.0/24 für 100, 50 und 20 Hosts. Wo beginnt das Netz für 20 Hosts?',
   steps:['100 Hosts → 102 → 128 Adressen (/25): .0 bis .127.','50 Hosts → 52 → 64 Adressen (/26): .128 bis .191.','20 Hosts → 22 → 32 Adressen (/27): beginnt bei <strong>192.168.50.192</strong>.','Frei bleibt .224 bis .255. Bonus Zusammenfassen: 172.16.4.0/24 bis 172.16.7.0/24 → 4 Netze, gleiche Bits bis Bit 22 → <strong>172.16.4.0/22</strong>.']},
  {title:'Adressen prüfen & Fehlersuche',cat:'check',ch:'ch9',goal:'Erkennen, ob zwei Geräte im selben Netz sind, ob ein Gateway passt und welche Sonderadressen vorliegen.',
-  intro:'<p>Jetzt wird es praktisch. In der Prüfung und im Job heißt es oft: „PC A erreicht PC B nicht. Warum?“ Die Antwort steckt fast immer in der Rechnung, die du schon kannst: <strong>Netz-ID von beiden ausrechnen und vergleichen.</strong> Dazu kommen ein paar Adressen, die du auswendig erkennen solltest: private Bereiche, 127.0.0.1, 169.254.x.x und Co.</p>',
+  intro:'<p>Zwei PCs können sich nicht erreichen. Rechne für beide die Netz-ID aus und prüfe die Masken und das Gateway. Fast gleiche IP-Adressen sind als Diagnose ungefähr so gut wie fast eingesteckte Kabel.</p><p>Jetzt wird es praktisch. In der Prüfung und im Job heißt es oft: „PC A erreicht PC B nicht. Warum?“ Die Antwort steckt fast immer in der Rechnung, die du schon kannst: <strong>Netz-ID von beiden ausrechnen und vergleichen.</strong> Dazu kommen ein paar Adressen, die du auswendig erkennen solltest: private Bereiche, 127.0.0.1, 169.254.x.x und Co.</p>',
   visual:'<div class="calc">PC A  192.168.5.70/26   → Netz 192.168.5.64\nPC B  192.168.5.130/26  → Netz 192.168.5.128\n                          ≠  → nur über Router erreichbar</div>',
   memo:'<strong>Gleiche Netz-ID = direkte Verbindung.</strong> Gateway: nutzbarer Host im selben Netz, aber nicht zwingend der erste. 169.254.x.x am Client = DHCP hat nicht geantwortet.',
   example:'Ein PC hat 172.16.9.200/23 und das Gateway 172.16.10.1. Wo ist das Problem?',
@@ -1630,8 +1920,8 @@ const STAGES=[
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=['Richtig! Dein Router würde dich jetzt in die Routingtabelle aufnehmen.','Sauber. Kein Paket verloren, keine Adresse verschenkt.','Treffer. Die Subnetzmaske nickt anerkennend.','Korrekt. Du rechnest schneller, als ein DHCP-Server Adressen verteilt.','Stimmt. Der Broadcast hat es allen erzählt: Du kannst das.','Exakt. Da sitzt jedes Bit an seinem Platz.','Richtig. Die IHK hat kurz nervös an ihrem Kugelschreiber gekaut.','Läuft. Ping erfolgreich, 0 % Verlust.','Genau so. Kein Bauchgefühl, nur Bits.','Volltreffer. Du bist offiziell kein /32 mehr, du bist ein ganzes Netz.','Korrekt. Ein Netzwerkadmin irgendwo vergießt eine Freudenträne.','Ja! So sauber ausgerichtet wie ein perfektes /26.','Richtig. Dein Gehirn hat soeben eine statische Route zum Verständnis eingetragen.','Sitzt. Der Taschenrechner fühlt sich gerade arbeitslos.','Stark. TTL deines Wissens: unendlich.','Richtig. Das war kein Glück, das war AND-Verknüpfung.'];
-const Q_BAD=['Daneben. Das Paket ist im falschen Subnetz gelandet.','Nope. Da hat sich ein Bit verlaufen. Vermutlich ein Hostbit.','Leider falsch. Destination Host Unreachable, aber nur vorübergehend.','Knapp vorbei ist auch vorbei. Sagt jede Subnetzmaske.','Falsch, aber mutig. Mut gibt es in der IHK leider nicht als Punkte.','Nicht ganz. Der Rechenweg unten ist dein neues Standardgateway.','Error 404: Netz-ID nicht gefunden. Schau dir den Weg an.','Daneben. Kein Drama, auch das Internet hat mal mit einem Netz angefangen.','Nein. Der Fehler sitzt meistens zwischen Präfix und Sprungweite.','Leider nein. Request timed out. Neuer Versuch, neues Glück.','Falsch. Aber jetzt weißt du, wo die Falle liegt. Das ist ein Paket wert.','Nope. Selbst ein Hub hätte das eher richtig geraten. Und der rät nur.'];
+const Q_OK=["Stimmt. Die Adressen bleiben in ihrem Block.", "Richtig. Die Netzgrenze sitzt.", "Passt. Da bekommt der Drucker keinen Broadcast als Adresse."];
+const Q_BAD=["Noch nicht. Prüfe im Lösungsweg die Blockgrenze oder die Sonderregel.", "Schau nach, welche Bits zur Netz-ID gehören.", "Geh den Rechenweg unten durch. Meist reicht es, die Sprungweite oder den letzten Schritt zu prüfen."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Portweiterleitung.','Gemeistert. Dein Präfix ist gerade um ein Bit gewachsen.','Stufe geschafft! 8 von 10, das ist kein Glück mehr, das ist Routing.','Level up. Du bist jetzt offiziell routbar.'];
 const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
 
@@ -1686,6 +1976,7 @@ function renderTask(host,t,o){
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
  host.innerHTML=h;
+ window.dtpMountCalculator?.(host,t,'subnet');
  const q=r=>host.querySelector('[data-r="'+r+'"]');
  let done=false,usedHint=!!o.hint;
  const tip=q('tip');if(tip)tip.addEventListener('click',()=>{q('hint').classList.remove('hidden');tip.hidden=true;usedHint=true});
@@ -1910,6 +2201,7 @@ function renderExamQ(){
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
+ window.dtpMountCalculator?.($('examQ'),t,'subnet');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
  if(inp){const chk=()=>{const v=inp.value;ex.ans[i]=v.trim()?v:null;const p=v.trim()?parseAnswer(t,v):null;$('exFmt').innerHTML=p&&!p.valid?'<span style="color:var(--warn)">⚠ '+esc(p.msg)+' So würde die Antwort als falsch gewertet.</span>':(t.fmt||FMT[t.kind]);renderExamNav()};inp.addEventListener('input',chk);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});inp.focus({preventScroll:true});if(inp.value)chk()}

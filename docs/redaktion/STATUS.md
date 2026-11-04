@@ -48,16 +48,8 @@ Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. 
 
 PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und die gemeinsamen Modul- und Browsertests erweitert. Die veralteten B5-Einzellösungen und ihre testspezifischen Selektoren werden nicht erneut eingespielt. B5-Textredaktion und die neuere Fokusfunktion werden auf dem aktuellen `main` gemeinsam integriert; öffentliche Auslieferung ist erst nach erfolgreicher Deploymentprüfung bestätigt.
 
-## Einstiege in Lernpfad und Nachschlagwerk (04.11.2026)
+## Zusammenführung der Lehrtexte und Fortschrittskacheln (04.11.2026)
 
-Willis Präzisierung: Alltagssprache und trockener Humor gehören in die Erklärung selbst. Die Pointe folgt aus dem Beispiel. B5 verwendet beim Vergleich von TCP und UDP im Lernpfad und im Nachschlagwerk „Eine halbe Datei ist so viel wert wie ein halbes Passwort“.
+Die neueren Lektionseinstiege und das Rechnerdesign aus der veröffentlichten Fassung wurden bei Überschneidungen beibehalten. Ergänzt wurden weitere Aufgaben- und Erklärungstexte in A1 und B1 sowie Willis gewünschte Formulierung in B5. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten und Inhaltsbereiche bleibt außerhalb von B5 offen.
 
-Die Runde bearbeitet in jedem der neun Module zwei Lehrtextstellen oder Lehransichten. Themen sind Stellenwerte, OSI und Fehlersuche, das lokale Netzwerk, IPv4-Oktette, IPv6-Schreibweise, Transport, Personenbezug und Datenminimierung, Schutzziele und Risiko sowie Angebotsvergleich und Skonto. Überschriften, Aufgabenlogik und gespeicherte Fortschrittsdaten bleiben erhalten. Die vollständigen Durchläufe aller übrigen Inhaltsbereiche der acht offenen Module stehen weiterhin aus.
-
-### Vertiefter Durchlauf A1 · Zahlensysteme
-
-Alle zehn Einstiege im Lernpfad im Zusammenhang gelesen. Nach dem bereits überarbeiteten Einstieg zu Stellenwerten wurden die neun weiteren Lerntexte neu formuliert. Im Nachschlagwerk wurden ergänzend Erklärungen zu Umrechnungen, Logik, Zweierkomplement, Einheiten, Datenrate und Speicherbedarf bearbeitet. Die Rechenbeispiele bleiben als Bezug zu den Texten erhalten. Im Generator wurde der falsche Vergleich der Stellenwerte durch einen Hinweis ersetzt, der für jede Basis gilt. Der Hinweis zu −128 nennt jetzt ausdrücklich 8 Bit. Eine abwertende Rückmeldung wurde ersetzt. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten, Lösungsformulierungen und Rückmeldungen ist noch offen.
-
-### Vertiefter Durchlauf B1 · OSI
-
-Alle zehn Einstiege im Lernpfad neu formuliert. Im Nachschlagwerk wurden die Einstiege zu Kapselung und Netzwerkgeräten vertieft. In den Übungen wurden Texte zu Ziel-MAC, Ziel-IP, Rahmengröße und Transportprotokollen präzisiert, im Lernpfad außerdem die Aussagekraft von Ping begrenzt. Überschriften und JavaScript-Syntax geprüft. Bei 20.880 erzeugten Aufgaben blieben Lösungsdaten und Antwortoptionen identisch. Die Durchsicht aller übrigen Nachschlage-, Aufgaben- und Feedbacktexte steht noch aus.
+Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Prüfungsbestwerte und freigeschaltete Achievements. Historische Fortschrittsdaten fließen ein.

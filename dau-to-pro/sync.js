@@ -13,6 +13,34 @@
   try { delete window.__DTP_SYNC__; } catch (e) { window.__DTP_SYNC__ = undefined; }
   if (!cfg || cfg.v !== 1) return;
 
+  function mountBack() {
+    if (!cfg.modules || !document.body || document.querySelector('dtp-back')) return;
+    var host = document.createElement('dtp-back');
+    host.style.cssText = 'display:block;position:relative;z-index:2';
+    var root = host.attachShadow ? host.attachShadow({mode: 'open'}) : host;
+    var css = document.createElement('style');
+    css.textContent = [
+      ':host{color:var(--text,#f5f0df);font:700 13px/1.2 system-ui,sans-serif}',
+      'header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px}',
+      'a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--cyan,#65dce0);border-radius:7px;background:var(--panel,#11181c);color:inherit;text-decoration:none}',
+      'a:hover{color:var(--cyan,#65dce0)}a:focus-visible{outline:2px solid var(--cyan,#65dce0);outline-offset:2px}',
+      'b{letter-spacing:.08em}b span{color:var(--cyan,#65dce0)}@media print{header{display:none}}'
+    ].join('');
+    var header = document.createElement('header');
+    var link = document.createElement('a');
+    link.href = new URL(cfg.modules, location.href).href;
+    link.setAttribute('aria-label', 'Zurück zur Modulauswahl');
+    link.innerHTML = '<span aria-hidden="true">←</span> Modulauswahl';
+    var brand = document.createElement('b');
+    brand.innerHTML = 'DAU <span>TO PRO</span>';
+    header.append(link, brand);
+    root.append(css, header);
+    document.body.querySelectorAll('.gd-brand').forEach(function (oldBrand) { oldBrand.remove(); });
+    document.body.prepend(host);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountBack);
+  else mountBack();
+
   var ls;
   try { ls = window.localStorage; ls.getItem('dtp-sync:probe'); } catch (e) { return; }
   if (!ls) return;
@@ -236,50 +264,6 @@
     render(state);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount); else mount();
-
-  // ------------------------------------------------------------------ Zurück zur Modulauswahl
-  function mountBack() {
-    if (!cfg.modules || !document.body || document.querySelector('dtp-back')) return;
-    var h = document.createElement('dtp-back');
-    h.setAttribute('style', 'all:initial;position:fixed;left:12px;top:12px;z-index:2147483000');
-    var root = h.attachShadow ? h.attachShadow({ mode: 'closed' }) : h;
-    var css = document.createElement('style');
-    css.textContent = [
-      ':host{all:initial}',
-      'a{display:inline-flex;align-items:center;gap:8px;box-sizing:border-box;padding:8px 14px 8px 10px;border-radius:999px;text-decoration:none;',
-      'background:rgba(12,16,19,.9);border:1px solid rgba(234,180,72,.55);box-shadow:0 6px 22px rgba(0,0,0,.45);color:#f5f0df;',
-      'font:700 13px/1.2 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);',
-      'transition:background .18s,border-color .18s,transform .18s}',
-      'a:hover{background:rgba(30,26,16,.95);border-color:#eab448;transform:translateX(-2px)}',
-      'a:focus-visible{outline:2px solid #00dce8;outline-offset:2px}',
-      '.i{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;color:#130f07;font-size:14px;',
-      'background:linear-gradient(105deg,#fff1bb,#efc261 58%,#cc8f25)}',
-      '@media (max-width:560px){a{padding:6px 11px 6px 7px;font-size:12px}}',
-      '.min a{padding:6px;opacity:.82}.min .t{display:none}.min a:hover,.min a:focus-visible{opacity:1}',
-      '@media (prefers-reduced-motion:reduce){a{transition:none}}@media print{a{display:none}}'
-    ].join('');
-    var a = document.createElement('a');
-    a.href = abs(cfg.modules);
-    a.setAttribute('aria-label', 'Zurück zur Modulauswahl');
-    a.title = 'Zurück zur Modulauswahl';
-    var i = document.createElement('span'); i.className = 'i'; i.setAttribute('aria-hidden', 'true'); i.textContent = '\u2190';
-    var t = document.createElement('span'); t.className = 't'; t.textContent = 'Modulauswahl';
-    a.appendChild(i); a.appendChild(t);
-    var wrap = document.createElement('div'); wrap.appendChild(a);
-    root.appendChild(css); root.appendChild(wrap);
-    document.body.appendChild(h);
-    // Beim Runterscrollen nur noch das Pfeil-Symbol, damit der Button keinen Lesetext verdeckt.
-    var lastY = window.scrollY || 0;
-    window.addEventListener('scroll', function () {
-      var y = window.scrollY || 0;
-      if (y < 120) wrap.className = '';
-      else if (y > lastY + 4) wrap.className = 'min';
-      else if (y < lastY - 24) wrap.className = '';
-      if (Math.abs(y - lastY) > 4) lastY = y;
-    }, { passive: true });
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountBack); else mountBack();
-
 
   // Achievements und Level-up zeigt dau-to-pro/achievement-toast.js (wird zusammen mit diesem Skript eingebunden).
   function celebrate(json) { if (window.dtpAchievementToast) window.dtpAchievementToast.celebrate(json); }
