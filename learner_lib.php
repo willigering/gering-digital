@@ -456,6 +456,19 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
         $entry=(string)file_get_contents(__DIR__.'/tools/module-entry.js');
         $tag.="<!-- DTP-MODULEINSTIEG START -->\n<script>".str_ireplace('</script','<\\/script',$entry)."</script>\n<!-- DTP-MODULEINSTIEG END -->\n";
     }
+    // Desktop hover ends at the question mark. Keyboard focus and touch still open the hint.
+    $tag.=<<<'HTML'
+<style>
+@media (hover: hover) and (pointer: fine) {
+    body .qhelp .qtip { pointer-events: none; }
+    body .qhelp:not(:hover):not(:focus-visible) .qtip {
+        display: none;
+        transition: none;
+        animation: none;
+    }
+}
+</style>
+HTML;
     require_once __DIR__.'/dau-to-pro/feedback-form.php';
     if (DTP_FEEDBACK_ENABLED) {
         $tag.=dtp_feedback_assets();
