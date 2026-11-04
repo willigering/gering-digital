@@ -77,8 +77,8 @@
     trigger.hidden = false;
     trigger.addEventListener('pointerenter', (event) => {
         if (event.pointerType !== 'mouse' || sentCount < 3 || escaped || Date.now() < nextEscape
-            || document.activeElement === trigger || matchMedia('(prefers-reduced-motion: reduce)').matches
-            || typeof trigger.animate !== 'function' || Math.random() >= .05) return;
+            || trigger.matches(':focus-visible') || matchMedia('(prefers-reduced-motion: reduce)').matches
+            || typeof trigger.animate !== 'function') return;
 
         const rect = trigger.getBoundingClientRect();
         const left = rect.left > innerWidth - rect.right ? -1 : 1;
