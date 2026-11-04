@@ -417,8 +417,11 @@ function learner_sync_config(string $slug,string $file): array {
     }
     return $config;
 }
+function learner_update_revision(string $version): string {
+    return hash('sha256',$version.'|'.(string)@filemtime(__DIR__.'/dau-to-pro/sync.js').'|'.(string)@filemtime(__DIR__.'/dau-to-pro/update-notice.js'));
+}
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
-function learner_inject_sync(string $html,string $slug,string $file): string {
+function learner_inject_sync(string $html,string $slug,string $file,?string $version=null): string {
     // Auch bereits importierte Modulversionen ohne das alte Footer-Logo ausliefern.
     // Nur das Markenbild entfernen; Lernabbildungen und Footer-Texte bleiben erhalten.
     $html=preg_replace_callback('~<footer\b[^>]*>[\s\S]*?</footer>~i', static function(array $m): string {
@@ -453,6 +456,7 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
     // Erstes Polling nach DOMContentLoaded, keine automatische Seitenaktualisierung.
     $updateConfig=json_encode([
         'slug'=>$slug,
+        'revision'=>$version===null?null:learner_update_revision($version),
         'url'=>learner_root_prefix($file).'dau-to-pro/api/update-version.php'
     ],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE);
     $updateScript=(string)file_get_contents(__DIR__.'/dau-to-pro/update-notice.js');
