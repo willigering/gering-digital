@@ -222,7 +222,7 @@ function dtp_card_progress(array $progress): string {
     $html='<details class="module-progress"><summary><span class="module-progress-head">'
         .'<strong>'.e($status).'</strong><span>'.$count.' / '.$total.' Stufen</span></span>'
         .'<span class="module-progress-bar" aria-hidden="true"><i style="width:'.(int)round($count*100/$total).'%"></i></span>'
-        .'<span class="module-progress-more">Details · Achievements '.$earned.' / '.$progress['achievements'].' <b aria-hidden="true">⌄</b></span></summary>';
+        .'<span class="module-progress-more">Achievements '.$earned.' / '.$progress['achievements'].' <b aria-hidden="true">⌄</b></span></summary>';
     $html.='<div class="module-progress-details"><ol class="module-progress-stages" aria-label="Lernpfad-Stufen">';
     for ($i=0;$i<$total;$i++) {
         $done=in_array($i,$mastered,true);
