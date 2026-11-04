@@ -38,7 +38,7 @@ let server,browser;
     assert.equal(await page.locator('.hero-canvas--clean-people .hero-part-image[src*="people-clean"]').count(),2,'Both character planes use the cleaned cutouts');
     assert.equal(await page.locator('[data-mushroom-anchor] .fx-layer').count(),1,'Mushroom interaction belongs to its moving plane');
     const geometry=await page.evaluate(()=>{
-      const r=document.querySelector('.hero-actions .primary-action').getBoundingClientRect();
+      const r=document.querySelector('.hero-actions .secondary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
       return {width:innerWidth,scrollWidth:document.documentElement.scrollWidth,ctaBottom:r.bottom,columns:grid.gridTemplateColumns.split(' ').filter(track=>parseFloat(track)>0).length,
         cardWidth:document.querySelector('.module-card').getBoundingClientRect().width,modulesY:document.querySelector('.module-grid').getBoundingClientRect().top,
@@ -47,7 +47,7 @@ let server,browser;
     if(screenshots&&[1440,390,320].includes(width))await page.screenshot({path:path.join(screenshots,`desktop-${width}.png`),fullPage:true});
     assert.ok(geometry.scrollWidth<=width,`No page overflow at ${width}: ${JSON.stringify(geometry)}`);
     assert.deepEqual(geometry.overflow,[],`No clipped controls at ${width}`);
-    if(width>=1024||width<=610)assert.ok(geometry.ctaBottom<height,`Learning action visible on first screen at ${width}: ${geometry.ctaBottom}`);
+    if(width>=1024||width<=610)assert.ok(geometry.ctaBottom<height,`Information action visible on first screen at ${width}: ${geometry.ctaBottom}`);
     if(width>=1024){assert.ok(geometry.columns>=2,'Desktop retains a stable multi-column grid');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
     assert.equal(await page.locator('#pruefungsfinder').count(),0,'Prüfungsfinder was removed');
     assert.equal(await page.locator('#exam-form').count(),0,'No exam search field remains');
