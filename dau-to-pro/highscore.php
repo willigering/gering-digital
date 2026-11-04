@@ -83,6 +83,7 @@ $total=count(ach_catalog());
   <p class="konto-hint">Klicke auf einen Namen, um die Achievement-Sammlung anzusehen. Die Symbole neben dem Namen zeigen die persönliche Vitrine. Deine eigenen Achievements findest du unter <a href="konto.php#achievements">Mein Fortschritt</a>.</p>
 <?php endif; ?>
 </main>
+<a class="primary-action konto-modules-link" href="./#lernmodule">Weiter lernen! <span aria-hidden="true">→</span></a>
 <?php if($learner): ?><dialog class="profile-dialog" id="learner-profile" aria-labelledby="profile-title"><div class="profile-toolbar"><h2 id="profile-title">Lernprofil</h2><button type="button" class="secondary-action" data-profile-close aria-label="Profil schließen">Schließen ×</button></div><div id="profile-content" aria-live="polite"></div></dialog><?php endif; ?>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php#lernkonten">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
 </body></html>
