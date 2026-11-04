@@ -67,7 +67,13 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             case 'highscore':
                 $visible=($_POST['visible']??'')==='1';
                 ach_set_visible($id,$visible);
-                konto_back('',['ok'=>$visible?'Du bist jetzt im Highscore sichtbar. Ausschalten geht jederzeit hier.':'Du bist im Highscore nicht mehr sichtbar.','section'=>'highscore']);
+                if ($visible) {
+                    $_SESSION['dtp_highscore_reveal']=$id;
+                    header('Location: highscore.php',true,303);
+                    exit;
+                }
+                unset($_SESSION['dtp_highscore_reveal']);
+                konto_back('',['ok'=>'Du bist im Highscore nicht mehr sichtbar.','section'=>'highscore']);
             case 'export':
                 header('Content-Type: application/json; charset=utf-8');
                 header('Content-Disposition: attachment; filename="dau-to-pro-fortschritt-'.preg_replace('/[^A-Za-z0-9._-]/','',$learner['username']).'.json"');
