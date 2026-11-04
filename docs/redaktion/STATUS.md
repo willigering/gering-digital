@@ -48,8 +48,8 @@ Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. 
 
 PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und die gemeinsamen Modul- und Browsertests erweitert. Die veralteten B5-Einzellösungen und ihre testspezifischen Selektoren werden nicht erneut eingespielt. B5-Textredaktion und die neuere Fokusfunktion werden auf dem aktuellen `main` gemeinsam integriert; öffentliche Auslieferung ist erst nach erfolgreicher Deploymentprüfung bestätigt.
 
-## Prüfungs- und Übungsfeedback (04.11.2026)
+## Einstiege in Lernpfad und Nachschlagwerk (04.11.2026)
 
-Alle neun Repository-Module enthalten bereits humorvolles Aufgabenfeedback und Notenkommentare. Die mehrfach verwendeten Notensprüche wurden in A1, B1, B2, B3, B4, D1, D2 und F2 durch zum Thema passende Rückmeldungen ersetzt. B4 erhält außerdem ein eigenes Übungsfeedback. In A1, B1, B2, D1 und D2 wurden einzelne konstruierte oder gegen Lernende gerichtete Sprüche ersetzt. Das bereits redigierte B5 bleibt bei dieser Runde außen vor.
+Willis Präzisierung: Alltagssprache und trockener Humor gehören in die Erklärung selbst. Die Pointe folgt aus dem Beispiel. B5 verwendet beim Vergleich von TCP und UDP im Lernpfad und im Nachschlagwerk „Eine halbe Datei ist so viel wert wie ein halbes Passwort“.
 
-Geprüfter Änderungsumfang: Feedbacktexte und deren Skriptsyntax. Dieser Durchlauf umfasst weder alle Lektionen und Nachschlagekapitel noch alle Fälle, Hinweise und Lösungen. Die vollständigen Durchläufe der acht Module bleiben in der Arbeitsliste offen.
+Die Runde bearbeitet in jedem der neun Module zwei Lehrtextstellen oder Lehransichten. Themen sind Stellenwerte, OSI und Fehlersuche, das lokale Netzwerk, IPv4-Oktette, IPv6-Schreibweise, Transport, Personenbezug und Datenminimierung, Schutzziele und Risiko sowie Angebotsvergleich und Skonto. Überschriften, Aufgabenlogik und gespeicherte Fortschrittsdaten bleiben erhalten. Die vollständigen Durchläufe aller übrigen Inhaltsbereiche der acht offenen Module stehen weiterhin aus.

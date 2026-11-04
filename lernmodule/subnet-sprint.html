@@ -731,7 +731,7 @@ body.dtp-exercise-open{overflow:hidden}
 
     <section id="ch1" class="panel cy">
       <div class="chapter-head"><span class="ch-no">01</span><div><h3>32 Bits. Vier Oktette. Ein Netzwerk.</h3><p>Verstehe zuerst das System. Danach werden alle Rechenwege logisch.</p></div></div>
-      <p>Eine IPv4-Adresse besteht aus <strong>32 Bits</strong>, aufgeteilt in vier Blöcke zu je 8 Bit. So ein Block heißt <strong>Oktett</strong> und hat einen Dezimalwert von <strong>0 bis 255</strong>. Geschrieben wird das in der Punktschreibweise: <span class="val">192.168.42.134</span>.</p>
+      <p>Wenn der Support nach deiner IPv4-Adresse fragt, liest du vier Zahlen vor. Das geht schneller als 32 Nullen und Einsen am Telefon. Genau diese <strong>32 Bits</strong> stecken darin, aufgeteilt in vier Blöcke zu je acht. So ein Block heißt <strong>Oktett</strong> und hat einen Dezimalwert von <strong>0 bis 255</strong>. Geschrieben wird das in der Punktschreibweise: <span class="val">192.168.42.134</span>.</p>
       <div class="two">
         <div class="box"><h4>Die acht Stellenwerte</h4><div class="calc">128  64  32  16 │  8   4   2   1
   1   0   0   0 │  0   1   1   0   = 128 + 4 + 2 = 134</div><p>Umgekehrt zerlegst du von groß nach klein: Passt der Wert noch in den Rest, schreib eine 1 und zieh ihn ab.</p></div>
@@ -1568,7 +1568,7 @@ function bitRow(u,p,label,mode){
 const ex1=U([192,168,42,134]);
 const STAGES=[
  {title:'Bits & Oktette',cat:'bits',ch:'ch1',goal:'Ein Oktett zwischen Binär und Dezimal umrechnen und die bitweise UND-Verknüpfung beherrschen. Das ist das Fundament für alles Weitere.',
-  intro:'<p>Eine IPv4-Adresse wie <span class="val">192.168.42.134</span> sieht nach vier Zahlen aus. In Wahrheit sind es <strong>32 Bits</strong>, aufgeteilt in vier Blöcke zu je 8 Bit. So ein Block heißt <strong>Oktett</strong> und kann Werte von 0 bis 255 annehmen. Jede der acht Stellen hat einen festen Wert, von links: 128, 64, 32, 16, 8, 4, 2, 1. Steht dort eine 1, zählt der Wert. Steht dort eine 0, nicht.</p>',
+  intro:'<p>Du liest <span class="val">192.168.42.134</span>. Der Rechner arbeitet mit <strong>32 Bits</strong>. Die vier Zahlen mit Punkten sind die Kurzfassung für Menschen. Versuch mal, 32 Nullen und Einsen am Telefon durchzugeben. Die Bits sind in vier Blöcke zu je acht aufgeteilt. So ein Block heißt <strong>Oktett</strong> und kann Werte von 0 bis 255 annehmen. Jede der acht Stellen hat einen festen Wert, von links: 128, 64, 32, 16, 8, 4, 2, 1. Steht dort eine 1, zählt der Wert. Steht dort eine 0, nicht.</p>',
   visual:bitRow(ex1,32,'192.168.42.134'),
   memo:'<strong>128 · 64 · 32 · 16 · 8 · 4 · 2 · 1</strong>. Nur die Einsen zählen. Und beim UND (AND) kommt nur dort eine 1 heraus, wo <strong>beide</strong> Bits 1 sind.',
   example:'Welchen Dezimalwert hat 1000 0110₂, und was ergibt 134 AND 192?',
@@ -1891,7 +1891,7 @@ function buildExam(k){
 }
 function gradeOf(pct){return pct>=92?1:pct>=81?2:pct>=67?3:pct>=50?4:pct>=30?5:6}
 const GRADE_TXT={1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenügend'};
-const GRADE_QUIP={"1": "Sehr gut. Du hast die Netze geteilt, ohne die Adressen mit der Axt zu verteilen.", "2": "Gut. Prüfe bei den Fehlern, ob Netzgrenze und Hostbereich zusammenpassen.", "3": "Bestanden. Ein bisschen mehr Reserve darf es sein. Beim Adressraum würdest du auch nachrechnen.", "4": "Knapp bestanden. Markiere beim nächsten Versuch zuerst die Netzgrenze.", "5": "Heute reicht es noch nicht. Rechne erst eine Maske und die passende Blockgröße von Hand durch.", "6": "Heute reicht es noch nicht. Nimm ein einziges Subnetz und bestimme Anfang, Ende und Hostbereich."};
+const GRADE_QUIP={1:'Sehr gut! Du subnettest wie andere Leute atmen. Der Admin-Posten wartet.',2:'Gut! Ein paar Pakete sind noch falsch abgebogen, aber das Routing steht.',3:'Befriedigend. Bestanden, aber dein Prüfungs-Ich hätte gern mehr Puffer im Adressraum.',4:'Ausreichend. Knapp drüber ist auch drüber. Trotzdem: ab in die Baustellen.',5:'Mangelhaft. Kein Weltuntergang, aber der Lernpfad ruft. Per Broadcast.',6:'Ungenügend. Netzwerk nicht erreichbar. Starte beim Lernpfad neu, das wird.'};
 function renderHistory(){const h=load(EXAM_STORE);if(!Array.isArray(h)||!h.length){$('examHistory').textContent='Noch keine Probeprüfung abgelegt.';return}
  $('examHistory').innerHTML='<div class="table-wrap"><table class="t"><thead><tr><th>Datum</th><th>Dauer</th><th>Punkte</th><th>Note</th><th>Abgabe</th></tr></thead><tbody>'+h.slice().reverse().map(r=>'<tr><td>'+esc(r.d)+'</td><td>'+(r.m||30)+' min</td><td class="m">'+r.p+' / 100</td><td>'+r.g+' ('+GRADE_TXT[r.g]+')</td><td>'+esc(r.r)+'</td></tr>').join('')+'</tbody></table></div>'}
 function startExam(){
