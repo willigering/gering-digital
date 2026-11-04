@@ -27,12 +27,13 @@ string? ticket = Console.ReadLine();</pre>
   <details>
     <summary>Hinweis</summary>
     <p>Setz ein <code>$</code> direkt vor die Anführungszeichen. Mit <code>{ticket}</code> fügst du den gespeicherten Text ein. Denk an das Semikolon am Ende.</p>
+    <pre>Console.WriteLine($"Ticket {ticket} erfasst.");</pre>
   </details>
   <label for="ticket">Konsoleneingabe</label>
   <input id="ticket" value="0042" maxlength="80" autocomplete="off">
   <button id="run" type="button">Antwort prüfen</button>
   <button id="reset" type="button">Zurücksetzen</button>
-  <p id="feedback" role="status"></p>
+  <p id="feedback" role="status">Falls die Buttons in der Dateivorschau nicht reagieren, lade die HTML-Datei herunter und öffne sie in deinem Browser.</p>
   <h2>Simulierte Konsole</h2>
   <pre id="terminal" aria-live="polite">Ticketnummer?</pre>
   <p>Diese Übung prüft die hier gezeigte C#-Schreibweise und simuliert ihre Ausgabe.</p>
@@ -43,6 +44,7 @@ string? ticket = Console.ReadLine();</pre>
   const feedback = document.getElementById('feedback');
   const terminal = document.getElementById('terminal');
   const promptLine = 'Ticketnummer?';
+  feedback.textContent = '';
   const expectedLine = /^Console\.WriteLine[ \t]*\([ \t]*\$"Ticket \{[ \t]*ticket[ \t]*\} erfasst\."[ \t]*\)[ \t]*;$/;
 
   document.getElementById('run').addEventListener('click', () => {
