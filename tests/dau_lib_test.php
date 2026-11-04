@@ -100,6 +100,10 @@ $card=dtp_module_card(['slug'=>'osi-sprint','title'=>'<img src=x onerror=alert(1
 check(!str_contains($card,'<img src=x') && str_contains($card,'&lt;img src=x'),'Kartentitel wird escaped');
 check(str_contains($card,'srcset="../assets/dau-previews/osi-modell-640.webp 640w') && str_contains($card,'loading="lazy"') && str_contains($card,'width="1280" height="720"'),'Karte lädt Bilder performant (lazy, srcset, feste Maße)');
 check(str_contains(dtp_module_card(['slug'=>'s','title'=>'t'],'../',false),'<div class="module-card"'),'Vorschaukarte ohne Link');
+
+$comingSoon=dtp_module_card(['slug'=>'b4-ipv6','title'=>'IPv6'],'../',true,$progress['osi-sprint'],comingSoon:true);
+check(str_contains($comingSoon,'is-coming-soon') && str_contains($comingSoon,'Bald verfügbar'),'Vorschau zeigt den Verfügbarkeitsstatus');
+check(!str_contains($comingSoon,'href=') && !str_contains($comingSoon,'module-progress'),'Vorschau bietet keinen Einstieg oder Fortschritt an');
 $accents=array_column($catalog['motifs'],'accent');
 check(count(array_unique($accents))===count($accents) && !array_filter($accents,fn($c)=>!preg_match('/^#[0-9a-f]{6}$/',$c)),'Jedes Motiv hat eine eigene Modulfarbe');
 check(str_contains(dtp_module_card(['slug'=>'osi-sprint','title'=>'OSI'],'../'),'style="--mod:#c4a8ff"'),'OSI-Karte ist violett wie die OSI-Lernseite');

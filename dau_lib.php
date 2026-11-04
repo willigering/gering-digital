@@ -164,7 +164,11 @@ function dtp_module_description(array $module): string {
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
-function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null): string {
+function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null, bool $comingSoon=false): string {
+    if ($comingSoon) {
+        $link=false;
+        $progress=null;
+    }
     $topic=$module['topic']??dtp_topic($module);
     $preview=dtp_preview_resolve($module);
     $title=(string)($module['title']??'');
@@ -183,8 +187,8 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $href=e($base.rawurlencode((string)($module['slug']??'')).'/');
     $label=e(($subject!==''?$subject.': ':'').$title).' – Lernmodul öffnen';
     $attrs=$tag==='a'?' href="'.$href.'"':'';
-    if ($tag!=='article') $attrs.=' aria-label="'.$label.'"';
-    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'">';
+    if ($tag!=='article' && !$comingSoon) $attrs.=' aria-label="'.$label.'"';
+    $html='<'.$tag.' class="module-card'.($comingSoon?' is-coming-soon':'').'"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'">';
     $html.='<div class="module-art'.($preview['src']!==''?' has-image':'').'">';
     if ($preview['src']!=='') {
         $srcset=$preview['small']!==''?' srcset="'.e($base.$preview['small']).' 640w, '.e($base.$preview['src']).' 1280w" sizes="(max-width: 610px) 92vw, (max-width: 1060px) 46vw, 380px"':'';
@@ -200,7 +204,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
     if ($progress!==null) $html.=dtp_card_progress($progress);
-    $footer='<span>Lernmodul öffnen</span><b aria-hidden="true">↗</b>';
+    $footer=$comingSoon?'<span>Bald verfügbar</span>':'<span>Lernmodul öffnen</span><b aria-hidden="true">↗</b>';
     $html.=$tag==='article' && $link
         ? '<a class="module-footer module-open" href="'.$href.'" aria-label="'.$label.'">'.$footer.'</a>'
         : '<div class="module-footer">'.$footer.'</div>';
