@@ -13,6 +13,8 @@ function dtp_lower(string $s): string {return function_exists('mb_strtolower')?m
 function dtp_upper(string $s): string {return function_exists('mb_strtoupper')?mb_strtoupper($s,'UTF-8'):strtoupper($s);}
 
 function dtp_topic(array $p): array {
+    if (($p['slug']??'')==='a1-zahlensysteme') return ['sonstiges','IT-Grundlagen','05'];
+    if (($p['slug']??'')==='netzwerke-sprint') return ['netzwerk','Netzwerktechnik','02'];
     $t=dtp_lower(($p['subject']??'').' '.($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
     if(preg_match('/kalkulation|beschaffung|f2-kalkulation/',$t))return ['wirtschaft','Wirtschaft & Projekte','06'];
     if(preg_match('/subnet|ipv4|ipv6|cidr|wildcard|bits|binär|binaer|hexadezimal|ip-adress/',$t))return ['subnet','IP & Subnetting','01'];
@@ -142,6 +144,7 @@ function dtp_retire_legacy_previews(): void {
 /** Give legacy placeholder descriptions a useful summary without rewriting stored content. */
 function dtp_module_description(array $module): string {
     $slug=(string)($module['slug']??'');
+    $slug=['osi'=>'osi-sprint','subnetsprint'=>'subnet-sprint'][$slug]??$slug;
     $humor=[
         'a1-zahlensysteme'=>'01001000? Keine Panik, das ist keine Drohung. Hier übersetzt du Binär, Hex und Datenraten, bis selbst dein Taschenrechner Respekt bekommt.',
         'osi-sprint'=>'Sieben Schichten, null Ausreden: Finde heraus, wer im Netzwerk was macht und warum der Router nicht für jeden Mist zuständig ist.',

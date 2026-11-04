@@ -5,8 +5,9 @@ $uid=(int)$learner['id'];$dash=xp_dashboard($uid);$recent=xp_recent($uid);$showc
   <div class="konto-section-head"><h2 id="recent-title">Kürzlich freigeschaltet</h2><a class="text-link" href="#achievements">Alle Erfolge →</a></div>
   <?php if(!$recent): ?><p class="konto-empty">Hier ist noch verdächtig wenig los. Sogar dein Router hat mehr Erfolge.</p><?php else: ?>
   <ul class="ach-grid recent-grid">
-  <?php foreach($recent as $item): ?><li class="ach-item is-on tier-<?=e($item['tier'])?>">
+  <?php foreach($recent as $item): ?><li class="ach-item is-on tier-<?=e($item['tier'])?>" tabindex="0" aria-describedby="recent-condition-<?=e($item['code'])?>">
     <?=xp_icon_html($item)?><span class="ach-text"><b><?=e($item['name'])?></b><small><?=e($item['subject'])?></small><small><?=e(learner_format_time($item['unlocked_at']))?> · +<?=(int)$item['xp']?> XP</small></span>
+    <small class="recent-condition" role="tooltip" id="recent-condition-<?=e($item['code'])?>"><?=e($item['desc'])?></small>
   </li><?php endforeach; ?></ul><?php endif; ?>
 </section>
 <section class="konto-section konto-card" id="vitrine" aria-labelledby="showcase-title">

@@ -47,3 +47,10 @@ Humor bleibt eine redaktionelle Einschätzung. Willis Rückmeldung ist die absch
 Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. Projektanleitung, Redaktionsworkflow und AGENTS.md schreiben ihn für neue Module und den nächsten Durchlauf bestehender Module vor: gemeinsamer Fade von Blur, Abdunklung, reduzierter Helligkeit und Sättigung; Aufgabe und Rückweg bleiben scharf. Enthalten sind Referenzwerte, Fokus-/Scrollverhalten, Bereichswechsel, schnelle Richtungswechsel, mobile Abnahme und reduzierte Bewegung.
 
 PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und die gemeinsamen Modul- und Browsertests erweitert. Die veralteten B5-Einzellösungen und ihre testspezifischen Selektoren werden nicht erneut eingespielt. B5-Textredaktion und die neuere Fokusfunktion werden auf dem aktuellen `main` gemeinsam integriert; öffentliche Auslieferung ist erst nach erfolgreicher Deploymentprüfung bestätigt.
+
+## Formulierungen und Rechner in neun Modulen (04.11.2026)
+
+- A1, B1–B4, D1–D2 und F2 erhielten je zehn überarbeitete Lektionseinstiege. Im Nachschlagwerk stehen die Einstiege in den passenden Fachkapiteln. B5 verwendet weiterhin die bereits überarbeiteten zehn Kapitel und übernimmt die Datei/Passwort-Pointe in Lernpfad und Nachschlagwerk.
+- Die sichtbaren Fragen wurden an ausgewählten Stellen gestrafft. Allgemeine Rückmeldungen in A1, B1–B4 und D1–D2 wurden ersetzt. Überschriften, Aufgabentyp-IDs, Lösungen und Speicherverträge sind erhalten.
+- Eine vollständige Zeile-für-Zeile-Abnahme aller Generatorvarianten, Labs, Hinweise und Prüfungstexte steht außerhalb von B5 weiter aus.
+- Rechner und Modulfarbe werden gemeinsam eingebunden. Die Freischaltbedingung im Konto stammt aus dem vorhandenen Achievement-Katalog. Der öffentliche Ausgangsstand wurde auf allen neun Modul-URLs geprüft. A1 und B2 waren dort älter als im Repository.

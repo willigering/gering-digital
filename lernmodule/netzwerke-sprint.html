@@ -702,6 +702,212 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-MODULEINSTIEG END -->
+<!-- DTP-TASCHENRECHNER START -->
+<style>
+.dtp-calculator {
+  --calculator-accent: var(--cyan, #65dce0);
+  color: inherit;
+  margin-top: .65rem;
+}
+.dtp-calculator > summary {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+  list-style: none;
+}
+.dtp-calculator > summary::-webkit-details-marker { display: none; }
+.dtp-calculator > summary,
+.dtp-calculator button,
+.dtp-calculator-panel {
+  border: 1px solid var(--calculator-accent);
+  border-radius: 7px;
+  background: var(--panel, #11181c);
+  color: var(--calculator-accent);
+}
+.dtp-calculator-panel {
+  box-sizing: border-box;
+  width: min(100%, 20rem);
+  margin-top: .45rem;
+  padding: .65rem;
+}
+.dtp-calculator label { display: grid; gap: .25rem; }
+.dtp-calculator input { width: 100%; min-width: 0; font: inherit; }
+.dtp-calculator-keys { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .25rem; margin-top: .5rem; }
+.dtp-calculator button { min-height: 36px; padding: .25rem; font: inherit; cursor: pointer; }
+.dtp-calculator button:hover, .dtp-calculator summary:hover { background: color-mix(in srgb, var(--calculator-accent) 16%, #11181c); }
+.dtp-calculator :focus-visible { outline: 2px solid var(--calculator-accent); outline-offset: 2px; }
+.dtp-calculator output { display: block; padding-block: .35rem; overflow-wrap: anywhere; }
+.dtp-calculator-prank { display: inline-block; position: relative; }
+.dtp-calculator-dust { position: absolute; inset: 0; pointer-events: none; }
+.dtp-calculator-dust i { position: absolute; width: 3px; height: 3px; background: var(--calculator-accent); }
+.dtp-calculator-joke { margin: 0; }
+.dtp-calculator-joke:not(:empty) { margin-top: .4rem; }
+</style>
+<script>
+(() => {
+  'use strict';
+
+  const calculationTypes = {
+    osi: /^(d_count|d_topo|e_mss|e_frame|e_ttl|e_hops|o_seq)$/,
+    netzwerke: /^(b_rate|t_mesh|t_ports|t_meshr|t_meshd|c_coll|c_bcast|c_lenrest|s_flood|s_vlan|v_zero|v_bits|x_dom|mesh_freitext)$/,
+    ipv6: /^(b_total|b_block|b_hex|b_bytes|b_zeros|p_net|p_rest|u_iid|u_flip|u_mac|n_count|n_nth|n_number|n_need|n_last)$/,
+    dienste: /^(t_header|c_synack|c_ack|c_fin|d_t1|d_t2|n_ttl|i_ttl)$/
+  };
+  const jokes = [
+    'Haha, hättest du wohl gern?',
+    'Netter Versuch. Die Bits zählst du heute noch selbst.',
+    'Der Knopf war kurz vor der Lösung. Jetzt ist er Staub.',
+    'Umrechnen per Klick? Der Button hat sich gerade aus dem Staub gemacht.'
+  ];
+
+  function evaluate(expression) {
+    const source = expression.replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+    if (!source || source.length > 120) throw new Error();
+    const tokens = source.match(/\d+(?:\.\d*)?|\.\d+|[()+*/^%-]/g) || [];
+    if (tokens.join('') !== source) throw new Error();
+    let index = 0;
+    function primary() {
+      const token = tokens[index++];
+      if (token === '(') {
+        const value = sum();
+        if (tokens[index++] !== ')') throw new Error();
+        return value;
+      }
+      if (!token || !/^(?:\d|\.)/.test(token)) throw new Error();
+      return Number(token);
+    }
+    function power() {
+      if (tokens[index] === '+' || tokens[index] === '-') {
+        return (tokens[index++] === '-' ? -1 : 1) * power();
+      }
+      let value = primary();
+      if (tokens[index] === '%') {
+        index++;
+        value /= 100;
+      }
+      if (tokens[index] === '^') {
+        index++;
+        value **= power();
+      }
+      return value;
+    }
+    function product() {
+      let value = power();
+      while (tokens[index] === '*' || tokens[index] === '/') {
+        value = tokens[index++] === '*' ? value * power() : value / power();
+      }
+      return value;
+    }
+    function sum() {
+      let value = product();
+      while (tokens[index] === '+' || tokens[index] === '-') {
+        value = tokens[index++] === '+' ? value + product() : value - product();
+      }
+      return value;
+    }
+    const value = sum();
+    if (index !== tokens.length || !Number.isFinite(value)) throw new Error();
+    return Number(value.toPrecision(15)).toLocaleString('de-DE', {useGrouping: false, maximumSignificantDigits: 15});
+  }
+
+  function mount(host, task, module) {
+    const binary = module === 'zahlen' && (/^(b2d|d2b|calc|neg)$/.test(task.cat) || /^h_(b2h|h2b)$/.test(task.sub)) && task.sub !== 'n_method'
+      || module === 'subnet' && (/^o_(b2d|d2b|maskval|ones|and|bin2ip)$/.test(task.sub) || task.sub === 'm_bin')
+      || module === 'ipv6' && /^(u_iid|u_flip|u_mac)$/.test(task.sub);
+    const arithmetic = calculationTypes[module]?.test(task.sub)
+      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
+      || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
+      || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);
+    if (!binary && !arithmetic) return;
+
+    const box = document.createElement('details');
+    box.className = 'dtp-calculator';
+    box.innerHTML = '<summary aria-label="Taschenrechner" title="Taschenrechner">'
+      + '<svg width="19" height="19" viewBox="0 0 20 20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="1.5" width="12" height="17" rx="2"/><path d="M7 5h6M7 9h2m2 0h2m-6 3h2m2 0h2m-6 3h2m2 0h2"/></svg></summary>';
+    box.addEventListener('toggle', function initialise() {
+      if (!box.open) return;
+      box.removeEventListener('toggle', initialise);
+      const panel = document.createElement('div');
+      panel.className = 'dtp-calculator-panel';
+      panel.innerHTML = '<label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<div class="dtp-calculator-keys"></div><output aria-live="polite"></output>';
+      const input = panel.querySelector('input');
+      const output = panel.querySelector('output');
+      const keys = panel.querySelector('.dtp-calculator-keys');
+      const button = label => {
+        const key = document.createElement('button');
+        key.type = 'button';
+        key.textContent = label;
+        return key;
+      };
+      const calculate = () => {
+        try { output.textContent = '= ' + evaluate(input.value); }
+        catch (_) { output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.'; }
+      };
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=','C']) {
+        const key = button(label);
+        if (label === 'C') key.setAttribute('aria-label', 'Rechnung löschen');
+        key.addEventListener('click', () => {
+          if (label === '=') calculate();
+          else if (label === 'C') input.value = output.textContent = '';
+          else {
+            const start = input.selectionStart;
+            const end = input.selectionEnd;
+            if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
+          }
+        });
+        keys.append(key);
+      }
+      input.addEventListener('keydown', event => {
+        if (event.key !== 'Enter') return;
+        event.preventDefault();
+        event.stopPropagation();
+        calculate();
+      });
+      if (binary) {
+        const trick = button('Binär → Dezimal');
+        const message = document.createElement('p');
+        message.setAttribute('role', 'status');
+        message.className = 'dtp-calculator-joke';
+        trick.addEventListener('click', () => {
+          message.textContent = jokes[Math.floor(Math.random() * jokes.length)];
+          box.querySelector('summary').focus({preventScroll: true});
+          trick.disabled = true;
+          if (!matchMedia('(prefers-reduced-motion: reduce)').matches && trick.animate) {
+            const dust = document.createElement('span');
+            dust.className = 'dtp-calculator-dust';
+            dust.setAttribute('aria-hidden', 'true');
+            trick.after(dust);
+            const particles = Array.from({length: 18}, (_, index) => {
+              const grain = document.createElement('i');
+              grain.style.left = (index * 37 % 100) + '%';
+              grain.style.top = (index * 29 % 100) + '%';
+              dust.append(grain);
+              return grain.animate([
+                {opacity: 1, transform: 'translate(0, 0)'},
+                {opacity: 0, transform: 'translate(' + ((index * 13 % 75) - 37) + 'px, ' + (-12 - index * 7 % 28) + 'px) scale(.3)'}
+              ], {duration: 480, delay: index % 4 * 35, fill: 'both'}).finished;
+            });
+            trick.animate([{opacity: 1}, {opacity: 0, filter: 'blur(4px)'}], {duration: 420, fill: 'forwards'});
+            Promise.allSettled(particles).then(() => { trick.remove(); dust.remove(); });
+          } else trick.remove();
+        }, {once: true});
+        const prank = document.createElement('div');
+        prank.className = 'dtp-calculator-prank';
+        prank.append(trick);
+        panel.append(prank, message);
+      }
+      box.append(panel);
+    });
+    host.append(box);
+  }
+  window.dtpMountCalculator = mount;
+})();
+</script>
+<!-- DTP-TASCHENRECHNER END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -712,7 +918,7 @@ body.dtp-exercise-open{overflow:hidden}
     <div>
       <div class="kicker"><span class="live-dot"></span> NETZWERKE <b>//</b> NETZWERKGRUNDLAGEN <b>//</b> MODUL B2</div>
       <h1>Jetzt ma Router <span>bei die Switche!</span></h1>
-      <p class="hero-lead">PAN bis GAN, Hub bis Router, OSI bis IPv6. Dein Kabel steckt schon. Jetzt muss nur noch das Wissen Link up melden. Ab heute verstehst du, was im Netz passiert, statt nur die Lämpchen blinken zu sehen.</p>
+      <p class="hero-lead">PAN bis GAN, Hub bis Router, OSI bis IPv6. Ein Kabel steckt. Der Switch blinkt. Jetzt finden wir raus, ob das Netz auch tut, was es soll. Ab heute verstehst du, was im Netz passiert, statt nur die Lämpchen blinken zu sehen.</p>
       <div class="hero-meta"><span><b>10</b> Stufen</span><span><b>10</b> Kapitel</span><span><b id="heroTypes">70</b> Aufgabentypen</span><span><b>111</b> Freitextfragen</span></div>
     </div>
     <div class="stackwall" id="stackwall" aria-hidden="true"></div>
@@ -791,7 +997,7 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Netzwerke: Was, wozu und wie groß?</h3><p>Definition, Nutzen, Paketvermittlung, PAN bis GAN, Peer-to-Peer und Client-Server.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Netzwerke: Was, wozu und wie groß?</h3><p>Definition, Nutzen, Paketvermittlung, PAN bis GAN, Peer-to-Peer und Client-Server.</p></div></div><p>Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, nur der Schreibtisch ist kein Kontinent. Reichweite und Aufbau helfen beim Einordnen.</p>
 <details class="lesson" open><summary><span class="lid">1.1</span> Was ist ein Netzwerk?</summary><div class="lesson-body"><p>Ein <b>Rechnernetz</b> ist ein Verbund aus mindestens zwei kommunikationsfähigen Geräten, die über ein Übertragungsmedium Daten austauschen. Geräte können PCs, Smartphones, Server, Drucker oder Sensoren sein.</p><p>Man braucht <b>Teilnehmer</b> (Endgeräte), <b>Übertragungswege</b> (Kupfer, Glasfaser, Funk), <b>Adressierung</b> (z. B. MAC/IP) und <b>Regeln</b> (Protokolle). Ein gemeinsamer Internetanschluss ist keine Voraussetzung für ein lokales Netzwerk.</p><div class="callout">Beispiel: Zwei Rechner, die per Ethernet verbunden sind und passend konfigurierte IP-Adressen haben, bilden bereits ein Netzwerk – auch ohne Internet.</div></div></details>
 <details class="lesson"><summary><span class="lid">1.2</span> Ziele und Nutzen von Netzwerken</summary><div class="lesson-body"><p>Die Kerngedanken sind <b>Kommunikation</b>, <b>gemeinsame Ressourcennutzung</b> und <b>zentrale Verwaltung</b>: Dateien gemeinsam bearbeiten, Drucker teilen, Software und Sicherheitsvorgaben zentral bereitstellen, Backups an einem Ort sichern.</p><p>Weitere Vorteile sind Skalierbarkeit, flexibles Arbeiten und Zusammenarbeit. Aber: Es entstehen Kosten, Verwaltungsaufwand und Sicherheitsrisiken. Ein zentraler Server kann außerdem zum <b>Single Point of Failure</b> werden, wenn keine Redundanz vorhanden ist.</p><div class="callout">Unterscheide beim Erklären zwischen <b>Ziel</b> („gemeinsam drucken“) und <b>technischer Umsetzung</b> („Druckserver“).</div></div></details>
 <details class="lesson"><summary><span class="lid">1.3</span> Datenübertragung und Paketvermittlung</summary><div class="lesson-body"><p>Bei der <b>Paketvermittlung</b> werden größere Datenmengen in kleinere Einheiten zerlegt und über das Netz transportiert. Auf dem Weg tragen sie je nach Schicht Header mit z. B. Quell- und Zieladressen. Am Ziel werden sie verarbeitet und bei Bedarf wieder zusammengesetzt.</p><p>Wichtige Begriffe: <b>Bandbreite/Datenrate</b> (übertragbare Menge pro Zeit), <b>Latenz</b> (Verzögerung), <b>Jitter</b> (Schwankungen der Laufzeit), <b>Paketverlust</b> (nicht zugestellte Einheiten). Bandbreite und Latenz sind nicht dasselbe.</p><div class="flow"><span>Anwendung</span><span>Segmente/Datagramme</span><span>IP-Pakete</span><span>Ethernet-Frames</span><span>Bits</span></div><div class="callout">Beim Surfen können mehrere Verbindungen und Zwischenrouter beteiligt sein. Die konkrete Übertragung hängt von den verwendeten Protokollen ab.</div></div></details>
@@ -802,7 +1008,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch2" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Topologien: Wer hängt an wem?</h3><p>Physisch und logisch, Bus, Ring, Stern, Baum, Mesh. Und warum der Stern gewonnen hat.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Topologien: Wer hängt an wem?</h3><p>Physisch und logisch, Bus, Ring, Stern, Baum, Mesh. Und warum der Stern gewonnen hat.</p></div></div><p>Sechs PCs sollen verbunden werden. Im Stern führt von jedem ein Kabel zur Mitte. Im Vollmesh bekommt jedes Gerätepaar eine eigene Verbindung. Der Unterschied steht später auf der Kabelrechnung.</p>
 <details class="lesson" open><summary><span class="lid">2.1</span> Was ist eine Topologie?</summary><div class="lesson-body"><p>Die <b>Netzwerktopologie</b> beschreibt die Anordnung von Netzwerkteilnehmern und Verbindungen. Sie beeinflusst Verkabelungsaufwand, Erweiterbarkeit, Ausfallsicherheit und Fehlersuche.</p><p>Häufig besprochene Grundformen: <b>Bus, Ring, Stern, Baum, Mesh</b> und Mischformen. In der Praxis sind hybride Strukturen häufig.</p><div class="callout">Eine Topologie ist eine <b>Strukturbeschreibung</b>. Sie bestimmt nicht allein die Geschwindigkeit, Sicherheit oder die verwendeten Protokolle.</div></div></details>
 <details class="lesson"><summary><span class="lid">2.2</span> Physische vs. logische Topologie</summary><div class="lesson-body"><p><b>Physische Topologie:</b> Wie sind Kabel, Funkzellen und Geräte tatsächlich verbunden? Beispiel: Jeder PC hat ein eigenes Kabel zum Switch = physischer Stern.</p><p><b>Logische Topologie:</b> Wie erfolgt die Datenweitergabe bzw. wie ist die Kommunikation organisiert? Klassisches Hub-Ethernet: physischer Stern, logisch gemeinsames Medium. Ein geswitchtes Ethernet nutzt Punkt-zu-Punkt-Links und individuelle Weiterleitung.</p><div class="callout">Ein sternförmig verkabeltes Netz ist nicht automatisch kollisionsfrei. Das hängt unter anderem davon ab, ob die Zentrale ein Hub oder ein Switch ist.</div></div></details>
 <details class="lesson"><summary><span class="lid">2.3</span> Die wichtigsten Topologien im Detail</summary><div class="lesson-body"><div class="table-wrap"><table class="t"><tr><th>Form</th><th>Beschreibung</th><th>Typische Schwachstelle</th></tr><tr><td>Bus</td><td>Alle teilen einen gemeinsamen Leitungsstrang.</td><td>Defekt am Hauptmedium; gemeinsame Kollisionsdomäne bei altem Ethernet</td></tr><tr><td>Ring</td><td>Jeder Knoten hat Nachbarn in einem Kreis.</td><td>Ein Bruch kann ohne Schutzmechanismen stören</td></tr><tr><td>Stern</td><td>Alle Endgeräte einzeln an eine Zentrale.</td><td>Ausfall der Zentrale betrifft angeschlossene Geräte</td></tr><tr><td>Baum</td><td>Hierarchisch verbundene Sterne/Verteiler.</td><td>Ausfall oberer Verteiler kann viele Zweige treffen</td></tr><tr><td>Mesh</td><td>Knoten sind mehrfach, teils vollständig, verbunden.</td><td>Komplexität, Kosten, Steuerung der Wege</td></tr></table></div><p>Im <b>Netzwerklabor</b> kannst du jede Form als Grafik auswählen. „Ring“ bedeutet nicht automatisch Token Ring; das war eine konkrete historische Zugriffstechnik.</p></div></details>
@@ -815,7 +1021,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch3" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Komponenten und Verkabelung</h3><p>Aktiv und passiv, Hub, Switch, Router, strukturierte Verkabelung, Kategorien, Glasfaser.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Komponenten und Verkabelung</h3><p>Aktiv und passiv, Hub, Switch, Router, strukturierte Verkabelung, Kategorien, Glasfaser.</p></div></div><p>Ein Patchpanel sieht nach Netzwerk aus und braucht trotzdem keinen Strom. Der Switch daneben verarbeitet Frames und braucht Energie. Für aktiv und passiv ist entscheidend, was das Teil tut.</p>
 <details class="lesson" open><summary><span class="lid">3.1</span> Aktive Netzwerkkomponenten</summary><div class="lesson-body"><p><b>Aktive Komponenten</b> benötigen Energie und beeinflussen bzw. verarbeiten Signale und Daten: Switch, Router, Access Point, Repeater, Netzwerkkarte, Firewall-Appliance und aktive Hubs.</p><p><b>Switch:</b> verbindet Teilnehmer innerhalb eines Layer-2-Netzes; lernt MAC-Adressen. <b>Router:</b> verbindet verschiedene IP-Netze und entscheidet anhand der Routingtabelle. <b>Access Point:</b> bietet WLAN-Zugang zum Netzwerk. <b>Repeater:</b> regeneriert/verstärkt Signale auf physikalischer Ebene je nach Technik.</p><div class="callout">Ein Gerät kann mehrere Rollen vereinen. Die Einordnung ergibt sich aus seiner <b>Funktion</b>, nicht nur aus der Bauform.</div></div></details>
 <details class="lesson"><summary><span class="lid">3.2</span> Passive Netzwerkkomponenten</summary><div class="lesson-body"><p><b>Passive Komponenten</b> transportieren oder verteilen Signale, ohne sie eigenständig elektronisch auszuwerten oder aktiv neu aufzubereiten: Twisted-Pair-Kabel, Glasfaser, Patchpanel, Anschlussdose, Patchkabel, Steckverbinder und passive Glasfaser-Verteiler.</p><p>Ein <b>Patchpanel</b> ist kein Switch. Es führt feste Leitungen auf beschriftete Buchsen; per kurzem Patchkabel kann man diese mit Switchports verbinden. Ohne Switch entsteht durch ein Patchpanel keine intelligente Weiterleitung.</p><div class="callout">Merksatz: <b>Patchpanel = ordnen und verbinden.</b> <b>Switch = Frames lernen und weiterleiten.</b></div></div></details>
 <details class="lesson"><summary><span class="lid">3.3</span> Hub: aktiv und passiv</summary><div class="lesson-body"><p>Ein klassischer <b>aktiver Ethernet-Hub</b> arbeitet als Multiport-Repeater auf <b>OSI-Schicht 1</b>: Er wiederholt ankommende Bits an die anderen Ports, interpretiert keine MAC-Adressen und bildet eine gemeinsame Kollisionsdomäne (Halbduplex).</p><p>Der Begriff <b>passiver Hub</b> wird in manchen Lehrunterlagen für nicht verstärkende Signalverteiler verwendet. Das ist <b>kein</b> üblicher moderner Ethernet-Switch und kein standardtypischer RJ45-Hub für heutige geswitchte Ethernet-Verbindungen. Passive optische Verteiler/Splitter sind ein anschaulicheres reales Beispiel.</p><div class="trap">Prüfungsfalle: Nicht behaupten, ein passiver Hub könne Ethernet-Frames anhand der MAC-Adressen verteilen. Das wäre Switch-Verhalten.</div></div></details>
@@ -828,7 +1034,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch4" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Der Switch und seine MAC-Tabelle</h3><p>Quelle lernen, Ziel nachschlagen, gezielt weiterleiten oder fluten.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Der Switch und seine MAC-Tabelle</h3><p>Quelle lernen, Ziel nachschlagen, gezielt weiterleiten oder fluten.</p></div></div><p>Ein Frame kommt am Switch an. Der Switch lernt aus seiner Quelladresse und entscheidet anhand der Zieladresse, wohin er weiterleitet. Der Absender liefert den Hinweis, der Empfänger bestimmt die Richtung.</p>
 <details class="lesson" open><summary><span class="lid">3.4</span> So verarbeitet ein Switch einen Ethernet-Frame (6 Schritte)</summary><div class="lesson-body"><ol><li><b>Empfang:</b> Frame trifft an einem Switchport ein.</li><li><b>Prüfung:</b> Die Ethernet-Frame-Prüfsumme (FCS) wird bei Store-and-Forward-Switching kontrolliert; fehlerhafte Frames werden verworfen.</li><li><b>Lernen:</b> Quell-MAC-Adresse mit Eingangsport in der MAC-/CAM-Tabelle speichern oder aktualisieren.</li><li><b>Ziel bestimmen:</b> Ziel-MAC lesen; Broadcast, Multicast und Unicast unterscheiden.</li><li><b>Entscheiden:</b> Bekannter Unicast → passender Ausgangsport (nicht zurück zum Eingang); unbekannter Unicast/Broadcast → Flooding innerhalb der passenden VLAN-Broadcast-Domäne.</li><li><b>Weiterleiten:</b> Frame über den/die vorgesehenen Port(s) senden.</li></ol><div class="callout">Die genaue interne Reihenfolge kann je nach Switch-Architektur abweichen. Für die LK/EK sind <b>Quelladresse lernen → Zieladresse nachschlagen → gezielt weiterleiten oder flooden</b> die wichtigsten Prinzipien.</div></div></details>
       <div class="lab"><div class="lab-head"><strong>SWITCH-SIMULATOR</strong><span class="subtle">Frames senden und zusehen, was der Switch lernt.</span></div>
         <div class="field-row"><label for="swFrom" class="lab-l" style="margin:0">Sender</label><select id="swFrom" class="sel"><option value="A">PC A · Port 1</option><option value="B">PC B · Port 2</option><option value="C">PC C · Port 3</option><option value="D">PC D · Port 4</option></select><label for="swTo" class="lab-l" style="margin:0">Empfänger</label><select id="swTo" class="sel"><option value="C">PC C · Port 3</option><option value="A">PC A · Port 1</option><option value="B">PC B · Port 2</option><option value="D">PC D · Port 4</option><option value="BC">Broadcast</option></select></div>
@@ -838,7 +1044,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch5" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">05</span><div><h3>OSI, TCP/IP und Kapselung</h3><p>Sieben Schichten, vier Schichten, und wie aus einer Anfrage ein Frame wird.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">05</span><div><h3>OSI, TCP/IP und Kapselung</h3><p>Sieben Schichten, vier Schichten, und wie aus einer Anfrage ein Frame wird.</p></div></div><p>Die Seite lädt nicht. Ein loses Kabel, eine falsche IP und ein abgestürzter Webdienst können im Browser ähnlich aussehen. Mit den Schichten stellst du drei verschiedene Fragen an denselben Fehler.</p>
 <details class="lesson" open><summary><span class="lid">4.1</span> Das OSI-7-Schichtenmodell</summary><div class="lesson-body"><div class="table-wrap"><table class="t"><tr><th>Nr.</th><th>Schicht</th><th>Beispiel/Aufgabe</th></tr><tr><td>7</td><td>Anwendung / Application</td><td>DNS, HTTP und Anwendungsdienste</td></tr><tr><td>6</td><td>Darstellung / Presentation</td><td>Zeichenkodierung, Datenformat, Verschlüsselung als Modellfunktion</td></tr><tr><td>5</td><td>Sitzung / Session</td><td>Dialog- und Sitzungssteuerung</td></tr><tr><td>4</td><td>Transport</td><td>TCP / UDP, Ports, Transport</td></tr><tr><td>3</td><td>Vermittlung / Network</td><td>IP, Routing</td></tr><tr><td>2</td><td>Sicherung / Data Link</td><td>Ethernet-Frames, MAC-Adressen, Switch</td></tr><tr><td>1</td><td>Bitübertragung / Physical</td><td>Kabel, Funk, elektrische/optische Signale</td></tr></table></div><p>OSI ist ein <b>Referenzmodell</b> zum Verstehen und Diagnostizieren. Reale Internetprotokolle lassen sich nicht immer streng nur einer Schicht zuordnen.</p></div></details>
 <details class="lesson"><summary><span class="lid">4.2</span> Netzwerkpaket-Aufbau &amp; Datenkapselung (Encapsulation)</summary><div class="lesson-body"><p>Beim <b>Senden</b> wandern Nutzdaten von oben nach unten durch den Protokollstapel. Jede beteiligte Schicht kann Steuerinformationen ergänzen. Typisches Beispiel für HTTP über TCP über IPv4 über Ethernet:</p><div class="calc">[ Ethernet-Header ][ IP-Header ][ TCP-Header ][ HTTP-Daten ][ Ethernet-FCS ]</div><p><b>Transport-Layer:</b> TCP-Segment oder UDP-Datagramm. <b>IP-Layer:</b> IP-Paket. <b>Ethernet-Layer:</b> Frame. <b>Physical:</b> Bits als Signale. Am Empfänger erfolgt die <b>Entkapselung</b> in umgekehrter Richtung.</p><div class="callout">Jeder Router entfernt normalerweise den eingehenden Layer-2-Header und erstellt für das nächste Übertragungsmedium einen neuen. Die IP-Quell-/Zieladresse bleiben bei normalem Routing grundsätzlich erhalten (ohne NAT).</div></div></details>
 <details class="lesson"><summary><span class="lid">4.3</span> TCP/IP-4-Schichtenmodell</summary><div class="lesson-body"><div class="table-wrap"><table class="t"><tr><th>TCP/IP</th><th>Vergleich mit OSI</th><th>Beispiele</th></tr><tr><td>Anwendung</td><td>OSI 5–7</td><td>HTTP, DNS, DHCP</td></tr><tr><td>Transport</td><td>OSI 4</td><td>TCP, UDP</td></tr><tr><td>Internet</td><td>OSI 3</td><td>IPv4/IPv6, IP-Routing, ICMP</td></tr><tr><td>Netzzugang</td><td>OSI 1–2</td><td>Ethernet, WLAN, physische Medien</td></tr></table></div><p>Das TCP/IP-Modell ist näher an der Internetprotokollfamilie orientiert. Es fasst Funktionen zusammen, die OSI detaillierter trennt. Es existieren auch TCP/IP-Darstellungen mit fünf Schichten; für diese LK/EK gilt ausdrücklich das <b>4-Schichtenmodell</b>.</p></div></details>
@@ -850,7 +1056,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch6" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Protokolle und Ports</h3><p>ARP, ICMP, DHCP, DNS, TCP und UDP. Wer macht was, und auf welchem Port?</p></div></div>
+      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Protokolle und Ports</h3><p>ARP, ICMP, DHCP, DNS, TCP und UDP. Wer macht was, und auf welchem Port?</p></div></div><p>Beim Öffnen einer Seite brauchst du unter anderem einen Namen, eine Adresse und einen erreichbaren Dienst. DNS, DHCP und TCP haben unterschiedliche Jobs. Den Router für alles verantwortlich zu machen spart nur beim Nachdenken.</p>
 <details class="lesson" open><summary><span class="lid">P1</span> ARP und ICMP</summary><div class="lesson-body"><p><b>ARP</b> (Address Resolution Protocol) ermittelt in IPv4-LANs zur bekannten IPv4-Adresse die passende <b>MAC-Adresse</b> für den nächsten Layer-2-Hop. ARP-Anfragen werden im lokalen Broadcast-Domain verteilt; Antworten sind typischerweise Unicast. IPv6 verwendet anstelle von ARP <b>Neighbor Discovery (NDP)</b> über ICMPv6.</p><p><b>ICMP</b> dient der Fehler-/Statusmeldung und Diagnose, z. B. <b>Echo Request/Reply</b> (Ping) oder Meldungen über unerreichbare Ziele. ICMP ist kein Ersatz für TCP/UDP-Anwendungsdaten und besitzt keine TCP-/UDP-Portnummern.</p></div></details>
 <details class="lesson"><summary><span class="lid">P2</span> DHCP und DNS</summary><div class="lesson-body"><p><b>DHCPv4</b> verteilt dynamisch u. a. IP-Adresse, Subnetzmaske, Standardgateway und DNS-Server. Typischer Ablauf: <b>DORA = Discover → Offer → Request → Acknowledge</b>. DHCPv4 verwendet UDP 67 (Server) und 68 (Client).</p><p><b>DNS</b> übersetzt Namen in Records, etwa <b>A</b> (IPv4), <b>AAAA</b> (IPv6), <b>MX</b> (Mail-Routing), <b>CNAME</b> (Alias). DNS nutzt häufig UDP 53, in bestimmten Fällen TCP 53; moderne verschlüsselte Varianten haben andere Transporte.</p><div class="callout">DHCP vergibt Netzkonfiguration. DNS löst Namen auf. Das sind unterschiedliche Dienste, auch wenn ein Heimrouter beide anbietet.</div></div></details>
 <details class="lesson"><summary><span class="lid">P3</span> TCP vs. UDP und wichtige Ports</summary><div class="lesson-body"><p><b>TCP</b> ist verbindungsorientiert und bietet unter anderem Reihenfolge, Wiederholungen verlorener Daten und Flusskontrolle. Der klassische Verbindungsaufbau erfolgt mit <b>SYN → SYN/ACK → ACK</b>.</p><p><b>UDP</b> ist verbindungslos und bietet selbst keine Zustell- oder Reihenfolgegarantie. Das macht es für DNS-Anfragen, Echtzeitdaten und als Grundlage für QUIC interessant; Zuverlässigkeit kann die Anwendung selbst ergänzen.</p><div class="table-wrap"><table class="t"><tr><th>Protokoll/Dienst</th><th>Typischer Transport/Port</th></tr><tr><td>HTTP</td><td>TCP 80</td></tr><tr><td>HTTPS (klassisch)</td><td>TCP 443</td></tr><tr><td>HTTP/3 (QUIC)</td><td>UDP 443</td></tr><tr><td>DNS</td><td>UDP/TCP 53</td></tr><tr><td>SSH</td><td>TCP 22</td></tr><tr><td>DHCPv4</td><td>UDP 67/68</td></tr></table></div></div></details>
@@ -859,7 +1065,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch7" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">07</span><div><h3>WLAN</h3><p>Frequenzbänder, Kanäle, SSID und BSSID, Sicherheit, Betriebsarten.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">07</span><div><h3>WLAN</h3><p>Frequenzbänder, Kanäle, SSID und BSSID, Sicherheit, Betriebsarten.</p></div></div><p>Im Büro heißen zwei Access Points im WLAN-Menü gleich. Die SSID ist der Netzname. Die BSSID hilft dir, die konkrete Funkzelle zu unterscheiden. Der Name an der Tür sagt eben nicht, wer gerade drin sitzt.</p>
 <details class="lesson" open><summary><span class="lid">1.6</span> WLAN – Grundidee</summary><div class="lesson-body"><p><b>Wireless LAN</b> verbindet Geräte über Funk nach IEEE 802.11. Üblich ist der <b>Infrastrukturmodus</b>: Stationen verbinden sich mit einem Access Point (AP), der WLAN mit dem kabelgebundenen LAN koppeln kann.</p><p>Ein AP ist nicht automatisch ein Router: Viele Heimgeräte vereinen Router, Switch, Access Point, DHCP-Server und Modemfunktionen in einem Gehäuse. Funk wird zwischen Teilnehmern geteilt; Störungen und schwache Signale können die tatsächliche Datenrate senken.</p><div class="callout">SSID = Anzeigename des Funknetzes; BSSID = Identifikator einer konkreten Funkzelle (typischerweise eine MAC-Adresse).</div></div></details>
 <details class="lesson"><summary><span class="lid">W1</span> Frequenzbänder, Kanäle und Reichweite</summary><div class="lesson-body"><div class="table-wrap"><table class="t"><tr><th>Band</th><th>Typischer Vorteil</th><th>Typischer Nachteil</th></tr><tr><td>2,4 GHz</td><td>Oft größere Reichweite/bessere Durchdringung</td><td>Stark belegt, wenige überlappungsarme Kanäle</td></tr><tr><td>5 GHz</td><td>Mehr nutzbares Spektrum und oft höhere Datenraten</td><td>Durch Wände meist schneller abgeschwächt</td></tr><tr><td>6 GHz (Wi‑Fi 6E/7)</td><td>Zusätzliche Kapazität, moderne Geräte</td><td>Reichweite/Kompatibilität und regulatorische Grenzen beachten</td></tr></table></div><p><b>Kanäle</b> sind Frequenzbereiche. Bei 2,4 GHz gelten <b>1, 6 und 11</b> als verbreitetes Schema für drei überlappungsarme 20-MHz-Kanäle. In Europa sind zusätzliche Kanäle zulässig; entscheidend ist eine störungsarme Kanalplanung. 5-GHz-Kanäle können <b>DFS</b> (Radarerkennung) erfordern.</p></div></details>
 <details class="lesson"><summary><span class="lid">W2</span> SSID, BSSID und Authentifizierung</summary><div class="lesson-body"><p><b>SSID</b> ist der konfigurierte Funknetzname, den mehrere APs gemeinsam nutzen können. <b>BSSID</b> identifiziert eine konkrete Funkzelle/Radioschnittstelle. Das <b>WLAN-Passwort</b> ist nicht identisch mit der SSID.</p><p><b>WPA2-Personal</b> nutzt einen gemeinsamen Schlüssel (PSK). <b>WPA3-Personal</b> verwendet SAE für die Authentifizierung und bietet verbesserte Schutzmechanismen. <b>WPA2/WPA3-Enterprise</b> nutzt typischerweise 802.1X mit zentraler Anmeldung (z. B. RADIUS).</p><div class="trap">„Versteckte SSID“ und MAC-Filter sind <b>kein verlässlicher Ersatz</b> für sichere WPA2-/WPA3-Konfiguration und starke Zugangsdaten.</div></div></details>
@@ -869,7 +1075,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch8" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">08</span><div><h3>IPv6</h3><p>128 Bit, Kürzungsregeln, Adresstypen, SLAAC, Dual Stack und Zone ID.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">08</span><div><h3>IPv6</h3><p>128 Bit, Kürzungsregeln, Adresstypen, SLAAC, Dual Stack und Zone ID.</p></div></div><p>Im Ticket steht eine lange IPv6-Adresse. Die führenden Nullen pro Block dürfen raus. Einen Teil der Nullblöcke kannst du mit :: abkürzen. Zweimal :: wäre allerdings eine Rechenaufgabe ohne eindeutige Lösung.</p>
 <details class="lesson" open><summary><span class="lid">V1</span> Warum IPv6? Aufbau und Schreibweise</summary><div class="lesson-body"><p>IPv4 hat 32 Bit und rund 4,3 Milliarden theoretische Adressen. IPv6 bietet <b>128 Bit</b> und einen sehr großen Adressraum. Weitere Vorteile sind unter anderem flexible Autokonfiguration und effizient strukturierbare Präfixe.</p><p>IPv6 wird als <b>acht Gruppen mit je vier hexadezimalen Stellen</b> dargestellt, z. B. <code>2001:0db8:0000:0000:0000:0000:0000:0042</code>. Hexadezimal nutzt 0–9 und a–f.</p><div class="callout">Eine IPv6-Adresse besteht aus 128 Bits; ein übliches LAN-Präfix <b>/64</b> bedeutet 64 Netzpräfix-Bits und 64 Interface-Identifier-Bits.</div></div></details>
 <details class="lesson"><summary><span class="lid">V2</span> IPv6-Kürzungsregeln</summary><div class="lesson-body"><p><b>Regel 1:</b> Führende Nullen in <b>jeder</b> Vierergruppe entfernen, etwa <code>00ab</code> → <code>ab</code>. Eine vollständig aus Nullen bestehende Gruppe wird <code>0</code>.</p><p><b>Regel 2:</b> Eine zusammenhängende Folge aus Nullgruppen darf <b>einmal</b> durch <code>::</code> ersetzt werden. Für die kanonische Schreibweise wird die längste Nullfolge gewählt, bei Gleichstand die erste. Eine <b>einzelne</b> Nullgruppe wird dabei nicht durch <code>::</code> ersetzt, sondern als <code>0</code> geschrieben, und Hex-Ziffern werden kleingeschrieben (RFC 5952). Erlaubt wäre <code>::</code> für eine einzelne Gruppe zwar (RFC 4291), empfohlen ist es nicht.</p><div class="calc">2001:0db8:0000:0000:0000:0000:0000:000a
 ↓ führende Nullen weg
@@ -886,7 +1092,7 @@ body.dtp-exercise-open{overflow:hidden}
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
     <section id="ch9" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Fehleranalyse und Tools</h3><p>Von unten nach oben eingrenzen, statt zu raten. Mit den passenden Befehlen.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Fehleranalyse und Tools</h3><p>Von unten nach oben eingrenzen, statt zu raten. Mit den passenden Befehlen.</p></div></div><p>Eine Kollegin sagt, das Internet sei kaputt. Prüfe erst den eigenen Anschluss, dann den Weg nach draußen und dann den Namen. Je nachdem, welcher Test scheitert, sparst du dir drei falsche Baustellen.</p>
 <details class="lesson" open><summary><span class="lid">4.5</span> Fehleranalyse mit dem Schichtenmodell</summary><div class="lesson-body"><p><b>Von unten nach oben:</b> Leuchtet der Link? Kabel/Access Point? (L1) → Stimmt der lokale Ethernet-/WLAN-Zugang? (L2) → IP-Adresse, Maske, Gateway, Route? (L3) → Erreicht der benötigte TCP-/UDP-Port den Dienst? (L4) → Funktioniert die Anwendung/DNS/HTTP? (L7)</p><p>Übliche Werkzeuge: <code>ipconfig /all</code> (Windows-IP-Konfiguration), <code>ping</code> (ICMP-Erreichbarkeit), <code>tracert</code> (Route), <code>nslookup</code> (DNS), <code>arp -a</code> (IPv4-Nachbartabelle), <code>netstat -ano</code> (Verbindungen/Ports).</p><div class="callout">Tests schrittweise eingrenzen: <b>eigene IP → Gateway → externe IP → Domain</b>. Ein fehlgeschlagener Ping beweist nicht automatisch, dass der Host offline ist (ICMP kann gefiltert sein).</div></div></details>
 <details class="lesson"><summary><span class="lid">P4</span> Konsolentools und Troubleshooting</summary><div class="lesson-body"><div class="table-wrap"><table class="t"><tr><th>Windows</th><th>Wofür?</th></tr><tr><td><code>ipconfig /all</code></td><td>IP, Maske, Gateway, DNS, DHCP prüfen</td></tr><tr><td><code>ping 192.168.1.1</code></td><td>ICMP-Echo zu einem Ziel testen</td></tr><tr><td><code>tracert 1.1.1.1</code></td><td>Router-Hops bis zum Ziel anzeigen (soweit Antworten)</td></tr><tr><td><code>nslookup example.org</code></td><td>Namensauflösung prüfen</td></tr><tr><td><code>arp -a</code></td><td>Bekannte IPv4-ARP-Einträge</td></tr><tr><td><code>netstat -ano</code></td><td>Sockets und Prozess-IDs prüfen</td></tr><tr><td><code>ipconfig /release</code>, <code>/renew</code></td><td>DHCPv4-Lease freigeben/neu beziehen</td></tr></table></div><p>Linux-Pendants sind je nach Distribution z. B. <code>ip addr</code>, <code>ip route</code>, <code>ping</code>, <code>traceroute</code>, <code>dig</code>, <code>ss -tulpen</code>.</p><div class="callout">Guter Diagnosefall: Externe IP erreichbar, Domain nicht? Prüfe zuerst <b>DNS</b>. Gateway nicht erreichbar? Beginne bei LAN-Verbindung, IP/Präfix und Gateway.</div></div></details>
 
@@ -1170,7 +1376,7 @@ const Q=s=>'<span class="quote">'+s+'</span>';
 /* ---------- 1 · Netzwerkarten & Architektur ---------- */
 S('basics','b_art','Netzwerkart nach Reichweite',1,lv=>{
  const x=pick(NETART);
- return mc(P('Ordnen Sie das folgende Netz einer Netzwerkart nach räumlicher Ausdehnung zu. '+sc(cap(x[1])),'Wie groß ist dieses Netz? Wähle die passende Abkürzung. '+sc(cap(x[1]))+' '+SM('PAN = rund um eine Person, LAN = Gebäude, MAN = Stadt, WAN = weit auseinander, GAN = weltweit.')),x[0],['PAN','LAN','MAN','WAN','GAN'],NETWHY[x[0]],{key:'na'+x[1]});
+ return mc(P('Zu welcher Netzwerkart passt diese Reichweite? '+sc(cap(x[1])),'Wie groß ist dieses Netz? Wähle die passende Abkürzung. '+sc(cap(x[1]))+' '+SM('PAN = rund um eine Person, LAN = Gebäude, MAN = Stadt, WAN = weit auseinander, GAN = weltweit.')),x[0],['PAN','LAN','MAN','WAN','GAN'],NETWHY[x[0]],{key:'na'+x[1]});
 });
 S('basics','b_kurz','Kürzel PAN bis GAN',1,lv=>{
  const k=pick(['PAN','LAN','MAN','WAN','GAN']);const d={PAN:'unmittelbare Umgebung einer Person (wenige Meter)',LAN:'Raum, Gebäude oder Campus',MAN:'Stadt oder Region',WAN:'große Entfernungen zwischen Standorten',GAN:'weltumspannend'};
@@ -1188,7 +1394,7 @@ S('basics','b_tf','Grundlagen: Aussagen prüfen',1,lv=>{const x=pick(BASICTF);re
 S('basics','b_rate','Übertragungsdauer berechnen',2,lv=>{
  const r=pick([10,20,25,50,100,200,250,500,1000]);let mb;do{mb=pick([25,50,100,125,200,250,400,500,625,750,1000,1250,2000,2500])}while((mb*8)%r||mb*8/r>600||mb*8/r<2);
  const s=mb*8/r;
- return {kind:'dec',key:'br'+mb+'_'+r,prompt:P('Eine Datei mit '+V(gi(mb)+' MB')+' wird über eine Verbindung mit '+V(gi(r)+' Mbit/s')+' übertragen. Berechnen Sie die Übertragungsdauer in Sekunden. Protokoll-Overhead bleibt unberücksichtigt.','Wie viele Sekunden dauert es, '+V(gi(mb)+' MB')+' mit '+V(gi(r)+' Mbit/s')+' zu übertragen? '+SM('Achtung: MB sind Megabyte, Mbit sind Megabit. 1 Byte = 8 Bit. Erst in Mbit umrechnen, dann durch die Datenrate teilen.')),answer:s,fmt:'Ganze Zahl in Sekunden, z. B. 40',
+ return {kind:'dec',key:'br'+mb+'_'+r,prompt:P('Eine Datei mit '+V(gi(mb)+' MB')+' wird über eine Verbindung mit '+V(gi(r)+' Mbit/s')+' übertragen. Wie viele Sekunden dauert die Übertragung? Rechne ohne zusätzliche Protokolldaten.','Wie viele Sekunden dauert es, '+V(gi(mb)+' MB')+' mit '+V(gi(r)+' Mbit/s')+' zu übertragen? '+SM('Achtung: MB sind Megabyte, Mbit sind Megabit. 1 Byte = 8 Bit. Erst in Mbit umrechnen, dann durch die Datenrate teilen.')),answer:s,fmt:'Ganze Zahl in Sekunden, z. B. 40',
   why:W(['Byte in Bit: '+gi(mb)+' MB × 8 = '+gi(mb*8)+' Mbit.','Dauer = Datenmenge : Datenrate = '+gi(mb*8)+' Mbit : '+gi(r)+' Mbit/s.','= <b>'+gi(s)+' Sekunden</b>.']),
   diag:v=>v*8===s?'Du hast vergessen, Megabyte in Megabit umzurechnen (mal 8).':v===s*8?'Du hast mal 8 doppelt gerechnet oder durch 8 statt mal 8.':''};
 });
@@ -1204,7 +1410,7 @@ S('topo','t_desc','Topologie erkennen',1,lv=>{
 });
 S('topo','t_mesh','Vollmesh: Leitungen berechnen',1,lv=>{
  const n=lv===1?rint(3,8):rint(5,14),l=n*(n-1)/2;
- return {kind:'dec',key:'tm'+n,prompt:P('Ein Netz mit '+V(n+' Knoten')+' soll vollständig vermascht werden. Berechnen Sie die Anzahl der benötigten Verbindungen.',''+V(n)+' Geräte sollen jeweils mit jedem anderen Gerät direkt verbunden werden. Wie viele Leitungen brauchst du? '+SM('Jedes Paar bekommt genau eine Leitung.')),answer:l,
+ return {kind:'dec',key:'tm'+n,prompt:P('Ein Netz mit '+V(n+' Knoten')+' im Vollmesh. Jedes Gerät ist direkt mit jedem anderen verbunden. Wie viele Leitungen brauchst du?',''+V(n)+' Geräte sollen jeweils mit jedem anderen Gerät direkt verbunden werden. Wie viele Leitungen brauchst du? '+SM('Jedes Paar bekommt genau eine Leitung.')),answer:l,
   why:W(['Jeder Knoten braucht eine Leitung zu den '+(n-1)+' anderen: '+n+' × '+(n-1)+' = '+(n*(n-1))+'.','Jede Leitung verbindet zwei Knoten und wurde doppelt gezählt: '+(n*(n-1))+' : 2.','Formel n × (n − 1) / 2 = <b>'+l+'</b> Leitungen.']),
   diag:v=>v===n*(n-1)?'Du hast jede Leitung doppelt gezählt. Teile noch durch 2.':v===n*n?'n × n zählt auch Verbindungen eines Geräts zu sich selbst. Richtig ist n × (n − 1) / 2.':v===n-1?'Das sind die Anschlüsse pro Gerät, nicht alle Leitungen zusammen.':''};
 });
@@ -1567,55 +1773,55 @@ const tbl=(head,rows)=>'<div class="table-wrap"><table class="t"><thead><tr>'+he
 const STAGES=[
  {title:'Netzwerkarten & Architektur',cat:'basics',ch:'c1',goal:'Netze nach Reichweite und Architektur einordnen und Kenngrößen wie Latenz und Jitter unterscheiden.',
   vis:()=>tbl(['Kürzel','Bedeutung','Typisches Beispiel'],[['PAN','Personal Area Network – unmittelbare Umgebung','Smartphone + Bluetooth-Kopfhörer'],['LAN','Local Area Network – Raum/Gebäude/Campus','Schul- oder Firmennetz'],['MAN','Metropolitan Area Network – Stadt/Region','Standortnetz einer Stadt'],['WAN','Wide Area Network – große Entfernungen','Standorte über Provider verbinden'],['GAN','Global Area Network – weltumspannend','Globale Vernetzung, z. B. Internet']]),
-  intro:'Ein Netzwerk beginnt bei zwei Geräten, die über ein Medium nach gemeinsamen Regeln (Protokollen) Daten austauschen. Um Netze zu beschreiben, ordnest du sie nach Reichweite (PAN bis GAN), nach Architektur (Peer-to-Peer, Client-Server, Hybrid) und nach Kenngrößen wie Datenrate, Latenz und Jitter.',
+  intro:'Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, nur der Schreibtisch ist kein Kontinent. Reichweite und Aufbau helfen beim Einordnen. Ein Netzwerk beginnt bei zwei Geräten, die über ein Medium nach gemeinsamen Regeln (Protokollen) Daten austauschen. Um Netze zu beschreiben, ordnest du sie nach Reichweite (PAN bis GAN), nach Architektur (Peer-to-Peer, Client-Server, Hybrid) und nach Kenngrößen wie Datenrate, Latenz und Jitter.',
   example:'Ein Unternehmen hat ein Büro in Köln und eines in Berlin. In jedem Büro stehen zehn PCs, alle melden sich an einem zentralen Anmeldeserver an. Wie beschreibst du dieses Netz?',
   steps:['<strong>Innerhalb eines Büros:</strong> PCs, Drucker und Server im selben Gebäude bilden je ein <strong>LAN</strong>.','<strong>Zwischen Köln und Berlin:</strong> Die Verbindung über einen Provider überbrückt große Entfernungen → <strong>WAN</strong>.','<strong>Architektur:</strong> Ein zentraler Server stellt die Anmeldung bereit, die PCs nutzen ihn → <strong>Client-Server</strong>.','<strong>Risiko:</strong> Gibt es nur einen Anmeldeserver und keine Redundanz, ist er ein <strong>Single Point of Failure</strong>.'],
   memo:'<strong>WLAN</strong> ist eine Funktechnik, keine Reichweitenklasse. <strong>Latenz</strong> = Verzögerung · <strong>Jitter</strong> = Schwankung der Verzögerung · <strong>Datenrate</strong> = Menge pro Zeit · <strong>Paketverlust</strong> = kommt nie an.'},
  {title:'Topologien',cat:'topo',ch:'c2',goal:'Topologien an ihrer Beschreibung erkennen, physisch und logisch unterscheiden und Mesh-Leitungen berechnen.',
   vis:()=>tbl(['Form','Beschreibung','Typische Schwachstelle'],[['Bus','Alle teilen einen gemeinsamen Leitungsstrang.','Defekt am Hauptmedium'],['Ring','Jeder Knoten hat zwei Nachbarn im Kreis.','Ein Bruch kann ohne Schutzmechanismen stören'],['Stern','Alle Endgeräte einzeln an einer Zentrale.','Ausfall der Zentrale'],['Baum','Hierarchisch verbundene Sterne/Verteiler.','Ausfall oberer Verteiler trifft viele Zweige'],['Mesh','Knoten mehrfach, teils vollständig verbunden.','Komplexität, Kosten']]),
-  intro:'Die Topologie beschreibt, wie Teilnehmer und Verbindungen angeordnet sind. Sie beeinflusst Verkabelungsaufwand, Erweiterbarkeit, Ausfallsicherheit und Fehlersuche. Dabei unterscheidest du die physische Topologie (Kabelweg) von der logischen (wie die Daten fließen).',
+  intro:'Sechs PCs sollen verbunden werden. Im Stern führt von jedem ein Kabel zur Mitte. Im Vollmesh bekommt jedes Gerätepaar eine eigene Verbindung. Der Unterschied steht später auf der Kabelrechnung. Die Topologie beschreibt, wie Teilnehmer und Verbindungen angeordnet sind. Sie beeinflusst Verkabelungsaufwand, Erweiterbarkeit, Ausfallsicherheit und Fehlersuche. Dabei unterscheidest du die physische Topologie (Kabelweg) von der logischen (wie die Daten fließen).',
   example:'Sechs Router sollen vollständig vermascht werden. Wie viele Leitungen braucht man – und wie viele wären es im Stern mit einer Zentrale?',
   steps:['Jeder Router braucht eine Leitung zu jedem der <strong>5</strong> anderen: 6 × 5 = 30.','Jede Leitung verbindet aber <strong>zwei</strong> Router und wurde doppelt gezählt: 30 / 2 = <strong>15</strong>. Allgemein: <strong>n × (n − 1) / 2</strong>.','Im Stern hängt jedes der 6 Geräte mit <strong>einem</strong> Kabel an der Zentrale: <strong>6</strong> Leitungen.','Abwägung: Das Mesh hat alternative Wege, kostet aber mehr als doppelt so viele Leitungen. Im Stern ist die Zentrale der kritische Punkt.'],
   memo:'<strong>Physisch ≠ logisch:</strong> PCs an einem Hub sind physisch ein Stern, logisch ein gemeinsames Medium wie beim Bus. Ein Switch sorgt für gezielte Weiterleitung pro Port.'},
  {title:'Komponenten & Verkabelung',cat:'comp',ch:'c3',goal:'Komponenten als aktiv oder passiv einordnen, Hub/Switch/Router unterscheiden, Domänen zählen und Kabel richtig wählen.',
   vis:()=>tbl(['','Hub','Switch (L2)','Router'],[['OSI','1','2','3'],['Beachtet','Bits/Signale','MAC-Adresse','IP-Adresse'],['Aufgabe','Signal wiederholen','Frames im LAN vermitteln','IP-Pakete zwischen Netzen routen'],['Typisch','Alle Ports gleiche Kollisionsdomäne','Pro Port eigene Kollisionsdomäne','Trennt Broadcast-Domänen']]),
-  intro:'Aktive Komponenten brauchen Energie und verarbeiten Signale oder Daten (Switch, Router, Access Point, Repeater). Passive Komponenten transportieren oder verteilen nur (Kabel, Dose, Patchpanel). Entscheidend für Hub, Switch und Router ist, welche Information sie auswerten.',
+  intro:'Ein Patchpanel sieht nach Netzwerk aus und braucht trotzdem keinen Strom. Der Switch daneben verarbeitet Frames und braucht Energie. Für aktiv und passiv ist entscheidend, was das Teil tut. Aktive Komponenten brauchen Energie und verarbeiten Signale oder Daten (Switch, Router, Access Point, Repeater). Passive Komponenten transportieren oder verteilen nur (Kabel, Dose, Patchpanel). Entscheidend für Hub, Switch und Router ist, welche Information sie auswerten.',
   example:'Je acht PCs hängen an einem Hub, an einem Switch und – über acht Schnittstellen – an einem Router. Wie viele Kollisions- und Broadcastdomänen gibt es jeweils?',
   steps:['<strong>Hub (Schicht 1):</strong> wiederholt alle Signale an alle Ports → <strong>1</strong> Kollisionsdomäne, <strong>1</strong> Broadcastdomäne.','<strong>Switch (Schicht 2):</strong> jeder Port eigenständig → <strong>8</strong> Kollisionsdomänen; Broadcasts gehen aber an alle → <strong>1</strong> Broadcastdomäne.','<strong>Router (Schicht 3):</strong> leitet keine Broadcasts zwischen Netzen weiter → <strong>8</strong> Kollisions- und <strong>8</strong> Broadcastdomänen.','<strong>Verkabelung:</strong> PC – Patchkabel – Dose – festes Installationskabel – Patchpanel – Patchkabel – Switch. Kupfer: 90 m Permanent Link + 10 m Patchkabel = 100 m Channel.'],
   memo:'<strong>Switch trennt Kollisionsdomänen, Router trennt Broadcastdomänen.</strong> VLANs teilen einen Switch zusätzlich in mehrere Broadcastdomänen. Cat 5e: 1 Gbit/s bis 100 m · Cat 6A: 10 Gbit/s bis 100 m. Glasfaser: EMV-unempfindlich, aber kein PoE.'},
  {title:'Switch: MAC-Tabelle',cat:'switch',ch:'c3',goal:'Vorhersagen, was ein Switch lernt und an welche Ports er einen Frame weiterleitet.',
   vis:()=>'<ol style="margin:0;padding-left:21px;color:#dbd2c8;font-size:14px;line-height:1.7"><li><b>Empfang</b> am Switchport</li><li><b>Prüfung</b> der FCS (Store-and-Forward)</li><li><b>Lernen:</b> Quell-MAC + Eingangsport in die MAC-Tabelle</li><li><b>Ziel bestimmen:</b> Unicast, Broadcast oder Multicast</li><li><b>Entscheiden:</b> bekannt → ein Port · unbekannt/Broadcast → Flooding</li><li><b>Weiterleiten</b> – nie zurück an den Eingangsport</li></ol>',
-  intro:'Ein Switch lernt selbstständig, welches Gerät an welchem Port hängt. Er schaut dafür auf die Quell-MAC-Adresse jedes ankommenden Frames. Die Ziel-MAC schlägt er in seiner Tabelle nach und entscheidet dann, ob er gezielt weiterleitet oder flutet.',
+  intro:'Ein Frame kommt am Switch an. Der Switch lernt aus seiner Quelladresse und entscheidet anhand der Zieladresse, wohin er weiterleitet. Der Absender liefert den Hinweis, der Empfänger bestimmt die Richtung. Ein Switch lernt selbstständig, welches Gerät an welchem Port hängt. Er schaut dafür auf die Quell-MAC-Adresse jedes ankommenden Frames. Die Ziel-MAC schlägt er in seiner Tabelle nach und entscheidet dann, ob er gezielt weiterleitet oder flutet.',
   example:'Leere MAC-Tabelle. PC A hängt an Port 1, PC C an Port 3. A sendet an C, danach antwortet C an A. Was passiert?',
   steps:['Der Frame von A kommt an Port 1 an. Der Switch <strong>lernt die Quell-MAC</strong>: MAC-A → Port 1.','Die Ziel-MAC von C ist unbekannt → <strong>Flooding</strong> an alle Ports außer Port 1.','C antwortet. Der Switch lernt <strong>MAC-C → Port 3</strong>.','MAC-A steht jetzt in der Tabelle → die Antwort geht <strong>nur an Port 1</strong>. Ab jetzt läuft die Kommunikation gezielt.'],
   memo:'<strong>Quelle lernen → Ziel nachschlagen.</strong> Bekannte Ziel-MAC: gezielt an einen Port. Unbekannte Ziel-MAC oder Broadcast: an alle anderen Ports derselben Broadcastdomäne (VLAN).'},
  {title:'OSI & TCP/IP',cat:'layers',ch:'c4',goal:'Die OSI-Schichten benennen, Begriffe zuordnen, PDUs kennen und OSI auf TCP/IP abbilden.',
   vis:()=>tbl(['OSI','Schicht','TCP/IP','PDU / Beispiel'],[['7','Anwendung','Anwendung','HTTP, DNS, DHCP'],['6','Darstellung','Anwendung','Kodierung, Format'],['5','Sitzung','Anwendung','Sitzungssteuerung'],['4','Transport','Transport','Segment / Datagramm · TCP, UDP'],['3','Vermittlung','Internet','IP-Paket · IP, ICMP'],['2','Sicherung','Netzzugang','Frame · Ethernet, MAC'],['1','Bitübertragung','Netzzugang','Bits · Kabel, Funk']]),
-  intro:'Das OSI-Modell ist ein Referenzmodell mit sieben Schichten zum Verstehen und Diagnostizieren. Das TCP/IP-Modell (für diese LK/EK: 4 Schichten) orientiert sich an der tatsächlich genutzten Internetprotokollfamilie und fasst Schichten zusammen.',
+  intro:'Die Seite lädt nicht. Ein loses Kabel, eine falsche IP und ein abgestürzter Webdienst können im Browser ähnlich aussehen. Mit den Schichten stellst du drei verschiedene Fragen an denselben Fehler. Das OSI-Modell ist ein Referenzmodell mit sieben Schichten zum Verstehen und Diagnostizieren. Das TCP/IP-Modell (für diese LK/EK: 4 Schichten) orientiert sich an der tatsächlich genutzten Internetprotokollfamilie und fasst Schichten zusammen.',
   example:'Wie entsteht aus einer HTTP-Anfrage ein Ethernet-Frame?',
   steps:['<strong>Anwendung:</strong> Der Browser erzeugt die HTTP-Daten.','<strong>Transport (4):</strong> TCP setzt seinen Header mit Ports davor → <strong>Segment</strong>.','<strong>Vermittlung (3):</strong> IP setzt den Header mit Quell- und Ziel-IP davor → <strong>IP-Paket</strong>.','<strong>Sicherung (2):</strong> Ethernet setzt den Header mit MAC-Adressen davor und hängt die <strong>FCS</strong> an → <strong>Frame</strong>.','<strong>Bitübertragung (1):</strong> Die Netzwerkkarte sendet Bits als Signale. Beim Empfänger wird in umgekehrter Reihenfolge entkapselt.'],
   memo:'<strong>Merksatz von 7 nach 1:</strong> Alle Deutschen Studenten Trinken Verschiedene Sorten Bier. <strong>TCP/IP:</strong> Anwendung = OSI 5–7 · Transport = 4 · Internet = 3 · Netzzugang = 1–2.'},
  {title:'Protokolle & Ports',cat:'proto',ch:'proto',goal:'ARP, ICMP, DHCP, DNS, TCP und UDP sicher einordnen und die wichtigsten Ports kennen.',
   vis:()=>tbl(['Protokoll/Dienst','Typischer Transport/Port'],[['HTTP','TCP 80'],['HTTPS (klassisch)','TCP 443'],['HTTP/3 (QUIC)','UDP 443'],['DNS','UDP/TCP 53'],['SSH','TCP 22'],['DHCPv4','UDP 67/68']]),
-  intro:'Bevor eine Webseite erscheint, arbeiten mehrere Protokolle zusammen. Jedes beantwortet eine eigene Frage: Welche Adresse bekomme ich? Wie lautet die MAC des Gateways? Welche IP gehört zum Namen? Wie kommen die Daten zuverlässig an?',
+  intro:'Beim Öffnen einer Seite brauchst du unter anderem einen Namen, eine Adresse und einen erreichbaren Dienst. DNS, DHCP und TCP haben unterschiedliche Jobs. Den Router für alles verantwortlich zu machen spart nur beim Nachdenken. Bevor eine Webseite erscheint, arbeiten mehrere Protokolle zusammen. Jedes beantwortet eine eigene Frage: Welche Adresse bekomme ich? Wie lautet die MAC des Gateways? Welche IP gehört zum Namen? Wie kommen die Daten zuverlässig an?',
   example:'Ein Laptop kommt neu ins Netz und ruft www.example.org auf. Welche Protokolle arbeiten nacheinander?',
   steps:['<strong>DHCP (DORA):</strong> Discover → Offer → Request → Acknowledge. Der Laptop erhält IP, Maske, Gateway und DNS-Server (UDP 67/68).','<strong>ARP:</strong> Für den nächsten Hop fragt der Laptop per Broadcast nach der MAC-Adresse des Gateways.','<strong>DNS:</strong> Die Anfrage nach www.example.org liefert A- (IPv4) bzw. AAAA-Records (IPv6), meist über UDP 53.','<strong>Transport:</strong> Klassisch TCP-Handshake SYN → SYN/ACK → ACK und TLS auf TCP 443 – oder HTTP/3 über QUIC auf UDP 443.'],
   memo:'<strong>TCP</strong> = verbindungsorientiert, Reihenfolge, Wiederholung, Flusskontrolle. <strong>UDP</strong> = verbindungslos, ohne eigene Zustellgarantie. <strong>ICMP</strong> hat keine Ports. IPv6 ersetzt ARP durch <strong>NDP</strong>.'},
  {title:'WLAN',cat:'wifi',ch:'wifi',goal:'Frequenzbänder, Kanalplanung, SSID/BSSID, Sicherheitsverfahren und Betriebsarten unterscheiden.',
   vis:()=>tbl(['Band','Typischer Vorteil','Typischer Nachteil'],[['2,4 GHz','Oft größere Reichweite/bessere Durchdringung','Stark belegt, wenige überlappungsarme Kanäle'],['5 GHz','Mehr Spektrum, oft höhere Datenraten','Durch Wände schneller abgeschwächt, DFS bei manchen Kanälen'],['6 GHz (Wi‑Fi 6E/7)','Zusätzliche Kapazität','Reichweite, Kompatibilität, regionale Regeln']]),
-  intro:'WLAN nach IEEE 802.11 verbindet Geräte per Funk, meist im Infrastrukturmodus über Access Points. Für ein gutes WLAN planst du Band und Kanäle, vergibst einen sinnvollen Netznamen und wählst ein sicheres Anmeldeverfahren.',
+  intro:'Im Büro heißen zwei Access Points im WLAN-Menü gleich. Die SSID ist der Netzname. Die BSSID hilft dir, die konkrete Funkzelle zu unterscheiden. Der Name an der Tür sagt eben nicht, wer gerade drin sitzt. WLAN nach IEEE 802.11 verbindet Geräte per Funk, meist im Infrastrukturmodus über Access Points. Für ein gutes WLAN planst du Band und Kanäle, vergibst einen sinnvollen Netznamen und wählst ein sicheres Anmeldeverfahren.',
   example:'In einer Schule sollen drei benachbarte Access Points im 2,4-GHz-Band funken – für Lehrkräfte mit eigener Anmeldung und mit einem Gästenetz. Wie gehst du vor?',
   steps:['<strong>Kanäle:</strong> 1, 6 und 11 – das verbreitete Schema für drei überlappungsarme 20-MHz-Kanäle.','<strong>Name:</strong> Alle drei APs strahlen dieselbe <strong>SSID</strong> aus; jede Funkzelle hat ihre eigene <strong>BSSID</strong>.','<strong>Anmeldung:</strong> Lehrkräfte nutzen <strong>WPA2-/WPA3-Enterprise</strong> mit 802.1X und RADIUS – jede Person mit eigenem Konto.','<strong>Gäste:</strong> eigene SSID in einem eigenen VLAN, logisch vom internen Netz getrennt. Versteckte SSID oder MAC-Filter ersetzen keine Verschlüsselung.'],
   memo:'<strong>Personal</strong> = gemeinsamer Schlüssel (PSK bei WPA2, SAE bei WPA3). <strong>Enterprise</strong> = individuelle Anmeldung über 802.1X/RADIUS. Ein Access Point ist nicht automatisch ein Router.'},
  {title:'IPv6',cat:'ipv6',ch:'ipv6',goal:'IPv6-Adressen kürzen und ausschreiben, Gültigkeit prüfen und Adresstypen am Präfix erkennen.',
   vis:()=>'<div class="codeblock" style="margin-bottom:12px">2001:0db8:0000:0000:0000:0000:0000:000a\n↓ führende Nullen weg\n2001:db8:0:0:0:0:0:a\n↓ Nullfolge einmal kürzen\n2001:db8::a</div>'+tbl(['Typ','Präfix'],[['Global Unicast','2000::/3'],['Link-Local','fe80::/10'],['Unique Local (ULA)','fc00::/7 (üblich fd…)'],['Multicast','ff00::/8'],['Loopback','::1/128'],['Unspecified','::/128']]),
-  intro:'Eine IPv6-Adresse hat 128 Bit, geschrieben als acht Gruppen zu je vier Hex-Stellen. Zwei Regeln machen sie kürzer – und die empfohlene Schreibweise (RFC 5952) legt fest, wie genau gekürzt wird. Am Präfix erkennst du den Adresstyp.',
+  intro:'Im Ticket steht eine lange IPv6-Adresse. Die führenden Nullen pro Block dürfen raus. Einen Teil der Nullblöcke kannst du mit :: abkürzen. Zweimal :: wäre allerdings eine Rechenaufgabe ohne eindeutige Lösung. Eine IPv6-Adresse hat 128 Bit, geschrieben als acht Gruppen zu je vier Hex-Stellen. Zwei Regeln machen sie kürzer – und die empfohlene Schreibweise (RFC 5952) legt fest, wie genau gekürzt wird. Am Präfix erkennst du den Adresstyp.',
   example:'Kürze 2001:0db8:0000:0000:0008:0000:0000:0001 so weit wie möglich.',
   steps:['<strong>Regel 1:</strong> Führende Nullen jeder Gruppe streichen → 2001:db8:0:0:8:0:0:1.','Es gibt <strong>zwei</strong> Nullfolgen mit je zwei Gruppen (Gruppe 3–4 und Gruppe 6–7) – <strong>Gleichstand</strong>.','<strong>Regel 2:</strong> Nur <strong>eine</strong> Folge darf zu :: werden. Bei Gleichstand nimmt man die <strong>erste</strong> → <strong>2001:db8::8:0:0:1</strong>.','Kontrolle: sichtbar sind 6 Gruppen, das :: steht also für 8 − 6 = 2 Nullgruppen. Eine <strong>einzelne</strong> Nullgruppe bliebe als „0“ stehen.'],
   memo:'<strong>:: nur einmal</strong> pro Adresse, sonst ist die Zahl der ausgelassenen Gruppen nicht eindeutig. Kleinbuchstaben verwenden. IPv6 kennt <strong>keinen Broadcast</strong>, dafür Multicast.'},
  {title:'Fehleranalyse & Tools',cat:'trouble',ch:'proto',goal:'Ein Fehlerbild systematisch eingrenzen und den passenden Befehl wählen.',
   vis:()=>tbl(['Windows','Wofür?'],[['ipconfig /all','IP, Maske, Gateway, DNS, DHCP prüfen'],['ping','ICMP-Echo zu einem Ziel testen'],['tracert','Router-Hops bis zum Ziel anzeigen'],['nslookup','Namensauflösung prüfen'],['arp -a','Bekannte IPv4-ARP-Einträge'],['netstat -ano','Sockets und Prozess-IDs'],['ipconfig /release, /renew','DHCPv4-Lease freigeben/neu beziehen']]),
-  intro:'Mit dem Schichtenmodell grenzt du Fehler systematisch ein, statt zu raten. Teste schrittweise: eigene IP → Gateway → externe IP → Domain. Der erste Schritt, der scheitert, zeigt dir, wo du suchen musst.',
+  intro:'Eine Kollegin sagt, das Internet sei kaputt. Prüfe erst den eigenen Anschluss, dann den Weg nach draußen und dann den Namen. Je nachdem, welcher Test scheitert, sparst du dir drei falsche Baustellen. Mit dem Schichtenmodell grenzt du Fehler systematisch ein, statt zu raten. Teste schrittweise: eigene IP → Gateway → externe IP → Domain. Der erste Schritt, der scheitert, zeigt dir, wo du suchen musst.',
   example:'Eine Kollegin meldet: „Das Internet geht nicht.“ ping 8.8.8.8 klappt, aber www.example.org lässt sich nicht öffnen.',
   steps:['ping auf eine externe IP klappt → <strong>Link, IP-Konfiguration, Gateway und Routing</strong> funktionieren.','Es scheitert erst beim <strong>Namen</strong>. Test: <code>nslookup www.example.org</code>.','nslookup meldet einen Fehler → DNS-Server in <code>ipconfig /all</code> prüfen – falsch eingetragen oder nicht erreichbar.','Die Ursache liegt bei <strong>DNS</strong>, einem Anwendungsdienst (Schicht 7).'],
   memo:'<strong>169.254.x.x</strong> = keine DHCP-Antwort (IPv4-Link-Local). Ein fehlgeschlagener <strong>ping</strong> beweist nicht, dass ein Host offline ist – ICMP kann gefiltert sein.'}
@@ -1623,7 +1829,7 @@ const STAGES=[
 
 STAGES.push({title:'Endgegner: Szenarien',cat:'scen',ch:'c10',goal:'Alles verbinden: Weg eines Pakets über den Router, Gateway oder direkt, passendes Gerät und Kabel, Domänen im ganzen Firmennetz.',
  vis:()=>'<div class="calc">PC A ──[Netz 1]── R1 │ Router │ R2 ──[Netz 2]── Server S\n\nFrame 1 (PC A → Router):   Quell-MAC MAC-A   Ziel-MAC MAC-R1\nFrame 2 (Router → Server): Quell-MAC MAC-R2  Ziel-MAC MAC-S\nIn beiden Frames:          Quell-IP  IP-A    Ziel-IP  IP-S</div>',
- intro:'Jetzt wird nicht mehr nur abgefragt, sondern kombiniert. In der Prüfung heißt es selten „Was ist ARP?“, sondern „PC A erreicht den Server nicht. Warum?“ oder „Welche Adresse steht in diesem Frame?“. Dafür brauchst du alles aus den Stufen davor gleichzeitig: Schichten, Adressen, Geräte, Domänen und Kabel.',
+ intro:'Das Paket geht in ein anderes Netz. Die Ziel-IP bleibt die des Servers, aber im ersten Ethernet-Frame steht als Ziel die MAC des Gateways. Der erste Halt ist nicht automatisch das Reiseziel. Jetzt wird nicht mehr nur abgefragt, sondern kombiniert. In der Prüfung heißt es selten „Was ist ARP?“, sondern „PC A erreicht den Server nicht. Warum?“ oder „Welche Adresse steht in diesem Frame?“. Dafür brauchst du alles aus den Stufen davor gleichzeitig: Schichten, Adressen, Geräte, Domänen und Kabel.',
  example:'PC A (192.168.1.10/24) ruft eine Webseite auf einem Server im Netz 192.168.2.0/24 auf. Welche Adressen stehen im ersten Frame?',
  steps:['Ziel-IP 192.168.2.x liegt <strong>nicht</strong> im eigenen Netz 192.168.1.0/24. Also geht es über das <strong>Standardgateway</strong>.','PC A fragt per <strong>ARP</strong> nach der MAC-Adresse des Gateways (R1), nicht nach der des Servers.','Im ersten Frame: Ziel-MAC = <strong>MAC-R1</strong>, Ziel-IP = <strong>IP des Servers</strong>.','Der Router packt den Frame aus, entscheidet anhand der Ziel-IP und baut einen <strong>neuen Frame</strong> mit Quell-MAC R2 und Ziel-MAC des Servers. Die IP-Adressen bleiben gleich (ohne NAT).'],
  memo:'<strong>IP = Ende zu Ende, MAC = Hop zu Hop.</strong> Gleiches Netz: direkt per ARP. Fremdes Netz: an das Gateway. Router trennt Broadcastdomänen, Switchports trennen Kollisionsdomänen.'});
@@ -1631,8 +1837,8 @@ const CHMAP={c1:'ch1',c2:'ch2',c3:'ch3',c4:'ch5',proto:'ch6',wifi:'ch7',ipv6:'ch
 STAGES.forEach(s=>{s.visual=s.vis();s.intro='<p>'+s.intro+'</p>';s.ch=s.cat==='switch'?'ch4':s.cat==='trouble'?'ch9':s.cat==='scen'?'ch10':CHMAP[s.ch]});
 
 /* ================= Sprüche ================= */
-const Q_OK=['Richtig! Link up, Brain up.','Sauber. Kein Paketverlust im Oberstübchen.','Treffer. Der Switch hat dich gerade in seine MAC-Tabelle aufgenommen.','Korrekt. Ping erfolgreich, 0 % Verlust, 1 ms Latenz.','Stimmt. Der Router nickt anerkennend und routet weiter.','Exakt. Das war kein Raten, das war Schicht 3 im Kopf.','Richtig. Die IHK hat kurz nervös an ihrem Kugelschreiber gekaut.','Läuft. Drei-Wege-Handshake mit dem Wissen: SYN, SYN/ACK, ACK.','Genau so. Kein Jitter in deiner Argumentation.','Volltreffer. DHCP hat dir gerade die Adresse „Profi“ zugewiesen.','Korrekt. Irgendwo vergießt ein Netzwerkadmin eine Freudenträne.','Ja! Sauber verkabelt, sauber gedacht.','Richtig. Dein Gehirn hat eben eine statische Route zum Verständnis eingetragen.','Sitzt. Das Patchpanel ist stolz auf dich, obwohl es passiv ist.','Stark. TTL deines Wissens: unendlich.','Richtig. Selbst der Hub hätte das nicht weitergebrüllt, sondern gemerkt.'];
-const Q_BAD=['Daneben. Dein Kabel ist verbunden, nur das Wissen hat Link down.','Nope. Destination Host Unreachable, aber nur vorübergehend.','Leider falsch. Request timed out. Neuer Versuch, neues Glück.','Knapp vorbei ist auch vorbei. Sagt jeder Switchport.','Falsch, aber mutig. Mut gibt es in der IHK leider nicht als Punkte.','Nicht ganz. Die Erklärung unten ist dein neues Standardgateway.','Error 404: Antwort nicht gefunden. Lies den Lösungsweg.','Daneben. Kein Drama, auch das Internet hat mal mit zwei Rechnern angefangen.','Nein. Da hat sich ein Frame ins falsche VLAN verlaufen.','Leider nein. Der Router hat dein Paket verworfen. TTL abgelaufen.','Falsch. Aber jetzt weißt du, wo die Falle liegt. Das ist ein Paket wert.','Nope. Selbst ein Hub hätte das eher richtig geraten. Und der rät nur.'];
+const Q_OK=["Passt. Das Kabel bleibt eingesteckt.", "Richtig. Der Router darf heute einfach weiterarbeiten.", "Stimmt. Die Erklärung wäre ein brauchbarer Eintrag im Ticket."];
+const Q_BAD=["Noch nicht. Prüfe, was der Fall wirklich über den Aufbau sagt.", "Schau in den Lösungsweg. Ein Neustart hilft dieser Antwort auch nicht.", "Lies nach, welcher Teil des Netzes hier überhaupt betroffen ist."];
 const Q_MASTER=['Stufe gemeistert! Link up, nächste Tür auf.','Gemeistert. Deine MAC-Tabelle hat einen neuen Eintrag: „kann ich“.','Stufe geschafft! 8 von 10, das ist kein Glück mehr, das ist Routing.','Level up. Du bist jetzt offiziell routbar.'];
 const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
 /* ================= Antwort prüfen ================= */
@@ -1686,6 +1892,7 @@ function renderTask(host,t,o){
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
  host.innerHTML=h;
+ window.dtpMountCalculator?.(host,t,'netzwerke');
  const q=r=>host.querySelector('[data-r="'+r+'"]');
  let done=false,usedHint=!!o.hint;
  const tip=q('tip');if(tip)tip.addEventListener('click',()=>{q('hint').classList.remove('hidden');tip.hidden=true;usedHint=true});
@@ -2075,6 +2282,7 @@ function renderExamQ(){
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+esc(t.ph||PH[t.kind])+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
+ window.dtpMountCalculator?.($('examQ'),t,'netzwerke');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
  if(inp){const chk=()=>{const v=inp.value;ex.ans[i]=v.trim()?v:null;const p=v.trim()&&t.kind!=='txt'?parseAnswer(t,v):null;$('exFmt').innerHTML=p&&!p.valid?'<span style="color:var(--warn)">⚠ '+esc(p.msg)+' So würde die Antwort als falsch gewertet.</span>':(t.fmt||FMT[t.kind]);renderExamNav()};inp.addEventListener('input',chk);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});inp.focus({preventScroll:true});if(inp.value)chk()}
@@ -2140,6 +2348,9 @@ function kiQ(){
  $('kiPos').textContent='FRAGE '+String(e.pos+1).padStart(2,'0')+' / '+e.qids.length;$('kiCount').textContent=n+' / '+e.qids.length+' BEANTWORTET · 4 PUNKTE';
  $('kiNav').innerHTML=e.qids.map((id,i)=>'<button type="button" data-ki="'+i+'" class="'+(i===e.pos?'cur ':'')+((e.answers[id]||'').trim()?'answered ':'')+(e.flags.includes(id)?'flag':'')+'" aria-label="Frage '+(i+1)+'">'+(i+1)+'</button>').join('');
  $('kiQ').innerHTML='<p class="subtle" style="margin:0 0 6px">'+esc(OLDCATS[q.cat])+' · '+esc(q.topic)+' '+esc(q.topicTitle)+'</p><p class="task-prompt">'+esc(q.ask)+'</p><label class="sr-only" for="kiAns">Deine Prüfungsantwort</label><textarea id="kiAns" class="ta" rows="7" placeholder="Hier deine Antwort formulieren …">'+esc(e.answers[q.id]||'')+'</textarea><p class="fmt">Wird automatisch gespeichert. Beim Verlassen des Moduls wird die Prüfung abgegeben.</p>';
+ if(q.topic==='2.4' && q.ask.startsWith('Berechne die Zahl der direkten Verbindungen')){
+  window.dtpMountCalculator?.($('kiQ'),{sub:'mesh_freitext'},'netzwerke');
+ }
  $('kiAns').addEventListener('input',ev=>{e.answers[q.id]=ev.target.value;saveState();const m=e.qids.filter(id=>(e.answers[id]||'').trim()).length;$('kiCount').textContent=m+' / '+e.qids.length+' BEANTWORTET · 4 PUNKTE';const b=$('kiNav').querySelector('[data-ki="'+e.pos+'"]');if(b)b.classList.toggle('answered',!!ev.target.value.trim())});
  $('kiPrev').disabled=e.pos===0;$('kiNext').disabled=e.pos===e.qids.length-1;$('kiFlag').textContent=e.flags.includes(q.id)?'Markierung entfernen ⚑':'Markieren ⚑';$('kiConfirm').hidden=true;
 }

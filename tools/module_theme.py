@@ -22,6 +22,12 @@ def apply_theme(html):
     html = re.sub(re.escape(entry_start) + r'.*?' + re.escape(entry_end) + r'\n?', '', html, flags=re.S)
     entry_js = (ROOT / 'tools/module-entry.js').read_text()
     block += entry_start + '\n<script>\n' + entry_js.rstrip() + '\n</script>\n' + entry_end + '\n'
+    calc_start = '<!-- DTP-TASCHENRECHNER START -->'
+    calc_end = '<!-- DTP-TASCHENRECHNER END -->'
+    html = re.sub(re.escape(calc_start) + r'.*?' + re.escape(calc_end) + r'\n?', '', html, flags=re.S)
+    calc_css = (ROOT / 'tools/module-calculator.css').read_text()
+    calc_js = (ROOT / 'tools/module-calculator.js').read_text()
+    block += calc_start + '\n<style>\n' + calc_css.rstrip() + '\n</style>\n<script>\n' + calc_js.rstrip() + '\n</script>\n' + calc_end + '\n'
     return html.replace('</head>', block + '</head>', 1)
 
 if __name__ == '__main__':

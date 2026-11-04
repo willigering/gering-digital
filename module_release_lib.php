@@ -1,4 +1,29 @@
 <?php
+/** Match the public stock HTML inspected before the calculator release.
+ * Ignore the common wrappers injected by the server and keep admin-edited content independent.
+ */
+function module_release_matches_legacy(string $slug, string $path): bool {
+    $known=[
+        'a1-zahlensysteme'=>'45a3b54154b35c438feeb337ccb7cb13e18f290deb0a22920d9409e8611a12f0',
+        'b4-ipv6'=>'7c1710ee2da384396773f66159b6db66d9e95c3cbbfc39b5c4826c38a56dd562',
+        'b5-netzwerkdienste'=>'094f008e9180a2c913a608a91e1b2af52397c66ef333e8392957ad21ec79d2e1',
+        'd1-datenschutz'=>'df4ff4720ebbfab3a6bec5ef11a8e5831915abde8a9b3139093bbaebcd2b347d',
+        'd2-it-sicherheit'=>'e9b5cde28fb5ed2ba8d7984258ffc7fe87992918e9e3b2a1098f64162e1d372d',
+        'f2-kalkulation'=>'f3288e5c02de71732ec64ced2cc8de88c95318c979f5546622753aa0280786e8',
+        'netzwerke-sprint'=>'4362dc11a6add7f5aef3679f1ef5f40d98c1ecebf72d8c34e1124de6a7b9c1e8',
+    ];
+    if (!isset($known[$slug])) return false;
+    $html=file_get_contents($path);
+    if ($html===false) return false;
+    $html=str_replace(["\r\n",'Offline · ohne Login'],["\n",'Lernen · Üben · Verstehen'],$html);
+    $html=preg_replace('~<link\b(?=[^>]*\brel\s*=\s*["\'](?:shortcut\s+)?icon["\'])[^>]*>~i','',$html) ?? $html;
+    $html=preg_replace('~<script>window\.__DTP_SYNC__=[\s\S]*?</script>\s*<script>[\s\S]*?</script>~','',$html,1) ?? $html;
+    $html=preg_replace('~<!-- DTP-(MODULDESIGN|MODULEINSTIEG|UEBUNGSFOKUS) START -->[\s\S]*?<!-- DTP-\1 END -->~','',$html) ?? $html;
+    $html=preg_replace('~(<div\b[^>]*class="foot-brand"[^>]*>)\s*<img\b[^>]*>~i','$1',$html) ?? $html;
+    $html=preg_replace('~\n(?:[ \t]*\n)+~',"\n",trim($html)) ?? $html;
+    return hash('sha256',$html)===$known[$slug];
+}
+
 /** Activate only complete releases uploaded by the deployment workflow. No public write endpoint. */
 function module_release_sync(PDO $db, ?string $root=null): void {
     $root??=__DIR__;
@@ -29,12 +54,15 @@ function module_release_sync(PDO $db, ?string $root=null): void {
             if (!$page && isset($aliases[$slug])) {$find->execute([$aliases[$slug]]);$page=$find->fetch(PDO::FETCH_ASSOC);}
             $target=$page['slug']??$slug;
             $key='module_hash:'.$target;$q->execute([$key]);$previous=$q->fetchColumn();
-            // Existing manual projects are left alone. Managed modules update unless manually replaced.
+            // Adopt the known public stock versions once. Later admin edits retain their own versions.
             if ($page) {
                 $live=(string)$page['live_version'];
                 $stored=preg_match('~^[a-f0-9]{24}$~D',$live)?$root.'/data/html-pages/'.$target.'/'.$live.'/index.html':'';
-                if ($previous===false || $stored==='' || !is_file($stored) || hash_file('sha256',$stored)!==$previous) continue;
-                if ($previous===$release['files'][$file]) continue;
+                if ($stored==='' || !is_file($stored)) continue;
+                $currentHash=hash_file('sha256',$stored);
+                if ($currentHash===$previous && $previous===$release['files'][$file]) continue;
+                if (($previous===false || $currentHash!==$previous)
+                    && ($page['category']!=='lernen' || !module_release_matches_legacy($target,$stored))) continue;
             }
             $version=bin2hex(random_bytes(12));
             $dir=$root.'/data/html-pages/'.$target.'/'.$version;
