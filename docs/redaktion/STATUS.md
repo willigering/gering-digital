@@ -48,9 +48,8 @@ Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. 
 
 PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und die gemeinsamen Modul- und Browsertests erweitert. Die veralteten B5-Einzellösungen und ihre testspezifischen Selektoren werden nicht erneut eingespielt. B5-Textredaktion und die neuere Fokusfunktion werden auf dem aktuellen `main` gemeinsam integriert; öffentliche Auslieferung ist erst nach erfolgreicher Deploymentprüfung bestätigt.
 
-## Formulierungen und Rechner in neun Modulen (04.11.2026)
+## Zusammenführung der Lehrtexte und Fortschrittskacheln (04.11.2026)
 
-- A1, B1–B4, D1–D2 und F2 erhielten je zehn überarbeitete Lektionseinstiege. Im Nachschlagwerk stehen die Einstiege in den passenden Fachkapiteln. B5 verwendet weiterhin die bereits überarbeiteten zehn Kapitel und übernimmt die Datei/Passwort-Pointe in Lernpfad und Nachschlagwerk.
-- Die sichtbaren Fragen wurden an ausgewählten Stellen gestrafft. Allgemeine Rückmeldungen in A1, B1–B4 und D1–D2 wurden ersetzt. Überschriften, Aufgabentyp-IDs, Lösungen und Speicherverträge sind erhalten.
-- Eine vollständige Zeile-für-Zeile-Abnahme aller Generatorvarianten, Labs, Hinweise und Prüfungstexte steht außerhalb von B5 weiter aus.
-- Rechner und Modulfarbe werden gemeinsam eingebunden. Die Freischaltbedingung im Konto stammt aus dem vorhandenen Achievement-Katalog. Der öffentliche Ausgangsstand wurde auf allen neun Modul-URLs geprüft. A1 und B2 waren dort älter als im Repository.
+Die neueren Lektionseinstiege und das Rechnerdesign aus der veröffentlichten Fassung wurden bei Überschneidungen beibehalten. Ergänzt wurden weitere Aufgaben- und Erklärungstexte in A1 und B1 sowie Willis gewünschte Formulierung in B5. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten und Inhaltsbereiche bleibt außerhalb von B5 offen.
+
+Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Prüfungsbestwerte und freigeschaltete Achievements. Historische Fortschrittsdaten fließen ein.

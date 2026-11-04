@@ -82,6 +82,7 @@
     });
     addEventListener('scroll',layout,{passive:true});
     addEventListener('resize',layout,{passive:true});
+    document.getElementById("module-grid")?.addEventListener("toggle",layout,true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
     canHover.addEventListener('change',()=>{if(!canHover.matches)reset()});
   })();

@@ -974,7 +974,7 @@ body.dtp-exercise-open{overflow:hidden}
     <section id="ch2" class="panel cy">
       <div class="chapter-head"><span class="ch-no">02</span><div><h3>Binär ↔ Dezimal</h3><p>Ein Weg hin, zwei Wege zurück. Alle drei musst du im Schlaf können.</p></div></div><p>Im Mitschnitt steht 1011 und du brauchst eine Zahl, mit der du weiterrechnen kannst. Schreib 8, 4, 2 und 1 darüber. Die Null hat hier endlich mal die dankbare Aufgabe, nichts beizutragen.</p>
       <h4>Binär → Dezimal: Stellenwerte addieren</h4>
-      <p>Schreib die Stellenwerte über die Bits und addiere alle Stellen, an denen eine 1 steht. Beispiel <span class="val">1011 0110₂</span>:</p>
+      <p>Schreib die Stellenwerte über die Bits. Steht unter einem Wert eine 1, nimmst du ihn mit. Steht dort eine 0, bleibt er liegen. So rechnest du <span class="val">1011 0110₂</span>:</p>
       <div class="calc">Stellenwert  128  64  32  16 │  8   4   2   1
 Bit            1   0   1   1 │  0   1   1   0
                128 + 32 + 16 + 4 + 2 = 182</div>
@@ -1414,7 +1414,7 @@ S('basis','b_need','Mindestanzahl Bit',1,lv=>{
 });
 S('basis','b_place','Stellenwerte',1,lv=>{
  const b=pick([2,2,8,16,16,10]);const k=lv===1?rint(1,3):rint(2,b===2?9:4);
- return {kind:'dec',key:'bp'+b+k,prompt:P('Welchen <strong>Stellenwert</strong> hat im '+SYS[b]+' die '+ORD[k]+' Stelle von rechts?','Jede Stelle einer Zahl hat einen Wert. '+(b===10?'Im Binärsystem sind die Stellen von rechts 1, 2, 4, 8 … wert.':'Im Dezimalsystem sind die Stellen von rechts 1, 10, 100 … wert (Einer, Zehner, Hunderter).')+' Wie viel ist im <strong>'+SYS[b]+'</strong> die <strong>'+ORD[k]+' Stelle von rechts</strong> wert?'),answer:Math.pow(b,k),why:'Die Stelle ganz rechts hat den Wert '+b+'⁰ = 1. Die '+ORD[k]+' Stelle von rechts hat den Exponenten '+k+': '+b+sup(k)+' = <b>'+gi(Math.pow(b,k))+'</b>.'};
+ return {kind:'dec',key:'bp'+b+k,prompt:P('Welchen <strong>Stellenwert</strong> hat im '+SYS[b]+' die '+ORD[k]+' Stelle von rechts?','Ganz rechts hat die Stelle den Wert 1. Für jeden Schritt nach links multiplizierst du den Stellenwert mit der Basis '+b+'. Wie viel ist im <strong>'+SYS[b]+'</strong> die <strong>'+ORD[k]+' Stelle von rechts</strong> wert?'),answer:Math.pow(b,k),why:'Die Stelle ganz rechts hat den Wert '+b+'⁰ = 1. Die '+ORD[k]+' Stelle von rechts hat den Exponenten '+k+': '+b+sup(k)+' = <b>'+gi(Math.pow(b,k))+'</b>.'};
 });
 S('basis','b_digits','Ziffernvorrat & Begriffe',1,lv=>{
  const Q=[
@@ -1718,7 +1718,7 @@ const HINT={
  d2b:'Geh die Zweierpotenzen von groß nach klein durch: Passt sie in den Rest, schreib eine 1 und zieh sie ab, sonst eine 0.',
  hex:'Eine Hex-Ziffer sind genau 4 Bit, A = 10 bis F = 15. Gruppen immer von rechts bilden. Bei Oktal sind es 3 Bit pro Ziffer.',
  calc:'Spaltenweise von rechts rechnen. AND: nur 1 und 1 ergibt 1. OR: mindestens eine 1. XOR: verschieden ergibt 1. Schieben: mal oder durch 2.',
- neg:'Zweierkomplement: Betrag binär schreiben, alle Bits invertieren, 1 addieren. Beim Zurückrechnen zählt das MSB −128.',
+ neg:'Zweierkomplement: Betrag binär schreiben, alle Bits invertieren, 1 addieren. Beim Zurückrechnen mit 8 Bit zählt die linke Stelle −128.',
  units:'SI-Präfixe (k, M, G, T) sind Faktor 1.000, IEC-Präfixe (Ki, Mi, Gi, Ti) Faktor 1.024. Gemischte Familien: erst in Byte umrechnen.',
  rate:'Datenmenge in Bit (Byte mal 8), Datenrate in bit/s (immer dezimal), dann teilen. Am Ende in die gefragte Zeiteinheit.',
  store:'Anzahl × Bit pro Stück ergibt Bit, durch 8 ergibt Byte, dann in die gefragte Einheit umrechnen.'
@@ -1794,7 +1794,7 @@ const STAGES=[
  {title:'Endgegner: alles gemischt',cat:'mix',ch:'ch9',goal:'Alle Themen durcheinander und auf Prüfungsniveau. Wer hier 8 von 10 schafft, ist bereit für den Prüfungsmodus.',
   intro:'<p>Ein Videoclip soll übertragen werden. Bevor du die Leitung beschuldigst, brauchst du zwei Zwischenergebnisse. Wie groß ist der Clip, und wie viele Bit schafft die Leitung pro Sekunde?</p><p>Jetzt kommt alles gemischt, wie in der Prüfung. Kein Thema kündigt sich an, und die Aufgaben sind eine Stufe schwerer. Lies jede Aufgabe genau: Welche Einheit ist gefragt? Wie viele Nachkommastellen? Mit oder ohne Vorzeichen?</p>',
   visual:'<div class="calc">1. Was ist gegeben?  2. Was ist gesucht?  3. Welche Einheit?\n4. Rechnen.  5. Plausibel? (Größenordnung prüfen)</div>',
-  memo:'Prüfungs-Trick: <strong>Einheit unterstreichen</strong>, bevor du rechnest. Die Hälfte aller Fehler sind Einheitenfehler.',
+  memo:'Prüfungs-Trick: <strong>Einheit unterstreichen</strong>, bevor du rechnest. So fällt dir vor dem Rechnen auf, ob du zum Beispiel von Byte auf Bit wechseln musst.',
   example:'Ein Bild mit 800 × 600 Pixeln und 256 Farben wird über eine 2-Mbit/s-Leitung gesendet. Wie lange dauert das?',
   steps:['256 Farben brauchen 8 Bit Farbtiefe (2⁸ = 256).','Datenmenge: 800 × 600 × 8 = 3.840.000 bit.','Datenrate: 2 Mbit/s = 2.000.000 bit/s.','Zeit: 3.840.000 : 2.000.000 = <strong>1,92 s</strong>. Hier war gar kein Byte im Spiel, also auch kein × 8.']}
 ];

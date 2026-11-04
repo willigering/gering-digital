@@ -256,3 +256,28 @@ main,.dtp-footer{position:relative;z-index:1}
 .method-section .method-conclusion{margin-top:28px;padding:0;border:0;background:none}
 .method-conclusion h2{margin-top:0}.method-conclusion p{max-width:800px}
 @media(max-width:610px){.method-section .method-conclusion{margin-top:24px}}
+
+/* Persönlicher Modulstand */
+.module-open::after{content:"";position:absolute;inset:0}
+.module-open:focus-visible{outline:0}
+.module-open:focus-visible::after{box-shadow:inset 0 0 0 2px var(--mod);border-radius:inherit}
+.module-progress{position:relative;z-index:1;margin:0 0 14px;border:1px solid var(--stroke);border-radius:8px;background:#0b141a;color:var(--cream);font-size:12px}
+.module-progress summary{display:grid;gap:7px;cursor:pointer;list-style:none;padding:10px 12px;border-radius:7px}
+.module-progress summary::-webkit-details-marker{display:none}
+.module-progress summary:focus-visible{outline:2px solid var(--mod);outline-offset:2px}
+.module-progress-head,.module-progress-more{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px 10px}
+.module-progress-head strong,.module-progress-more b{color:var(--mod)}
+.module-progress-more{color:var(--muted)}
+.module-progress[open] .module-progress-more b{transform:rotate(180deg)}
+.module-progress-bar{display:block;height:5px;border-radius:999px;background:#ffffff20;overflow:hidden}
+.module-progress-bar i{display:block;height:100%;background:var(--mod)}
+.module-progress-details{padding:0 12px 12px}
+.module-progress-stages,.module-progress-badges{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:0;padding:0}
+.module-progress-stages li,.module-progress-badges li{padding:3px 6px;border:1px solid var(--stroke);border-radius:4px}
+.module-progress-stages li.is-mastered{color:var(--mod);border-color:var(--mod)}
+.module-progress-details dl{margin:10px 0;display:grid;gap:4px}
+.module-progress-details dt{color:var(--muted)}
+.module-progress-details dd{margin:0}
+.module-progress-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.module-progress-badges li{display:flex;align-items:center;gap:5px}
+.module-progress-badges img{flex:none;object-fit:contain}

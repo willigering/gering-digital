@@ -6,6 +6,7 @@ $learnerRow=learner_current();
 $learnerName=$learnerRow['username']??null;
 // Highscore-Vorschau: wie highscore.php nur für angemeldete Lernende, Gäste sehen einen Hinweis.
 $hsRows=[];$hsMe=null;$hsRank=0;$hsCount=0;
+$cardProgress=[];
 try {
     $hsCount=(int)db()->query('SELECT COUNT(*) FROM learner_stats WHERE highscore_visible=1 AND highscore_blocked=0')->fetchColumn();
     if ($learnerRow) {
@@ -14,6 +15,10 @@ try {
         $hsRank=ach_would_rank((int)$learnerRow['id']);
     }
 } catch (Throwable $error) { error_log('DAU TO PRO Highscore: '.$error->getMessage()); }
+if ($learnerRow) {
+    try { $cardProgress=ach_card_progress((int)$learnerRow['id']); }
+    catch (Throwable $error) { error_log('DAU TO PRO Modulfortschritt: '.$error->getMessage()); }
+}
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
@@ -79,7 +84,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../')?>
+<?=dtp_module_card($module,'../',true,$cardProgress[$module['slug']]??null)?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
