@@ -76,6 +76,14 @@ Jeden Spruch nach dem Schreiben noch einmal ohne Autorenbonus lesen:
 
 „Hat IT-Begriffe“ und „enthält ein Schimpfwort“ sind keine Qualitätskriterien. Humor bleibt Geschmackssache. Willis konkrete Rückmeldung entscheidet über strittige Pointen.
 
+#### Humor-Abnahme vor dem Merge
+
+- Lies Lernpfad, Nachschlagwerk, Trainingsraum, Prüfungsmodus und Modulkarte jeweils am Stück. Prüfe, ob Willis Ton über das ganze Modul erkennbar ist. Ein witziger Einstieg allein reicht nicht. Nimm auch Tooltips, Labore, Lösungsfeedback und Achievement-Texte in die Stichprobe.
+- Lies die Pointen laut. Wenn du erst den Vergleich erklären müsstest, überarbeite ihn. Wenn der Spruch in jedes beliebige Modul passen würde, such den konkreten Fehler oder die absurde Situation in diesem Thema.
+- Nutze die von Willi bestätigten Beispiele als Maßstab für Rhythmus und Kürze: „30 Geräte und ein /28? Optimistisch.“ macht die zu kleine Netzgröße merkbar. „Broadcast ist ‚Antworten an alle‘, nur dass das Netzwerk es mit Absicht macht“ erklärt den Empfängerkreis. Die halbe Datei und das halbe Passwort zeigen bei TCP, warum Vollständigkeit zählt. Die Sprüche gehören zu diesen Situationen.
+- Prüfe typische Fehlantworten im Browser. Die Rückmeldung muss den nächsten Rechenschritt zeigen. Lies mehrere Rückmeldungen hintereinander, damit Wiederholungen und erzwungene Gags auffallen. Prüfungsfragen bleiben eindeutig.
+- Halte im PR konkrete Vorher-Nachher-Beispiele und die gelesenen Bereiche fest. Ist der Ton nur am Einstieg erkennbar oder wirkt eine Pointe im Kontext gezwungen, überarbeite die Stelle vor dem Merge. Automatische Tests sichern die Funktion. Die Humor-Abnahme erfolgt beim Lesen und Ausprobieren.
+
 ### 6. Fachprüfung separat durchführen
 
 Den neuen Text gegen das gesicherte Original und bei Bedarf gegen Primärquellen prüfen. Nicht darauf vertrauen, dass eine lustige Formulierung schon stimmen wird.
