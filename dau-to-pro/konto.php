@@ -195,37 +195,6 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
 
   <?php require __DIR__.'/progress-panels.php'; ?>
 
-  <section aria-labelledby="module-title" class="konto-section">
-    <div class="konto-section-head"><h2 id="module-title">Deine Lernmodule</h2><a class="text-link" href="./#lernmodule">Alle Module ansehen →</a></div>
-    <?php if (!$summary): ?>
-      <p class="konto-empty">Es sind noch keine Lernmodule veröffentlicht.</p>
-    <?php else: ?>
-    <div class="progress-grid">
-      <?php foreach($summary as $m): $img=dtp_preview_resolve($m); $live=(int)$m['published']===1; ?>
-      <article class="progress-card<?=$m['entries']>0?' is-started':''?>" style="--mod:<?=e($img['accent'])?>">
-        <div class="progress-art"><?php if($img['src']!==''): ?><img src="../<?=e($img['small']!==''?$img['small']:$img['src'])?>" alt="" loading="lazy" decoding="async" style="object-fit:<?=e($img['fit'])?>;object-position:<?=(int)$img['x']?>% <?=(int)$img['y']?>%"><?php endif; ?></div>
-        <div class="progress-body">
-          <?php if(trim((string)($m['subject']??''))!==''): ?><p class="progress-subject"><?=e($m['subject'])?></p><?php endif; ?>
-          <h3><?=e($m['title'])?></h3>
-          <p class="progress-state"><?php if($m['entries']>0): ?><span class="state-dot"></span> Begonnen · zuletzt <?=e(learner_format_time($m['last_update']))?><?php else: ?><span class="state-dot is-idle"></span> Noch nicht begonnen<?php endif; ?></p>
-          <?php if($m['entries']>0): ?><p class="progress-meta"><?=$m['entries']?> gespeicherte <?=$m['entries']===1?'Angabe':'Angaben'?></p><?php endif; ?>
-          <div class="progress-actions">
-            <?php if($live): ?><a class="mini-action is-gold" href="../<?=e($m['slug'])?>/"><?=$m['entries']>0?'Weiterlernen':'Starten'?> →</a><?php else: ?><span class="progress-meta">Modul ist zurzeit offline</span><?php endif; ?>
-            <?php if($m['entries']>0): ?>
-            <form method="post" onsubmit="return confirm('Fortschritt für „<?=e(addslashes($m['title']))?>“ wirklich löschen? Das kann nicht rückgängig gemacht werden.')">
-              <?=$hidden('delete_module')?><input type="hidden" name="slug" value="<?=e($m['slug'])?>">
-              <button class="mini-action is-danger" type="submit">Fortschritt löschen</button>
-            </form>
-            <?php endif; ?>
-          </div>
-        </div>
-      </article>
-      <?php endforeach; ?>
-    </div>
-    <?php endif; ?>
-    <p class="konto-hint">Hast du ein Modul schon vor der Anmeldung auf diesem Gerät bearbeitet, wird dieser Stand beim nächsten Öffnen des Moduls automatisch in dein Konto übernommen.</p>
-  </section>
-
   <section aria-labelledby="ach-title" class="konto-section" id="achievements">
     <div class="konto-section-head"><h2 id="ach-title">Achievements</h2><span class="konto-meta"><strong><?=$ach['done']?></strong> von <?=$ach['total']?> freigeschaltet · <a class="text-link" href="highscore.php">Highscore ansehen →</a></span></div>
     <?php foreach($ach['groups'] as $group): $doneInGroup=count(array_filter($group['items'],fn($i)=>$i['unlocked'])); ?>

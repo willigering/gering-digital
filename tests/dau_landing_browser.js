@@ -63,7 +63,7 @@ let server,browser;
     assert.equal(await page.locator('.module-card:visible').count(),2,'All modules restored');
     assert.ok(await page.locator('#search-empty').isHidden(),'Empty topic state dismissed');
     if(width<=860){
-      await page.getByRole('button',{name:'Menü öffnen',exact:true}).click();
+      await page.getByRole('button',{name:'Mein Konto',exact:true}).click();
       assert.ok(await page.locator('#dtp-mobile-menu').isVisible());
       await page.keyboard.press('Escape');
       assert.ok(await page.locator('#dtp-mobile-menu').isHidden());
@@ -134,7 +134,7 @@ let server,browser;
       await accountPage.keyboard.press('Escape');
       assert.ok(await accountPage.locator('#dtp-account-panel').isHidden(),'Escape closes account dropdown');
       await accountPage.getByRole('button',{name:'Mein Konto',exact:false}).click();
-    }else await accountPage.getByRole('button',{name:'Menü öffnen',exact:true}).click();
+    }else await accountPage.getByRole('button',{name:'Mein Konto',exact:true}).click();
     await accountPage.getByRole('link',{name:'Konto-Einstellungen',exact:true}).click();
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');

@@ -629,7 +629,7 @@ function dtp_nav(string $page,?string $learner): string {
     </a>
     <nav class="desktop-links" aria-label="Hauptnavigation">
 '.$desktop.'    </nav>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu">Mein Konto <span aria-hidden="true">▾</span></button>
   </div>
   <nav class="mobile-links" id="dtp-mobile-menu" aria-label="Mobile Navigation" hidden>
     '.$mobile.'<a href="../index.php">Gering Digital ↗</a>
