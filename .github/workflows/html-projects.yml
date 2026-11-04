@@ -120,3 +120,12 @@ jobs:
           name: module-design-desktop-mobile
           path: ${{ runner.temp }}/dtp-design-screenshots
           retention-days: 7
+
+  xp-regression:
+    uses: ./.github/workflows/xp2.yml
+
+  deploy-production:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [php, landing-browser, module-design, xp-regression]
+    uses: ./.github/workflows/deploy-strato.yml
+    secrets: inherit
