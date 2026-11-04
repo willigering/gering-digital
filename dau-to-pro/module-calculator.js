@@ -54,16 +54,16 @@
       panel.style.left = x + 'px';
       panel.style.top = y + 'px';
     };
-    panel.addEventListener('toggle', () => {
-      if (!panel.matches(':popover-open')) {
-        launcher.setAttribute('aria-expanded', 'false');
-        return;
-      }
-      launcher.setAttribute('aria-expanded', 'true');
+    const open = () => {
+      panel.showPopover();
       x = (document.documentElement.clientWidth - panel.offsetWidth) / 2;
       y = (window.innerHeight - panel.offsetHeight) / 2;
       place();
+      launcher.setAttribute('aria-expanded', 'true');
       close.focus({preventScroll: true});
+    };
+    panel.addEventListener('beforetoggle', event => {
+      if (event.newState === 'closed') launcher.setAttribute('aria-expanded', 'false');
     });
     close.addEventListener('click', () => {
       panel.hidePopover();
@@ -90,6 +90,7 @@
       event.stopPropagation();
       close.click();
     });
+    return open;
   }
   function evaluate(expression) {
     const source = expression.replace(/\s/g, '').replace(/,/g, '.').replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
@@ -257,9 +258,12 @@
         keys.before(message, prank);
       }
       box.append(panel);
-      floatingPanel(panel, launcher);
-      launcher.addEventListener('click', () => panel.togglePopover());
-      panel.showPopover();
+      const open = floatingPanel(panel, launcher);
+      launcher.addEventListener('click', () => {
+        if (panel.matches(':popover-open')) panel.hidePopover();
+        else open();
+      });
+      open();
     });
     host.append(box);
   }
