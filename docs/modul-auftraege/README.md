@@ -2,7 +2,7 @@
 
 Diese Datei ist der komplette Auftrag für eine KI (z. B. ChatGPT mit GitHub-Zugriff), die ein neues Lernmodul für DAU TO PRO baut. Alles, was du brauchst, liegt in diesem Repository. Lies diese Datei ganz, bevor du anfängst.
 
-**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du übernimmst eigenständig auch den vollständigen Einbau ins Repository: Konto-Anbindung, Fortschritt, XP, Achievements, Vorschaugrafik und Registrierung für die Hauptseite. Liefere alle Änderungen als vollständigen, prüfbaren Pull Request. Eine Übergabe an eine andere KI entfällt. Merge und Veröffentlichung erfolgen nur auf ausdrücklichen Auftrag; einen offenen PR nicht als bereits live eingebaut darstellen.
+**Auftrag in einem Satz:** Baue das Modul, das Willi dir nennt (Kürzel aus der Tabelle unten, z. B. „D1“), als eine einzige HTML-Datei und gib sie im Chat als Datei aus. Du übernimmst eigenständig auch den vollständigen Einbau ins Repository: Konto-Anbindung, Fortschritt, XP, Achievements, Vorschaugrafik und Registrierung für die Hauptseite. Liefere alle Änderungen als vollständigen, prüfbaren Pull Request. Eine Übergabe an eine andere KI entfällt. Bei einem beauftragten Gesamtauftrag dürfen Merge und Veröffentlichung nach erfolgreichen Prüfungen automatisch erfolgen, sofern die Berechtigungen es erlauben. Bei fehlgeschlagenen Tests nicht mergen oder veröffentlichen; einen offenen PR nicht als bereits live eingebaut darstellen.
 
 ## 1. Was du aus dem Repository liest
 
