@@ -159,8 +159,8 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.ok(unlocked('anna').includes('osi.paketbote'),'Popup-Fall: Paketbote freigeschaltet');
 
     // Jedes Modul hat oben links „Zurück zur Modulauswahl“.
-    await page.waitForSelector('dtp-back',{state:'attached'});
-    await Promise.all([page.waitForURL(u=>new URL(u).pathname==='/dau-to-pro/'),page.mouse.click(28,30)]);
+    const moduleBack=page.getByRole('link',{name:'Zurück zur Modulauswahl'});
+    await Promise.all([page.waitForURL(u=>new URL(u).pathname==='/dau-to-pro/',{timeout:15000}),moduleBack.click({timeout:10000})]);
     assert.equal(new URL(page.url()).hash,'#lernmodule','Zurück-Button führt zur Modulauswahl');
 
     // Easter Egg mit Konto: 200 XP.
