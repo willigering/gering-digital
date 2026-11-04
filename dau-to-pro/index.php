@@ -86,7 +86,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../',true,$cardProgress[$module['slug']]??null)?>
+<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null)?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
