@@ -167,6 +167,29 @@ let server,browser;
   await staticPage.locator('.disclaimer-shell summary').click();
   assert.ok(await staticPage.locator('.disclaimer-body').isVisible(),'Native disclosure works without JS');
   await noJs.close();
+  const updatePage=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  const revision='browser-test-new-revision';
+  await updatePage.route('**/api/update-version.php',route=>route.fulfill({json:{revision}}));
+  await updatePage.route('**/dau-to-pro/?*',async route=>{
+    const url=new URL(route.request().url());
+    const response=await route.fetch();
+    const html=await response.text();
+    // Only a request for the new revision gets fresh HTML in this fixture.
+    await route.fulfill({response,body:url.searchParams.get('_dtp_update')===revision
+      ? html.replace(/(window\.__DTP_UPDATE__=.*?revision:)"[^"]+"/, '$1'+JSON.stringify(revision))
+      : html});
+  });
+  const updateUrl=base+'/dau-to-pro/?test=update#lernmodule';
+  await updatePage.goto(updateUrl);
+  await updatePage.evaluate(()=>document.body.insertAdjacentHTML('beforeend',
+    '<div style="display:none"><div role="dialog" aria-modal="true">Closed panel</div></div>'));
+  const updateButton=updatePage.getByRole('button',{name:'Jetzt aktualisieren'});
+  await updateButton.tap();
+  await updatePage.waitForFunction(expected=>window.__DTP_UPDATE__?.revision===expected
+    && !new URL(location.href).searchParams.has('_dtp_update'),revision);
+  assert.equal(updatePage.url(),updateUrl,'Update preserves the query and anchor and removes its own parameter');
+  await updateButton.waitFor({state:'hidden'});
+  await updatePage.close();
   // Full five-step sequence, including the existing video and XP conclusion.
   for(const reduced of [false,true]){
     const eggContext=await browser.newContext({viewport:reduced?{width:390,height:844}:{width:1440,height:900},isMobile:reduced,hasTouch:reduced,reducedMotion:reduced?'reduce':'no-preference'});
