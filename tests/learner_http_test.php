@@ -105,7 +105,7 @@ try {
     $cfg=sync_config(http('GET',"/$lern/",'','anna')['body']);
     check(($cfg['data']['deleted']??[])===['tab'],'Gelöschte Einträge werden an andere Geräte weitergegeben');
     $konto=http('GET','/dau-to-pro/konto.php','','anna')['body'];
-    check(str_contains($konto,'Testmodul lernen') && str_contains($konto,'Begonnen') && str_contains($konto,'1 gespeicherte Angabe') && !str_contains($konto,'Testmodul spiele'),'„Mein Fortschritt“ zeigt das Modul als begonnen');
+    check(str_contains($konto,'<dt>Module begonnen</dt><dd>1<small>') && !str_contains($konto,'id="module-title"'),'Konto zeigt die Anzahl begonnener Module ohne separate Modulliste');
     $export=http('POST','/dau-to-pro/konto.php',['action'=>'export','csrf'=>token($konto)],'anna');
     $json=json_decode($export['body'],true);
     check(str_contains($export['headers'],'attachment') && ($json['fortschritt'][0]['wert']??'')==='{"punkte":7}' && !str_contains($export['body'],'hash'),'Datenexport als JSON ohne Hashes');
