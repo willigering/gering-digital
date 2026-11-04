@@ -468,6 +468,30 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
     }
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const task = document.getElementById('practiceTask');
+    if (!task) return;
+
+    // The module already decides when a stage is mastered and owns both buttons.
+    new MutationObserver(() => {
+        const result = task.querySelector('[data-r="res"]');
+        const advance = result?.querySelector('button[data-go-stage]');
+        const next = task.querySelector('button[data-r="next"]:not([hidden])');
+        if (!advance || !next) return;
+
+        const stage = Number(advance.dataset.goStage) + 1;
+        const notice = document.createElement('strong');
+        notice.textContent = 'Stufe ' + stage + ' freigeschaltet!';
+        advance.parentElement.prepend(notice, document.createElement('br'));
+        advance.style.removeProperty('margin-left');
+        next.classList.replace('primary', 'secondary');
+        next.textContent = 'Auf dieser Stufe weiterüben';
+        next.before(advance);
+        next.parentElement.scrollIntoView({block: 'nearest'});
+    }).observe(task, {childList: true, subtree: true});
+}, {once: true});
+</script>
 HTML;
     require_once __DIR__.'/dau-to-pro/feedback-form.php';
     if (DTP_FEEDBACK_ENABLED) {
