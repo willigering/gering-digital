@@ -49,7 +49,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
       const answer=candidates.find(a=>{const p=T.parseAnswer(t,a);return p.valid&&p.ok});
       if(answer===undefined)throw Error('No accepted answer for '+t.sub);return {kind:t.kind,answer};});
      if(response.kind==='mc')await page.locator('#trainTask [data-v="'+response.answer+'"]').click();
-     else{await page.locator('#trainTask input').fill(response.answer);await page.locator('#trainTask [data-r="check"]').click();}
+     else{await page.locator('#trainTask [data-r="form"] input').fill(response.answer);await page.locator('#trainTask [data-r="check"]').click();}
      assert.match(await page.locator('#trainTask [data-r="res"]').innerText(),/Richtig/);
      await page.locator('#trainTask [data-r="next"]').click();
     }
