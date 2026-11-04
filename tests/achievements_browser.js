@@ -200,6 +200,11 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.ok(await page.$eval('#highscore',d=>d.open),'Link konto.php#highscore klappt die Einstellung auf');
     await page.check('#highscore input[name=visible]');
     await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
+    const highscoreUrl=new URL(page.url());
+    assert.equal(highscoreUrl.pathname+highscoreUrl.hash,'/dau-to-pro/#highscore','Opt-in opens the Highscore on the landing page');
+    await page.locator('#highscore .hs-row.is-self.is-revealing').waitFor();
+    await page.reload();
+    assert.equal(await page.locator('[data-highscore-reveal]').count(),0,'Highscore reveal runs only once');
     assert.ok(unlocked('anna').includes('g.rampensau'),'Sichtbarkeit einschalten: Rampensau');
     php(`foreach(['bert'=>[0,1],'cleo'=>[0]] as $n=>$st){$l=learner_find($n);$id=(int)$l['id'];learner_progress_apply($id,'subnet-sprint',['subnet-sprint-path-v1'=>json_encode(['stage'=>0,'st'=>array_fill_keys(array_map('strval',$st),['mastered'=>true])]),'subnet-sprint-stats-v1'=>json_encode(['solved'=>300,'correct'=>260])],[]);ach_set_visible($id,true);}`);
     if(shots){

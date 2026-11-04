@@ -112,7 +112,7 @@ let server,browser;
   const session=php(`db()->prepare('INSERT INTO learners(username,password_hash) VALUES(?,?)')->execute(['layout-tester',password_hash('test-password-for-layout',PASSWORD_DEFAULT)]); learner_start_session(learner_by_id((int)db()->lastInsertId()),false); echo session_name().'='.session_id(); session_write_close();`).trim();
   const [cookieName,cookieValue]=session.split('=');
   php(`require_once ${JSON.stringify(root+'/achievements_lib.php')}; $id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); ach_set_visible($id,true);`);
-  php(`db()->exec("UPDATE html_pages SET slug='osi-sprint' WHERE slug='osi'"); $id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); db()->prepare("INSERT INTO learner_progress(learner_id,storage_key,module_slug,value) VALUES(?,'osi-sprint-path-v1','osi-sprint',?)")->execute([$id,json_encode(['st'=>[['mastered'=>true]]])]);`);
+  php(`$id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); db()->prepare("INSERT INTO learner_progress(learner_id,storage_key,module_slug,value) VALUES(?,'osi-sprint-path-v1','osi-sprint',?)")->execute([$id,json_encode(['st'=>[['mastered'=>true]]])]); db()->exec("UPDATE html_pages SET title='Wer teilt, gewinnt',subject='Subnetting' WHERE slug='subnetsprint'"); db()->prepare("INSERT INTO learner_progress(learner_id,storage_key,module_slug,value) VALUES(?,'subnet-sprint-path-v1','subnetsprint',?)")->execute([$id,json_encode(['st'=>[['mastered'=>true],['mastered'=>true]]])]);`);
   for(const width of [1440,320]){
     const accountContext=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
     await accountContext.addCookies([{name:cookieName,value:cookieValue,url:base}]);
@@ -120,12 +120,14 @@ let server,browser;
     await accountPage.goto(base+'/dau-to-pro/');
     const progressCard=accountPage.locator('article.module-card').filter({hasText:'OSI-Schichten'});
     const details=progressCard.locator('.module-progress');
+    const subnetCard=accountPage.locator('article.module-card').filter({hasText:'Wer teilt, gewinnt'});
+    assert.match(await subnetCard.locator('summary').innerText(),/2 \/ 10 Stufen/,'Legacy Subnetting URL shows saved stages');
     assert.match(await details.locator('summary').innerText(),/1 \/ 10 Stufen/,'Historic stage is shown for the signed-in learner');
     assert.equal(await details.evaluate(n=>n.open),false,'Progress details start compact');
     await details.locator('summary').click();
     assert.equal(await details.evaluate(n=>n.open),true,'Details open without navigating to the module');
     assert.equal(await progressCard.locator('.is-mastered').count(),1,'The mastered stage is marked');
-    assert.equal(await progressCard.locator('.module-open').getAttribute('href'),'../osi-sprint/','Opening the module remains independent');
+    assert.equal(await progressCard.locator('.module-open').getAttribute('href'),'../osi/','Opening the module remains independent');
     await details.locator('summary').press('Enter');
     assert.equal(await details.evaluate(n=>n.open),false,'Details close with the keyboard');
     if(width>860){
@@ -138,6 +140,14 @@ let server,browser;
     await accountPage.getByRole('link',{name:'Konto-Einstellungen',exact:true}).click();
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
+    const backToModules=accountPage.getByRole('link',{name:'Zu den Modulen'});
+    for (const section of ['#achievements','#einstellungen']){
+      await accountPage.locator(section).evaluate(el=>el.scrollIntoView());
+      const buttonBox=await backToModules.boundingBox();
+      assert.ok(buttonBox && buttonBox.y>=0 && buttonBox.y+buttonBox.height<=900,'Module link stays in the viewport while scrolling the account');
+    }
+    await backToModules.click();
+    assert.equal(new URL(accountPage.url()).pathname+new URL(accountPage.url()).hash,'/dau-to-pro/#lernmodule');
     await accountPage.goto(base+'/dau-to-pro/highscore.php');
     const opener=accountPage.locator('[data-profile]').first();
     const profileId=await opener.getAttribute('data-profile');

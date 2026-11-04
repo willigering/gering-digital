@@ -284,3 +284,26 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-card.is-coming-soon{filter:grayscale(1);cursor:default}
 .module-card.is-coming-soon:hover{transform:none;border-color:#ffffff1f;box-shadow:none}
 .module-card.is-coming-soon .module-footer{color:#aab6bf}
+
+/* Einmaliger Auftritt nach dem Speichern der Highscore-Sichtbarkeit. */
+.hs-table .is-revealing .profile-open,
+.hs-row.is-revealing .hs-who a,
+.hs-foot .is-revealing {
+  display:inline-block;
+  animation: hs-name-reveal 1.4s ease-out both;
+  transform-origin: left center;
+}
+
+@keyframes hs-name-reveal {
+  15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hs-table .is-revealing .profile-open,
+  .hs-row.is-revealing .hs-who a,
+  .hs-foot .is-revealing { animation-name: hs-name-glow; }
+  @keyframes hs-name-glow {
+    15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; }
+  }
+}
