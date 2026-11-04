@@ -190,8 +190,8 @@
   (() => {
     const toggle=document.querySelector('.nav-toggle'),menu=document.getElementById('dtp-mobile-menu');
     if(!toggle||!menu)return;
-    const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');toggle.setAttribute('aria-label','Menü öffnen');menu.hidden=true};
-    toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));toggle.setAttribute('aria-label',open?'Menü schließen':'Menü öffnen');menu.hidden=!open});
+    const closeMenu=()=>{toggle.setAttribute('aria-expanded','false');menu.hidden=true};
+    toggle.addEventListener('click',()=>{const open=toggle.getAttribute('aria-expanded')!=='true';toggle.setAttribute('aria-expanded',String(open));menu.hidden=!open});
     menu.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!menu.hidden){closeMenu();toggle.focus()}});
     document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dtp-nav'))closeMenu()});
