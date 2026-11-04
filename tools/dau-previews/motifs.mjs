@@ -380,8 +380,7 @@ function privacy(id) {
 }
 
 function d2Security(id) {
-  return `<text x="100" y="125" fill="${CYAN}" font-family="${MONO}" font-size="25" font-weight="800">D2 // IT-SICHERHEIT</text>
-  <text x="100" y="196" fill="${CREAM}" font-family="${SANS}" font-size="45" font-weight="900">PASSWORT123</text>
+  return `<text x="100" y="196" fill="${CREAM}" font-family="${SANS}" font-size="45" font-weight="900">PASSWORT123</text>
   <text x="100" y="246" fill="${GOLD}" font-family="${SANS}" font-size="35" font-weight="900">IST KEIN KONZEPT.</text>
   <g transform="translate(818 155)"><path d="M0 0 L148 55 V205 Q148 320 0 384 Q-148 320 -148 205 V55 Z" fill="#160f14" stroke="${CYAN}" stroke-width="5"/>
   <path d="M-45 158 V115 A45 45 0 0 1 45 115 V158" fill="none" stroke="${GOLD}" stroke-width="19"/>
@@ -442,7 +441,7 @@ export const motifs = [
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
   { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },
-  { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'D2 · IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
+  { id: 'd2-it-sicherheit', accent: '#ff6b6b', label: 'IT-Sicherheit', draw: d2Security, seed: 41, glowX: 818, glowY: 360 },
   { id: 'datenschutz', accent: '#ff8fa3', label: 'Datenschutz · DSGVO', draw: privacy, seed: 31, glowX: 800, glowY: 360 },
   { id: 'ipv4-subnetting', accent: '#5de7e4', label: 'IPv4 & Subnetting', draw: ipv4, seed: 3, glowX: 640, glowY: 360 },
   { id: 'osi-modell', accent: '#c4a8ff', label: 'OSI-Modell', draw: osi, seed: 5, glowX: 660, glowY: 330 },
