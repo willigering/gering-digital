@@ -44,9 +44,9 @@ foreach($modules as $mid=>$m) {
     }
 }
 $catalog=ach_catalog();
-check(count($catalog)===count($modules)*10+12,'Jedes registrierte Modul bringt zehn eigene Achievements, dazu zwölf übergreifende');
+check(count($catalog)===count($modules)*10+13,'Jedes registrierte Modul bringt zehn eigene Achievements, dazu dreizehn übergreifende');
 check(count(array_unique(array_column($catalog,'name')))===count($catalog),'Alle Achievement-Namen sind verschieden');
-check(array_sum(array_column(ach_globals(),1))===2250,'Modulübergreifende Achievements bringen 2.250 XP');
+check(array_sum(array_column(ach_globals(),1))===2280,'Modulübergreifende Achievements bringen 2.280 XP');
 check($catalog['g.easteregg']['xp']===200 && $catalog['g.easteregg']['hidden']===true,'Easter Egg: 200 XP und versteckt');
 foreach(['SPRINT','Sprint'] as $word) foreach($modules as $m) check(!str_contains($m['subject'].$m['title'],$word),'Modulname ohne „Sprint“: '.$m['subject'].' · '.$m['title']);
 
@@ -147,6 +147,11 @@ $before=ach_stats($t)['level']['xp'];
 $r=ach_evaluate($t,['egg'=>true]);
 check(has($t,'g.easteregg') && ach_stats($t)['level']['xp']===$before+200,'Easter Egg bringt 200 XP');
 check(ach_evaluate($t,['egg'=>true])['new']===[],'Easter Egg zählt nur einmal');
+$before=ach_stats($t)['level']['xp'];
+check(!has($t,'g.cheater'),'Cheater bleibt bis zum ersten Druck gesperrt');
+ach_evaluate($t,['cheater'=>true]);
+check(has($t,'g.cheater') && ach_stats($t)['level']['xp']===$before+30,'Cheater bringt 30 XP');
+check(ach_evaluate($t,['cheater'=>true])['new']===[] && ach_stats($t)['level']['xp']===$before+30,'Cheater zählt nur einmal');
 foreach(['a1-zahlensysteme'=>'a1-bits','osi-sprint'=>'osi-sprint','subnet-sprint'=>'subnet-sprint'] as $slug=>$prefix) put($t,$slug,[$prefix.'-path-v1'=>path([0])]);
 check(has($t,'g.allrounder'),'Stufe 1 in drei Modulen: Allrounder');
 check(!has($t,'g.komplett'),'Komplettist erst mit allen Lernpfaden');
@@ -176,7 +181,7 @@ ach_admin_block($t,false);
 
 // --- Übersicht, Export, Löschen ---
 $view=ach_overview($o);
-check(count($view['groups'])===4 && $view['total']===42,'Kontoseite: 3 Module + modulübergreifend, 42 Achievements');
+check(count($view['groups'])===4 && $view['total']===43,'Kontoseite: 3 Module + modulübergreifend, 43 Achievements');
 $egg=array_values(array_filter($view['groups'][3]['items'],fn($i)=>$i['code']==='g.easteregg'))[0];
 check($egg['secret'] && $egg['name']==='Verstecktes Achievement' && !str_contains($egg['desc'],'Easter'),'Easter Egg bleibt bis zum Fund geheim');
 $funny=array_values(array_filter($view['groups'][1]['items'],fn($i)=>$i['code']==='osi.getrennt'))[0];

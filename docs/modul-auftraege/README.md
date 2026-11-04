@@ -59,7 +59,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - Veröffentlichte Module zeigen oben links „Modulauswahl“ und rechts „DAU TO PRO“ in der gemeinsamen Kopfzeile. Der Rückweg führt zu den Modulkacheln.
 - Rechenaufgaben erhalten das kleine aufklappbare Rechner-Symbol in der Akzentfarbe des Moduls. Den Rechner mit dem Aufgabentyp aus dem vorhandenen Renderer einbinden. Eingaben und Ergebnisse des Rechners sind getrennt von der bewerteten Antwort.
 - In Binäraufgaben löst sich „Binär → Dezimal“ beim Anklicken in Staub auf und zeigt eine von mehreren Rückmeldungen. Die Schaltfläche führt keine Umrechnung aus. Bei reduzierter Bewegung verschwindet sie unmittelbar.
-- Neue Module verwenden `tools/module-calculator.js` und `tools/module-calculator.css` über `tools/module_theme.py`. Prüfen, ob Rechner, Antwortfeld, mobiler Dialog und Prüfungsnavigation zusammen funktionieren.
+- Neue Module verwenden `dau-to-pro/module-calculator.js` und `dau-to-pro/module-calculator.css` über `tools/module_theme.py`. Prüfen, ob Rechner, Antwortfeld, mobiler Dialog und Prüfungsnavigation zusammen funktionieren.
 
 ### Aufgabenfokus – verbindlich für bestehende und neue Module
 

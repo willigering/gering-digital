@@ -63,6 +63,7 @@
       x = (document.documentElement.clientWidth - panel.offsetWidth) / 2;
       y = (window.innerHeight - panel.offsetHeight) / 2;
       place();
+      close.focus({preventScroll: true});
     });
     close.addEventListener('click', () => {
       panel.hidePopover();
