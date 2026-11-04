@@ -174,7 +174,8 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $tag=$progress!==null?'article':($link?'a':'div');
     $href=e($base.rawurlencode((string)($module['slug']??'')).'/');
     $label=e(($subject!==''?$subject.': ':'').$title).' – Lernmodul öffnen';
-    $attrs=$tag==='a'?' href="'.$href.'" aria-label="'.$label.'"':'';
+    $attrs=$tag==='a'?' href="'.$href.'"':'';
+    if ($tag!=='article') $attrs.=' aria-label="'.$label.'"';
     $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'">';
     $html.='<div class="module-art'.($preview['src']!==''?' has-image':'').'">';
     if ($preview['src']!=='') {
