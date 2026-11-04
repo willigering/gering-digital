@@ -28,6 +28,9 @@ $query=db()->prepare("SELECT slug,title,subject,description,preview_image,previe
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
 $comingSoonSlugs=['b4-ipv6','b5-netzwerkdienste','d1-datenschutz','netzwerke-sprint'];
+usort($modules, static fn(array $a, array $b): int =>
+    in_array($a['slug'], $comingSoonSlugs, true) <=> in_array($b['slug'], $comingSoonSlugs, true)
+);
 foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($module);
 $c=dtp_page_content();
 $hero=dtp_hero();
