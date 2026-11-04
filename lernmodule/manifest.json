@@ -23,7 +23,7 @@
       "file": "subnet-sprint.html",
       "subject": "Subnetting",
       "title": "Wer teilt, gewinnt",
-      "description": "Finde mit Präfix und Maske heraus, wo ein IPv4-Netz anfängt, wo der Broadcast sitzt und wie viele Geräte dazwischen passen. Mit VLSM verteilst du die Blöcke, bevor der Drucker den falschen Platz bekommt."
+      "description": "30 Geräte und ein /28? Optimistisch. Rechne mit Präfix und Maske aus, welche Adressen du vergeben kannst, wohin der Broadcast geht und wie du unterschiedlich große Subnetze mit VLSM planst."
     },
     {
       "slug": "netzwerke-sprint",
