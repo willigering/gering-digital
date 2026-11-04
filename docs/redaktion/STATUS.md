@@ -53,3 +53,8 @@ PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und
 Die neueren Lektionseinstiege und das Rechnerdesign aus der veröffentlichten Fassung wurden bei Überschneidungen beibehalten. Ergänzt wurden weitere Aufgaben- und Erklärungstexte in A1 und B1 sowie Willis gewünschte Formulierung in B5. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten und Inhaltsbereiche bleibt außerhalb von B5 offen.
 
 Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Prüfungsbestwerte und freigeschaltete Achievements. Historische Fortschrittsdaten fließen ein.
+
+## B3 Subnetting – Wer teilt, gewinnt
+
+- Überarbeitet: Einstieg, Einleitungen aller zehn Lektionen und Nachschlagekapitel, ausgewählte Fragen, Lösungshinweise und Rückmeldungen sowie Trainings-, Prüfungseinstieg und Modulbeschreibung. Bestehende Rechenbeispiele und Aufgabengeneratoren fachlich beibehalten.
+- Lokal geprüft: Syntax der eingebetteten Skripte und identische HTML-Überschriften. Browserabnahme und öffentliche Auslieferung stehen noch aus.
