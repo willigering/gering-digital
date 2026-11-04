@@ -84,8 +84,10 @@
       box.removeEventListener('toggle', initialise);
       const panel = document.createElement('div');
       panel.className = 'dtp-calculator-panel';
-      panel.innerHTML = '<label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
-        + '<div class="dtp-calculator-keys"></div><output aria-live="polite"></output>';
+      panel.innerHTML = '<div class="dtp-calculator-heading"><span aria-hidden="true">Taschenrechner</span>'
+        + '<button type="button" class="dtp-calculator-clear" aria-label="Rechnung löschen" title="Rechnung löschen">C</button></div>'
+        + '<div class="dtp-calculator-display"><label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<output aria-live="polite"></output></div><div class="dtp-calculator-keys"></div>';
       const input = panel.querySelector('input');
       const output = panel.querySelector('output');
       const keys = panel.querySelector('.dtp-calculator-keys');
@@ -96,21 +98,30 @@
         return key;
       };
       const calculate = () => {
+        output.removeAttribute('data-error');
         try { output.textContent = '= ' + evaluate(input.value); }
-        catch (_) { output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.'; }
+        catch (_) {
+          output.setAttribute('data-error', '');
+          output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.';
+        }
       };
-      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=','C']) {
+      panel.querySelector('.dtp-calculator-clear').addEventListener('click', () => {
+        input.value = output.textContent = '';
+        output.removeAttribute('data-error');
+      });
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=']) {
         const key = button(label);
-        if (label === 'C') key.setAttribute('aria-label', 'Rechnung löschen');
-        key.addEventListener('click', () => {
-          if (label === '=') calculate();
-          else if (label === 'C') input.value = output.textContent = '';
-          else {
+        if (label === '=') {
+          key.dataset.tone = 'equals';
+          key.addEventListener('click', calculate);
+        } else {
+          if (!/[0-9,]/.test(label)) key.dataset.tone = 'operator';
+          key.addEventListener('click', () => {
             const start = input.selectionStart;
             const end = input.selectionEnd;
             if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
-          }
-        });
+          });
+        }
         keys.append(key);
       }
       input.addEventListener('keydown', event => {
