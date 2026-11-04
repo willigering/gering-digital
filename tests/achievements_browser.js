@@ -51,7 +51,7 @@ async function answer(page,hook,host,right){
     const wrong=['0','1','2','7','99','10.0.0.1','/8','255.255.0.0','0x1'];
     const pick=(right?cands:wrong).find(c=>{if(!c)return false;const p=T.parseAnswer(t,c);return p.valid&&p.ok===right;});
     if(pick===undefined)return 'unanswerable:'+t.sub+':'+t.kind;
-    const inp=box.querySelector('input');inp.value=pick;box.querySelector('[data-r="check"]').click();return t.sub;
+    const inp=box.querySelector('[data-r="form"] input');inp.value=pick;box.querySelector('[data-r="check"]').click();return t.sub;
   },{hook,host,right});
 }
 const subs=(page,prefix)=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)||'{}'),prefix+'-subs-v1');
