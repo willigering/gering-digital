@@ -3,7 +3,7 @@
   'use strict';
   var cfg=window.__DTP_UPDATE__;
   if (!cfg || !cfg.slug || !cfg.url) return;
-  var base=null, pending=null, dock=null, message=null, updateBtn=null;
+  var base=null, pending=null, dock=null, message=null, updateBtn=null, snoozeUntil=0;
   function activeExercise() {
     return !!document.querySelector('dialog[open], [role="dialog"][aria-modal="true"], .dtp-practice-dialog[open], .modal.open')
       || !!(document.activeElement && document.activeElement.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable="true"]'));
@@ -22,7 +22,7 @@
       var later=document.createElement('button');later.type='button';later.textContent='Später';
       [updateBtn,later].forEach(function(b){b.style.cssText='cursor:pointer;padding:9px 12px;border-radius:8px;border:1px solid var(--cyan,#65dce0);background:var(--panel,#10191e);color:inherit;font:inherit'});
       updateBtn.style.background='var(--cyan,#65dce0)';updateBtn.style.color='#071014';
-      later.addEventListener('click',function(){dock.remove();dock=null;});
+      later.addEventListener('click',function(){snoozeUntil=Date.now()+10*60000;pending=null;dock.remove();dock=null;});
       updateBtn.addEventListener('click',function(){
         if(activeExercise()){
           message.textContent='🔒 Deine aktuelle Aufgabe hat Vorrang! Schließe sie erst ab. Danach kannst du hier aktualisieren.';
@@ -47,7 +47,7 @@
     }
   }
   function check(){
-    if(document.hidden || pending) return;
+    if(document.hidden || pending || Date.now()<snoozeUntil) return;
     fetch(cfg.url+'?slug='+encodeURIComponent(cfg.slug)+'&_='+Date.now(),{cache:'no-store',credentials:'same-origin'})
       .then(function(r){if(!r.ok)throw Error('update unavailable');return r.json()})
       .then(function(data){
