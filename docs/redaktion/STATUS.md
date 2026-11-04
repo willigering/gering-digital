@@ -8,7 +8,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 | A1 Zahlensysteme | `a1-zahlensysteme.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B1 OSI | `osi-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B2 Netzwerke | `netzwerke-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
-| B3 Subnetting | `subnet-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow; aktuelle parallele Designarbeiten beachten |
+| B3 Subnetting | `subnet-sprint.html` | Lehrtexte und Aufgaben redigiert, Generatorvergleich bestanden | Browserprüfungen und öffentliche Auslieferung bestätigen |
 | D1 Datenschutz | `d1-datenschutz.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; rechtliche Bedingungen und Ausnahmen erhalten |
 | D2 IT-Sicherheit | `d2-it-sicherheit.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Bedrohungs-/Schutzbegriffe sauber unterscheiden |
 | B4 IPv6 | `b4-ipv6.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Regeln und Sonderfälle erhalten |
@@ -57,4 +57,5 @@ Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Pr�
 ## B3 Subnetting – Wer teilt, gewinnt
 
 - Überarbeitet: Einstieg, Einleitungen aller zehn Lektionen und Nachschlagekapitel, ausgewählte Fragen, Lösungshinweise und Rückmeldungen sowie Trainings-, Prüfungseinstieg und Modulbeschreibung. Bestehende Rechenbeispiele und Aufgabengeneratoren fachlich beibehalten.
-- Lokal geprüft: Syntax der eingebetteten Skripte und identische HTML-Überschriften. Browserabnahme und öffentliche Auslieferung stehen noch aus.
+- Ergänzt: Kapiteltexte und Rechenbeispiele, Laboranweisungen, weitere Aufgabenstellungen, Hinweise und Fehlerdiagnosen.
+- Lokal geprüft: Syntax und identische HTML-Überschriften. 58.000 Aufgaben aus allen 58 Typen mit gleicher Zufallsfolge verglichen. Aufgabenschlüssel, Antwortformate, Lösungen, Auswahloptionen, Punkte und AND-Zwischenfelder stimmen überein. Browserabnahme und öffentliche Auslieferung stehen noch aus.
