@@ -59,7 +59,7 @@ try {
     $game=http('GET',"/$spiel/",'','guest');
     check(!str_contains($game['body'],'__DTP_SYNC__') && str_contains($game['headers'],'public, max-age=300'),'Andere Kategorien (Spiele) bleiben unverändert');
     $start=http('GET','/dau-to-pro/','','none');
-    check(str_contains($start['body'],'<a class="nav-account" href="konto.php">Anmelden</a>'),'Oberseite zeigt „Mein Konto“ in der Navigation');
+    check(str_contains($start['body'],'<a class="nav-account" href="konto.php">Mein Konto</a>'),'Oberseite zeigt „Mein Konto“ in der Navigation');
     check((bool)preg_match('/Set-Cookie: PHPSESSID=[^\r\n]*HttpOnly[^\r\n]*SameSite=Lax/i',$start['headers']),'Sitzungs-Cookie ist HttpOnly und SameSite=Lax');
 
     $privacy=http('GET','/datenschutz.php','','none')['body'];
