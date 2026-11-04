@@ -18,13 +18,13 @@ function dtp_feedback_dialog(string $source): string {
     if (!DTP_FEEDBACK_ENABLED) return '';
     ob_start();
     ?>
-<dialog id="dtp-feedback-dialog" aria-labelledby="dtp-feedback-title">
+<dialog id="dtp-feedback-dialog" aria-labelledby="dtp-feedback-title" aria-describedby="dtp-feedback-intro">
     <form action="/dau-to-pro/api/feedback.php" method="post">
         <div class="dtp-feedback-heading">
             <div><small>EARLY ACCESS</small><h2 id="dtp-feedback-title">Feedback geben</h2></div>
             <button type="button" data-feedback-close aria-label="Feedback schließen">×</button>
         </div>
-        <p>Was läuft gut, wo hakt’s? Schreib mir, was dir aufgefallen ist.</p>
+        <p id="dtp-feedback-intro">Was läuft gut, wo hakt’s? Schreib mir, was dir aufgefallen ist.</p>
         <input type="hidden" name="csrf" value="<?=e(csrf())?>">
         <input type="hidden" name="source" value="<?=e($source)?>">
         <label hidden>Website <input name="website" autocomplete="off" tabindex="-1"></label>
