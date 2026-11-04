@@ -170,13 +170,11 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $title=(string)($module['title']??'');
     $subject=trim((string)($module['subject']??''));
     $category=$topic[1];
-    $number=$topic[2];
     if (($module['slug']??'')==='f2-kalkulation') {
         $category='Kalkulation & Beschaffung';
         $subject='Angebotsvergleich';
     } elseif (($module['slug']??'')==='a1-zahlensysteme') {
         $category='Grundlagen';
-        $number='01';
     }
     $description=dtp_module_description($module);
     $tag=$progress!==null?'article':($link?'a':'div');
@@ -195,7 +193,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     }
     $html.='</div><div class="module-body"><span class="module-category">'.e($category).'</span>';
     if ($subject!=='' && $subject!==$category) {
-        $html.='<span class="module-subtopic"><span class="module-number">'.e($number).'</span>'.e($subject).'</span>';
+        $html.='<span class="module-subtopic">'.e($subject).'</span>';
     }
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
