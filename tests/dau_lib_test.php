@@ -77,6 +77,20 @@ $full['mastered']=range(0,$full['stages']-1);
 check(str_contains(dtp_card_progress($full),'Lernpfad abgeschlossen'),'Vollständiger Lernpfad wird als abgeschlossen markiert');
 check(!str_contains(dtp_module_card(['slug'=>'osi-sprint','title'=>'OSI']),'module-progress'),'Gastkacheln bleiben ohne Kontofortschritt');
 
+$catalog=json_decode(file_get_contents(__DIR__.'/../lernmodule/manifest.json'),true,512,JSON_THROW_ON_ERROR);
+$cardNumbers=[];
+foreach ($catalog['modules'] as $module) {
+    $card=dtp_module_card($module);
+    check(preg_match('/class="module-number">([0-9]{2})<\//',$card,$badge)===1,'Modulkachel hat eine Nummer: '.$module['slug']);
+    check(!in_array($badge[1],$cardNumbers,true),'Modulnummer ist eindeutig: '.$module['slug']);
+    $cardNumbers[$module['slug']]=$badge[1];
+}
+check($cardNumbers['netzwerke-sprint']==='02' && $cardNumbers['osi-sprint']==='03','Netzwerkgrundlagen und OSI haben feste Nummern');
+check($cardNumbers['a1-zahlensysteme']==='01' && $cardNumbers['f2-kalkulation']==='06','Bereits vereinbarte Nummern bleiben erhalten');
+check(str_contains(dtp_module_card(['slug'=>'osi','title'=>'OSI','subject'=>'OSI-Schichten']),'class="module-number">03<'),'Alte OSI-URL hat dieselbe Modulnummer');
+check(!str_contains(dtp_module_card(['slug'=>'test-wlan','title'=>'WLAN','subject'=>'WLAN-Praxis']),'module-number'),'Module ohne zugewiesene Nummer zeigen keine Themenbereichsnummer');
+
+
 $cases=[
  [['slug'=>'osi-sprint','title'=>'OSI Sprint','description'=>'Netzwerk-Schichten'],'osi-modell'],
  [['slug'=>'subnet-sprint','title'=>'Subnet Sprint','description'=>''],'ipv4-subnetting'],
