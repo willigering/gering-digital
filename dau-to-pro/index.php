@@ -47,6 +47,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
 <?php endif; ?>
+  <script>window.__DTP_UPDATE__={url:'api/update-version.php',revision:<?=json_encode(learner_landing_update_revision(db()))?>};</script>
+  <script src="update-notice.js?v=<?=filemtime(__DIR__.'/update-notice.js')?>" defer></script>
   <?=dtp_feedback_assets()?>
 </head>
 <body class="dtp-landing">

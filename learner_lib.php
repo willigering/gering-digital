@@ -417,6 +417,10 @@ function learner_sync_config(string $slug,string $file): array {
     }
     return $config;
 }
+function learner_landing_update_revision(PDO $db): string {
+    $release=$db->query("SELECT value FROM settings WHERE key='module_release'")->fetchColumn();
+    return learner_update_revision((string)$release);
+}
 function learner_update_revision(string $version): string {
     return hash('sha256',$version.'|'.(string)@filemtime(__DIR__.'/dau-to-pro/sync.js').'|'.(string)@filemtime(__DIR__.'/dau-to-pro/update-notice.js'));
 }
