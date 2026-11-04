@@ -1,6 +1,6 @@
 <?php
 /** DAU TO PRO: lightweight, uncached published-module revision probe. */
-require_once __DIR__.'/../../lib.php';
+require_once __DIR__.'/../../learner_lib.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 $slug=(string)($_GET['slug']??'');
@@ -10,6 +10,6 @@ try {
     $stmt->execute([$slug]);
     $version=$stmt->fetchColumn();
     if (!$version) { http_response_code(404);echo '{"error":"module unavailable"}';exit; }
-    $revision=hash('sha256',(string)$version.'|'.(string)@filemtime(__DIR__.'/../sync.js').'|'.(string)@filemtime(__DIR__.'/../update-notice.js'));
+    $revision=learner_update_revision((string)$version);
     echo json_encode(['revision'=>$revision],JSON_THROW_ON_ERROR);
 } catch(Throwable $e) { http_response_code(503);echo '{"error":"temporarily unavailable"}'; }
