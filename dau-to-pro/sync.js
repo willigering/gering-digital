@@ -16,12 +16,12 @@
   function mountBack() {
     if (!cfg.modules || !document.body || document.querySelector('dtp-back')) return;
     var host = document.createElement('dtp-back');
-    host.style.cssText = 'display:block;position:relative;z-index:2';
+    host.style.cssText = 'display:block;position:sticky;top:0;z-index:9999';
     var root = host.attachShadow ? host.attachShadow({mode: 'open'}) : host;
     var css = document.createElement('style');
     css.textContent = [
       ':host{color:var(--text,#f5f0df);font:700 13px/1.2 system-ui,sans-serif}',
-      'header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px}',
+      'header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;background:var(--panel,#11181c);border-bottom:1px solid var(--cyan,#65dce0)}',
       'a{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--cyan,#65dce0);border-radius:7px;background:var(--panel,#11181c);color:inherit;text-decoration:none}',
       'a:hover{color:var(--cyan,#65dce0)}a:focus-visible{outline:2px solid var(--cyan,#65dce0);outline-offset:2px}',
       'b{letter-spacing:.08em}b span{color:var(--cyan,#65dce0)}@media print{header{display:none}}'
