@@ -44,7 +44,6 @@
       <path d="M-140 780 L704 -140" stroke="url(#d2-it-sicherheit-ray)" stroke-width="2.4" stroke-opacity=".55"/>
       <path d="M704 860 L1420 86.39999999999999" stroke="url(#d2-it-sicherheit-ray)" stroke-width="1.6" stroke-opacity=".32"/>
     </g>
-  <text x="100" y="125" fill="#ff6b6b" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="25" font-weight="800">D2 // IT-SICHERHEIT</text>
   <text x="100" y="196" fill="#f5f0df" font-family="Inter,'DejaVu Sans',sans-serif" font-size="45" font-weight="900">PASSWORT123</text>
   <text x="100" y="246" fill="#eab448" font-family="Inter,'DejaVu Sans',sans-serif" font-size="35" font-weight="900">IST KEIN KONZEPT.</text>
   <g transform="translate(818 155)"><path d="M0 0 L148 55 V205 Q148 320 0 384 Q-148 320 -148 205 V55 Z" fill="#160f14" stroke="#ff6b6b" stroke-width="5"/>
