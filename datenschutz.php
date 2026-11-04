@@ -43,6 +43,12 @@ require_once __DIR__ . '/lib.php';
       </section>
 
       <div class="legal-grid">
+        <section class="legal-block" id="feedback">
+          <div class="legal-label">DAU TO PRO · EARLY ACCESS</div>
+          <h2>Feedback zur Lernplattform</h2>
+          <p>Betreff, Nachricht und die Angabe, von welcher Seite das Feedback kommt, werden zur Bearbeitung per E-Mail an Gering Digital übermittelt. Ein Lernkonto und eine eigene E-Mail-Adresse sind dafür nicht erforderlich. Bitte trage keine persönlichen Daten ein.</p>
+          <p style="margin-top:12px">Zum Schutz vor Spam wird ein aus der IP-Adresse abgeleiteter, mit einem geheimen Schlüssel gebildeter Prüfwert mit Zeitstempel vorübergehend gespeichert.</p>
+        </section>
         <section class="legal-block">
           <div class="legal-label">2 · WEBSITEAUFRUF</div>
           <h2>Technischer Betrieb</h2>
