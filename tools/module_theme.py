@@ -28,10 +28,23 @@ def apply_theme(html):
     calc_css = (ROOT / 'dau-to-pro/module-calculator.css').read_text()
     calc_js = (ROOT / 'dau-to-pro/module-calculator.js').read_text()
     block += calc_start + '\n<style>\n' + calc_css.rstrip() + '\n</style>\n<script>\n' + calc_js.rstrip() + '\n</script>\n' + calc_end + '\n'
+    return apply_mobile(html.replace('</head>', block + '</head>', 1))
+
+MOBILE_START = '<!-- DTP-HANDY START -->'
+MOBILE_END = '<!-- DTP-HANDY END -->'
+
+def apply_mobile(html):
+    """Embed the shared phone layer last, so it overrides module and theme styles."""
+    html = re.sub(re.escape(MOBILE_START) + r'.*?' + re.escape(MOBILE_END) + r'\n?', '', html, flags=re.S)
+    css = (ROOT / 'tools/module-mobile.css').read_text().rstrip()
+    js = (ROOT / 'tools/module-mobile.js').read_text().rstrip().replace('</script', '<\\/script')
+    block = MOBILE_START + '\n<style>\n' + css + '\n</style>\n<script>\n' + js + '\n</script>\n' + MOBILE_END + '\n'
     return html.replace('</head>', block + '</head>', 1)
 
 if __name__ == '__main__':
+    import sys
+    fn = apply_mobile if '--nur-handy' in sys.argv else apply_theme
     for path in sorted((ROOT / 'lernmodule').glob('*.html')):
-        path.write_text(apply_theme(path.read_text()))
+        path.write_text(fn(path.read_text()))
         print(path.name)
 
