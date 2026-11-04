@@ -1,0 +1,75 @@
+.dtp-feedback-button[hidden], #dtp-feedback-dialog [hidden] { display: none; }
+
+.dtp-feedback-button, #dtp-feedback-dialog button[type="submit"] {
+    background: #f1c365;
+    color: #14100a;
+    border: 1px solid #f8d992;
+    border-radius: .65rem;
+    padding: .65rem .95rem;
+    min-height: 44px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.dtp-feedback-dock {
+    position: fixed;
+    right: max(.65rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    z-index: 30;
+}
+
+.dtp-feedback-dock .dtp-feedback-button { box-shadow: 0 4px 18px #0009; }
+
+#dtp-feedback-dialog {
+    box-sizing: border-box;
+    width: min(32rem, calc(100% - 2rem));
+    max-height: calc(100% - 2rem);
+    overflow: auto;
+    padding: 1.25rem;
+    color: #f4f6f7;
+    background: #131b20;
+    border: 1px solid #59636a;
+    border-radius: 1rem;
+    font: 1rem/1.45 system-ui, sans-serif;
+}
+
+#dtp-feedback-dialog::backdrop { background: #05090cbb; }
+#dtp-feedback-dialog form { display: grid; gap: .85rem; margin: 0; }
+#dtp-feedback-dialog p, #dtp-feedback-dialog h2 { margin: 0; }
+#dtp-feedback-dialog .dtp-feedback-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: .75rem;
+}
+
+#dtp-feedback-dialog small, #dtp-feedback-dialog a { color: #f1c365; }
+#dtp-feedback-dialog label:not([hidden]) { display: grid; gap: .3rem; }
+#dtp-feedback-dialog input:not([type="hidden"]), #dtp-feedback-dialog textarea {
+    box-sizing: border-box;
+    width: 100%;
+    color: inherit;
+    background: #0a1014;
+    border: 1px solid #79858d;
+    border-radius: .45rem;
+    padding: .65rem;
+    font: inherit;
+}
+
+#dtp-feedback-dialog textarea { resize: vertical; }
+#dtp-feedback-dialog [data-feedback-close] {
+    min-width: 44px;
+    min-height: 44px;
+    color: inherit;
+    background: #253039;
+    border: 1px solid #79858d;
+    border-radius: .45rem;
+    font: inherit;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+#dtp-feedback-dialog .dtp-feedback-note { font-size: .85rem; }
+#dtp-feedback-dialog .dtp-feedback-status:empty { display: none; }
+#dtp-feedback-dialog button:disabled { opacity: .65; cursor: wait; }

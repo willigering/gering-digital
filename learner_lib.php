@@ -456,6 +456,12 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
         $entry=(string)file_get_contents(__DIR__.'/tools/module-entry.js');
         $tag.="<!-- DTP-MODULEINSTIEG START -->\n<script>".str_ireplace('</script','<\\/script',$entry)."</script>\n<!-- DTP-MODULEINSTIEG END -->\n";
     }
+    require_once __DIR__.'/dau-to-pro/feedback-form.php';
+    if (DTP_FEEDBACK_ENABLED) {
+        $tag.=dtp_feedback_assets();
+        $feedback='<div class="dtp-feedback-dock">'.dtp_feedback_button().'</div>'.dtp_feedback_dialog($slug);
+        $html=preg_replace_callback('~</body\\s*>~i', static fn(array $m): string => $feedback.$m[0], $html, 1) ?? $html;
+    }
     if (preg_match('/<head\b[^>]*>/i',$html,$m,PREG_OFFSET_CAPTURE)) {
         $at=$m[0][1]+strlen($m[0][0]);
         return substr($html,0,$at)."\n".$tag.substr($html,$at);
