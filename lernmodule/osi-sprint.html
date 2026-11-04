@@ -660,44 +660,117 @@ body.dtp-exercise-open{overflow:hidden}
 <style>
 .dtp-calculator {
   --calculator-accent: var(--cyan, #65dce0);
+  --calculator-shell: color-mix(in srgb, var(--calculator-accent) 8%, #101418);
+  --calculator-line: color-mix(in srgb, var(--calculator-accent) 28%, #151a1e);
   color: inherit;
   margin-top: .65rem;
 }
 .dtp-calculator > summary {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
   cursor: pointer;
   list-style: none;
-}
-.dtp-calculator > summary::-webkit-details-marker { display: none; }
-.dtp-calculator > summary,
-.dtp-calculator button,
-.dtp-calculator-panel {
-  border: 1px solid var(--calculator-accent);
-  border-radius: 7px;
-  background: var(--panel, #11181c);
+  border: 1px solid var(--calculator-line);
+  border-radius: 11px;
+  background: var(--calculator-shell);
   color: var(--calculator-accent);
 }
+.dtp-calculator > summary::-webkit-details-marker { display: none; }
+.dtp-calculator[open] > summary,
+.dtp-calculator > summary:hover { border-color: var(--calculator-accent); }
 .dtp-calculator-panel {
   box-sizing: border-box;
-  width: min(100%, 20rem);
-  margin-top: .45rem;
-  padding: .65rem;
+  width: min(100%, 21rem);
+  margin-top: .55rem;
+  padding: .8rem;
+  border: 1px solid var(--calculator-line);
+  border-top: 2px solid var(--calculator-accent);
+  border-radius: 14px;
+  background: linear-gradient(150deg, var(--calculator-shell), #0c1013 75%);
+  box-shadow: 0 12px 26px #0005, inset 0 1px #fff1;
 }
-.dtp-calculator label { display: grid; gap: .25rem; }
-.dtp-calculator input { width: 100%; min-width: 0; font: inherit; }
-.dtp-calculator-keys { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .25rem; margin-top: .5rem; }
-.dtp-calculator button { min-height: 36px; padding: .25rem; font: inherit; cursor: pointer; }
-.dtp-calculator button:hover, .dtp-calculator summary:hover { background: color-mix(in srgb, var(--calculator-accent) 16%, #11181c); }
+.dtp-calculator-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  margin-bottom: .5rem;
+  color: var(--calculator-accent);
+  font: 700 .7rem/1.2 ui-monospace, monospace;
+  letter-spacing: .13em;
+}
+.dtp-calculator-display {
+  min-width: 0;
+  padding: .6rem .65rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 9px;
+  background: #080d10;
+  box-shadow: inset 0 2px 6px #0008;
+}
+.dtp-calculator-display label { display: grid; gap: .2rem; color: #bac6cd; font-size: .75rem; }
+.dtp-calculator-display input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: .15rem 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #edf5f8;
+  text-align: right;
+  font: 500 1rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display input::placeholder { color: #9cabb4; opacity: 1; }
+.dtp-calculator-display output {
+  display: block;
+  min-height: 1.55em;
+  margin-top: .25rem;
+  color: var(--calculator-accent);
+  text-align: right;
+  overflow-wrap: anywhere;
+  font: 700 1.15rem/1.4 ui-monospace, monospace;
+}
+.dtp-calculator-display output:empty::before { content: '—'; opacity: .45; }
+.dtp-calculator-display output[data-error] { color: #ffbd8d; font: 500 .8rem/1.4 system-ui, sans-serif; }
+.dtp-calculator-keys {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: .35rem;
+  margin-top: .6rem;
+}
+.dtp-calculator-panel button {
+  min-height: 44px;
+  padding: .2rem;
+  border: 1px solid var(--calculator-line);
+  border-radius: 8px;
+  background: linear-gradient(#222a30, #161d22);
+  box-shadow: 0 2px #050709, inset 0 1px #fff1;
+  color: #edf5f8;
+  font: 700 1rem/1 ui-monospace, monospace;
+  cursor: pointer;
+}
+.dtp-calculator-keys [data-tone="operator"] { background: var(--calculator-shell); color: var(--calculator-accent); }
+.dtp-calculator-keys [data-tone="equals"] { background: var(--calculator-accent); color: #081013; border-color: var(--calculator-accent); }
+.dtp-calculator-panel button:hover { border-color: var(--calculator-accent); filter: brightness(1.2); }
+.dtp-calculator-panel button:active { box-shadow: inset 0 2px 4px #0006; transform: translateY(1px); }
+.dtp-calculator-panel .dtp-calculator-clear { min-width: 44px; background: var(--calculator-shell); font-size: .8rem; }
 .dtp-calculator :focus-visible { outline: 2px solid var(--calculator-accent); outline-offset: 2px; }
-.dtp-calculator output { display: block; padding-block: .35rem; overflow-wrap: anywhere; }
-.dtp-calculator-prank { display: inline-block; position: relative; }
+.dtp-calculator-prank { position: relative; margin-top: .65rem; }
+.dtp-calculator-prank:empty { display: none; }
+.dtp-calculator-prank button {
+  width: 100%;
+  border-style: dashed;
+  background: var(--calculator-shell);
+  color: var(--calculator-accent);
+  font-size: .85rem;
+}
 .dtp-calculator-dust { position: absolute; inset: 0; pointer-events: none; }
 .dtp-calculator-dust i { position: absolute; width: 3px; height: 3px; background: var(--calculator-accent); }
 .dtp-calculator-joke { margin: 0; }
-.dtp-calculator-joke:not(:empty) { margin-top: .4rem; }
+.dtp-calculator-joke:not(:empty) { margin-top: .5rem; }
 </style>
 <script>
 (() => {
@@ -786,8 +859,10 @@ body.dtp-exercise-open{overflow:hidden}
       box.removeEventListener('toggle', initialise);
       const panel = document.createElement('div');
       panel.className = 'dtp-calculator-panel';
-      panel.innerHTML = '<label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
-        + '<div class="dtp-calculator-keys"></div><output aria-live="polite"></output>';
+      panel.innerHTML = '<div class="dtp-calculator-heading"><span aria-hidden="true">Taschenrechner</span>'
+        + '<button type="button" class="dtp-calculator-clear" aria-label="Rechnung löschen" title="Rechnung löschen">C</button></div>'
+        + '<div class="dtp-calculator-display"><label>Rechnung <input type="text" maxlength="120" autocomplete="off" spellcheck="false" placeholder="z. B. (2^8 − 2) / 2"></label>'
+        + '<output aria-live="polite"></output></div><div class="dtp-calculator-keys"></div>';
       const input = panel.querySelector('input');
       const output = panel.querySelector('output');
       const keys = panel.querySelector('.dtp-calculator-keys');
@@ -798,21 +873,30 @@ body.dtp-exercise-open{overflow:hidden}
         return key;
       };
       const calculate = () => {
+        output.removeAttribute('data-error');
         try { output.textContent = '= ' + evaluate(input.value); }
-        catch (_) { output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.'; }
+        catch (_) {
+          output.setAttribute('data-error', '');
+          output.textContent = 'Die Rechnung geht so nicht auf. Prüfe Eingabe, Klammern und Division.';
+        }
       };
-      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=','C']) {
+      panel.querySelector('.dtp-calculator-clear').addEventListener('click', () => {
+        input.value = output.textContent = '';
+        output.removeAttribute('data-error');
+      });
+      for (const label of ['7','8','9','÷','^','4','5','6','×','(', '1','2','3','−',')','0',',','%','+','=']) {
         const key = button(label);
-        if (label === 'C') key.setAttribute('aria-label', 'Rechnung löschen');
-        key.addEventListener('click', () => {
-          if (label === '=') calculate();
-          else if (label === 'C') input.value = output.textContent = '';
-          else {
+        if (label === '=') {
+          key.dataset.tone = 'equals';
+          key.addEventListener('click', calculate);
+        } else {
+          if (!/[0-9,]/.test(label)) key.dataset.tone = 'operator';
+          key.addEventListener('click', () => {
             const start = input.selectionStart;
             const end = input.selectionEnd;
             if (input.value.length - (end - start) < input.maxLength) input.setRangeText(label, start, end, 'end');
-          }
-        });
+          });
+        }
         keys.append(key);
       }
       input.addEventListener('keydown', event => {
