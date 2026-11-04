@@ -280,3 +280,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-progress-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .module-progress-badges li{display:flex;align-items:center;gap:5px}
 .module-progress-badges img{flex:none;object-fit:contain}
+
+.module-card.is-coming-soon{filter:grayscale(1);cursor:default}
+.module-card.is-coming-soon:hover{transform:none;border-color:#ffffff1f;box-shadow:none}
+.module-card.is-coming-soon .module-footer{color:#aab6bf}
