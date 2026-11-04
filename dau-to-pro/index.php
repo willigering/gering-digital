@@ -5,6 +5,10 @@ require_once __DIR__.'/../achievements_lib.php';
 require_once __DIR__.'/feedback-form.php';
 $learnerRow=learner_current();
 $learnerName=$learnerRow['username']??null;
+$revealId=$_SESSION['dtp_highscore_reveal']??null;
+unset($_SESSION['dtp_highscore_reveal']);
+$reveal=$learnerRow && $revealId===(int)$learnerRow['id'];
+if ($learnerRow) header('Cache-Control: no-store, private');
 // Highscore-Vorschau: wie highscore.php nur für angemeldete Lernende, Gäste sehen einen Hinweis.
 $hsRows=[];$hsMe=null;$hsRank=0;$hsCount=0;
 $cardProgress=[];
@@ -50,6 +54,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endif; ?>
   <script>window.__DTP_UPDATE__={url:'api/update-version.php',revision:<?=json_encode(learner_landing_update_revision(db()))?>};</script>
   <script src="update-notice.js?v=<?=filemtime(__DIR__.'/update-notice.js')?>" defer></script>
+<?php if($reveal): ?>  <script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script>
+<?php endif; ?>
   <?=dtp_feedback_assets()?>
 </head>
 <body class="dtp-landing">
@@ -112,7 +118,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
         <ol class="hs-top">
 <?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
-          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>">
+          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
             <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
             <span class="hs-who"><b><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?></b><span class="hs-showcase"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
             <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
@@ -121,7 +127,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         </ol>
 <?php endif; ?>
         <div class="hs-foot">
-          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
+          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
           <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
         </div>
       </div>

@@ -240,23 +240,14 @@
 .recent-grid .ach-item:hover .recent-condition,
 .recent-grid .ach-item:focus .recent-condition { opacity: 1; }
 
-/* Einmaliger Auftritt nach dem Speichern der Highscore-Sichtbarkeit. */
-.hs-table .is-revealing .profile-open {
-  animation: hs-name-reveal 1.4s ease-out both;
-  transform-origin: left center;
+.konto-modules-link{
+  position:fixed;
+  right:max(16px,env(safe-area-inset-right));
+  bottom:max(16px,env(safe-area-inset-bottom));
+  z-index:45;
+  box-shadow:0 8px 24px #0008;
 }
-
-@keyframes hs-name-reveal {
-  15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; transform: scale(1.1); }
-  100% { transform: scale(1); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hs-table .is-revealing .profile-open { animation-name: hs-name-glow; }
-  @keyframes hs-name-glow {
-    15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; }
-  }
-}
+.konto-page:has(.konto-modules-link){padding-bottom:70px}
 
 /* Highscore profile: spacious achievement gallery instead of tiny medal-like badges. */
 .highscore-page .profile-showcase-title{margin:22px 0 12px;font-size:16px;letter-spacing:.07em;text-transform:uppercase;color:var(--goldlite)}

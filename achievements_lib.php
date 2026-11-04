@@ -26,7 +26,7 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     $modules=[
-        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','stages'=>10,'list'=>[
+        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','slugs'=>['d2-it-sicherheit'],'stages'=>10,'list'=>[
             ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
             ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
             ['d2.maximum','silber','Maximum statt Mittelmaß','Stufe 4 „Schutzbedarf“ gemeistert.',['stage',3]],
@@ -38,7 +38,7 @@ function ach_modules(): array {
             ['d2.prinz','witzig','Erbe mit Bearbeitungsgebühr','3 × in Folge falsch bei „Der Prinz aus Nigeria“.',['fails','e_prince'],'Erst zahlen, dann Millionen? Der Prinz wartet noch.'],
             ['d2.usb','witzig','Parkplatz-Premiumstick','3 × in Folge falsch bei „USB-Stick vom Parkplatz“.',['fails','m_park'],'Gratis Speicherplatz. Die Zusatzsoftware verrät er erst später.'],
         ]],
-        'b4'=>['prefix'=>'b4-ipv6','subject'=>'IPv6','title'=>'Doppelpunkt, Doppelpunkt, Durchblick','motif'=>'ipv6','stages'=>10,'list'=>[
+        'b4'=>['prefix'=>'b4-ipv6','subject'=>'IPv6','title'=>'Doppelpunkt, Doppelpunkt, Durchblick','motif'=>'ipv6','slugs'=>['b4-ipv6','ipv6'],'stages'=>10,'list'=>[
             ['b4.erste-bloecke','bronze','128 Bit, ein Anfang','Stufe 1 „128 Bit & Hex“ gemeistert.',['stage',0]],
             ['b4.nullenschlucker','bronze','Nullenschlucker','„Adresse kanonisch kürzen“ 10 × in Folge richtig.',['clean',['s_short']]],
             ['b4.praefix','silber','Vorne Netz, hinten Gerät','Stufe 4 „Präfix & Interface-ID“ gemeistert.',['stage',3]],
@@ -50,7 +50,7 @@ function ach_modules(): array {
             ['b4.router','witzig','fe80 ist kein Dienstausweis','3 × in Folge falsch bei „fe80 ist kein Router“.',['fails','t_router'],'Auch ein Drucker darf lokal wohnen.'],
             ['b4.nullen','witzig','Nullen im Überfluss','3 × in Folge falsch bei „Zu viele Nullen“.',['fails','v_zero'],'Weniger tippen bedeutet nicht weniger Bit.'],
         ]],
-        'b5'=>['prefix'=>'b5-dienste','subject'=>'Netzwerkdienste & Protokolle','title'=>'Port 80, bitte kommen','motif'=>'netzwerkdienste','stages'=>10,'list'=>[
+        'b5'=>['prefix'=>'b5-dienste','subject'=>'Netzwerkdienste & Protokolle','title'=>'Port 80, bitte kommen','motif'=>'netzwerkdienste','slugs'=>['b5-netzwerkdienste'],'stages'=>10,'list'=>[
             ['b5.transport','bronze','Verbindung steht','Stufe 1 „TCP oder UDP?“ gemeistert.',['stage',0]],
             ['b5.portwart','bronze','Portwart des Monats','„Standardport zum Dienst“ 10 × in Folge richtig.',['clean',['p_port']]],
             ['b5.lease','silber','Lease ist mehr','Stufe 4 „DHCP: Adresse gesucht“ gemeistert.',['stage',3]],
@@ -62,7 +62,7 @@ function ach_modules(): array {
             ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Ein anderer Port macht das Passwort nicht unsichtbar.'],
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 klingt nach Adresse. Aber wer hat sie vergeben?'],
         ]],
-        'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','stages'=>10,'list'=>[
+        'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','slugs'=>['f2-kalkulation'],'stages'=>10,'list'=>[
             ['f2.preisschild','bronze','Preisschild enttarnt','Stufe 1 „Angebote vergleichen“ gemeistert.',['stage',0]],
             ['f2.bezug','bronze','Fracht ist auch Geld','„Bezugspreis mit Fracht“ 10 × in Folge richtig.',['clean',['b_bezug']]],
             ['f2.nutzwert','silber','Gewicht hat Gewicht','Stufe 4 „Nutzwertanalyse“ gemeistert.',['stage',3]],
@@ -74,7 +74,7 @@ function ach_modules(): array {
             ['f2.leasing','witzig','Nur 99 Euro im Monat','3 × in Folge falsch bei „Leasing klingt billiger“.',['fails','k_billig'],'Die kleine Rate hat eine große Verwandtschaft.'],
             ['f2.null','witzig','Nutzwert: Luftnummer','3 × in Folge falsch bei „Nutzwert null“.',['fails','n_null'],'Null mal wichtig bleibt manchmal einfach null.'],
         ]],
-        'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','stages'=>10,'list'=>[
+        'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','slugs'=>['a1-zahlensysteme','bits-zum-bitteren-ende','zahlensysteme'],'stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],
             ['a1.farbcodes','bronze','Farbenblind war gestern','Aufgabentyp „Farbcodes“ 10 × in Folge richtig.',['clean',['h_color']]],
             ['a1.hex','silber','Hex-Lehrling','Stufe 4 „Hexadezimal & Oktal“ gemeistert.',['stage',3]],
@@ -86,7 +86,7 @@ function ach_modules(): array {
             ['a1.ueberlauf','witzig','255 + 1 = 0','3 × hintereinander falsch bei „Überlauf (8 Bit)“.',['fails','c_over'],'Irgendwann ist auch das größte Byte voll.'],
             ['a1.festplatte','witzig','Die Festplatte ist kaputt!','3 × hintereinander falsch bei „Festplatte im Betriebssystem“.',['fails','u_disk'],'Gekauft 1 TB, Windows zeigt weniger. Betrug?'],
         ]],
-        'osi'=>['prefix'=>'osi-sprint','subject'=>'OSI-Schichten','title'=>'Easy OSI for FISI','motif'=>'osi-modell','stages'=>10,'list'=>[
+        'osi'=>['prefix'=>'osi-sprint','subject'=>'OSI-Schichten','title'=>'Easy OSI for FISI','motif'=>'osi-modell','slugs'=>['osi-sprint','osi-modell','osi'],'stages'=>10,'list'=>[
             ['osi.kabel','bronze','Kabel steckt','Stufe 1 „Die 7 Schichten“ gemeistert.',['stage',0]],
             ['osi.merksatz','bronze','Alle Deutschen Studenten …','Aufgabentyp „Merksatz-Wort“ 10 × in Folge richtig.',['clean',['n_memo']]],
             ['osi.paketbote','silber','Paketbote','Stufe 3 „PDUs & Adressen“ gemeistert.',['stage',2]],
@@ -98,7 +98,7 @@ function ach_modules(): array {
             ['osi.richtung','witzig','Von oben oder von unten?','3 × hintereinander falsch bei „Nummer einer Schicht“.',['fails','n_num'],'Schicht 1 ist … äh … welche Seite war nochmal unten?'],
             ['osi.getrennt','witzig','Verbindung getrennt','Probeprüfung durch Verlassen der Seite beendet.',['leave'],'Manchmal ist Weglaufen auch eine Lösung.'],
         ]],
-        'd1'=>['prefix'=>'d1-dsgvo','subject'=>'Datenschutz','title'=>'Deine Daten sind kein Buffet.','motif'=>'datenschutz','stages'=>10,'exam_minutes'=>[10,20,30],'list'=>[
+        'd1'=>['prefix'=>'d1-dsgvo','subject'=>'Datenschutz','title'=>'Deine Daten sind kein Buffet.','motif'=>'datenschutz','slugs'=>['d1-datenschutz','datenschutz'],'stages'=>10,'exam_minutes'=>[10,20,30],'list'=>[
             ['d1.personenbezug','bronze','Menschen hinter den Daten','Stufe 1 „Personenbezug erkennen“ gemeistert.',['stage',0]],
             ['d1.grundsaetze','bronze','Sammelwut gebremst','Stufe 2 „Grundsätze anwenden“ gemeistert.',['stage',1]],
             ['d1.rechte','silber','Rechte sind keine Extras','Stufe 5 „Betroffenenrechte bearbeiten“ gemeistert.',['stage',4]],
@@ -110,7 +110,7 @@ function ach_modules(): array {
             ['d1.verbergen','witzig','Ich hab nichts zu verbergen','3 × hintereinander falsch bei „Personenbezug im Kontext“.',['fails','b_person'],'Die Kundenliste hat dazu eine andere Meinung.'],
             ['d1.frist','witzig','72 Stunden sind keine drei Arbeitstage','3 × hintereinander falsch bei „72-Stunden-Fenster“.',['fails','v_stunden'],'Die Datenschutz-Uhr macht am Wochenende keine Pause.'],
         ]],
-        'netz'=>['prefix'=>'netz-sprint','subject'=>'Netzwerkgrundlagen','title'=>'Jetzt ma Router bei die Switche!','motif'=>'netzwerke-routing','stages'=>10,'list'=>[
+        'netz'=>['prefix'=>'netz-sprint','subject'=>'Netzwerkgrundlagen','title'=>'Jetzt ma Router bei die Switche!','motif'=>'netzwerke-routing','slugs'=>['netzwerke-sprint','netzwerke','routing-switching'],'stages'=>10,'list'=>[
             ['netz.link-up','bronze','Link up','Stufe 1 „Netzwerkarten & Architektur“ gemeistert.',['stage',0]],
             ['netz.kuerzel','bronze','PAN, LAN, GAN – Hauptsache Plan','Aufgabentyp „Kürzel PAN bis GAN“ 10 × in Folge richtig.',['clean',['b_kurz']]],
             ['netz.mac','silber','MAC-Tabellen-Flüsterer','Stufe 4 „Switch: MAC-Tabelle“ gemeistert.',['stage',3]],
@@ -122,7 +122,7 @@ function ach_modules(): array {
             ['netz.doppelpunkt','witzig','Doppelter Doppelpunkt','3 × hintereinander falsch bei „IPv6 kürzen (RFC 5952)“.',['fails','v_short'],'„::“ gibt es nur einmal pro Adresse.'],
             ['netz.neustart','witzig','Schon mal aus- und eingeschaltet?','3 × hintereinander falsch bei „Fehlerbild deuten“.',['fails','tr_diag'],'Der Klassiker hilft öfter, als man denkt. Hier leider nicht.'],
         ]],
-        'subnet'=>['prefix'=>'subnet-sprint','subject'=>'Subnetting','title'=>'Wer teilt, gewinnt','motif'=>'ipv4-subnetting','stages'=>10,'list'=>[
+        'subnet'=>['prefix'=>'subnet-sprint','subject'=>'Subnetting','title'=>'Wer teilt, gewinnt','motif'=>'ipv4-subnetting','slugs'=>['subnet-sprint','subnetting','ipv4-subnetting','subnetsprint'],'stages'=>10,'list'=>[
             ['subnet.oktett','bronze','Erstes Oktett geknackt','Stufe 1 „Bits & Oktette“ gemeistert.',['stage',0]],
             ['subnet.potenzen','bronze','Zweierpotenz-Turbo','Aufgabentyp „2 hoch n“ 10 × in Folge richtig.',['clean',['p_pow']]],
             ['subnet.maskenball','silber','Maskenball','Stufe 3 „Präfix ↔ Maske“ gemeistert.',['stage',2]],
@@ -228,7 +228,6 @@ function ach_card_progress(int $learnerId): array {
     $saved=ach_json($query->fetchColumn() ?: null);
     $values=learner_progress_state($learnerId)['values'];
     $unlocked=ach_unlocked($learnerId);
-    $motifs=dtp_preview_catalog()['motifs'];
     $catalog=ach_catalog();
     $cards=[];
     foreach (ach_modules() as $id=>$module) {
@@ -246,8 +245,7 @@ function ach_card_progress(int $learnerId): array {
             'earned'=>$earned,
             'achievements'=>count($module['list']),
         ];
-        // Historische URLs stehen in der expliziten Liste. Themenähnlichkeit allein reicht hier nicht.
-        foreach ($motifs[$module['motif']]['slugs']??[] as $slug) $cards[$slug]=$progress;
+        foreach ($module['slugs'] as $slug) $cards[$slug]=$progress;
     }
     return $cards;
 }

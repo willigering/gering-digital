@@ -69,7 +69,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 ach_set_visible($id,$visible);
                 if ($visible) {
                     $_SESSION['dtp_highscore_reveal']=$id;
-                    header('Location: highscore.php',true,303);
+                    header('Location: ./#highscore',true,303);
                     exit;
                 }
                 unset($_SESSION['dtp_highscore_reveal']);
@@ -169,6 +169,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
   </section>
 
 <?php elseif ($learner): ?>
+  <a class="primary-action konto-modules-link" href="./#lernmodule">Zu den Modulen <span aria-hidden="true">→</span></a>
   <section class="konto-head">
     <div>
       <p class="eyebrow">MEIN FORTSCHRITT</p>
