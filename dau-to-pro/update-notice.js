@@ -7,7 +7,7 @@
   var pending=false, checking=false, audio=null;
   ['pointerdown','keydown'].forEach(function(event){document.addEventListener(event,prepareSound,{once:true});});
   function activeExercise() {
-    return !!document.querySelector('#examRun:not([hidden]), #tab-train[aria-disabled="true"], #tab-path[aria-disabled="true"], dialog[open], [role="dialog"][aria-modal="true"], .dtp-practice-dialog[open], .modal.open')
+    return !!document.querySelector('#examRun:not([hidden]), #tab-train[aria-disabled="true"], #tab-path[aria-disabled="true"], dialog[open], [role="dialog"][aria-modal="true"]:not([hidden]), .dtp-practice-dialog[open], .modal.open')
       || !!(document.activeElement && document.activeElement.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable="true"]'));
   }
   function prepareSound() {
