@@ -175,6 +175,10 @@ h1,h2,h3,h4,p{margin-top:0}
 .opt.is-right{border-color:var(--ok);background:rgba(78,230,155,.12)}
 .opt.is-wrong{border-color:var(--bad);background:rgba(255,107,107,.1)}
 .opt:disabled{cursor:default}
+.and-work{display:grid;gap:8px;border:1px solid #e5b65470;padding:10px;margin:0 0 12px}
+.and-work label{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,11ch);align-items:center;gap:8px}
+.and-work input{box-sizing:border-box;width:100%;min-width:0;background:#090e11;color:#fff;border:1px solid #e5b65470;padding:6px;font:inherit;font-family:var(--mono)}
+.and-work input:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
 .ans-row{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
 .ans-row input{flex:1 1 240px;min-width:0;height:48px;background:#090e11;border:1px solid #e5b65470;color:#fff;padding:0 14px;font-family:var(--mono);font-size:18px;letter-spacing:.04em}
 .ans-row input:focus{border-color:var(--cyan);outline:none;box-shadow:0 0 0 2px #00dce81e}
@@ -1471,7 +1475,7 @@ S('bits','o_ones','Einsen im Maskenoktett',1,lv=>{
 });
 S('bits','o_and','Bitweises UND (AND)',1,lv=>{
  const m=pick(MASKV.slice(0,7)),a=rint(1,254),r=a&m;
- return {kind:'dec',key:'oa'+a+'_'+m,prompt:P('Verknüpfe die beiden Zahlen bitweise mit UND: '+V(a)+' AND '+V(m)+'. Schreib das Ergebnis als Dezimalzahl.','Schreib beide Zahlen binär untereinander. Nur wo bei <strong>beiden</strong> eine 1 steht, kommt eine 1 heraus. Welche Dezimalzahl ergibt '+V(a)+' UND '+V(m)+'?'),answer:r,
+ return {kind:'dec',andOperands:[a,m],key:'oa'+a+'_'+m,prompt:P('Verknüpfe die beiden Zahlen bitweise mit UND: '+V(a)+' AND '+V(m)+'. Schreib das Ergebnis als Dezimalzahl.','Schreib beide Zahlen binär untereinander. Nur wo bei <strong>beiden</strong> eine 1 steht, kommt eine 1 heraus. Welche Dezimalzahl ergibt '+V(a)+' UND '+V(m)+'?'),answer:r,
   why:'<div class="calc">    '+binRaw(a,8)+'  ('+a+')\nAND '+binRaw(m,8)+'  ('+m+')\n    ────────\n    '+binRaw(r,8)+'  ('+r+')</div>'+W(['Nur wo beide Bits 1 sind, bleibt eine 1 stehen.','Ergebnis: <b>'+r+'</b>. Genau so rechnet ein Router die Netz-ID aus: IP AND Maske.']),
   diag:v=>v===a?'Das ist die Zahl selbst. Durch AND mit der Maske fallen die hinteren Bits weg.':v===(a|m)?'Das ist ODER (OR), nicht UND.':v===m?'Das ist der Maskenwert. Vergleiche Bit für Bit.':''};
 });
@@ -1967,12 +1971,19 @@ function diagOf(t,p){if(!t.diag||!p||!p.valid||p.ok)return '';try{const d=t.diag
 /* ================= Aufgabe anzeigen ================= */
 let uid=0,lastTask=null;
 function qhelp(t,id){return t.plain?' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'tip"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'tip"><strong>Einfach gesagt:</strong> '+t.plain+'</span></span>':''}
+function andWork(t){
+ if(!t.andOperands)return '';
+ const labels=t.andOperands.map(n=>n+' → binär').concat('AND-Ergebnis → binär');
+ return '<fieldset class="and-work"><legend>Rechenweg (freiwillig)</legend>'+labels.map((label,i)=>
+  '<label>'+label+'<input type="text" inputmode="numeric" autocomplete="off" spellcheck="false" maxlength="9" placeholder="□□□□ □□□□" value="'+esc(t.andNotes?.[i]||'')+'"></label>'
+ ).join('')+'</fieldset>';
+}
 function renderTask(host,t,o){
  o=o||{};lastTask=t;const id='in'+(++uid);
  let h='<p class="task-prompt">'+t.prompt+qhelp(t,id)+'</p>';
  h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+'</div>';
  if(t.kind==='mc')h+='<div class="options" role="group" aria-label="Antwort wählen">'+t.options.map((x,i)=>'<button type="button" class="opt" data-v="'+i+'"><span class="key">'+'ABCD'[i]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div>';
- else h+='<div class="ans-row" data-r="form"><label class="sr-only" for="'+id+'">Deine Antwort</label><input id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+PH[t.kind]+'"><button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+(t.fmt||FMT[t.kind])+'</p>';
+ else h+=andWork(t)+'<div class="ans-row" data-r="form"><label class="'+(t.andOperands?'':'sr-only')+'" for="'+id+'">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+PH[t.kind]+'"><button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+(t.fmt||FMT[t.kind])+'</p>';
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
  host.innerHTML=h;
@@ -1984,7 +1995,8 @@ function renderTask(host,t,o){
  function finish(ok,given,parsed){
   done=true;
   host.querySelectorAll('.opt').forEach(b=>{b.disabled=true;const v=Number(b.dataset.v);if(v===t.answer)b.classList.add('is-right');else if(v===given)b.classList.add('is-wrong')});
-  const inp=host.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
+  host.querySelectorAll('.and-work input').forEach(input=>{input.disabled=true});
+  const inp=q('form')?.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
   res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(ok?'':diagOf(t,parsed))+(o.short?'':'<div class="why"><div class="why-h">RECHENWEG</div>'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
@@ -2199,8 +2211,11 @@ function renderExamQ(){
  $('examPos').textContent='AUFGABE '+String(i+1).padStart(2,'0')+' / '+ex.tasks.length;$('examPts').textContent=CATNAME[t.cat].toUpperCase()+' · '+t.pts+' PUNKTE';
  let h='<p class="task-prompt">'+t.prompt+'</p>';
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
- else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
+ else h+=andWork(t)+'<div class="ans-row"><label class="'+(t.andOperands?'':'sr-only')+'" for="exIn">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
+ $('examQ').querySelectorAll('.and-work input').forEach((input,index)=>input.addEventListener('input',()=>{
+  t.andNotes??=[];t.andNotes[index]=input.value;
+ }));
  window.dtpMountCalculator?.($('examQ'),t,'subnet');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
