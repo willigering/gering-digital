@@ -449,10 +449,22 @@ function learner_inject_sync(string $html,string $slug,string $file,?string $ver
         }
     }
     // Imported versions receive the same exercise focus as standalone modules.
-    if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-UEBUNGSFOKUS START -->')
+    // Already embedded blocks are refreshed in place, so fixes reach published versions without reimport.
+    if (str_contains($html, 'class="area-tabs"')
         && is_file(__DIR__.'/tools/module-focus.css') && is_file(__DIR__.'/tools/module-focus.js')) {
         $block="<!-- DTP-UEBUNGSFOKUS START -->\n<style>\n".file_get_contents(__DIR__.'/tools/module-focus.css')."\n</style>\n<script>\n"
             .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-focus.js'))."\n</script>\n<!-- DTP-UEBUNGSFOKUS END -->\n";
+        if (str_contains($html, '<!-- DTP-UEBUNGSFOKUS START -->')) {
+            $html=preg_replace_callback('~<!-- DTP-UEBUNGSFOKUS START -->.*?<!-- DTP-UEBUNGSFOKUS END -->\n?~s', static fn(): string => $block, $html, 1) ?? $html;
+        } else {
+            $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
+        }
+    }
+    // Gemeinsame Handy-Optimierung: immer die aktuelle Fassung, auch für ältere importierte Versionen.
+    if (str_contains($html, 'class="area-tabs"') && is_file(__DIR__.'/tools/module-mobile.css') && is_file(__DIR__.'/tools/module-mobile.js')) {
+        $html=preg_replace('~<!-- DTP-HANDY START -->.*?<!-- DTP-HANDY END -->\n?~s', '', $html) ?? $html;
+        $block="<!-- DTP-HANDY START -->\n<style>\n".rtrim((string)file_get_contents(__DIR__.'/tools/module-mobile.css'))."\n</style>\n<script>\n"
+            .str_ireplace('</script','<\\/script',rtrim((string)file_get_contents(__DIR__.'/tools/module-mobile.js')))."\n</script>\n<!-- DTP-HANDY END -->\n";
         $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
     }
     $html=str_replace('Offline · ohne Login', 'Lernen · Üben · Verstehen', $html);

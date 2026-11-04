@@ -153,6 +153,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .footer-brand small,.dtp-footer small{display:block;color:#91a3ac;font-size:10px;margin-top:4px}
 .footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
 .footer-links a:hover{color:var(--goldlite)}
+@media (pointer:coarse){.footer-links{row-gap:4px}.footer-links a{display:inline-block;padding:10px 0}}
 /* Der bestehende ruhige Kartenfokus: getrennt von Parallax und Einblendungen. */
 .dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;visibility:hidden;contain:layout style}
 .dtp-focus-overlay.is-rendering{visibility:visible}
