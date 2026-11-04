@@ -9,6 +9,9 @@ header('X-Frame-Options: DENY');
 header('Referrer-Policy: same-origin');
 
 $learner=learner_current();
+$revealId=$_SESSION['dtp_highscore_reveal']??null;
+unset($_SESSION['dtp_highscore_reveal']);
+$reveal=$learner && $revealId===(int)$learner['id'];
 $rows=[];$me=null;$rank=0;
 if ($learner) {
     $id=(int)$learner['id'];
@@ -31,6 +34,7 @@ $total=count(ach_catalog());
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
   <script src="profiles.js" defer></script>
+  <?php if($reveal): ?><script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script><?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
 </head>
 <body class="konto-page highscore-page">
@@ -63,7 +67,7 @@ $total=count(ach_catalog());
     <thead><tr><th scope="col">Platz</th><th scope="col">Benutzername</th><th scope="col">Level</th><th scope="col" class="num">XP</th><th scope="col">Achievements</th></tr></thead>
     <tbody>
     <?php foreach($rows as $r): $self=(int)$r['id']===(int)$learner['id']; ?>
-      <tr<?=$self?' class="is-self"':''?>>
+      <tr<?=$self?' class="is-self"':''?><?=$self&&$reveal?' data-highscore-reveal':''?>>
         <td class="hs-rank"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:$r['rank']?></td>
         <td class="hs-name"><button type="button" class="text-link profile-open" data-profile="<?=(int)$r['id']?>"><?=e($r['username'])?></button> <span class="showcase-inline"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><?php if($self): ?> <small>(du)</small><?php endif; ?></td>
         <td class="hs-level"><b><?=(int)$r['level']?></b> <span><?=e($r['title'])?></span></td>
