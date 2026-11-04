@@ -168,8 +168,16 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $topic=$module['topic']??dtp_topic($module);
     $preview=dtp_preview_resolve($module);
     $title=(string)($module['title']??'');
-    // Formelles Thema als Etikett über dem (gern witzigen) Titel, sonst die Themengruppe.
     $subject=trim((string)($module['subject']??''));
+    $category=$topic[1];
+    $number=$topic[2];
+    if (($module['slug']??'')==='f2-kalkulation') {
+        $category='Kalkulation & Beschaffung';
+        $subject='Angebotsvergleich';
+    } elseif (($module['slug']??'')==='a1-zahlensysteme') {
+        $category='Grundlagen';
+        $number='01';
+    }
     $description=dtp_module_description($module);
     $tag=$progress!==null?'article':($link?'a':'div');
     $href=e($base.rawurlencode((string)($module['slug']??'')).'/');
@@ -185,8 +193,10 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
         $symbols=['subnet'=>'01/10','netzwerk'=>'⌘','sicherheit'=>'⌁','pruefung'=>'90:00','sonstiges'=>'</>'];
         $html.='<span class="module-art-symbol" aria-hidden="true">'.e($symbols[$topic[0]]??'</>').'</span>';
     }
-    $html.='<span class="module-art-number">'.e($topic[2]).'</span></div>';
-    $html.='<div class="module-body"><span class="module-category"><i></i>'.e($subject!==''?$subject:$topic[1]).'</span>';
+    $html.='</div><div class="module-body"><span class="module-category">'.e($category).'</span>';
+    if ($subject!=='' && $subject!==$category) {
+        $html.='<span class="module-subtopic"><span class="module-number">'.e($number).'</span>'.e($subject).'</span>';
+    }
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
     if ($progress!==null) $html.=dtp_card_progress($progress);
