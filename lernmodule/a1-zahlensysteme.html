@@ -684,7 +684,7 @@ body.dtp-exercise-open{overflow:hidden}
     <section id="ch2" class="panel cy">
       <div class="chapter-head"><span class="ch-no">02</span><div><h3>Binär ↔ Dezimal</h3><p>Ein Weg hin, zwei Wege zurück. Alle drei musst du im Schlaf können.</p></div></div>
       <h4>Binär → Dezimal: Stellenwerte addieren</h4>
-      <p>Schreib die Stellenwerte über die Bits und addiere alle Stellen, an denen eine 1 steht. Beispiel <span class="val">1011 0110₂</span>:</p>
+      <p>Schreib die Stellenwerte über die Bits. Steht unter einem Wert eine 1, nimmst du ihn mit. Steht dort eine 0, bleibt er liegen. So rechnest du <span class="val">1011 0110₂</span>:</p>
       <div class="calc">Stellenwert  128  64  32  16 │  8   4   2   1
 Bit            1   0   1   1 │  0   1   1   0
                128 + 32 + 16 + 4 + 2 = 182</div>
@@ -725,7 +725,7 @@ Ergebnis: 1011 0110</div>
 
     <section id="ch3" class="panel cy">
       <div class="chapter-head"><span class="ch-no">03</span><div><h3>Hexadezimal und Oktal</h3><p>Die Kurzschrift für Bitmuster. Vier Bit werden zu einem Zeichen.</p></div></div>
-      <p>Hexadezimal hat die Basis 16. Weil es nur zehn Ziffern gibt, stehen <strong>A bis F für 10 bis 15</strong>. Der große Vorteil: <strong>Eine Hex-Ziffer entspricht genau 4 Bit</strong> (einem Nibble), ein Byte sind also genau zwei Hex-Ziffern. Darum lassen sich lange Bitmuster in Hex viel kürzer und fehlerärmer schreiben.</p>
+      <p>Schreib 1111 1111 auf einen Zettel. Daneben schreibst du FF. Beides steht für denselben Wert. Bei Hex stehen <strong>A bis F für 10 bis 15</strong>, weil das System zur Basis 16 sechzehn Ziffern braucht. <strong>Eine Hex-Ziffer entspricht genau 4 Bit</strong>, also einem Nibble. Zwei Hex-Ziffern ergeben ein Byte. Beim Abschreiben einer MAC-Adresse reicht der Ärger mit den Doppelpunkten schon.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Hex</th><th>Dez</th><th class="m">Binär</th><th>Hex</th><th>Dez</th><th class="m">Binär</th></tr></thead><tbody id="hexTable"></tbody></table></div>
       <h4>Binär ↔ Hex: in Vierergruppen denken</h4>
       <p>Teile die Bits <strong>von rechts</strong> in Vierergruppen, fülle links bei Bedarf mit Nullen auf und übersetze jede Gruppe einzeln. Rückwärts genauso: Jede Hex-Ziffer wird zu vier Bit.</p>
@@ -747,7 +747,7 @@ Ergebnis: 1011 0110</div>
     </section>
 
     <section id="ch4" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Rechnen mit Binärzahlen und Logik</h3><p>Wie die CPU addiert und warum AND dein bester Freund beim Subnetting ist.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Rechnen mit Binärzahlen und Logik</h3><p>Wie beim schriftlichen Addieren gibt es einen Übertrag. Binär kommt er schon bei 1 + 1. Danach siehst du, wie AND beim Subnetting die Hostbits ausblendet.</p></div></div>
       <div class="two">
         <div class="box"><h4>Addition: vier Regeln</h4><p class="mono">0 + 0 = 0<br>0 + 1 = 1<br>1 + 1 = 0, Übertrag 1<br>1 + 1 + 1 (Übertrag) = 1, Übertrag 1</p></div>
         <div class="box"><h4>Schieben (Shift)</h4><p><strong>Links um 1</strong> = mal 2, <strong>rechts um 1</strong> = ganzzahlig durch 2. Was rechts rausfällt, ist weg. Links um 3 ist also mal 8.</p></div>
@@ -780,7 +780,7 @@ Ergebnis: 1011 0110</div>
 
     <section id="ch5" class="panel cy">
       <div class="chapter-head"><span class="ch-no">05</span><div><h3>Negative Zahlen: das Zweierkomplement</h3><p>Wie ein Computer ohne Minuszeichen trotzdem ins Minus kommt.</p></div></div>
-      <p>Ein Bitmuster hat kein Minuszeichen. Man muss also festlegen, wie negative Zahlen aussehen. Drei Ideen gab es, durchgesetzt hat sich das <strong>Zweierkomplement</strong>, weil die CPU damit Addition und Subtraktion mit demselben Addierwerk erledigen kann.</p>
+      <p>Auf Papier schreibst du −5. Im Speicher stehen nur Nullen und Einsen. Es braucht also eine Regel, welche Bitmuster für negative Zahlen stehen. Die Tabelle zeigt drei Varianten. Beim <strong>Zweierkomplement</strong> kann die CPU für Addition und Subtraktion dasselbe Addierwerk nutzen.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Verfahren</th><th>So geht’s</th><th>−5 mit 8 Bit</th><th>Problem</th></tr></thead><tbody>
         <tr><td>Vorzeichen und Betrag</td><td>MSB = Vorzeichen, Rest = Betrag</td><td class="m">1000 0101</td><td>Es gibt +0 und −0, Rechnen ist umständlich</td></tr>
         <tr><td>Einerkomplement</td><td>Alle Bits invertieren</td><td class="m">1111 1010</td><td>Ebenfalls zwei Nullen</td></tr>
@@ -810,7 +810,7 @@ Ergebnis: 1011 0110</div>
 
     <section id="ch6" class="panel cy">
       <div class="chapter-head"><span class="ch-no">06</span><div><h3>Einheiten: kB, KiB und der Festplatten-Schwund</h3><p>Warum deine neue 2-TB-Platte nach weniger aussieht und niemand dich betrogen hat.</p></div></div>
-      <p><strong>b</strong> steht für Bit, <strong>B</strong> für Byte, und 1 Byte = 8 Bit. Für große Mengen gibt es zwei Präfix-Familien, und genau da passieren die meisten Fehler:</p>
+      <p><strong>b</strong> steht für Bit, <strong>B</strong> für Byte, und 1 Byte = 8 Bit. Für große Mengen gibt es zwei Zählweisen. Die eine springt in Tausenderschritten, die andere in Schritten von 1.024. Das kleine i in KiB macht deshalb einen Unterschied, auch wenn es auf der Packung kaum Platz gebraucht hätte.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>SI (dezimal)</th><th>Faktor</th><th>IEC (binär)</th><th>Faktor</th><th>Unterschied</th></tr></thead><tbody>
         <tr><td class="m">kB (Kilobyte)</td><td class="m">10³ = 1.000</td><td class="m">KiB (Kibibyte)</td><td class="m">2¹⁰ = 1.024</td><td class="m">2,4 %</td></tr>
         <tr><td class="m">MB (Megabyte)</td><td class="m">10⁶</td><td class="m">MiB (Mebibyte)</td><td class="m">2²⁰ = 1.048.576</td><td class="m">4,9 %</td></tr>
@@ -837,7 +837,7 @@ Ergebnis: 1011 0110</div>
 
     <section id="ch7" class="panel cy">
       <div class="chapter-head"><span class="ch-no">07</span><div><h3>Datenrate und Übertragungszeit</h3><p>„Wie lange dauert der Download?“ ist eine der Lieblingsfragen der Prüfung.</p></div></div>
-      <p>Datenraten werden in <strong>Bit pro Sekunde</strong> angegeben, und ihre Präfixe sind <strong>immer dezimal</strong>: 1 Mbit/s = 1.000.000 bit/s. Dateigrößen stehen dagegen meist in Byte. Genau dieser Wechsel von Byte zu Bit ist die Stelle, an der Punkte verloren gehen.</p>
+      <p>Auf dem Tarif steht Mbit/s, neben der Datei steht oft MB. Das große B bedeutet Byte, das kleine b Bit. Bring zuerst beides auf dieselbe Einheit. Bei der Datenrate sind die Präfixe dezimal. 1 Mbit/s sind 1.000.000 bit/s. Wer MB und Mbit gleichsetzt, hat plötzlich eine achtmal schnellere Leitung. Leider nur im Rechenheft.</p>
       <div class="calc">Zeit        = Datenmenge [bit] : Datenrate [bit/s]
 Datenmenge  = Datenrate × Zeit
 Datenrate   = Datenmenge : Zeit</div>
@@ -865,7 +865,7 @@ Zeit:       34.359.738.368 : 50.000.000 = 687,19 s ≈ 11,45 min</div>
     </section>
 
     <section id="ch8" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">08</span><div><h3>Speicherbedarf: Text, Bild, Audio, Video</h3><p>Wie groß wird das? Immer dieselbe Idee: Anzahl × Bit pro Stück.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">08</span><div><h3>Speicherbedarf: Text, Bild, Audio, Video</h3><p>Zähle zuerst, was gespeichert wird. Beim Bild sind das die Pixel, bei Audio die Abtastwerte. Danach rechnest du mit der Bitzahl pro Stück.</p></div></div>
       <h4>Text und Zeichenkodierung</h4>
       <div class="table-wrap"><table class="t"><thead><tr><th>Kodierung</th><th>Bit/Byte pro Zeichen</th><th>Umfang</th></tr></thead><tbody>
         <tr><td>ASCII</td><td>7 Bit (gespeichert in 1 Byte)</td><td>128 Zeichen, keine Umlaute</td></tr>
@@ -1124,7 +1124,7 @@ S('basis','b_need','Mindestanzahl Bit',1,lv=>{
 });
 S('basis','b_place','Stellenwerte',1,lv=>{
  const b=pick([2,2,8,16,16,10]);const k=lv===1?rint(1,3):rint(2,b===2?9:4);
- return {kind:'dec',key:'bp'+b+k,prompt:P('Welchen <strong>Stellenwert</strong> hat im '+SYS[b]+' die '+ORD[k]+' Stelle von rechts?','Jede Stelle einer Zahl hat einen Wert. '+(b===10?'Im Binärsystem sind die Stellen von rechts 1, 2, 4, 8 … wert.':'Im Dezimalsystem sind die Stellen von rechts 1, 10, 100 … wert (Einer, Zehner, Hunderter).')+' Wie viel ist im <strong>'+SYS[b]+'</strong> die <strong>'+ORD[k]+' Stelle von rechts</strong> wert?'),answer:Math.pow(b,k),why:'Die Stelle ganz rechts hat den Wert '+b+'⁰ = 1. Die '+ORD[k]+' Stelle von rechts hat den Exponenten '+k+': '+b+sup(k)+' = <b>'+gi(Math.pow(b,k))+'</b>.'};
+ return {kind:'dec',key:'bp'+b+k,prompt:P('Welchen <strong>Stellenwert</strong> hat im '+SYS[b]+' die '+ORD[k]+' Stelle von rechts?','Ganz rechts hat die Stelle den Wert 1. Für jeden Schritt nach links multiplizierst du den Stellenwert mit der Basis '+b+'. Wie viel ist im <strong>'+SYS[b]+'</strong> die <strong>'+ORD[k]+' Stelle von rechts</strong> wert?'),answer:Math.pow(b,k),why:'Die Stelle ganz rechts hat den Wert '+b+'⁰ = 1. Die '+ORD[k]+' Stelle von rechts hat den Exponenten '+k+': '+b+sup(k)+' = <b>'+gi(Math.pow(b,k))+'</b>.'};
 });
 S('basis','b_digits','Ziffernvorrat & Begriffe',1,lv=>{
  const Q=[
@@ -1428,7 +1428,7 @@ const HINT={
  d2b:'Geh die Zweierpotenzen von groß nach klein durch: Passt sie in den Rest, schreib eine 1 und zieh sie ab, sonst eine 0.',
  hex:'Eine Hex-Ziffer sind genau 4 Bit, A = 10 bis F = 15. Gruppen immer von rechts bilden. Bei Oktal sind es 3 Bit pro Ziffer.',
  calc:'Spaltenweise von rechts rechnen. AND: nur 1 und 1 ergibt 1. OR: mindestens eine 1. XOR: verschieden ergibt 1. Schieben: mal oder durch 2.',
- neg:'Zweierkomplement: Betrag binär schreiben, alle Bits invertieren, 1 addieren. Beim Zurückrechnen zählt das MSB −128.',
+ neg:'Zweierkomplement: Betrag binär schreiben, alle Bits invertieren, 1 addieren. Beim Zurückrechnen mit 8 Bit zählt die linke Stelle −128.',
  units:'SI-Präfixe (k, M, G, T) sind Faktor 1.000, IEC-Präfixe (Ki, Mi, Gi, Ti) Faktor 1.024. Gemischte Familien: erst in Byte umrechnen.',
  rate:'Datenmenge in Bit (Byte mal 8), Datenrate in bit/s (immer dezimal), dann teilen. Am Ende in die gefragte Zeiteinheit.',
  store:'Anzahl × Bit pro Stück ergibt Bit, durch 8 ergibt Byte, dann in die gefragte Einheit umrechnen.'
@@ -1454,64 +1454,64 @@ const STAGES=[
   example:'Eine Firma hat 300 Beschäftigte und will jeder Person eine eigene Binärnummer geben. Wie viele Bit braucht sie mindestens?',
   steps:['Gesucht ist das kleinste n, für das 2ⁿ mindestens 300 ist.','2⁸ = 256. Das reicht nicht, 44 Leute hätten keine Nummer.','2⁹ = 512. Das reicht, sogar mit Platz für 212 Neueinstellungen.','Ergebnis: <strong>9 Bit</strong>. Die größte darstellbare Nummer ist 2⁹ − 1 = 511.']},
  {title:'Binär → Dezimal',cat:'b2d',ch:'ch2',goal:'Jede Binärzahl bis 8 Bit (und darüber) sicher ins Dezimalsystem übersetzen.',
-  intro:'<p>Eine Binärzahl liest du wie eine Dezimalzahl, nur mit anderen Stellenwerten. Von rechts: 1, 2, 4, 8, 16, 32, 64, 128. Steht an einer Stelle eine 1, zählt ihr Stellenwert. Steht dort eine 0, zählt er nicht.</p>',
+  intro:'<p>Schreib die Stellenwerte über die Bits. Ganz rechts steht die 1, links davon 2, 4, 8 und so weiter. Jetzt addierst du nur die Stellen, an denen im Bitmuster eine 1 steht. Die Nullen sind hier wie leere Kartons beim Umzug. Sie belegen Platz, aber du trägst keinen Inhalt.</p>',
   visual:'<div class="calc">128  64  32  16 │  8   4   2   1\n  1   1   0   0 │  1   0   1   0</div>',
   memo:'<strong>Rechts beginnt es mit 1.</strong> Nur die Einsen zählen. Gerade Zahlen enden immer auf 0.',
   example:'Welchen Dezimalwert hat 1100 1010₂?',
   steps:['Stellenwerte über die Bits schreiben: 128 64 32 16 │ 8 4 2 1.','Einsen stehen unter 128, 64, 8 und 2.','Addieren: 128 + 64 = 192, plus 8 = 200, plus 2 = 202.','Ergebnis: <strong>202</strong>. Probe: Das letzte Bit ist 0, also gerade. Passt.']},
  {title:'Dezimal → Binär',cat:'d2b',ch:'ch2',goal:'Dezimalzahlen mit der Subtraktions- oder Restwertmethode in Binär umwandeln, auch für Masken.',
-  intro:'<p>Für den Rückweg gibt es zwei Methoden. Bei der <strong>Subtraktionsmethode</strong> gehst du die Stellenwerte von groß nach klein durch und fragst jedes Mal: Passt das noch rein? Bei der <strong>Restwertmethode</strong> teilst du immer wieder durch 2 und liest die Reste von unten nach oben.</p>',
+  intro:'<p>Du willst eine Dezimalzahl aus Zweierpotenzen zusammensetzen. Geh von der größten Stelle nach rechts: Passt ihr Wert noch in den Rest, schreib 1 und zieh ihn ab. Passt er nicht, schreib 0. Alternativ teilst du wiederholt durch 2 und notierst die Reste. Der erste Rest gehört ganz nach rechts. Deshalb liest du die Liste am Ende von unten nach oben.</p>',
   visual:'<div class="calc">157 : 2 = 78 R 1   ↑\n 78 : 2 = 39 R 0   │\n 39 : 2 = 19 R 1   │\n 19 : 2 =  9 R 1   │ von unten\n  9 : 2 =  4 R 1   │ nach oben\n  4 : 2 =  2 R 0   │\n  2 : 2 =  1 R 0   │\n  1 : 2 =  0 R 1   │ → 1001 1101</div>',
   memo:'Subtraktion: <strong>passt → 1 und abziehen, passt nicht → 0</strong>. Restwert: <strong>von unten nach oben lesen</strong>.',
   example:'Wandle 157 in eine Binärzahl um (Subtraktionsmethode).',
   steps:['128 passt in 157: <strong>1</strong>, Rest 29.','64 passt nicht in 29: <strong>0</strong>. 32 passt nicht: <strong>0</strong>.','16 passt: <strong>1</strong>, Rest 13. 8 passt: <strong>1</strong>, Rest 5.','4 passt: <strong>1</strong>, Rest 1. 2 passt nicht: <strong>0</strong>. 1 passt: <strong>1</strong>, Rest 0.','Ergebnis: <strong>1001 1101</strong>. Probe: 128 + 16 + 8 + 4 + 1 = 157.']},
  {title:'Hexadezimal & Oktal',cat:'hex',ch:'ch3',goal:'Zwischen Binär, Hex, Dezimal und Oktal wechseln und Hex im Netzwerk lesen (MAC, IPv6, Farben, chmod).',
-  intro:'<p>Hexadezimal ist die Kurzschrift für Bitmuster. <strong>Eine Hex-Ziffer steht für genau 4 Bit.</strong> Darum ist Binär ↔ Hex so bequem: in Vierergruppen teilen und jede Gruppe einzeln übersetzen. A bis F stehen für 10 bis 15. Oktal funktioniert genauso, nur mit 3 Bit pro Ziffer.</p>',
+  intro:'<p>In einem Ticket steht FF. Das sind zwei Hex-Ziffern für acht Bits, nämlich 1111 1111. Weniger abzutippen, weniger Gelegenheit, eine Eins zu vergessen. A bis F stehen für 10 bis 15. Für Hex bildest du Vierergruppen von rechts. Bei Oktal sind es Dreiergruppen.</p>',
   visual:'<div class="calc">0=0000  1=0001  2=0010  3=0011  4=0100  5=0101  6=0110  7=0111\n8=1000  9=1001  A=1010  B=1011  C=1100  D=1101  E=1110  F=1111</div>',
   memo:'<strong>Gruppen von rechts bilden</strong>, links mit Nullen auffüllen. Hex → Dez: Ziffern mal 1, 16, 256, 4.096.',
   example:'Wandle 1101 0111 1010₂ in Hex und dann in Dezimal um.',
   steps:['Von rechts in Vierergruppen teilen: 1101 │ 0111 │ 1010.','Einzeln übersetzen: 1101 = D, 0111 = 7, 1010 = A → <strong>0xD7A</strong>.','In Dezimal: D · 256 + 7 · 16 + A · 1 = 13 · 256 + 112 + 10.','3.328 + 112 + 10 = <strong>3.450</strong>.']},
  {title:'Rechnen & Logik',cat:'calc',ch:'ch4',goal:'Binär addieren, Überläufe erkennen, schieben und mit AND, OR, XOR und NOT verknüpfen.',
-  intro:'<p>Binär rechnen ist einfacher als dezimal, weil es nur vier Regeln gibt. Für die Praxis noch wichtiger sind die <strong>logischen Verknüpfungen</strong>: Mit AND berechnet jeder Router die Netzadresse, mit NOT entsteht die Wildcard-Maske, und XOR steckt in der RAID-5-Parität.</p>',
+  intro:'<p>Bei 1 + 1 schreibst du im Binärsystem eine 0 und nimmst eine 1 mit in die nächste Spalte. Wie beim schriftlichen Addieren, nur dass der Übertrag schon bei zwei kommt. Bei <strong>AND</strong> schaust du je Stelle auf zwei Bits. Nur wenn beide 1 sind, bleibt eine 1. So blendet eine IPv4-Subnetzmaske die Hostbits aus. NOT dreht alle Bits um, zum Beispiel für die Wildcard. XOR steckt etwa in der RAID-5-Parität.</p>',
   visual:'<div class="calc">A B │ AND OR XOR\n0 0 │  0   0   0\n0 1 │  0   1   1\n1 0 │  0   1   1\n1 1 │  1   1   0</div>',
   memo:'<strong>AND maskiert, OR setzt, XOR kippt, NOT dreht.</strong> Links schieben = mal 2, rechts schieben = durch 2.',
   example:'Ein IP-Oktett ist 200, die Maske ist 224. Welches Oktett hat die Netzadresse?',
   steps:['200 binär: 1100 1000. 224 binär: 1110 0000.','Bit für Bit AND: Nur wo oben <em>und</em> unten eine 1 steht, bleibt eine 1.','1100 1000 AND 1110 0000 = 1100 0000.','Ergebnis: <strong>192</strong>. Die Maske hat die hinteren fünf Bits abgeschnitten.']},
  {title:'Negative Zahlen',cat:'neg',ch:'ch5',goal:'Negative Zahlen im Zweierkomplement darstellen, zurückrechnen und Wertebereiche kennen.',
-  intro:'<p>Ein Bitmuster hat kein Minuszeichen. Im <strong>Zweierkomplement</strong> bekommt das höchste Bit einen negativen Stellenwert: Bei 8 Bit zählt es −128 statt +128. So kann die CPU mit demselben Addierwerk auch subtrahieren.</p>',
+  intro:'<p>Der Rechner sieht acht Bits und kein Minuszeichen. Im <strong>Zweierkomplement</strong> zählt die linke Stelle bei acht Bit als −128. Die anderen Stellen zählen wie gewohnt positiv. So kann die CPU mit demselben Addierwerk addieren und subtrahieren. Das Minuszeichen auf der Tastatur bleibt trotzdem dran.</p>',
   visual:'<div class="calc">−128  64  32  16 │  8   4   2   1\n   1   0   0   1 │  1   1   0   0   = −128 + 16 + 8 + 4 = −100</div>',
   memo:'<strong>Betrag binär → invertieren → plus 1.</strong> Wertebereich mit 8 Bit: −128 bis 127.',
   example:'Stelle −100 als 8-Bit-Zweierkomplement dar.',
   steps:['Betrag binär: 100 = 0110 0100.','Alle Bits invertieren: 1001 1011.','1 addieren: 1001 1100.','Ergebnis: <strong>1001 1100</strong>. Probe: −128 + 16 + 8 + 4 = −100.']},
  {title:'Einheiten: SI vs. IEC',cat:'units',ch:'ch6',goal:'kB und KiB auseinanderhalten, sicher umrechnen und den Festplatten-Schwund erklären.',
-  intro:'<p>Es gibt zwei Präfix-Familien. <strong>SI</strong> (k, M, G, T) rechnet mit Faktor 1.000, <strong>IEC</strong> (Ki, Mi, Gi, Ti) mit Faktor 1.024. Hersteller und Datenraten nutzen SI, Arbeitsspeicher und Windows rechnen binär. Wer beides mischt, rechnet über Byte.</p>',
+  intro:'<p>Du steckst einen USB-Stick mit 64 GB ein und siehst ungefähr 59,6. Bevor du beim Händler die fehlenden Gigabyte reklamierst, schau auf die Einheit. <strong>SI</strong> rechnet pro Stufe mit 1.000, <strong>IEC</strong> mit 1.024. Dieselbe Menge Byte sieht in GB und GiB unterschiedlich aus. Manche Anzeigen schreiben bei binärer Rechnung trotzdem „GB“.</p>',
   visual:'<div class="calc">1 kB = 1.000 B          1 KiB = 1.024 B\n1 MB = 1.000.000 B      1 MiB = 1.048.576 B\n1 GB = 10⁹ B            1 GiB = 1.073.741.824 B</div>',
   memo:'<strong>Gleiche Familie:</strong> Faktor pro Stufe. <strong>Gemischt:</strong> erst in Byte, dann weiter.',
   example:'Ein USB-Stick hat 64 GB. Wie viele GiB zeigt Windows an?',
   steps:['Hersteller rechnet dezimal: 64 GB = 64 · 10⁹ = 64.000.000.000 Byte.','Windows teilt durch 2³⁰ = 1.073.741.824.','64.000.000.000 : 1.073.741.824 = 59,6046…','Ergebnis: <strong>59,60 GiB</strong>. Windows schreibt „59,6 GB“. Gestohlen hat niemand etwas.']},
  {title:'Datenrate & Zeit',cat:'rate',ch:'ch7',goal:'Übertragungszeiten, nötige Datenraten und Datenmengen berechnen, auch mit gemischten Einheiten.',
-  intro:'<p>Datenraten stehen in <strong>Bit pro Sekunde</strong>, und zwar immer dezimal. Dateien stehen meistens in Byte. Darum lautet die wichtigste Regel: erst alles in Bit und bit/s umrechnen, dann teilen.</p>',
+  intro:'<p>Die Leitung hat 50 Mbit/s, die Datei ist 2,5 GB groß. Wenn du einfach 2,5 durch 50 teilst, wird der Download höchstens auf dem Papier schneller. Die Leitung zählt Bit, die Datei Byte. Rechne die Datei in Bit und die Rate in bit/s um. Dann teilst du die Datenmenge durch die Rate und erhältst Sekunden.</p>',
   visual:'<div class="calc">Zeit = Datenmenge [bit] : Datenrate [bit/s]</div>',
   memo:'<strong>Byte × 8 = Bit.</strong> Mbit/s = 10⁶ bit/s. Am Ende in die gefragte Zeiteinheit umrechnen.',
   example:'Ein Update mit 2,5 GB wird über eine 50-Mbit/s-Leitung geladen. Wie viele Minuten dauert das?',
   steps:['Datenmenge in Bit: 2,5 · 10⁹ Byte · 8 = 20 · 10⁹ bit.','Datenrate in bit/s: 50 · 10⁶ bit/s.','Teilen: 20 · 10⁹ : 50 · 10⁶ = 400 s.','In Minuten: 400 : 60 = <strong>6,67 min</strong>, also 6 Minuten 40 Sekunden.']},
  {title:'Speicherbedarf',cat:'store',ch:'ch8',goal:'Speicherbedarf von Text, Bildern, Audio und Video berechnen und Zeichenkodierungen kennen.',
-  intro:'<p>Fast jede Speicherfrage folgt demselben Muster: <strong>Anzahl × Bit pro Stück</strong>. Beim Bild ist die Anzahl die Pixelzahl, bei Audio die Zahl der Abtastwerte, bei Text die Zeichen. Danach durch 8 und in die gewünschte Einheit.</p>',
+  intro:'<p>Bei einem unkomprimierten Bild rechnest du Pixel mal Bit pro Pixel. Bei Audio nimmst du die Abtastwerte aller Kanäle und die Bitzahl je Abtastwert. Bei Text zählt die tatsächlich verwendete Kodierung. Danach rechnest du Bit in Byte um. „Sieht klein aus“ ist beim Speicherbedarf ungefähr so hilfreich wie „wiegt bestimmt nichts“ beim Umzug.</p>',
   visual:'<div class="calc">Bild:  Breite × Höhe × Farbtiefe\nAudio: Abtastrate × Bit × Kanäle × Sekunden\nVideo: Bild × Bilder pro Sekunde × Sekunden</div>',
   memo:'<strong>Erst Bit, dann Byte, dann Einheit.</strong> Bei „Wie viele passen drauf?“ immer abrunden.',
   example:'Ein Foto hat 4.000 × 3.000 Pixel und 24 Bit Farbtiefe. Wie viele MB belegt es unkomprimiert?',
   steps:['Pixel: 4.000 × 3.000 = 12.000.000.','Bit: 12.000.000 × 24 = 288.000.000 bit.','Byte: 288.000.000 : 8 = 36.000.000 B.','Ergebnis: <strong>36 MB</strong> (dezimal). In MiB wären es 34,33.']},
  {title:'Endgegner: alles gemischt',cat:'mix',ch:'ch9',goal:'Alle Themen durcheinander und auf Prüfungsniveau. Wer hier 8 von 10 schafft, ist bereit für den Prüfungsmodus.',
-  intro:'<p>Jetzt kommt alles gemischt, wie in der Prüfung. Kein Thema kündigt sich an, und die Aufgaben sind eine Stufe schwerer. Lies jede Aufgabe genau: Welche Einheit ist gefragt? Wie viele Nachkommastellen? Mit oder ohne Vorzeichen?</p>',
+  intro:'<p>In der gemischten Runde steht nicht über jeder Aufgabe, welchen Rechenweg du brauchst. Lies zuerst, was gesucht ist. Sekunden oder Minuten? Bit oder Byte? Mit oder ohne Vorzeichen? Eine richtige Zahl in der falschen Einheit ist wie eine richtige Hausnummer in der falschen Straße.</p>',
   visual:'<div class="calc">1. Was ist gegeben?  2. Was ist gesucht?  3. Welche Einheit?\n4. Rechnen.  5. Plausibel? (Größenordnung prüfen)</div>',
-  memo:'Prüfungs-Trick: <strong>Einheit unterstreichen</strong>, bevor du rechnest. Die Hälfte aller Fehler sind Einheitenfehler.',
+  memo:'Prüfungs-Trick: <strong>Einheit unterstreichen</strong>, bevor du rechnest. So fällt dir vor dem Rechnen auf, ob du zum Beispiel von Byte auf Bit wechseln musst.',
   example:'Ein Bild mit 800 × 600 Pixeln und 256 Farben wird über eine 2-Mbit/s-Leitung gesendet. Wie lange dauert das?',
   steps:['256 Farben brauchen 8 Bit Farbtiefe (2⁸ = 256).','Datenmenge: 800 × 600 × 8 = 3.840.000 bit.','Datenrate: 2 Mbit/s = 2.000.000 bit/s.','Zeit: 3.840.000 : 2.000.000 = <strong>1,92 s</strong>. Hier war gar kein Byte im Spiel, also auch kein × 8.']}
 ];
 
 /* ================= Sprüche ================= */
 const Q_OK=['Bit für Bit korrekt. Der Prozessor nickt anerkennend.','Sauber. Selbst das Paritätsbit hat nichts zu meckern.','Richtig! Irgendwo in einem Rechenzentrum klatscht ein Lüfter.','Läuft. Du rechnest schneller, als ein Windows-Update lädt.','Volltreffer. 1 für dich, 0 für die Verwirrung.','Korrekt. Binär gesehen eine glatte 1.','Stark. Der DAU in dir hat gerade gekündigt.','Exakt. So sieht es aus, wenn Neuronen sauber verkabelt sind.','Richtig. Dein Kopf hat soeben ein Firmware-Update erhalten.','Treffer! Kein Überlauf, kein Unterlauf, nur Durchblick.','Genau so. Das MSB deines Selbstbewusstseins ist jetzt gesetzt.','Korrekt. Die IHK hat kurz Angst bekommen.','Ja! So glatt wie eine frisch formatierte SSD.','Richtig. Hexen kannst du also auch.','Sitzt. Kein Bauchgefühl, nur Mathe.','Stimmt. Der Taschenrechner fühlt sich gerade überflüssig.','Ganz genau. Grünes Licht auf allen acht Bits.','Jawoll. Das war bytegenau.','Richtig. Aus Null Plan wird gerade Null und Eins Plan.','Perfekt. Wenn das so weitergeht, wird das ein True-Color-Ergebnis.'];
-const Q_BAD=['Knapp daneben ist auch vorbei. Sagt jedes Paritätsbit.','Nope. Da ist ein Bit umgekippt. Vermutlich deins.','Leider falsch. Aber Fehler sind nur Daten mit Lernpotenzial.','Daneben. Selbst ein Hub hätte das eher weitergeleitet als gelöst.','Nicht ganz. Der Rechenweg unten ist ab jetzt dein bester Freund.','Falsch, aber mutig. Mut gibt in der IHK leider keine Punkte.','Fast. Und fast ist im Binärsystem eine glatte 0.','Nein. Wer nie falsch liegt, übt nicht genug.','Error 404: Richtige Antwort nicht gefunden. Schau dir den Weg an.','Leider nein. Kurz durchatmen, Rechenweg lesen, nächste Runde.','Nicht ganz. Bits zählen ist wie Socken zählen: Eine fehlt immer.','Daneben. Das Gute: Jetzt weißt du, wo die Falle liegt.','Falsch. Bit und Byte sind übrigens keine Zwillinge.','Nope. Der Fehler sitzt meistens 40 cm vor dem Bildschirm. Diesmal auch.','Falsch. Kein Drama, der erste Computer konnte auch nicht sofort rechnen.','Nicht richtig. Aber du bist jetzt um genau eine Erfahrung reicher.'];
+const Q_BAD=['Knapp daneben ist auch vorbei. Sagt jedes Paritätsbit.','Noch nicht. Im Lösungsweg siehst du, an welcher Stelle sich die Rechnung ändert.','Leider falsch. Aber Fehler sind nur Daten mit Lernpotenzial.','Daneben. Selbst ein Hub hätte das eher weitergeleitet als gelöst.','Nicht ganz. Der Rechenweg unten ist ab jetzt dein bester Freund.','Falsch, aber mutig. Mut gibt in der IHK leider keine Punkte.','Fast. Und fast ist im Binärsystem eine glatte 0.','Nein. Wer nie falsch liegt, übt nicht genug.','Error 404: Richtige Antwort nicht gefunden. Schau dir den Weg an.','Leider nein. Kurz durchatmen, Rechenweg lesen, nächste Runde.','Nicht ganz. Bits zählen ist wie Socken zählen: Eine fehlt immer.','Daneben. Das Gute: Jetzt weißt du, wo die Falle liegt.','Falsch. Bit und Byte sind übrigens keine Zwillinge.','Nope. Der Fehler sitzt meistens 40 cm vor dem Bildschirm. Diesmal auch.','Falsch. Kein Drama, der erste Computer konnte auch nicht sofort rechnen.','Nicht richtig. Aber du bist jetzt um genau eine Erfahrung reicher.'];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat ein neues Bit gesetzt.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
 const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
 

@@ -53,3 +53,7 @@ PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und
 Willis Präzisierung: Alltagssprache und trockener Humor gehören in die Erklärung selbst. Die Pointe folgt aus dem Beispiel. B5 verwendet beim Vergleich von TCP und UDP im Lernpfad und im Nachschlagwerk „Eine halbe Datei ist so viel wert wie ein halbes Passwort“.
 
 Die Runde bearbeitet in jedem der neun Module zwei Lehrtextstellen oder Lehransichten. Themen sind Stellenwerte, OSI und Fehlersuche, das lokale Netzwerk, IPv4-Oktette, IPv6-Schreibweise, Transport, Personenbezug und Datenminimierung, Schutzziele und Risiko sowie Angebotsvergleich und Skonto. Überschriften, Aufgabenlogik und gespeicherte Fortschrittsdaten bleiben erhalten. Die vollständigen Durchläufe aller übrigen Inhaltsbereiche der acht offenen Module stehen weiterhin aus.
+
+### Vertiefter Durchlauf A1 · Zahlensysteme
+
+Alle zehn Einstiege im Lernpfad im Zusammenhang gelesen. Nach dem bereits überarbeiteten Einstieg zu Stellenwerten wurden die neun weiteren Lerntexte neu formuliert. Im Nachschlagwerk wurden ergänzend Erklärungen zu Umrechnungen, Logik, Zweierkomplement, Einheiten, Datenrate und Speicherbedarf bearbeitet. Die Rechenbeispiele bleiben als Bezug zu den Texten erhalten. Im Generator wurde der falsche Vergleich der Stellenwerte durch einen Hinweis ersetzt, der für jede Basis gilt. Der Hinweis zu −128 nennt jetzt ausdrücklich 8 Bit. Eine abwertende Rückmeldung wurde ersetzt. Die vollständige redaktionelle Durchsicht aller Aufgabenvarianten, Lösungsformulierungen und Rückmeldungen ist noch offen.
