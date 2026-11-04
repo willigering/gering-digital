@@ -52,6 +52,31 @@ foreach($catalog['motifs'] as $id=>$motif){
 }
 $hashes=array_map(fn($m)=>md5_file(__DIR__.'/../'.$m['src']),$catalog['motifs']);
 check(count(array_unique($hashes))===count($hashes),'Jedes Motiv ist ein eigenes Bild');
+// --- Persönliche Modulkacheln mit historischen Kontodaten ---
+require_once __DIR__.'/../achievements_lib.php';
+db()->exec("INSERT INTO learners(id,username,password_hash,recovery_hash,created_at) VALUES(42,'Retro','x','x','2026-11-01')");
+db()->prepare('INSERT INTO learner_stats(learner_id,best) VALUES(42,?)')
+    ->execute([json_encode(['osi'=>['m'=>[0],'c'=>7,'e'=>[30=>81]]])]);
+db()->exec("INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(42,'osi.kabel','2026-11-01')");
+$values=[
+    'osi-sprint-path-v1'=>json_encode(['st'=>[1=>['mastered'=>true]]]),
+    'osi-sprint-stats-v1'=>json_encode(['solved'=>9,'correct'=>8]),
+];
+$save=db()->prepare("INSERT INTO learner_progress(learner_id,storage_key,value,module_slug,updated_at) VALUES(42,?,?,'osi-sprint','2026-11-02')");
+foreach ($values as $key=>$value) $save->execute([$key,$value]);
+$beforeBest=ach_stats_row(42)['best'];
+$progress=ach_card_progress(42);
+check($progress['osi-sprint']['mastered']===[0,1] && $progress['osi-sprint']['correct']===8 && $progress['osi-sprint']['exams']===[30=>81],'Kachel verbindet alte Höchststände und gespeicherten Fortschritt');
+check($progress['osi-modell']===$progress['osi-sprint'] && !isset($progress['osi-beliebig']),'Nur ausdrücklich zugeordnete Modul-URLs erhalten Kontofortschritt');
+check(ach_stats_row(42)['best']===$beforeBest && xp_total(42)===0,'Katalogbesuch schreibt keinen Fortschritt und vergibt keine XP');
+$card=dtp_module_card(['slug'=>'osi-sprint','title'=>'OSI'], '../',true,$progress['osi-sprint']);
+check(str_contains($card,'<article') && str_contains($card,'<details') && str_contains($card,'2 / 10 Stufen') && str_contains($card,'30 Min. · 81 %') && str_contains($card,'Kabel steckt'),'Kachel zeigt aufklappbare Details mit Altfortschritt');
+
+$full=$progress['osi-sprint'];
+$full['mastered']=range(0,$full['stages']-1);
+check(str_contains(dtp_card_progress($full),'Lernpfad abgeschlossen'),'Vollständiger Lernpfad wird als abgeschlossen markiert');
+check(!str_contains(dtp_module_card(['slug'=>'osi-sprint','title'=>'OSI']),'module-progress'),'Gastkacheln bleiben ohne Kontofortschritt');
+
 $cases=[
  [['slug'=>'osi-sprint','title'=>'OSI Sprint','description'=>'Netzwerk-Schichten'],'osi-modell'],
  [['slug'=>'subnet-sprint','title'=>'Subnet Sprint','description'=>''],'ipv4-subnetting'],

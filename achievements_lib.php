@@ -220,6 +220,36 @@ function ach_module_state(array $values,array $module): array {
     }
     return $state;
 }
+/** Der Katalog liest den bisherigen Kontostand ohne eine XP-Auswertung auszulösen. */
+function ach_card_progress(int $learnerId): array {
+    $query=db()->prepare('SELECT best FROM learner_stats WHERE learner_id=?');
+    $query->execute([$learnerId]);
+    $saved=ach_json($query->fetchColumn() ?: null);
+    $values=learner_progress_state($learnerId)['values'];
+    $unlocked=ach_unlocked($learnerId);
+    $motifs=dtp_preview_catalog()['motifs'];
+    $catalog=ach_catalog();
+    $cards=[];
+    foreach (ach_modules() as $id=>$module) {
+        $state=ach_module_state($values,$module);
+        $best=ach_merge_best((array)($saved[$id]??[]),$state);
+        $earned=[];
+        foreach ($module['list'] as $achievement) {
+            if (isset($unlocked[$achievement[0]])) $earned[]=ach_public($catalog[$achievement[0]]);
+        }
+        $progress=[
+            'stages'=>$module['stages'],
+            'mastered'=>array_values(array_intersect($best['m'],range(0,$module['stages']-1))),
+            'correct'=>$best['c'],
+            'exams'=>array_intersect_key($best['e'],array_flip($module['exam_minutes']??[30,60,90])),
+            'earned'=>$earned,
+            'achievements'=>count($module['list']),
+        ];
+        // Historische URLs stehen in der expliziten Liste. Themenähnlichkeit allein reicht hier nicht.
+        foreach ($motifs[$module['motif']]['slugs']??[] as $slug) $cards[$slug]=$progress;
+    }
+    return $cards;
+}
 /** Gibt es irgendwo in der Liste $n gleiche Werte $value in Folge? */
 function ach_run(array $list,int $value,int $n): bool {
     $run=0;

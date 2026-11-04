@@ -47,3 +47,9 @@ Humor bleibt eine redaktionelle Einschätzung. Willis Rückmeldung ist die absch
 Willi hat den B5-Effekt abgenommen und die Aufnahme in den Workflow beauftragt. Projektanleitung, Redaktionsworkflow und AGENTS.md schreiben ihn für neue Module und den nächsten Durchlauf bestehender Module vor: gemeinsamer Fade von Blur, Abdunklung, reduzierter Helligkeit und Sättigung; Aufgabe und Rückweg bleiben scharf. Enthalten sind Referenzwerte, Fokus-/Scrollverhalten, Bereichswechsel, schnelle Richtungswechsel, mobile Abnahme und reduzierte Bewegung.
 
 PR #76 hat den Fokusdialog in alle neun bestehenden Moduldateien übernommen und die gemeinsamen Modul- und Browsertests erweitert. Die veralteten B5-Einzellösungen und ihre testspezifischen Selektoren werden nicht erneut eingespielt. B5-Textredaktion und die neuere Fokusfunktion werden auf dem aktuellen `main` gemeinsam integriert; öffentliche Auslieferung ist erst nach erfolgreicher Deploymentprüfung bestätigt.
+
+## Prüfungs- und Übungsfeedback (04.11.2026)
+
+Alle neun Repository-Module enthalten bereits humorvolles Aufgabenfeedback und Notenkommentare. Die mehrfach verwendeten Notensprüche wurden in A1, B1, B2, B3, B4, D1, D2 und F2 durch zum Thema passende Rückmeldungen ersetzt. B4 erhält außerdem ein eigenes Übungsfeedback. In A1, B1, B2, D1 und D2 wurden einzelne konstruierte oder gegen Lernende gerichtete Sprüche ersetzt. Das bereits redigierte B5 bleibt bei dieser Runde außen vor.
+
+Geprüfter Änderungsumfang: Feedbacktexte und deren Skriptsyntax. Dieser Durchlauf umfasst weder alle Lektionen und Nachschlagekapitel noch alle Fälle, Hinweise und Lösungen. Die vollständigen Durchläufe der acht Module bleiben in der Arbeitsliste offen.

@@ -161,16 +161,18 @@ function dtp_module_description(array $module): string {
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
-function dtp_module_card(array $module, string $base='../', bool $link=true): string {
+function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null): string {
     $topic=$module['topic']??dtp_topic($module);
     $preview=dtp_preview_resolve($module);
     $title=(string)($module['title']??'');
     // Formelles Thema als Etikett über dem (gern witzigen) Titel, sonst die Themengruppe.
     $subject=trim((string)($module['subject']??''));
     $description=dtp_module_description($module);
-    $tag=$link?'a':'div';
-    $attrs=$link?' href="'.e($base.rawurlencode((string)($module['slug']??'')).'/').'"':'';
-    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'" aria-label="'.e(($subject!==''?$subject.': ':'').$title).' – Lernmodul öffnen">';
+    $tag=$progress!==null?'article':($link?'a':'div');
+    $href=e($base.rawurlencode((string)($module['slug']??'')).'/');
+    $label=e(($subject!==''?$subject.': ':'').$title).' – Lernmodul öffnen';
+    $attrs=$tag==='a'?' href="'.$href.'" aria-label="'.$label.'"':'';
+    $html='<'.$tag.' class="module-card"'.$attrs.' style="--mod:'.e($preview['accent']).'" data-topic="'.e($topic[0]).'" data-search="'.e(dtp_lower($subject.' '.$title.' '.$description.' '.($module['slug']??'').' '.$topic[1])).'">';
     $html.='<div class="module-art'.($preview['src']!==''?' has-image':'').'">';
     if ($preview['src']!=='') {
         $srcset=$preview['small']!==''?' srcset="'.e($base.$preview['small']).' 640w, '.e($base.$preview['src']).' 1280w" sizes="(max-width: 610px) 92vw, (max-width: 1060px) 46vw, 380px"':'';
@@ -183,9 +185,50 @@ function dtp_module_card(array $module, string $base='../', bool $link=true): st
     $html.='<div class="module-body"><span class="module-category"><i></i>'.e($subject!==''?$subject:$topic[1]).'</span>';
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
-    $html.='<div class="module-footer"><span>Lernmodul öffnen</span><b aria-hidden="true">↗</b></div></div>';
+    if ($progress!==null) $html.=dtp_card_progress($progress);
+    $footer='<span>Lernmodul öffnen</span><b aria-hidden="true">↗</b>';
+    $html.=$tag==='article' && $link
+        ? '<a class="module-footer module-open" href="'.$href.'" aria-label="'.$label.'">'.$footer.'</a>'
+        : '<div class="module-footer">'.$footer.'</div>';
+    $html.='</div>';
     $html.='</'.$tag.'>';
     return $html;
+}
+
+/** Compact account status with independent, native keyboard-operable details. */
+function dtp_card_progress(array $progress): string {
+    $mastered=$progress['mastered'];
+    $count=count($mastered);
+    $total=$progress['stages'];
+    $earned=count($progress['earned']);
+    $started=$count>0 || $progress['correct']>0 || $progress['exams'] || $earned>0;
+    $status=$count===$total?'Lernpfad abgeschlossen':($started?'In Arbeit':'Noch offen');
+    $html='<details class="module-progress"><summary><span class="module-progress-head">'
+        .'<strong>'.e($status).'</strong><span>'.$count.' / '.$total.' Stufen</span></span>'
+        .'<span class="module-progress-bar" aria-hidden="true"><i style="width:'.(int)round($count*100/$total).'%"></i></span>'
+        .'<span class="module-progress-more">Details · Achievements '.$earned.' / '.$progress['achievements'].' <b aria-hidden="true">⌄</b></span></summary>';
+    $html.='<div class="module-progress-details"><ol class="module-progress-stages" aria-label="Lernpfad-Stufen">';
+    for ($i=0;$i<$total;$i++) {
+        $done=in_array($i,$mastered,true);
+        $label='Stufe '.($i+1).($done?' gemeistert':' offen');
+        $html.='<li'.($done?' class="is-mastered"':'').' title="'.e($label).'"><span aria-hidden="true">'.($i+1)
+            .($done?' ✓':'').'</span><span class="module-progress-sr">'.e($label).'</span></li>';
+    }
+    $html.='</ol><dl><dt>Richtige Aufgaben</dt><dd>'.number_format($progress['correct'],0,',','.').'</dd>'
+        .'<dt>Beste Prüfungen</dt><dd>';
+    $scores=[];
+    foreach ($progress['exams'] as $minutes=>$score) $scores[]=(int)$minutes.' Min. · '.(int)$score.' %';
+    $html.=($scores?implode(' / ',$scores):'Noch kein Ergebnis').'</dd></dl>';
+    if ($progress['earned']) {
+        $html.='<ul class="module-progress-badges" aria-label="Freigeschaltete Achievements">';
+        foreach ($progress['earned'] as $badge) {
+            $html.='<li>';
+            if ($badge['icon']!==null) $html.='<img src="'.e($badge['icon']).'" width="20" height="20" loading="lazy" alt="">';
+            $html.=e($badge['name']).'</li>';
+        }
+        $html.='</ul>';
+    }
+    return $html.'</div></details>';
 }
 
 /* ------------------------------------------------------------------ */

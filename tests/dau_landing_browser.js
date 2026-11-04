@@ -112,11 +112,22 @@ let server,browser;
   const session=php(`db()->prepare('INSERT INTO learners(username,password_hash) VALUES(?,?)')->execute(['layout-tester',password_hash('test-password-for-layout',PASSWORD_DEFAULT)]); learner_start_session(learner_by_id((int)db()->lastInsertId()),false); echo session_name().'='.session_id(); session_write_close();`).trim();
   const [cookieName,cookieValue]=session.split('=');
   php(`require_once ${JSON.stringify(root+'/achievements_lib.php')}; $id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); ach_set_visible($id,true);`);
+  php(`db()->exec("UPDATE html_pages SET slug='osi-sprint' WHERE slug='osi'"); $id=(int)db()->query("SELECT id FROM learners WHERE username='layout-tester'")->fetchColumn(); db()->prepare("INSERT INTO learner_progress(learner_id,storage_key,module_slug,value) VALUES(?,'osi-sprint-path-v1','osi-sprint',?)")->execute([$id,json_encode(['st'=>[['mastered'=>true]]])]);`);
   for(const width of [1440,320]){
     const accountContext=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'});
     await accountContext.addCookies([{name:cookieName,value:cookieValue,url:base}]);
     const accountPage=await accountContext.newPage();accountPage.on('pageerror',e=>errors.push(e.message));
     await accountPage.goto(base+'/dau-to-pro/');
+    const progressCard=accountPage.locator('article.module-card').filter({hasText:'OSI-Schichten'});
+    const details=progressCard.locator('.module-progress');
+    assert.match(await details.locator('summary').innerText(),/1 \/ 10 Stufen/,'Historic stage is shown for the signed-in learner');
+    assert.equal(await details.evaluate(n=>n.open),false,'Progress details start compact');
+    await details.locator('summary').click();
+    assert.equal(await details.evaluate(n=>n.open),true,'Details open without navigating to the module');
+    assert.equal(await progressCard.locator('.is-mastered').count(),1,'The mastered stage is marked');
+    assert.equal(await progressCard.locator('.module-open').getAttribute('href'),'../osi-sprint/','Opening the module remains independent');
+    await details.locator('summary').press('Enter');
+    assert.equal(await details.evaluate(n=>n.open),false,'Details close with the keyboard');
     if(width>860){
       await accountPage.getByRole('button',{name:'Mein Konto',exact:false}).click();
       assert.ok(await accountPage.locator('#dtp-account-panel').isVisible(),'Account dropdown opens');
