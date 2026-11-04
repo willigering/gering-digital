@@ -4,8 +4,12 @@ require_once __DIR__.'/../../learner_lib.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store, no-cache, must-revalidate');
 $slug=(string)($_GET['slug']??'');
-if (!preg_match('/^[a-z0-9][a-z0-9_-]{0,100}$/D',$slug)) { http_response_code(400);echo '{"error":"invalid slug"}';exit; }
+if ($slug!=='' && !preg_match('/^[a-z0-9][a-z0-9_-]{0,100}$/D',$slug)) { http_response_code(400);echo '{"error":"invalid slug"}';exit; }
 try {
+    if ($slug==='') {
+        echo json_encode(['revision'=>learner_landing_update_revision(db())],JSON_THROW_ON_ERROR);
+        exit;
+    }
     $stmt=db()->prepare("SELECT live_version FROM html_pages WHERE slug=? AND published=1 AND category='lernen'");
     $stmt->execute([$slug]);
     $version=$stmt->fetchColumn();

@@ -6,7 +6,7 @@
   (() => {
     const canHover=matchMedia('(hover:hover) and (pointer:fine)');
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-    const cards=[...document.querySelectorAll('.module-card')];
+    const cards=[...document.querySelectorAll('.module-card:not(.is-coming-soon)')];
     if(!cards.length||!canHover.matches||reduced.matches)return;
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';

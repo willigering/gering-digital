@@ -82,18 +82,18 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     await Promise.all([page.waitForNavigation(),page.click('.auth-form button[type=submit]')]);
 
     // The topic hierarchy is visible above each module title.
+    assert.equal(await page.locator('.module-card .module-number').count(),0,'Öffentliche Modulkacheln zeigen keine Modulnummern');
     const cards=await page.$$eval('.module-card',cs=>cs.map(c=>[
       c.querySelector('.module-category').textContent.trim(),
-      c.querySelector('.module-number')?.textContent.trim(),
-      [...c.querySelector('.module-subtopic')?.childNodes??[]].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join('').trim(),
+      c.querySelector('.module-subtopic')?.textContent.trim(),
       c.querySelector('h2').textContent.trim()
     ].join(' | ')));
     for(const want of [
-      'Grundlagen | 01 | Zahlensysteme | Bits zum bitteren Ende',
-      'Netzwerktechnik | 02 | OSI-Schichten | Easy OSI for FISI',
-      'IP & Subnetting | 01 | Subnetting | Wer teilt, gewinnt',
-      'Netzwerktechnik | 02 | Netzwerkgrundlagen | Jetzt ma Router bei die Switche!',
-      'Kalkulation & Beschaffung | 06 | Angebotsvergleich | Rechnet sich das?'
+      'Grundlagen | Zahlensysteme | Bits zum bitteren Ende',
+      'Netzwerktechnik | OSI-Schichten | Easy OSI for FISI',
+      'IP & Subnetting | Subnetting | Wer teilt, gewinnt',
+      'Netzwerktechnik | Netzwerkgrundlagen | Jetzt ma Router bei die Switche!',
+      'Kalkulation & Beschaffung | Angebotsvergleich | Rechnet sich das?'
     ])assert.ok(cards.includes(want),'Modulkarte zeigt '+want+' ('+cards.join(', ')+')');
     if(shots)await page.locator('#lernmodule').screenshot({path:path.join(shots,'modulkarten-thema.png')});
 

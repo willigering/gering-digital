@@ -23,6 +23,7 @@ if ($learnerRow) {
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
+$comingSoonSlugs=['b4-ipv6','b5-netzwerkdienste','d1-datenschutz','netzwerke-sprint'];
 foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($module);
 $c=dtp_page_content();
 $hero=dtp_hero();
@@ -47,6 +48,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
 <?php endif; ?>
+  <script>window.__DTP_UPDATE__={url:'api/update-version.php',revision:<?=json_encode(learner_landing_update_revision(db()))?>};</script>
+  <script src="update-notice.js?v=<?=filemtime(__DIR__.'/update-notice.js')?>" defer></script>
   <?=dtp_feedback_assets()?>
 </head>
 <body class="dtp-landing">
@@ -57,7 +60,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-copy">
-        <div class="kicker"><span class="live-dot" aria-hidden="true"></span> DAU TO PRO</div>
+        <div class="kicker"><span class="live-dot" aria-hidden="true"></span> DAU TO PRO // die Lernplattform</div>
         <h1 id="hero-title"><?=e($c['title'])?><?php if($c['title_highlight']!==''): ?> <span><?=e($c['title_highlight'])?></span><?php endif; ?></h1>
         <?php if($subtitle): ?><div class="hero-strip"><?php foreach($subtitle as $i=>$part): ?><?php if($i>0): ?><i aria-hidden="true"></i><?php endif; ?><span><?=e(dtp_upper($part))?></span><?php endforeach; ?></div><?php endif; ?>
         <p class="hero-lead"><?=dtp_inline($c['lead'])?></p>
@@ -86,7 +89,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null)?>
+<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true))?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
