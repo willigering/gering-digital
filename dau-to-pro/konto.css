@@ -221,3 +221,21 @@
 .showcase-icon [role=tooltip]{pointer-events:none}.hs-name .showcase-inline{display:inline-flex;vertical-align:middle;margin:4px 0 4px 8px}
 .showcase-slots select{width:100%;min-width:0;box-sizing:border-box}.learning-week{grid-template-columns:repeat(7,minmax(0,1fr))}.learning-week li{min-width:0}.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 .showcase-icon .ach-icon{filter:none;opacity:1;border:0;background:none}
+
+.recent-grid .ach-item { position: relative; }
+.recent-grid .recent-condition {
+  position: absolute;
+  z-index: 4;
+  inset: auto .35rem calc(100% + .35rem);
+  padding: .55rem .65rem;
+  border: 1px solid #a88846;
+  border-radius: 7px;
+  background: #11181c;
+  color: #f5f0df;
+  line-height: 1.4;
+  opacity: 0;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.recent-grid .ach-item:hover .recent-condition,
+.recent-grid .ach-item:focus .recent-condition { opacity: 1; }
