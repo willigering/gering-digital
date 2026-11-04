@@ -600,19 +600,11 @@ function dtp_nav(string $page,?string $learner): string {
     $start=$page==='start';
     $section=$start?'':'./';
     $current=fn(bool $on): string => $on?' aria-current="page"':'';
-    $links=[
-        [$section.'#lernmodule','Lernmodule',false],
-        [$section.'#konzept','Lernkonzept',false],
-    ];
     $desktop='';$mobile='';
-    foreach($links as [$href,$text,$on]){
-        $desktop.='      <a'.($on?' class="selected"':'').' href="'.e($href).'"'.$current($on).'>'.e($text).'</a>'."\n";
-        $mobile.='<a href="'.e($href).'"'.$current($on).'>'.e($text).'</a>';
-    }
     if ($learner===null) {
         $on=$page==='konto';
-        $desktop.='      <a class="nav-account'.($on?' selected':'').'" href="konto.php"'.$current($on).'>Anmelden</a>'."\n";
-        $mobile.='<a href="konto.php"'.$current($on).'>Anmelden</a>';
+        $desktop.='      <a class="nav-account'.($on?' selected':'').'" href="konto.php"'.$current($on).'>Mein Konto</a>'."\n";
+        $mobile.='<a href="konto.php"'.$current($on).'>Mein Konto</a>';
     } else {
         // Angemeldet: „Mein Konto“ klappt ein kleines Menü auf (Fortschritt, Einstellungen, Abmelden).
         $logout='<form method="post" action="konto.php" class="nav-logout"><input type="hidden" name="csrf" value="'.e(csrf()).'"><input type="hidden" name="action" value="logout"><button type="submit">Abmelden</button></form>';
@@ -637,7 +629,6 @@ function dtp_nav(string $page,?string $learner): string {
     </a>
     <nav class="desktop-links" aria-label="Hauptnavigation">
 '.$desktop.'    </nav>
-    <a class="nav-cta" href="'.e($section.'#lernmodule').'">Jetzt lernen <span aria-hidden="true">↗</span></a>
     <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="dtp-mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
   </div>
   <nav class="mobile-links" id="dtp-mobile-menu" aria-label="Mobile Navigation" hidden>
