@@ -179,16 +179,18 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <section id="ueber-mich" class="section pd-section">
   <div class="wrap">
       <div class="pd-wrap pd-single">
-        <div class="pd-head"><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!</h2><p class="pd-sub">Knapp 20 Jahre Produktion. Und jetzt noch mal was völlig anderes.</p></div>
+        <div class="pd-head"><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!</h2></div>
         <div class="pd-flow">
           <p>Knapp 20 Jahre habe ich in der Produktion gearbeitet. Eine ziemlich lange Zeit, in der ich viel erlebt, einiges gelernt und jede Menge Menschen kennengelernt habe.</p>
           <p>Und nein, ich bereue diese Zeit nicht.</p>
-          <p>Im Gegenteil. Ich habe dort unglaublich viel fürs Leben mitgenommen. Vor allem, dass man Probleme am besten anpackt, statt lange darüber zu reden. Dass nicht immer alles nach Plan läuft. Und dass gute Kollegen manchmal mehr wert sind als jede noch so ausgefeilte Technik.</p>
+          <p>Im Gegenteil. Ich habe dort unglaublich viel fürs Leben mitgenommen. Vor allem, dass man Probleme am besten anpackt, statt lange darüber zu reden.</p>
+          <p>Dass nicht immer alles nach Plan läuft. Und dass gute Kollegen manchmal mehr wert sind als jede noch so ausgefeilte Technik.</p>
           <p>Gerade die Menschen werde ich sicherlich vermissen.</p>
           <p>Aber irgendwann kam der Punkt, an dem ich mir dachte: War’s das jetzt schon? Oder geht da noch was?</p>
-          <p>Offenbar geht da noch was.</p>
+          <p>Offenbar geht da noch was!</p>
           <p>Also habe ich nach fast zwei Jahrzehnten den Sprung gewagt und eine Umschulung zum Fachinformatiker für Systemintegration begonnen.</p>
-          <p>Ein kompletter Neuanfang. Noch mal die Schulbank drücken, Netzwerke verstehen, Server konfigurieren und sich freiwillig mit Dingen beschäftigen, bei denen andere schon beim Lesen der Fehlermeldung aufgeben.</p>
+          <p>Ein kompletter Neuanfang!</p>
+          <p>Noch mal die Schulbank drücken, Netzwerke verstehen, Server konfigurieren und sich freiwillig mit Dingen beschäftigen, bei denen andere schon beim Lesen der Fehlermeldung aufgeben.</p>
           <p class="pd-punch">Und wisst ihr was? Ich freue mich drauf!</p>
         </div>
       </div>
@@ -200,13 +202,14 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
   <div class="feature-orbit orbit-b" data-parallax="-0.08"></div>
   <div class="wrap">
       <div class="pd-wrap pd-single">
-        <div class="pd-head"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code. <span>Und ich kümmere mich um den Rest.</span></h2></div>
+        <div class="pd-head"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code.</h2></div>
         <div class="pd-flow">
           <p>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</p>
           <p>Die Ideen, Anforderungen, Entscheidungen und Überprüfung liegen bei mir.</p>
           <p>Die KI hilft bei der technischen Umsetzung.</p>
-          <p>Ein großer Teil meiner Arbeit besteht darin, die KI dazu zu bringen, genau das zu tun, was ich möchte. Und sie anschließend davon abzuhalten, Dinge zu tun, die ich definitiv nicht wollte.</p>
-          <p class="pd-punch">KI ist für mich kein Ersatz fürs Lernen, sondern ein ziemlich spannendes Werkzeug dafür.</p>
+          <p>Mit KI zu entwickeln ist manchmal wie Teamarbeit mit einem extrem schnellen Kollegen, der gelegentlich die Aufgabenstellung überliest.</p>
+          <p>Ich gebe die Richtung vor, prüfe die Ergebnisse und lerne dabei ständig dazu.</p>
+          <p class="pd-punch">Die KI ist mein Werkzeug, nicht mein Autopilot. Auch wenn sie gelegentlich versucht, das Steuer zu übernehmen.</p>
         </div>
       </div>
   </div>
@@ -219,7 +222,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
         <div class="pd-flow">
           <p>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen. Wenn sie mir helfen, könnten sie vielleicht auch anderen nützlich sein.</p>
           <p>Deshalb möchte ich meine Projekte vorstellen und nach Möglichkeit zum Download anbieten. Einige Apps sind bereits veröffentlicht, andere befinden sich noch in Entwicklung.</p>
-          <p class="pd-punch">An Ideen mangelt es jedenfalls nicht. Eher an Stunden pro Tag.</p>
+          <p class="pd-punch">An Ideen mangelt es jedenfalls nicht. Nur der Tag weigert sich hartnäckig, mehr als 24 Stunden zu haben.</p>
         </div>
       </div>
   </div>
