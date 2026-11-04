@@ -57,7 +57,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
       <div class="hero-copy">
-        <div class="kicker"><span class="live-dot" aria-hidden="true"></span> <?=e($c['kicker_left'])?><?php if($c['kicker_left']!==''&&$c['kicker_right']!==''): ?> <b>//</b> <?php endif; ?><?=e($c['kicker_right'])?></div>
+        <div class="kicker"><span class="live-dot" aria-hidden="true"></span> DAU TO PRO</div>
         <h1 id="hero-title"><?=e($c['title'])?><?php if($c['title_highlight']!==''): ?> <span><?=e($c['title_highlight'])?></span><?php endif; ?></h1>
         <?php if($subtitle): ?><div class="hero-strip"><?php foreach($subtitle as $i=>$part): ?><?php if($i>0): ?><i aria-hidden="true"></i><?php endif; ?><span><?=e(dtp_upper($part))?></span><?php endforeach; ?></div><?php endif; ?>
         <p class="hero-lead"><?=dtp_inline($c['lead'])?></p>
