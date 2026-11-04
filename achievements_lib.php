@@ -20,7 +20,8 @@ function ach_tiers(): array {
 /**
  * Katalog der Lernmodule mit ihren 10 eigenen Achievements (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige).
  * prefix  = Anfang der Speicherschlüssel im Browser (z. B. "osi-sprint" → osi-sprint-path-v1)
- * motif   = Vorschaubild-Motiv, über das ein veröffentlichtes Projekt dem Katalog zugeordnet wird
+ * motif   = Vorschaubild-Motiv für die Zuordnung veröffentlichter Projekte
+ * slugs   = Modul-URLs für Fortschrittskacheln, einschließlich historischer Adressen
  * Regeln: stage (Stufe n gemeistert, ab 0), path (alle Stufen), clean (Aufgabentypen je 10 × richtig in Folge),
  *         fails (Aufgabentyp 3 × falsch in Folge), exam (Prüfungslänge in Minuten + Mindestprozent), leave (Prüfung durch Verlassen beendet)
  */
