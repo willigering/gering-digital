@@ -170,13 +170,24 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     $title=(string)($module['title']??'');
     $subject=trim((string)($module['subject']??''));
     $category=$topic[1];
-    $number=$topic[2];
+    // Card numbers identify modules independently of their topic or display order.
+    $number=match ($module['slug']??'') {
+        'a1-zahlensysteme'=>'01',
+        'netzwerke-sprint'=>'02',
+        'osi-sprint','osi','osi-modell'=>'03',
+        'subnet-sprint','subnetsprint'=>'04',
+        'b4-ipv6'=>'05',
+        'f2-kalkulation'=>'06',
+        'b5-netzwerkdienste'=>'07',
+        'd1-datenschutz'=>'08',
+        'd2-it-sicherheit'=>'09',
+        default=>'',
+    };
     if (($module['slug']??'')==='f2-kalkulation') {
         $category='Kalkulation & Beschaffung';
         $subject='Angebotsvergleich';
     } elseif (($module['slug']??'')==='a1-zahlensysteme') {
         $category='Grundlagen';
-        $number='01';
     }
     $description=dtp_module_description($module);
     $tag=$progress!==null?'article':($link?'a':'div');
@@ -195,7 +206,8 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     }
     $html.='</div><div class="module-body"><span class="module-category">'.e($category).'</span>';
     if ($subject!=='' && $subject!==$category) {
-        $html.='<span class="module-subtopic"><span class="module-number">'.e($number).'</span>'.e($subject).'</span>';
+        $badge=$number!==''?'<span class="module-number">'.e($number).'</span>':'';
+        $html.='<span class="module-subtopic">'.$badge.e($subject).'</span>';
     }
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
