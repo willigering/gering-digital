@@ -12,6 +12,29 @@
     cursor: pointer;
 }
 
+.dtp-feedback-button {
+    background: var(--gold, #edc477);
+    border-color: var(--gold, #edc477);
+    color: #171a1a;
+    min-height: 48px;
+    padding: 12px 19px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 850;
+    transition: transform .2s, background .2s, box-shadow .2s;
+}
+
+.dtp-feedback-button:hover, .dtp-feedback-button:focus-visible {
+    background: var(--goldlite, #ffe1a5);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px #0004;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dtp-feedback-button { transition: none; }
+    .dtp-feedback-button:hover, .dtp-feedback-button:focus-visible { transform: none; }
+}
+
 .dtp-feedback-dock {
     position: fixed;
     right: max(.65rem, env(safe-area-inset-right));
@@ -19,7 +42,7 @@
     z-index: 30;
 }
 
-.dtp-feedback-dock .dtp-feedback-button { box-shadow: 0 4px 18px #0009; }
+.dtp-feedback-dock .dtp-feedback-button:not(:hover):not(:focus-visible) { box-shadow: 0 4px 18px #0009; }
 
 #dtp-feedback-dialog {
     box-sizing: border-box;
