@@ -13,6 +13,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 | D2 IT-Sicherheit | `d2-it-sicherheit.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Bedrohungs-/Schutzbegriffe sauber unterscheiden |
 | B4 IPv6 | `b4-ipv6.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Regeln und Sonderfälle erhalten |
 | F2 Kalkulation | `f2-kalkulation.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Zahlen, Einheiten und Kalkulationsreihenfolge erhalten |
+| C# für FISI | [Entwicklungsstand](../modul-auftraege/csharp/README.md) | Erste Lektion zu Konsoleneingabe und -ausgabe mit Ticket-Simulator | Weitere Aufgabentypen und Stufen ausarbeiten |
 
 Weitere Module beim Anlegen oder beim nächsten Bestandsabgleich ergänzen. Diese Tabelle ist eine Arbeitsliste, kein Beleg für den Live-Veröffentlichungsstatus.
 

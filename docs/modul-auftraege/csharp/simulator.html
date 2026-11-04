@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>C# für FISI · Ticket-Simulator</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: auto; padding: 1.25rem; max-width: 46rem; background: #11101d; color: #f8f3ff; font: 1rem/1.5 system-ui, sans-serif; }
+  strong, h1 span { color: #c9b3ff; }
+  pre, textarea, input { width: 100%; padding: .75rem; border: 1px solid #71658c; border-radius: .5rem; background: #1c192c; color: inherit; font: .95rem/1.5 monospace; }
+  pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+  label { display: block; margin-top: .75rem; }
+  button { margin: .75rem .5rem .25rem 0; padding: .6rem .9rem; border: 0; border-radius: .4rem; background: #c9b3ff; color: #1c192c; font: inherit; font-weight: 700; }
+  button:focus-visible, textarea:focus-visible, input:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  #feedback { min-height: 1.5em; }
+</style>
+<main>
+  <p><strong>DAU TO PRO · C#-SIMULATOR</strong></p>
+  <h1>Das erste <span>Support-Ticket</span></h1>
+  <p>Ergänze eine Zeile mit <code>Console.WriteLine</code> und einem Platzhalter für <code>ticket</code>.
+    Bei der Eingabe <code>0042</code> soll <code>Ticket 0042 erfasst.</code> erscheinen.</p>
+  <pre>Console.WriteLine("Ticketnummer?");
+string? ticket = Console.ReadLine();</pre>
+  <label for="code">Fehlende C#-Zeile</label>
+  <textarea id="code" rows="2" maxlength="240" spellcheck="false" autocapitalize="off" autocomplete="off"></textarea>
+  <details>
+    <summary>Hinweis</summary>
+    <p>Setz ein <code>$</code> direkt vor die Anführungszeichen. Mit <code>{ticket}</code> fügst du den gespeicherten Text ein. Denk an das Semikolon am Ende.</p>
+  </details>
+  <label for="ticket">Konsoleneingabe</label>
+  <input id="ticket" value="0042" maxlength="80" autocomplete="off">
+  <button id="run" type="button">Antwort prüfen</button>
+  <button id="reset" type="button">Zurücksetzen</button>
+  <p id="feedback" role="status"></p>
+  <h2>Simulierte Konsole</h2>
+  <pre id="terminal" aria-live="polite">Ticketnummer?</pre>
+  <p>Diese Übung prüft die hier gezeigte C#-Schreibweise und simuliert ihre Ausgabe.</p>
+</main>
+<script>
+  const code = document.getElementById('code');
+  const ticket = document.getElementById('ticket');
+  const feedback = document.getElementById('feedback');
+  const terminal = document.getElementById('terminal');
+  const promptLine = 'Ticketnummer?';
+  const expectedLine = /^Console\.WriteLine[ \t]*\([ \t]*\$"Ticket \{[ \t]*ticket[ \t]*\} erfasst\."[ \t]*\)[ \t]*;$/;
+
+  document.getElementById('run').addEventListener('click', () => {
+    terminal.textContent = promptLine;
+    if (!expectedLine.test(code.value.trim())) {
+      feedback.textContent = 'Prüfe den Platzhalter {ticket} und vergleiche deine Zeile mit dem Hinweis.';
+      return;
+    }
+    if (!ticket.value.trim()) {
+      feedback.textContent = 'Gib zuerst eine Ticketnummer ein.';
+      return;
+    }
+
+    terminal.textContent = promptLine + '\nTicket ' + ticket.value + ' erfasst.';
+    feedback.textContent = 'Stimmt. Die Ticketnummer kommt aus der Eingabe. Probier jetzt SRV-17.';
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    code.value = '';
+    ticket.value = '0042';
+    feedback.textContent = '';
+    terminal.textContent = promptLine;
+    code.focus();
+  });
+</script>
+</html>
