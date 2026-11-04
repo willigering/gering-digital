@@ -23,6 +23,7 @@ if ($learnerRow) {
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
+$comingSoonSlugs=['b4-ipv6','b5-netzwerkdienste','d1-datenschutz','netzwerke-sprint'];
 foreach($modules as &$module) {$module['topic']=dtp_topic($module);}unset($module);
 $c=dtp_page_content();
 $hero=dtp_hero();
@@ -86,7 +87,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null)?>
+<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true))?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
