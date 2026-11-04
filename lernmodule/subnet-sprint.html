@@ -1024,20 +1024,20 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>32 Bits. Vier Oktette. Ein Netzwerk.</h3><p>Vier Zahlen mit Punkten sind die Kurzfassung. Darunter stecken 32 Bits, und genau die rechnest du hier durch.</p></div></div><p>192.168.42.134 sieht nach vier Zahlen aus. Im Rechner sind es vier Gruppen mit je acht Bits. Beim Umrechnen rettet dich die Tabelle mit den Stellenwerten, falls die 128 mal wieder zu früh auftaucht.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>32 Bits. Vier Oktette. Ein Netzwerk.</h3><p>Vier Zahlen mit Punkten sind die Kurzfassung. Darunter stecken 32 Bits, und genau die rechnest du hier durch.</p></div></div><p>Rechne im Beispiel zuerst die 134 um. Drei Stellenwerte reichen: 128, 4 und 2. Die übrigen fünf Stellen bekommen eine Null.</p>
       <p>Eine IPv4-Adresse besteht aus <strong>32 Bits</strong>, aufgeteilt in vier Blöcke zu je 8 Bit. So ein Block heißt <strong>Oktett</strong> und hat einen Dezimalwert von <strong>0 bis 255</strong>. Geschrieben wird das in der Punktschreibweise: <span class="val">192.168.42.134</span>.</p>
       <div class="two">
         <div class="box"><h4>Die acht Stellenwerte</h4><div class="calc">128  64  32  16 │  8   4   2   1
-  1   0   0   0 │  0   1   1   0   = 128 + 4 + 2 = 134</div><p>Umgekehrt zerlegst du von groß nach klein: Passt der Wert noch in den Rest, schreib eine 1 und zieh ihn ab.</p></div>
+  1   0   0   0 │  0   1   1   0   = 128 + 4 + 2 = 134</div><p>Für den Rückweg startest du mit 134 und gehst die Stellenwerte von 128 bis 1 durch. Passt ein Wert in den Rest, schreibst du eine 1 und ziehst ihn ab. Passt er nicht, schreibst du eine 0 und gehst weiter.</p></div>
         <div class="box"><h4>Netzanteil und Hostanteil</h4><p>Die Zahl hinter dem Schrägstrich ist das <strong>Präfix</strong> (CIDR-Schreibweise). Bei <span class="val">/26</span> gehören die ersten 26 Bits zum Netz, die restlichen <strong>6 Bits</strong> unterscheiden die Geräte im Netz.</p><p class="mono" style="font-size:15px">32 − 26 = 6 Hostbits</p></div>
       </div>
       <h4>Das bitweise UND (AND)</h4>
-      <p>Ein Router findet das Netz einer Adresse, indem er IP und Maske Bit für Bit mit <strong>UND</strong> verknüpft. Nur wo beide Bits 1 sind, bleibt eine 1 stehen. Alle Hostbits werden dadurch zu 0:</p>
+      <p>Schreib IP-Adresse und Maske binär untereinander. Vergleiche jede Spalte mit <strong>UND</strong>: Zwei Einsen ergeben eine Eins, alle anderen Paare eine Null. An den Hoststellen steht in der Maske eine Null. Dort ist die Entscheidung also schon gefallen.</p>
       <div class="calc">IP     1000 0110  (134)
 Maske  1100 0000  (192)
 AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
       <div class="callout"><strong>Denk in zwei Hälften:</strong> Netzbits sind bei allen Adressen eines Netzes gleich. Hostbits ändern sich. Alle Hostbits 0 = Netz-ID, alle Hostbits 1 = Broadcast.</div>
-      <div class="lab"><div class="lab-head"><strong>DAS 32-BIT-RÖNTGENGERÄT</strong><span class="subtle">Ändere Adresse oder Präfix und schau den Bits beim Arbeiten zu.</span></div>
+      <div class="lab"><div class="lab-head"><strong>DAS 32-BIT-RÖNTGENGERÄT</strong><span class="subtle">Schieb das Präfix von /26 auf /27. Schau, welche Bits die Seite wechseln und wie sich der Hostbereich verändert.</span></div>
         <div class="lab-grid"><div><label for="xIp" class="lab-l">IPv4-Adresse</label><input id="xIp" class="lab-in" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" value="192.168.42.134" aria-describedby="xErr"></div><div><label for="xPre" class="lab-l">Präfix: <output id="xPreOut" for="xPre">/26</output></label><input id="xPre" type="range" min="0" max="32" value="26" step="1"></div></div>
         <p id="xErr" class="subtle" role="status" style="color:var(--warn)"></p>
         <div class="legend"><span><i class="lg-n"></i> Netzbits</span><span><i class="lg-h"></i> Hostbits</span><span>0 gedimmt · 1 leuchtet</span></div>
@@ -1051,11 +1051,11 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch2" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Zweierpotenzen: das Einmaleins des Subnettings</h3><p>Ein Bit mehr, doppelt so viele Adressen. Der Adressraum rechnet in Zweierpotenzen, auch wenn die Einkaufsliste 300 sagt.</p></div></div><p>Jedes zusätzliche Hostbit verdoppelt die Anzahl der Adressen. Wenn du von 256 Adressen aus startest, kommst du mit Halbieren schnell zu 128, 64 und 32. Das geht meist schneller als der Blick in die Tabelle.</p>
+      <div class="chapter-head"><span class="ch-no">02</span><div><h3>Zweierpotenzen: das Einmaleins des Subnettings</h3><p>Ein Bit mehr, doppelt so viele Adressen. Der Adressraum rechnet in Zweierpotenzen, auch wenn die Einkaufsliste 300 sagt.</p></div></div><p>Zähl die Hostbits. Mit acht kommst du auf 256 Adressen, mit sieben auf die Hälfte. Für sechs halbierst du noch mal. Wer schon bei 256 steht, muss nicht wieder bei 1 anfangen.</p>
       <p>Mit n Bit gibt es 2ⁿ verschiedene Kombinationen. Im Subnetting ist n fast immer die Zahl der <strong>Hostbits</strong> und 2ⁿ die Zahl der <strong>Adressen</strong> im Netz. Drei Anker reichen, den Rest erreichst du durch Verdoppeln oder Halbieren: <strong>2⁸ = 256</strong>, <strong>2¹⁰ = 1.024</strong>, <strong>2¹⁶ = 65.536</strong>.</p>
       <div class="table-wrap"><table class="t" style="max-width:560px"><thead><tr><th>Potenz</th><th>Wert</th><th>Potenz</th><th>Wert</th></tr></thead><tbody id="powTable"></tbody></table></div>
       <div class="two">
-        <div class="box"><h4>Aufrunden, nie abrunden</h4><p>Für 300 Adressen suchst du das kleinste n mit 2ⁿ ≥ 300. 2⁸ = 256 ist zu klein, also <strong>2⁹ = 512</strong> und damit 9 Hostbits.</p></div>
+        <div class="box"><h4>Aufrunden, nie abrunden</h4><p>Für 300 Adressen prüfst du die Größen um 300 herum. Acht Hostbits geben dir 256, neun geben dir <strong>512</strong>. Der kleinere Block hat 44 Adressen zu wenig. Da hilft auch kein „Wir rücken ein bisschen zusammen“.</p></div>
         <div class="box"><h4>Typischer Fehler</h4><p>2⁶ ist <strong>nicht</strong> 2 × 6 = 12, sondern 2 · 2 · 2 · 2 · 2 · 2 = <strong>64</strong>. Und auch nicht 6² = 36.</p></div>
       </div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="pow"></div></div>
@@ -1063,7 +1063,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch3" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Präfix, Subnetzmaske und Wildcard</h3><p>Präfix und Maske markieren dieselbe Netzgrenze. Die Wildcard kehrt die Maskenbits um. Drei Schreibweisen, eine Grenze.</p></div></div><p>Ein /26 und die passende Subnetzmaske beschreiben dieselbe Bitgrenze. Zähl bei der Maske die führenden Einsen. Wenn nach einer Null wieder eine Eins kommt, darfst du mit der Maske noch mal von vorne anfangen.</p>
+      <div class="chapter-head"><span class="ch-no">03</span><div><h3>Präfix, Subnetzmaske und Wildcard</h3><p>Präfix und Maske markieren dieselbe Netzgrenze. Die Wildcard kehrt die Maskenbits um. Drei Schreibweisen, eine Grenze.</p></div></div><p>Bei /26 schreibst du 26 Einsen ab der linken Kante. Die übrigen sechs Stellen werden null. Eine Eins hinter einer Null ist bei einer Subnetzmaske ein Fehler, auch wenn alle 32 Stellen ordentlich voll sind.</p>
       <p>Eine Subnetzmaske besteht binär aus <strong>durchgehenden Einsen</strong> für die Netzbits und danach <strong>nur Nullen</strong> für die Hostbits. Das Präfix zählt einfach die Einsen.</p>
       <div class="two">
         <div class="box"><h4>Präfix → Maske</h4><p><span class="val">/26</span>: 24 Bits füllen drei Oktette mit 255. Zwei weitere Einsen im vierten Oktett: 1100 0000 = 192.</p><p class="mono">/26 = 255.255.255.192<br>/20 = 255.255.240.0</p></div>
@@ -1073,17 +1073,17 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
       <div class="table-wrap"><table class="t" style="max-width:640px"><thead><tr><th>Einsen im Oktett</th><th>Binär</th><th>Dezimal</th><th>Sprungweite</th></tr></thead><tbody>
         <tr><td class="m">1</td><td class="m">1000 0000</td><td class="m">128</td><td class="m">128</td></tr><tr><td class="m">2</td><td class="m">1100 0000</td><td class="m">192</td><td class="m">64</td></tr><tr><td class="m">3</td><td class="m">1110 0000</td><td class="m">224</td><td class="m">32</td></tr><tr><td class="m">4</td><td class="m">1111 0000</td><td class="m">240</td><td class="m">16</td></tr><tr><td class="m">5</td><td class="m">1111 1000</td><td class="m">248</td><td class="m">8</td></tr><tr><td class="m">6</td><td class="m">1111 1100</td><td class="m">252</td><td class="m">4</td></tr><tr><td class="m">7</td><td class="m">1111 1110</td><td class="m">254</td><td class="m">2</td></tr><tr><td class="m">8</td><td class="m">1111 1111</td><td class="m">255</td><td class="m">1 (bzw. 256 im nächsten Oktett)</td></tr>
       </tbody></table></div>
-      <div class="box"><h4>Wildcard (inverse Maske)</h4><p>Die Wildcard ist das bitweise Gegenteil der Maske: <strong>255 − jedes Maskenoktett</strong>. Zu /26 gehört 0.0.0.63. Du begegnest ihr bei ACLs und OSPF auf Cisco-Geräten.</p><p class="mono">Wildcard = 255.255.255.255 − Maske</p></div>
+      <div class="box"><h4>Wildcard (inverse Maske)</h4><p>Für die Wildcard drehst du jedes Maskenbit um. Dezimal geht das mit <strong>255 minus Maskenwert</strong> pro Oktett. Bei /26 werden die drei 255er zu 0 und aus 192 wird 63. Auf Cisco-Geräten begegnet dir diese Schreibweise etwa in Zugriffskontrolllisten (ACLs) und bei OSPF.</p><p class="mono">Wildcard = 255.255.255.255 − Maske</p></div>
       <div class="trap"><strong>Falle:</strong> 255.255.253.0 oder 255.0.255.0 sind <strong>keine</strong> gültigen Masken. Nach der ersten 0 darf binär keine 1 mehr kommen.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="mask"></div></div>
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
 
     <section id="ch4" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Hostanzahl und Sonderfälle</h3><p>Rechne erst alle Adressen aus und dann die nutzbaren. Bei /31 und /32 hat die übliche Minus-zwei-Regel frei.</p></div></div><p>Du brauchst Platz für Geräte und siehst, wie viele Adressen der Block hat. Im üblichen IPv4-Subnetz sind Netz-ID und Broadcast bereits verplant. Für /31 und /32 gelten die gesonderten Regeln aus dem Beispiel.</p>
+      <div class="chapter-head"><span class="ch-no">04</span><div><h3>Hostanzahl und Sonderfälle</h3><p>Rechne erst alle Adressen aus und dann die nutzbaren. Bei /31 und /32 hat die übliche Minus-zwei-Regel frei.</p></div></div><p>Zähl zuerst alle Adressen im Block. Für Geräte bleiben im üblichen Subnetz zwei weniger. Bei /31 und /32 prüfst du den jeweiligen Sonderfall, bevor du aus Gewohnheit zwei abziehst.</p>
       <div class="two">
         <div class="box"><h4>Wie viele Adressen hat ein Netz?</h4><p class="mono">Hostbits = 32 − Präfix<br>Adressen = 2<sup>Hostbits</sup><br>Nutzbar  = Adressen − 2</p><p>Bei /26: 6 Hostbits, 2⁶ = 64 Adressen, <strong>62 nutzbare Hosts</strong>.</p></div>
-        <div class="box"><h4>Warum minus 2?</h4><p>Die erste Adresse (alle Hostbits 0) ist die <strong>Netz-ID</strong>, die letzte (alle Hostbits 1) der <strong>Broadcast</strong>. Beide kann kein Gerät bekommen.</p></div>
+        <div class="box"><h4>Warum minus 2?</h4><p>Im üblichen Subnetz gehört der erste Platz der <strong>Netz-ID</strong> (Hostbits alle 0), der letzte dem <strong>Broadcast</strong> (Hostbits alle 1). Für deine Geräte ist die Reihe dazwischen frei.</p></div>
       </div>
       <figure class="viz"><div class="viz-top"><h4>64 Adressen: Wer darf was?</h4><span class="tag">192.168.42.128/26</span></div>
         <div class="host-strip" aria-hidden="true"><span class="edge">N</span><span class="active-range">62 nutzbare Hostadressen</span><span class="edge">B</span></div>
@@ -1100,12 +1100,12 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch5" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Fünf Wege zur Netz-ID</h3><p>Mit der Sprungweite findest du den Block im Kopf. Mit bitweisem UND rechnest du denselben Weg wie ein Router.</p></div></div><p>Eine Adresse liegt mitten im Block. Teile das entscheidende Oktett durch die Sprungweite, wirf den Rest weg und rechne zurück. Aufrunden landet hier zuverlässig im Nachbargrundstück.</p>
+      <div class="chapter-head"><span class="ch-no">05</span><div><h3>Fünf Wege zur Netz-ID</h3><p>Mit der Sprungweite findest du den Block im Kopf. Mit bitweisem UND rechnest du denselben Weg wie ein Router.</p></div></div><p>Im Beispiel liegt die 134 in einem 64er-Block. Zweimal 64 passt hinein, dreimal wäre schon 192. Der Block beginnt also bei 128. An der richtigen Adresse stehen und dann noch ein Grundstück weiterlaufen zählt hier als Rechenfehler.</p>
       <div class="callout">Beispiel für alle Wege: <span class="val">192.168.42.134/26</span>. Gesucht: die Netz-ID.</div>
       <div class="methods">
         <div class="box"><h4><span class="mk-l">A</span> Sprungweite (Magic Number)</h4><ol><li>Maske /26 = 255.255.255.192. Entscheidend ist das 4. Oktett.</li><li>Sprungweite = 256 − 192 = <strong>64</strong>.</li><li>Netze beginnen bei 0, 64, 128, 192.</li><li>134 liegt im Block 128 bis 191 → <strong>192.168.42.128</strong>.</li></ol></div>
         <div class="box"><h4><span class="mk-l">B</span> Ganzzahlige Division</h4><p>IP-Oktett durch Sprungweite teilen, Rest weglassen, zurückmultiplizieren:</p><p class="mono">134 : 64 = 2 Rest 6<br>2 × 64 = 128</p></div>
-        <div class="box"><h4><span class="mk-l">C</span> Binäres UND</h4><p class="mono">1000 0110 (134)<br>1100 0000 (192)<br>1000 0000 (128)</p><p>Die exakte Computer-Methode.</p></div>
+        <div class="box"><h4><span class="mk-l">C</span> Binäres UND</h4><p class="mono">1000 0110 (134)<br>1100 0000 (192)<br>1000 0000 (128)</p><p>Lies spaltenweise: Nur zweimal 1 ergibt unten eine 1. Die beiden anderen Einsen aus der 134 fallen weg.</p></div>
         <div class="box"><h4><span class="mk-l">D</span> Hostbits nullen</h4><p>Die ersten 26 Bits bleiben, die 6 Hostbits werden 0:</p><p class="mono">10|00 0110 → 10|00 0000 = 128</p></div>
         <div class="box"><h4><span class="mk-l">E</span> Modulo</h4><p>Rest abziehen: 134 − (134 mod 64) = 134 − 6 = <strong>128</strong>. Mathematisch dasselbe wie Weg B.</p></div>
       </div>
@@ -1122,7 +1122,7 @@ AND    1000 0000  (128)   → Netz-ID endet auf .128</div>
     </section>
 
     <section id="ch6" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Broadcast und Hostbereich</h3><p>Die Netz-ID eröffnet den Block, der Broadcast macht hinten zu. Dazwischen liegen im üblichen Subnetz die Geräteadressen.</p></div></div><p>Du kennst die Netz-ID und willst wissen, wo der Block endet. Geh zur nächsten Netz-ID und eine Adresse zurück. So findest du den Broadcast, bevor ihn jemand dem Drucker gibt.</p>
+      <div class="chapter-head"><span class="ch-no">06</span><div><h3>Broadcast und Hostbereich</h3><p>Die Netz-ID eröffnet den Block, der Broadcast macht hinten zu. Dazwischen liegen im üblichen Subnetz die Geräteadressen.</p></div></div><p>Von .128 springst du bei einer Blockgröße von 64 zur nächsten Netz-ID .192. Eine Adresse zurück liegt der Broadcast .191. Wer bei .192 stehen bleibt, hat schon beim Nachbarn geklingelt.</p>
       <div class="two">
         <div class="box"><h4>Broadcast</h4><p>Letzte Adresse des Blocks: Im entscheidenden Oktett Netz-ID + Sprungweite − 1, alle Oktette dahinter <strong>255</strong>. Oder: nächste Netz-ID minus 1.</p><p class="mono">192.168.42.128/26 → .191</p></div>
         <div class="box"><h4>Hostbereich</h4><p class="mono">Erster Host  = Netz-ID + 1<br>Letzter Host = Broadcast − 1</p><p>Bei /26 ab .128: Hosts .129 bis .190.</p></div>
@@ -1141,7 +1141,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch7" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Subnetze planen: rückwärts rechnen und gleich groß teilen</h3><p>50 Geräte oder acht Abteilungen stehen im Auftrag. Jetzt übersetzt du die Stückliste in ein Präfix.</p></div></div><p>Die neue Abteilung hat 50 Geräte. Entscheide zuerst, wie viele nutzbare Adressen nötig sind, und suche dann den kleinsten passenden Block. 50 Plätze auf dem Papier reichen wenig, wenn zwei davon reserviert sind.</p>
+      <div class="chapter-head"><span class="ch-no">07</span><div><h3>Subnetze planen: rückwärts rechnen und gleich groß teilen</h3><p>50 Geräte oder acht Abteilungen stehen im Auftrag. Jetzt übersetzt du die Stückliste in ein Präfix.</p></div></div><p>50 Geräte brauchen 50 nutzbare Hostadressen. Rechne Netz-ID und Broadcast dazu und suche den kleinsten Block mit mindestens 52 Adressen. Der erste passende Block hat 64. Das ist der Moment, in dem die Stückliste das Präfix diktiert.</p>
       <div class="two">
         <div class="box"><h4>Vorgabe: mindestens 50 Hosts</h4><ol><li>50 Hosts + 2 = <strong>52 Adressen</strong>.</li><li>Kleinste Zweierpotenz ≥ 52: <strong>64 = 2⁶</strong>.</li><li>6 Hostbits → 32 − 6 = <strong>/26</strong>.</li><li>/26 bietet 62 Hosts. /27 mit 30 wäre zu klein.</li></ol></div>
         <div class="box"><h4>Vorgabe: 8 gleich große Netze</h4><p>Aus <span class="val">192.168.10.0/24</span> sollen 8 Subnetze werden: 2³ = 8, also <strong>3 Bits leihen</strong>.</p><p class="mono">/24 + 3 = /27</p><p>Netze bei .0, .32, .64 … .224, je 30 Hosts.</p></div>
@@ -1157,7 +1157,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch8" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">08</span><div><h3>VLSM und Routenzusammenfassung</h3><p>Mit VLSM verteilst du passende Blöcke. Beim Zusammenfassen bündelst du passende Routen zu einem Eintrag.</p></div></div><p>Die große Abteilung bekommt ihren Block zuerst. Für VLSM ist das praktisch, weil die kleinen Netze danach leichter auf passende Grenzen rutschen. Umgekehrt ist es wie Schrankaufbau mit der größten Platte ganz unten im Stapel.</p>
+      <div class="chapter-head"><span class="ch-no">08</span><div><h3>VLSM und Routenzusammenfassung</h3><p>Mit VLSM verteilst du passende Blöcke. Beim Zusammenfassen bündelst du passende Routen zu einem Eintrag.</p></div></div><p>Plane zuerst den größten Block an einer passenden Netzgrenze. Dann setzt du die kleineren dahinter. Wer erst die kleinen Lücken verteilt, darf später womöglich den halben Adressplan umräumen.</p>
       <p><strong>VLSM</strong> (Variable Length Subnet Mask): Jede Abteilung bekommt ein Netz passend zu ihrem Bedarf. Regel: <strong>größter Bedarf zuerst</strong>, sonst passt der große Block später nicht mehr auf eine saubere Grenze.</p>
       <div class="table-wrap"><table class="t"><thead><tr><th>Bedarf</th><th>Netz</th><th>Netz-ID</th><th>Broadcast</th><th>Hosts</th></tr></thead><tbody>
         <tr><td>100 Hosts</td><td class="m">/25</td><td class="m">192.168.50.0</td><td class="m">192.168.50.127</td><td class="m">126</td></tr>
@@ -1171,7 +1171,7 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
         <div id="vOut" class="lab-out"></div>
       </div>
       <h4>Routen zusammenfassen (Supernetting)</h4>
-      <p>Der Gegenweg: Mehrere Netze werden zu <strong>einer</strong> kürzeren Route. Schreib die unterschiedlichen Oktette binär untereinander und zähle die gemeinsamen Bits von links.</p>
+      <p>Für eine <strong>Sammelroute</strong> schreibst du die Netzadressen binär untereinander. Zähl links bis zur ersten Stelle, an der sich die Bits unterscheiden. Der gemeinsame Anfang bestimmt das neue Präfix. Prüfe anschließend, welche Adressen der zusammengefasste Block umfasst.</p>
       <div class="calc">172.16.4.0/24   3. Oktett   4 = 0000 0100
 172.16.5.0/24               5 = 0000 0101
 172.16.6.0/24               6 = 0000 0110
@@ -1184,15 +1184,15 @@ Adressen      2¹² = 4.096, nutzbar 4.094</div>
     </section>
 
     <section id="ch9" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Adressen prüfen und Fehler finden</h3><p>„PC A erreicht PC B nicht.“ Bevor jemand das Ticket weiterreicht, vergleichst du Netz-ID, Maske und Gateway.</p></div></div><p>Zwei PCs können sich nicht erreichen. Rechne für beide die Netz-ID aus und prüfe die Masken und das Gateway. Fast gleiche IP-Adressen sind als Diagnose ungefähr so gut wie fast eingesteckte Kabel.</p>
+      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Adressen prüfen und Fehler finden</h3><p>„PC A erreicht PC B nicht.“ Bevor jemand das Ticket weiterreicht, vergleichst du Netz-ID, Maske und Gateway.</p></div></div><p>Im Ticket steht nur „PC B nicht erreichbar“. Rechne beide Netz-IDs mit den tatsächlich eingetragenen Masken aus. Prüfe danach, ob das Gateway zur jeweiligen lokalen Konfiguration passt. Erst dann weißt du, wo du weitersuchen musst.</p>
       <h4>Gleiches Netz oder nicht?</h4>
-      <p>Zwei Geräte können nur direkt miteinander sprechen, wenn ihre <strong>Netz-IDs gleich</strong> sind. Sonst brauchen sie einen Router. Also: für beide Adressen die Netz-ID ausrechnen und vergleichen.</p>
+      <p>Im Beispiel mit gleichem Präfix vergleichst du die <strong>Netz-IDs</strong>. Liegen die Geräte im selben Subnetz, kann die Verbindung lokal laufen. Für ein anderes Subnetz brauchst du eine Route über einen Router.</p>
       <div class="lab"><div class="lab-head"><strong>NETZ-VERGLEICHER</strong><span class="subtle">Zwei Adressen, ein Präfix.</span></div>
         <div class="field-row"><label for="sA" class="sr-only">Adresse A</label><input id="sA" class="lab-in" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" value="192.168.5.70"><label for="sB" class="sr-only">Adresse B</label><input id="sB" class="lab-in" type="text" inputmode="decimal" spellcheck="false" autocomplete="off" value="192.168.5.130"><label for="sP" class="sr-only">Präfix</label><select id="sP" class="sel"></select></div>
         <div id="sOut" class="lab-out"></div>
       </div>
       <h4>Das Standardgateway</h4>
-      <p>Das Gateway muss ein <strong>nutzbarer Host im selben Netz</strong> wie der PC sein. Es muss <strong>nicht</strong> die erste Adresse sein, das ist nur eine verbreitete Gewohnheit. Typische Fehler: Gateway in einem anderen Netz, Gateway = Netz-ID oder Broadcast, falsche Maske am PC.</p>
+      <p>Das Gateway muss ein <strong>nutzbarer Host im selben Netz</strong> wie der PC sein. Es muss <strong>nicht</strong> die erste Adresse sein, das ist nur eine verbreitete Gewohnheit. Prüfe drei Dinge: Liegt das Gateway im lokalen Netz? Ist es eine nutzbare Hostadresse? Stimmt die Maske am PC? Das sind drei gute Fragen für ein Ticket, das nur „geht nicht“ sagt.</p>
       <h4>Adressen, die du sofort erkennen musst</h4>
       <div class="table-wrap"><table class="t"><thead><tr><th>Bereich</th><th>Bedeutung</th><th>Quelle</th></tr></thead><tbody>
         <tr><td class="m">10.0.0.0/8</td><td>Privat</td><td>RFC 1918</td></tr>
@@ -1530,12 +1530,12 @@ S('mask','m_p2m','Präfix → Subnetzmaske',1,lv=>{
 S('mask','m_m2p','Subnetzmaske → Präfix',1,lv=>{
  const p=lv===1?rint(17,30):rint(8,30),s=SN(0,p),full=Math.floor(p/8),rest=p%8;
  return {kind:'pre',key:'mm'+p,prompt:P('Wie lautet das CIDR-Präfix zur Subnetzmaske '+VI(s.mask)+'?','Wie viele Einsen hat die Maske '+VI(s.mask)+' insgesamt? Das ist die Zahl hinter dem Schrägstrich. '+SM('255 hat 8 Einsen, 0 hat keine.')),answer:p,
-  why:W(['Jede 255 zählt 8 Einsen: '+full+' × 8 = '+8*full+'.',rest?'Der Wert '+s.maskOct+' hat '+rest+' Einsen ('+binRaw(s.maskOct,8)+').':'Die Oktette mit 0 zählen nichts.','Summe: '+8*full+(rest?' + '+rest:'')+' = <b>/'+p+'</b>.']),
+  why:W(['Eine 255 ist ein volles Oktett mit acht Einsen: '+full+' × 8 = '+8*full+'.',rest?'Der Wert '+s.maskOct+' hat '+rest+' Einsen ('+binRaw(s.maskOct,8)+').':'Die Oktette mit 0 zählen nichts.','Summe: '+8*full+(rest?' + '+rest:'')+' = <b>/'+p+'</b>.']),
   diag:v=>v===32-p?'Du hast die Nullen gezählt. Das Präfix zählt die Einsen.':Math.abs(v-p)===1?'Um ein Bit daneben. Zähl die Einsen im Teilwert '+s.maskOct+' noch mal.':''};
 });
 S('mask','m_wild','Präfix → Wildcard',2,lv=>{
  const p=rint(16,30),s=SN(0,p);
- return {kind:'ip',key:'mw'+p,prompt:P('Ermitteln Sie die Wildcard-Maske (inverse Maske) zum Präfix '+V('/'+p)+'.','Die Wildcard ist das Gegenteil der Subnetzmaske: Jede Zahl der Maske wird von 255 abgezogen. Wie lautet die Wildcard zu '+V('/'+p)+'?'),answer:s.wild,
+ return {kind:'ip',key:'mw'+p,prompt:P('Wie lautet die Wildcard-Maske (inverse Maske) zum Präfix '+V('/'+p)+'?','Die Wildcard ist das Gegenteil der Subnetzmaske: Jede Zahl der Maske wird von 255 abgezogen. Wie lautet die Wildcard zu '+V('/'+p)+'?'),answer:s.wild,
   why:W(['Maske zu /'+p+': '+IP(s.mask)+'.','Jedes Oktett von 255 abziehen.','Wildcard = <b>'+IP(s.wild)+'</b>.']),
   diag:v=>v===s.mask?'Das ist die Maske selbst. Wildcard = 255 − jedes Maskenoktett.':''};
 });
@@ -1553,7 +1553,7 @@ S('mask','m_oct','Teilmaske eines Oktetts',1,lv=>{
 });
 S('mask','m_bin','Binäre Maske → Präfix',1,lv=>{
  const p=rint(lv===1?16:8,30),s=SN(0,p),bs=[0,1,2,3].map(i=>binRaw(OCT(s.mask,i),8)).join('.');
- return {kind:'pre',key:'mb'+p,prompt:P('Bestimmen Sie die Präfixlänge der binär angegebenen Subnetzmaske '+V(bs)+'.','Zähl die Einsen in dieser Maske: '+V(bs)+'. Wie lautet das Präfix (/…)?'),answer:p,
+ return {kind:'pre',key:'mb'+p,prompt:P('Wie lautet das Präfix zu dieser binären Subnetzmaske '+V(bs)+'?','Zähl die Einsen in dieser Maske: '+V(bs)+'. Wie lautet das Präfix (/…)?'),answer:p,
   why:W(['Volle Oktette mit 11111111: '+Math.floor(p/8)+' × 8 = '+8*Math.floor(p/8)+'.',p%8?'Dazu '+p%8+' Einsen im nächsten Oktett.':'Kein angebrochenes Oktett.','Präfix: <b>/'+p+'</b>.']),
   diag:v=>v===32-p?'Das sind die Nullen. Das Präfix zählt die Einsen.':''};
 });
@@ -1574,7 +1574,7 @@ S('hosts','h_bits','Hostbits aus Präfix',1,lv=>{
 S('hosts','h_total','Adressen insgesamt',1,lv=>{
  const p=pfx(lv,20,30,12,30),s=SN(0,p);
  return {kind:'dec',key:'ht'+p,prompt:P('Wie viele IPv4-Adressen umfasst ein '+V('/'+p)+'-Netz insgesamt (einschließlich Netz- und Broadcastadresse)?','Wie viele Adressen gibt es in einem '+V('/'+p)+'-Netz <strong>insgesamt</strong>, also alle mitgezählt? '+SM('Erst Hostbits = 32 − '+p+', dann 2 hoch Hostbits.')),answer:s.total,
-  why:W(['Hostbits = 32 − '+p+' = '+s.hostBits+'.','Adressen = 2 hoch Hostbits.','2'+sup(s.hostBits)+' = <b>'+gi(s.total)+'</b>.']),
+  why:W(['Hostbits = 32 − '+p+' = '+s.hostBits+'.','Jedes Hostbit verdoppelt die Zahl der Adressen.','2'+sup(s.hostBits)+' = <b>'+gi(s.total)+'</b>.']),
   diag:v=>v===s.total-2?'Das sind die nutzbaren Hosts. Gefragt sind alle Adressen, also ohne − 2.':diagHosts(v,s).replace(' Netz-ID und Broadcast musst du noch abziehen (− 2).','')};
 });
 S('hosts','h_usable','Nutzbare Hosts aus Präfix',1,lv=>{
@@ -1635,19 +1635,19 @@ S('net3','n3_net','Netz-ID /9 bis /23',1,lv=>netTask(hostIp(p3(lv)),'n3'));
 S('net3','n3_netmask','Netz-ID mit Maske (3./2. Oktett)',2,lv=>netTask(hostIp(p3(lv)),'n3m',true));
 S('net3','n3_oct','Entscheidendes Oktett',1,lv=>{
  let p;do{p=rint(9,30)}while(p%8===0);const o=Math.floor(p/8)+1;
- return {kind:'dec',key:'no'+p,prompt:P('In welchem Oktett liegt bei einem '+V('/'+p)+'-Netz die Grenze zwischen Netz- und Hostanteil? Geben Sie die Nummer des Oktetts (1 bis 4) an.','Bei '+V('/'+p)+' gehören die ersten '+p+' Bits zum Netz. In welchem der vier Blöcke (1 bis 4) liegt der Übergang von Netz zu Host? '+SM('Jeder Block hat 8 Bits: Block 1 = Bit 1 bis 8, Block 2 = Bit 9 bis 16 und so weiter.')),answer:o,
+ return {kind:'dec',key:'no'+p,prompt:P('In welchem Oktett liegt bei einem '+V('/'+p)+'-Netz die Grenze zwischen Netz- und Hostanteil? Gib die Nummer des Oktetts an (1 bis 4).','Bei '+V('/'+p)+' gehören die ersten '+p+' Bits zum Netz. In welchem der vier Blöcke (1 bis 4) liegt der Übergang von Netz zu Host? '+SM('Jeder Block hat 8 Bits: Block 1 = Bit 1 bis 8, Block 2 = Bit 9 bis 16 und so weiter.')),answer:o,
   why:W([p+' : 8 = '+Math.floor(p/8)+' Rest '+p%8+'.',Math.floor(p/8)+' Oktette sind komplett Netz.','Die restlichen '+p%8+' Netzbits liegen im <b>'+o+'.</b> Oktett. Dort rechnest du die Sprungweite.']),
   diag:v=>v===Math.floor(p/8)?'Das sind die vollen Netz-Oktette. Die Grenze liegt im nächsten Oktett.':''};
 });
 S('net3','n3_block','Sprungweite im 3. Oktett',1,lv=>{
  const p=lv===1?rint(17,23):pick([rint(17,23),rint(9,15)]),s=SN(0,p);
- return {kind:'dec',key:'n3b'+p,prompt:P('Ermitteln Sie die Sprungweite im entscheidenden Oktett für '+V('/'+p)+'.','In welchen Schritten beginnen die '+V('/'+p)+'-Netze im '+ORDN[s.octet]+' Oktett? '+SM('256 minus Maskenwert in diesem Oktett.')),answer:s.block,
+ return {kind:'dec',key:'n3b'+p,prompt:P('Wie groß ist die Sprungweite im entscheidenden Oktett für '+V('/'+p)+'?','In welchen Schritten beginnen die '+V('/'+p)+'-Netze im '+ORDN[s.octet]+' Oktett? '+SM('256 minus Maskenwert in diesem Oktett.')),answer:s.block,
   why:W(['/'+p+' → Maske '+IP(s.mask)+'.','Entscheidend: '+ORDN[s.octet]+' Oktett mit Maskenwert '+s.maskOct+'.','Sprungweite = 256 − '+s.maskOct+' = <b>'+s.block+'</b>.']),
   diag:v=>v===s.maskOct?'Das ist der Maskenwert. Sprungweite = 256 − Maskenwert.':v===s.total?'Das ist die Zahl aller Adressen. Gefragt ist der Schritt im '+ORDN[s.octet]+' Oktett.':''};
 });
 S('net3','n3_next','Nächstes Subnetz',2,lv=>{
  const p=pick([rint(17,23),rint(25,30),rint(17,30)]),s=hostIp(p),nx=(s.net+s.total)>>>0;
- return {kind:'ip',key:'nx'+s.ip+'_'+p,prompt:P('Der Host '+VN(s.ip,p)+' liegt in einem Subnetz. Geben Sie die Netzadresse des unmittelbar folgenden Subnetzes gleicher Größe an.','Wo beginnt das <strong>nächste</strong> gleich große Netz nach dem Netz von '+VN(s.ip,p)+'? '+SM('Erst die eigene Netz-ID finden, dann eine Sprungweite weiter.')),answer:nx,
+ return {kind:'ip',key:'nx'+s.ip+'_'+p,prompt:P('Der Host '+VN(s.ip,p)+' liegt in einem Subnetz. Welche Netz-ID hat das direkt folgende Subnetz gleicher Größe?','Wo beginnt das <strong>nächste</strong> gleich große Netz nach dem Netz von '+VN(s.ip,p)+'? '+SM('Erst die eigene Netz-ID finden, dann eine Sprungweite weiter.')),answer:nx,
   why:W(netSteps(s).slice(0,3).concat(['Eigene Netz-ID '+IP(s.net)+', eine Sprungweite ('+s.block+') im '+ORDN[s.octet]+' Oktett weiter: <b>'+IP(nx)+'</b>.'])),
   diag:v=>v===s.net?'Das ist der Start des aktuellen Blocks. Geh eine Sprungweite weiter.':v===((s.bc+2)>>>0)?'Das nächste Netz beginnt direkt nach dem Broadcast. Du bist eine Adresse zu weit gelaufen.':''};
 });
@@ -1662,13 +1662,13 @@ S('bc','b_first','Erster nutzbarer Host',1,lv=>{
  const s=hostIp(pb(lv));
  return {kind:'ip',key:'bf'+s.ip+'_'+s.p,prompt:P('Geben Sie die erste nutzbare Hostadresse im Netz des Hosts '+VN(s.ip,s.p)+' an.','Welche Adresse ist die <strong>erste, die ein Gerät bekommen darf</strong>, im Netz von '+VN(s.ip,s.p)+'? '+SM('Die Netz-ID selbst ist für Geräte tabu, die Adresse danach ist frei.')),answer:s.first,
   why:W(netSteps(s).concat(['Erster Host = Netz-ID + 1 = <b>'+IP(s.first)+'</b>.'])),
-  diag:v=>v===s.net?'Die Netz-ID ist kein Host. Erster Host = Netz-ID + 1.':(d=>d?'Die Netz-ID davor stimmt nicht: '+d:'')(diagNet((v-1)>>>0,s))};
+  diag:v=>v===s.net?'Du bist bei der Netz-ID gelandet. Geh eine Adresse weiter zum ersten Host.':(d=>d?'Die Netz-ID davor stimmt nicht: '+d:'')(diagNet((v-1)>>>0,s))};
 });
 S('bc','b_last','Letzter nutzbarer Host',1,lv=>{
  const s=hostIp(pb(lv));
  return {kind:'ip',key:'bl'+s.ip+'_'+s.p,prompt:P('Geben Sie die letzte nutzbare Hostadresse im Netz des Hosts '+VN(s.ip,s.p)+' an.','Welche Adresse ist die <strong>letzte, die ein Gerät bekommen darf</strong>, im Netz von '+VN(s.ip,s.p)+'? '+SM('Die allerletzte Adresse ist der Broadcast, die davor ist frei.')),answer:s.last,
   why:W(bcSteps(s).concat(['Letzter Host = Broadcast − 1 = <b>'+IP(s.last)+'</b>.'])),
-  diag:v=>v===s.bc?'Der Broadcast ist kein Host. Letzter Host = Broadcast − 1.':(d=>d?'Der Broadcast dahinter stimmt nicht: '+d:'')(diagBc((v+1)>>>0,s))};
+  diag:v=>v===s.bc?'Du bist am Broadcast angekommen. Geh eine Adresse zurück, dann hast du den letzten Host.':(d=>d?'Der Broadcast dahinter stimmt nicht: '+d:'')(diagBc((v+1)>>>0,s))};
 });
 S('bc','b_bcmask','Broadcast mit Maske',2,lv=>{
  const s=hostIp(rint(lv>=3?12:16,30));
@@ -1687,19 +1687,19 @@ function hostsTo(H){const hb=Math.ceil(Math.log2(H+2));return {hb,p:32-hb,size:p
 S('plan','pl_hosts2p','Präfix für H Hosts',1,lv=>{
  const H=lv===1?rint(5,250):rint(10,4000),r=hostsTo(H);
  const ctx=pick(['In einem Unternehmensnetz sollen','Für eine Abteilung sollen','Im Gäste-WLAN eines Hotels sollen','In einem Schulungsraum sollen']);
- return {kind:'pre',key:'ph'+H,prompt:P(ctx+' '+V(gi(H))+' Hosts adressiert werden. Ermitteln Sie die größtmögliche Präfixlänge (kleinstes passendes Netz).',ctx+' '+V(gi(H))+' Geräte eine Adresse bekommen. Welches Präfix (/…) ergibt das kleinste Netz, in das alle passen? '+SM('Rechne + 2 für Netz-ID und Broadcast, dann auf eine Zweierpotenz aufrunden.')),answer:r.p,
+ return {kind:'pre',key:'ph'+H,prompt:P(ctx+' '+V(gi(H))+' Hosts adressiert werden. Welches Präfix ergibt den kleinsten Block, in den alle Hosts passen?',ctx+' '+V(gi(H))+' Geräte eine Adresse bekommen. Welches Präfix (/…) ergibt das kleinste Netz, in das alle passen? '+SM('Rechne + 2 für Netz-ID und Broadcast, dann auf eine Zweierpotenz aufrunden.')),answer:r.p,
   why:W([gi(H)+' Hosts + 2 (Netz-ID und Broadcast) = '+gi(H+2)+' Adressen.','Kleinste Zweierpotenz ≥ '+gi(H+2)+': 2'+sup(r.hb)+' = '+gi(r.size)+', also '+r.hb+' Hostbits.','Präfix = 32 − '+r.hb+' = <b>/'+r.p+'</b> ('+gi(r.size-2)+' nutzbare Hosts).']),
   diag:v=>v===r.hb?'Das sind die Hostbits. Präfix = 32 − Hostbits.':v===r.p+1&&pow2(r.hb-1)>=H?'/'+v+' hat nur '+gi(pow2(r.hb-1)-2)+' nutzbare Hosts. Vermutlich fehlt das + 2 für Netz-ID und Broadcast.':v>r.p?'Zu klein: /'+v+' hat nur '+gi(Math.max(0,pow2(32-v)-2))+' nutzbare Hosts.':v<r.p?'Das reicht, ist aber größer als nötig. Gesucht ist das kleinste passende Netz.':''};
 });
 S('plan','pl_maskfor','Maske für H Hosts',2,lv=>{
  const H=rint(6,2000),r=hostsTo(H);
- return {kind:'ip',key:'pm'+H,prompt:P('Ein Subnetz muss mindestens '+V(gi(H))+' Hostadressen bereitstellen und soll so klein wie möglich sein. Geben Sie die Subnetzmaske in Punktschreibweise an.','Ein Netz braucht Platz für mindestens '+V(gi(H))+' Geräte, aber nicht mehr als nötig. Wie lautet seine Subnetzmaske (vier Zahlen mit Punkten)?'),answer:MASK(r.p),
+ return {kind:'ip',key:'pm'+H,prompt:P('Ein Subnetz muss mindestens '+V(gi(H))+' Hostadressen bereitstellen und soll so klein wie möglich sein. Wie lautet die Subnetzmaske mit Punkten?','Ein Netz braucht Platz für mindestens '+V(gi(H))+' Geräte, aber nicht mehr als nötig. Wie lautet seine Subnetzmaske (vier Zahlen mit Punkten)?'),answer:MASK(r.p),
   why:W([gi(H)+' + 2 = '+gi(H+2)+' → aufrunden auf 2'+sup(r.hb)+' = '+gi(r.size)+', also '+r.hb+' Hostbits.','Präfix: 32 − '+r.hb+' = /'+r.p+'.','Maske zu /'+r.p+': <b>'+IP(MASK(r.p))+'</b>.']),
   diag:v=>validMask(v)&&prefixOfMask(v)===r.p+1?'Diese Maske reicht nur für '+gi(pow2(r.hb-1)-2)+' Hosts. Das + 2 nicht vergessen.':diagMask(v,r.p)};
 });
 S('plan','pl_nets2p','Präfix für N Subnetze',1,lv=>{
  const y=lv===1?24:pick([16,20,22,23,24]),N=rint(2,lv===1?30:Math.min(60,pow2(30-y))),b=Math.ceil(Math.log2(N)),base=y===24?U([192,168,rnd(256),0]):(SN(randPrivate(y),y).net);
- return {kind:'pre',key:'pn'+y+'_'+N,prompt:P('Das Netz '+VN(base,y)+' soll in '+V(N)+' gleich große Subnetze aufgeteilt werden, die jeweils möglichst groß sind. Ermitteln Sie die neue Präfixlänge.','Das Netz '+VN(base,y)+' wird in '+V(N)+' gleich große Teile zerlegt. Jedes Teil soll so groß wie möglich sein. Welches Präfix bekommen die Teile? '+SM('Mit n zusätzlichen Netzbits entstehen 2ⁿ Teile.')),answer:y+b,
+ return {kind:'pre',key:'pn'+y+'_'+N,prompt:P('Das Netz '+VN(base,y)+' soll in '+V(N)+' gleich große Subnetze aufgeteilt werden, die jeweils möglichst groß sind. Welches Präfix bekommen die Subnetze?','Das Netz '+VN(base,y)+' wird in '+V(N)+' gleich große Teile zerlegt. Jedes Teil soll so groß wie möglich sein. Welches Präfix bekommen die Teile? '+SM('Mit n zusätzlichen Netzbits entstehen 2ⁿ Teile.')),answer:y+b,
   why:W(['Kleinste Zweierpotenz ≥ '+N+': 2'+sup(b)+' = '+pow2(b)+'.','Dafür werden '+b+' Bits vom Hostteil geliehen.','/'+y+' + '+b+' = <b>/'+(y+b)+'</b>.'+(pow2(b)>N?' Es entstehen '+pow2(b)+' Subnetze, '+(pow2(b)-N)+' bleiben als Reserve.':'')]),
   diag:v=>v===b?'Das sind die zusätzlichen Bits. Addiere sie zum alten Präfix /'+y+'.':v===y+b-1?'Zu wenige Netze: Mit /'+v+' gibt es nur '+pow2(b-1)+' Subnetze.':v>y+b?'Das ergibt genug Netze, aber sie sind kleiner als nötig.':''};
 });
@@ -1762,13 +1762,13 @@ function sumNets(lv){
 }
 S('vlsm','v_sumpre','Routenzusammenfassung: Präfix',2,lv=>{
  const r=sumNets(lv);
- return {kind:'pre',key:'vs'+r.nets[0]+'_'+r.n,prompt:P('Ein Router soll die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' mit einer einzigen Sammelroute erreichen. Ermitteln Sie die Präfixlänge der kleinsten Sammelroute, die alle Netze enthält.','Statt '+r.n+' einzelner Routen soll ein Router nur <strong>eine</strong> Route kennen, die alle diese Netze umfasst: '+r.nets.map(u=>VN(u,24)).join(', ')+'. Welches Präfix hat die kleinste solche Route? '+SM('Schreib die 3. Oktette binär untereinander und zähle, wie viele Bits von links bei allen gleich sind.')),answer:r.p,
+ return {kind:'pre',key:'vs'+r.nets[0]+'_'+r.n,prompt:P('Ein Router soll die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' mit einer einzigen Sammelroute erreichen. Welches Präfix hat die kleinste Sammelroute, die alle diese Netze enthält?','Statt '+r.n+' einzelner Routen soll ein Router nur <strong>eine</strong> Route kennen, die alle diese Netze umfasst: '+r.nets.map(u=>VN(u,24)).join(', ')+'. Welches Präfix hat die kleinste solche Route? '+SM('Schreib die 3. Oktette binär untereinander und zähle, wie viele Bits von links bei allen gleich sind.')),answer:r.p,
   why:'<div class="calc">'+r.nets.map(u=>(OCT(u,2)+'').padStart(3)+' = '+binRaw(OCT(u,2),8)).join('\n')+'</div>'+W(['Die ersten beiden Oktette sind gleich: 16 Bits.','Im 3. Oktett stimmen von links '+(r.p-16)+' Bits überein.','16 + '+(r.p-16)+' = <b>/'+r.p+'</b>, Sammelroute '+IP(r.sum)+'/'+r.p+'.'+(pow2(24-r.p)>r.n?' Sie enthält '+pow2(24-r.p)+' /24-Netze, also mehr als nötig. Kleiner geht es nicht, weil die Netze nicht auf einer passenden Grenze liegen.':'')]),
   diag:v=>v===24-Math.ceil(Math.log2(r.n))&&v!==r.p?'So wäre es, wenn die Netze auf einer passenden Grenze begännen. Prüfe die Bits: '+OCT(r.nets[0],2)+' ist kein Vielfaches von '+pow2(24-v)+'.':v===24+Math.ceil(Math.log2(r.n))?'Beim Zusammenfassen wird das Präfix kürzer, nicht länger.':''};
 });
 S('vlsm','v_sumnet','Routenzusammenfassung: Netz',2,lv=>{
  const r=sumNets(lv);
- return {kind:'ip',key:'vt'+r.nets[0]+'_'+r.n,prompt:P('Fassen Sie die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' zu der kleinstmöglichen Sammelroute zusammen. Geben Sie die Netzadresse dieser Sammelroute an.','Die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' sollen mit einer einzigen Route erreicht werden. Bei welcher Adresse beginnt die kleinste Route, die alle umfasst? '+SM('Erst die gemeinsamen Bits von links finden, dann alle übrigen Bits auf 0 setzen.')),answer:r.sum,
+ return {kind:'ip',key:'vt'+r.nets[0]+'_'+r.n,prompt:P('Fassen Sie die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' zu der kleinstmöglichen Sammelroute zusammen. Bei welcher Netzadresse beginnt diese Sammelroute?','Die Netze '+r.nets.map(u=>VN(u,24)).join(', ')+' sollen mit einer einzigen Route erreicht werden. Bei welcher Adresse beginnt die kleinste Route, die alle umfasst? '+SM('Erst die gemeinsamen Bits von links finden, dann alle übrigen Bits auf 0 setzen.')),answer:r.sum,
   why:'<div class="calc">'+r.nets.map(u=>(OCT(u,2)+'').padStart(3)+' = '+binRaw(OCT(u,2),8)).join('\n')+'</div>'+W(['Gemeinsame Bits von links: 16 + '+(r.p-16)+' = /'+r.p+'.','Alle Bits danach auf 0 setzen: 3. Oktett '+binRaw(OCT(r.sum,2),8)+' = '+OCT(r.sum,2)+'.','Sammelroute: <b>'+IP(r.sum)+'/'+r.p+'</b>.']),
   diag:v=>v===r.nets[0]&&r.nets[0]!==r.sum?'Das erste Netz ist nicht automatisch der Anfang der Sammelroute. Sie muss auf einer Grenze ihrer eigenen Größe beginnen.':''};
 });
@@ -2163,7 +2163,7 @@ let steck=null,steckRound=0;
 function steckNew(){
  steckRound++;$('trainNo').textContent='RUNDE '+String(steckRound).padStart(2,'0');
  const p=pick([rint(17,23),rint(24,30),rint(24,30),rint(12,30)]);steck=hostIp(p);
- $('steckQ').innerHTML='Ergänzen Sie die Tabelle für den Host '+VN(steck.ip,p)+'.'+qhelp({plain:'Rechne für das Gerät '+IP(steck.ip)+'/'+p+' alle sechs Werte aus: Maske, Netz-ID, ersten und letzten Geräte-Platz, Broadcast und wie viele Geräte ins Netz passen.'},'st'+steckRound);
+ $('steckQ').innerHTML='Füll den Netz-Steckbrief für den Host '+VN(steck.ip,p)+'.'+qhelp({plain:'Rechne für das Gerät '+IP(steck.ip)+'/'+p+' alle sechs Werte aus: Maske, Netz-ID, ersten und letzten Geräte-Platz, Broadcast und wie viele Geräte ins Netz passen.'},'st'+steckRound);
  $('steckList').innerHTML=STECK.map(([k,l,kind])=>'<div class="steck-row"><label for="sk_'+k+'">'+l+'</label><input id="sk_'+k+'" type="text" autocomplete="off" spellcheck="false" inputmode="'+IM[kind]+'" placeholder="'+(kind==='ip'?'a.b.c.d':'Zahl')+'"><span class="mk" id="skm_'+k+'"></span></div>').join('');
  $('steckList').querySelectorAll('input').forEach((inp,i,all)=>inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(all[i+1])all[i+1].focus();else $('steckCheck').click()}}));
  $('steckResult').innerHTML='';$('steckResult').className='result';$('steckCheck').disabled=false;
