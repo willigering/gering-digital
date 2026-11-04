@@ -64,3 +64,9 @@ Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Pr�
 
 - Redigiert: Lektionen, Nachschlagewerk, Beispiele, Laboranweisungen, Aufgabenformulierungen, Lösungshinweise und Rückmeldungen. Ein erfolgreicher Ping wird als Nachweis der IP-Erreichbarkeit für den konkreten Test beschrieben.
 - Lokal geprüft: JavaScript-Syntax, Überschriften und 40.600 generierte Aufgaben aus 58 Typen. Aufgabenschlüssel, Antwortarten, Lösungen, Optionen und Punkte stimmen mit der Ausgangsfassung überein.
+
+## B3 – Humor und Sprache nach Willis Rückmeldung (04.11.2026)
+
+- Zehn Lektionseinstiege gestrafft, Nachschlagekapitel und ausgewählte Labortexte, Aufgabenformulierungen, Hinweise und Lösungsrückmeldungen überarbeitet. Die freigegebenen Pointen zum Broadcast und zum zu kleinen /28 stehen im Lernpfad und im Nachschlagwerk. Trainings- und Prüfungstexte, Ergebnisrückmeldungen und Kartenbeschreibung auf denselben Ton abgestimmt.
+- Fachlich präzisiert: IPv4-Link-Local kann bei automatischer Konfiguration auf eine ausgebliebene DHCP-Zuweisung hinweisen. Für die direkte Zustellung müssen sich beide Geräte gegenseitig als lokal einstufen.
+- Lokal geprüft: Skriptsyntax und identische HTML-Überschriften. 58.000 Aufgaben aus allen 58 Typen mit identischer Zufallsfolge verglichen. Schlüssel, Antworten, Antwortformate, Auswahloptionen, Punkte und AND-Zwischenfelder sind identisch. Musterantworten für die Eingabefelder wurden akzeptiert. Lokale Browserprüfung durch fehlgeschlagenen Chromium-Download blockiert. Die öffentliche URL lieferte vor der Änderung den bisherigen Text aus.
