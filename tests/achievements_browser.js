@@ -81,9 +81,20 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
     await page.fill('input[name=username]','anna');await page.fill('input[name=password]','ein-langes-testpasswort');
     await Promise.all([page.waitForNavigation(),page.click('.auth-form button[type=submit]')]);
 
-    // Module names: formal subject above the witty title on the cards.
-    const cards=await page.$$eval('.module-card',cs=>cs.map(c=>c.querySelector('.module-category').textContent.trim()+' | '+c.querySelector('h2').textContent.trim()));
-    for(const want of ['Zahlensysteme | Bits zum bitteren Ende','OSI-Schichten | Easy OSI for FISI','Subnetting | Wer teilt, gewinnt','Netzwerkgrundlagen | Jetzt ma Router bei die Switche!'])assert.ok(cards.includes(want),'Modulkarte zeigt '+want+' ('+cards.join(', ')+')');
+    // The topic hierarchy is visible above each module title.
+    const cards=await page.$$eval('.module-card',cs=>cs.map(c=>[
+      c.querySelector('.module-category').textContent.trim(),
+      c.querySelector('.module-number')?.textContent.trim(),
+      [...c.querySelector('.module-subtopic')?.childNodes??[]].filter(n=>n.nodeType===Node.TEXT_NODE).map(n=>n.textContent).join('').trim(),
+      c.querySelector('h2').textContent.trim()
+    ].join(' | ')));
+    for(const want of [
+      'Grundlagen | 01 | Zahlensysteme | Bits zum bitteren Ende',
+      'Netzwerktechnik | 02 | OSI-Schichten | Easy OSI for FISI',
+      'IP & Subnetting | 01 | Subnetting | Wer teilt, gewinnt',
+      'Netzwerktechnik | 02 | Netzwerkgrundlagen | Jetzt ma Router bei die Switche!',
+      'Kalkulation & Beschaffung | 06 | Angebotsvergleich | Rechnet sich das?'
+    ])assert.ok(cards.includes(want),'Modulkarte zeigt '+want+' ('+cards.join(', ')+')');
     if(shots)await page.locator('#lernmodule').screenshot({path:path.join(shots,'modulkarten-thema.png')});
 
     let popupShot=false;

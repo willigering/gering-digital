@@ -108,10 +108,10 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-art,.module-art.has-image{aspect-ratio:16/9;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at center,#233945,#0c151b);border-bottom:1px solid #ffffff12}
 .module-art img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;object-position:center}
 .module-art-symbol{color:var(--mod);font-size:48px;font-weight:750;letter-spacing:-.05em}
-.module-art-number{position:absolute;top:14px;left:14px;border:1px solid #ffffff24;border-radius:6px;color:#f3f3ed;font-size:10px;font-weight:700;padding:3px 8px;background:#0b1318d9}
 .module-body{padding:24px;display:flex;flex-direction:column;flex:1}
 .module-category{display:flex;align-items:center;gap:7px;color:var(--mod);font-size:10px;letter-spacing:.10em;text-transform:uppercase;font-weight:650}
-.module-category i{width:5px;height:5px;border-radius:50%;background:var(--mod)}
+.module-subtopic{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--mod);font-size:13px;font-weight:700}
+.module-number{display:inline-grid;place-items:center;min-width:2.2em;aspect-ratio:1;border:1px solid currentColor;border-radius:50%;flex:none;font-size:11px;line-height:1}
 .module-body h2{color:var(--cream);font-size:24px;line-height:1.25;letter-spacing:-.03em;margin:12px 0}
 .module-body p{color:var(--muted);font-size:14px;line-height:1.75;margin:0 0 22px;flex:1}
 .module-footer{border-top:1px solid var(--stroke);padding-top:15px;margin-top:auto;display:flex;align-items:center;justify-content:space-between;color:var(--cream);font-size:12px;font-weight:650}
@@ -231,7 +231,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .module-body h2{font-weight:950;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .step h3,.dtp-landing .empty-state h2{font-weight:950;letter-spacing:-.05em;text-transform:uppercase}
 .dtp-landing .eyebrow,.dtp-landing .kicker{font-weight:850;letter-spacing:.24em;text-transform:uppercase}
-.dtp-landing .module-art-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
+.dtp-landing .module-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
 
 
 /* Personal achievement showcase in the compact top-five preview. */
