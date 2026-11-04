@@ -410,7 +410,7 @@ function learner_root_prefix(string $file): string { return str_repeat('../',sub
 function learner_sync_config(string $slug,string $file): array {
     $learner=learner_current();
     $root=learner_root_prefix($file);
-    $config=['v'=>1,'slug'=>$slug,'api'=>$root.'dau-to-pro/api/progress.php','account'=>$root.'dau-to-pro/konto.php?weiter='.rawurlencode($slug),'modules'=>$root.'dau-to-pro/#lernmodule','user'=>null];
+    $config=['v'=>1,'slug'=>$slug,'api'=>$root.'dau-to-pro/api/progress.php','account'=>$root.'dau-to-pro/konto.php?weiter='.rawurlencode($slug),'modules'=>$root.'dau-to-pro/#lernmodule','user'=>null,'cheater'=>$root.'dau-to-pro/api/calculator-cheater.php'];
     if ($learner) {
         $config+=['uid'=>(string)$learner['id'],'csrf'=>csrf(),'data'=>learner_progress_state((int)$learner['id'])];
         $config['user']=$learner['username'];
@@ -419,6 +419,15 @@ function learner_sync_config(string $slug,string $file): array {
 }
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
 function learner_inject_sync(string $html,string $slug,string $file): string {
+    // Replace the embedded calculator in already published modules without reimporting them.
+    $calc=__DIR__.'/dau-to-pro/module-calculator';
+    if (is_file($calc.'.css') && is_file($calc.'.js')) {
+        $html=preg_replace_callback(
+            '~<!-- DTP-TASCHENRECHNER START -->.*?<!-- DTP-TASCHENRECHNER END -->~s',
+            static fn(): string => "<style>".file_get_contents($calc.'.css')."</style>\n<script>".file_get_contents($calc.'.js')."</script>",
+            $html, 1
+        ) ?? $html;
+    }
     // Auch bereits importierte Modulversionen ohne das alte Footer-Logo ausliefern.
     // Nur das Markenbild entfernen; Lernabbildungen und Footer-Texte bleiben erhalten.
     $html=preg_replace_callback('~<footer\b[^>]*>[\s\S]*?</footer>~i', static function(array $m): string {
@@ -561,5 +570,6 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+
 
 

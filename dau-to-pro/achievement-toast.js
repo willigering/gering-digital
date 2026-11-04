@@ -81,11 +81,17 @@
     }
     if (item.xp) { var x = document.createElement('b'); x.className = 'x'; x.textContent = item.xp; t.lastChild.appendChild(x); }
     toastList.appendChild(t);
+    if (document.querySelector('.dtp-calculator-panel[popover]:popover-open') && toastHost.showPopover) {
+      toastHost.style.cssText += ';inset:auto 14px 0 auto;margin:0;background:transparent;border:0;pointer-events:none';
+      toastHost.setAttribute('popover', 'manual');
+      if (!toastHost.matches(':popover-open')) toastHost.showPopover();
+    }
     setTimeout(function () { t.classList.add('on'); ping(item.tier); }, 30);
-    setTimeout(function () { t.classList.remove('on'); setTimeout(function () { t.remove(); showing = false; next(); }, 450); }, 5200);
+    setTimeout(function () { t.classList.remove('on'); setTimeout(function () { t.remove(); if (toastHost.hasAttribute('popover')) { toastHost.hidePopover(); toastHost.removeAttribute('popover'); } showing = false; next(); }, 450); }, 5200);
   }
 
   window.dtpAchievementToast = { celebrate: celebrate, show: function (item) { if (item) { queue.push(item); next(); } } };
 })();
+
 
 
