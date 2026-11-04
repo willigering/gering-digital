@@ -6,7 +6,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 | --- | --- | --- | --- |
 | B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Inhaltlicher Redaktionsdurchlauf aller zehn Stufen/Kapitel abgeschlossen; technische Abnahme siehe Protokoll | Willis Sichtprüfung; Merge-/Live-Status nach tatsächlicher Übernahme aktualisieren |
 | A1 Zahlensysteme | `a1-zahlensysteme.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
-| B1 OSI | `osi-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
+| B1 OSI | `osi-sprint.html` | Lehrtexte und Aufgaben redigiert, Generatorvergleich bestanden | Browserprüfungen und öffentliche Auslieferung bestätigen |
 | B2 Netzwerke | `netzwerke-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B3 Subnetting | `subnet-sprint.html` | Lehrtexte und Aufgaben redigiert, Generatorvergleich bestanden | Browserprüfungen und öffentliche Auslieferung bestätigen |
 | D1 Datenschutz | `d1-datenschutz.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; rechtliche Bedingungen und Ausnahmen erhalten |
@@ -59,3 +59,8 @@ Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Pr�
 - Überarbeitet: Einstieg, Einleitungen aller zehn Lektionen und Nachschlagekapitel, ausgewählte Fragen, Lösungshinweise und Rückmeldungen sowie Trainings-, Prüfungseinstieg und Modulbeschreibung. Bestehende Rechenbeispiele und Aufgabengeneratoren fachlich beibehalten.
 - Ergänzt: Kapiteltexte und Rechenbeispiele, Laboranweisungen, weitere Aufgabenstellungen, Hinweise und Fehlerdiagnosen.
 - Lokal geprüft: Syntax und identische HTML-Überschriften. 58.000 Aufgaben aus allen 58 Typen mit gleicher Zufallsfolge verglichen. Aufgabenschlüssel, Antwortformate, Lösungen, Auswahloptionen, Punkte und AND-Zwischenfelder stimmen überein. Browserabnahme und öffentliche Auslieferung stehen noch aus.
+
+## B1 – Easy OSI for FISI
+
+- Redigiert: Lektionen, Nachschlagewerk, Beispiele, Laboranweisungen, Aufgabenformulierungen, Lösungshinweise und Rückmeldungen. Ein erfolgreicher Ping wird als Nachweis der IP-Erreichbarkeit für den konkreten Test beschrieben.
+- Lokal geprüft: JavaScript-Syntax, Überschriften und 40.600 generierte Aufgaben aus 58 Typen. Aufgabenschlüssel, Antwortarten, Lösungen, Optionen und Punkte stimmen mit der Ausgangsfassung überein.
