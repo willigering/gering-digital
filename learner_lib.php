@@ -449,6 +449,15 @@ function learner_inject_sync(string $html,string $slug,string $file): string {
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
     $tag='<link rel="icon" type="image/svg+xml" href="/assets/dau-to-pro-pixelpilz.svg?v=20261103">'."\n"
         ."<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
+    // Opt-in-Updatehinweis für jedes veröffentlichte Modul, auch ältere importierte Versionen.
+    // Erstes Polling nach DOMContentLoaded, keine automatische Seitenaktualisierung.
+    $updateConfig=json_encode([
+        'slug'=>$slug,
+        'url'=>learner_root_prefix($file).'dau-to-pro/api/update-version.php'
+    ],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT|JSON_UNESCAPED_UNICODE);
+    $updateScript=(string)file_get_contents(__DIR__.'/dau-to-pro/update-notice.js');
+    $tag.="<script>window.__DTP_UPDATE__=$updateConfig;</script>\n<script>"
+        .str_ireplace('</script','<\\/script',$updateScript)."</script>\n";
     // Auch manuell importierte, ältere Modulversionen erhalten den neuen Einstieg.
     // Erst nach sync.js: ein vom Konto geladener letzter Reiter darf nicht gewinnen.
     if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-MODULEINSTIEG START -->')
