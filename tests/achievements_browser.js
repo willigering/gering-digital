@@ -83,7 +83,7 @@ const run=(list,v,n)=>{let r=0;for(const x of list){r=x===v?r+1:0;if(r>=n)return
 
     // The topic hierarchy is visible above each module title.
     assert.equal(await page.locator('.module-card .module-number').count(),0,'Öffentliche Modulkacheln zeigen keine Modulnummern');
-    const cards=await page.$eval('.module-card',cs=>cs.map(c=>[
+    const cards=await page.$$eval('.module-card',cs=>cs.map(c=>[
       c.querySelector('.module-category').textContent.trim(),
       c.querySelector('.module-subtopic')?.textContent.trim(),
       c.querySelector('h2').textContent.trim()
