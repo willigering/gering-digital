@@ -96,9 +96,10 @@
         const startY = rect.top - offsetY;
         const viewport = document.documentElement;
         const minX = Math.max(0, Math.min(12, (viewport.clientWidth - rect.width) / 2));
-        const minY = Math.max(0, Math.min(12, (viewport.clientHeight - rect.height) / 2));
+        const verticalSpace = Math.max(0, viewport.clientHeight - rect.height);
+        const minY = Math.min(verticalSpace, Math.max(0, document.querySelector('.dtp-nav')?.getBoundingClientRect().bottom ?? 0) + 12);
         const maxX = Math.max(minX, viewport.clientWidth - rect.width - minX);
-        const maxY = Math.max(minY, viewport.clientHeight - rect.height - minY);
+        const maxY = Math.max(minY, verticalSpace - 12);
         const corners = [[minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]];
         const awayFromStart = corners.filter(([x, y]) =>
             Math.abs(x - startX) >= rect.width || Math.abs(y - startY) >= rect.height
