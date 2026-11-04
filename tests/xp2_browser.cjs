@@ -48,7 +48,7 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
  await page.evaluate(()=>document.addEventListener('dtp:calculator-cheater',()=>{document.body.dataset.cheater='yes';}));
  await calculator.getByRole('button',{name:'BIN → DEC'}).click();
  assert.equal(await page.locator('body').getAttribute('data-cheater'),'yes');
- assert.match(await calculator.getByRole('status').textContent(),/^GESPERRT/);
+ assert.match(await calculator.locator('.dtp-calculator-joke').textContent(),/^GESPERRT/);
  await page.keyboard.press('Escape');
  await calculator.waitFor({state:'hidden'});
  assert.equal(await page.locator('dialog').isVisible(),true);
