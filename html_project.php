@@ -10,6 +10,6 @@ $filter=null;
 if ($page['category']==='lernen') {
     // DAU TO PRO: learner progress is saved automatically (see learner_lib.php, dau-to-pro/sync.js).
     require_once __DIR__.'/learner_lib.php';
-    $filter=static fn(string $html,string $file): string => learner_inject_sync(hp_current_learning_html($html,$slug,$file),$slug,$file);
+    $filter=static fn(string $html,string $file): string => learner_inject_sync(hp_current_learning_html($html,$slug,$file),$slug,$file,(string)$page['live_version']);
 }
 hp_serve($slug,(string)$page['live_version'],(string)($_GET['file']??''),false,$filter);
