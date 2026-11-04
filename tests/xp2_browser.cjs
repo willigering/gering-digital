@@ -29,7 +29,7 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
  // Private profile authorization is checked on every fetch, not cached into the highscore HTML.
  php(`ach_set_visible(${id},false);`);const response=await page.request.get(base+'/dau-to-pro/api/profile.php?id='+id);assert.equal(response.status(),404);
  const anonymous=await browser.newContext();assert.equal((await anonymous.request.get(base+'/dau-to-pro/api/profile.php?id='+id)).status(),401);
- // The calculator opens in the visible viewport even from a low task inside the exercise dialog.
+ // The calculator is positioned in the viewport in the same click that opens it.
  await page.setViewportSize({width:390,height:640});
  await page.setContent('<dialog style="height:400px"><div style="height:600px"></div><div id="task"></div></dialog>');
  await page.addStyleTag({path:path.join(root,'dau-to-pro/module-calculator.css')});
@@ -38,7 +38,11 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
    document.querySelector('dialog').showModal();
    window.dtpMountCalculator(document.querySelector('#task'),{sub:'d_plain',kind:'num'},'zahlen');
  });
- await page.getByRole('button',{name:'Taschenrechner',exact:true}).click();
+ assert.ok(await page.getByRole('button',{name:'Taschenrechner',exact:true}).evaluate(button=>{
+   button.click();
+   const panel=button.parentElement.querySelector('.dtp-calculator-panel:popover-open');
+   return panel && panel.getBoundingClientRect().top>=8 && panel.getBoundingClientRect().left>=8;
+ }), 'The first click must position the popover before the next frame');
  const calculator=page.locator('.dtp-calculator-panel:popover-open');
  await calculator.getByRole('button',{name:'Taschenrechner schließen'}).waitFor();
  assert.ok(await calculator.evaluate(panel=>{
