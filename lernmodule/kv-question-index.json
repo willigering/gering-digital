@@ -2493,109 +2493,109 @@
     "id": "kv-416",
     "c": 1,
     "sub": "topologie_nennen",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-417",
     "c": 1,
     "sub": "topologie_drei",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-418",
     "c": 1,
     "sub": "stern_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-419",
     "c": 1,
     "sub": "stern_nachteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-420",
     "c": 0,
     "sub": "netz_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-421",
     "c": 0,
     "sub": "client_server_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-422",
     "c": 0,
     "sub": "p2p_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-423",
     "c": 2,
     "sub": "glasfaser_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-424",
     "c": 5,
     "sub": "wlan_vorteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-425",
     "c": 5,
     "sub": "wlan_nachteile",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-426",
     "c": 4,
     "sub": "port_begriff",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-427",
     "c": 4,
     "sub": "email_versand",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-428",
     "c": 4,
     "sub": "email_abruf",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-429",
     "c": 2,
     "sub": "geraete_nennen",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-430",
     "c": 2,
     "sub": "passiv_nennen",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-431",
     "c": 0,
     "sub": "netzarten_nennen",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-432",
     "c": 5,
     "sub": "wlan_baender",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-433",
     "c": 6,
     "sub": "ipv6_gruende",
-    "type": "terms"
+    "type": "choice"
   },
   {
     "id": "kv-434",
