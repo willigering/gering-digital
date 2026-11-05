@@ -11,7 +11,7 @@ function matchNew(){
 $('matchCheck').addEventListener('click',()=>{
  if(match.some((_,i)=>!$('ms'+i).value)){$('matchResult').textContent='Erst alle Zeilen beantworten. Noch nichts gewertet.';return;}
  let c=0;const lines=[];
- match.forEach((r,i)=>{const given=$('ms'+i).value,ok=given===r[0];if(ok)c++;count(ok,'match');$('ms'+i).disabled=true;$('mk'+i).textContent=ok?'✓':'✗';lines.push('<p>'+(ok?'✓':'✗')+' '+esc(r[1])+': <strong>'+esc(r[0])+'</strong>. Deine Antwort: '+esc(given)+'</p>');});
+ match.forEach((r,i)=>{const given=$('ms'+i).value,ok=given===r[0];if(ok)c++;count(ok,'match');$('ms'+i).disabled=true;$('mk'+i).textContent=ok?'✓':'✗';lines.push('<p>'+(ok?'✓':'✗')+' '+esc(r[1])+': <strong>'+esc(r[0])+'</strong>. Deine Antwort: '+esc(given)+(ok?'':'<span class="quip">'+qBad()+'</span>')+'</p>');});
  $('matchResult').innerHTML='<strong>'+c+' von 5 richtig. Jede Zeile einzeln gewertet.</strong>'+lines.join('');$('matchCheck').disabled=true;
 });
 $('matchNext').addEventListener('click',matchNew);

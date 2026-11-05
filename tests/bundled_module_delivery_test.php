@@ -30,5 +30,10 @@ delivery_check(strpos($out,'<!-- DTP-MODULEINSTIEG START -->')>strpos($out,'wind
 $bundled=file_get_contents(__DIR__.'/../lernmodule/a1-zahlensysteme.html');
 $bundledOut=learner_inject_sync($bundled,'a1-zahlensysteme','index.html');
 delivery_check(substr_count($bundledOut,'<!-- DTP-MODULEINSTIEG START -->')===1,'Bundled module is not double-injected');
+delivery_check(substr_count($out,'<!-- DTP-FEHLERSPRUECHE START -->')===1,'Legacy module receives shared wrong-answer quips');
+delivery_check(substr_count($twice,'<!-- DTP-FEHLERSPRUECHE START -->')===1,'Shared quips are not duplicated');
+$legacy='<html><head></head><body><div class="area-tabs"></div><script>const qBad=()=>pick(Q_BAD);</script></body></html>';
+$legacyOut=learner_inject_sync($legacy,'a1-zahlensysteme','index.html');
+delivery_check(str_contains($legacyOut,'qBad=()=>window.DTPWrongAnswer.next()'),'Legacy renderer uses shared quips');
 echo "Published module delivery: legacy routes, theme, idempotence and custom content passed.\n";
 @unlink($tmp);

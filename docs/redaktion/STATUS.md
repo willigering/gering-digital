@@ -84,3 +84,13 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Veröffentlichung umfasst auch die Modulauswahl: B5 aus der bisherigen Liste „Bald verfügbar“ genommen und Karten-/Manifestbeschreibung auf den Modulton abgestimmt. Achievement-Namen, IDs, Bedingungen und XP erhalten; nur drei Rätseltexte neu formuliert.
 - Lokal geprüft: JavaScript-Syntax; sämtliche HTML-Überschriften unverändert; alle zehn Lernpfad-/Nachschlagtexte stimmen überein. 50.000 Aufgabenpaare mit derselben Zufallsfolge verglichen: Antwortschlüssel, Formate, Einheiten, Aliase, IDs, Stufen und Labortitel identisch; sämtliche Musterantworten akzeptiert. Bestehender B5-Browsertest bestanden: weitere 50.000 Generatoraufrufe, Lernpfad-Meisterung, 20 Trainingsantworten, drei vollständige Prüfungen, 10 Labore, Abgabe bei Seitenwechsel und Darstellung bei 1440/390/320 px. Keine Skriptfehler oder externen Modul-Anfragen.
 - PHP-/Konto-/XP-Prüfungen laufen über die bestehenden GitHub-Checks. Merge und öffentliche Auslieferung dieses Durchlaufs sind mit diesem Eintrag noch nicht als erfolgt behauptet.
+
+
+## 05.11.2026 – Fehlantwort-Sprüche in allen Modulen
+
+- Umfang: alle zehn Module aus dem Manifest (A1, OSI, Subnetting, Netzwerkgrundlagen, D1, D2, B4, B5, F2 und Klausurvorbereitung). Die 50 ausdrücklich gewünschten Klausur-Sprüche wortgleich als gemeinsamen Vorrat übernommen. Eigene alte Fehlerspruch-Listen ersetzt; F2-Builder mitgezogen.
+- Anzeige in Lernpfad, freiem Training, Kurz-Checks, Zuordnungen und nach Prüfungsabgabe. Lösung und Erklärung erhalten; ungültige/unvollständige Eingaben lösen weiterhin keine gewertete Fehlantwort aus. Keine Aufgaben, richtigen Antworten, Punkte, Speicherformate oder Überschriften geändert.
+- Technisch: gemeinsamer Mischbeutel ohne Wiederholung vor allen 50 Einträgen und ohne unmittelbare Wiederholung am Beutelübergang. Eigenständige HTMLs enthalten den Baustein; Servereinbindung aktualisiert ihn auch bei älteren importierten Modulen.
+- Lokal bestanden: 100 vollständige Mischbeutel, erneute Einbindung, alle zehn HTML-Einbindungen und sämtliche eingebetteten JavaScript-Syntaxprüfungen. Browser-/PHP-/GitHub- und Live-Ergebnisse werden nach der tatsächlichen Prüfung ergänzt.
+
+- Veröffentlichungsblocker behoben: Sechs kurze Multiple-Choice-Fälle in A1 hatten keinen `plain`-Text; je eine einfach formulierte Zweiterklärung ergänzt. Dadurch ist das Fragezeichen auch bei diesen zufällig gezogenen Aufgaben vorhanden. Bestehender Handytest über alle zehn Module bei 360/390 px lokal bestanden.

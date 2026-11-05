@@ -85,6 +85,12 @@ Diese Regeln gelten **rückwirkend für jedes fertige/veröffentlichte Modul** u
 - Bei existierenden Modulen dieselben Vorgaben nachziehen, **auch wenn deren Beschreibungen in der produktiven Datenbank gespeichert sind**. Die Anzeigenlogik muss alte Standardtexte sinnvoll ersetzen oder die zuständigen gespeicherten Felder kontrolliert aktualisieren; produktive Daten nicht blind überschreiben. Der Admin muss künftig individuell passende Beschreibungen bearbeiten können.
 - Jede neue Modul-PR prüft Hero-Kicker, richtige Themenzuordnung, Kartenbeschreibung, mobile Darstellung, Eintrag im Manifest sowie Anzeige auf der DAU-TO-PRO-Hauptseite und Admin-Vorschau. Wenn sich die globale Regel ändert, **alle bereits vorhandenen Module** auf Abweichungen prüfen.
 
+### Rückmeldungen bei falschen Antworten (05.11.2026)
+
+Alle Module verwenden die 50 von Willi gewünschten Sprüche aus der Klausurvorbereitung. Der gemeinsame Baustein `tools/module-wrong-answer.js` wird mit `apply_wrong_answers()` aus `tools/module_theme.py` eingebettet und beim Ausliefern älterer Module über `learner_inject_sync()` erneuert. Aufgabenrenderer rufen `window.DTPWrongAnswer.next()` auf. Die zufällig gemischte Liste wiederholt sich erst nach allen 50 Sprüchen; auch am Übergang gibt es keine direkte Wiederholung.
+
+Sprüche erscheinen nur bei tatsächlich falsch bewerteten Antworten, einschließlich Zuordnungen und der Auswertung nach Prüfungsabgabe. Leere oder ungültige Eingaben behalten sachliche Format-/Auswahlhinweise. Richtige Lösung, Begründung und Rechenweg bleiben erhalten. Bewertungen, IDs, Fortschritt, XP und Achievements bleiben unberührt. Für diese ausdrücklich gewünschten Rückmeldungen ist Willis Ton aus der Klausurvorbereitung die Referenz.
+
 ### Verständliche Sprache und konkrete Beispiele (verbindlich)
 
 **Schwierig darf das Denken sein, nicht die Formulierung.** Willi lernt die Inhalte noch. Ein Modul muss ihn vom ersten verständlichen Beispiel bis zum selbstständigen Lösen führen. Fachbegriffe gehören zum Lernziel; unnötig abstrakte Sätze sind kein Prüfungsniveau.

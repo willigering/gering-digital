@@ -958,6 +958,85 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
 })();
 </script>
 <!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1262,9 +1341,8 @@ const HINT={"bits": "Eine Adresse bleibt auch mit :: immer 128 Bit lang. Textlä
 
 /* ================= Sprüche ================= */
 const Q_OK=["Stimmt. Die Doppelpunkte sind heute pflegeleicht.", "Richtig. Die Adresse darf so ins Ticket.", "Passt. Auch mit weniger Nullen bleibt es dieselbe Adresse."];
-const Q_BAD=["Schau in die Erklärung und prüfe, wo die Adresse oder Regel abweicht.", "Noch nicht. Geh die Blöcke der Reihe nach durch, falls eine Adresse gefragt ist.", "Der Lösungsweg zeigt, welche Information im Beispiel den Ausschlag gibt."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat ein neues Bit gesetzt.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>pick(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const FMT={ip:'IPv6-Adresse eingeben.',text:'Den gefragten Fachbegriff oder die ausdrücklich genannte Antwort eingeben.',dec:'Ganze Zahl, z. B. 255 oder −45',num:'Zahl, Komma oder Punkt als Dezimaltrenner. Kleine Rundungsabweichungen sind okay.',bin:'Nur 0 und 1, Leerzeichen sind erlaubt, führende Nullen auch',hex:'Hex-Ziffern 0 bis F, gern mit 0x davor',oct:'Oktal, Ziffern 0 bis 7'};
@@ -1503,7 +1581,7 @@ function matchNew(){
  $('matchList').innerHTML=questionHTML(matchTask,'mtip')+'<label for="matchSelect">Passenden Fachbegriff wählen</label><select id="matchSelect"><option value="">– wählen –</option>'+shuffle(terms).map(x=>'<option>'+x+'</option>').join('')+'</select>';
  $('matchResult').innerHTML='';$('matchResult').className='result';$('matchCheck').disabled=false;
 }
-$('matchCheck').addEventListener('click',()=>{const v=$('matchSelect').value;if(!v)return;const ok=parseAnswer(matchTask,v).ok;count(ok,matchTask.sub);$('matchResult').className='result'+(ok?'':' bad');$('matchResult').innerHTML=(ok?'Richtig!':'Noch nicht. Richtig: '+showAnswer(matchTask))+'<div class="why">'+matchTask.why+'</div>';$('matchSelect').disabled=true;$('matchCheck').disabled=true});
+$('matchCheck').addEventListener('click',()=>{const v=$('matchSelect').value;if(!v)return;const ok=parseAnswer(matchTask,v).ok;count(ok,matchTask.sub);$('matchResult').className='result'+(ok?'':' bad');$('matchResult').innerHTML=(ok?'Richtig!':'Noch nicht. Richtig: '+showAnswer(matchTask))+(ok?'':'<span class="quip">'+qBad()+'</span>')+'<div class="why">'+matchTask.why+'</div>';$('matchSelect').disabled=true;$('matchCheck').disabled=true});
 $('matchNext').addEventListener('click',matchNew);
 
 /* ================= Prüfungsmodus ================= */
@@ -1571,7 +1649,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema (Themenpunkte)</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+(r.t.context?esc(r.t.context)+'<br><br>':'')+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+(r.t.context?esc(r.t.context)+'<br><br>':'')+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':'<span class="quip">'+qBad()+'</span>')+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

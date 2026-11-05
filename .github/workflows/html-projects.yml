@@ -42,6 +42,8 @@ jobs:
         run: node tests/learner_sync.js
       - name: Test private OpenAI bridge without paid API calls
         run: php tests/ai_bridge_test.php
+      - name: Test shared wrong-answer quips in every module
+        run: node tests/module_wrong_answer_test.cjs
       - name: Test fresh module entry, scroll reset and retained progress
         run: node tests/module_entry_test.cjs
       - name: Test B4 IPv6 domain and platform integration
@@ -57,6 +59,10 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Check wrong-answer feedback in all modules on desktop and mobile
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/module_wrong_answer_browser.cjs
       - name: Check F2 calculations, learning flow and account integration
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
