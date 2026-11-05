@@ -38,3 +38,11 @@ jobs:
         run: php tests/kv_integration_test.php
       - name: Existing XP and achievement regression
         run: php tests/xp2_test.php && php tests/achievements_test.php
+      - name: Install isolated browser test
+        run: |
+          npm install --prefix "$RUNNER_TEMP/kv-browser" --no-package-lock playwright@1.62.1
+          node "$RUNNER_TEMP/kv-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Special module on desktop and smartphones
+        env:
+          NODE_PATH: ${{ runner.temp }}/kv-browser/node_modules
+        run: node tests/kv_browser.cjs

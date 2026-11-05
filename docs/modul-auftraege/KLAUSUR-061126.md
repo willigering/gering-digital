@@ -12,3 +12,5 @@ Der gemeinsame Fokusdialog wurde additiv auf Training ohne Lernpfad erweitert. O
 Offline: Feedbackentwurf als Textdatei, Updatevorschau ausdrücklich per Schaltfläche. Bei Plattform-Auslieferung entfernt learner_inject_sync die Vorschauen und aktiviert die echten zentralen Dienste. Keine doppelten Feedbackdialoge, Updateinitialisierung oder Achievement-Popups.
 
 Noch nicht veröffentlicht: ausdrückliche Begutachtung durch Willi abwarten. Keine produktiven Benutzer oder Fortschrittsdaten geändert. Konto/Versand/Versionsvergleich erfordern die Server-Auslieferung; die heruntergeladene Datei meldet keine erfolgreichen Serveraktionen.
+
+Prüfstand: Die zentrale KV-Integration sowie XP-/Achievement-Regression sind grün. Die allgemeine Handyprüfung hat im Basiscommit 283c8fa0 bereits denselben Timeout auf `#practiceTask .qmark`; dies ist kein neuer KV-Fehler. Deshalb erhält KV zusätzlich einen eigenen Browserlauf für Desktop, 390 und 360 Pixel. Der generische Design-, Fokus- und Einstiegscheck berücksichtigt die expliziten Manifest-Metadaten `areas`/`entry` für den vereinbarten Einstieg ohne Lernpfad.
