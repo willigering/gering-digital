@@ -141,11 +141,7 @@ let server,browser;
     assert.ok(await accountPage.getByRole('heading',{name:'Konto-Einstellungen',exact:true}).isVisible());
     assert.ok(await accountPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Account page has no overflow');
     const backToModules=accountPage.getByRole('link',{name:'Zu den Modulen'});
-    for (const section of ['#achievements','#einstellungen']){
-      await accountPage.locator(section).evaluate(el=>el.scrollIntoView());
-      const buttonBox=await backToModules.boundingBox();
-      assert.ok(buttonBox && buttonBox.y>=0 && buttonBox.y+buttonBox.height<=900,'Module link stays in the viewport while scrolling the account');
-    }
+    assert.ok(await accountPage.locator('.konto-recent').getByRole('link',{name:'Zu den Modulen'}).isVisible(),'Module link sits in the recent achievements section');
     await backToModules.click();
     assert.equal(new URL(accountPage.url()).pathname+new URL(accountPage.url()).hash,'/dau-to-pro/#lernmodule');
     await accountPage.goto(base+'/dau-to-pro/highscore.php');

@@ -248,6 +248,9 @@
   box-shadow:0 8px 24px #0008;
 }
 .konto-page:has(.konto-modules-link){padding-bottom:70px}
+.konto-modules-cell{grid-column:-2/-1;display:flex;justify-content:flex-end;align-items:center;min-width:0;list-style:none}
+.konto-modules-inline{white-space:nowrap}
+.konto-recent>.konto-modules-inline{display:inline-flex;margin-top:16px}
 
 /* Highscore profile: spacious achievement gallery instead of tiny medal-like badges. */
 .highscore-page .profile-showcase-title{margin:22px 0 12px;font-size:16px;letter-spacing:.07em;text-transform:uppercase;color:var(--goldlite)}
