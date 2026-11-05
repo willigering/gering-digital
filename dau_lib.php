@@ -146,12 +146,12 @@ function dtp_module_description(array $module): string {
     $slug=(string)($module['slug']??'');
     $slug=['osi'=>'osi-sprint','subnetsprint'=>'subnet-sprint'][$slug]??$slug;
     $humor=[
-        'a1-zahlensysteme'=>'01001000? Keine Panik, das ist keine Drohung. Hier übersetzt du Binär, Hex und Datenraten, bis selbst dein Taschenrechner Respekt bekommt.',
+        'a1-zahlensysteme'=>'01001000? Keine Panik, das ist keine Drohung. Hier übersetzt du Binär und Hex, rechnest Datenraten aus und findest heraus, warum deine neue Festplatte kleiner ist als versprochen.',
         'osi-sprint'=>'Sieben Schichten, null Ausreden: Finde heraus, wer im Netzwerk was macht und warum der Router nicht für jeden Mist zuständig ist.',
         'subnet-sprint'=>'Netze teilen, Hosts zählen, Broadcast finden. Damit aus /27 endlich eine Adresse wird statt einer persönlichen Beleidigung.',
         'netzwerke-sprint'=>'Von LAN und WLAN über Topologien und Switches bis OSI und TCP/IP: Hier erfährst du, warum ein eingestecktes Kabel noch lange kein funktionierendes Netzwerk macht.',
         'd1-datenschutz'=>'Personenbezogene Daten sind kein Selbstbedienungsbuffet. Lerne, wer was speichern darf und wann die DSGVO die rote Karte zieht.',
-        'd2-it-sicherheit'=>'Passwort123, offene Ports und Phishing: Erkenne Risiken, bestimme den Schutzbedarf und verhindere, dass dein Netzwerk zur Einladung wird.',
+        'd2-it-sicherheit'=>'Passwort123 war gestern. Heute heißt es Passwort1234, weil die IT auf Sicherheit besteht. Lerne, was wirklich schützt, wie du Angriffe erkennst und was zu tun ist, wenn trotzdem alles brennt.',
         'b4-ipv6'=>'128 Bit und gefühlt 800 Doppelpunkte. Lerne IPv6-Adressen, Präfixe, SLAAC und DHCPv6 kennen, ohne den Überblick zu verlieren.',
         'b5-netzwerkdienste'=>'Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss.',
         'f2-kalkulation'=>'Rabatt, Skonto, Leasing oder Kauf? Rechne Angebote durch, bevor der Chef begeistert Geld verbrennt und du es erklären musst.',
