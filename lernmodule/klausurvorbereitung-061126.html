@@ -327,7 +327,7 @@ dialog{color:var(--cream);background:#100d18;border:1px solid var(--module-line)
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}}
 .hero h1{font-size:clamp(30px,3.5vw,44px);max-width:none}.hero-meta{margin-top:12px}.section-heading h2{margin-top:7px}.area-tab{padding-top:14px;padding-bottom:13px}
 .qhelp:not(.open) .qtip{display:none}.qhelp.open .qtip{display:block}@media(hover:hover){.qhelp:not(.open):hover .qtip{display:block}}
-.dtp-parallax{position:fixed;inset:-100px 0 -130px;z-index:0;background-size:cover;background-position:center;opacity:.9;pointer-events:none;transform:translate3d(0,var(--parallax-y,0px),0);will-change:transform}.review-extras{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}.review-extras>span{color:var(--muted);font-size:12px;flex:1 1 300px}.review-only label{display:block;color:var(--module-light);margin:12px 0 5px}.dtp-practice-dialog #focusPanel{margin:0;border:0;clip-path:none;background:var(--module-panel);padding:22px}.dtp-practice-dialog #focusPanel .question{clip-path:none;margin:0}.dtp-practice-dialog [data-focus-task]{display:none}.dtp-focus-toolbar{background:var(--module-panel)}body:has(dtp-back) .review-header{display:none}body:has(dtp-back) .exam-bar{top:58px}#focusView>button{display:none}.dtp-focus-toolbar #focusBack{display:inline-flex}.dtp-feedback-dock{z-index:30}.toast{bottom:90px}
+.dtp-parallax{position:fixed;inset:-100px 0 -130px;z-index:0;background-size:cover;background-position:center;opacity:.9;pointer-events:none;transform:translate3d(0,var(--parallax-y,0px),0);will-change:transform}.review-extras{position:relative;display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px}.review-extras>span{color:var(--muted);font-size:12px;flex:1 1 300px}.review-only label{display:block;color:var(--module-light);margin:12px 0 5px}.dtp-practice-dialog #focusPanel{margin:0;border:0;clip-path:none;background:var(--module-panel);padding:22px}.dtp-practice-dialog #focusPanel .question{clip-path:none;margin:0}.dtp-practice-dialog [data-focus-task]{display:none}.dtp-focus-toolbar{background:var(--module-panel)}body:has(dtp-back) .review-header{display:none}body:has(dtp-back) .exam-bar{top:58px}#focusView>button{display:none}.dtp-focus-toolbar #focusBack{display:inline-flex}.toast{bottom:90px}
 @media(prefers-reduced-motion:reduce){.dtp-parallax{transform:none;will-change:auto}}
 @media(max-width:610px){.dtp-practice-dialog #focusPanel{padding:12px}.dtp-practice-dialog #focusPanel .question{padding:15px}.review-extras .btn{width:100%}}
 
@@ -348,104 +348,7 @@ body.dtp-exercise-open{overflow:hidden}
 @media(prefers-reduced-motion:reduce){.dtp-practice-dialog{transition:none;transform:none}.dtp-practice-dialog::backdrop{transition:none}}
 
 
-.dtp-feedback-button[hidden], #dtp-feedback-dialog [hidden] { display: none; }
 
-.dtp-feedback-button, #dtp-feedback-dialog button[type="submit"] {
-    background: #f1c365;
-    color: #14100a;
-    border: 1px solid #f8d992;
-    border-radius: .65rem;
-    padding: .65rem .95rem;
-    min-height: 44px;
-    font: inherit;
-    font-weight: 800;
-    cursor: pointer;
-}
-
-.dtp-feedback-button {
-    background: var(--gold, #edc477);
-    border-color: var(--gold, #edc477);
-    color: #171a1a;
-    min-height: 48px;
-    padding: 12px 19px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 850;
-    transition: transform .2s, background .2s, box-shadow .2s;
-}
-
-.dtp-feedback-button:hover, .dtp-feedback-button:focus-visible {
-    background: var(--goldlite, #ffe1a5);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px #0004;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .dtp-feedback-button { transition: none; }
-    .dtp-feedback-button:hover, .dtp-feedback-button:focus-visible { transform: none; }
-}
-
-.dtp-feedback-dock {
-    position: fixed;
-    right: max(.65rem, env(safe-area-inset-right));
-    bottom: 24%;
-    z-index: 30;
-}
-
-.dtp-feedback-dock .dtp-feedback-button:not(:hover):not(:focus-visible) { box-shadow: 0 4px 18px #0009; }
-
-#dtp-feedback-dialog {
-    box-sizing: border-box;
-    width: min(32rem, calc(100% - 2rem));
-    max-height: calc(100% - 2rem);
-    overflow: auto;
-    padding: 1.25rem;
-    color: #f4f6f7;
-    background: #131b20;
-    border: 1px solid #59636a;
-    border-radius: 1rem;
-    font: 1rem/1.45 system-ui, sans-serif;
-}
-
-#dtp-feedback-dialog::backdrop { background: #05090cbb; }
-#dtp-feedback-dialog form { display: grid; gap: .85rem; margin: 0; }
-#dtp-feedback-dialog p, #dtp-feedback-dialog h2 { margin: 0; }
-#dtp-feedback-dialog .dtp-feedback-heading {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    gap: .75rem;
-}
-
-#dtp-feedback-dialog small, #dtp-feedback-dialog a { color: #f1c365; }
-#dtp-feedback-dialog label:not([hidden]) { display: grid; gap: .3rem; }
-#dtp-feedback-dialog input:not([type="hidden"]), #dtp-feedback-dialog textarea {
-    box-sizing: border-box;
-    width: 100%;
-    color: inherit;
-    background: #0a1014;
-    border: 1px solid #79858d;
-    border-radius: .45rem;
-    padding: .65rem;
-    font: inherit;
-}
-
-#dtp-feedback-dialog textarea { resize: vertical; }
-#dtp-feedback-dialog [data-feedback-close] {
-    min-width: 44px;
-    min-height: 44px;
-    color: inherit;
-    background: #253039;
-    border: 1px solid #79858d;
-    border-radius: .45rem;
-    font: inherit;
-    font-size: 1.4rem;
-    cursor: pointer;
-}
-
-#dtp-feedback-dialog .dtp-feedback-note { font-size: .85rem; }
-#dtp-feedback-dialog .dtp-feedback-status:empty { display: none; }
-#dtp-feedback-dialog button:disabled { opacity: .65; cursor: wait; }
 
 
 /* DTP-HINTERGRUND: klausur-bg */
@@ -1456,14 +1359,10 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
  </nav>
  <header class="hero"><div class="kicker">NETZWERKE // KLAUSURVORBEREITUNG // LK / EK · 06.11.2026</div><h1>Sieben Schichten OSI.<span>Aber gelernt wird fünf vor zwölf.</span></h1><p class="hero-lead">Lernen auf den letzten Drücker? So kennt man dich.</p><div class="hero-meta"><span id="poolCount"></span><span>7 Themenbereiche</span><button class="status-button" type="button" id="progressButton"><b id="xpLabel">0 XP</b> · <span id="badgeLabel">Achievements</span></button><span id="saved" role="status"></span></div></header>
  <main id="main" class="view" role="tabpanel" aria-labelledby="tab-mix"></main>
- <div class="review-only review-extras"><span>Begutachtung: Effekte und Bedienung sind aktiv. Feedback wird hier als Datei gespeichert.</span><button class="btn ghost" id="previewUpdate" type="button">Updatehinweis ansehen</button><a class="btn secondary" id="accountLink" href="https://geringdigital.de/dau-to-pro/konto.php">Mein Konto</a></div>
+ <div class="review-only review-extras"><span>Begutachtung: Effekte und Bedienung sind aktiv.</span><button class="btn ghost" id="previewUpdate" type="button">Updatehinweis ansehen</button><a class="btn secondary" id="accountLink" href="https://geringdigital.de/dau-to-pro/konto.php">Mein Konto</a></div>
  <footer class="footer-inner"><span>DAU TO PRO Spezial: Klausurvorbereitung · v1.2 · Begutachtungsfassung</span><a href="https://geringdigital.de/dau-to-pro/#lernmodule">Weiter lernen! →</a><span>Eigene Lerninhalte · keine offiziellen Prüfungsfragen</span></footer>
 </div>
 <section id="focusView" data-dtp-focus="training"><button class="btn secondary" id="focusBack" type="button" hidden>Fragenübersicht ansehen</button><section id="focusPanel" class="panel cy" hidden><h2 id="practiceKicker" class="eyebrow">In Ruhe bearbeiten · Klausurvorbereitung</h2><div id="focusTask" hidden></div></section></section>
-<!-- KV-REVIEW-FEEDBACK START -->
-<div class="dtp-feedback-dock review-only"><button type="button" class="dtp-feedback-button" id="reviewFeedbackOpen" aria-haspopup="dialog">Feedback geben</button></div>
-<dialog id="reviewFeedback" class="review-only" aria-labelledby="reviewFeedbackTitle"><div class="dialog-top"><strong id="reviewFeedbackTitle">Meckern kann jeder. Jetzt bitte mit Betreff.</strong><button id="reviewFeedbackClose" class="dialog-close" aria-label="Feedback schließen" type="button">×</button></div><div class="dialog-inner"><p>In dieser Begutachtungsfassung wird nichts versendet. Speichere deinen Text als Datei; auf der veröffentlichten Plattform übernimmt das gemeinsame Feedbackformular den Versand.</p><label for="reviewFeedbackSubject">Betreff</label><input id="reviewFeedbackSubject" maxlength="120" class="search-input"><label for="reviewFeedbackMessage">Dein Feedback</label><textarea id="reviewFeedbackMessage" maxlength="3000" rows="6" class="search-input"></textarea><div class="actions"><button id="reviewFeedbackSave" type="button" class="btn primary">Feedback als Textdatei speichern</button></div><p id="reviewFeedbackStatus" role="status"></p></div></dialog>
-<!-- KV-REVIEW-FEEDBACK END -->
 <dialog id="progress" aria-label="Fortschritt und Achievements"><div class="dialog-top"><strong>Dein Klausurstand</strong><button class="dialog-close" type="button" aria-label="Fortschritt schließen">✕</button></div><div id="progressBody" class="dialog-inner"></div></dialog>
 <dialog id="calculator" aria-label="Taschenrechner"><div class="dialog-top"><strong>Rechenhilfe · Denken bleibt bei dir.</strong><button class="dialog-close" type="button" aria-label="Rechner schließen">✕</button></div><div class="dialog-inner"><div class="calculator-row"><input id="calcA" inputmode="decimal" aria-label="Erste Zahl" placeholder="Zahl 1"><select id="calcOp" aria-label="Rechenoperation"><option value="+">+</option><option value="-">−</option><option value="*">×</option><option value="/">÷</option></select><input id="calcB" inputmode="decimal" aria-label="Zweite Zahl" placeholder="Zahl 2"></div><output id="calcOut" class="calculator-output" aria-live="polite">Bereit. Mehr Motivation war nicht im Lieferumfang.</output><button id="calcGo" class="btn primary" type="button">Ausrechnen</button></div></dialog>
 <div id="toast" class="toast" role="status" aria-live="polite" hidden><strong id="toastTitle"></strong><span id="toastText"></span></div>
@@ -1934,9 +1833,6 @@ window.KV061126_TEST={BANK,CORE_BANK,CATS,SUBS,CHAPTERS,ACH,gradeOf,correct,pars
  });
  document.getElementById('focusBack').addEventListener('click',()=>{document.getElementById('focusTask').hidden=true;});
  document.addEventListener('dtp:focus-closed',()=>{if(article&&slot){slot.replaceWith(article);document.getElementById('focusTask').replaceChildren();}document.getElementById('focusPanel').hidden=true;article=slot=null;opener?.focus({preventScroll:true});opener=null;});
- // Offline-Vorschau: keine Nachricht wird im Hintergrund versendet.
- const feedback=document.getElementById('reviewFeedback');
- if(feedback){document.getElementById('reviewFeedbackOpen').onclick=()=>feedback.showModal();document.getElementById('reviewFeedbackClose').onclick=()=>feedback.close();document.getElementById('reviewFeedbackSave').onclick=()=>{const subject=document.getElementById('reviewFeedbackSubject').value.trim(),message=document.getElementById('reviewFeedbackMessage').value.trim(),status=document.getElementById('reviewFeedbackStatus');if(!subject||!message){status.textContent='Betreff und Nachricht fehlen noch. Gedankenlesen ist weiterhin nicht freigeschaltet.';return;}const blob=new Blob(['DAU TO PRO Spezial · Klausurvorbereitung\nBetreff: '+subject+'\n\n'+message],{type:'text/plain;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Klausurmodul-Feedback.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Feedback als Textdatei bereitgestellt. Es wurde nichts versendet.';};}
  document.getElementById('previewUpdate')?.addEventListener('click',()=>document.dispatchEvent(new CustomEvent('dtp:preview-update')));
  // Server-Injektion übernimmt die gemeinsamen Funktionen beim Veröffentlichen.
  if(document.getElementById('accountLink'))document.getElementById('accountLink').href='https://geringdigital.de/dau-to-pro/konto.php?weiter=klausurvorbereitung-061126';

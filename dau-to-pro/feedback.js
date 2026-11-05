@@ -69,6 +69,9 @@
         // Keep counting on this page when browser storage is unavailable.
     }
 
+    // A rare Easter egg: decide once per visit, not on every mouse movement.
+    const escapeEnabledOnThisVisit = Math.random() < 0.05;
+
     let lastPrompt = -1;
     let nextEscape = 0;
     let escapeStep = 0;
@@ -82,7 +85,7 @@
 
     trigger.hidden = false;
     trigger.addEventListener('pointerenter', (event) => {
-        if (event.pointerType !== 'mouse' || sentCount < 3 || escapeStep === 3 || Date.now() < nextEscape
+        if (event.pointerType !== 'mouse' || sentCount < 3 || !escapeEnabledOnThisVisit || escapeStep === 3 || Date.now() < nextEscape
             || trigger.matches(':focus-visible') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
         if (++escapeStep === 3) {

@@ -30,7 +30,10 @@ $served=learner_inject_sync($html,'klausurvorbereitung-061126','index.html','kv-
 kv_check(str_contains($served,'window.__KV_PLATFORM__=true'),'Platform mode is enabled');
 kv_check(!str_contains($served,'window.__KV_PLATFORM__=false'),'Offline flag cannot override server mode');
 kv_check(!str_contains($served,'id="reviewFeedback"'),'Offline feedback removed');
-kv_check(substr_count($served,'id="dtp-feedback-dialog"')===1,'Exactly one genuine feedback dialog');
+kv_check(!str_contains($served,'id="dtp-feedback-dialog"'),'No feedback dialog inside modules');
+kv_check(!str_contains($served,'dtp-feedback-button'),'No feedback button inside modules');
+kv_check(!str_contains($served,'/dau-to-pro/feedback.js'),'No feedback assets inside modules');
+kv_check(!str_contains($html,'id="reviewFeedback"'),'Offline preview no longer has feedback form');
 kv_check(!str_contains($served,'id="previewUpdate"'),'Offline update demo removed');
 kv_check(str_contains($served,'window.__DTP_SYNC__='),'Existing account synchronization reused');
 require_once __DIR__.'/../dau_lib.php';
