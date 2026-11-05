@@ -11,7 +11,7 @@ const acceptance=require('./kv_browser_acceptance.cjs');
    const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
    await page.goto('http://127.0.0.1:'+server.address().port+'/');
    if(width<500)await acceptance.mobile(page,width);else await acceptance.focus(page,{width,height:900});
-   await page.reload();
+   await page.evaluate(()=>localStorage.clear());await page.reload();
    const question=page.locator('#questions .question').first();
    const id=await question.getAttribute('data-id');
    if(await question.locator('.opt').count())await question.locator('.opt').first().click();
