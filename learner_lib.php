@@ -439,6 +439,8 @@ function learner_inject_sync(string $html,string $slug,string $file,?string $ver
     if (str_contains($html, 'class="area-tabs"') && is_file(__DIR__.'/tools/module-wrong-answer.js')) {
         $html=preg_replace('~<!-- DTP-FEHLERSPRUECHE START -->.*?<!-- DTP-FEHLERSPRUECHE END -->\n?~s','',$html) ?? $html;
         $html=str_replace('qBad=()=>pick(Q_BAD)','qBad=()=>window.DTPWrongAnswer.next()',$html);
+        $html=str_replace('qOk=()=>pick(Q_OK)','qOk=()=>window.DTPRightAnswer.next(Q_OK)',$html);
+        $html=str_replace('ok?quips[Math.floor(Math.random()*quips.length)]:','ok?window.DTPRightAnswer.next(quips):',$html);
         $html=preg_replace('~function nextWrongQuip\(\)\{[^\r\n]*\}~','function nextWrongQuip(){return window.DTPWrongAnswer.next();}',$html) ?? $html;
         $block="<!-- DTP-FEHLERSPRUECHE START -->\n<script>\n"
             .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-wrong-answer.js'))
