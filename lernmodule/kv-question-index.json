@@ -2469,25 +2469,25 @@
     "id": "kv-412",
     "c": 3,
     "sub": "ipv4_same",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-413",
     "c": 3,
     "sub": "ipv4_same",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-414",
     "c": 3,
     "sub": "ipv4_same",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-415",
     "c": 3,
     "sub": "ipv4_same",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-416",

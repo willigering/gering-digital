@@ -18,7 +18,7 @@ for(let p=1;p<=30;p++)assert.equal(t.ipv4Number(t.maskFor(p)),4294967296-2**(32-
 for(const n of [20,40,60])for(let i=0;i<100;i++){const e=t.buildExam(n);assert.equal(e.length,n);assert.equal(new Set(e.map(q=>q.id)).size,n);for(let c=0;c<7;c++)assert(e.filter(q=>q.c===c).length>=Math.floor(n/7));}
 console.log('All registered solutions, input validation, masks and 300 balanced exams passed.');
 
-assert.equal(t.CORE_BANK.length,294);assert.equal(t.BANK.length,459);
+assert.equal(t.CORE_BANK.length,300);assert.equal(t.BANK.length,459);
 for(const q of t.BANK.filter(q=>q.type==='terms')){
  assert(t.correct(q,q.answer),q.id+' canonical answer');
  assert(!t.correct(q,Array(q.required).fill('irgendwas')),q.id+' unknown words rejected');
