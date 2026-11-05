@@ -4,7 +4,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 
 | Modul | Datei | Redaktionsstand | Nächster Umfang |
 | --- | --- | --- | --- |
-| B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Inhaltlicher Redaktionsdurchlauf aller zehn Stufen/Kapitel abgeschlossen; technische Abnahme siehe Protokoll | Willis Sichtprüfung; Merge-/Live-Status nach tatsächlicher Übernahme aktualisieren |
+| B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Erneuter vollständiger Humor-Durchlauf am 05.11.2026; lokal fachlich und technisch geprüft, siehe Protokoll | Automatische Prüfungen, Merge und Live-Abnahme dieses Durchlaufs |
 | A1 Zahlensysteme | `a1-zahlensysteme.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
 | B1 OSI | `osi-sprint.html` | Lehrtexte und Aufgaben redigiert, Generatorvergleich bestanden | Browserprüfungen und öffentliche Auslieferung bestätigen |
 | B2 Netzwerke | `netzwerke-sprint.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche nach Workflow |
@@ -75,3 +75,12 @@ Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Pr�
 
 ## 05.11.2026 – Klausurvorbereitung zur Begutachtung
 Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich vollständigem IPv4-Subnetting. Eigenständige HTML-Datei, gemeinsamer Fokus/Rechner/Handy-Baustein, dezentes Parallax und zentrale Konto-/Achievement-Registrierung vorbereitet. Verständlichkeit, Fragen/Lösungen und situationsbezogenen Humor getrennt geprüft. Keine Liveveröffentlichung: Willi möchte die Datei zuerst begutachten. Tatsächliche Testergebnisse im PR beachten.
+
+## B5 – vollständiger erneuter Humor-Durchlauf (05.11.2026)
+
+- Gelesen: Einstieg, alle zehn Lektionen und die identischen Nachschlagekapitel, Beispiele, Fallen, zehn Labore, sämtliche 50 Aufgabentypen mit festen Fallvarianten, vereinfachte Fragen, Hinweise, Trainings- und Prüfungstexte, Ergebnisrückmeldungen und Achievement-Texte. Bereits klare Fragen, Rechenschritte und die von Willi bestätigte Pointe zur halben Datei bleiben erhalten.
+- Überarbeitet: 82 gezielte Ersetzungen an 107 Textstellen, dazu neue Erfolgs-, Fehler-, Meisterungs- und Notenrückmeldungen. Konkreter Humor zu RST gegenüber Timeout, DHCP-Angebot gegenüber Zuteilung, DNS-Cache, Ports, NAT, ARP, Ping, HTTPS und Telnet. Keine persönliche Abwertung; Prüfungsfragen bleiben sachlich eindeutig. Humor und Fachinhalt wurden in getrennten Lesedurchgängen geprüft.
+- Beispiele: Aus „Ein ausbleibendes Paket wäre dagegen ein Timeout, kein RST“ wird zusätzlich „Eine klare Absage und betretenes Schweigen sind auch im Mitschnitt verschieden.“ Beim DNS-Cache: „Der Speichern-Knopf löscht nicht sämtliche Caches der Welt.“ Telnet erklärt erst die lesbaren Anmeldedaten und danach: „Ein anderer Port zieht ihm nichts an.“
+- Veröffentlichung umfasst auch die Modulauswahl: B5 aus der bisherigen Liste „Bald verfügbar“ genommen und Karten-/Manifestbeschreibung auf den Modulton abgestimmt. Achievement-Namen, IDs, Bedingungen und XP erhalten; nur drei Rätseltexte neu formuliert.
+- Lokal geprüft: JavaScript-Syntax; sämtliche HTML-Überschriften unverändert; alle zehn Lernpfad-/Nachschlagtexte stimmen überein. 50.000 Aufgabenpaare mit derselben Zufallsfolge verglichen: Antwortschlüssel, Formate, Einheiten, Aliase, IDs, Stufen und Labortitel identisch; sämtliche Musterantworten akzeptiert. Bestehender B5-Browsertest bestanden: weitere 50.000 Generatoraufrufe, Lernpfad-Meisterung, 20 Trainingsantworten, drei vollständige Prüfungen, 10 Labore, Abgabe bei Seitenwechsel und Darstellung bei 1440/390/320 px. Keine Skriptfehler oder externen Modul-Anfragen.
+- PHP-/Konto-/XP-Prüfungen laufen über die bestehenden GitHub-Checks. Merge und öffentliche Auslieferung dieses Durchlaufs sind mit diesem Eintrag noch nicht als erfolgt behauptet.

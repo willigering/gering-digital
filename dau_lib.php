@@ -153,7 +153,7 @@ function dtp_module_description(array $module): string {
         'd1-datenschutz'=>'Personenbezogene Daten sind kein Selbstbedienungsbuffet. Lerne, wer was speichern darf und wann die DSGVO die rote Karte zieht.',
         'd2-it-sicherheit'=>'Passwort123, offene Ports und Phishing: Erkenne Risiken, bestimme den Schutzbedarf und verhindere, dass dein Netzwerk zur Einladung wird.',
         'b4-ipv6'=>'128 Bit und gefühlt 800 Doppelpunkte. Lerne IPv6-Adressen, Präfixe, SLAAC und DHCPv6 kennen, ohne den Überblick zu verlieren.',
-        'b5-netzwerkdienste'=>'DNS sucht Namen, DHCP verteilt Adressen und TCP will Quittungen. Hier lernst du, wer im Netz welchen Job macht – und wer wieder nicht antwortet.',
+        'b5-netzwerkdienste'=>'Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss.',
         'f2-kalkulation'=>'Rabatt, Skonto, Leasing oder Kauf? Rechne Angebote durch, bevor der Chef begeistert Geld verbrennt und du es erklären musst.',
     ];
     if(isset($humor[$slug])) return $humor[$slug];
