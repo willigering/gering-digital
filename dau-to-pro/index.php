@@ -30,7 +30,7 @@ $modules=$query->fetchAll(PDO::FETCH_ASSOC);
 $urgentModule=null;
 foreach($modules as $module) if($module['slug']==='klausurvorbereitung-061126') $urgentModule=$module;
 $modules=array_values(array_filter($modules,static fn(array $m):bool=>$m['slug']!=='klausurvorbereitung-061126'));
-$comingSoonSlugs=['b4-ipv6','d1-datenschutz','netzwerke-sprint'];
+$comingSoonSlugs=[];
 usort($modules, static fn(array $a, array $b): int =>
     in_array($a['slug'], $comingSoonSlugs, true) <=> in_array($b['slug'], $comingSoonSlugs, true)
 );
