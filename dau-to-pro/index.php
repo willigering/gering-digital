@@ -27,6 +27,8 @@ if ($learnerRow) {
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
+$urgentModule=null;
+foreach($modules as $module) if($module['slug']==='klausurvorbereitung-061126') $urgentModule=$module;
 $modules=array_values(array_filter($modules,static fn(array $m):bool=>$m['slug']!=='klausurvorbereitung-061126'));
 $comingSoonSlugs=['b4-ipv6','b5-netzwerkdienste','d1-datenschutz','netzwerke-sprint'];
 usort($modules, static fn(array $a, array $b): int =>
@@ -86,7 +88,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
       <div class="catalog-panel">
-<div class="urgent-module"><span class="urgent-flag">DRINGEND</span><a class="module-card" href="../klausurvorbereitung-061126/" style="--mod:#d4adff"><div class="module-art has-image"><img src="../assets/dau-previews/klausurvorbereitung.webp" width="1280" height="720" alt="" style="object-fit:cover"></div><div class="module-body"><span class="module-category">DAU TO PRO Spezial: Klausurvorbereitung</span><h2>Sieben Schichten OSI. Aber gelernt wird fünf vor zwölf.</h2><p>Lernen auf den letzten Drücker? So kennt man dich.</p><div class="module-footer"><span>Jetzt für die Klausur üben</span><b aria-hidden="true">↗</b></div></div></a></div>
+<?php if($urgentModule): ?>
+<div class="urgent-module"><span class="urgent-flag">DRINGEND</span>
+<?=dtp_module_card($urgentModule,'../',true,$learnerRow?($cardProgress[$urgentModule['slug']]??null):null)?>
+</div>
+<?php endif; ?>
         <?php if($modules): ?>
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">
           <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button>

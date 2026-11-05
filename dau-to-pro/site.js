@@ -199,7 +199,7 @@
   })();
   // Themen-Tabs bleiben unabhängig vom entfernten Prüfungsfinder bedienbar.
   const buttons=[...document.querySelectorAll('[data-filter]')];
-  const cards=[...document.querySelectorAll('.module-card')];
+  const cards=[...document.querySelectorAll('#module-grid .module-card')];
   const empty=document.getElementById('search-empty');
   const grid=document.getElementById('module-grid');
   function setFilter(topic){

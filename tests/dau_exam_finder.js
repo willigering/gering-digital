@@ -25,7 +25,7 @@ const byId={'search-empty':empty,'dtp-mobile-menu':menu,'module-grid':grid};
 const document={
   querySelector(q){return q==='.nav-toggle'?toggle:null},
   getElementById(id){return byId[id]??null},
-  querySelectorAll(q){return q==='.module-card'?cards:q==='[data-filter]'?filters:[]},
+  querySelectorAll(q){return q==='#module-grid .module-card'?cards:q==='[data-filter]'?filters:[]},
   addEventListener(){}
 };
 const sandbox={document,matchMedia:()=>({matches:false,addEventListener(){}}),addEventListener(){},innerWidth:1440,innerHeight:900,clearTimeout,setTimeout,console};
