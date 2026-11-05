@@ -27,11 +27,11 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
      assert.equal(state.small,0,`${m.slug} ${width} ${tab}: inputs at least 16 px`);
     }
     // Lernpfad-Übung: Fokus im Antwortfeld, Tipp zu; ? öffnet und schließt per Fingertipp.
-    await page.locator('#tab-path').click();await page.locator('#practiceGo').tap();await page.waitForTimeout(150);
-    const tipOpen=()=>page.evaluate(()=>[...document.querySelectorAll('#practiceTask .qtip')].some(t=>t.getBoundingClientRect().height>0));
+    await page.locator('#tab-path').click();await page.locator('#practiceGo').tap();await page.locator('.dtp-practice-dialog[open]').waitFor();
+    const tipOpen=()=>page.evaluate(()=>[...document.querySelectorAll('.dtp-practice-dialog .qtip')].some(t=>t.getBoundingClientRect().height>0));
     assert.equal(await page.evaluate(()=>document.activeElement.classList.contains('qhelp')),false,m.slug+': exercise does not focus the ? tip');
     assert.equal(await tipOpen(),false,m.slug+': tip closed when the exercise opens');
-    const mark=await page.locator('#practiceTask .qmark').first().boundingBox();
+    const mark=await page.locator('.dtp-practice-dialog .qmark').first().boundingBox();
     await page.touchscreen.tap(mark.x+mark.width/2,mark.y+mark.height/2);await page.waitForTimeout(50);
     assert.equal(await tipOpen(),true,m.slug+': tap opens the tip');
     await page.touchscreen.tap(mark.x+mark.width/2,mark.y+mark.height/2);await page.waitForTimeout(50);
