@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Cheat-Sheet · Für Spätzünder</title>
+<link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
+<style>
+/* Look aus den DAU-TO-PRO-Modulen (Klausurvorbereitung + tools/module-theme.css), ohne Lernlogik. */
+:root{color-scheme:dark;--base:#0a080e;--cream:#f5f0df;--text:#e9e6da;--muted:#aebabc;--module-accent:#ed973c;--module-light:color-mix(in srgb,var(--module-accent) 48%,#fff);--module-line:color-mix(in srgb,var(--module-accent) 30%,transparent);--module-soft:color-mix(in srgb,var(--module-accent) 8%,transparent);--module-panel:color-mix(in srgb,var(--module-accent) 5%,#0b1015);--mono:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:136px}
+body{margin:0;background:var(--base);color:var(--cream);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;line-height:1.6;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:#0b0a10}
+a{color:inherit}
+h1,h2,h3,p{margin-top:0}
+a:focus-visible{outline:2px solid var(--module-accent);outline-offset:3px}
+.wrap{position:relative;max-width:1260px;margin:auto;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#0b0a10f5;backdrop-filter:blur(12px);border-bottom:1px solid var(--module-line)}
+.top-row{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:54px}
+.top-row a{text-decoration:none;font-size:12px;font-weight:750}
+.top-row strong{font-size:12px;letter-spacing:.1em}
+.top-row em{font-style:normal;color:var(--module-accent)}
+.jump{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.jump a{flex:none;text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--module-light);border:1px solid var(--module-line);background:var(--module-panel);padding:4px 10px}
+.jump a:hover{border-color:var(--module-accent);color:var(--cream)}
+.hero{padding-block:30px 26px;background:radial-gradient(ellipse at 80% 25%,var(--module-soft),transparent 65%)}
+.kicker{display:inline-flex;flex-wrap:wrap;gap:8px;letter-spacing:.2em;font-size:11px;font-weight:850;color:var(--module-light);border:1px solid var(--module-line);background:var(--module-soft);padding:9px 16px;clip-path:polygon(0 0,97% 0,100% 25%,100% 100%,3% 100%,0 75%)}
+h1{font-size:clamp(34px,5vw,60px);font-weight:950;line-height:1.02;letter-spacing:-.05em;text-transform:uppercase;margin:18px 0 12px;text-wrap:balance}
+h1 span{color:var(--module-accent);display:block}
+.lead{font-size:clamp(15px,1.6vw,18px);line-height:1.7;color:#ced4d4;max-width:680px;margin:0}
+.grid{columns:2;column-gap:18px;padding-bottom:18px}
+.panel{position:relative;break-inside:avoid;display:block;width:100%;background:linear-gradient(140deg,color-mix(in srgb,var(--module-panel) 93%,transparent),color-mix(in srgb,#080c10 94%,transparent));border:1px solid var(--module-line);padding:22px;box-shadow:0 22px 60px #0005,inset 0 1px 0 #ffffff0e;margin:0 0 18px;clip-path:polygon(0 0,99% 0,100% 14px,100% 100%,1% 100%,0 calc(100% - 14px))}
+.panel:before{content:"";position:absolute;top:0;left:0;width:150px;height:4px;background:var(--module-accent)}
+.panel h2{font-size:22px;font-weight:950;line-height:1.1;letter-spacing:-.04em;text-transform:uppercase;color:var(--cream);margin:0 0 12px}
+.panel h2 span{color:var(--module-accent)}
+.panel h3{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--module-light);margin:18px 0 6px}
+.panel p,.panel li{color:#cfd6d6;font-size:14px;line-height:1.55}
+.panel p{margin-bottom:10px}
+.panel ul{margin:0;padding-left:18px}
+.panel li{margin-bottom:4px}
+.panel b{color:var(--cream)}
+.tw{overflow-x:auto;margin:0 0 10px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;color:var(--module-light);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:7px 8px;border-bottom:1px solid var(--module-line);background:var(--module-panel)}
+td{padding:6px 8px;border-bottom:1px solid #ffffff10;color:#d9e1e0;vertical-align:top}
+td:first-child{color:var(--cream);font-weight:700}
+.m{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.memo{border-left:3px solid var(--module-accent);background:var(--module-soft);padding:9px 12px;margin:10px 0 0;font-size:14px;color:var(--text)}
+.wide{column-span:all}
+footer{border-top:1px solid var(--module-line);padding-block:18px 28px;color:var(--muted);font-size:12px}
+footer em{font-style:normal;color:var(--module-accent)}
+@media(max-width:900px){.grid{columns:1}.wide{column-span:none}}
+@media(max-width:610px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.panel{padding:18px 16px}.kicker{letter-spacing:.14em;font-size:10px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="top-row"><a href="./#lernmodule">← Modulauswahl</a><strong>DAU TO PRO <em>SPEZIAL</em></strong></div>
+  <nav class="jump" aria-label="Themen">
+    <a href="#ports">Ports</a><a href="#tcp">TCP/UDP</a><a href="#osi">OSI</a><a href="#geraete">Komponenten</a><a href="#mac">MAC</a><a href="#protokolle">Protokolle</a><a href="#tools">Tools</a><a href="#grundlagen">Grundlagen</a><a href="#wlan">WLAN</a><a href="#topo">Topologien</a><a href="#kabel">Verkabelung</a><a href="#ipv6">IPv6</a><a href="#fragen">Prüfungsfragen</a>
+  </nav>
+</div></header>
+<section class="hero"><div class="wrap">
+  <div class="kicker">NETZWERKE // CHEAT-SHEET // LK / EK · 06.11.2026</div>
+  <h1>Cheat-Sheet. <span>Für Spätzünder.</span></h1>
+  <p class="lead">Dein Lernplan beginnt heute Abend und endet morgen früh? Dann ist das hier dein Lernplan.</p>
+</div></section>
+<main class="wrap"><div class="grid">
+
+<section class="panel" id="ports"><h2>Die 10 <span>Ports</span></h2>
+<div class="tw"><table><thead><tr><th>Port</th><th>Dienst</th><th>Zweck</th></tr></thead><tbody>
+<tr><td class="m">20/21</td><td>FTP</td><td>Dateitransfer (Daten/Steuerung)</td></tr>
+<tr><td class="m">22</td><td>SSH</td><td>Sicherer Fernzugriff</td></tr>
+<tr><td class="m">23</td><td>Telnet</td><td>Unsicherer Fernzugriff</td></tr>
+<tr><td class="m">25</td><td>SMTP</td><td>Mailversand</td></tr>
+<tr><td class="m">53</td><td>DNS</td><td>Namensauflösung (UDP/TCP)</td></tr>
+<tr><td class="m">67/68</td><td>DHCP</td><td>IP-Vergabe, Server/Client (UDP)</td></tr>
+<tr><td class="m">80</td><td>HTTP</td><td>Web, unverschlüsselt</td></tr>
+<tr><td class="m">110</td><td>POP3</td><td>Mailabruf, Download</td></tr>
+<tr><td class="m">143</td><td>IMAP</td><td>Mailabruf, Mails bleiben auf dem Server</td></tr>
+<tr><td class="m">443</td><td>HTTPS</td><td>Web, TLS-verschlüsselt</td></tr>
+</tbody></table></div></section>
+
+<section class="panel" id="tcp"><h2>TCP <span>vs. UDP</span></h2><p>Beide auf OSI-Schicht 4.</p>
+<div class="tw"><table><thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead><tbody>
+<tr><td>Verbindung</td><td>Verbindungsorientiert, 3-Way-Handshake</td><td>Verbindungslos</td></tr>
+<tr><td>Zustellung</td><td>ACK, Neuübertragung, Reihenfolge</td><td>Keine Garantie</td></tr>
+<tr><td>Header</td><td>Min. 20 Byte</td><td>8 Byte</td></tr>
+<tr><td>Vorteil</td><td>Zuverlässig</td><td>Schnell, wenig Overhead</td></tr>
+<tr><td>Einsatz</td><td>Web, Mail, SSH</td><td>VoIP, Streaming, Spiele, DHCP</td></tr>
+</tbody></table></div><p class="memo"><b>Handshake:</b> SYN → SYN-ACK → ACK.</p></section>
+
+<section class="panel" id="osi"><h2>OSI <span>und TCP/IP</span></h2>
+<div class="tw"><table><thead><tr><th>Nr.</th><th>OSI-Schicht</th><th>PDU</th><th>Beispiele</th><th>TCP/IP</th></tr></thead><tbody>
+<tr><td class="m">7</td><td>Anwendung</td><td>Daten</td><td>HTTP, DNS</td><td>Anwendung</td></tr>
+<tr><td class="m">6</td><td>Darstellung</td><td>Daten</td><td>TLS, JPEG</td><td>Anwendung</td></tr>
+<tr><td class="m">5</td><td>Sitzung</td><td>Daten</td><td>RPC</td><td>Anwendung</td></tr>
+<tr><td class="m">4</td><td>Transport</td><td>Segment/Datagramm</td><td>TCP, UDP, Ports</td><td>Transport</td></tr>
+<tr><td class="m">3</td><td>Vermittlung</td><td>Paket</td><td>IP, ICMP, Router</td><td>Internet</td></tr>
+<tr><td class="m">2</td><td>Sicherung</td><td>Frame</td><td>MAC, Ethernet, Switch</td><td>Netzzugang</td></tr>
+<tr><td class="m">1</td><td>Bitübertragung</td><td>Bit</td><td>Kabel, Hub</td><td>Netzzugang</td></tr>
+</tbody></table></div>
+<ul><li><b>Eselsbrücke 1→7:</b> Please Do Not Throw Salami Pizza Away.</li>
+<li><b>Kapselung:</b> Daten → Segment (+ Ports) → Paket (+ IP-Adressen) → Frame (+ MAC-Adressen, FCS) → Bits. Der Empfänger entpackt umgekehrt.</li>
+<li><b>Webseite laden:</b> DNS → ARP → TCP-Handshake → TLS → HTTP.</li>
+<li><b>Fehleranalyse:</b> von Schicht 1 aufwärts: Kabel → MAC → IP → Port → Dienst.</li>
+<li><b>Subnetting:</b> Schicht 3. Die Maske trennt Netz- und Hostanteil, zwischen Subnetzen routet der Router.</li></ul></section>
+
+<section class="panel" id="geraete"><h2>Netzwerk<span>komponenten</span></h2>
+<ul><li><b>Aktiv (Strom, Signalverarbeitung):</b> Switch, Router, Access Point, Repeater.</li><li><b>Passiv:</b> Kabel, Dose, Patchpanel.</li><li><b>Hub:</b> aktiv verstärkt, passiv verteilt nur.</li></ul>
+<h3>Hub, Switch, Router</h3>
+<div class="tw"><table><thead><tr><th></th><th>Hub</th><th>Switch</th><th>Router</th></tr></thead><tbody>
+<tr><td>Schicht</td><td>1</td><td>2</td><td>3</td></tr>
+<tr><td>Adresse</td><td>Keine</td><td>MAC</td><td>IP</td></tr>
+<tr><td>Weiterleitung</td><td>An alle Ports</td><td>Gezielt</td><td>Zwischen Netzen</td></tr>
+<tr><td>Trennt</td><td>Nichts</td><td>Kollisionsdomänen</td><td>Auch Broadcastdomänen</td></tr>
+</tbody></table></div>
+<p class="memo"><b>Switch-Ablauf:</b> Frame empfangen → FCS prüfen → Quell-MAC lernen → Ziel-MAC suchen → entscheiden (bekannt: Zielport; unbekannt/Broadcast: fluten) → senden.</p></section>
+
+<section class="panel" id="mac"><h2>MAC-<span>Adresse</span></h2>
+<ul><li><b>Definition:</b> physische Hardwareadresse einer Netzwerkschnittstelle, Schicht 2.</li>
+<li><b>Aufbau:</b> 48 Bit (6 Byte), hexadezimal, z. B. <span class="m">00:1A:2B:3C:4D:5E</span>.</li>
+<li><b>Aufteilung:</b> 24 Bit Herstellerkennung (OUI) + 24 Bit Gerätekennung.</li>
+<li><b>Broadcast:</b> <span class="m">FF:FF:FF:FF:FF:FF</span>.</li>
+<li><b>MAC vs. IP:</b> MAC adressiert im lokalen Netz (Schicht 2), IP über Netzgrenzen hinweg (Schicht 3).</li>
+<li><b>Beim Routing:</b> MAC ändert sich pro Hop, IP bleibt ohne NAT gleich.</li></ul></section>
+
+<section class="panel" id="protokolle"><h2>ICMP, ARP, <span>DHCP, DNS</span></h2>
+<ul><li><b>ICMP:</b> Status- und Fehlermeldungen, Schicht 3, keine Ports. Typ 8 Echo Request, 0 Echo Reply, 3 Unreachable, 11 Time Exceeded.</li>
+<li><b>ARP:</b> IPv4-Adresse → MAC-Adresse im lokalen Netz.</li>
+<li><b>DHCP:</b> automatische IP-Konfiguration. DORA: Discover, Offer, Request, Acknowledge.</li>
+<li><b>DNS:</b> Name → IP. A = IPv4, AAAA = IPv6, MX = Mail.</li></ul></section>
+
+<section class="panel" id="tools"><h2>Konsolen<span>tools</span></h2>
+<div class="tw"><table><thead><tr><th>Windows</th><th>Zweck</th></tr></thead><tbody>
+<tr><td class="m">ipconfig /all</td><td>IP-Konfiguration</td></tr>
+<tr><td class="m">ping</td><td>Erreichbarkeit</td></tr>
+<tr><td class="m">tracert</td><td>Weg über Router</td></tr>
+<tr><td class="m">nslookup</td><td>DNS-Abfrage</td></tr>
+<tr><td class="m">arp -a</td><td>ARP-Tabelle</td></tr>
+<tr><td class="m">netstat -ano</td><td>Verbindungen, Ports</td></tr>
+</tbody></table></div>
+<h3>Troubleshooting</h3>
+<div class="tw"><table><thead><tr><th>Symptom</th><th>Ursache</th></tr></thead><tbody>
+<tr><td class="m">169.254.x.x</td><td>DHCP nicht erreichbar</td></tr>
+<tr><td>Ping auf IP geht, Name nicht</td><td>DNS</td></tr>
+<tr><td>LAN geht, Internet nicht</td><td>Gateway/Provider</td></tr>
+</tbody></table></div></section>
+
+<section class="panel" id="grundlagen"><h2><span>Grundlagen</span></h2>
+<ul><li><b>Nutzen von Netzwerken:</b> Ressourcen teilen, Datenaustausch, Kommunikation, zentrale Verwaltung.</li>
+<li><b>Paketvermittlung:</b> Daten in Pakete zerlegen, einzeln routen, beim Empfänger zusammensetzen. Leitung wird geteilt, Umleitung bei Ausfall möglich.</li>
+<li><b>Leitungsvermittlung:</b> feste Leitung für die gesamte Dauer.</li>
+<li><b>Reichweite:</b> PAN (Meter) &lt; LAN (Gebäude) &lt; MAN (Stadt) &lt; WAN (Länder) &lt; GAN (weltweit).</li>
+<li><b>Peer-to-Peer:</b> gleichberechtigt, günstig, dezentral verwaltet.</li>
+<li><b>Client-Server:</b> zentrale Dienste und Verwaltung, teurer, Server als Single Point of Failure.</li>
+<li><b>Hybrid:</b> Mischung aus beiden.</li></ul></section>
+
+<section class="panel" id="wlan"><h2><span>WLAN</span></h2>
+<ul><li><b>2,4 GHz:</b> mehr Reichweite, weniger Tempo. <b>5 GHz:</b> mehr Tempo, mehr Kanäle, weniger Reichweite.</li>
+<li><b>Kanäle 2,4 GHz:</b> überlappungsfrei klassisch 1, 6, 11; in Europa auch 1, 5, 9, 13.</li>
+<li><b>Standards:</b> Wi-Fi 4 = 802.11n, Wi-Fi 5 = 802.11ac, Wi-Fi 6 = 802.11ax, Wi-Fi 7 = 802.11be.</li>
+<li><b>SSID:</b> Netzname. <b>BSSID:</b> MAC des Access Points.</li>
+<li><b>Topologien:</b> Infrastruktur (über Access Point), Ad-hoc (direkt).</li>
+<li><b>Zugriff:</b> CSMA/CA.</li>
+<li><b>Authentifizierung:</b> WPA2/WPA3 Personal (Passwort), Enterprise (802.1X, RADIUS). WEP und WPA sind unsicher.</li></ul></section>
+
+<section class="panel" id="topo"><h2><span>Topologien</span></h2>
+<p>Topologie = Anordnung und Verbindung der Geräte im Netz. Physisch = Verkabelung, logisch = Datenfluss. Hub: physisch Stern, logisch Bus.</p>
+<div class="tw"><table><thead><tr><th>Topologie</th><th>Vorteil</th><th>Nachteil</th></tr></thead><tbody>
+<tr><td>Bus</td><td>Wenig Kabel</td><td>Kollisionen, Kabelbruch legt alles lahm</td></tr>
+<tr><td>Ring</td><td>Geregelter Zugriff</td><td>Ausfall ohne Doppelring kritisch</td></tr>
+<tr><td>Stern</td><td>Erweiterbar, leichte Fehlersuche</td><td>Zentrale Komponente als SPoF</td></tr>
+<tr><td>Vollvermascht</td><td>Maximale Redundanz</td><td>Teuer: n × (n − 1) / 2 Verbindungen</td></tr>
+<tr><td>Baum</td><td>Gut strukturierbar</td><td>Ausfall trifft den Zweig darunter</td></tr>
+<tr><td>Teilvermascht</td><td>Redundanz bei geringeren Kosten</td><td>Komplexes Routing</td></tr>
+</tbody></table></div>
+<p class="memo"><b>Warum Stern?</b> Kabelausfall trifft nur ein Gerät, leicht erweiterbar, Switch ermöglicht Vollduplex ohne Kollisionen.</p></section>
+
+<section class="panel" id="kabel"><h2><span>Verkabelung</span></h2>
+<ul><li><b>Struktur:</b> Primär = Gebäude, Sekundär = Stockwerke, Tertiär = Etage bis Dose.</li>
+<li><b>Kupfer-Link:</b> max. 100 m (90 m fest + 10 m Patch).</li>
+<li><b>Kategorien:</b> Cat 5e 1 Gbit/s, Cat 6a 10 Gbit/s, Cat 7 10 Gbit/s, Cat 8 25–40 Gbit/s (30 m).</li>
+<li><b>Glasfaser:</b> hohe Reichweite, EMV-unempfindlich, Potenzialtrennung, teurer.</li>
+<li><b>Kupfer:</b> günstiger, einfacher, PoE, EMV-empfindlich.</li>
+<li><b>Singlemode:</b> sehr weit. <b>Multimode:</b> kürzere Distanzen.</li></ul></section>
+
+<section class="panel" id="ipv6"><h2><span>IPv6</span></h2>
+<ul><li><b>Motivation:</b> IPv4-Adressknappheit. 128 statt 32 Bit.</li>
+<li><b>Aufbau:</b> 8 Blöcke zu 16 Bit, hexadezimal. Meist /64.</li>
+<li><b>Kürzen:</b> führende Nullen weg, <span class="m">::</span> nur einmal pro Adresse.</li>
+<li><b>Beispiel:</b> <span class="m" style="overflow-wrap:anywhere">2001:0db8:0000:0000:0000:ff00:0042:8329 → 2001:db8::ff00:42:8329</span></li>
+<li><b>Adresstypen:</b> Global <span class="m">2000::/3</span>, Link-Local <span class="m">fe80::/10</span>, Unique Local <span class="m">fc00::/7</span>, Multicast <span class="m">ff00::/8</span>, Loopback <span class="m">::1</span>.</li>
+<li><b>Kein Broadcast:</b> Multicast ersetzt ihn. NDP ersetzt ARP.</li>
+<li><b>Dual Stack:</b> IPv4 und IPv6 parallel.</li>
+<li><b>SLAAC:</b> Host bildet seine Adresse selbst aus dem Präfix des Routers, ohne DHCP-Server.</li></ul></section>
+
+<section class="panel" id="fragen"><h2>Typische <span>Prüfungsfragen</span></h2>
+<p>Einschätzung typischer Themen, keine Auswertung echter Klausuren.</p>
+<div class="tw"><table><thead><tr><th>Frage</th><th>Antwort</th></tr></thead><tbody>
+<tr><td>Wann UDP statt TCP?</td><td>Bei Echtzeit, wenn Tempo wichtiger ist als Vollständigkeit</td></tr>
+<tr><td>Schicht von Switch / Router?</td><td>2 / 3</td></tr>
+<tr><td>Wie funktioniert tracert?</td><td>Erhöht die TTL schrittweise, Router melden Time Exceeded</td></tr>
+<tr><td>Was ist eine Broadcastdomäne?</td><td>Bereich, den ein Broadcast erreicht; Router begrenzen ihn. Kollisionsdomäne: Bereich, in dem gleichzeitiges Senden kollidieren kann</td></tr>
+<tr><td>Nachteil Stern?</td><td>Zentrale Komponente als Single Point of Failure</td></tr>
+<tr><td>Vollvermascht mit 5 Geräten?</td><td>5 × 4 / 2 = 10 Verbindungen</td></tr>
+<tr><td>Warum Glasfaser im Backbone?</td><td>Reichweite, Datenrate, EMV-Sicherheit</td></tr>
+</tbody></table></div></section>
+
+</div></main>
+<footer><div class="wrap">DAU TO PRO Spezial: <em>Cheat-Sheet</em> · Im Kopf erlaubt, auf dem Klausurtisch nicht.</div></footer>
+</body></html>
