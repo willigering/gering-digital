@@ -19,12 +19,8 @@ for(const n of [20,40,60])for(let i=0;i<100;i++){const e=t.buildExam(n);assert.e
 console.log('All registered solutions, input validation, masks and 300 balanced exams passed.');
 
 assert.equal(t.CORE_BANK.length,300);assert.equal(t.BANK.length,459);
-for(const q of t.BANK.filter(q=>q.type==='terms')){
- assert(t.correct(q,q.answer),q.id+' canonical answer');
- assert(!t.correct(q,Array(q.required).fill('irgendwas')),q.id+' unknown words rejected');
- const aliases=q.terms.slice(0,q.required).map(g=>g[g.length-1].toUpperCase());
- assert(t.correct(q,aliases),q.id+' alternative spelling accepted');
- if(q.required>1)assert(!t.correct(q,Array(q.required).fill(q.answer[0])),q.id+' duplicate concepts rejected');
-}
+assert(t.BANK.every(q=>q.type!=='terms'),'No free-text question type');
+assert(!html.includes('term-input'),'No free-text answer fields');
+for(const q of t.BANK.filter(q=>Number(q.id.slice(3))>=416&&Number(q.id.slice(3))<=433)){assert.equal(q.type,'choice');assert.equal(q.options.length,4);assert.equal(new Set(q.options).size,4);}
 for(let i=0;i<30;i++)assert(t.buildExam(40).every(q=>t.CORE_BANK.some(c=>c.id===q.id)),'Exam only uses relevant core');
-console.log('Core pool, short-answer synonyms and distinct concepts passed.');
+console.log('Core pool and replacement choices passed; no free-text fields.');

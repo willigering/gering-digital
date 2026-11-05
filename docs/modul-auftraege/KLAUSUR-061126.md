@@ -17,3 +17,6 @@ Prüfstand: Die zentrale KV-Integration sowie XP-/Achievement-Regression sind gr
 
 ## Grundlagenfokus nach Willis Rückmeldung
 300 aktive Klausurfragen aus 459 registrierten IDs. Alte IDs bleiben für Lernstände und frühere Klausurauswertungen erhalten. Serien ähnlicher Rechnungen werden aus dem aktiven Querbeet-, Kategorien- und Klausurpool genommen; repräsentative IPv4-Netz-ID-Aufgaben bleiben enthalten. 44 neue Aufgaben ergänzen Grundlagen, Geräte/Protokolle im OSI-Modell und Vor-/Nachteile. Multiple Choice bleibt der Schwerpunkt. Stichwortfelder akzeptieren hinterlegte Synonyme, unterschiedliche Konzepte sind erforderlich; die Oberfläche nennt die Grenzen dieser Wortlistenprüfung. Fragezeichen formulieren Aufgaben um, ohne Lösungen vorwegzunehmen. Keine freie semantische KI-Bewertung.
+
+## Freitext entfernt
+Auf ausdrücklichen Wunsch sind alle 18 Stichwortaufgaben durch Auswahlkarten mit vier Antworten ersetzt. Keine Wortlistenbewertung oder freien Antwortfelder mehr. 300 aktive Fragen, davon 218 Auswahlfragen; Zahlen-/Port- und IPv4-Eingaben sowie Sortieraufgaben bleiben. IDs, Lernstände und XP bleiben erhalten.
