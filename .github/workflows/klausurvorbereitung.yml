@@ -1,0 +1,48 @@
+name: Klausurvorbereitung checks
+on:
+  pull_request:
+    paths:
+      - 'lernmodule/klausurvorbereitung-061126.html'
+      - 'lernmodule/kv-question-index.json'
+      - 'achievements_lib.php'
+      - 'learner_lib.php'
+      - 'tools/module-focus.js'
+      - 'dau-to-pro/module-calculator.js'
+      - 'dau-to-pro/update-notice.js'
+      - 'tests/kv_*'
+      - '.github/workflows/klausurvorbereitung.yml'
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_sqlite, mbstring
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate PHP and JavaScript
+        run: |
+          php -l achievements_lib.php
+          php -l learner_lib.php
+          node --check tools/module-focus.js
+          node --check dau-to-pro/module-calculator.js
+          node --check dau-to-pro/update-notice.js
+      - name: Question bank, grading and unique XP
+        run: node tests/kv_unit.cjs
+      - name: Central achievements and genuine platform injection
+        run: php tests/kv_integration_test.php
+      - name: Existing XP and achievement regression
+        run: php tests/xp2_test.php && php tests/achievements_test.php
+      - name: Install isolated browser test
+        run: |
+          npm install --prefix "$RUNNER_TEMP/kv-browser" --no-package-lock playwright@1.62.1
+          node "$RUNNER_TEMP/kv-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Special module on desktop and smartphones
+        env:
+          NODE_PATH: ${{ runner.temp }}/kv-browser/node_modules
+        run: node tests/kv_browser.cjs

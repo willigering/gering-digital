@@ -2,12 +2,14 @@
 (function () {
   'use strict';
   var cfg=window.__DTP_UPDATE__;
-  if (!cfg || !cfg.url || !cfg.revision) return;
+  if (!cfg || (!cfg.preview && (!cfg.url || !cfg.revision))) return;
+  if(window.__dtpUpdateInitialized)return;window.__dtpUpdateInitialized=true;
   var landing=!cfg.slug;
+  if(cfg.preview===true)document.addEventListener('dtp:preview-update',function(){if(!pending){pending=true;reveal();}});
   var pending=false, checking=false, audio=null;
   ['pointerdown','keydown'].forEach(function(event){document.addEventListener(event,prepareSound,{once:true});});
   function activeExercise() {
-    return !!document.querySelector('#examRun:not([hidden]), #tab-train[aria-disabled="true"], #tab-path[aria-disabled="true"], dialog[open], [role="dialog"][aria-modal="true"]:not([hidden]), .dtp-practice-dialog[open], .modal.open')
+    return !!document.querySelector('body[data-dtp-exam-active], #examRun:not([hidden]), #tab-train[aria-disabled="true"], #tab-path[aria-disabled="true"], dialog[open], [role="dialog"][aria-modal="true"]:not([hidden]), .dtp-practice-dialog[open], .modal.open')
       || !!(document.activeElement && document.activeElement.matches('input:not([type=button]):not([type=submit]),textarea,[contenteditable="true"]'));
   }
   function prepareSound() {
@@ -98,6 +100,7 @@
       }).catch(function(){/* Network errors must never interrupt learning. */})
       .finally(function(){checking=false;});
   }
-  function init(){check();setInterval(check,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});}
+  function init(){if(cfg.preview===true)return;check();setInterval(check,60000);document.addEventListener('visibilitychange',function(){if(!document.hidden)check();});}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+

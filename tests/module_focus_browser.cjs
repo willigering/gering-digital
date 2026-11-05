@@ -21,6 +21,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
         const context=await browser.newContext({viewport});const page=await context.newPage();const errors=[];
         page.on('pageerror',e=>errors.push(e.message));
         await page.goto(`http://127.0.0.1:${server.address().port}/${m.file}`);
+        if(m.entry==='mix'){await require('./kv_browser_acceptance.cjs').focus(page,viewport);assert.deepEqual(errors,[]);await context.close();continue;}
         await page.locator('#tab-path').click();
         const before=await page.evaluate(()=>JSON.stringify(localStorage));
         await page.evaluate(()=>{window.focusOriginalPanel=document.getElementById('practicePanel');window.focusOriginalBack=document.getElementById('backToLesson');});
@@ -90,3 +91,4 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
     console.log('Exercise focus: nine modules, desktop/mobile, centering, progressive 4.1 s blur/dim and 0.92 s fade-out, real controls, stable typing, sticky return, Escape, no rewards and reduced motion passed.');
   }finally{await browser.close();await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exit(1);});
+

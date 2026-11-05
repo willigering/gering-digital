@@ -217,6 +217,16 @@ function dtp_card_progress(array $progress): string {
     $count=count($mastered);
     $total=$progress['stages'];
     $earned=count($progress['earned']);
+    if ($total===0) {
+        $questions=max(1,(int)($progress['questions']??1));
+        $correct=min($questions,max(0,(int)$progress['correct']));
+        $html='<details class="module-progress"><summary><span class="module-progress-head"><strong>Klausurvorbereitung</strong><span>'.$correct.' / '.$questions.' Fragen richtig</span></span>'
+            .'<span class="module-progress-bar" aria-hidden="true"><i style="width:'.(int)round($correct*100/$questions).'%"></i></span>'
+            .'<span class="module-progress-more">Achievements '.$earned.' / '.$progress['achievements'].' <b aria-hidden="true">⌄</b></span></summary>';
+        $html.='<div class="module-progress-body"><p>Direkt üben, Themen nachschlagen und Probeklausuren schreiben.</p>';
+        foreach($progress['earned'] as $a)$html.='<span class="tag">'.e($a['name']).'</span>';
+        return $html.'</div></details>';
+    }
     $started=$count>0 || $progress['correct']>0 || $progress['exams'] || $earned>0;
     $status=$count===$total?'Lernpfad abgeschlossen':($started?'In Arbeit':'Noch offen');
     $html='<details class="module-progress"><summary><span class="module-progress-head">'
@@ -708,6 +718,7 @@ function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
     return $attrs;
 }
+
 
 
 

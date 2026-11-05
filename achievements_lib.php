@@ -27,6 +27,18 @@ function ach_tiers(): array {
  */
 function ach_modules(): array {
     $modules=[
+        'kv'=>['prefix'=>'kv-061126','subject'=>'Klausurvorbereitung Netzwerke','title'=>'Sieben Schichten OSI. Aber gelernt wird fünf vor zwölf.','motif'=>'klausurvorbereitung','slugs'=>['klausurvorbereitung-061126'],'stages'=>0,'optional'=>true,'exam_minutes'=>[30,60,90],'list'=>[
+            ['kv.start','bronze','Verbindung hergestellt','10 verschiedene Fragen richtig lösen.',['kv_count','unique',10]],
+            ['kv.tour','bronze','Nicht nur Bahnhof','In mindestens drei Kategorien je eine Frage richtig lösen.',['kv_count','categories',3]],
+            ['kv.fifty','silber','Da bleibt was hängen','50 verschiedene Fragen richtig lösen.',['kv_count','unique',50]],
+            ['kv.ports','silber','Portier vom Dienst','15 verschiedene Portnummer-Aufgaben richtig eintippen.',['kv_count','ports',15]],
+            ['kv.all','gold','Netzweit zuständig','In allen sieben Kategorien je 10 verschiedene Fragen richtig lösen.',['kv_count','minimum_category',10]],
+            ['kv.exam','gold','Generalprobe bestanden','Mindestens 81 Prozent in einer Klausur mit mindestens 40 Aufgaben.',['any',[['exam',60,81],['exam',90,81]]]],
+            ['kv.master','platin','Panik hat Hausverbot','150 verschiedene Fragen richtig und mindestens 92 Prozent bei mindestens 40 Klausuraufgaben.',['all',[['kv_count','unique',150],['any',[['exam',60,92],['exam',90,92]]]]]],
+            ['kv.lastminute','witzig','Fünf vor zwölf','12 verschiedene Fragen richtig. Der Lernplan nimmt Gestalt an.',['kv_count','unique',12],'Zwölf Treffer später sieht der Lernplan plötzlich seriös aus.'],
+            ['kv.macarena','witzig','MACarena','6 verschiedene Aufgaben zum MAC-Aufbau richtig.',['kv_count','mac',6],'Tanze durch die sechs Byte.'],
+            ['kv.dns','witzig','Es war tatsächlich DNS','5 verschiedene Aufgaben zu DNS richtig.',['kv_count','dns',5],'Fünf Spuren führen zum Namensdienst.'],
+        ]],
         'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','slugs'=>['d2-it-sicherheit'],'stages'=>10,'list'=>[
             ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
             ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
@@ -213,11 +225,29 @@ function ach_module_state(array $values,array $module): array {
         if (!is_string($id) || !is_array($list)) continue;
         $state['subs'][$id]=array_map(static fn($v)=>$v?1:0,array_slice(array_values($list),-12));
     }
+    if (($module['prefix']??'')==='kv-061126') {
+        static $index=null;
+        if ($index===null) $index=json_decode((string)file_get_contents(__DIR__.'/lernmodule/kv-question-index.json'),true) ?: [];
+        $review=ach_json($values[$p.'-review-v1']??null);
+        $ids=is_array($review['unique']??null)?array_fill_keys(array_filter($review['unique'],'is_string'),true):[];
+        $counts=['unique'=>0,'categories'=>0,'minimum_category'=>0,'ports'=>0,'mac'=>0,'dns'=>0];$categories=array_fill(0,7,0);
+        foreach($index as $q) {
+            if(!isset($ids[$q['id']]))continue;
+            $counts['unique']++;$categories[(int)$q['c']]++;
+            if($q['type']==='number' && str_starts_with($q['sub'],'ports_'))$counts['ports']++;
+            if(str_starts_with($q['sub'],'mac_'))$counts['mac']++;
+            if(in_array($q['sub'],['dns','dns_cache','dns_diagnose','dienst_53','ports_53','dns_transport'],true))$counts['dns']++;
+        }
+        $counts['categories']=count(array_filter($categories,static fn($n)=>$n>0));
+        $counts['minimum_category']=min($categories);
+        $state['kv_counts']=$counts;$state['correct']=$counts['unique'];
+    }
     $exams=ach_json($values[$p.'-exam-v1']??null);
     if (is_array($exams) && array_is_list($exams)) foreach(array_slice($exams,-8) as $e) {
         if (!is_array($e)) continue;
         $m=(int)($e['m']??0);$pct=(int)round((float)($e['p']??-1));
         if (!in_array($m,$module['exam_minutes']??[30,60,90],true) || $pct<0 || $pct>100) continue;
+        if (($module['prefix']??'')==='kv-061126' && (int)($e['n']??0)!==([30=>20,60=>40,90=>60][$m]??0)) continue;
         $state['exams'][]=['m'=>$m,'p'=>$pct,'left'=>($e['r']??'')==='Seite verlassen'];
     }
     return $state;
@@ -240,7 +270,8 @@ function ach_card_progress(int $learnerId): array {
         }
         $progress=[
             'stages'=>$module['stages'],
-            'mastered'=>array_values(array_intersect($best['m'],range(0,$module['stages']-1))),
+            'questions'=>$id==='kv'?count(json_decode((string)file_get_contents(__DIR__.'/lernmodule/kv-question-index.json'),true) ?: []):0,
+            'mastered'=>$module['stages']>0?array_values(array_intersect($best['m'],range(0,$module['stages']-1))):[],
             'correct'=>$best['c'],
             'exams'=>array_intersect_key($best['e'],array_flip($module['exam_minutes']??[30,60,90])),
             'earned'=>$earned,
@@ -268,8 +299,10 @@ function ach_merge_best(array $best,array $state): array {
 /** Ist die Regel eines Modul-Achievements erfüllt? */
 function ach_rule_met(array $rule,array $state,array $best,array $module): bool {
     switch ($rule[0]) {
+        case 'kv_count': return (int)($state['kv_counts'][$rule[1]]??0)>=(int)$rule[2];
+        case 'any': foreach($rule[1] as $r) if (ach_rule_met($r,$state,$best,$module)) return true; return false;
         case 'stage': return in_array($rule[1],$best['m'],true);
-        case 'path': return count($best['m'])>=$module['stages'];
+        case 'path': return $module['stages']>0 && count($best['m'])>=$module['stages'];
         case 'clean': foreach($rule[1] as $sub) if (!ach_run($state['subs'][$sub]??[],1,10)) return false; return true;
         case 'fails': return ach_run($state['subs'][$rule[1]]??[],0,3);
         case 'exam': return (int)(($best['e'][(string)$rule[1]])??0)>=$rule[2];
@@ -330,7 +363,7 @@ function ach_evaluate_locked(int $learnerId,array $events=[]): array {
         $b=ach_merge_best((array)($best[$mid]??[]),$state);
         if ($b!==['m'=>[],'c'=>0,'e'=>[]]) $best[$mid]=$b;
         foreach($module['list'] as $a) if (ach_rule_met($a[4],$state,$b,$module)) $met[$a[0]]=true;
-        if (count($b['m'])>=$module['stages']) $completePaths++;
+        if ($module['stages']>0 && count($b['m'])>=$module['stages']) $completePaths++;
         if (in_array(0,$b['m'],true)) $firstStages++;
         $totalCorrect+=$b['c'];
     }
@@ -347,7 +380,7 @@ function ach_evaluate_locked(int $learnerId,array $events=[]): array {
     if ($totalCorrect>=10000) $met['g.10000']=true;
     if ($completePaths>=5) $met['g.5pfade']=true;
     if ($completePaths>=15) $met['g.15pfade']=true;
-    $live=ach_live_modules();
+    $live=array_values(array_filter(ach_live_modules(),fn($id)=>empty(ach_modules()[$id]['optional'])));
     if ($live && !array_filter($live,fn($id)=>count((array)($best[$id]['m']??[]))<ach_modules()[$id]['stages'])) $met['g.komplett']=true;
     if ((int)$row['highscore_visible']===1) $met['g.rampensau']=true;
     if ($activity && !empty($events['solved']) && (int)ach_berlin($now)->format('G')<4) $met['g.nachteule']=true;
@@ -457,6 +490,7 @@ function ach_export(int $learnerId): array {
     foreach(ach_unlocked($learnerId) as $code=>$at) $out[]=['achievement'=>$catalog[$code]['name']??$code,'code'=>$code,'freigeschaltet_utc'=>$at];
     return ['xp'=>$stats['level']['xp'],'level'=>$stats['level']['level'],'highscore_sichtbar'=>$stats['visible'],'achievements'=>$out,'xp_system_version'=>xp_config()['version'],'fortschritt'=>xp_dashboard($learnerId),'vitrine'=>xp_showcase($learnerId)];
 }
+
 
 
 

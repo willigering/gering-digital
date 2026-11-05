@@ -426,6 +426,15 @@ function learner_update_revision(string $version): string {
 }
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
 function learner_inject_sync(string $html,string $slug,string $file,?string $version=null): string {
+    if ($slug==='klausurvorbereitung-061126') {
+        // Offline demos must never compete with authenticated platform services.
+        $html=preg_replace('~<!-- KV-REVIEW-FEEDBACK START -->.*?<!-- KV-REVIEW-FEEDBACK END -->~s','',$html) ?? $html;
+        $html=preg_replace('~<div class="review-only review-extras">.*?</div>~s','',$html) ?? $html;
+        $html=str_replace('window.__KV_PLATFORM__=false;window.__DTP_UPDATE__={slug:"klausurvorbereitung-061126",preview:true};','',$html);
+        $html=str_replace('· Begutachtungsfassung','',$html);
+        $html=preg_replace('~</head>~i','<script>window.__KV_PLATFORM__=true;</script></head>',$html,1) ?? $html;
+    }
+
     // Replace the embedded calculator in already published modules without reimporting them.
     $calc=__DIR__.'/dau-to-pro/module-calculator';
     if (is_file($calc.'.css') && is_file($calc.'.js')) {
@@ -599,6 +608,7 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+
 
 
 

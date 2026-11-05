@@ -34,22 +34,22 @@ const modules = JSON.parse(fs.readFileSync(path.join(root, 'lernmodule/manifest.
         window.scrollTo(0, 1000);
       });
       await page.reload();
-      await page.waitForFunction(() => document.querySelector('#tab-path')?.getAttribute('aria-selected') === 'true' && scrollY === 0);
+      await page.waitForFunction(entry => document.querySelector('#tab-'+entry)?.getAttribute('aria-selected') === 'true' && scrollY === 0, module.entry || 'path');
       assert.equal(await page.evaluate(() => localStorage.getItem('dtp-test-progress')),
         '{"stage":2,"mastered":true}', module.slug + ': progress survives re-entry');
 
       // Coming from outside via an obsolete deep link should also open the learning path.
       await page.goto('about:blank');
       await page.goto(url + '#examTop');
-      await page.waitForFunction(() => document.querySelector('#tab-path')?.getAttribute('aria-selected') === 'true' && scrollY === 0);
+      await page.waitForFunction(entry => document.querySelector('#tab-'+entry)?.getAttribute('aria-selected') === 'true' && scrollY === 0, module.entry || 'path');
       assert.equal(await page.evaluate(() => location.hash), '', module.slug + ': old deep link cleared');
 
       // Browser Back may restore a document from the back-forward cache.
-      await page.locator('#tab-train').click();
+      await page.locator('#tab-'+(module.areas?'category':'train')).click();
       await page.evaluate(() => window.scrollTo(0, 900));
       await page.goto('about:blank');
       await page.goBack();
-      await page.waitForFunction(() => document.querySelector('#tab-path')?.getAttribute('aria-selected') === 'true' && scrollY === 0);
+      await page.waitForFunction(entry => document.querySelector('#tab-'+entry)?.getAttribute('aria-selected') === 'true' && scrollY === 0, module.entry || 'path');
       await context.close();
     }
     console.log('Module entry browser: all nine modules start on Lernpfad at scroll 0 (reload, old anchor, back), progress retained.');
@@ -58,3 +58,4 @@ const modules = JSON.parse(fs.readFileSync(path.join(root, 'lernmodule/manifest.
     await new Promise(resolve => server.close(resolve));
   }
 })().catch(error => { console.error(error); process.exit(1); });
+
