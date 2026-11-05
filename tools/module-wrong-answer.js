@@ -199,7 +199,8 @@
   "Richtig. Und ich hatte so wenig Hoffnung."
 ];
   window.DTPRightAnswer = Object.freeze({next(own) {
-    const pool = NEW_QUIPS_LIVE ? own.concat(newRightQuips) : own;
+    // Mostly the shared quips, so every module sounds alike; module-specific ones stay in the mix.
+    const pool = NEW_QUIPS_LIVE && Math.random() < 0.7 ? newRightQuips : own;
     return pool[Math.floor(Math.random() * pool.length)];
   }});
 })();

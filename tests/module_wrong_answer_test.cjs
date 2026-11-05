@@ -29,4 +29,5 @@ assert.equal(right.length,33,'33 new correct-answer quips prepared');assert.equa
 const seen=new Set(Array.from({length:5000},()=>liveContext.window.DTPRightAnswer.next(['eigen'])));
 assert.equal(seen.size,34,'Activated: own plus all new correct-answer quips');
 for(const m of JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.json'))).modules){const html=fs.readFileSync(path.join(root,'lernmodule',m.file),'utf8');assert.ok(html.includes('window.DTPRightAnswer.next(Q_OK)')||html.includes('window.DTPRightAnswer.next(quips)'),m.slug+': correct renderer uses switch');}
+for(const m of JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.json'))).modules){const html=fs.readFileSync(path.join(root,'lernmodule',m.file),'utf8');assert.ok(!/\?'':'<span class="quip">/.test(html),m.slug+': review and matching also praise right answers');}
 console.log('Wrong-answer quips: 100 complete bags, no boundary repeats, reinjection and all ten modules passed.');

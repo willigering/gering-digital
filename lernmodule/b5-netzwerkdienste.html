@@ -1154,7 +1154,8 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
   "Richtig. Und ich hatte so wenig Hoffnung."
 ];
   window.DTPRightAnswer = Object.freeze({next(own) {
-    const pool = NEW_QUIPS_LIVE ? own.concat(newRightQuips) : own;
+    // Mostly the shared quips, so every module sounds alike; module-specific ones stay in the mix.
+    const pool = NEW_QUIPS_LIVE && Math.random() < 0.7 ? newRightQuips : own;
     return pool[Math.floor(Math.random() * pool.length)];
   }});
 })();
@@ -1805,7 +1806,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema · erreichte / mögliche Themenpunkte</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+gi(x.g)+'/'+gi(x.t)+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+gi(r.ok?r.t.pts:0)+'/'+gi(r.t.pts)+' Aufgabenpunkte</summary>'+taskHeading(r.t,'review'+r.i)+'<p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':'<span class="quip">'+qBad()+'</span>')+'<div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+gi(r.ok?r.t.pts:0)+'/'+gi(r.t.pts)+' Aufgabenpunkte</summary>'+taskHeading(r.t,'review'+r.i)+'<p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+'<span class="quip">'+(r.ok?qOk():qBad())+'</span>'+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

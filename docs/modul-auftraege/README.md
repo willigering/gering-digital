@@ -87,7 +87,7 @@ Diese Regeln gelten **rückwirkend für jedes fertige/veröffentlichte Modul** u
 
 ### Rückmeldungen bei falschen Antworten (05.11.2026)
 
-Alle Module verwenden die 50 von Willi gewünschten Sprüche aus der Klausurvorbereitung. Der gemeinsame Baustein `tools/module-wrong-answer.js` wird mit `apply_wrong_answers()` aus `tools/module_theme.py` eingebettet und beim Ausliefern älterer Module über `learner_inject_sync()` erneuert. Aufgabenrenderer rufen `window.DTPWrongAnswer.next()` auf. Die zufällig gemischte Liste wiederholt sich erst nach allen 50 Sprüchen; auch am Übergang gibt es keine direkte Wiederholung.
+Falsch- und Richtig-Sprüche gelten modulübergreifend in allen Bereichen: Lernpfad, Nachschlagwerk-Kurzcheck, Training, Zuordnen und Prüfungsauswertung. Alle Module verwenden dafür den gemeinsamen Vorrat (`DTPWrongAnswer`, `DTPRightAnswer`), darunter die 50 Sprüche aus der Klausurvorbereitung. Der gemeinsame Baustein `tools/module-wrong-answer.js` wird mit `apply_wrong_answers()` aus `tools/module_theme.py` eingebettet und beim Ausliefern älterer Module über `learner_inject_sync()` erneuert. Aufgabenrenderer rufen `window.DTPWrongAnswer.next()` auf. Die zufällig gemischte Liste wiederholt sich erst nach dem gesamten Vorrat; auch am Übergang gibt es keine direkte Wiederholung.
 
 Sprüche erscheinen nur bei tatsächlich falsch bewerteten Antworten, einschließlich Zuordnungen und der Auswertung nach Prüfungsabgabe. Leere oder ungültige Eingaben behalten sachliche Format-/Auswahlhinweise. Richtige Lösung, Begründung und Rechenweg bleiben erhalten. Bewertungen, IDs, Fortschritt, XP und Achievements bleiben unberührt. Für diese ausdrücklich gewünschten Rückmeldungen ist Willis Ton aus der Klausurvorbereitung die Referenz.
 
