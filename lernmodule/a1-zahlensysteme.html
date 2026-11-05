@@ -1250,7 +1250,7 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Stellenwertsysteme und Bits</h3><p>Warum 473 eigentlich eine Rechenaufgabe ist und was das mit Computern zu tun hat.</p></div></div><p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Stellenwertsysteme und Bits</h3><p>Warum 473 eigentlich eine Rechenaufgabe ist und was das mit Computern zu tun hat.</p></div></div><p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Wie beim Firmenparkplatz: derselbe Golf, aber auf dem Chefplatz ist er plötzlich ein Problem. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p>
       <p>Im Dezimalsystem hat jede Stelle einen Wert, der eine Zehnerpotenz ist. <span class="val">473</span> bedeutet 4 · 100 + 7 · 10 + 3 · 1. Die <strong>Basis</strong> ist 10, deshalb gibt es die Ziffern 0 bis 9. Jedes Stellenwertsystem funktioniert nach demselben Prinzip, nur mit einer anderen Basis:</p>
       <div class="calc">Wert = Ziffer · Basis^Stelle + … (die Stelle ganz rechts hat die Nummer 0)</div>
       <div class="table-wrap"><table class="t"><thead><tr><th>System</th><th>Basis</th><th>Ziffern</th><th>Stellenwerte (rechts → links)</th><th>Schreibweisen</th></tr></thead><tbody>
@@ -1274,7 +1274,7 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
         <tr><td class="m">2³⁰</td><td class="m">1.073.741.824</td><td>1 GiB in Byte</td></tr>
         <tr><td class="m">2³²</td><td class="m">4.294.967.296</td><td>Anzahl IPv4-Adressen</td></tr>
       </tbody></table></div>
-      <div class="trap"><strong>Falle:</strong> „Größte Zahl mit 8 Bit“ ist <strong>255</strong>, nicht 256. Es gibt 256 Werte, aber einer davon ist die 0.</div>
+      <div class="trap"><strong>Falle:</strong> „Größte Zahl mit 8 Bit“ ist <strong>255</strong>, nicht 256. Es gibt 256 Werte, aber einer davon ist die 0. Die Null zählt mit, wie der Kollege, der nie was macht und trotzdem auf jeder Liste steht.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="basis"></div></div>
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
@@ -1356,7 +1356,7 @@ Ergebnis: 1011 0110</div>
   ───────────
     1001 0001  (145)</div>
       <h4>Überlauf</h4>
-      <p>Ein Register hat eine feste Breite. Ein 8-Bit-Register kann ohne Vorzeichen nur 0 bis 255 speichern. Ist die Summe größer, fällt das neunte Bit weg (die CPU setzt dabei das Carry-Flag). Im Register steht dann die Summe minus 256: <span class="val">200 + 100 = 300 → 300 − 256 = 44</span>.</p>
+      <p>Ein Register hat eine feste Breite. Ein 8-Bit-Register kann ohne Vorzeichen nur 0 bis 255 speichern. Ist die Summe größer, fällt das neunte Bit weg (die CPU setzt dabei das Carry-Flag). Im Register steht dann die Summe minus 256: <span class="val">200 + 100 = 300 → 300 − 256 = 44</span>. 300 rein, 44 raus. Beschwerden nimmt das Register nicht an.</p>
       <h4>Logische Verknüpfungen, Bit für Bit</h4>
       <div class="table-wrap"><table class="t"><thead><tr><th class="m">A</th><th class="m">B</th><th>AND</th><th>OR</th><th>XOR</th><th>NOT A</th></tr></thead><tbody>
         <tr><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">1</td></tr>
@@ -1399,7 +1399,7 @@ Ergebnis: 1011 0110</div>
    1110 0000   → −128 + 64 + 32 = −32  ✓</div>
       <div class="two">
         <div class="box"><h4>Wertebereich mit n Bit</h4><p><strong>−2ⁿ⁻¹ bis 2ⁿ⁻¹ − 1</strong></p><p class="mono">8 Bit:  −128 … 127<br>16 Bit: −32.768 … 32.767<br>32 Bit: −2.147.483.648 … 2.147.483.647</p><p class="subtle">Die negative Seite hat eine Zahl mehr, weil die 0 bei den positiven mitzählt.</p></div>
-        <div class="box"><h4>Ausblick: Kommazahlen</h4><p>Gleitkommazahlen speichert der Rechner nach <strong>IEEE 754</strong> als Vorzeichen, Exponent und Mantisse (32 Bit: 1 + 8 + 23 Bit). Darum ist 0,1 + 0,2 in vielen Programmiersprachen nicht exakt 0,3. Für die Abschlussprüfung reicht meist, das Prinzip zu kennen.</p></div>
+        <div class="box"><h4>Ausblick: Kommazahlen</h4><p>Gleitkommazahlen speichert der Rechner nach <strong>IEEE 754</strong> als Vorzeichen, Exponent und Mantisse (32 Bit: 1 + 8 + 23 Bit). Darum ist 0,1 + 0,2 in vielen Programmiersprachen nicht exakt 0,3. Die Buchhaltung findet das weniger lustig. Für die Abschlussprüfung reicht meist, das Prinzip zu kennen.</p></div>
       </div>
       <div class="trap"><strong>Falle:</strong> Das Zweierkomplement gilt immer für eine <strong>feste Bitbreite</strong>. 1101 0011 ist mit 8 Bit −45, als 16-Bit-Zahl 0000 0000 1101 0011 aber +211.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="neg"></div></div>
@@ -1416,9 +1416,9 @@ Ergebnis: 1011 0110</div>
         <tr><td class="m">TB (Terabyte)</td><td class="m">10¹²</td><td class="m">TiB (Tebibyte)</td><td class="m">2⁴⁰ = 1.099.511.627.776</td><td class="m">10,0 %</td></tr>
       </tbody></table></div>
       <div class="two">
-        <div class="box"><h4>Wer rechnet wie?</h4><ul><li><strong>Festplatten- und SSD-Hersteller</strong>: SI. 1 TB = 10¹² Byte.</li><li><strong>Datenraten</strong> (Mbit/s, Gbit/s): immer SI.</li><li><strong>Arbeitsspeicher</strong>: binär. „16 GB RAM“ sind eigentlich 16 GiB.</li><li><strong>Windows-Explorer</strong>: rechnet binär, beschriftet aber mit „GB“ und „TB“.</li><li><strong>macOS</strong> (seit 10.6) zeigt Dezimalwerte an.</li></ul></div>
+        <div class="box"><h4>Wer rechnet wie?</h4><ul><li><strong>Festplatten- und SSD-Hersteller</strong>: SI. 1 TB = 10¹² Byte.</li><li><strong>Datenraten</strong> (Mbit/s, Gbit/s): immer SI.</li><li><strong>Arbeitsspeicher</strong>: binär. „16 GB RAM“ sind eigentlich 16 GiB.</li><li><strong>Windows-Explorer</strong>: rechnet binär, beschriftet aber mit „GB“ und „TB“. Das ist der ganze Skandal.</li><li><strong>macOS</strong> (seit 10.6) zeigt Dezimalwerte an.</li></ul></div>
         <div class="box"><h4>Der Festplatten-Schwund</h4><p>Eine 2-TB-Platte hat 2 · 10¹² Byte.</p><div class="calc">2.000.000.000.000 B : 1.099.511.627.776
-= 1,82 TiB</div><p>Windows zeigt das als etwa „1,81 TB“ an. Es fehlt nichts, es wird nur anders gezählt.</p></div>
+= 1,82 TiB</div><p>Windows zeigt das als etwa „1,81 TB“ an. Es fehlt nichts, es wird nur anders gezählt. Der wütende Anruf beim Händler kann also entfallen.</p></div>
       </div>
       <h4>So rechnest du sicher um</h4>
       <ol><li>Prüfe, ob beide Einheiten zur <strong>selben Familie</strong> gehören. Dann ist es nur ein Faktor 1.000 oder 1.024 pro Stufe.</li><li>Bei <strong>gemischten Familien</strong> erst in Byte umrechnen, dann in die Zieleinheit.</li><li>Bei <strong>Bit ↔ Byte</strong> mit 8 multiplizieren oder durch 8 teilen.</li></ol>
@@ -1490,7 +1490,7 @@ Audio-CD: 44.100 × 16 × 2 = 1.411.200 bit/s
       <h4>Video (unkomprimiert)</h4>
       <div class="calc">Speicher [bit] = Breite × Höhe × Farbtiefe × Bilder pro Sekunde × Dauer [s]
 Full HD, 24 bit, 25 fps: 49.766.400 × 25 = 1.244.160.000 bit/s ≈ 1,24 Gbit/s</div>
-      <p>Darum wird Video praktisch immer komprimiert (H.264, H.265, AV1). <strong>Verlustfrei</strong> komprimieren ZIP, PNG oder FLAC, <strong>verlustbehaftet</strong> JPEG, MP3 oder H.264. Prüfungsaufgaben rechnen meist unkomprimiert, außer ein Kompressionsfaktor ist angegeben.</p>
+      <p>Über eine Gigabit-Leitung passt das schon nicht mehr. Darum wird Video praktisch immer komprimiert (H.264, H.265, AV1). <strong>Verlustfrei</strong> komprimieren ZIP, PNG oder FLAC, <strong>verlustbehaftet</strong> JPEG, MP3 oder H.264. Prüfungsaufgaben rechnen meist unkomprimiert, außer ein Kompressionsfaktor ist angegeben.</p>
       <div class="trap"><strong>Falle:</strong> Bei „Wie viele Fotos passen auf die Karte?“ wird <strong>abgerundet</strong>. Ein halbes Foto speichert niemand.</div>
       <div class="lab"><div class="lab-head"><strong>SPEICHER-RECHNER</strong><span class="subtle">Bild oder Audio durchrechnen.</span></div>
         <div class="field-row"><label for="sKind" class="sr-only">Art</label><select id="sKind" class="sel"><option value="img">Bild</option><option value="aud">Audio</option></select><input id="sA" type="text" inputmode="numeric" value="1920" aria-label="Breite"><input id="sB" type="text" inputmode="numeric" value="1080" aria-label="Höhe"><input id="sC" type="text" inputmode="numeric" value="24" aria-label="Farbtiefe"><input id="sD" type="text" inputmode="numeric" value="1" aria-label="Anzahl" hidden></div>
@@ -1502,7 +1502,7 @@ Full HD, 24 bit, 25 fps: 49.766.400 × 25 = 1.244.160.000 bit/s ≈ 1,24 Gbit/s<
     </section>
 
     <section id="ch9" class="panel go">
-      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Spickzettel und typische Fallen</h3><p>Die eine Seite, die du vor der Prüfung noch mal anschaust.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Spickzettel und typische Fallen</h3><p>Die eine Seite, die du vor der Prüfung noch mal anschaust. Also die einzige, wenn wir ehrlich sind.</p></div></div>
       <div class="table-wrap"><table class="t"><thead><tr><th>Thema</th><th>Merke</th></tr></thead><tbody>
         <tr><td>n Bit</td><td>2ⁿ Werte, 0 bis 2ⁿ − 1. Für N Zustände: kleinstes n mit 2ⁿ ≥ N</td></tr>
         <tr><td>Binär → Dez</td><td>Stellenwerte 128 64 32 16 8 4 2 1, Einsen addieren</td></tr>
@@ -1934,7 +1934,7 @@ S('units','u_know','Präfixe & Schreibweisen',1,lv=>{
   ()=>mc('Wie werden <strong>Datenraten</strong> wie Mbit/s üblicherweise gerechnet?','Dezimal: 1 Mbit/s = 1.000.000 bit/s',['Binär: 1 Mbit/s = 1.048.576 bit/s','In Byte: 1 Mbit/s = 1.000.000 Byte/s','Je nach Hersteller unterschiedlich, es gibt keine Regel'],'In der Nachrichtentechnik werden Datenraten immer mit SI-Präfixen angegeben: <b>1 Mbit/s = 10⁶ bit/s</b>.',{key:'uk3'}),
   ()=>mc('Warum zeigt Windows bei einer neuen 1-TB-Festplatte nur rund 931 GB an?','Windows rechnet in Zweierpotenzen (GiB), beschriftet aber mit „GB“',['Ein Teil der Platte ist für das Dateisystem reserviert','Der Hersteller hat zu viel versprochen','Die Partitionstabelle belegt 69 GB'],'10¹² Byte : 2³⁰ = 931,32. Windows rechnet in GiB, schreibt aber „GB“. Es fehlt nichts.',{key:'uk4'}),
   ()=>mc('Welche Angabe ist die <strong>größte</strong>?','1 TiB',['1 TB','1.000 GiB','1.000.000 MB'],'Alles in Byte: 1 TiB = 1.099.511.627.776; 1.000 GiB = 1.073.741.824.000; 1 TB = 1.000.000 MB = 1.000.000.000.000. Am größten: <b>1 TiB</b>.',{key:'uk5'}),
-  ()=>mc('Wofür steht das kleine <strong>b</strong> in „Mb/s“?','Bit',['Byte','Binär','Basis'],'Kleines b = <b>Bit</b>, großes B = Byte. Verwechslung kostet Faktor 8.',{key:'uk6'})
+  ()=>mc('Wofür steht das kleine <strong>b</strong> in „Mb/s“?','Bit',['Byte','Binär','Basis'],'Kleines b = <b>Bit</b>, großes B = Byte. Verwechslung kostet Faktor 8. Und meistens noch die Erklärung beim Kunden.',{key:'uk6'})
  ];return pick(Q)();
 });
 
@@ -2046,11 +2046,11 @@ function genTask(cat,lv,recent,subId){
 /* ================= Lernpfad-Stufen ================= */
 const STAGES=[
  {title:'Stellenwerte & Bits',cat:'basis',ch:'ch1',goal:'Zweierpotenzen sicher nutzen: Wie viele Werte passen in n Bit, und wie viele Bit braucht man für N Dinge?',
-  intro:'<p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p><p>Jedes Zahlensystem funktioniert gleich: Jede Stelle ist eine Potenz der Basis wert. Im Binärsystem ist die Basis 2, jede Stelle ist also doppelt so viel wert wie die rechts daneben. Ein Bit hat zwei Zustände, zwei Bit haben vier, drei Bit acht. <strong>Jedes weitere Bit verdoppelt die Möglichkeiten.</strong></p>',
+  intro:'<p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Wie beim Firmenparkplatz: derselbe Golf, aber auf dem Chefplatz ist er plötzlich ein Problem. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p><p>Jedes Zahlensystem funktioniert gleich: Jede Stelle ist eine Potenz der Basis wert. Im Binärsystem ist die Basis 2, jede Stelle ist also doppelt so viel wert wie die rechts daneben. Ein Bit hat zwei Zustände, zwei Bit haben vier, drei Bit acht. <strong>Jedes weitere Bit verdoppelt die Möglichkeiten.</strong></p>',
   visual:'<div class="calc">Bit:     1   2   3    4    5    6     7     8      9     10\nWerte:   2   4   8   16   32   64   128   256    512  1.024</div>',
   memo:'<strong>n Bit → 2ⁿ Werte</strong>, von 0 bis 2ⁿ − 1. Für N Zustände suchst du das kleinste n mit 2ⁿ ≥ N.',
   example:'Eine Firma hat 300 Beschäftigte und will jeder Person eine eigene Binärnummer geben. Wie viele Bit braucht sie mindestens?',
-  steps:['Gesucht ist das kleinste n, für das 2ⁿ mindestens 300 ist.','2⁸ = 256. Das reicht nicht, 44 Leute hätten keine Nummer.','2⁹ = 512. Das reicht, sogar mit Platz für 212 Neueinstellungen.','Ergebnis: <strong>9 Bit</strong>. Die größte darstellbare Nummer ist 2⁹ − 1 = 511.']},
+  steps:['Gesucht ist das kleinste n, für das 2ⁿ mindestens 300 ist.','2⁸ = 256. Das reicht nicht, 44 Leute hätten keine Nummer. Die erfahren das dann per Aushang.','2⁹ = 512. Das reicht, sogar mit Platz für 212 Neueinstellungen.','Ergebnis: <strong>9 Bit</strong>. Die größte darstellbare Nummer ist 2⁹ − 1 = 511.']},
  {title:'Binär → Dezimal',cat:'b2d',ch:'ch2',goal:'Jede Binärzahl bis 8 Bit (und darüber) sicher ins Dezimalsystem übersetzen.',
   intro:'<p>Im Mitschnitt steht 1011 und du brauchst eine Zahl, mit der du weiterrechnen kannst. Schreib 8, 4, 2 und 1 darüber. Die Null hat hier endlich mal die dankbare Aufgabe, nichts beizutragen.</p><p>Eine Binärzahl liest du wie eine Dezimalzahl, nur mit anderen Stellenwerten. Von rechts: 1, 2, 4, 8, 16, 32, 64, 128. Steht an einer Stelle eine 1, zählt ihr Stellenwert. Steht dort eine 0, zählt er nicht.</p>',
   visual:'<div class="calc">128  64  32  16 │  8   4   2   1\n  1   1   0   0 │  1   0   1   0</div>',
@@ -2108,7 +2108,7 @@ const STAGES=[
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=["Stimmt. Die Stellenwerte sind an ihrem Platz.", "Richtig gerechnet. Die Null durfte heute einfach Null sein.", "Passt. Die Rechnung hält auch ohne führende Nullen."];
+const Q_OK=["Stimmt. Die Stellenwerte sind an ihrem Platz.", "Richtig gerechnet. Die Null durfte heute einfach Null sein.", "Passt. Die Rechnung hält auch ohne führende Nullen.", "Stimmt. Bei der Rechnung wurde keine Null verletzt.", "Richtig. Der Taschenrechner darf heute früher gehen.", "Passt. Acht Bit, null Drama."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat ein neues Bit gesetzt.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
 const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
