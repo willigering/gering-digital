@@ -48,7 +48,11 @@ function visit(roll, sent = '3', reducedMotion = false) {
     window: {addEventListener() {}},
     matchMedia() {return {matches: reducedMotion};}
   }, {filename: 'feedback.js'});
-  const hover = (pointerType = 'mouse') => handlers.pointerenter({pointerType, clientX: 690, clientY: 360});
+  // Each subsequent hover approaches the button at its new position.
+  const hover = (pointerType = 'mouse') => {
+    const rect = trigger.getBoundingClientRect();
+    handlers.pointerenter({pointerType, clientX: rect.left + rect.width / 2, clientY: rect.top + rect.height / 2});
+  };
   return {trigger, handlers, hover, dialog};
 }
 
