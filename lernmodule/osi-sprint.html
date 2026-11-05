@@ -1041,6 +1041,85 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
 })();
 </script>
 <!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1836,9 +1915,8 @@ const STAGES=[
 
 /* ================= Sprüche ================= */
 const Q_OK=["Stimmt. Das Ticket ist auf der richtigen Etage.", "Passt. Den Fall kannst du so weitergeben.", "Richtig. Die Aufgabe ist bei der passenden Schicht gelandet."];
-const Q_BAD=["Schau unten nach, welche Aufgabe die richtige Schicht übernimmt.", "Noch nicht. Geh den Fall vom Kabel bis zur Anwendung durch.", "Die Erklärung zeigt, an welcher Stelle sich die Zuständigkeit ändert."];
 const Q_MASTER=['Stufe gemeistert! Nächste Schicht freigeschaltet.','Stufe gemeistert. Die nächste steht schon im Ticketsystem.','Stufe geschafft. Der Lernpfad hat den Eingang bestätigt.','Stufe geschafft. Die nächste ist ab jetzt erreichbar.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>pick(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const FMT={dec:'Ganze Zahl',txt:'Begriff oder Abkürzung, Groß- und Kleinschreibung egal'};
@@ -2129,7 +2207,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Erklärung</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Erklärung</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':'<span class="quip">'+qBad()+'</span>')+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});
@@ -2163,7 +2241,7 @@ let sortOrder=[];
 function sortShuffle(){do{sortOrder=shuffle([7,6,5,4,3,2,1])}while(sortOrder.join()==='7,6,5,4,3,2,1');renderSort();$('sortResult').innerHTML='';$('sortResult').className='result'}
 function renderSort(marks){$('sortList').innerHTML=sortOrder.map((n,i)=>'<li class="sort-item'+(marks?(n===7-i?' ok':' no'):'')+'"><span class="pos">'+(7-i)+'</span><span class="name">'+L[n].de+'</span><button type="button" data-mv="'+i+'" data-d="-1" aria-label="'+L[n].de+' nach oben"'+(i===0?' disabled':'')+'>↑</button><button type="button" data-mv="'+i+'" data-d="1" aria-label="'+L[n].de+' nach unten"'+(i===6?' disabled':'')+'>↓</button></li>').join('')}
 $('sortList').addEventListener('click',e=>{const b=e.target.closest('[data-mv]');if(!b)return;const i=Number(b.dataset.mv),j=i+Number(b.dataset.d);[sortOrder[i],sortOrder[j]]=[sortOrder[j],sortOrder[i]];renderSort();$('sortResult').innerHTML='';const nb=$('sortList').querySelector('[data-mv="'+j+'"][data-d="'+b.dataset.d+'"]:not(:disabled)')||$('sortList').querySelector('[data-mv="'+j+'"]:not(:disabled)');if(nb)nb.focus()});
-$('sortCheck').addEventListener('click',()=>{const ok=sortOrder.filter((n,i)=>n===7-i).length;renderSort(true);const r=$('sortResult');r.className='result'+(ok===7?'':' bad');r.innerHTML=ok===7?'✓ <strong>Perfekt!</strong> Alle sieben Schichten stehen richtig.<span class="quip">'+qOk()+'</span>':'<strong>'+ok+' von 7</strong> stehen richtig (grün). Tipp: Alle Deutschen Studenten Trinken Verschiedene Sorten Bier, von oben nach unten.'});
+$('sortCheck').addEventListener('click',()=>{const ok=sortOrder.filter((n,i)=>n===7-i).length;renderSort(true);const r=$('sortResult');r.className='result'+(ok===7?'':' bad');r.innerHTML=ok===7?'✓ <strong>Perfekt!</strong> Alle sieben Schichten stehen richtig.<span class="quip">'+qOk()+'</span>':'<strong>'+ok+' von 7</strong> stehen richtig (grün). Tipp: Alle Deutschen Studenten Trinken Verschiedene Sorten Bier, von oben nach unten.<span class="quip">'+qBad()+'</span>'});
 $('sortShuffle').addEventListener('click',sortShuffle);sortShuffle();
 // Kapselungs-Labor
 const ENC=[

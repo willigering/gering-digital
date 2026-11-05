@@ -962,6 +962,85 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
 })();
 </script>
 <!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1418,9 +1497,8 @@ function genTask(cat,lv,recent,subId){
 }
 /* ================= Sprüche ================= */
 const Q_OK=["Stimmt. Damit kann man arbeiten, auch ohne Alarmton.", "Sauber entschieden. Die Begründung hält im nächsten Meeting.", "Passt. Erst der Befund, dann der große rote Knopf."];
-const Q_BAD=["Noch nicht. Welche Beobachtung im Fall grenzt die Lösung ein?", "Schau in den Lösungsweg. Beim nächsten Fall prüfst du genau diesen Unterschied.", "Der Befund passt noch nicht. Gut, dass hier die Übung einen Wiederanlaufplan hat."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat eine Sicherheitslücke geschlossen.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>pick(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const norm=s=>String(s).normalize('NFKC').toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]/g,'');
@@ -1676,7 +1754,7 @@ mountChapters();
 const MATCH_TERMS=[['Unerlaubtes Lesen verhindern','Vertraulichkeit'],['Unbemerkte Änderung verhindern','Integrität'],['Bei Bedarf nutzbar sein','Verfügbarkeit'],['Echtheit der Gegenstelle','Authentizität'],['Selbstständige Malware-Verbreitung','Wurm'],['Eingaben heimlich mitschreiben','Keylogger'],['Viele Kandidaten gegen ein Konto','Brute Force'],['Wenige Passwörter gegen viele Konten','Password Spraying'],['Gestohlene Paare wiederverwenden','Credential Stuffing'],['Verdächtigen Verkehr nur melden','IDS'],['Verdächtigen Verkehr aktiv blockieren','IPS'],['Öffentliche Dienste getrennt betreiben','DMZ'],['Zielzeit bis zur Wiederherstellung','RTO'],['Tolerierter Datenverlust als Zeitspanne','RPO']];
 let match=[],matchRound=0;
 function matchNew(){matchRound++;match=shuffle(MATCH_TERMS).slice(0,5);const opts=shuffle([...new Set(MATCH_TERMS.map(x=>x[1]))]);$('trainNo').textContent='RUNDE '+matchRound;$('matchList').innerHTML=match.map((r,i)=>'<div class="match-row"><span>'+esc(r[0])+'</span><select id="ms'+i+'" aria-label="Begriff für '+esc(r[0])+'"><option value="">– wählen –</option>'+opts.map(v=>'<option>'+esc(v)+'</option>').join('')+'</select><button type="button" class="btn ghost" data-match="'+i+'">Prüfen</button></div><div class="result" id="mr'+i+'" role="status"></div>').join('');$('matchResult').innerHTML=''}
-$('matchList').addEventListener('click',e=>{const b=e.target.closest('[data-match]');if(!b)return;const i=Number(b.dataset.match),select=$('ms'+i);if(!select.value){$('mr'+i).textContent='Bitte zuerst einen Begriff wählen. Noch keine Wertung.';return}const ok=select.value===match[i][1];count(ok,'match');select.disabled=true;b.disabled=true;$('mr'+i).className='result'+(ok?'':' bad');$('mr'+i).textContent=(ok?'✓ Richtig. ':'✗ Richtig ist: '+match[i][1]+'. ')+match[i][0]+' → '+match[i][1]+'.'});
+$('matchList').addEventListener('click',e=>{const b=e.target.closest('[data-match]');if(!b)return;const i=Number(b.dataset.match),select=$('ms'+i);if(!select.value){$('mr'+i).textContent='Bitte zuerst einen Begriff wählen. Noch keine Wertung.';return}const ok=select.value===match[i][1];count(ok,'match');select.disabled=true;b.disabled=true;$('mr'+i).className='result'+(ok?'':' bad');$('mr'+i).textContent=(ok?'✓ Richtig. ':'✗ Richtig ist: '+match[i][1]+'. ')+match[i][0]+' → '+match[i][1]+'.';if(!ok){const quip=document.createElement('span');quip.className='quip';quip.textContent=qBad();$('mr'+i).append(quip)}});
 $('matchNext').addEventListener('click',matchNew);
 /* ================= Prüfungsmodus ================= */
 const EXAM_PLAN=CATS.map(c=>[c[0],2,5]);
@@ -1743,7 +1821,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Themenpunkte: erreicht / maximal</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary>'+(r.t.context?'<div class="task-context"><small>AUSGANGSLAGE</small><p>'+r.t.context+'</p></div>':'')+'<p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary>'+(r.t.context?'<div class="task-context"><small>AUSGANGSLAGE</small><p>'+r.t.context+'</p></div>':'')+'<p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':'<span class="quip">'+qBad()+'</span>')+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

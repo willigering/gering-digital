@@ -1236,7 +1236,86 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
       }
     });
   });
-})();</script><!-- DTP-HANDY END --></head><body><div class="dtp-parallax" aria-hidden="true"></div>
+})();</script><!-- DTP-HANDY END --><!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
+</head><body><div class="dtp-parallax" aria-hidden="true"></div>
 <header class="review-header"><div class="wrap"><a href="https://geringdigital.de/dau-to-pro/#lernmodule">← Modulauswahl</a><strong>DAU TO PRO <em>SPEZIAL</em></strong></div></header>
 <div class="wrap">
  <nav class="area-tabs" role="tablist" aria-label="Klausurvorbereitung">
@@ -1656,9 +1735,7 @@ function solutionText(q){return Array.isArray(q.answer)?q.answer.map((x,i)=>(i+1
 function validate(q,raw){if(q.type==='ipv4')return ipv4Number(raw)===null?'Bitte eine vollständige IPv4-Adresse mit vier gültigen Oktetten eingeben.':null;if(q.type==='bits')return /^[01]{8}$/.test(String(raw).replace(/\s/g,''))?null:'Bitte genau acht Binärziffern (0 oder 1) eingeben.';if(q.type==='number')return parseNumber(raw)===null?'Bitte eine gültige, nicht negative Zahl eingeben.':null;if(q.type==='choice'||q.type==='select')return raw?'': 'Bitte zuerst eine Antwort auswählen.';return null;}
 function questionHTML(q,i){const done=roundAnswers[q.id];return '<article class="panel cy question" data-id="'+q.id+'"><div class="bar-head"><span>'+CATS[q.c]+'</span><span class="num">'+q.id+' · '+(q.type==='ipv4'?'IPv4-Eingabe':q.type==='bits'?'Binär-Eingabe':q.type==='number'?'Zahleneingabe':q.type==='order'?'Reihenfolge':q.type==='select'?'Zuordnung':'Einzelauswahl')+'</span></div><h3 class="task-prompt">'+escapeHTML(q.q)+' <span class="qhelp"><button class="qmark" type="button" aria-label="Frage einfacher erklären" aria-expanded="false">?</button><span class="qtip">'+escapeHTML(helpFor(q))+'</span></span></h3><div class="answer-box">'+answerUI(q,q.id,done?.raw,!!done)+'</div><div class="task-actions"><button class="btn secondary" type="button" '+(i===0?'id="practiceGo" ':'')+'data-focus-task>In Ruhe bearbeiten</button><button class="btn primary check" type="button" '+(done?'disabled':'')+'>Antwort prüfen</button><button class="btn ghost lookup" type="button">Im Nachschlagwerk ansehen</button>'+'</div><div class="result '+(done&&!done.ok?'bad':'')+'" aria-live="polite">'+(done?feedbackHTML(q,done.ok,done.xp):'')+'</div></article>';}
 const quips=['Treffer. Das darf morgen gern wieder passieren.','Richtig. Dein Kurzzeitgedächtnis hat unterschrieben.','Passt. Die Klausur kann sich schon mal warm anziehen.','Korrekt. Diesmal war es nicht nur das Bauchgefühl.','Richtig. Ein Paket Wissen ist angekommen.'];
-const wrongQuips=["Wirklich? Das ist deine Antwort?","Nope. Versuch's nochmal.","Nicht dein Ernst, Digga!","Das war ein Griff ins Netzwerkklo.","Falsch abgebogen. Das Navi weint.","Da hat dein Gehirn kurz 404 gemeldet.","Der Router sagt: Nö.","Das Paket ging wohl an die falsche Adresse.","Autsch. Das tat sogar dem Switch weh.","Mutig. Leider komplett daneben.","Das war eher UDP: abgeschickt und gehofft.","Nein. Aber selbstbewusst war's.","Die Antwort hat Paketverlust.","Dein Wissen hat gerade einen Timeout.","Ganz heiß! Also ungefähr wie ein Eiswürfel.","Fast. Wenn man alle Fehler ignoriert.","Das war kein Treffer, das war ein Broadcast ins Nichts.","Junge, was war denn das?","Der DNS findet deine Lösung nicht.","Das war ein klassischer Layer-8-Moment.","Nicht ganz. Nicht mal mit NAT.","Ping? Keine Antwort.","Sogar die Firewall hat den Kopf geschüttelt.","Falscher Port, falsche Party.","Hoppla. Das ging ins falsche Subnetz.","Der Prüfer hebt gerade eine Augenbraue.","Einfach mal nein.","Der Gedanke war da. Kurz.","Diese Antwort braucht dringend ein Update.","Ein kleiner Fehler für dich, ein großer für die Klausur.","Da ist wohl ein Bit umgekippt.","Dein Ergebnis ist leider nicht im gültigen Bereich.","Das OSI-Modell distanziert sich.","Klingt erfunden. Ist leider auch falsch.","Wenn Raten ein Protokoll wäre, wärst du Admin.","Du hast die Frage elegant umfahren.","Nö. Aber der Mut verdient einen Ping.","Error 418: Ich bin eine Teekanne, keine Lösung.","Das war mehr Kabelsalat als Netzwerk.","Nicht korrekt. Dein Switch möchte reden.","Was zum DHCP war das denn?","Diese Antwort kommt nicht durch die Prüfung.","Schade. Die Lösung wohnt woanders.","Der Taschenrechner ist unschuldig.","Das war ein SYN ohne ACK.","Nope.exe wurde erfolgreich ausgeführt.","Hier hilft auch kein Neustart.","Das war leider eine Nullnummer im Binärsystem.","Das hätte selbst der Drucker hinterfragt.","Noch ein Versuch. Diesmal mit weniger Würfeln."];
-let wrongQuipBag=[];
-function nextWrongQuip(){if(!wrongQuipBag.length){wrongQuipBag=wrongQuips.map((_,i)=>i);for(let i=wrongQuipBag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[wrongQuipBag[i],wrongQuipBag[j]]=[wrongQuipBag[j],wrongQuipBag[i]];}}return wrongQuips[wrongQuipBag.pop()];}
+function nextWrongQuip(){return window.DTPWrongAnswer.next();}
 function feedbackHTML(q,ok,xp){return '<b>'+(ok?quips[Math.floor(Math.random()*quips.length)]:escapeHTML(nextWrongQuip()))+'</b><div class="why"><strong>Lösung: '+escapeHTML(solutionText(q))+'</strong><br>'+escapeHTML(q.why)+'</div>'+(xp?'<span class="quip">+2 XP · diese Frage erstmals richtig gelöst.</span>':ok?'<span class="quip">Bereits gemeistert – Wiederholung festigt, erzeugt aber keine doppelten XP.</span>':'');}
 let referenceReturn=null;
 function openQuestionReference(q){
@@ -1696,7 +1773,7 @@ function capture(){const v=readRaw(box,q);if(['number','ipv4','bits','select','c
 document.querySelectorAll('[data-index]').forEach(b=>b.onclick=()=>{if(!capture())return;examIndex=Number(b.dataset.index);examConfirmation=false;renderActiveExam();});$('prevQ').onclick=()=>{if(!capture())return;examIndex--;examConfirmation=false;renderActiveExam();};$('nextQ').onclick=()=>{if(!capture())return;if(examIndex<exam.n-1)examIndex++;renderActiveExam();};$('clearQ').onclick=()=>{delete exam.answers[q.id];save();renderActiveExam();};$('submitExam').onclick=()=>{if(!capture())return;examConfirmation=true;const unanswered=exam.n-Object.keys(exam.answers).length;$('submitPanel').hidden=false;$('submitPanel').innerHTML='<h3>Jetzt abgeben?</h3><p>'+unanswered+' unbeantwortete Aufgaben zählen als falsch. Danach siehst du deine Eingaben, Lösungen und Erklärungen.</p><div class="actions"><button class="btn primary" id="confirmSubmit" type="button">Ja, Klausur auswerten</button><button class="btn secondary" id="cancelSubmit" type="button">Weiterarbeiten</button></div>';$('confirmSubmit').onclick=()=>finishExam('Abgegeben');$('cancelSubmit').onclick=()=>{$('submitPanel').hidden=true;examConfirmation=false;};};updateTimer();}
 function updateTimer(){if(!exam)return;const remaining=Math.max(0,Math.ceil((exam.deadline-Date.now())/1000));if($('examTimer'))$('examTimer').textContent=String(Math.floor(remaining/60)).padStart(2,'0')+':'+String(remaining%60).padStart(2,'0');if(remaining===0)finishExam('Zeit abgelaufen');}
 function finishExam(reason){if(!exam)return;document.body.removeAttribute('data-dtp-exam-active');const current=exam;exam=null;let right=0,earned=0;const rows=current.ids.map(id=>{const q=BANK.find(q=>q.id===id),raw=current.answers[id],ok=raw!==undefined&&correct(q,raw);right+=ok?1:0;earned+=record(q,ok);return {id,raw:raw??null,ok};});const p=Math.round(right/current.n*100);const result={ts:Date.now(),n:current.n,m:current.m,p,right,reason,rows,earned};state.exams.unshift(result);state.exams=state.exams.slice(0,8);unlock();examResult=result;examIndex=0;save();view='exam';document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.view==='exam')));$('main').setAttribute('aria-labelledby','tab-exam');renderExamResult(result);}
-function renderExamResult(r){$('main').innerHTML='<div class="section-heading"><div class="eyebrow">Auswertung · '+escapeHTML(r.reason)+'</div><h2>'+r.p+' Punkte. <span>Note '+gradeOf(r.p)+'.</span></h2><p>'+r.right+' von '+r.n+' Aufgaben richtig. Jede Aufgabe zählt '+(100/r.n).toLocaleString('de-DE',{maximumFractionDigits:2})+' Punkte; Gesamtpunkte werden gerundet. +'+r.earned+' Frage-XP für erstmals richtige Antworten.</p></div><div class="panel"><h3>Deine Themenbilanz</h3><div class="table-wrap"><table class="t"><thead><tr><th>Bereich</th><th>Richtig / Aufgaben</th></tr></thead><tbody>'+CATS.map((c,i)=>{const rows=r.rows.filter(row=>BANK.find(q=>q.id===row.id).c===i);return '<tr><td>'+c+'</td><td>'+rows.filter(x=>x.ok).length+' / '+rows.length+'</td></tr>';}).join('')+'</tbody></table></div><p class="subtle">Orientierung am IHK-Notenschlüssel: 92 / 81 / 67 / 50 / 30 Punkte. Keine offizielle IHK-Prüfung.</p></div><div class="actions"><button class="btn primary" id="newExam" type="button">Neue Probeklausur</button><button class="btn secondary" id="backToMix" type="button">Weiter üben</button></div><h3 class="review-title">Deine Antworten & Lösungen</h3>'+r.rows.map((row,i)=>{const q=BANK.find(q=>q.id===row.id);return '<details class="panel review-row"><summary>'+(row.ok?'✓':'✗')+' Aufgabe '+(i+1)+' · '+escapeHTML(q.q)+'</summary><p><b>Deine Eingabe:</b> '+escapeHTML(row.raw===null?'Nicht beantwortet':Array.isArray(row.raw)?row.raw.join(' → '):row.raw)+'</p><p><b>Richtige Lösung:</b> '+escapeHTML(solutionText(q))+'</p><div class="why">'+escapeHTML(q.why)+'</div></details>';}).join('');$('newExam').onclick=()=>{examResult=null;renderExam();};$('backToMix').onclick=()=>showView('mix');}
+function renderExamResult(r){$('main').innerHTML='<div class="section-heading"><div class="eyebrow">Auswertung · '+escapeHTML(r.reason)+'</div><h2>'+r.p+' Punkte. <span>Note '+gradeOf(r.p)+'.</span></h2><p>'+r.right+' von '+r.n+' Aufgaben richtig. Jede Aufgabe zählt '+(100/r.n).toLocaleString('de-DE',{maximumFractionDigits:2})+' Punkte; Gesamtpunkte werden gerundet. +'+r.earned+' Frage-XP für erstmals richtige Antworten.</p></div><div class="panel"><h3>Deine Themenbilanz</h3><div class="table-wrap"><table class="t"><thead><tr><th>Bereich</th><th>Richtig / Aufgaben</th></tr></thead><tbody>'+CATS.map((c,i)=>{const rows=r.rows.filter(row=>BANK.find(q=>q.id===row.id).c===i);return '<tr><td>'+c+'</td><td>'+rows.filter(x=>x.ok).length+' / '+rows.length+'</td></tr>';}).join('')+'</tbody></table></div><p class="subtle">Orientierung am IHK-Notenschlüssel: 92 / 81 / 67 / 50 / 30 Punkte. Keine offizielle IHK-Prüfung.</p></div><div class="actions"><button class="btn primary" id="newExam" type="button">Neue Probeklausur</button><button class="btn secondary" id="backToMix" type="button">Weiter üben</button></div><h3 class="review-title">Deine Antworten & Lösungen</h3>'+r.rows.map((row,i)=>{const q=BANK.find(q=>q.id===row.id);return '<details class="panel review-row"><summary>'+(row.ok?'✓':'✗')+' Aufgabe '+(i+1)+' · '+escapeHTML(q.q)+'</summary><p><b>Deine Eingabe:</b> '+escapeHTML(row.raw===null?'Nicht beantwortet':Array.isArray(row.raw)?row.raw.join(' → '):row.raw)+'</p><p><b>Richtige Lösung:</b> '+escapeHTML(solutionText(q))+'</p>'+(row.ok?'':'<span class="quip">'+escapeHTML(nextWrongQuip())+'</span>')+'<div class="why">'+escapeHTML(q.why)+'</div></details>';}).join('');$('newExam').onclick=()=>{examResult=null;renderExam();};$('backToMix').onclick=()=>showView('mix');}
 function renderProgress(){const body=$('progressBody');body.innerHTML='<div class="section-heading"><div class="eyebrow">Deine Klausurvorbereitung</div><h2>Wissen gesammelt. <span>Panik eingespart.</span></h2></div><div class="metrics"><div class="metric"><span>MODUL-XP</span><strong>'+state.xp+'</strong></div><div class="metric"><span>ERSTMALS RICHTIG</span><strong>'+state.unique.length+' / '+BANK.length+'</strong></div><div class="metric"><span>ANTWORTEN RICHTIG</span><strong>'+state.correct+' / '+state.solved+'</strong></div><div class="metric"><span>BESTE SERIE</span><strong>'+state.best+'</strong></div></div><p class="subtle">Der Gesamtstand enthält auch frühere Aufgaben. Im aktuellen Klausurpool stehen '+CORE_BANK.length+' Fragen. 2 XP pro Frage bei der ersten richtigen Lösung, zusätzliche XP für neue Achievements. Wiederholungen und erneutes Prüfen vergeben keine doppelten XP. '+(window.__KV_PLATFORM__?'Die Plattform übernimmt Fortschritt und vergibt Konto-XP nach den gemeinsamen Regeln.':'Dieser Begutachtungsstand zählt lokal, noch nicht in dein Plattformkonto.')+'</p><h3>Deine sieben Baustellen</h3><div class="table-wrap"><table class="t"><thead><tr><th>Thema</th><th>Verschiedene Fragen richtig</th></tr></thead><tbody>'+CATS.map((c,i)=>'<tr><td>'+c+'</td><td>'+uniqueCat(state,i)+' / '+BANK.filter(q=>q.c===i).length+'</td></tr>').join('')+'</tbody></table></div><h3>Klausur-Achievements</h3><div class="ach-grid">'+ACH.map(a=>'<article class="achievement '+(state.badges.includes(a.id)?'unlocked':'locked')+'"><span class="ach-icon" aria-hidden="true">'+a.icon+'</span><div><small>'+a.rank+' · '+a.xp+' XP · '+(state.badges.includes(a.id)?'Freigeschaltet':'Noch gesperrt')+'</small><h4>'+a.title+'</h4><p>'+a.desc+'</p></div></article>').join('')+'</div><h3>Prüfungsverlauf</h3>'+historyHTML();openDialog('progress');}
 function openDialog(id){const d=$(id);if(typeof d.showModal==='function')d.showModal();else{d.setAttribute('open','');}d.querySelector('.dialog-close')?.focus({preventScroll:true});}
 function calculator(){const a=parseNumber($('calcA').value),b=parseNumber($('calcB').value);if(a===null||b===null){$('calcOut').textContent='Bitte zwei nicht negative Zahlen eingeben.';return;}const op=$('calcOp').value;const v=op==='+'?a+b:op==='-'?a-b:op==='*'?a*b:b===0?null:a/b;$('calcOut').textContent=v===null?'Durch null teilen ist heute nicht im Angebot.':v.toLocaleString('de-DE',{maximumFractionDigits:8});}

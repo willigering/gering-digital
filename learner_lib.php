@@ -435,6 +435,17 @@ function learner_inject_sync(string $html,string $slug,string $file,?string $ver
         $html=preg_replace('~</head>~i','<script>window.__KV_PLATFORM__=true;</script></head>',$html,1) ?? $html;
     }
 
+    // Share Klausur quips with bundled and older imported learning modules.
+    if (str_contains($html, 'class="area-tabs"') && is_file(__DIR__.'/tools/module-wrong-answer.js')) {
+        $html=preg_replace('~<!-- DTP-FEHLERSPRUECHE START -->.*?<!-- DTP-FEHLERSPRUECHE END -->\n?~s','',$html) ?? $html;
+        $html=str_replace('qBad=()=>pick(Q_BAD)','qBad=()=>window.DTPWrongAnswer.next()',$html);
+        $html=preg_replace('~function nextWrongQuip\(\)\{[^\r\n]*\}~','function nextWrongQuip(){return window.DTPWrongAnswer.next();}',$html) ?? $html;
+        $block="<!-- DTP-FEHLERSPRUECHE START -->\n<script>\n"
+            .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-wrong-answer.js'))
+            ."\n</script>\n<!-- DTP-FEHLERSPRUECHE END -->\n";
+        $html=preg_replace_callback('~</head\s*>~i',static fn(array $m): string => $block.$m[0],$html,1) ?? $html;
+    }
+
     // Replace the embedded calculator in already published modules without reimporting them.
     $calc=__DIR__.'/dau-to-pro/module-calculator';
     if (is_file($calc.'.css') && is_file($calc.'.js')) {
