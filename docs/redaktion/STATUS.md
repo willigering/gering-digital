@@ -110,5 +110,5 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Vollständig gelesen: A1 und OSI (Nachschlagwerk, Stufen, Rückmeldungen), F2 (alle Lehrinhalte, je eine Aufgabe jedes Typs), D2 (Stufen, Rückmeldungen und viele Aufgabentexte).
 - Teilweise gelesen: Subnetting, Netzwerkgrundlagen, D1, B4 und B5 nur Stufeneinstiege, Rückmeldungen und Stichproben erzeugter Aufgaben. Ihre Nachschlagekapitel und nicht gezogene Fallvarianten sind in diesem Durchlauf nicht vollständig gelesen und bleiben offen.
 - Fachlich korrigiert: OSI „UDP schneller“ entfernt, B5 Port-Definition (Nummer statt Endpunkt je Verbindung), Grammatik generierter Aufgaben in F2, Subnetting und B4, Tippfehler in D2.
-- Geprüft: `tests/redaktion_vergleich.cjs` gegen afebd61 für alle neun Module, Überschriften, IDs, Lösungsschlüssel und Antworten gleich. Die Spruch-Erweiterung bleibt mit `NEW_QUIPS_LIVE = false` inaktiv.
+- Geprüft: `tests/redaktion_vergleich.cjs` gegen afebd61 für alle neun Module, Überschriften, IDs, Lösungsschlüssel und Antworten gleich. Auf Willis Wunsch „alles veröffentlichen“ sind die neuen Sprüche mit `NEW_QUIPS_LIVE = true` aktiv.
 
