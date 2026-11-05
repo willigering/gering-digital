@@ -6,7 +6,7 @@ exports.focus=async(page,viewport)=>{
  await page.locator('#practiceGo').click();
  await page.waitForFunction(()=>document.querySelector('.dtp-practice-dialog')?.open);
  await page.waitForFunction(()=>getComputedStyle(document.querySelector('.dtp-practice-dialog'),'::backdrop').backdropFilter.includes('blur(7px)'),null,{timeout:9500});
- const shape=await page.locator('.dtp-practice-dialog').evaluate(d=>{const r=d.getBoundingClientRect();return{modal:d.matches(':modal'),focused:d.contains(document.activeElement),x:(r.left+r.right)/2,y:(r.top+r.bottom)/2,left:r.left,right:r.right,top:r.top,bottom:r.bottom};});
+ const shape=await page.locator('.dtp-practice-dialog').evaluate(d=>{const r=d.getBoundingClientRect();return{modal:d.matches(':modal'),focused:d.contains(document.activeElement)&&!document.activeElement.closest('.qhelp'),x:(r.left+r.right)/2,y:(r.top+r.bottom)/2,left:r.left,right:r.right,top:r.top,bottom:r.bottom};});
  assert(shape.modal&&shape.focused);assert(Math.abs(shape.x-viewport.width/2)<3&&Math.abs(shape.y-viewport.height/2)<3);assert(shape.left>=0&&shape.right<=viewport.width&&shape.top>=0&&shape.bottom<=viewport.height);
  assert.equal(await page.locator('#focusTask .question').getAttribute('data-id'),original);
  await page.keyboard.press('Escape');await page.waitForFunction(()=>!document.querySelector('.dtp-practice-dialog').open);
