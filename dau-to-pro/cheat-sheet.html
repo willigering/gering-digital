@@ -47,11 +47,26 @@ td{padding:6px 8px;border-bottom:1px solid #ffffff10;color:#d9e1e0;vertical-alig
 td:first-child{color:var(--cream);font-weight:700}
 .m{font-family:var(--mono);font-variant-numeric:tabular-nums}
 .memo{border-left:3px solid var(--module-accent);background:var(--module-soft);padding:9px 12px;margin:10px 0 0;font-size:14px;color:var(--text)}
-.wide{column-span:all}
+.note{color:var(--muted);font-size:13px;margin:10px 0 0;max-width:680px}
+.qa{display:grid;gap:8px;margin:0}
+.qa div{border-bottom:1px solid #ffffff10;padding-bottom:7px}
+.qa dt{color:var(--cream);font-weight:750;font-size:13.5px;line-height:1.4}
+.qa dd{margin:1px 0 0;color:#cfd6d6;font-size:13.5px;line-height:1.45}
+.jump a[aria-current="true"]{background:var(--module-accent);border-color:var(--module-accent);color:#17100a}
+.swipe-count{margin:-4px 0 8px;color:var(--module-light);font-size:11px;font-weight:800;letter-spacing:.08em}
 footer{border-top:1px solid var(--module-line);padding-block:18px 28px;color:var(--muted);font-size:12px}
 footer em{font-style:normal;color:var(--module-accent)}
-@media(max-width:900px){.grid{columns:1}.wide{column-span:none}}
-@media(max-width:610px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.panel{padding:18px 16px}.kicker{letter-spacing:.14em;font-size:10px}}
+@media(max-width:900px){
+  html{scroll-padding-top:0}
+  .grid{columns:auto;display:flex;align-items:flex-start;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .grid::-webkit-scrollbar{display:none}
+  .panel{flex:0 0 100%;min-width:0;margin:0;scroll-snap-align:start;scroll-snap-stop:always;box-shadow:none}
+  .tw{overflow-x:visible}
+  table{table-layout:auto;font-size:12.5px;overflow-wrap:break-word;hyphens:auto}
+  th,td{padding:6px 5px}
+  th{letter-spacing:.04em;font-size:9.5px}
+}
+@media(max-width:610px){.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}.panel{padding:18px 12px}.kicker{letter-spacing:.14em;font-size:10px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 </style>
 </head>
@@ -59,15 +74,17 @@ footer em{font-style:normal;color:var(--module-accent)}
 <header class="top"><div class="wrap">
   <div class="top-row"><a href="./#lernmodule">← Modulauswahl</a><strong>DAU TO PRO <em>SPEZIAL</em></strong></div>
   <nav class="jump" aria-label="Themen">
-    <a href="#ports">Ports</a><a href="#tcp">TCP/UDP</a><a href="#osi">OSI</a><a href="#geraete">Komponenten</a><a href="#mac">MAC</a><a href="#protokolle">Protokolle</a><a href="#tools">Tools</a><a href="#grundlagen">Grundlagen</a><a href="#wlan">WLAN</a><a href="#topo">Topologien</a><a href="#kabel">Verkabelung</a><a href="#ipv6">IPv6</a><a href="#fragen">Prüfungsfragen</a>
+    <a href="#ports">Ports</a><a href="#tcp">TCP/UDP</a><a href="#osi">OSI</a><a href="#geraete">Komponenten</a><a href="#mac">MAC</a><a href="#protokolle">Protokolle</a><a href="#tools">Tools</a><a href="#grundlagen">Grundlagen</a><a href="#wlan">WLAN</a><a href="#topo">Topologien</a><a href="#kabel">Verkabelung</a><a href="#ipv6">IPv6</a>
   </nav>
+  <p class="swipe-count" id="swipeCount" aria-live="polite" hidden></p>
 </div></header>
 <section class="hero"><div class="wrap">
   <div class="kicker">NETZWERKE // CHEAT-SHEET // LK / EK · 06.11.2026</div>
   <h1>Cheat-Sheet. <span>Für Spätzünder.</span></h1>
   <p class="lead">Dein Lernplan beginnt heute Abend und endet morgen früh? Dann ist das hier dein Lernplan.</p>
+  <p class="note">„Oft gefragt“ ist eine Einschätzung typischer Prüfungsthemen, keine Auswertung echter Klausuren.</p>
 </div></section>
-<main class="wrap"><div class="grid">
+<main class="wrap"><div class="grid" id="sheets">
 
 <section class="panel" id="ports"><h2>Die 10 <span>Ports</span></h2>
 <div class="tw"><table><thead><tr><th>Port</th><th>Dienst</th><th>Zweck</th></tr></thead><tbody>
@@ -81,7 +98,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <tr><td class="m">110</td><td>POP3</td><td>Mailabruf, Download</td></tr>
 <tr><td class="m">143</td><td>IMAP</td><td>Mailabruf, Mails bleiben auf dem Server</td></tr>
 <tr><td class="m">443</td><td>HTTPS</td><td>Web, TLS-verschlüsselt</td></tr>
-</tbody></table></div></section>
+</tbody></table></div><h3>Oft gefragt</h3><dl class="qa"><div><dt>Was ist ein Port?</dt><dd>16-Bit-Nummer (0–65535), die einen Dienst auf einem Host adressiert.</dd></div><div><dt>Was ist ein Socket?</dt><dd>Kombination aus IP-Adresse, Protokoll und Port.</dd></div><div><dt>Welche Ports sind Well-Known?</dt><dd>0–1023.</dd></div><div><dt>POP3 oder IMAP?</dt><dd>POP3 lädt Mails meist herunter, IMAP lässt sie auf dem Server und synchronisiert.</dd></div><div><dt>Warum SSH statt Telnet?</dt><dd>SSH verschlüsselt, Telnet überträgt auch Passwörter im Klartext.</dd></div><div><dt>Wann nutzt DNS TCP statt UDP?</dt><dd>Bei großen Antworten und Zonentransfers.</dd></div></dl></section>
 
 <section class="panel" id="tcp"><h2>TCP <span>vs. UDP</span></h2><p>Beide auf OSI-Schicht 4.</p>
 <div class="tw"><table><thead><tr><th></th><th>TCP</th><th>UDP</th></tr></thead><tbody>
@@ -90,23 +107,23 @@ footer em{font-style:normal;color:var(--module-accent)}
 <tr><td>Header</td><td>Min. 20 Byte</td><td>8 Byte</td></tr>
 <tr><td>Vorteil</td><td>Zuverlässig</td><td>Schnell, wenig Overhead</td></tr>
 <tr><td>Einsatz</td><td>Web, Mail, SSH</td><td>VoIP, Streaming, Spiele, DHCP</td></tr>
-</tbody></table></div><p class="memo"><b>Handshake:</b> SYN → SYN-ACK → ACK.</p></section>
+</tbody></table></div><p class="memo"><b>Handshake:</b> SYN → SYN-ACK → ACK.</p><h3>Oft gefragt</h3><dl class="qa"><div><dt>Wann UDP statt TCP?</dt><dd>Bei Echtzeit, wenn Tempo wichtiger ist als Vollständigkeit.</dd></div><div><dt>Warum nutzt VoIP UDP?</dt><dd>Eine verspätete Neuübertragung nützt im Gespräch nichts.</dd></div><div><dt>Warum nutzt DHCP UDP?</dt><dd>Der Client hat noch keine IP und sendet Broadcast. TCP kann das nicht.</dd></div><div><dt>Wer behandelt Fehler bei UDP?</dt><dd>Falls nötig, die Anwendung.</dd></div><div><dt>Wie sichert TCP die Reihenfolge?</dt><dd>Mit Sequenznummern.</dd></div></dl></section>
 
 <section class="panel" id="osi"><h2>OSI <span>und TCP/IP</span></h2>
-<div class="tw"><table><thead><tr><th>Nr.</th><th>OSI-Schicht</th><th>PDU</th><th>Beispiele</th><th>TCP/IP</th></tr></thead><tbody>
-<tr><td class="m">7</td><td>Anwendung</td><td>Daten</td><td>HTTP, DNS</td><td>Anwendung</td></tr>
-<tr><td class="m">6</td><td>Darstellung</td><td>Daten</td><td>TLS, JPEG</td><td>Anwendung</td></tr>
-<tr><td class="m">5</td><td>Sitzung</td><td>Daten</td><td>RPC</td><td>Anwendung</td></tr>
-<tr><td class="m">4</td><td>Transport</td><td>Segment/Datagramm</td><td>TCP, UDP, Ports</td><td>Transport</td></tr>
-<tr><td class="m">3</td><td>Vermittlung</td><td>Paket</td><td>IP, ICMP, Router</td><td>Internet</td></tr>
-<tr><td class="m">2</td><td>Sicherung</td><td>Frame</td><td>MAC, Ethernet, Switch</td><td>Netzzugang</td></tr>
-<tr><td class="m">1</td><td>Bitübertragung</td><td>Bit</td><td>Kabel, Hub</td><td>Netzzugang</td></tr>
+<div class="tw"><table><thead><tr><th>#</th><th>Schicht</th><th>PDU</th><th>Beispiele</th><th>TCP/IP</th></tr></thead><tbody>
+<tr><td class="m">7</td><td>Anwen&shy;dung</td><td>Daten</td><td>HTTP, DNS</td><td>Anwen&shy;dung</td></tr>
+<tr><td class="m">6</td><td>Dar&shy;stellung</td><td>Daten</td><td>TLS, JPEG</td><td>Anwen&shy;dung</td></tr>
+<tr><td class="m">5</td><td>Sitzung</td><td>Daten</td><td>RPC</td><td>Anwen&shy;dung</td></tr>
+<tr><td class="m">4</td><td>Transport</td><td>Segment / Data&shy;gramm</td><td>TCP, UDP, Ports</td><td>Transport</td></tr>
+<tr><td class="m">3</td><td>Ver&shy;mittlung</td><td>Paket</td><td>IP, ICMP, Router</td><td>Internet</td></tr>
+<tr><td class="m">2</td><td>Siche&shy;rung</td><td>Frame</td><td>MAC, Ethernet, Switch</td><td>Netz&shy;zugang</td></tr>
+<tr><td class="m">1</td><td>Bit&shy;über&shy;tragung</td><td>Bit</td><td>Kabel, Hub</td><td>Netz&shy;zugang</td></tr>
 </tbody></table></div>
 <ul><li><b>Eselsbrücke 1→7:</b> Please Do Not Throw Salami Pizza Away.</li>
 <li><b>Kapselung:</b> Daten → Segment (+ Ports) → Paket (+ IP-Adressen) → Frame (+ MAC-Adressen, FCS) → Bits. Der Empfänger entpackt umgekehrt.</li>
 <li><b>Webseite laden:</b> DNS → ARP → TCP-Handshake → TLS → HTTP.</li>
 <li><b>Fehleranalyse:</b> von Schicht 1 aufwärts: Kabel → MAC → IP → Port → Dienst.</li>
-<li><b>Subnetting:</b> Schicht 3. Die Maske trennt Netz- und Hostanteil, zwischen Subnetzen routet der Router.</li></ul></section>
+<li><b>Subnetting:</b> Schicht 3. Die Maske trennt Netz- und Hostanteil, zwischen Subnetzen routet der Router.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>Warum ein Schichtenmodell?</dt><dd>Herstellerunabhängig, Schichten austauschbar, Fehlersuche wird einfacher.</dd></div><div><dt>Dateneinheit auf Schicht 2 / 3 / 4?</dt><dd>Frame / Paket / Segment oder Datagramm.</dd></div><div><dt>Was ist Kapselung?</dt><dd>Jede Schicht ergänzt beim Senden ihre Steuerdaten, der Empfänger entfernt sie.</dd></div><div><dt>OSI und TCP/IP im Vergleich?</dt><dd>7 Schichten als Referenzmodell, 4 Schichten als Praxismodell.</dd></div><div><dt>Wo steht ARP?</dt><dd>Zwischen Schicht 2 und 3, meist Schicht 2 zugeordnet.</dd></div><div><dt>Nutzbare Hosts bei /24 und /26?</dt><dd>2<sup>h</sup> − 2: 254 und 62.</dd></div></dl></section>
 
 <section class="panel" id="geraete"><h2>Netzwerk<span>komponenten</span></h2>
 <ul><li><b>Aktiv (Strom, Signalverarbeitung):</b> Switch, Router, Access Point, Repeater.</li><li><b>Passiv:</b> Kabel, Dose, Patchpanel.</li><li><b>Hub:</b> aktiv verstärkt, passiv verteilt nur.</li></ul>
@@ -117,7 +134,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <tr><td>Weiterleitung</td><td>An alle Ports</td><td>Gezielt</td><td>Zwischen Netzen</td></tr>
 <tr><td>Trennt</td><td>Nichts</td><td>Kollisionsdomänen</td><td>Auch Broadcastdomänen</td></tr>
 </tbody></table></div>
-<p class="memo"><b>Switch-Ablauf:</b> Frame empfangen → FCS prüfen → Quell-MAC lernen → Ziel-MAC suchen → entscheiden (bekannt: Zielport; unbekannt/Broadcast: fluten) → senden.</p></section>
+<p class="memo"><b>Switch-Ablauf:</b> Frame empfangen → FCS prüfen → Quell-MAC lernen → Ziel-MAC suchen → entscheiden (bekannt: Zielport; unbekannt/Broadcast: fluten) → senden.</p><h3>Oft gefragt</h3><dl class="qa"><div><dt>Schicht von Switch / Router?</dt><dd>2 / 3.</dd></div><div><dt>Wie lernt der Switch?</dt><dd>Er speichert Quell-MAC und Eingangsport in der MAC-Tabelle.</dd></div><div><dt>Ziel-MAC unbekannt?</dt><dd>Der Switch flutet den Frame an alle Ports außer dem Eingangsport.</dd></div><div><dt>Was ist eine Kollisionsdomäne?</dt><dd>Bereich, in dem gleichzeitiges Senden kollidieren kann.</dd></div><div><dt>Was ist eine Broadcastdomäne?</dt><dd>Bereich, den ein Broadcast erreicht. Router begrenzen ihn.</dd></div><div><dt>Was leistet ein VLAN?</dt><dd>Es trennt Broadcastdomänen logisch auf einem Switch.</dd></div></dl></section>
 
 <section class="panel" id="mac"><h2>MAC-<span>Adresse</span></h2>
 <ul><li><b>Definition:</b> physische Hardwareadresse einer Netzwerkschnittstelle, Schicht 2.</li>
@@ -125,13 +142,13 @@ footer em{font-style:normal;color:var(--module-accent)}
 <li><b>Aufteilung:</b> 24 Bit Herstellerkennung (OUI) + 24 Bit Gerätekennung.</li>
 <li><b>Broadcast:</b> <span class="m">FF:FF:FF:FF:FF:FF</span>.</li>
 <li><b>MAC vs. IP:</b> MAC adressiert im lokalen Netz (Schicht 2), IP über Netzgrenzen hinweg (Schicht 3).</li>
-<li><b>Beim Routing:</b> MAC ändert sich pro Hop, IP bleibt ohne NAT gleich.</li></ul></section>
+<li><b>Beim Routing:</b> MAC ändert sich pro Hop, IP bleibt ohne NAT gleich.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>Wie lang ist eine MAC-Adresse?</dt><dd>48 Bit, also 12 Hex-Stellen.</dd></div><div><dt>Was verrät die OUI?</dt><dd>Den Hersteller, über die ersten 24 Bit.</dd></div><div><dt>Ändert sich die MAC beim Routing?</dt><dd>Ja, pro Hop. Die IP bleibt ohne NAT gleich.</dd></div><div><dt>Ist die MAC unveränderbar?</dt><dd>Nein, sie lässt sich per Software überschreiben.</dd></div></dl></section>
 
 <section class="panel" id="protokolle"><h2>ICMP, ARP, <span>DHCP, DNS</span></h2>
 <ul><li><b>ICMP:</b> Status- und Fehlermeldungen, Schicht 3, keine Ports. Typ 8 Echo Request, 0 Echo Reply, 3 Unreachable, 11 Time Exceeded.</li>
 <li><b>ARP:</b> IPv4-Adresse → MAC-Adresse im lokalen Netz.</li>
 <li><b>DHCP:</b> automatische IP-Konfiguration. DORA: Discover, Offer, Request, Acknowledge.</li>
-<li><b>DNS:</b> Name → IP. A = IPv4, AAAA = IPv6, MX = Mail.</li></ul></section>
+<li><b>DNS:</b> Name → IP. A = IPv4, AAAA = IPv6, MX = Mail.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>Was macht ARP?</dt><dd>Es ermittelt zur IPv4-Adresse im lokalen Netz die MAC-Adresse.</dd></div><div><dt>Was bedeutet DORA?</dt><dd>Discover, Offer, Request, Acknowledge.</dd></div><div><dt>Was ist eine DHCP-Lease?</dt><dd>Die zeitlich begrenzte Vergabe einer IP-Adresse.</dd></div><div><dt>Welches Protokoll nutzt ping?</dt><dd>ICMP mit Echo Request und Echo Reply.</dd></div><div><dt>Wie funktioniert tracert?</dt><dd>Es erhöht die TTL schrittweise. Router melden Time Exceeded.</dd></div><div><dt>Was ist ein A-Record?</dt><dd>DNS-Eintrag, der einem Namen eine IPv4-Adresse zuordnet.</dd></div></dl></section>
 
 <section class="panel" id="tools"><h2>Konsolen<span>tools</span></h2>
 <div class="tw"><table><thead><tr><th>Windows</th><th>Zweck</th></tr></thead><tbody>
@@ -147,7 +164,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <tr><td class="m">169.254.x.x</td><td>DHCP nicht erreichbar</td></tr>
 <tr><td>Ping auf IP geht, Name nicht</td><td>DNS</td></tr>
 <tr><td>LAN geht, Internet nicht</td><td>Gateway/Provider</td></tr>
-</tbody></table></div></section>
+</tbody></table></div><h3>Oft gefragt</h3><dl class="qa"><div><dt>Was prüft ping auf 127.0.0.1?</dt><dd>Den lokalen TCP/IP-Stack.</dd></div><div><dt>Wie leerst du den DNS-Cache?</dt><dd><span class="m">ipconfig /flushdns</span></dd></div><div><dt>Wie erneuerst du die DHCP-Adresse?</dt><dd><span class="m">ipconfig /release</span>, dann <span class="m">/renew</span></dd></div><div><dt>Ping scheitert, Dienst läuft?</dt><dd>Die Firewall blockiert wahrscheinlich ICMP.</dd></div></dl></section>
 
 <section class="panel" id="grundlagen"><h2><span>Grundlagen</span></h2>
 <ul><li><b>Nutzen von Netzwerken:</b> Ressourcen teilen, Datenaustausch, Kommunikation, zentrale Verwaltung.</li>
@@ -156,7 +173,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <li><b>Reichweite:</b> PAN (Meter) &lt; LAN (Gebäude) &lt; MAN (Stadt) &lt; WAN (Länder) &lt; GAN (weltweit).</li>
 <li><b>Peer-to-Peer:</b> gleichberechtigt, günstig, dezentral verwaltet.</li>
 <li><b>Client-Server:</b> zentrale Dienste und Verwaltung, teurer, Server als Single Point of Failure.</li>
-<li><b>Hybrid:</b> Mischung aus beiden.</li></ul></section>
+<li><b>Hybrid:</b> Mischung aus beiden.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>LAN und WAN im Unterschied?</dt><dd>LAN: lokal, meist selbst betrieben. WAN: große Distanzen, oft über Provider.</dd></div><div><dt>Vorteil Client-Server?</dt><dd>Zentrale Verwaltung, Sicherheit und Datensicherung.</dd></div><div><dt>Nachteil Peer-to-Peer?</dt><dd>Dezentrale Verwaltung, schlecht skalierbar.</dd></div><div><dt>Simplex, Halbduplex, Vollduplex?</dt><dd>Eine Richtung, abwechselnd, gleichzeitig beide Richtungen.</dd></div><div><dt>Vorteil Paketvermittlung?</dt><dd>Leitung wird geteilt, bei Ausfall ist Umleitung möglich.</dd></div></dl></section>
 
 <section class="panel" id="wlan"><h2><span>WLAN</span></h2>
 <ul><li><b>2,4 GHz:</b> mehr Reichweite, weniger Tempo. <b>5 GHz:</b> mehr Tempo, mehr Kanäle, weniger Reichweite.</li>
@@ -165,7 +182,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <li><b>SSID:</b> Netzname. <b>BSSID:</b> MAC des Access Points.</li>
 <li><b>Topologien:</b> Infrastruktur (über Access Point), Ad-hoc (direkt).</li>
 <li><b>Zugriff:</b> CSMA/CA.</li>
-<li><b>Authentifizierung:</b> WPA2/WPA3 Personal (Passwort), Enterprise (802.1X, RADIUS). WEP und WPA sind unsicher.</li></ul></section>
+<li><b>Authentifizierung:</b> WPA2/WPA3 Personal (Passwort), Enterprise (802.1X, RADIUS). WEP und WPA sind unsicher.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>2,4 GHz oder 5 GHz?</dt><dd>2,4 GHz: mehr Reichweite. 5 GHz: mehr Tempo und mehr Kanäle.</dd></div><div><dt>SSID und BSSID im Unterschied?</dt><dd>Netzwerkname und MAC-Adresse des Access Points.</dd></div><div><dt>Warum CSMA/CA statt CSMA/CD?</dt><dd>Funkgeräte erkennen Kollisionen beim Senden nicht zuverlässig, also werden sie vermieden.</dd></div><div><dt>Welche Verschlüsselung nutzen?</dt><dd>WPA3, sonst WPA2. WEP und WPA nicht mehr.</dd></div><div><dt>Schützt eine versteckte SSID?</dt><dd>Kaum, sie lässt sich weiter aufspüren.</dd></div></dl></section>
 
 <section class="panel" id="topo"><h2><span>Topologien</span></h2>
 <p>Topologie = Anordnung und Verbindung der Geräte im Netz. Physisch = Verkabelung, logisch = Datenfluss. Hub: physisch Stern, logisch Bus.</p>
@@ -177,7 +194,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <tr><td>Baum</td><td>Gut strukturierbar</td><td>Ausfall trifft den Zweig darunter</td></tr>
 <tr><td>Teilvermascht</td><td>Redundanz bei geringeren Kosten</td><td>Komplexes Routing</td></tr>
 </tbody></table></div>
-<p class="memo"><b>Warum Stern?</b> Kabelausfall trifft nur ein Gerät, leicht erweiterbar, Switch ermöglicht Vollduplex ohne Kollisionen.</p></section>
+<p class="memo"><b>Warum Stern?</b> Kabelausfall trifft nur ein Gerät, leicht erweiterbar, Switch ermöglicht Vollduplex ohne Kollisionen.</p><h3>Oft gefragt</h3><dl class="qa"><div><dt>Physisch und logisch im Unterschied?</dt><dd>Verkabelung und tatsächlicher Datenfluss.</dd></div><div><dt>Nachteil Stern?</dt><dd>Die zentrale Komponente ist ein Single Point of Failure.</dd></div><div><dt>Vollvermascht mit 5 / 6 Geräten?</dt><dd>10 / 15 Verbindungen.</dd></div><div><dt>Was passiert beim Kabelbruch im Bus?</dt><dd>Das Segment fällt aus.</dd></div></dl></section>
 
 <section class="panel" id="kabel"><h2><span>Verkabelung</span></h2>
 <ul><li><b>Struktur:</b> Primär = Gebäude, Sekundär = Stockwerke, Tertiär = Etage bis Dose.</li>
@@ -185,7 +202,7 @@ footer em{font-style:normal;color:var(--module-accent)}
 <li><b>Kategorien:</b> Cat 5e 1 Gbit/s, Cat 6a 10 Gbit/s, Cat 7 10 Gbit/s, Cat 8 25–40 Gbit/s (30 m).</li>
 <li><b>Glasfaser:</b> hohe Reichweite, EMV-unempfindlich, Potenzialtrennung, teurer.</li>
 <li><b>Kupfer:</b> günstiger, einfacher, PoE, EMV-empfindlich.</li>
-<li><b>Singlemode:</b> sehr weit. <b>Multimode:</b> kürzere Distanzen.</li></ul></section>
+<li><b>Singlemode:</b> sehr weit. <b>Multimode:</b> kürzere Distanzen.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>Maximale Länge Kupfer-Link?</dt><dd>100 m: 90 m fest und 10 m Patch.</dd></div><div><dt>Warum Glasfaser im Backbone?</dt><dd>Reichweite, Datenrate, EMV-Sicherheit, Potenzialtrennung.</dd></div><div><dt>Welche Kategorie für 10 Gbit/s auf 100 m?</dt><dd>Mindestens Cat 6a.</dd></div><div><dt>Singlemode oder Multimode?</dt><dd>Singlemode: dünner Kern, sehr weit. Multimode: dicker Kern, kürzer.</dd></div><div><dt>Was bedeutet S/FTP?</dt><dd>Geflecht als Gesamtschirm, Folie um jedes Adernpaar.</dd></div></dl></section>
 
 <section class="panel" id="ipv6"><h2><span>IPv6</span></h2>
 <ul><li><b>Motivation:</b> IPv4-Adressknappheit. 128 statt 32 Bit.</li>
@@ -195,20 +212,39 @@ footer em{font-style:normal;color:var(--module-accent)}
 <li><b>Adresstypen:</b> Global <span class="m">2000::/3</span>, Link-Local <span class="m">fe80::/10</span>, Unique Local <span class="m">fc00::/7</span>, Multicast <span class="m">ff00::/8</span>, Loopback <span class="m">::1</span>.</li>
 <li><b>Kein Broadcast:</b> Multicast ersetzt ihn. NDP ersetzt ARP.</li>
 <li><b>Dual Stack:</b> IPv4 und IPv6 parallel.</li>
-<li><b>SLAAC:</b> Host bildet seine Adresse selbst aus dem Präfix des Routers, ohne DHCP-Server.</li></ul></section>
-
-<section class="panel" id="fragen"><h2>Typische <span>Prüfungsfragen</span></h2>
-<p>Einschätzung typischer Themen, keine Auswertung echter Klausuren.</p>
-<div class="tw"><table><thead><tr><th>Frage</th><th>Antwort</th></tr></thead><tbody>
-<tr><td>Wann UDP statt TCP?</td><td>Bei Echtzeit, wenn Tempo wichtiger ist als Vollständigkeit</td></tr>
-<tr><td>Schicht von Switch / Router?</td><td>2 / 3</td></tr>
-<tr><td>Wie funktioniert tracert?</td><td>Erhöht die TTL schrittweise, Router melden Time Exceeded</td></tr>
-<tr><td>Was ist eine Broadcastdomäne?</td><td>Bereich, den ein Broadcast erreicht; Router begrenzen ihn. Kollisionsdomäne: Bereich, in dem gleichzeitiges Senden kollidieren kann</td></tr>
-<tr><td>Nachteil Stern?</td><td>Zentrale Komponente als Single Point of Failure</td></tr>
-<tr><td>Vollvermascht mit 5 Geräten?</td><td>5 × 4 / 2 = 10 Verbindungen</td></tr>
-<tr><td>Warum Glasfaser im Backbone?</td><td>Reichweite, Datenrate, EMV-Sicherheit</td></tr>
-</tbody></table></div></section>
+<li><b>SLAAC:</b> Host bildet seine Adresse selbst aus dem Präfix des Routers, ohne DHCP-Server.</li></ul><h3>Oft gefragt</h3><dl class="qa"><div><dt>Warum IPv6?</dt><dd>IPv4-Adressen sind knapp.</dd></div><div><dt>Warum :: nur einmal?</dt><dd>Sonst wäre die Zahl der ausgelassenen Blöcke nicht eindeutig.</dd></div><div><dt>Woran erkennst du Link-Local?</dt><dd>Am Präfix fe80::/10.</dd></div><div><dt>Was ersetzt Broadcast / ARP?</dt><dd>Multicast / NDP.</dd></div><div><dt>Wie bekommt ein Host ohne DHCP eine Adresse?</dt><dd>Per SLAAC aus dem Präfix im Router Advertisement.</dd></div></dl></section>
 
 </div></main>
 <footer><div class="wrap">DAU TO PRO Spezial: <em>Cheat-Sheet</em> · Im Kopf erlaubt, auf dem Klausurtisch nicht.</div></footer>
+<script>
+(function(){
+  var grid=document.getElementById('sheets'),count=document.getElementById('swipeCount');
+  var panels=[].slice.call(grid.querySelectorAll('.panel')),links=[].slice.call(document.querySelectorAll('.jump a'));
+  var jump=document.querySelector('.jump'),mq=window.matchMedia('(max-width:900px)'),current=-1,ticking=false;
+  function fit(){grid.style.height=mq.matches&&panels[current]?panels[current].offsetHeight+'px':''}
+  function show(i){
+    var changed=i!==current;current=i;fit();
+    if(!changed)return;
+    count.textContent=(i+1)+' / '+panels.length+' · nach links oder rechts wischen';
+    links.forEach(function(a,n){if(n===i)a.setAttribute('aria-current','true');else a.removeAttribute('aria-current')});
+    jump.scrollLeft=links[i].offsetLeft-jump.offsetLeft-16;
+  }
+  function nearest(){var w=panels[1].offsetLeft-panels[0].offsetLeft;return Math.max(0,Math.min(panels.length-1,Math.round(grid.scrollLeft/w)))}
+  function toTop(){var top=grid.getBoundingClientRect().top+window.scrollY-document.querySelector('.top').offsetHeight;if(window.scrollY>top)window.scrollTo(0,top)}
+  function go(i){grid.scrollLeft=panels[i].offsetLeft-panels[0].offsetLeft;show(i);toTop()}
+  function sync(){
+    count.hidden=!mq.matches;
+    if(mq.matches){var h=location.hash.slice(1),n=panels.findIndex(function(p){return p.id===h});if(current<0&&n>=0)go(n);else show(current<0?0:current)}
+    else{links.forEach(function(a){a.removeAttribute('aria-current')});current=-1;grid.style.height=''}
+  }
+  grid.addEventListener('scroll',function(){
+    if(!mq.matches||ticking)return;ticking=true;
+    requestAnimationFrame(function(){ticking=false;var n=nearest();if(n!==current){show(n);toTop()}});
+  },{passive:true});
+  links.forEach(function(a,n){a.addEventListener('click',function(e){if(!mq.matches)return;e.preventDefault();history.replaceState(null,'',a.getAttribute('href'));go(n)})});
+  if(mq.addEventListener)mq.addEventListener('change',sync);
+  window.addEventListener('resize',fit);
+  sync();
+})();
+</script>
 </body></html>
