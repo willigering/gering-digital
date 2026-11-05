@@ -96,9 +96,9 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Veröffentlichungsblocker behoben: Sechs kurze Multiple-Choice-Fälle in A1 hatten keinen `plain`-Text; je eine einfach formulierte Zweiterklärung ergänzt. Dadurch ist das Fragezeichen auch bei diesen zufällig gezogenen Aufgaben vorhanden. Bestehender Handytest über alle zehn Module bei 360/390 px lokal bestanden.
 - GitHub-Abnahme im ersten PR-Durchlauf bestanden: neue Browserprüfung aller zehn Module mit echten Fehlantworten bei 1440/390 px sowie PHP-/Konto-/Auslieferungsprüfungen und XP-Regression. Die B5-Sonderprüfung scheiterte bereits bei der Installation, weil das unversionierte Playwright eine noch nicht verfügbare `playwright-core@1.65.0` verlangte. Sie verwendet nun wie die übrigen Modulprüfungen die feste Version 1.62.1. Vollständiger neuer PR-Durchlauf und Veröffentlichung bleiben bis zum Ergebnis offen.
 
-## 05.11.2026 – 130 neue Fehlantwort-Sprüche, noch nicht aktiv
+## 05.11.2026 – 85 neue Fehlantwort-Sprüche, noch nicht aktiv
 
-- Willi hat 15 Sprüche sprachlich abgestimmt, dazu kommen 115 weitere im Muster „Falsch. + Zusatz“. Alle 130 stehen im gemeinsamen Baustein `tools/module-wrong-answer.js` und in allen zehn Modulen.
+- Willi hat 15 Sprüche sprachlich abgestimmt, dazu kommen 70 weitere im Muster „Falsch. + Zusatz“. Alle 85 stehen im gemeinsamen Baustein `tools/module-wrong-answer.js` und in allen zehn Modulen.
 - Status: bewusst inaktiv (`NEW_QUIPS_LIVE = false`). Lernende sehen weiter die bisherigen 50 Sprüche. Auftrag: mergen ja, noch nicht live. Der Merge-Commit trägt `[skip ci]`, damit dieser Push keine Veröffentlichung auslöst.
-- Aktivieren: Schalter in `tools/module-wrong-answer.js` auf `true` setzen, Baustein in alle Module übernehmen und regulär mergen. Die alten 50 Sprüche bleiben dann erhalten; der Vorrat wächst auf 180.
+- Aktivieren: Schalter in `tools/module-wrong-answer.js` auf `true` setzen, Baustein in alle Module übernehmen und regulär mergen. Die alten 50 Sprüche bleiben dann erhalten; der Vorrat wächst auf 135.
 - Achtung: Der nächste reguläre Push auf main lädt auch diese Dateien hoch und löst bei den Modulen den Update-Hinweis aus, die Sprüche bleiben dabei aber inaktiv.
