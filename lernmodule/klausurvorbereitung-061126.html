@@ -317,7 +317,7 @@ table.t tr:hover td{background:#ffffff05}
 @media(max-width:610px){.panel{overflow-wrap:anywhere}.field-row>*,.lab>*,.readout>*,.sort-item>*{min-width:0;max-width:100%}.task-prompt .val,.val{white-space:normal;overflow-wrap:anywhere}.sort-item{grid-template-columns:34px minmax(0,1fr) 40px 40px}}
 
 
-:root{--base:#0a080e;--cyan:#b49cff;--acc:#b49cff;--cream:#f5f0df;--module-accent:var(--cyan)}
+:root{--base:#0a080e;--cyan:#c4a8ff;--acc:#c4a8ff;--cream:#f5f0df;--module-accent:var(--cyan)}
 html{scroll-padding-top:86px}body{background:#0a080e}body:before{opacity:.055}body,button,input,select{font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Arial,sans-serif}
 .review-header{position:sticky;top:0;z-index:20;background:#0b0a10f5;backdrop-filter:blur(12px);border-bottom:1px solid var(--module-line)}.review-header .wrap{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:62px;padding-top:9px;padding-bottom:9px}.review-header a{text-decoration:none;font-size:12px;font-weight:750}.review-header strong{font-size:12px;letter-spacing:.1em}.review-header em{font-style:normal;color:var(--cyan)}
 .area-tabs{margin:24px 0 22px}.area-tab strong{font-size:16px}.area-tab:after{display:none}.area-sym{font-size:20px}.hero{padding:0 0 20px;background:transparent}.hero:before,.hero:after{display:none}.hero h1{font-size:clamp(30px,4.6vw,58px);margin:16px 0 12px;letter-spacing:-.045em;max-width:1000px}.hero h1 span{display:block}.hero-lead{font-size:16px;color:#d3d0d9;line-height:1.6}.hero-meta{gap:14px;margin-top:14px;align-items:center}.hero-meta span{font-size:11px}.hero-meta span+span:before{display:none}.hero-meta .status-button{border:1px solid var(--module-line);padding:7px 12px;color:var(--cream);background:var(--module-panel);font-size:12px;font-weight:750}.view{padding:14px 0 40px}.section-heading{margin:7px 0 18px}.section-heading h2{font-size:clamp(23px,3.2vw,36px);letter-spacing:-.04em}.section-heading p{font-size:14px}.question{margin-bottom:20px}.question h3.task-prompt{font-size:18px;line-height:1.6;color:var(--cream);font-weight:750;margin-bottom:16px}.bar-head{flex-wrap:wrap;letter-spacing:.09em;font-size:10px}.opt.selected{border-color:var(--cyan);background:var(--module-soft)}.opt.selected .key{background:var(--cyan)}.opt:disabled{opacity:.8}.number-input,.answer-select,.search-input{max-width:100%;width:100%;min-height:48px;border:1px solid var(--module-line);background:#0c0911;color:var(--cream);padding:10px 14px;font-size:16px}.number-input{max-width:320px;font-family:var(--mono)}.answer-select{height:auto!important;min-height:48px;font-size:16px}.number-input:disabled,.answer-select:disabled{opacity:.85}.qhelp{vertical-align:middle}.qmark{padding:0;cursor:pointer}.qtip{font-size:14px!important}.qhelp.open .qtip{display:block}.qhelp:focus-within .qtip{display:block}.task-actions .btn{font-size:12px}.result{overflow-wrap:anywhere}.practice-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:18px}.practice-tools .subtle{margin-left:auto;font-size:11px}.sort-list{margin:0;padding:0;list-style:none;display:grid;gap:7px}.sort-list li{display:grid;grid-template-columns:28px minmax(0,1fr) 42px 42px;gap:8px;align-items:center;background:#130f1d;border:1px solid #ffffff14;padding:8px 10px}.sort-text{font-size:14px;overflow-wrap:anywhere}.sort-n{font-family:var(--mono);color:var(--cyan)}.move{height:40px;min-width:40px;border:1px solid var(--module-line);background:var(--module-panel);color:var(--cyan);font-weight:800}.move:disabled{opacity:.25;cursor:default}.exam-bar{position:sticky;top:62px;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:13px 16px;background:#171220f5;border:1px solid var(--module-line);margin-bottom:16px;font-size:13px}#examTimer{font-family:var(--mono);font-size:23px;color:var(--cyan);font-weight:800}.qnav{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}.qnav button{width:38px;height:38px;background:#16111f;color:var(--cream);border:1px solid var(--module-line);font-size:12px}.qnav button.answered{background:#264039;border-color:#4ee69b70}.qnav button.cur{background:var(--cyan);border-color:var(--cyan);color:#080c10}.review-title{font-size:22px;margin-top:30px}.review-row summary{font-size:15px;font-weight:700;cursor:pointer}.review-row p{margin:14px 0;font-size:14px}.mode-grid.exam-len{grid-template-columns:repeat(3,minmax(0,1fr))}.mode-tile:after{display:none}.mode-tile b{color:var(--cream)}.mode-tile{min-height:95px}.memo{font-size:13px}
@@ -446,58 +446,6 @@ body.dtp-exercise-open{overflow:hidden}
 #dtp-feedback-dialog .dtp-feedback-note { font-size: .85rem; }
 #dtp-feedback-dialog .dtp-feedback-status:empty { display: none; }
 #dtp-feedback-dialog button:disabled { opacity: .65; cursor: wait; }
-
-
-/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
-   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
-   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
-
-/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
-@media (pointer:coarse){
-  .qhelp .qmark{position:relative}
-  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
-  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
-}
-/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
-   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
-@media (hover:none){
-  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
-}
-
-@media (max-width:760px){
-  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
-  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
-  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
-  body:has(> dtp-sync-status){padding-bottom:72px}
-}
-
-@media (max-width:610px){
-  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
-  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
-  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
-  .calc{font-size:12.5px}
-  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
-  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
-  .osi-lab>*,.lab-grid>*{min-width:0}
-
-  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
-  .area-tabs{gap:10px;margin-top:22px}
-  .area-tab{padding:12px 14px}
-  .area-sym{font-size:20px}
-  .area-tab strong{font-size:16px;margin:6px 0 2px}
-  .area-no{font-size:32px}
-
-  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
-  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
-    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
-    box-shadow:0 8px 18px #0008}
-  body:has(> dtp-back) #examRun .exam-top{top:55px}
-  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
-  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
-  #examRun .exam-top .timer{flex:none;font-size:22px}
-}
 
 
 /* DTP-HINTERGRUND: network-ports */
@@ -1162,7 +1110,132 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
 })();
 
 
-</script><!-- DTP-TASCHENRECHNER END --></head><body><div class="dtp-parallax" aria-hidden="true"></div>
+</script><!-- DTP-TASCHENRECHNER END --><!-- DTP-MODULEINSTIEG START --><script>/* DAU TO PRO · Einstieg in ein Lernmodul.
+ * Zurück zur Lernpfad-Ansicht und zum Seitenanfang, ohne Lernstände zu löschen.
+ * Das Skript muss vor dem jeweiligen Modul-Startskript laufen.
+ */
+(function () {
+  'use strict';
+
+  // Keinen alten Scrollstand beim erneuten Öffnen / Browser-Zurück herstellen.
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+  // Ausschließlich die zuletzt gewählte Ansicht vergessen, niemals Fortschrittsdaten.
+  try {
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && /^[a-z0-9][a-z0-9-]*-tab-v\d+$/i.test(key)) {
+        localStorage.removeItem(key);
+      }
+    }
+  } catch (_) { /* Privater Modus ohne Storage: normales Laden erlauben. */ }
+
+  // Alte Lesezeichen mit #examTop, #trainTop, #ch... öffnen ebenfalls den Lernpfad.
+  if (location.hash) {
+    try { history.replaceState(history.state, '', location.pathname + location.search); }
+    catch (_) { /* Browser ohne History-API */ }
+  }
+
+  function toTop() { window.scrollTo(0, 0); }
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      // BFCache kann alte Tab-, Prüfungs- und Scrollzustände vollständig konservieren.
+      // Neu laden, damit die reguläre Initialisierung erneut den Lernpfad öffnet.
+      location.reload();
+      return;
+    }
+    toTop();
+    requestAnimationFrame(function () {
+      toTop();
+      requestAnimationFrame(toTop);
+    });
+  });
+})();</script><!-- DTP-MODULEINSTIEG END --><!-- DTP-HANDY START --><style>/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}</style><script>/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
+   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
+(function () {
+  'use strict';
+  if (window.__dtpMobile) return;
+  window.__dtpMobile = true;
+  var wasOpen = null;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { wasOpen = null; return; }
+    var help = e.target.closest && e.target.closest('.qhelp');
+    wasOpen = help && document.activeElement === help ? help : null;
+  }, true);
+  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
+  document.addEventListener('focusout', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
+  });
+  document.addEventListener('click', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (!help) return;
+    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
+    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
+    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
+    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
+    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
+    var tip = help.querySelector('.qtip');
+    if (!tip) return;
+    requestAnimationFrame(function () {
+      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
+      if (r.height && over > 0) {
+        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
+      }
+    });
+  });
+})();</script><!-- DTP-HANDY END --></head><body><div class="dtp-parallax" aria-hidden="true"></div>
 <header class="review-header"><div class="wrap"><a href="https://geringdigital.de/dau-to-pro/#lernmodule">← Modulauswahl</a><strong>DAU TO PRO <em>SPEZIAL</em></strong></div></header>
 <div class="wrap">
  <nav class="area-tabs" role="tablist" aria-label="Klausurvorbereitung">
@@ -1509,7 +1582,7 @@ function readRaw(box,q){if(['number','ipv4','bits','select'].includes(q.type))re
 function bindAnswer(box,q,onchange){box.querySelectorAll('[data-option]').forEach(b=>b.addEventListener('click',()=>{box.querySelectorAll('[data-option]').forEach(x=>{x.setAttribute('aria-pressed',String(x===b));x.classList.toggle('selected',x===b);});if(onchange)onchange();}));box.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>{const li=b.closest('li'),list=li.parentElement,delta=Number(b.dataset.move),target=delta<0?li.previousElementSibling:li.nextElementSibling;if(!target)return;if(delta<0)list.insertBefore(li,target);else list.insertBefore(target,li);[...list.children].forEach((el,i)=>{el.querySelector('.sort-n').textContent=i+1;const bs=el.querySelectorAll('button');bs[0].disabled=i===0;bs[1].disabled=i===list.children.length-1;bs[0].setAttribute('aria-label','Schritt '+(i+1)+' nach oben');bs[1].setAttribute('aria-label','Schritt '+(i+1)+' nach unten');});b.focus({preventScroll:true});if(onchange)onchange();}));box.querySelector('input,select')?.addEventListener('input',()=>onchange?.());}
 function solutionText(q){return Array.isArray(q.answer)?q.answer.map((x,i)=>(i+1)+'. '+x).join(' → '):String(q.answer);}
 function validate(q,raw){if(q.type==='ipv4')return ipv4Number(raw)===null?'Bitte eine vollständige IPv4-Adresse mit vier gültigen Oktetten eingeben.':null;if(q.type==='bits')return /^[01]{8}$/.test(String(raw).replace(/\s/g,''))?null:'Bitte genau acht Binärziffern (0 oder 1) eingeben.';if(q.type==='number')return parseNumber(raw)===null?'Bitte eine gültige, nicht negative Zahl eingeben.':null;if(q.type==='choice'||q.type==='select')return raw?'': 'Bitte zuerst eine Antwort auswählen.';return null;}
-function questionHTML(q,i){const done=roundAnswers[q.id];return '<article class="panel cy question" data-id="'+q.id+'"><div class="bar-head"><span>'+CATS[q.c]+'</span><span class="num">'+q.id+' · '+(q.type==='ipv4'?'IPv4-Eingabe':q.type==='bits'?'Binär-Eingabe':q.type==='number'?'Zahleneingabe':q.type==='order'?'Reihenfolge':q.type==='select'?'Zuordnung':'Einzelauswahl')+'</span></div><h3 class="task-prompt">'+escapeHTML(q.q)+' <span class="qhelp"><button class="qmark" type="button" aria-label="Frage einfacher erklären" aria-expanded="false">?</button><span class="qtip">'+escapeHTML(helpFor(q))+'</span></span></h3><div class="answer-box">'+answerUI(q,q.id,done?.raw,!!done)+'</div><div class="task-actions"><button class="btn secondary" type="button" data-focus-task>In Ruhe bearbeiten</button><button class="btn primary check" type="button" '+(done?'disabled':'')+'>Antwort prüfen</button><button class="btn ghost lookup" type="button">Im Nachschlagwerk ansehen</button>'+'</div><div class="result '+(done&&!done.ok?'bad':'')+'" aria-live="polite">'+(done?feedbackHTML(q,done.ok,done.xp):'')+'</div></article>';}
+function questionHTML(q,i){const done=roundAnswers[q.id];return '<article class="panel cy question" data-id="'+q.id+'"><div class="bar-head"><span>'+CATS[q.c]+'</span><span class="num">'+q.id+' · '+(q.type==='ipv4'?'IPv4-Eingabe':q.type==='bits'?'Binär-Eingabe':q.type==='number'?'Zahleneingabe':q.type==='order'?'Reihenfolge':q.type==='select'?'Zuordnung':'Einzelauswahl')+'</span></div><h3 class="task-prompt">'+escapeHTML(q.q)+' <span class="qhelp"><button class="qmark" type="button" aria-label="Frage einfacher erklären" aria-expanded="false">?</button><span class="qtip">'+escapeHTML(helpFor(q))+'</span></span></h3><div class="answer-box">'+answerUI(q,q.id,done?.raw,!!done)+'</div><div class="task-actions"><button class="btn secondary" type="button" '+(i===0?'id="practiceGo" ':'')+'data-focus-task>In Ruhe bearbeiten</button><button class="btn primary check" type="button" '+(done?'disabled':'')+'>Antwort prüfen</button><button class="btn ghost lookup" type="button">Im Nachschlagwerk ansehen</button>'+'</div><div class="result '+(done&&!done.ok?'bad':'')+'" aria-live="polite">'+(done?feedbackHTML(q,done.ok,done.xp):'')+'</div></article>';}
 const quips=['Treffer. Das darf morgen gern wieder passieren.','Richtig. Dein Kurzzeitgedächtnis hat unterschrieben.','Passt. Die Klausur kann sich schon mal warm anziehen.','Korrekt. Diesmal war es nicht nur das Bauchgefühl.','Richtig. Ein Paket Wissen ist angekommen.'];
 function feedbackHTML(q,ok,xp){return '<b>'+(ok?quips[Math.floor(Math.random()*quips.length)]:'Noch nicht. Genau dafür machen wir die Generalprobe.')+'</b><div class="why"><strong>Lösung: '+escapeHTML(solutionText(q))+'</strong><br>'+escapeHTML(q.why)+'</div>'+(xp?'<span class="quip">+2 XP · diese Frage erstmals richtig gelöst.</span>':ok?'<span class="quip">Bereits gemeistert – Wiederholung festigt, erzeugt aber keine doppelten XP.</span>':'');}
 function showView(v){if(exam&&v!=='exam'){notify('Klausur läuft','Erst abgeben oder zur laufenden Klausur zurückkehren. Während der Probe bleibt der Spickzettel zu.');v='exam';}view=v;document.querySelectorAll('[data-view]').forEach(b=>{b.setAttribute('aria-selected',String(b.dataset.view===view));b.classList.toggle('active',b.dataset.view===view);});$('main').setAttribute('aria-labelledby','tab-'+view);if(v==='reference')renderReference();else if(v==='exam')renderExam();else{chooseRound();renderPractice();}updateStatus();}
@@ -1544,45 +1617,6 @@ window.addEventListener('pageshow',()=>{if(exam){view='exam';showView('exam');}}
 setInterval(updateTimer,1000);
 reconcileLocalXP();$('poolCount').textContent=BANK.length+' Fragen';updateStatus();showView(exam?'exam':'mix');
 window.KV061126_TEST={BANK,CATS,SUBS,CHAPTERS,ACH,gradeOf,correct,parseNumber,buildExam,fresh,uniqueCat,record,unlock,genTask:(sub)=>{const options=BANK.filter(q=>q.sub===sub);if(!options.length)throw Error('Unbekannter Aufgabentyp: '+sub);return options[Math.floor(Math.random()*options.length)];},getState:()=>JSON.parse(JSON.stringify(state)),getExam:()=>exam,startExam,finishExam};
-
-/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
-   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
-(function () {
-  'use strict';
-  if (window.__dtpMobile) return;
-  window.__dtpMobile = true;
-  var wasOpen = null;
-  document.addEventListener('pointerdown', function (e) {
-    if (e.pointerType === 'mouse') { wasOpen = null; return; }
-    var help = e.target.closest && e.target.closest('.qhelp');
-    wasOpen = help && document.activeElement === help ? help : null;
-  }, true);
-  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
-  document.addEventListener('focusout', function (e) {
-    var help = e.target.closest && e.target.closest('.qhelp');
-    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
-  });
-  document.addEventListener('click', function (e) {
-    var help = e.target.closest && e.target.closest('.qhelp');
-    if (!help) return;
-    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
-    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
-    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
-    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
-    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
-    var tip = help.querySelector('.qtip');
-    if (!tip) return;
-    requestAnimationFrame(function () {
-      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
-      if (r.height && over > 0) {
-        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
-        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
-      }
-    });
-  });
-})();
-
 
 /* UI-Ergänzungen; Bewertung und Speichern bleiben im Modul. */
 (()=>{

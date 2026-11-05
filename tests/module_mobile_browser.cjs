@@ -17,6 +17,7 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
     const context=await browser.newContext({viewport:{width,height:800},isMobile:true,hasTouch:true,reducedMotion:'reduce'});
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
     await page.goto(pathToFileURL(path.join(root,'lernmodule',m.file)).href);
+    if(m.entry==='mix'){await require('./kv_browser_acceptance.cjs').mobile(page,width);assert.deepEqual(errors,[]);await context.close();continue;}
     for(const tab of ['path','learn','train','exam']){
      await page.locator('#tab-'+tab).click();
      const state=await page.evaluate(()=>({doc:document.documentElement.scrollWidth,vw:innerWidth,
@@ -48,3 +49,4 @@ const modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.jso
   console.log('Mobile: nine modules at 360/390 px, no sideways scrolling, 16 px inputs, answer-field focus, tap-to-toggle tips and sticky exam timer passed.');
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});
+
