@@ -103,3 +103,12 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Dazu 33 Sprüche für richtige Antworten („Richtig. + Zusatz“) hinter demselben Schalter. Bis dahin zeigt jedes Modul nur seine eigene Liste; nach dem Aktivieren kommen die 33 zur jeweiligen Modulliste dazu.
 - Aktivieren: Schalter in `tools/module-wrong-answer.js` auf `true` setzen, Baustein in alle Module übernehmen und regulär mergen. Die alten 50 Sprüche bleiben dann erhalten; der Vorrat wächst auf 135.
 - Achtung: Der nächste reguläre Push auf main lädt auch diese Dateien hoch und löst bei den Modulen den Update-Hinweis aus, die Sprüche bleiben dabei aber inaktiv.
+
+## 05.11.2026 – Humor-, Verständlichkeits- und Fachdurchlauf über neun Module
+
+- Umfang: A1, OSI, Subnetting, Netzwerkgrundlagen, D1, D2, B4, B5 und F2. Die Klausurvorbereitung ist unverändert. IPv6, Datenschutz und Netzwerkgrundlagen bleiben „Bald verfügbar“. Guter vorhandener Humor blieb erhalten, schwache oder unklare Pointen wurden ersetzt.
+- Vollständig gelesen: A1 und OSI (Nachschlagwerk, Stufen, Rückmeldungen), F2 (alle Lehrinhalte, je eine Aufgabe jedes Typs), D2 (Stufen, Rückmeldungen und viele Aufgabentexte).
+- Teilweise gelesen: Subnetting, Netzwerkgrundlagen, D1, B4 und B5 nur Stufeneinstiege, Rückmeldungen und Stichproben erzeugter Aufgaben. Ihre Nachschlagekapitel und nicht gezogene Fallvarianten sind in diesem Durchlauf nicht vollständig gelesen und bleiben offen.
+- Fachlich korrigiert: OSI „UDP schneller“ entfernt, B5 Port-Definition (Nummer statt Endpunkt je Verbindung), Grammatik generierter Aufgaben in F2, Subnetting und B4, Tippfehler in D2.
+- Geprüft: `tests/redaktion_vergleich.cjs` gegen afebd61 für alle neun Module, Überschriften, IDs, Lösungsschlüssel und Antworten gleich. Die Spruch-Erweiterung bleibt mit `NEW_QUIPS_LIVE = false` inaktiv.
+
