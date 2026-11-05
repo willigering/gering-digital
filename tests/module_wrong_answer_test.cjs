@@ -18,9 +18,9 @@ for(const m of JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.js
 }
 // New quips stay dormant until the switch is flipped; flipping activates all of them.
 const pending=JSON.parse(source.match(/const newQuips = (\[[\s\S]*?\]);/)[1]);
-assert.equal(pending.length,30,'30 new quips prepared');assert.equal(new Set(pending).size,30,'New quips are unique');
+assert.equal(pending.length,130,'130 new quips prepared');assert.equal(new Set(pending).size,130,'New quips are unique');
 assert.ok(source.includes('const NEW_QUIPS_LIVE = false;'),'New quips are not live yet');
 const liveContext={window:{},Math};vm.createContext(liveContext);vm.runInContext(source.replace('const NEW_QUIPS_LIVE = false;','const NEW_QUIPS_LIVE = true;'),liveContext);
-const liveBag=new Set(Array.from({length:80},()=>liveContext.window.DTPWrongAnswer.next()));
-assert.equal(liveBag.size,80,'Activated pool: 80 different quips before any repeat');for(const q of pending)assert.ok(liveBag.has(q),q);
+const liveBag=new Set(Array.from({length:180},()=>liveContext.window.DTPWrongAnswer.next()));
+assert.equal(liveBag.size,180,'Activated pool: 180 different quips before any repeat');for(const q of pending)assert.ok(liveBag.has(q),q);
 console.log('Wrong-answer quips: 100 complete bags, no boundary repeats, reinjection and all ten modules passed.');
