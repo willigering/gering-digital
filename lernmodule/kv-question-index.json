@@ -57,49 +57,49 @@
     "id": "kv-010",
     "c": 0,
     "sub": "reichweite",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-011",
     "c": 0,
     "sub": "reichweite",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-012",
     "c": 0,
     "sub": "reichweite",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-013",
     "c": 0,
     "sub": "reichweite",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-014",
     "c": 0,
     "sub": "reichweite",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-015",
     "c": 0,
     "sub": "duplex",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-016",
     "c": 0,
     "sub": "duplex",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-017",
     "c": 0,
     "sub": "duplex",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-018",
@@ -129,37 +129,37 @@
     "id": "kv-022",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-023",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-024",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-025",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-026",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-027",
     "c": 1,
     "sub": "formen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-028",
@@ -267,49 +267,49 @@
     "id": "kv-045",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-046",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-047",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-048",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-049",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-050",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-051",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-052",
     "c": 2,
     "sub": "aktiv_passiv",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-053",
@@ -375,19 +375,19 @@
     "id": "kv-063",
     "c": 2,
     "sub": "struktur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-064",
     "c": 2,
     "sub": "struktur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-065",
     "c": 2,
     "sub": "struktur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-066",
@@ -411,19 +411,19 @@
     "id": "kv-069",
     "c": 2,
     "sub": "kategorien",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-070",
     "c": 2,
     "sub": "schirmung",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-071",
     "c": 2,
     "sub": "schirmung",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-072",
@@ -441,7 +441,7 @@
     "id": "kv-074",
     "c": 2,
     "sub": "faser",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-075",
@@ -471,19 +471,19 @@
     "id": "kv-079",
     "c": 2,
     "sub": "mac_oui",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-080",
     "c": 2,
     "sub": "mac_oui",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-081",
     "c": 2,
     "sub": "mac_oui",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-082",
@@ -495,91 +495,91 @@
     "id": "kv-083",
     "c": 2,
     "sub": "mac_broadcast",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-084",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-085",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-086",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-087",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-088",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-089",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-090",
     "c": 3,
     "sub": "geraete_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-091",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-092",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-093",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-094",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-095",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-096",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-097",
     "c": 3,
     "sub": "aufgaben_osi",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-098",
@@ -627,55 +627,55 @@
     "id": "kv-105",
     "c": 3,
     "sub": "tcpip_mapping",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-106",
     "c": 3,
     "sub": "tcpip_mapping",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-107",
     "c": 3,
     "sub": "tcpip_mapping",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-108",
     "c": 3,
     "sub": "tcpip_mapping",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-109",
     "c": 3,
     "sub": "pdu",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-110",
     "c": 3,
     "sub": "pdu",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-111",
     "c": 3,
     "sub": "pdu",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-112",
     "c": 3,
     "sub": "pdu",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-113",
     "c": 3,
     "sub": "pdu",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-114",
@@ -711,25 +711,25 @@
     "id": "kv-119",
     "c": 3,
     "sub": "subnet_layer",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-120",
     "c": 3,
     "sub": "troubleshooting_layer",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-121",
     "c": 3,
     "sub": "troubleshooting_layer",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-122",
     "c": 3,
     "sub": "troubleshooting_layer",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-123",
@@ -789,73 +789,73 @@
     "id": "kv-132",
     "c": 4,
     "sub": "dhcp",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-133",
     "c": 4,
     "sub": "dns",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-134",
     "c": 4,
     "sub": "dns",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-135",
     "c": 4,
     "sub": "dns",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-136",
     "c": 4,
     "sub": "dns",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-137",
     "c": 4,
     "sub": "dns",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-138",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-139",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-140",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-141",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-142",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-143",
     "c": 4,
     "sub": "tools",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-144",
@@ -891,7 +891,7 @@
     "id": "kv-149",
     "c": 4,
     "sub": "dienst_21",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-150",
@@ -903,7 +903,7 @@
     "id": "kv-151",
     "c": 4,
     "sub": "dienst_22",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-152",
@@ -915,7 +915,7 @@
     "id": "kv-153",
     "c": 4,
     "sub": "dienst_23",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-154",
@@ -927,7 +927,7 @@
     "id": "kv-155",
     "c": 4,
     "sub": "dienst_25",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-156",
@@ -939,7 +939,7 @@
     "id": "kv-157",
     "c": 4,
     "sub": "dienst_53",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-158",
@@ -951,7 +951,7 @@
     "id": "kv-159",
     "c": 4,
     "sub": "dienst_67",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-160",
@@ -963,7 +963,7 @@
     "id": "kv-161",
     "c": 4,
     "sub": "dienst_68",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-162",
@@ -975,7 +975,7 @@
     "id": "kv-163",
     "c": 4,
     "sub": "dienst_69",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-164",
@@ -987,7 +987,7 @@
     "id": "kv-165",
     "c": 4,
     "sub": "dienst_80",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-166",
@@ -999,7 +999,7 @@
     "id": "kv-167",
     "c": 4,
     "sub": "dienst_110",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-168",
@@ -1011,7 +1011,7 @@
     "id": "kv-169",
     "c": 4,
     "sub": "dienst_123",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-170",
@@ -1023,7 +1023,7 @@
     "id": "kv-171",
     "c": 4,
     "sub": "dienst_143",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-172",
@@ -1035,7 +1035,7 @@
     "id": "kv-173",
     "c": 4,
     "sub": "dienst_161",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-174",
@@ -1047,7 +1047,7 @@
     "id": "kv-175",
     "c": 4,
     "sub": "dienst_162",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-176",
@@ -1059,7 +1059,7 @@
     "id": "kv-177",
     "c": 4,
     "sub": "dienst_389",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-178",
@@ -1071,7 +1071,7 @@
     "id": "kv-179",
     "c": 4,
     "sub": "dienst_443",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-180",
@@ -1083,7 +1083,7 @@
     "id": "kv-181",
     "c": 4,
     "sub": "dienst_445",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-182",
@@ -1095,7 +1095,7 @@
     "id": "kv-183",
     "c": 4,
     "sub": "dienst_587",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-184",
@@ -1107,7 +1107,7 @@
     "id": "kv-185",
     "c": 4,
     "sub": "dienst_636",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-186",
@@ -1119,7 +1119,7 @@
     "id": "kv-187",
     "c": 4,
     "sub": "dienst_993",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-188",
@@ -1131,7 +1131,7 @@
     "id": "kv-189",
     "c": 4,
     "sub": "dienst_995",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-190",
@@ -1143,7 +1143,7 @@
     "id": "kv-191",
     "c": 4,
     "sub": "dienst_546",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-192",
@@ -1155,7 +1155,7 @@
     "id": "kv-193",
     "c": 4,
     "sub": "dienst_547",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-194",
@@ -1179,19 +1179,19 @@
     "id": "kv-197",
     "c": 4,
     "sub": "dns_transport",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-198",
     "c": 4,
     "sub": "icmp_ports",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-199",
     "c": 4,
     "sub": "arp_ports",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-200",
@@ -1215,43 +1215,43 @@
     "id": "kv-203",
     "c": 5,
     "sub": "kanaele",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-204",
     "c": 5,
     "sub": "ssid",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-205",
     "c": 5,
     "sub": "bssid",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-206",
     "c": 5,
     "sub": "ess",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-207",
     "c": 5,
     "sub": "wlan_architektur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-208",
     "c": 5,
     "sub": "wlan_architektur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-209",
     "c": 5,
     "sub": "wlan_architektur",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-210",
@@ -1263,13 +1263,13 @@
     "id": "kv-211",
     "c": 5,
     "sub": "auth",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-212",
     "c": 5,
     "sub": "auth",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-213",
@@ -1335,97 +1335,97 @@
     "id": "kv-223",
     "c": 6,
     "sub": "ipv6_kuerzen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-224",
     "c": 6,
     "sub": "ipv6_kuerzen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-225",
     "c": 6,
     "sub": "ipv6_kuerzen",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-226",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-227",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-228",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-229",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-230",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-231",
     "c": 6,
     "sub": "ipv6_typ",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-232",
     "c": 6,
     "sub": "ipv6_broadcast",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-233",
     "c": 6,
     "sub": "ipv6_anycast",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-234",
     "c": 6,
     "sub": "dualstack",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-235",
     "c": 6,
     "sub": "slaac",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-236",
     "c": 6,
     "sub": "slaac",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-237",
     "c": 6,
     "sub": "ndp",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-238",
     "c": 6,
     "sub": "dad",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-239",
@@ -1689,109 +1689,109 @@
     "id": "kv-282",
     "c": 0,
     "sub": "nutzen_fall",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-283",
     "c": 0,
     "sub": "architektur_rolle",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-284",
     "c": 0,
     "sub": "architektur_rolle",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-285",
     "c": 1,
     "sub": "vergleich",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-286",
     "c": 2,
     "sub": "hub_switch_router",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-287",
     "c": 2,
     "sub": "hub_switch_router",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-288",
     "c": 2,
     "sub": "hub_switch_router",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-289",
     "c": 2,
     "sub": "poe",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-290",
     "c": 3,
     "sub": "adressierung",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-291",
     "c": 3,
     "sub": "adressierung",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-292",
     "c": 3,
     "sub": "adressierung",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-293",
     "c": 4,
     "sub": "nat",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-294",
     "c": 4,
     "sub": "dns_cache",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-295",
     "c": 4,
     "sub": "tcp_udp",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-296",
     "c": 5,
     "sub": "roaming",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-297",
     "c": 5,
     "sub": "hidden",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-298",
     "c": 6,
     "sub": "linklocal",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-299",
     "c": 6,
     "sub": "zoneid",
-    "type": "select"
+    "type": "choice"
   },
   {
     "id": "kv-300",
@@ -2488,5 +2488,269 @@
     "c": 3,
     "sub": "ipv4_same",
     "type": "select"
+  },
+  {
+    "id": "kv-416",
+    "c": 1,
+    "sub": "topologie_nennen",
+    "type": "terms"
+  },
+  {
+    "id": "kv-417",
+    "c": 1,
+    "sub": "topologie_drei",
+    "type": "terms"
+  },
+  {
+    "id": "kv-418",
+    "c": 1,
+    "sub": "stern_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-419",
+    "c": 1,
+    "sub": "stern_nachteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-420",
+    "c": 0,
+    "sub": "netz_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-421",
+    "c": 0,
+    "sub": "client_server_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-422",
+    "c": 0,
+    "sub": "p2p_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-423",
+    "c": 2,
+    "sub": "glasfaser_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-424",
+    "c": 5,
+    "sub": "wlan_vorteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-425",
+    "c": 5,
+    "sub": "wlan_nachteile",
+    "type": "terms"
+  },
+  {
+    "id": "kv-426",
+    "c": 4,
+    "sub": "port_begriff",
+    "type": "terms"
+  },
+  {
+    "id": "kv-427",
+    "c": 4,
+    "sub": "email_versand",
+    "type": "terms"
+  },
+  {
+    "id": "kv-428",
+    "c": 4,
+    "sub": "email_abruf",
+    "type": "terms"
+  },
+  {
+    "id": "kv-429",
+    "c": 2,
+    "sub": "geraete_nennen",
+    "type": "terms"
+  },
+  {
+    "id": "kv-430",
+    "c": 2,
+    "sub": "passiv_nennen",
+    "type": "terms"
+  },
+  {
+    "id": "kv-431",
+    "c": 0,
+    "sub": "netzarten_nennen",
+    "type": "terms"
+  },
+  {
+    "id": "kv-432",
+    "c": 5,
+    "sub": "wlan_baender",
+    "type": "terms"
+  },
+  {
+    "id": "kv-433",
+    "c": 6,
+    "sub": "ipv6_gruende",
+    "type": "terms"
+  },
+  {
+    "id": "kv-434",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-435",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-436",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-437",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-438",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-439",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-440",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-441",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-442",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-443",
+    "c": 3,
+    "sub": "osi_protokoll",
+    "type": "choice"
+  },
+  {
+    "id": "kv-444",
+    "c": 4,
+    "sub": "port_definition",
+    "type": "choice"
+  },
+  {
+    "id": "kv-445",
+    "c": 4,
+    "sub": "port_definition",
+    "type": "choice"
+  },
+  {
+    "id": "kv-446",
+    "c": 2,
+    "sub": "router_aufgabe",
+    "type": "choice"
+  },
+  {
+    "id": "kv-447",
+    "c": 2,
+    "sub": "router_aufgabe",
+    "type": "choice"
+  },
+  {
+    "id": "kv-448",
+    "c": 1,
+    "sub": "stern_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-449",
+    "c": 1,
+    "sub": "stern_nachteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-450",
+    "c": 1,
+    "sub": "bus_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-451",
+    "c": 1,
+    "sub": "bus_nachteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-452",
+    "c": 1,
+    "sub": "mesh_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-453",
+    "c": 1,
+    "sub": "mesh_nachteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-454",
+    "c": 2,
+    "sub": "switch_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-455",
+    "c": 0,
+    "sub": "netz_nachteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-456",
+    "c": 5,
+    "sub": "wlan_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-457",
+    "c": 5,
+    "sub": "wlan_nachteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-458",
+    "c": 2,
+    "sub": "kupfer_vorteil_mc",
+    "type": "choice"
+  },
+  {
+    "id": "kv-459",
+    "c": 6,
+    "sub": "ipv6_nachteil_mc",
+    "type": "choice"
   }
 ]

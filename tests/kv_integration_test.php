@@ -6,13 +6,13 @@ $checks=0;
 function kv_check(bool $ok,string $message):void {global $checks;$checks++;if(!$ok)throw new RuntimeException($message);}
 $module=ach_modules()['kv'];
 $index=json_decode(file_get_contents(__DIR__.'/../lernmodule/kv-question-index.json'),true,512,JSON_THROW_ON_ERROR);
-kv_check(count($index)===415,'415 registered questions');
-kv_check(count(array_unique(array_column($index,'id')))===415,'Stable question IDs are unique');
+kv_check(count($index)===459,'459 registered questions');
+kv_check(count(array_unique(array_column($index,'id')))===459,'Stable question IDs are unique');
 kv_check($module['stages']===0 && $module['optional']===true,'Special module has no fabricated learning path');
 $all=array_column($index,'id');
 $values=['kv-061126-review-v1'=>json_encode(['unique'=>array_merge($all,[$all[0],'made-up'])]),'kv-061126-stats-v1'=>json_encode(['solved'=>99999,'correct'=>99999]),'kv-061126-exam-v1'=>json_encode([['m'=>60,'n'=>40,'p'=>92,'r'=>'Abgegeben']])];
 $state=ach_module_state($values,$module);$best=ach_merge_best([],$state);
-kv_check($state['correct']===415,'Only distinct registered questions count, no forged counters');
+kv_check($state['correct']===459,'Only distinct registered questions count, no forged counters');
 kv_check($best['m']===[],'No learning stages are invented');
 foreach($module['list'] as $a)kv_check(ach_rule_met($a[4],$state,$best,$module),'Reachable achievement: '.$a[0]);
 $short=$values;$short['kv-061126-exam-v1']=json_encode([['m'=>30,'n'=>20,'p'=>100],['m'=>60,'n'=>20,'p'=>100]]);
@@ -35,6 +35,6 @@ kv_check(!str_contains($served,'id="previewUpdate"'),'Offline update demo remove
 kv_check(str_contains($served,'window.__DTP_SYNC__='),'Existing account synchronization reused');
 require_once __DIR__.'/../dau_lib.php';
 $card=dtp_card_progress(ach_card_progress($uid)['klausurvorbereitung-061126']);
-kv_check(str_contains($card,'415 / 415 Fragen richtig'),'No zero-stage division or phantom learning path on account card');
+kv_check(str_contains($card,'459 / 459 Fragen richtig'),'No zero-stage division or phantom learning path on account card');
 echo "KV integration: $checks checks passed\n";
 @unlink($database);
