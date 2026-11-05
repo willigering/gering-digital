@@ -338,9 +338,6 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
   </section>
 <?php endif; ?>
 </main>
-<?php if ($learner && empty($flash['code'])): ?>
-  <a class="primary-action konto-modules-link" href="./#lernmodule">Zu den Modulen <span aria-hidden="true">→</span></a>
-<?php endif; ?>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
 <script>
 (function(){

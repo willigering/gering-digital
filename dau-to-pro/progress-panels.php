@@ -1,14 +1,14 @@
 <?php // Included by konto.php after authentication. Never evaluates or grants rewards.
 $uid=(int)$learner['id'];$dash=xp_dashboard($uid);$recent=xp_recent($uid);$showcase=xp_showcase($uid);$own=ach_unlocked($uid);
 ?>
-<section class="konto-section" aria-labelledby="recent-title">
+<section class="konto-section konto-recent" aria-labelledby="recent-title">
   <div class="konto-section-head"><h2 id="recent-title">Kürzlich freigeschaltet</h2><a class="text-link" href="#achievements">Alle Erfolge →</a></div>
-  <?php if(!$recent): ?><p class="konto-empty">Hier ist noch verdächtig wenig los. Sogar dein Router hat mehr Erfolge.</p><?php else: ?>
+  <?php if(!$recent): ?><p class="konto-empty">Hier ist noch verdächtig wenig los. Sogar dein Router hat mehr Erfolge.</p><a class="primary-action konto-modules-inline" href="./#lernmodule">Zu den Modulen <span aria-hidden="true">→</span></a><?php else: ?>
   <ul class="ach-grid recent-grid">
   <?php foreach($recent as $item): ?><li class="ach-item is-on tier-<?=e($item['tier'])?>" tabindex="0" aria-describedby="recent-condition-<?=e($item['code'])?>">
     <?=xp_icon_html($item)?><span class="ach-text"><b><?=e($item['name'])?></b><small><?=e($item['subject'])?></small><small><?=e(learner_format_time($item['unlocked_at']))?> · +<?=(int)$item['xp']?> XP</small></span>
     <small class="recent-condition" role="tooltip" id="recent-condition-<?=e($item['code'])?>"><?=e($item['desc'])?></small>
-  </li><?php endforeach; ?></ul><?php endif; ?>
+  </li><?php endforeach; ?><li class="konto-modules-cell"><a class="primary-action konto-modules-inline" href="./#lernmodule">Zu den Modulen <span aria-hidden="true">→</span></a></li></ul><?php endif; ?>
 </section>
 <section class="konto-section konto-card" id="vitrine" aria-labelledby="showcase-title">
   <h2 id="showcase-title">Meine Vitrine</h2><p class="konto-hint">Drei Plätze für deine besten Geschichten. Die Reihenfolge bestimmst du hier. Sichtbar werden sie, wenn du den Highscore einschaltest.</p>
