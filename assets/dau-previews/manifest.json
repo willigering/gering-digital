@@ -3,6 +3,19 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "klausurvorbereitung",
+      "accent": "#b49cff",
+      "label": "Klausurvorbereitung Netzwerke",
+      "slugs": [
+        "klausurvorbereitung-061126"
+      ],
+      "keywords": [
+        "klausurvorbereitung",
+        "fünf vor zwölf"
+      ],
+      "module": "KV"
+    },
+    {
       "id": "kalkulation",
       "accent": "#f6c177",
       "label": "Kalkulation & Beschaffung",

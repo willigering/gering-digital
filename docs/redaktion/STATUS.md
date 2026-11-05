@@ -70,3 +70,8 @@ Die Modulübersicht zeigt angemeldeten Lernenden den persönlichen Lernpfad, Pr�
 - Zehn Lektionseinstiege gestrafft, Nachschlagekapitel und ausgewählte Labortexte, Aufgabenformulierungen, Hinweise und Lösungsrückmeldungen überarbeitet. Die freigegebenen Pointen zum Broadcast und zum zu kleinen /28 stehen im Lernpfad und im Nachschlagwerk. Trainings- und Prüfungstexte, Ergebnisrückmeldungen und Kartenbeschreibung auf denselben Ton abgestimmt.
 - Fachlich präzisiert: IPv4-Link-Local kann bei automatischer Konfiguration auf eine ausgebliebene DHCP-Zuweisung hinweisen. Für die direkte Zustellung müssen sich beide Geräte gegenseitig als lokal einstufen.
 - Lokal geprüft: Skriptsyntax und identische HTML-Überschriften. 58.000 Aufgaben aus allen 58 Typen mit identischer Zufallsfolge verglichen. Schlüssel, Antworten, Antwortformate, Auswahloptionen, Punkte und AND-Zwischenfelder sind identisch. Musterantworten für die Eingabefelder wurden akzeptiert. Lokale Browserprüfung durch fehlgeschlagenen Chromium-Download blockiert. Die öffentliche URL lieferte vor der Änderung den bisherigen Text aus.
+
+
+
+## 05.11.2026 – Klausurvorbereitung zur Begutachtung
+Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich vollständigem IPv4-Subnetting. Eigenständige HTML-Datei, gemeinsamer Fokus/Rechner/Handy-Baustein, dezentes Parallax und zentrale Konto-/Achievement-Registrierung vorbereitet. Verständlichkeit, Fragen/Lösungen und situationsbezogenen Humor getrennt geprüft. Keine Liveveröffentlichung: Willi möchte die Datei zuerst begutachten. Tatsächliche Testergebnisse im PR beachten.

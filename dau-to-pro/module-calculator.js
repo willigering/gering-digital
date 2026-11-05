@@ -2,6 +2,7 @@
   'use strict';
 
   const calculationTypes = {
+    klausur: /^(datenrate|mesh_links|stern_links|ipv4_|ipv6_subnet)/,
     osi: /^(d_count|d_topo|e_mss|e_frame|e_ttl|e_hops|o_seq)$/,
     netzwerke: /^(b_rate|t_mesh|t_ports|t_meshr|t_meshd|c_coll|c_bcast|c_lenrest|s_flood|s_vlan|v_zero|v_bits|x_dom|mesh_freitext)$/,
     ipv6: /^(b_total|b_block|b_hex|b_bytes|b_zeros|p_net|p_rest|u_iid|u_flip|u_mac|n_count|n_nth|n_number|n_need|n_last)$/,
@@ -40,7 +41,7 @@
   const names = {
     zahlen: ['BIT', 'WERK'], subnet: ['SUBNET', 'RIG'], osi: ['LAYER', 'RIG'],
     netzwerke: ['NET', 'WERK'], ipv6: ['HEX', 'CORE'], dienste: ['PORT', 'SCAN'],
-    f2: ['PREIS', 'SCAN'], datenschutz: ['DATA', 'GUARD'], sicherheit: ['RISK', 'SCAN']
+    klausur: ['KLAUSUR', 'RIG'], f2: ['PREIS', 'SCAN'], datenschutz: ['DATA', 'GUARD'], sicherheit: ['RISK', 'SCAN']
   };
 
   function floatingPanel(panel, launcher) {
@@ -143,7 +144,8 @@
   }
 
   function mount(host, task, module) {
-    const binary = module === 'zahlen' && /^(d_plain|d_octet|d_pattern|e_plain|e_ones|e_msb|e_mask|h_b2h|h_h2b|n_to|n_from|c_net)$/.test(task.sub)
+    const binary = module === 'klausur' && task.sub === 'ipv4_and'
+      || module === 'zahlen' && /^(d_plain|d_octet|d_pattern|e_plain|e_ones|e_msb|e_mask|h_b2h|h_h2b|n_to|n_from|c_net)$/.test(task.sub)
       || module === 'subnet' && /^(o_b2d|o_d2b|o_maskval|o_bin2ip|m_bin)$/.test(task.sub);
     const arithmetic = calculationTypes[module]?.test(task.sub)
       || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
@@ -269,4 +271,5 @@
   }
   window.dtpMountCalculator = mount;
 })();
+
 

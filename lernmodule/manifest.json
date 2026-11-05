@@ -72,6 +72,14 @@
       "subject": "Kalkulation & Beschaffung",
       "title": "Rechnet sich das?",
       "description": "Angebotsvergleich, Bezugskalkulation, Verkaufskalkulation, Nutzwertanalyse, Kauf/Miete/Leasing, lineare Abschreibung, Amortisation, Break-even, Stundensatz und Make or Buy – mit zehn Lernstufen, 50 Aufgabentypen und Prüfungsmodus."
+    },
+    {
+      "slug": "klausurvorbereitung-061126",
+      "preview": "klausurvorbereitung",
+      "file": "klausurvorbereitung-061126.html",
+      "subject": "Netzwerkgrundlagen",
+      "title": "Sieben Schichten OSI. Aber gelernt wird fünf vor zwölf.",
+      "description": "Lernen auf den letzten Drücker? So kennt man dich. Querbeet durchs Netz: MAC, OSI, Ports, IPv4, WLAN und IPv6. Der Lernplan ist spät. Die Fragen sind schon da."
     }
   ]
 }
