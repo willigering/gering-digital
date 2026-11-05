@@ -31,6 +31,15 @@ const acceptance=require('./kv_browser_acceptance.cjs');
    await lookupPage.getByRole('button',{name:'Zurück zur Frage',exact:false}).click();
    assert.deepEqual(await answerState(),before,'Focus-dialog lookup preserves the original answer');
    await lookupContext.close();
+   // Exercise real short-answer inputs, synonym matching and repeated concepts.
+   await page.evaluate(()=>{exam=null;view='mix';practice=[BANK.find(q=>q.sub==='topologie_nennen')];roundAnswers={};renderPractice();});
+   const terms=page.locator('#questions .term-input');
+   await terms.nth(0).fill('Sterntopologie');await terms.nth(1).fill('Ringtopologie');
+   await page.locator('#questions .lookup').click();await page.getByRole('button',{name:'Zurück zur Frage',exact:false}).click();
+   assert.equal(await terms.nth(0).inputValue(),'Sterntopologie');
+   assert.equal(await terms.nth(1).inputValue(),'Ringtopologie');
+   await page.locator('#questions .check').click();
+   assert.ok(!(await page.locator('#questions .result').getAttribute('class')).includes('bad'),'Synonymous topology names accepted through real inputs');
    assert.deepEqual(errors,[],'No script errors at '+width);await context.close();
   }
   console.log('KV desktop and mobile 390/360: real focus controls, return, no false XP, input sizes, tap hints and sticky exam timer passed.');
