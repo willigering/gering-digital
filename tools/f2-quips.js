@@ -62,4 +62,4 @@ const Q_MASTER=[
 'Diese Stufe ist bezahlt. Mit Hirnschmalz.',
 'Gemeistert. Das war eine lohnende Investition in dich.'
 ];
-const qOk=()=>pick(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();

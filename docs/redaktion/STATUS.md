@@ -100,5 +100,6 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 
 - Willi hat 15 Sprüche sprachlich abgestimmt, dazu kommen 70 weitere im Muster „Falsch. + Zusatz“. Alle 85 stehen im gemeinsamen Baustein `tools/module-wrong-answer.js` und in allen zehn Modulen.
 - Status: bewusst inaktiv (`NEW_QUIPS_LIVE = false`). Lernende sehen weiter die bisherigen 50 Sprüche. Auftrag: mergen ja, noch nicht live. Der Merge-Commit trägt `[skip ci]`, damit dieser Push keine Veröffentlichung auslöst.
+- Dazu 33 Sprüche für richtige Antworten („Richtig. + Zusatz“) hinter demselben Schalter. Bis dahin zeigt jedes Modul nur seine eigene Liste; nach dem Aktivieren kommen die 33 zur jeweiligen Modulliste dazu.
 - Aktivieren: Schalter in `tools/module-wrong-answer.js` auf `true` setzen, Baustein in alle Module übernehmen und regulär mergen. Die alten 50 Sprüche bleiben dann erhalten; der Vorrat wächst auf 135.
 - Achtung: Der nächste reguläre Push auf main lädt auch diese Dateien hoch und löst bei den Modulen den Update-Hinweis aus, die Sprüche bleiben dabei aber inaktiv.

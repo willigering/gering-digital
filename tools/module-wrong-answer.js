@@ -1,4 +1,5 @@
 /* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
  * No scoring, storage or DOM changes: renderers keep their explanations. */
 (function () {
   'use strict';
@@ -55,7 +56,7 @@
   "Das hätte selbst der Drucker hinterfragt.",
   "Noch ein Versuch. Diesmal mit weniger Würfeln."
 ];
-  // Neue Sprüche: eingepflegt, aber erst aktiv, wenn dieser Schalter auf true steht.
+  // Neue Sprüche (falsch und richtig): eingepflegt, aber erst aktiv, wenn dieser Schalter auf true steht.
   const NEW_QUIPS_LIVE = false;
   const newQuips = [
   "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
@@ -162,4 +163,43 @@
     return quips[previous];
   }
   window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    const pool = NEW_QUIPS_LIVE ? own.concat(newRightQuips) : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
 })();
