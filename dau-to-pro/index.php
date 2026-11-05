@@ -63,7 +63,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if($reveal): ?>  <script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script>
 <?php endif; ?>
   <?=dtp_feedback_assets()?>
-<style>.urgent-module{position:relative;width:min(100%,480px);margin:12px auto 42px}.urgent-module .module-card{width:100%;display:block}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@media(max-width:600px){.urgent-module{width:100%}.urgent-flag{right:-4px}}</style></head>
+<style>.catalog-panel{container-type:inline-size}.urgent-module{position:relative;width:calc((100% - 48px)/3);min-width:0;margin:12px auto 42px}.urgent-module .module-card{width:100%;display:flex}.urgent-module .module-art{aspect-ratio:16/9}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@container (max-width: 955px){.urgent-module{width:calc((100% - 24px)/2)}}@container (max-width: 630px){.urgent-module{width:100%}}@media(max-width:600px){.urgent-flag{right:-4px}}</style></head>
 <body class="dtp-landing">
 <?=dtp_backdrop()?>
 <a class="skip" href="#lernmodule">Direkt zu den Lernmodulen</a>
