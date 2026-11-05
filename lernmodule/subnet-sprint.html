@@ -1091,8 +1091,8 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
   "Das hätte selbst der Drucker hinterfragt.",
   "Noch ein Versuch. Diesmal mit weniger Würfeln."
 ];
-  // Neue Sprüche (falsch und richtig): eingepflegt, aber erst aktiv, wenn dieser Schalter auf true steht.
-  const NEW_QUIPS_LIVE = false;
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
   const newQuips = [
   "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
   "Oha, das ist ja richt… Oh. Doch nicht.",
@@ -1940,7 +1940,7 @@ S('net3','n3_netmask','Netz-ID mit Maske (3./2. Oktett)',2,lv=>netTask(hostIp(p3
 S('net3','n3_oct','Entscheidendes Oktett',1,lv=>{
  let p;do{p=rint(9,30)}while(p%8===0);const o=Math.floor(p/8)+1;
  return {kind:'dec',key:'no'+p,prompt:P('In welchem Oktett liegt bei einem '+V('/'+p)+'-Netz die Grenze zwischen Netz- und Hostanteil? Gib die Nummer des Oktetts an (1 bis 4).','Bei '+V('/'+p)+' gehören die ersten '+p+' Bits zum Netz. In welchem der vier Blöcke (1 bis 4) liegt der Übergang von Netz zu Host? '+SM('Jeder Block hat 8 Bits: Block 1 = Bit 1 bis 8, Block 2 = Bit 9 bis 16 und so weiter.')),answer:o,
-  why:W([p+' : 8 = '+Math.floor(p/8)+' Rest '+p%8+'.',Math.floor(p/8)+' Oktette sind komplett Netz.','Die restlichen '+p%8+' Netzbits liegen im <b>'+o+'.</b> Oktett. Dort rechnest du die Sprungweite.']),
+  why:W([p+' : 8 = '+Math.floor(p/8)+' Rest '+p%8+'.',Math.floor(p/8)+(Math.floor(p/8)===1?' Oktett ist':' Oktette sind')+' komplett Netz.','Die restlichen '+p%8+' Netzbits liegen im <b>'+o+'.</b> Oktett. Dort rechnest du die Sprungweite.']),
   diag:v=>v===Math.floor(p/8)?'Das sind die vollen Netz-Oktette. Die Grenze liegt im nächsten Oktett.':''};
 });
 S('net3','n3_block','Sprungweite im 3. Oktett',1,lv=>{
@@ -2228,7 +2228,7 @@ const STAGES=[
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=["Stimmt. So kann das ins Ticket.", "Richtig. Die Netzgrenze sitzt.", "Passt. Der Rechenweg stimmt."];
+const Q_OK=["Stimmt. So kann das ins Ticket.", "Richtig. Die Netzgrenze sitzt.", "Passt. Der Rechenweg stimmt.", "Stimmt. Niemand muss umziehen.", "Richtig. Das Netz bleibt, wo es hingehört."];
 const Q_MASTER=['Stufe gemeistert. Die nächste ist offen, ganz ohne Ticket beim Support.','Gemeistert. Die nächste Stufe steht schon in der Warteschlange.','Stufe geschafft. Die nächste ist freigeschaltet.','Stufe geschafft. Weiter geht’s mit dem nächsten Block.'];
 const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
