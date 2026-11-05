@@ -71,9 +71,9 @@ function ach_modules(): array {
             ['b5.rueckweg','gold','Rückweg gefunden','„PAT-Antwort zurückübersetzen“ und „ARP-Ziel bei entferntem Netz“ je 10 × in Folge richtig.',['clean',['a_return','r_remote']]],
             ['b5.lernpfad','gold','Alle Dienste im Dienst','Alle 10 Stufen des Lernpfads gemeistert.',['path']],
             ['b5.marathon','platin','Dauerverbindung','90-Minuten-Prüfung mit mindestens 81 % (Note 2).',['exam',90,81]],
-            ['b5.dns','witzig',"It’s always DNS",'3 × hintereinander falsch bei „It’s always DNS – wirklich?“.',['fails','n_always'],'Die Nummer geht. Der Name nicht. Wer kennt sich mit Namen aus?'],
-            ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Ein anderer Port macht das Passwort nicht unsichtbar.'],
-            ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 klingt nach Adresse. Aber wer hat sie vergeben?'],
+            ['b5.dns','witzig',"It’s always DNS",'3 × hintereinander falsch bei „It’s always DNS – wirklich?“.',['fails','n_always'],'Per IP klappt es. Beim Namen wird es still. Der Router hat für heute genug unverdiente Neustarts bekommen.'],
+            ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Das Passwort steht im Mitschnitt. Eine andere Portnummer ist dafür leider kein Radiergummi.'],
+            ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 steht da. Der Internetzugang fehlt. Nicht jede Adresse ist eine Erfolgsmeldung.'],
         ]],
         'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','slugs'=>['f2-kalkulation'],'stages'=>10,'list'=>[
             ['f2.preisschild','bronze','Preisschild enttarnt','Stufe 1 „Angebote vergleichen“ gemeistert.',['stage',0]],

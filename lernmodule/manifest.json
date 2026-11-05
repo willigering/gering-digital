@@ -63,7 +63,7 @@
       "file": "b5-netzwerkdienste.html",
       "subject": "Netzwerkdienste & Protokolle",
       "title": "Port 80, bitte kommen",
-      "description": "TCP/UDP, Ports, DHCP, DNS, NAT/PAT, ARP, ICMP, HTTP/HTTPS, Mail und Fernzugriff – zehn Lernstufen mit Laboren, Training und Prüfung."
+      "description": "Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss."
     },
     {
       "slug": "f2-kalkulation",
