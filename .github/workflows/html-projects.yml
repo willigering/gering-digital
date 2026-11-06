@@ -70,6 +70,10 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/f2
         run: node tests/f2_browser.cjs && node tests/f2_platform.cjs
+      - name: Check C# module flow and account integration
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/cs_browser.cjs && node tests/cs_platform.cjs
       - name: Check B4 IPv6 offline and platform in real browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

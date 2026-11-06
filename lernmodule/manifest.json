@@ -87,6 +87,14 @@
         "exam"
       ],
       "entry": "mix"
+    },
+    {
+      "slug": "cs1-csharp",
+      "preview": "csharp",
+      "file": "cs1-csharp.html",
+      "subject": "Programmieren mit C#",
+      "title": "Der Compiler hat immer recht",
+      "description": "Von der ersten Zeile über Schleifen, Methoden und Klassen bis zum eigenen Gerätemanager. Du lernst, Code zu lesen und Fehler zu finden, bevor der Compiler es dir unter die Nase reibt."
     }
   ]
 }

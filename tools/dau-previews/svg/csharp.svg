@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <radialGradient id="csharp-glow" cx="0.5" cy="0.5" r=".55">
+      <stop offset="0" stop-color="#b794ff" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#b794ff" stop-opacity=".035"/>
+      <stop offset="1" stop-color="#b794ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="csharp-warm" cx=".78" cy=".8" r=".6">
+      <stop offset="0" stop-color="#f39a2b" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#f39a2b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="csharp-vignette" cx=".5" cy=".5" r=".75">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".62"/>
+    </radialGradient>
+    <linearGradient id="csharp-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1bb"/><stop offset=".55" stop-color="#efc261"/><stop offset="1" stop-color="#cc8f25"/>
+    </linearGradient>
+    <linearGradient id="csharp-goldv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe4a1"/><stop offset="1" stop-color="#d79a2c"/>
+    </linearGradient>
+    <linearGradient id="csharp-ray" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#d88120" stop-opacity=".2"/><stop offset=".5" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff9c29" stop-opacity=".15"/>
+    </linearGradient>
+    <linearGradient id="csharp-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16201f"/><stop offset="1" stop-color="#0c1215"/>
+    </linearGradient>
+    <pattern id="csharp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#9fe9ef" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+    <filter id="csharp-glowf" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="csharp-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#080c0e"/>
+  <rect width="1280" height="720" fill="url(#csharp-grid)"/>
+  <rect width="1280" height="720" fill="url(#csharp-glow)"/>
+  <rect width="1280" height="720" fill="url(#csharp-warm)"/>
+  <g><path d="M-20 215.2 H207.9 L239.4 183.7 H303.3" stroke="#b794ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="303.3" cy="183.7" r="4" fill="#b794ff" fill-opacity=".35"/><path d="M1300 239.4 H1088.6 L1030.3 181.1 H917.7" stroke="#b794ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="917.7" cy="181.1" r="4" fill="#b794ff" fill-opacity=".35"/><path d="M-20 509.5 H117.4 L177.8 449.1 H271.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="271.5" cy="449.1" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 320.3 H1102.6 L1057.9 275.6 H980" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="980" cy="275.6" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 276.6 H204.1 L273.9 206.8 H371.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="371.5" cy="206.8" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 119 H1050.5 L988 56.5 H865.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="865.5" cy="56.5" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 245.6 H199.7 L269.1 176.2 H358.6" stroke="#b794ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="358.6" cy="176.2" r="4" fill="#b794ff" fill-opacity=".35"/></g>
+  
+    <g stroke-linecap="round" fill="none">
+      <path d="M-140 780 L704 -140" stroke="#f39a2b" stroke-width="16" stroke-opacity=".08" filter="url(#csharp-soft)"/>
+      <path d="M-140 780 L704 -140" stroke="url(#csharp-ray)" stroke-width="2.4" stroke-opacity=".55"/>
+      <path d="M704 860 L1420 86.39999999999999" stroke="url(#csharp-ray)" stroke-width="1.6" stroke-opacity=".32"/>
+    </g>
+  
+  <text x="640" y="104" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="34" font-weight="900" letter-spacing="4" fill="#b794ff">PROGRAMMIEREN MIT C#</text>
+  <g transform="translate(190 150)">
+    <path d="M0 0H900V400H0Z" fill="#11101c" stroke="#b794ff" stroke-width="3"/>
+    <path d="M0 0H900V46H0Z" fill="#1c1830"/>
+    <circle cx="28" cy="23" r="8" fill="#ff7b8a"/><circle cx="54" cy="23" r="8" fill="#eab448"/><circle cx="80" cy="23" r="8" fill="#9be58f"/>
+    <text x="120" y="31" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="20" fill="#8fa3a8">Program.cs</text>
+    <g font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="30" font-weight="700">
+      <text x="34" y="105" fill="#8fa3a8">1</text><text x="84" y="105"><tspan fill="#b794ff">for</tspan><tspan fill="#f5f0df"> (</tspan><tspan fill="#b794ff">int</tspan><tspan fill="#f5f0df"> i = </tspan><tspan fill="#ffd98a">0</tspan><tspan fill="#f5f0df">; i &lt; </tspan><tspan fill="#ffd98a">3</tspan><tspan fill="#f5f0df">; i++)</tspan></text>
+      <text x="34" y="155" fill="#8fa3a8">2</text><text x="84" y="155" fill="#f5f0df">{</text>
+      <text x="34" y="205" fill="#8fa3a8">3</text><text x="134" y="205"><tspan fill="#7fd6ff">Console</tspan><tspan fill="#f5f0df">.WriteLine(</tspan><tspan fill="#9be58f">"Läuft"</tspan><tspan fill="#f5f0df">)</tspan></text>
+      <text x="34" y="255" fill="#8fa3a8">4</text><text x="84" y="255" fill="#f5f0df">}</text>
+    </g>
+    <path d="M612 215q10 10 20 0t20 0t20 0" fill="none" stroke="#ff7b8a" stroke-width="5"/>
+    <path d="M0 290H900V400H0Z" fill="#0a0912"/>
+    <text x="34" y="338" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="24" font-weight="700" fill="#ff7b8a">CS1002: ; erwartet</text>
+    <text x="34" y="376" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="20" fill="#8fa3a8">Build fehlgeschlagen. Der Compiler hat recht.</text>
+  </g>
+  <text x="640" y="630" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="38" font-weight="900" fill="#ffd98a">DER COMPILER HAT IMMER RECHT</text>
+  <rect width="1280" height="720" fill="url(#csharp-vignette)" pointer-events="none"/>
+</svg>

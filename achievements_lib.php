@@ -75,6 +75,18 @@ function ach_modules(): array {
             ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Das Passwort steht im Mitschnitt. Eine andere Portnummer ist dafür leider kein Radiergummi.'],
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 steht da. Der Internetzugang fehlt. Nicht jede Adresse ist eine Erfolgsmeldung.'],
         ]],
+        'cs'=>['prefix'=>'cs-code','subject'=>'Programmieren mit C#','title'=>'Der Compiler hat immer recht','motif'=>'csharp','slugs'=>['cs1-csharp'],'stages'=>10,'list'=>[
+            ['cs.hello','bronze','Hello, World!','Stufe 1 „Willkommen in C#“ gemeistert.',['stage',0]],
+            ['cs.survivor','bronze','Semicolon Survivor','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
+            ['cs.schleife','silber','Schleifenkönig','Stufe 5 „Schleifen“ gemeistert.',['stage',4]],
+            ['cs.bug','silber','Bugjäger','„Fehler reparieren“ 10 × in Folge richtig.',['clean',['e_fix']]],
+            ['cs.methode','gold','Methode mit Methode','„Methodenkopf schreiben“ und „Aufrufe verketten“ je 10 × in Folge richtig.',['clean',['m_kopf','m_kette']]],
+            ['cs.lernpfad','gold','Kompiliert auf Anhieb','Alle 10 Stufen gemeistert.',['path']],
+            ['cs.compiler','platin','Compilerflüsterer','90-Minuten-Prüfung mit mindestens 90 %.',['exam',90,90]],
+            ['cs.unschuldig','witzig','Das Semikolon war unschuldig','3 × in Folge falsch bei „Das Semikolon war unschuldig“.',['fails','g_semikolon'],'Der Compiler nennt sogar die Zeile. Er hilft wirklich gern.'],
+            ['cs.gleich','witzig','Gleich ist nicht gleich','3 × in Folge falsch bei „= statt ==“.',['fails','i_gleich'],'Ein Zeichen zu wenig, eine Beziehungskrise zu viel.'],
+            ['cs.offbyone','witzig','Einer geht noch','3 × in Folge falsch bei „Off-by-one“.',['fails','l_off'],'Zählen fängt manchmal bei null an. Das Problem hört selten dort auf.'],
+        ]],
         'f2'=>['prefix'=>'f2-kalk','subject'=>'Kalkulation & Beschaffung','title'=>'Rechnet sich das?','motif'=>'kalkulation','slugs'=>['f2-kalkulation'],'stages'=>10,'list'=>[
             ['f2.preisschild','bronze','Preisschild enttarnt','Stufe 1 „Angebote vergleichen“ gemeistert.',['stage',0]],
             ['f2.bezug','bronze','Fracht ist auch Geld','„Bezugspreis mit Fracht“ 10 × in Folge richtig.',['clean',['b_bezug']]],

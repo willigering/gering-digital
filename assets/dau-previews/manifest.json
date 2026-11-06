@@ -16,6 +16,20 @@
       "module": "KV"
     },
     {
+      "id": "csharp",
+      "accent": "#b794ff",
+      "label": "Programmieren mit C#",
+      "slugs": [
+        "cs1-csharp"
+      ],
+      "keywords": [
+        "c#",
+        "csharp",
+        "compiler hat immer recht"
+      ],
+      "module": "CS1"
+    },
+    {
       "id": "kalkulation",
       "accent": "#f6c177",
       "label": "Kalkulation & Beschaffung",
