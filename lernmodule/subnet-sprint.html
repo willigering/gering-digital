@@ -1234,8 +1234,8 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
   "Richtig. Und ich hatte so wenig Hoffnung."
 ];
   window.DTPRightAnswer = Object.freeze({next(own) {
-    // Mostly the shared quips, so every module sounds alike; module-specific ones stay in the mix.
-    const pool = NEW_QUIPS_LIVE && Math.random() < 0.7 ? newRightQuips : own;
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
     return pool[Math.floor(Math.random() * pool.length)];
   }});
 })();
@@ -2005,7 +2005,7 @@ S('plan','pl_maskfor','Maske für H Hosts',2,lv=>{
 S('plan','pl_nets2p','Präfix für N Subnetze',1,lv=>{
  const y=lv===1?24:pick([16,20,22,23,24]),N=rint(2,lv===1?30:Math.min(60,pow2(30-y))),b=Math.ceil(Math.log2(N)),base=y===24?U([192,168,rnd(256),0]):(SN(randPrivate(y),y).net);
  return {kind:'pre',key:'pn'+y+'_'+N,prompt:P('Das Netz '+VN(base,y)+' soll in '+V(N)+' gleich große Subnetze aufgeteilt werden, die jeweils möglichst groß sind. Welches Präfix bekommen die Subnetze?','Das Netz '+VN(base,y)+' wird in '+V(N)+' gleich große Teile zerlegt. Jedes Teil soll so groß wie möglich sein. Welches Präfix bekommen die Teile? '+SM('Mit n zusätzlichen Netzbits entstehen 2ⁿ Teile.')),answer:y+b,
-  why:W(['Kleinste Zweierpotenz ≥ '+N+': 2'+sup(b)+' = '+pow2(b)+'.','Dafür werden '+b+' Bits vom Hostteil geliehen.','/'+y+' + '+b+' = <b>/'+(y+b)+'</b>.'+(pow2(b)>N?' Es entstehen '+pow2(b)+' Subnetze, '+(pow2(b)-N)+' bleiben als Reserve.':'')]),
+  why:W(['Kleinste Zweierpotenz ≥ '+N+': 2'+sup(b)+' = '+pow2(b)+'.','Dafür werden '+b+' Bits vom Hostteil geliehen. Zurückgegeben werden sie nie.','/'+y+' + '+b+' = <b>/'+(y+b)+'</b>.'+(pow2(b)>N?' Es entstehen '+pow2(b)+' Subnetze, '+(pow2(b)-N)+' bleiben als Reserve.':'')]),
   diag:v=>v===b?'Das sind die zusätzlichen Bits. Addiere sie zum alten Präfix /'+y+'.':v===y+b-1?'Zu wenige Netze: Mit /'+v+' gibt es nur '+pow2(b-1)+' Subnetze.':v>y+b?'Das ergibt genug Netze, aber sie sind kleiner als nötig.':''};
 });
 S('plan','pl_count','Wie viele /x passen in /y',1,lv=>{

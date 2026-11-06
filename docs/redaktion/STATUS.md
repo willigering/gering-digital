@@ -112,3 +112,9 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Fachlich korrigiert: OSI „UDP schneller“ entfernt, B5 Port-Definition (Nummer statt Endpunkt je Verbindung), Grammatik generierter Aufgaben in F2, Subnetting und B4, Tippfehler in D2.
 - Geprüft: `tests/redaktion_vergleich.cjs` gegen afebd61 für alle neun Module, Überschriften, IDs, Lösungsschlüssel und Antworten gleich. Auf Willis Wunsch „alles veröffentlichen“ sind die neuen Sprüche mit `NEW_QUIPS_LIVE = true` aktiv.
 
+## 06.11.2026 – Zweite Humor-Runde über alle neun Module
+
+- Willi: Die erste Runde war zu dünn. Deshalb weitere Pointen vor allem in den Erklärungen nach einer Antwort: F2 22, B4 11, D2 12, D1 11, A1 7, B5 7, Netzwerke 4, OSI 4, Subnetting 1.
+- Richtig-Sprüche kommen immer aus der gemeinsamen Liste, die 50 alten Falsch-Sprüche bleiben auf Willis Wunsch.
+- Gelesen wurde dafür eine erzeugte Aufgabe je Typ, in mehreren Modulen nur jeder zweite oder dritte Typ. Die Nachschlagekapitel von Subnetting, Netzwerkgrundlagen, D1, B4 und B5 sind weiterhin nicht vollständig gelesen.
+
