@@ -27,9 +27,13 @@
     const layout=()=>{
       if(!current)return;
       if(current.hidden){hide(current);return;}
-      const b=current.getBoundingClientRect(),pad=9;
+      const b=current.getBoundingClientRect(),pad=current.closest('.stack-row')?2:9;
       const y=Math.max(0,Math.round(b.top-pad));
-      const bottom=Math.min(innerHeight,Math.round(b.bottom+pad));
+      let cut=b.bottom+pad;
+      // Im Modulstapel endet das scharfe Fenster dort, wo eine vordere Reihe die Karte überdeckt.
+      const row=current.closest('.stack-row');
+      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling){const t=next.getBoundingClientRect().top;if(t<cut)cut=Math.max(b.top,t);}
+      const bottom=Math.min(innerHeight,Math.round(cut));
       const x=Math.max(0,Math.round(b.left-pad));
       const right=Math.min(innerWidth,Math.round(b.right+pad));
       overlay.style.setProperty('--focus-y',y+'px');
@@ -77,10 +81,11 @@
       current=null;cancelAnimationFrame(frame);paint(0);
     };
     cards.forEach(card=>{
-      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(card)});
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!card.closest('.stack-row.is-behind'))show(card)});
       card.addEventListener('pointerleave',()=>hide(card));
     });
     addEventListener('scroll',layout,{passive:true});
+    globalThis.dtpFocusLayout=()=>{if(current&&current.closest('.stack-row.is-behind'))hide(current);else layout()};
     addEventListener('resize',layout,{passive:true});
     document.getElementById("module-grid")?.addEventListener("toggle",layout,true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
@@ -282,13 +287,13 @@
   const wide=matchMedia('(min-width:900px)'),calm=matchMedia('(prefers-reduced-motion:reduce)');
   const all=[...grid.querySelectorAll(':scope > .module-card')];
   const PEEK=26,STEP=0.42,NEXT=0.30;
-  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false;
+  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false,shown=null;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'))||80;
   function teardown(){
     if(!on)return;on=false;
     all.forEach(c=>grid.append(c));
     grid.querySelectorAll('.stack-row,.stack-stage').forEach(n=>n.remove());
-    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;
+    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;shown=null;cancelAnimationFrame(frame);frame=0;
   }
   function build(){
     teardown();
@@ -322,10 +327,13 @@
     const top=grid.getBoundingClientRect().top-(navH()+16);
     return Math.max(0,Math.min(rows.length-1,-top/stepPx()));
   }
-  const active=()=>Math.round(progress());
+  const active=()=>Math.round(shown===null?progress():shown);
   function paint(){
     frame=0;if(!on)return;
-    const p=progress(),peeks=Math.min(rows.length-1,3)*PEEK;
+    // Weich nachlaufen statt hart stoppen: die Anzeige folgt dem Scrollstand mit Abklingen.
+    const goal=progress();if(shown===null)shown=goal;
+    shown+=(goal-shown)*0.16;if(Math.abs(goal-shown)<0.002)shown=goal;else frame=requestAnimationFrame(paint);
+    const p=shown,peeks=Math.min(rows.length-1,3)*PEEK;
     rows.forEach((r,k)=>{
       const d=p-k;let y,s=1;
       if(d>=0){const back=Math.min(d,3);y=peeks-back*PEEK;s=1-back*0.035;}
@@ -336,6 +344,7 @@
       r.classList.toggle('is-behind',d>=0.5);
       r.inert=d<-1.2;
     });
+    globalThis.dtpFocusLayout?.();
   }
   function go(k){
     const target=scrollY+grid.getBoundingClientRect().top-(navH()+16)+k*stepPx();
