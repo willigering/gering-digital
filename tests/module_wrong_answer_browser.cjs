@@ -23,7 +23,7 @@ const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1])
      const selects=[...box.querySelectorAll('[data-r="form"] select')];
      let candidate;
      if(selects.length){candidate=selects.map((s)=>[...s.options].find(o=>o.value).value).join(',');if(hook.parseAnswer(t,candidate).ok)candidate=selects.map((s)=>[...s.options].filter(o=>o.value).at(-1).value).join(',');}
-     else candidate=['0','1','2','-1','999','nein','ja','Falsch','::','::1','2001:db8::1','0.0.0.0'].find(raw=>{const p=hook.parseAnswer(t,raw);return p.valid&&!p.ok;});
+     else candidate=['0','1','2','-1','999','nein','ja','Falsch','::','::1','2001:db8::1','0.0.0.0'].concat(typeof t.answer==='string'&&/^[A-Z]{2,}$/.test(t.answer)?[t.answer.split('').reverse().join(''),t.answer.slice(1)+t.answer[0]]:[]).find(raw=>{const p=hook.parseAnswer(t,raw);return p.valid&&!p.ok;});
      if(candidate===undefined)throw Error('No valid wrong answer for '+t.kind);
      if(selects.length)selects.forEach((s,i)=>{s.value=candidate.split(',')[i];s.dispatchEvent(new Event('change',{bubbles:true}));});
      else {input.value=candidate;input.dispatchEvent(new Event('input',{bubbles:true}));}
