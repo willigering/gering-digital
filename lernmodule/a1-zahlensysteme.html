@@ -2183,7 +2183,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.and-work input').forEach(input=>{input.disabled=true});
   const inp=q('form')?.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(o.short?'':'<div class="why">'+t.why+'</div>');
+  res.innerHTML=(ok?'✓ <strong>Richtig!</strong><span class="quip">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(o.short?'':'<div class="why">'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);

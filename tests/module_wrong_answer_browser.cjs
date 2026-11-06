@@ -30,7 +30,7 @@ const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1])
      box.querySelector('[data-r="check"]').click();
     });
     const result=page.locator('#practiceTask [data-r="res"]');assert(await result.evaluate(e=>e.classList.contains('bad')),m.slug+': wrong answer graded');
-    assert(quips.includes(await result.locator('.quip').first().innerText()),m.slug+': shared quip shown');assert(await result.locator('.why').innerText(),m.slug+': explanation retained');
+    assert(quips.includes(await result.locator('.quip').first().innerText()),m.slug+': shared quip shown');assert(!/Noch nicht\./.test(await result.innerText()),m.slug+': kein Standardsatz');assert(await result.locator('.why').innerText(),m.slug+': explanation retained');
    }
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,m.slug+': no overflow');assert.deepEqual(errors,[],m.slug+': no JS errors');
    console.log(m.slug+' '+width+': wrong answer, shared quip and explanation passed');await page.close();
