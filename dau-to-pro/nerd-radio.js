@@ -8,9 +8,9 @@
   const root = document.querySelector('[data-nerd-radio]');
   if (!root) return;
 
-  /* Playlist. Generierte Endlos-Loops: kind 'synth'.
-     Eigene Dateien später einfach ergänzen: { kind: 'file', src: 'audio/mein-titel.mp3', title: 'Mein Titel', genre: 'MP3' } */
-  const tracks = [
+  /* Playlist: zuerst eigene Dateien aus dau-to-pro/audio/nerd-radio/ (vom Server als data-tracks
+     geliefert, Titel aus dem Dateinamen), danach die im Browser generierten Endlos-Loops. */
+  const loops = [
     {
       kind: 'synth', title: 'Stack Overflow FM', genre: 'Chiptune · 118 BPM', bpm: 118,
       wave: 'square', bassWave: 'triangle',
@@ -35,6 +35,13 @@
       bass: ['A2','A2','F2','F2','C3','C3','G2','G2'],
       chords: [['A3','C4','E4'],['F3','A3','C4'],['C4','E4','G4'],['G3','B3','D4']]
     }
+  ];
+  let files = [];
+  try { files = JSON.parse(root.dataset.tracks || '[]'); } catch (_) { files = []; }
+  const tracks = [
+    ...(Array.isArray(files) ? files : []).filter(f => f && typeof f.src === 'string')
+      .map(f => ({ kind: 'file', src: f.src, title: String(f.title || 'Titel'), genre: String(f.genre || '') })),
+    ...loops
   ];
 
   const $ = selector => root.querySelector(selector);
@@ -157,6 +164,13 @@
       ctx.createMediaElementSource(media).connect(bus);
       media.addEventListener('ended', () => choose(selected + 1, true));
       media.addEventListener('loadedmetadata', render);
+      media.addEventListener('error', () => {
+        if (!media.getAttribute('src')) return;
+        halt('stopped');
+        root.classList.add('has-error');
+        ui.title.textContent = 'Datei nicht abspielbar';
+        ui.status.textContent = 'Die Audiodatei konnte nicht geladen werden.';
+      });
     }
     const src = new URL(item.src, document.baseURI).href;
     if (media.src !== src) media.src = src;

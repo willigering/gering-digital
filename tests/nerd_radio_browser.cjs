@@ -1,5 +1,5 @@
 'use strict';
-// NERD RADIO: Bedienung, echte Audiodaten, Platzierung neben dem Modulstapel, Mobilansicht.
+// NERD RADIO: Bedienung, echte Audiodaten, eigene Audiodateien, Platzierung unter dem Hero, Mobilansicht.
 // npm install --no-save playwright@1.62.1; npx playwright install chromium
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -23,6 +23,21 @@ const php = code => {
 php(`db()->exec("DELETE FROM html_pages"); $q=db()->prepare("INSERT INTO html_pages(slug,title,description,category,published) VALUES(?,?,?,'lernen',1)");
 foreach(['osi','subnetsprint','m3','m4','m5','m6','m7','m8'] as $i=>$s)$q->execute([$s,'Modul '.($i+1),'Beschreibung '.($i+1)]);`);
 
+// Kurzes Testsignal (Akkord mit Rhythmus) als eigene Datei im Musikordner; wird am Ende gelöscht.
+const testTrack = path.join(root, 'dau-to-pro/audio/nerd-radio/99_Testsignal_Nerd_Radio.wav');
+const wav = seconds => {
+  const rate = 22050, n = Math.round(rate * seconds), buf = Buffer.alloc(44 + n * 2);
+  buf.write('RIFF', 0); buf.writeUInt32LE(36 + n * 2, 4); buf.write('WAVEfmt ', 8); buf.writeUInt32LE(16, 16);
+  buf.writeUInt16LE(1, 20); buf.writeUInt16LE(1, 22); buf.writeUInt32LE(rate, 24); buf.writeUInt32LE(rate * 2, 28);
+  buf.writeUInt16LE(2, 32); buf.writeUInt16LE(16, 34); buf.write('data', 36); buf.writeUInt32LE(n * 2, 40);
+  for (let i = 0; i < n; i++) {
+    const t = i / rate, gate = (t * 4) % 1 < 0.7 ? 1 : 0.15;
+    const v = gate * 0.25 * (Math.sin(2 * Math.PI * 110 * t) + Math.sin(2 * Math.PI * 220 * t) + 0.6 * Math.sin(2 * Math.PI * 660 * t));
+    buf.writeInt16LE(Math.max(-32767, Math.min(32767, Math.round(v * 32767))), 44 + i * 2);
+  }
+  return buf;
+};
+
 let server, browser;
 (async () => {
   if (shots) fs.mkdirSync(shots, { recursive: true });
@@ -37,23 +52,27 @@ let server, browser;
   browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox'] });
   const errors = [];
 
-  /* ---------- Platzierung: Karten bleiben mittig, Gerät verdeckt nichts ---------- */
+  /* ---------- Platzierung: unter dem Hero, rechts unter dem Logo, scrollt normal mit ---------- */
   const layout = page => page.evaluate(() => {
     const box = e => e.getBoundingClientRect();
     const device = box(document.querySelector('.nr-device'));
     const cards = [...document.querySelectorAll('#module-grid .module-card')].filter(c => !c.closest('.stack-row.is-behind') && c.getClientRects().length);
-    const blocks = [...cards, ...document.querySelectorAll('.section-heading,.filterbar')].map(box);
+    const blocks = [...cards, ...document.querySelectorAll('.hero-copy,.catalog-section .section-heading,.filterbar')].map(box);
     // Nur sichtbare Überdeckung zählt: Schnittfläche innerhalb des Viewports.
     const top = Math.max(0, device.top), bottom = Math.min(innerHeight, device.bottom);
     const hit = r => bottom > top && !(r.right <= device.left || r.left >= device.right || Math.min(r.bottom, innerHeight) <= top || Math.max(r.top, 0) >= bottom);
     const left = Math.min(...cards.map(c => box(c).left)), right = Math.max(...cards.map(c => box(c).right));
+    const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 80;
     return {
       players: document.querySelectorAll('[data-nerd-radio]').length,
       overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-      cardsCenter: (left + right) / 2, pageCenter: document.documentElement.clientWidth / 2, cardsRight: right,
-      device: { left: device.left, right: device.right, top: device.top, bottom: device.bottom, width: device.width },
-      overlaps: blocks.filter(hit).length, stacked: document.getElementById('module-grid').classList.contains('is-stacked'),
-      gridBottom: box(document.getElementById('module-grid')).bottom, stageWidth: document.querySelector('.nr-stage').offsetWidth
+      cardsCenter: (left + right) / 2, pageCenter: document.documentElement.clientWidth / 2,
+      device: { left: device.left, right: device.right, top: device.top, bottom: device.bottom, width: device.width, center: (device.left + device.right) / 2 },
+      overlaps: blocks.filter(hit).length, nav,
+      heroBottom: box(document.querySelector('.hero-inner')).bottom,
+      headingTop: box(document.querySelector('.catalog-section .section-heading')).top,
+      gridTop: box(document.getElementById('module-grid')).top,
+      stageWidth: document.querySelector('.nr-rail').offsetWidth
     };
   });
   for (const [width, height, mobile] of [[2560, 1440], [1920, 1080], [1600, 900], [1440, 900], [1024, 768], [390, 844, true], [320, 568, true]]) {
@@ -61,31 +80,26 @@ let server, browser;
     const page = await context.newPage();
     page.on('pageerror', e => errors.push(`${width}: ${e.message}`));
     await page.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
-    await page.evaluate(() => scrollTo(0, document.getElementById('lernmodule').offsetTop));
-    await pause(250);
     const g = await layout(page);
     assert.equal(g.players, 1, `Genau ein Player bei ${width}`);
     assert.ok(g.overflow <= 0, `Kein horizontales Scrollen bei ${width}: ${g.overflow}`);
     assert.ok(Math.abs(g.cardsCenter - g.pageCenter) < 1.5, `Modulkarten bleiben mittig bei ${width}: ${g.cardsCenter} vs ${g.pageCenter}`);
-    assert.equal(g.overlaps, 0, `Gerät verdeckt keine Module bei ${width}`);
-    assert.ok(g.device.width >= Math.min(280, width - 40), `Gerät bleibt bedienbar groß bei ${width}: ${g.device.width}`);
-    if (width >= 1860) {
-      assert.ok(g.device.left >= g.cardsRight + 8, `Gerät steht rechts neben den Modulen bei ${width}`);
-      assert.ok(g.stacked, 'Modulstapel bleibt aktiv');
-    } else {
-      assert.ok(g.stageWidth <= Math.min(640, width - 40) + 1, `Gerät passt in die Breite bei ${width}`);
-    }
-    // Den ganzen Modulbereich durchscrollen: zu keinem Zeitpunkt verdeckt das Gerät sichtbare Module.
-    const end = await page.evaluate(() => { const s = document.querySelector('.nr-stage').getBoundingClientRect(); return scrollY + s.bottom; });
-    for (let y = await page.evaluate(() => scrollY); y < end; y += 200) {
-      await page.evaluate(v => scrollTo(0, v), y); await pause(width >= 1860 ? 350 : 120);
+    assert.ok(g.device.top >= g.heroBottom - 1, `Gerät steht unter dem Hero bei ${width}`);
+    assert.ok(g.device.bottom <= g.headingTop, `Gerät steht über der Trainingszone bei ${width}`);
+    if (width > 860) assert.ok(g.device.center > g.pageCenter, `Gerät steht rechts unter dem Logo bei ${width}`);
+    assert.ok(g.stageWidth <= Math.min(520, width - 40) + 1, `Gerät passt in die Breite bei ${width}`);
+    assert.ok(g.device.width >= Math.min(280, width - 48), `Gerät bleibt bedienbar groß bei ${width}: ${g.device.width}`);
+    // Die ganze Startseite bis unter die Module durchscrollen: nie eine Überdeckung,
+    // und sobald die Modulauswahl oben steht, ist das Gerät aus dem Bild gescrollt.
+    const end = await page.evaluate(() => scrollY + document.getElementById('module-grid').getBoundingClientRect().top + 400);
+    for (let y = 0; y < end; y += 200) {
+      await page.evaluate(v => scrollTo(0, v), y); await pause(120);
       const s = await layout(page);
       assert.equal(s.overlaps, 0, `Kein Überdecken beim Scrollen (${width}, y=${y})`);
-      // Solange der Modulstapel im Bild ist, läuft das Gerät daneben mit.
-      if (width >= 1860 && s.gridBottom > s.device.bottom + 40) assert.ok(s.device.top > 0 && s.device.bottom < height, `Gerät bleibt neben dem Stapel im Bild (${width}, y=${y})`);
+      if (s.gridTop <= s.nav + 20) assert.ok(s.device.bottom <= s.nav, `Gerät ist während der Modulauswahl nicht sichtbar (${width}, y=${y})`);
     }
-    if (shots) { await page.locator('.nr-stage').scrollIntoViewIfNeeded(); await pause(200); await page.screenshot({ path: path.join(shots, `layout-${width}.png`) }); }
-    console.log(`${width}×${height}: Karten mittig, Gerät ${g.device.width.toFixed(0)} px, keine Überdeckung`);
+    if (shots) { await page.evaluate(() => scrollTo(0, 0)); await pause(200); await page.screenshot({ path: path.join(shots, `layout-${width}.png`), fullPage: width < 800 }); }
+    console.log(`${width}×${height}: Gerät ${g.device.width.toFixed(0)} px unter dem Hero, Karten mittig, keine Überdeckung`);
     await context.close();
   }
 
@@ -94,7 +108,6 @@ let server, browser;
   const page = await context.newPage();
   page.on('pageerror', e => errors.push(`player: ${e.message}`));
   await page.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
-  await page.evaluate(() => scrollTo(0, document.getElementById('lernmodule').offsetTop));
   const radio = () => page.evaluate(() => {
     const r = document.querySelector('[data-nerd-radio]').nerdRadio;
     return { state: r.state, track: r.track, volume: r.volume, voices: r.voices, contexts: r.contexts, level: r.level(),
@@ -203,8 +216,40 @@ let server, browser;
   await calmPage.locator('[data-radio-stop]').click();
   await calm.close();
 
+  /* ---------- Eigene Audiodatei aus audio/nerd-radio/ ---------- */
+  fs.mkdirSync(path.dirname(testTrack), { recursive: true });
+  fs.writeFileSync(testTrack, wav(2.6));
+  const own = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const ownPage = await own.newPage();
+  ownPage.on('pageerror', e => errors.push(`datei: ${e.message}`));
+  await ownPage.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
+  const ownState = () => ownPage.evaluate(() => {
+    const r = document.querySelector('[data-nerd-radio]').nerdRadio;
+    return { state: r.state, track: r.track, level: r.level(), title: document.querySelector('[data-radio-title]').textContent,
+      time: document.querySelector('[data-radio-elapsed]').textContent, length: document.querySelector('[data-radio-length]').textContent };
+  });
+  await ownPage.locator('[data-radio-list]').click();
+  const items = ownPage.locator('.nr-playlist__item');
+  const count = await items.count();
+  assert.ok(count >= 4, 'Datei erscheint zusätzlich zu den drei Loops');
+  const index = (await items.allInnerTexts()).findIndex(t => t.includes('Testsignal Nerd Radio'));
+  assert.ok(index >= 0 && index < count - 3, 'Eigene Dateien stehen vor den Loops, Titel aus dem Dateinamen ohne Nummer');
+  await items.nth(index).click(); await pause(1300);
+  let o = await ownState();
+  assert.equal(o.state, 'playing', 'Datei spielt');
+  assert.match(o.title, /Testsignal Nerd Radio$/);
+  assert.equal(o.length, '00:02', 'Echte Dateilänge statt Loop-Anzeige');
+  assert.ok(o.level > 0, 'Analyser liefert Daten der Datei');
+  assert.equal(o.time, '00:01', 'Zeit läuft mit der Datei');
+  await ownPage.locator('[data-radio-stop]').click(); await pause(300);
+  o = await ownState();
+  assert.equal(o.state, 'stopped'); assert.equal(o.time, '00:00', 'Stopp setzt die Datei zurück');
+  await own.close();
+  fs.rmSync(testTrack, { force: true });
+  console.log('Eigene Audiodatei: Playlist, Wiedergabe, Länge und Stopp bestanden');
+
   assert.deepEqual(errors, [], 'Keine JavaScript-Fehler');
   console.log('NERD RADIO: Bedienung, Audiodaten, Platzierung und reduzierte Bewegung bestanden');
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
-  if (browser) await browser.close(); if (server) server.kill(); fs.rmSync(scratch, { recursive: true, force: true });
+  fs.rmSync(testTrack, { force: true }); if (browser) await browser.close(); if (server) server.kill(); fs.rmSync(scratch, { recursive: true, force: true });
 });

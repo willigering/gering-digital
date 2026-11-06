@@ -37,6 +37,17 @@ $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
+// NERD RADIO: MP3/WAV/OGG/M4A aus audio/nerd-radio/ erscheinen automatisch in der Playlist (natürliche Sortierung nach Dateiname).
+$nrFiles=[];
+$nrDir=__DIR__.'/audio/nerd-radio';
+if(is_dir($nrDir)){
+  $nrNames=array_values(array_filter(scandir($nrDir)?:[],fn($n)=>$n[0]!=='.'&&is_file($nrDir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
+  natcasesort($nrNames);
+  foreach($nrNames as $n){
+    $label=trim(str_replace('_',' ',preg_replace('/^\d+[\s._-]*/','',pathinfo($n,PATHINFO_FILENAME))));
+    $nrFiles[]=['src'=>'audio/nerd-radio/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
+  }
+}
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
 ?>
 <!doctype html>
@@ -84,6 +95,55 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       </div>
     </div>
   </section>
+  <aside class="nr-stage" aria-labelledby="nr-title">
+    <div class="nr-stage__inner">
+    <div class="nr-rail">
+      <div class="nr-pin">
+        <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
+          <img class="nr-chassis" src="nerd-radio-chassis.svg?v=<?=filemtime(__DIR__.'/nerd-radio-chassis.svg')?>" alt="" width="1000" height="450" decoding="async">
+          <svg class="nr-defs" aria-hidden="true" focusable="false"><symbol id="nr-shroom" viewBox="0 0 18 18"><path d="M7 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM4 3h1v1h-1zM13 3h1v1h-1zM3 4h1v1h-1zM14 4h1v1h-1zM2 5h1v1h-1zM15 5h1v1h-1zM2 6h1v1h-1zM15 6h1v1h-1zM1 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM16 8h1v1h-1zM1 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM3 12h1v1h-1zM7 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM3 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM14 13h1v1h-1zM3 14h1v1h-1zM14 14h1v1h-1zM4 15h1v1h-1zM13 15h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1z"/></symbol></svg>
+          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
+          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
+          <div class="nr-display">
+            <div class="nr-display__glass">
+              <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
+              <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
+              <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
+              <div class="nr-display__meta">
+                <span class="nr-display__time" data-radio-elapsed>00:00</span>
+                <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
+                <span class="nr-display__time" data-radio-length>∞ LOOP</span>
+                <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
+                <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>
+              </div>
+              <div class="nr-playlist" id="nr-playlist" data-radio-playlist role="group" aria-label="Playlist" hidden>
+                <ol class="nr-playlist__list" data-radio-tracks></ol>
+              </div>
+            </div>
+            <p class="nr-sr" data-radio-status aria-live="polite"></p>
+          </div>
+          <div class="nr-transport" role="group" aria-label="Wiedergabe">
+            <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.6v14H4zM14 5v14L7.4 12zM21.5 5v14L15 12z"/></svg></button>
+            <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="1"/></svg></button>
+            <button class="nr-key nr-key--play" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"><svg class="nr-icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg><svg class="nr-icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h4.4v15H6zM13.6 4.5H18v15h-4.4z"/></svg></button>
+            <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5h-2.6v14H20zM10 5v14l6.6-7zM2.5 5v14L9 12z"/></svg></button>
+            <button class="nr-key nr-key--gold" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M18 3.2l4.2 3.8-4.2 3.8zM18 13.2l4.2 3.8-4.2 3.8z"/></svg></button>
+          </div>
+          <div class="nr-lower">
+            <button class="nr-key nr-key--round" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-dasharray="3.22 3.22"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="2.8"/></svg></button>
+            <div class="nr-volume">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5M17.6 6.8a7.4 7.4 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <button class="nr-key nr-key--round nr-key--gold-rim" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="10.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="16.8" width="12" height="2.6" rx="1.2"/></svg></button>
+          </div>
+        </div>
+        <div class="nr-floor" aria-hidden="true"></div>
+      </div>
+    </div>
+    </div>
+  </aside>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
@@ -114,53 +174,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </details>
               </div>
     </div>
-    <aside class="nr-stage" aria-labelledby="nr-title">
-      <div class="nr-rail">
-        <div class="nr-pin">
-          <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum">
-            <img class="nr-chassis" src="nerd-radio-chassis.svg?v=<?=filemtime(__DIR__.'/nerd-radio-chassis.svg')?>" alt="" width="1000" height="450" decoding="async">
-            <svg class="nr-defs" aria-hidden="true" focusable="false"><symbol id="nr-shroom" viewBox="0 0 18 18"><path d="M7 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM4 3h1v1h-1zM13 3h1v1h-1zM3 4h1v1h-1zM14 4h1v1h-1zM2 5h1v1h-1zM15 5h1v1h-1zM2 6h1v1h-1zM15 6h1v1h-1zM1 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM16 8h1v1h-1zM1 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM3 12h1v1h-1zM7 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM3 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM14 13h1v1h-1zM3 14h1v1h-1zM14 14h1v1h-1zM4 15h1v1h-1zM13 15h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1z"/></symbol></svg>
-            <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
-            <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
-            <div class="nr-display">
-              <div class="nr-display__glass">
-                <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
-                <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
-                <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
-                <div class="nr-display__meta">
-                  <span class="nr-display__time" data-radio-elapsed>00:00</span>
-                  <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
-                  <span class="nr-display__time" data-radio-length>∞ LOOP</span>
-                  <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
-                  <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>
-                </div>
-                <div class="nr-playlist" id="nr-playlist" data-radio-playlist role="group" aria-label="Playlist" hidden>
-                  <ol class="nr-playlist__list" data-radio-tracks></ol>
-                </div>
-              </div>
-              <p class="nr-sr" data-radio-status aria-live="polite"></p>
-            </div>
-            <div class="nr-transport" role="group" aria-label="Wiedergabe">
-              <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.6v14H4zM14 5v14L7.4 12zM21.5 5v14L15 12z"/></svg></button>
-              <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="1"/></svg></button>
-              <button class="nr-key nr-key--play" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"><svg class="nr-icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg><svg class="nr-icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h4.4v15H6zM13.6 4.5H18v15h-4.4z"/></svg></button>
-              <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5h-2.6v14H20zM10 5v14l6.6-7zM2.5 5v14L9 12z"/></svg></button>
-              <button class="nr-key nr-key--gold" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M18 3.2l4.2 3.8-4.2 3.8zM18 13.2l4.2 3.8-4.2 3.8z"/></svg></button>
-            </div>
-            <div class="nr-lower">
-              <button class="nr-key nr-key--round" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-dasharray="3.22 3.22"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="2.8"/></svg></button>
-              <div class="nr-volume">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-                <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5M17.6 6.8a7.4 7.4 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              </div>
-              <button class="nr-key nr-key--round nr-key--gold-rim" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="10.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="16.8" width="12" height="2.6" rx="1.2"/></svg></button>
-            </div>
-          </div>
-          <div class="nr-floor" aria-hidden="true"></div>
-        </div>
-      </div>
-    </aside>
   </section>
   <section class="hs-section" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">

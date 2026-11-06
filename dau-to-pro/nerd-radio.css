@@ -1,22 +1,22 @@
 /* DAU TO PRO // NERD RADIO – Cyberpunk-Ghettoblaster.
    Aufbau in Ebenen: statisches Gehäuse (nerd-radio-chassis.svg) + echte HTML-Bedienelemente darüber.
    Alle Maße innerhalb des Geräts in cqw (1 % der Gerätebreite), damit es als Ganzes skaliert.
-   Das Modulraster wird nicht angefasst: Das Gerät nutzt nur den freien Rand rechts neben der
-   1200-px-Inhaltsbreite und steht bei zu wenig Platz unter den Modulen. */
-
-.catalog-section{position:relative}
+   Platzierung: eigene Zeile zwischen Hero und Trainingszone, rechts unter dem DAU-TO-PRO-Logo.
+   Das Gerät scrollt normal mit und ist während der Modulauswahl nicht mehr sichtbar.
+   Modulraster und Modulstapel bleiben unverändert. */
 
 /* ---------- Platzierung ---------- */
-.nr-stage{position:relative;z-index:1;width:min(100% - 40px,640px);margin:44px auto 0}
-.nr-rail{position:relative}
-.nr-pin{position:relative;padding:3.2% 0 5.5%}
-
-@media(min-width:1860px){
-  /* Freier Bereich: von der rechten Kartenkante (50 % + 568 px) bis zum Rand. */
-  .nr-stage{position:absolute;top:150px;bottom:48px;left:calc(50% + 590px);right:0;width:auto;max-width:540px;margin:0;padding-right:clamp(14px,1.4vw,36px)}
-  .nr-rail{height:100%}
-  .nr-pin{position:sticky;top:calc(var(--nav-height,80px) + 64px)}
+.nr-stage{position:relative;z-index:1;width:min(100%,var(--content,1200px));margin:-28px auto 0;padding-inline:32px}
+.nr-stage__inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px}
+.nr-rail{grid-column:2;justify-self:center;width:min(100%,520px)}
+.nr-pin{position:relative;padding:3.2% 0 4%}
+@media(max-width:1060px){.nr-stage__inner{gap:20px}}
+@media(max-width:860px){
+  .nr-stage{margin-top:4px;padding-inline:24px}
+  .nr-stage__inner{display:block}
+  .nr-rail{width:min(100%,520px);margin-inline:auto}
 }
+@media(max-width:610px){.nr-stage{padding-inline:20px}}
 
 /* ---------- Gerät ---------- */
 .nr-device{
@@ -94,7 +94,7 @@
 .nr-display__ind.is-lit{color:var(--gold);opacity:1;filter:drop-shadow(0 0 .6cqw var(--gold))}
 
 /* Playlist erscheint im Display selbst */
-.nr-playlist{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:center;padding:2% 4%;
+.nr-playlist{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:safe center;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#22dcf5 transparent;padding:2% 4%;
   background:#03141a}
 .nr-playlist[hidden]{display:none}
 .nr-playlist__list{list-style:none;margin:0;padding:0;display:grid;gap:.1cqw}
