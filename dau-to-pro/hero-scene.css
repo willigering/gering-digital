@@ -26,10 +26,21 @@
 .hero-plane--powerup{z-index:5;transform:translate(2.2%,-12%)}
 /* Original mushroom coordinates, relative to its moving plane (1448 × 1086). */
 .hero-mushroom-anchor{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;pointer-events:none}
+/* Bigger artwork is welcome, but the DAU must never sit on top of body copy.
+   Preserve the source image proportions and reserve a readable text corridor.
+   Natural line wrapping responds to edited lead text and browser zoom. */
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}
-  /* Fill roughly the full copy height, keeping the artwork proportional and right-aligned. */
-  .hero-art-wrap[data-scene=layers]{width:125%;margin-left:-25%}
+  .hero-art-wrap[data-scene=layers]{width:130%;margin-left:-24%}
+  .hero-copy .hero-lead{max-width:min(100%,360px);text-wrap:pretty;hyphens:auto}
+}
+@media(min-width:1230px){
+  .hero-art-wrap[data-scene=layers]{width:140%;margin-left:-24%}
+  .hero-copy .hero-lead{max-width:min(100%,390px)}
+}
+@media(min-width:861px) and (max-width:1060px){
+  .hero-art-wrap[data-scene=layers]{width:125%;margin-left:-20%}
+  .hero-copy .hero-lead{max-width:min(100%,340px)}
 }
 @media(max-width:610px){
   .hero-plane--ambient{opacity:.24;transform:translate(0,-4%) scale(1.04)}
