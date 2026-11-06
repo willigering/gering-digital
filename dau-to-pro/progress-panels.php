@@ -20,7 +20,7 @@ $uid=(int)$learner['id'];$dash=xp_dashboard($uid);$recent=xp_recent($uid);$showc
 </section>
 <section class="konto-section konto-card" aria-labelledby="daily-title">
   <h2 id="daily-title">Dranbleiben lohnt sich</h2>
-  <dl class="konto-stats"><div><dt>🔥 Aktueller Streak</dt><dd><?=$dash['streak']?> <small>Tage</small></dd></div><div><dt>🏆 Längster Streak</dt><dd><?=$dash['record']?> <small>Tage</small></dd></div><div><dt>⚡ Heutige XP</dt><dd><?=$dash['today']?></dd></div><div><dt>📅 Nächster Wochenbonus</dt><dd><?=$dash['next_week']?> <small>Tage</small></dd></div></dl>
+  <dl class="konto-stats"><div><dt>🔥 Aktueller Streak</dt><dd><?=$dash['streak']?> <small><?=(int)$dash['streak'] === 1 ? 'Tag' : 'Tage'?></small></dd></div><div><dt>🏆 Längster Streak</dt><dd><?=$dash['record']?> <small><?=(int)$dash['record'] === 1 ? 'Tag' : 'Tage'?></small></dd></div><div><dt>⚡ Heutige XP</dt><dd><?=$dash['today']?></dd></div><div><dt>📅 Nächster Wochenbonus</dt><dd><?=$dash['next_week']?> <small><?=(int)$dash['next_week'] === 1 ? 'Tag' : 'Tage'?></small></dd></div></dl>
   <ol class="learning-week" aria-label="Letzte sieben Kalendertage"><?php foreach($dash['week'] as $d): ?><li class="<?=$d['done']?'is-done':''?>"><span aria-hidden="true"><?=$d['done']?'✓':'·'?></span><?=$d['day']?><span class="sr-only"><?=$d['done']?' Tagesziel erfüllt':' Tagesziel offen'?></span></li><?php endforeach; ?></ol>
   <p class="konto-hint">Fünf neue richtige Antworten oder eine erstmals gemeisterte Lernstufe: +10 XP. Lernserie: täglich +5 XP, alle 7 Tage +40 XP, alle 30 Tage +150 XP. Einmal pro Kalendertag (Europe/Berlin). Ein Login ist noch kein Workout fürs Gehirn.</p>
 </section>
