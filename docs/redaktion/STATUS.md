@@ -14,6 +14,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 | B4 IPv6 | `b4-ipv6.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Regeln und Sonderfälle erhalten |
 | CS1 C# | `cs1-csharp.html` | Neu erstellt; Texte vom Autor gelesen, Code und Ausgaben mit dem C#-Compiler geprüft, Willis Humor-Abnahme offen | Humor-Abnahme durch Willi, öffentliche Auslieferung prüfen |
 | F2 Kalkulation | `f2-kalkulation.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Zahlen, Einheiten und Kalkulationsreihenfolge erhalten |
+| C# für FISI | [Entwicklungsstand](../modul-auftraege/csharp/README.md) | Erste Lektion zu Konsoleneingabe und -ausgabe mit Ticket-Simulator | Weitere Aufgabentypen und Stufen ausarbeiten |
 
 Weitere Module beim Anlegen oder beim nächsten Bestandsabgleich ergänzen. Diese Tabelle ist eine Arbeitsliste, kein Beleg für den Live-Veröffentlichungsstatus.
 
