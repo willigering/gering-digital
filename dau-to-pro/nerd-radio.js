@@ -51,10 +51,12 @@
   let volume = 0.35;
 
   try {
-    const savedTrack = Number(localStorage.getItem('dtp-nerd-radio-track'));
-    const savedVolume = Number(localStorage.getItem('dtp-nerd-radio-volume'));
-    if (Number.isInteger(savedTrack) && savedTrack >= 0 && savedTrack < tracks.length) selected = savedTrack;
-    if (Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) volume = savedVolume;
+    const trackValue = localStorage.getItem('dtp-nerd-radio-track');
+    const volumeValue = localStorage.getItem('dtp-nerd-radio-volume');
+    const savedTrack = Number(trackValue);
+    const savedVolume = Number(volumeValue);
+    if (trackValue !== null && Number.isInteger(savedTrack) && savedTrack >= 0 && savedTrack < tracks.length) selected = savedTrack;
+    if (volumeValue !== null && Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) volume = savedVolume;
   } catch (_) { /* Storage darf verweigert sein. */ }
   volumeInput.value = String(Math.round(volume * 100));
 
@@ -221,6 +223,7 @@
   }
 
   function drawWaveform(time = 0) {
+    if (time === 0 && frame) { cancelAnimationFrame(frame); frame = 0; }
     if (panel.hidden || !drawing) return;
     if (time && time - lastFrameAt < (reducedMotion.matches ? 250 : 32)) {
       frame = requestAnimationFrame(drawWaveform);
