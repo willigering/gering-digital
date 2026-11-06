@@ -27,9 +27,13 @@
     const layout=()=>{
       if(!current)return;
       if(current.hidden){hide(current);return;}
-      const b=current.getBoundingClientRect(),pad=9;
+      const b=current.getBoundingClientRect(),pad=current.closest('.stack-row')?2:9;
       const y=Math.max(0,Math.round(b.top-pad));
-      const bottom=Math.min(innerHeight,Math.round(b.bottom+pad));
+      let cut=b.bottom+pad;
+      // Im Modulstapel endet das scharfe Fenster dort, wo eine vordere Reihe die Karte überdeckt.
+      const row=current.closest('.stack-row');
+      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling){const t=next.getBoundingClientRect().top;if(t<cut)cut=Math.max(b.top,t);}
+      const bottom=Math.min(innerHeight,Math.round(cut));
       const x=Math.max(0,Math.round(b.left-pad));
       const right=Math.min(innerWidth,Math.round(b.right+pad));
       overlay.style.setProperty('--focus-y',y+'px');
@@ -77,10 +81,11 @@
       current=null;cancelAnimationFrame(frame);paint(0);
     };
     cards.forEach(card=>{
-      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!card.closest('.is-stacked'))show(card)});
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!card.closest('.stack-row.is-behind'))show(card)});
       card.addEventListener('pointerleave',()=>hide(card));
     });
-    addEventListener('scroll',()=>{if(current&&current.closest('.is-stacked'))reset();else layout()},{passive:true});
+    addEventListener('scroll',layout,{passive:true});
+    globalThis.dtpFocusLayout=()=>{if(current&&current.closest('.stack-row.is-behind'))hide(current);else layout()};
     addEventListener('resize',layout,{passive:true});
     document.getElementById("module-grid")?.addEventListener("toggle",layout,true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
@@ -339,6 +344,7 @@
       r.classList.toggle('is-behind',d>=0.5);
       r.inert=d<-1.2;
     });
+    globalThis.dtpFocusLayout?.();
   }
   function go(k){
     const target=scrollY+grid.getBoundingClientRect().top-(navH()+16)+k*stepPx();
