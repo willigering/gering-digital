@@ -33,7 +33,8 @@
 
   const toggle = root.querySelector('[data-radio-toggle]');
   const panel = root.querySelector('[data-radio-panel]');
-  const close = root.querySelector('[data-radio-close]');
+  const stop = root.querySelector('[data-radio-stop]');
+  const shuffle = root.querySelector('[data-radio-shuffle]');
   const play = root.querySelector('[data-radio-play]');
   const miniPlay = root.querySelector('[data-radio-mini-play]');
   const prev = root.querySelector('[data-radio-prev]');
@@ -200,7 +201,8 @@
     root.classList.toggle('is-open', open);
     panel.hidden = !open;
     toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Nerd Radio einklappen' : 'Nerd Radio aufklappen');
+    toggle.setAttribute('aria-label', open ? 'Radio-Bedienelemente einklappen' : 'Radio-Bedienelemente aufklappen');
+    toggle.textContent = open ? '−' : '+';
     if (open) drawWaveform();
     else if (frame) { cancelAnimationFrame(frame); frame = 0; }
   }
@@ -209,7 +211,7 @@
     root.classList.toggle('is-playing', playing);
     root.dataset.state = playing ? 'playing' : 'paused';
     play.textContent = playing ? 'Ⅱ' : '▶';
-    miniPlay.textContent = playing ? 'Ⅱ' : '▶';
+    miniPlay.textContent = '⏻';
     play.setAttribute('aria-label', playing ? 'Musik pausieren' : 'Musik starten');
     miniPlay.setAttribute('aria-label', playing ? 'Musik pausieren' : 'Musik starten');
     title.textContent = tracks[selected].title;
@@ -260,7 +262,11 @@
   }
 
   toggle.addEventListener('click', () => setOpen(panel.hidden));
-  close.addEventListener('click', () => { setOpen(false); toggle.focus(); });
+  stop.addEventListener('click', () => { stopAudio(); step = 0; });
+  shuffle.addEventListener('click', () => {
+    const offset = 1 + Math.floor(Math.random() * (tracks.length - 1));
+    changeTrack(selected + offset);
+  });
   play.addEventListener('click', switchPlay);
   miniPlay.addEventListener('click', switchPlay);
   prev.addEventListener('click', () => changeTrack(selected - 1));
