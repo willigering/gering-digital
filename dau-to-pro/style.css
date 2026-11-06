@@ -298,6 +298,8 @@ main,.dtp-footer{position:relative;z-index:1}
   white-space: normal;
 }
 .hs-showcase button:hover [role=tooltip], .hs-showcase button:focus [role=tooltip] { display: block; }
+.hs-showcase [role=tooltip] strong { display: block; color: #eab448; }
+.hs-showcase [role=tooltip] small { display: block; margin-top: 4px; font-size: 12px; line-height: 1.4; color: #d7dde2; }
 .hs-showcase button:focus-visible { outline: 2px solid #eab448; outline-offset: 2px; }
 @media(max-width:640px){
   .hs-showcase { gap: 4px; margin: 6px 0; }
