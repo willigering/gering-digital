@@ -282,13 +282,13 @@
   const wide=matchMedia('(min-width:900px)'),calm=matchMedia('(prefers-reduced-motion:reduce)');
   const all=[...grid.querySelectorAll(':scope > .module-card')];
   const PEEK=26,STEP=0.42,NEXT=0.30;
-  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false;
+  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false,shown=null;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'))||80;
   function teardown(){
     if(!on)return;on=false;
     all.forEach(c=>grid.append(c));
     grid.querySelectorAll('.stack-row,.stack-stage').forEach(n=>n.remove());
-    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;
+    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;shown=null;cancelAnimationFrame(frame);frame=0;
   }
   function build(){
     teardown();
@@ -322,10 +322,13 @@
     const top=grid.getBoundingClientRect().top-(navH()+16);
     return Math.max(0,Math.min(rows.length-1,-top/stepPx()));
   }
-  const active=()=>Math.round(progress());
+  const active=()=>Math.round(shown===null?progress():shown);
   function paint(){
     frame=0;if(!on)return;
-    const p=progress(),peeks=Math.min(rows.length-1,3)*PEEK;
+    // Weich nachlaufen statt hart stoppen: die Anzeige folgt dem Scrollstand mit Abklingen.
+    const goal=progress();if(shown===null)shown=goal;
+    shown+=(goal-shown)*0.16;if(Math.abs(goal-shown)<0.002)shown=goal;else frame=requestAnimationFrame(paint);
+    const p=shown,peeks=Math.min(rows.length-1,3)*PEEK;
     rows.forEach((r,k)=>{
       const d=p-k;let y,s=1;
       if(d>=0){const back=Math.min(d,3);y=peeks-back*PEEK;s=1-back*0.035;}
