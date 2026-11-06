@@ -2302,7 +2302,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.and-work input').forEach(input=>{input.disabled=true});
   const inp=q('form')?.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong><span class="quip">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(ok?'':diagOf(t,parsed))+(o.short?'':'<div class="why"><div class="why-h">RECHENWEG</div>'+t.why+'</div>');
+  res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(ok?'':diagOf(t,parsed))+(o.short?'':'<div class="why"><div class="why-h">RECHENWEG</div>'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);
