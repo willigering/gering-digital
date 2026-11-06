@@ -1,5 +1,7 @@
 /* DAU TO PRO // NERD RADIO – Cyberpunk-Ghettoblaster.
-   Aufbau in Ebenen: statisches Gehäuse (nerd-radio-chassis.svg) + echte HTML-Bedienelemente darüber.
+   Aufbau in Ebenen: In Blender gerendertes Gehäuse (nerd-radio/chassis.webp, ohne Tasten und Anzeige),
+   darüber echte HTML-Bedienelemente. Tasten und Membranen sind eigene Renders je Zustand.
+   Positionen stehen in nerd-radio/layout.css (generiert von tools/nerd-radio/build_boombox.py).
    Alle Maße innerhalb des Geräts in cqw (1 % der Gerätebreite), damit es als Ganzes skaliert.
    Platzierung: eigene Zeile zwischen Hero und Trainingszone, rechts unter dem DAU-TO-PRO-Logo.
    Das Gerät scrollt normal mit und ist während der Modulauswahl nicht mehr sichtbar.
@@ -8,29 +10,28 @@
 /* ---------- Platzierung ---------- */
 .nr-stage{position:relative;z-index:1;width:min(100%,var(--content,1200px));margin:-28px auto 0;padding-inline:32px}
 .nr-stage__inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px}
-.nr-rail{grid-column:2;justify-self:center;width:min(100%,520px)}
-.nr-pin{position:relative;padding:3.2% 0 4%}
+.nr-rail{grid-column:2;justify-self:center;width:min(100%,560px)}
+.nr-pin{position:relative;padding:0 0 3%}
 @media(max-width:1060px){.nr-stage__inner{gap:20px}}
 @media(max-width:860px){
   .nr-stage{margin-top:4px;padding-inline:24px}
   .nr-stage__inner{display:block}
-  .nr-rail{width:min(100%,520px);margin-inline:auto}
+  .nr-rail{width:min(100%,560px);margin-inline:auto}
 }
 @media(max-width:610px){.nr-stage{padding-inline:20px}}
 
 /* ---------- Gerät ---------- */
 .nr-device{
   --cyan:#22dcf5;--cyan-soft:#22dcf566;--gold:#ffb22a;--gold-soft:#ffa21e77;
-  position:relative;container-type:inline-size;aspect-ratio:1000/450;width:100%;
+  position:relative;container-type:inline-size;width:100%;
   color:#e9f9ff;font-family:ui-monospace,"Cascadia Mono",SFMono-Regular,Consolas,monospace;
-  transform:perspective(1500px) rotateY(-9deg) rotateZ(-1.4deg);transform-origin:40% 60%;
+  transform:perspective(1600px) rotateY(-7deg) rotateZ(-1deg);transform-origin:40% 60%;
 }
 .nr-chassis{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;user-select:none}
-.nr-defs{position:absolute;width:0;height:0;overflow:hidden}
 .nr-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* Boden: Schatten, Lichtring und weiche Reflexion */
-.nr-floor{position:absolute;z-index:-1;left:-4%;right:-4%;bottom:0;height:18%;pointer-events:none;
+.nr-floor{position:absolute;z-index:-1;left:-2%;right:-2%;bottom:-1%;height:20%;pointer-events:none;
   background:
     radial-gradient(50% 42% at 50% 48%,transparent 0 80%,#ffb22acc 86%,#ffb22a33 92%,transparent 98%),
     radial-gradient(46% 34% at 50% 40%,#000d 0 55%,transparent 100%),
@@ -38,33 +39,19 @@
     radial-gradient(30% 40% at 78% 60%,#22dcf52e,transparent 70%),
     radial-gradient(22% 30% at 50% 58%,#ffb22a40,transparent 72%)}
 
-/* ---------- Lautsprecher ---------- */
-.nr-speaker{position:absolute;top:40%;width:19.2%;aspect-ratio:1;border-radius:50%}
-.nr-speaker--l{left:5.4%}
-.nr-speaker--r{left:75.4%}
-.nr-speaker__glow{position:absolute;inset:-6%;border-radius:50%;opacity:.42;will-change:opacity;
-  box-shadow:0 0 3.2cqw .5cqw var(--gold-soft),inset 0 0 2.2cqw .3cqw #ffa21e55}
-.nr-speaker__ring{position:absolute;inset:0;border-radius:50%;
-  background:radial-gradient(circle,transparent 0 84.5%,#5a3a0c 85%,#ff9d14 86.5%,#ffe7a3 88.5%,#ffb22a 90.5%,#a2600c 93%,#1a1309 95%,#3d464d 97.5%,#11161a 100%);
-  box-shadow:0 0 1.1cqw #ffad2a,inset 0 0 1.1cqw #ffad2a88}
-.nr-speaker__cone{position:absolute;inset:8.5%;display:grid;place-items:center;border-radius:50%;will-change:transform;
-  background:
-    radial-gradient(circle,#05080a 0 42%,transparent 47%) 0 0/1.15cqw 1cqw,
-    radial-gradient(circle,#05080a 0 42%,transparent 47%) .575cqw .5cqw/1.15cqw 1cqw,
-    radial-gradient(circle at 38% 30%,#6a737b 0,#30373d 45%,#14181b 80%);
-  box-shadow:inset 0 0 2.4cqw 1cqw #000d,inset 0 .4cqw .6cqw #ffffff26,0 0 0 .35cqw #0b0e11,0 0 0 .6cqw #4a555d}
-.nr-speaker__cone svg{width:44%;height:44%;fill:var(--cyan);filter:drop-shadow(0 0 .45cqw var(--cyan)) drop-shadow(0 0 1.2cqw #22dcf588)}
+/* ---------- Lautsprecher: Gitter und Pilz als eigene Ebene, die zum Bass atmet ---------- */
+.nr-speaker{position:absolute;border-radius:50%}
+.nr-speaker__glow{position:absolute;inset:4%;border-radius:50%;opacity:.42;will-change:opacity;
+  box-shadow:0 0 3.4cqw .4cqw var(--gold-soft),inset 0 0 2.4cqw .4cqw #ffa21e44}
+.nr-speaker__cone{position:absolute;border-radius:50%;background:center/100% 100% no-repeat;will-change:transform}
 
 /* ---------- Display ---------- */
-.nr-display{position:absolute;left:27.8%;top:31.1%;width:44.4%;height:29.8%;padding:.55cqw;
-  border-radius:2.2cqw;corner-shape:bevel;
-  background:linear-gradient(#2a333a,#0c1013);
-  box-shadow:0 0 0 .3cqw #05080a,0 0 0 .55cqw #3a454d,0 0 2.6cqw #22dcf52e}
+.nr-display{position:absolute;padding:0}
 .nr-display__glass{position:relative;height:100%;overflow:hidden;
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr) minmax(0,.85fr);column-gap:2.4%;
-  padding:2.2% 4% 2%;border:.3cqw solid var(--cyan);border-radius:1.8cqw;corner-shape:bevel;
-  background:radial-gradient(120% 90% at 25% 0%,#0d3b48 0,#04161d 55%,#020b0f 100%);
-  box-shadow:0 0 1.3cqw #22dcf5aa,inset 0 0 1.8cqw #22dcf544}
+  padding:2.4% 4% 2.2%;border-radius:.8cqw;
+  background:radial-gradient(120% 90% at 25% 0%,#0d3b48e6 0,#04161df2 55%,#020b0f 100%);
+  box-shadow:inset 0 0 1.8cqw #22dcf544,inset 0 .3cqw .6cqw #000c}
 .nr-display__glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 1px,transparent 1px 3px)}
 .nr-display__brand{grid-column:1;grid-row:1;display:flex;align-items:center;gap:4%;min-width:0}
@@ -106,45 +93,35 @@
 .nr-playlist__item:hover{border-color:#22dcf588;background:#0b2f3a}
 .nr-playlist__item[aria-current=true]{background:#0e3b47;color:#fff;border-color:var(--cyan);box-shadow:0 0 .8cqw #22dcf555}
 
-/* ---------- Physische Tasten ---------- */
-.nr-transport{position:absolute;left:29%;top:62.7%;width:42%;height:13.3%;display:flex;gap:1.8%;padding:1.05cqw 1.3cqw 1.35cqw;
-  border-radius:1.6cqw;corner-shape:bevel;background:linear-gradient(#070a0c,#141a1e);
-  box-shadow:inset 0 .55cqw 1cqw #000d,inset 0 -.2cqw 0 #ffffff12,0 0 0 .25cqw #05080a,0 0 0 .45cqw #323c44}
-.nr-lower{position:absolute;left:25.2%;top:78.2%;width:49.6%;height:12%;display:flex;align-items:stretch;gap:2%}
-
-.nr-key{--rim:var(--cyan);--rim-glow:#22dcf555;--ink:#eafaff;
-  position:relative;flex:1 1 0;min-width:0;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:var(--ink);
-  border-radius:1.1cqw;corner-shape:bevel;
-  background:linear-gradient(180deg,#ffffff1c 0,#ffffff00 40%),linear-gradient(180deg,#343d44 0%,#1b2126 55%,#0f1316 100%);
-  box-shadow:inset 0 0 0 .18cqw #06090b,inset 0 0 0 .4cqw var(--rim),inset 0 0 1.1cqw .2cqw var(--rim-glow),inset 0 .6cqw .35cqw #ffffff1a,
-    0 .6cqw 0 #030507,0 .9cqw 1.2cqw #000c;
-  transform:translateY(-.3cqw);transition:transform .07s ease-out,box-shadow .16s,filter .16s,color .16s;
-  -webkit-tap-highlight-color:transparent}
-.nr-key svg{width:46%;height:56%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none}
-.nr-key:hover{--rim:#8af5ff;--rim-glow:#45e8ff99;filter:brightness(1.14)}
-.nr-key:active,.nr-key.is-down{transform:translateY(.12cqw);filter:brightness(.95);
-  background:linear-gradient(180deg,#ffffff10 0,#ffffff00 40%),linear-gradient(180deg,#232a2f 0%,#151a1e 60%,#0b0e10 100%);
-  box-shadow:inset 0 0 0 .18cqw #06090b,inset 0 0 0 .4cqw var(--rim),inset 0 0 1.6cqw .45cqw var(--rim-glow),inset 0 .5cqw .9cqw #000b,
-    0 .12cqw 0 #030507,0 .25cqw .5cqw #000c}
-.nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:.35cqw}
-.nr-key--play{flex-grow:1.28}
+/* ---------- Physische Tasten: gerenderte Kappen je Zustand, Symbole als SVG darauf ---------- */
+.nr-transport,.nr-lower{display:contents}
+.nr-key{position:absolute;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
+  background:url(nerd-radio/key-std-up.webp) center/100% 100% no-repeat;
+  transition:filter .16s;-webkit-tap-highlight-color:transparent}
+.nr-key svg{width:32%;height:36%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
+.nr-key:hover{filter:brightness(1.18) saturate(1.15) drop-shadow(0 0 .7cqw #22dcf577)}
+.nr-key:active,.nr-key.is-down{background-image:url(nerd-radio/key-std-down.webp)}
+.nr-key:active svg,.nr-key.is-down svg{transform:translateY(4%) scale(.96)}
+.nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:-.6cqw;border-radius:1cqw}
+.nr-key--play{background-image:url(nerd-radio/key-play-up.webp)}
+.nr-key--play:active,.nr-key--play.is-down{background-image:url(nerd-radio/key-play-down.webp)}
 .nr-key--play .nr-icon-pause{display:none}
-.nr-device[data-state=playing] .nr-key--play{--rim:var(--gold);--rim-glow:#ff9a1488;--ink:#ffc650}
-.nr-device[data-state=playing] .nr-key--play:not(:active){box-shadow:inset 0 0 0 .18cqw #06090b,inset 0 0 0 .4cqw var(--rim),inset 0 0 1.4cqw .35cqw var(--rim-glow),inset 0 .6cqw .35cqw #ffffff1a,
-    0 .6cqw 0 #030507,0 .9cqw 1.2cqw #000c,0 0 2cqw #ff9a1470}
+.nr-device[data-state=playing] .nr-key--play{color:#ffc650;background-image:url(nerd-radio/key-play-on-up.webp)}
+.nr-device[data-state=playing] .nr-key--play:active,.nr-device[data-state=playing] .nr-key--play.is-down{background-image:url(nerd-radio/key-play-on-down.webp)}
+.nr-device[data-state=playing] .nr-key--play:hover{filter:brightness(1.15) drop-shadow(0 0 .8cqw #ff9a1488)}
 .nr-device[data-state=playing] .nr-key--play .nr-icon-play{display:none}
 .nr-device[data-state=playing] .nr-key--play .nr-icon-pause{display:block}
-.nr-key--gold{--ink:#ffc53d}
-.nr-key--round{flex:0 0 auto;aspect-ratio:1;border-radius:1.6cqw}
-.nr-key--round svg{width:56%;height:56%}
-.nr-key--gold-rim{--rim:#e9a630;--rim-glow:#ffa21e44}
-.nr-key--gold-rim:hover{--rim:#ffd27a;--rim-glow:#ffb22a88}
-.nr-key[aria-pressed=true],.nr-key[aria-expanded=true]{--rim:var(--gold);--rim-glow:#ff9a1477;--ink:#ffd06a}
+.nr-key--gold{color:#ffc53d}
+.nr-key--round{background-image:url(nerd-radio/key-round-up.webp)}
+.nr-key--round:active,.nr-key--round.is-down{background-image:url(nerd-radio/key-round-down.webp)}
+.nr-key--round svg{width:44%;height:44%}
+.nr-key--gold-rim,.nr-key--round[aria-pressed=true]{background-image:url(nerd-radio/key-round-gold-up.webp);color:#ffd06a}
+.nr-key--gold-rim:active,.nr-key--gold-rim.is-down,.nr-key--round[aria-pressed=true]:active{background-image:url(nerd-radio/key-round-gold-down.webp)}
+.nr-key--gold-rim:hover,.nr-key--round[aria-pressed=true]:hover{filter:brightness(1.15) drop-shadow(0 0 .7cqw #ffb22a77)}
+.nr-key[aria-expanded=true]{background-image:url(nerd-radio/key-round-gold-down.webp)}
 
 /* ---------- Lautstärke ---------- */
-.nr-volume{flex:1;min-width:0;display:flex;align-items:center;gap:2.2%;padding:0 2.6%;
-  border-radius:1.4cqw;corner-shape:bevel;background:linear-gradient(#070a0c,#151b1f);
-  box-shadow:inset 0 .5cqw 1cqw #000d,inset 0 -.2cqw 0 #ffffff12,0 0 0 .25cqw #05080a,0 0 0 .45cqw #323c44}
+.nr-volume{position:absolute;display:flex;align-items:center;gap:2.2%;padding:0 3%}
 .nr-volume svg{flex:none;width:3.6cqw;height:3.6cqw;fill:currentColor;color:#dff8ff;filter:drop-shadow(0 0 .4cqw #22dcf599)}
 .nr-volume input{--nr-vol:35%;flex:1;min-width:0;height:100%;margin:0;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
 .nr-volume input::-webkit-slider-runnable-track{height:2.2cqw;border-radius:.3cqw;
@@ -163,7 +140,7 @@
 
 /* ---------- Reduzierte Bewegung ---------- */
 @media(prefers-reduced-motion:reduce){
-  .nr-key,.nr-display__ind{transition:none}
+  .nr-key,.nr-key svg,.nr-display__ind{transition:none}
   .nr-device[data-state=paused] .nr-display__icon,.nr-device[data-state=playing] .is-long .nr-marquee{animation:none}
   .nr-device[data-state=playing] .is-long .nr-marquee{overflow:hidden;text-overflow:ellipsis;width:auto}
 }

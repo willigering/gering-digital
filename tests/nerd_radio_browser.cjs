@@ -87,7 +87,7 @@ let server, browser;
     assert.ok(g.device.top >= g.heroBottom - 1, `Gerät steht unter dem Hero bei ${width}`);
     assert.ok(g.device.bottom <= g.headingTop, `Gerät steht über der Trainingszone bei ${width}`);
     if (width > 860) assert.ok(g.device.center > g.pageCenter, `Gerät steht rechts unter dem Logo bei ${width}`);
-    assert.ok(g.stageWidth <= Math.min(520, width - 40) + 1, `Gerät passt in die Breite bei ${width}`);
+    assert.ok(g.stageWidth <= Math.min(560, width - 40) + 1, `Gerät passt in die Breite bei ${width}`);
     assert.ok(g.device.width >= Math.min(280, width - 48), `Gerät bleibt bedienbar groß bei ${width}: ${g.device.width}`);
     // Die ganze Startseite bis unter die Module durchscrollen: nie eine Überdeckung,
     // und sobald die Modulauswahl oben steht, ist das Gerät aus dem Bild gescrollt.

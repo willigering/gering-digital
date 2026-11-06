@@ -1,0 +1,15 @@
+/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */
+.nr-device{aspect-ratio:1894/898}
+.nr-display{left:28.749%;top:35.200%;width:42.501%;height:23.805%}
+.nr-volume{left:32.706%;top:76.445%;width:34.587%;height:8.838%}
+.nr-key[data-radio-prev]{left:29.639%;top:62.086%;width:8.953%;height:13.763%}
+.nr-key[data-radio-stop]{left:37.210%;top:62.086%;width:8.936%;height:13.763%}
+.nr-key[data-radio-play]{left:44.780%;top:62.086%;width:10.440%;height:13.763%}
+.nr-key[data-radio-next]{left:53.854%;top:62.086%;width:8.936%;height:13.763%}
+.nr-key[data-radio-shuffle]{left:61.408%;top:62.086%;width:8.953%;height:13.763%}
+.nr-key[data-radio-mode]{left:25.353%;top:74.298%;width:7.253%;height:14.865%}
+.nr-key[data-radio-list]{left:67.394%;top:74.298%;width:7.253%;height:14.865%}
+.nr-speaker--l{left:4.593%;top:37.085%;width:24.367%;height:49.409%}
+.nr-speaker--l .nr-speaker__cone{left:9.594%;top:7.233%;width:82.126%;height:82.114%;background-image:url(cone-0.webp)}
+.nr-speaker--r{left:71.040%;top:37.085%;width:24.367%;height:49.409%}
+.nr-speaker--r .nr-speaker__cone{left:8.280%;top:7.233%;width:82.126%;height:82.114%;background-image:url(cone-1.webp)}

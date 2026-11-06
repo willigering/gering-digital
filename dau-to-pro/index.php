@@ -64,6 +64,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
+  <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
   <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
@@ -100,10 +101,9 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <div class="nr-rail">
       <div class="nr-pin">
         <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
-          <img class="nr-chassis" src="nerd-radio-chassis.svg?v=<?=filemtime(__DIR__.'/nerd-radio-chassis.svg')?>" alt="" width="1000" height="450" decoding="async">
-          <svg class="nr-defs" aria-hidden="true" focusable="false"><symbol id="nr-shroom" viewBox="0 0 18 18"><path d="M7 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM10 1h1v1h-1zM5 2h1v1h-1zM6 2h1v1h-1zM11 2h1v1h-1zM12 2h1v1h-1zM4 3h1v1h-1zM13 3h1v1h-1zM3 4h1v1h-1zM14 4h1v1h-1zM2 5h1v1h-1zM15 5h1v1h-1zM2 6h1v1h-1zM15 6h1v1h-1zM1 7h1v1h-1zM16 7h1v1h-1zM1 8h1v1h-1zM16 8h1v1h-1zM1 9h1v1h-1zM16 9h1v1h-1zM1 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM7 10h1v1h-1zM8 10h1v1h-1zM9 10h1v1h-1zM10 10h1v1h-1zM11 10h1v1h-1zM12 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM14 11h1v1h-1zM15 11h1v1h-1zM3 12h1v1h-1zM7 12h1v1h-1zM10 12h1v1h-1zM14 12h1v1h-1zM3 13h1v1h-1zM7 13h1v1h-1zM10 13h1v1h-1zM14 13h1v1h-1zM3 14h1v1h-1zM14 14h1v1h-1zM4 15h1v1h-1zM13 15h1v1h-1zM5 16h1v1h-1zM6 16h1v1h-1zM7 16h1v1h-1zM8 16h1v1h-1zM9 16h1v1h-1zM10 16h1v1h-1zM11 16h1v1h-1zM12 16h1v1h-1z"/></symbol></svg>
-          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
-          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__ring"></span><span class="nr-speaker__cone" data-radio-cone><svg><use href="#nr-shroom"/></svg></span></div>
+          <img class="nr-chassis" src="nerd-radio/chassis.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis.webp')?>" srcset="nerd-radio/chassis-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis-half.webp')?> 1000w, nerd-radio/chassis.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__cone" data-radio-cone></span></div>
+          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__cone" data-radio-cone></span></div>
           <div class="nr-display">
             <div class="nr-display__glass">
               <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
