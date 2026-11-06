@@ -86,7 +86,7 @@
 .nerd-radio button:focus-visible,.nerd-radio input:focus-visible,.nerd-radio summary:focus-visible{outline:2px solid #22f4ff;outline-offset:3px}
 .nerd-radio [hidden]{display:none!important}
 @media(max-width:1450px){
- .catalog-feature-layout{grid-template-columns:minmax(0,1fr) minmax(320px,35%);gap:22px}
+ .catalog-feature-layout{grid-template-columns:minmax(0,1fr) 360px;gap:24px}
  .boombox-stage{margin-top:130px}
  .boombox-shell{padding:12px 8px 10px}
  .boombox-mid{grid-template-columns:minmax(62px,1fr) minmax(155px,2.35fr) minmax(62px,1fr);gap:5px;min-height:172px}
