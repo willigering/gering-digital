@@ -8,6 +8,16 @@
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     const cards=[...document.querySelectorAll('.module-card:not(.is-coming-soon)')];
     if(!cards.length||!canHover.matches||reduced.matches)return;
+    // Willi 06.11.2026: vorerst ohne Weichzeichnen und Abdunkeln. Die Karte hebt sich nur selbst hervor.
+    // Auf true setzen, um den Fokus-Effekt wieder einzuschalten.
+    const FOCUS_BLUR=false;
+    if(!FOCUS_BLUR){
+      cards.forEach(card=>{
+        card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')card.classList.add('is-focus-target')});
+        card.addEventListener('pointerleave',()=>card.classList.remove('is-focus-target'));
+      });
+      return;
+    }
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
@@ -32,7 +42,7 @@
       let cut=b.bottom+pad;
       // Im Modulstapel endet das scharfe Fenster dort, wo eine vordere Reihe die Karte überdeckt.
       const row=current.closest('.stack-row');
-      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling){const t=next.getBoundingClientRect().top;if(t<cut)cut=Math.max(b.top,t);}
+      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling)for(const other of next.children){const o=other.getBoundingClientRect();if(o.right>b.left+1&&o.left<b.right-1&&o.top<cut)cut=Math.max(b.top,o.top);}
       const bottom=Math.min(innerHeight,Math.round(cut));
       const x=Math.max(0,Math.round(b.left-pad));
       const right=Math.min(innerWidth,Math.round(b.right+pad));
