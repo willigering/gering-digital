@@ -32,7 +32,7 @@
       let cut=b.bottom+pad;
       // Im Modulstapel endet das scharfe Fenster dort, wo eine vordere Reihe die Karte überdeckt.
       const row=current.closest('.stack-row');
-      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling){const t=next.getBoundingClientRect().top;if(t<cut)cut=Math.max(b.top,t);}
+      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling)for(const other of next.children){const o=other.getBoundingClientRect();if(o.right>b.left+1&&o.left<b.right-1&&o.top<cut)cut=Math.max(b.top,o.top);}
       const bottom=Math.min(innerHeight,Math.round(cut));
       const x=Math.max(0,Math.round(b.left-pad));
       const right=Math.min(innerWidth,Math.round(b.right+pad));
