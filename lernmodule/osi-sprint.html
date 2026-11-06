@@ -1954,7 +1954,9 @@ function genTask(cat,lv,recent,subId){
  let pool=SUBS.filter(s=>(subId?s.id===subId:s.cat===cat)&&(subId||s.min<=Math.max(lv,1)));
  if(!pool.length)pool=SUBS.filter(s=>s.cat===cat);
  let t,sub;
- for(let i=0;i<30;i++){sub=pick(pool);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ const hist=genTask.hist||(genTask.hist=[]);const keep=Math.min(pool.length-1,3),fresh=keep?pool.filter(s=>!hist.slice(-keep).includes(s.id)):pool;const cand=fresh.length?fresh:pool;
+ for(let i=0;i<30;i++){sub=pick(cand);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ if(!subId){hist.push(sub.id);if(hist.length>12)hist.shift()}
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;
  finP(t);
  return t;
