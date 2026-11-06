@@ -1,0 +1,294 @@
+[
+{
+"code": "Console.WriteLine(\"Hallo Welt!\");",
+"input": null,
+"out": "Hallo Welt!"
+},
+{
+"code": "// Fragt nach dem Namen und begrüßt\nConsole.Write(\"Name: \");\nstring? name = Console.ReadLine();\nConsole.WriteLine(\"Hallo \" + name);",
+"input": "Ada",
+"out": "Name: Hallo Ada"
+},
+{
+"code": "class Program\n{\n    static void Main()\n    {\n        Console.WriteLine(\"Hallo Welt!\");\n    }\n}",
+"input": null,
+"out": null
+},
+{
+"code": "Console.Write(\"Gerät: \");\nstring? geraet = Console.ReadLine();\nConsole.WriteLine(\"Erfasst: \" + geraet);",
+"input": "Switch-07",
+"out": "Gerät: Erfasst: Switch-07"
+},
+{
+"code": "Console.WriteLine(\"Raum?\");\nstring? raum = Console.ReadLine();\nConsole.WriteLine(\"Ticket für Raum \" + raum + \" erfasst.\");",
+"input": "B12",
+"out": "Raum? Ticket für Raum B12 erfasst."
+},
+{
+"code": "int ports = 24;\nstring name = \"Switch-07\";\nbool aktiv = true;\nports = 48;\nConsole.WriteLine(name + \" hat \" + ports + \" Ports. Aktiv: \" + aktiv);",
+"input": null,
+"out": "Switch-07 hat 48 Ports. Aktiv: True"
+},
+{
+"code": "int alter = \"40\";",
+"bad": true
+},
+{
+"code": "var hersteller = \"Contoso\"; // ist ein string\nconst int MaxPorts = 48;\nConsole.WriteLine(hersteller + \" \" + MaxPorts);",
+"input": null,
+"out": "Contoso 48"
+},
+{
+"code": "string eingabe = \"42\";\nint zahl = int.Parse(eingabe);\nConsole.WriteLine(zahl + 1);\nConsole.WriteLine((int)3.9);",
+"input": null,
+"out": "43 3"
+},
+{
+"code": "int ports = 24;\nstring name = \"SW-1\";\nports = ports + 24;\nstring text = name + \":\" + ports;\nConsole.WriteLine(text);",
+"input": null,
+"out": "SW-1:48"
+},
+{
+"code": "Console.WriteLine(\"Ports?\");\nint ports = int.Parse(Console.ReadLine()!);\nConsole.WriteLine(ports * 2);",
+"input": "24",
+"out": "Ports? 48"
+},
+{
+"code": "int geraete = 10;\nConsole.WriteLine(geraete / 3);\nConsole.WriteLine(geraete % 3);\nConsole.WriteLine(geraete / 3.0 > 3);",
+"input": null,
+"out": "3 1 True"
+},
+{
+"code": "int x = 5;\nConsole.WriteLine(x++);\nConsole.WriteLine(x);\nConsole.WriteLine(++x);",
+"input": null,
+"out": "5 6 7"
+},
+{
+"code": "bool online = true;\nbool wartung = false;\nConsole.WriteLine(online && !wartung);",
+"input": null,
+"out": "True"
+},
+{
+"code": "int a = 7;\nint b = 2;\nint c = a / b;\nint r = a % b;\na += r;\nConsole.WriteLine(c + \" \" + a);",
+"input": null,
+"out": "3 8"
+},
+{
+"code": "int zahl = int.Parse(Console.ReadLine()!);\nConsole.WriteLine(zahl % 2 == 0);",
+"input": "14",
+"out": "True"
+},
+{
+"code": "int alter = 17;\n\nif (alter >= 18)\n{\n    Console.WriteLine(\"Zutritt erlaubt.\");\n}\nelse\n{\n    Console.WriteLine(\"Nö. Erst erwachsen werden.\");\n}",
+"input": null,
+"out": "Nö. Erst erwachsen werden."
+},
+{
+"code": "int frei = 8;\nif (frei < 5)\n{\n    Console.WriteLine(\"Kritisch\");\n}\nelse if (frei < 10)\n{\n    Console.WriteLine(\"Warnung\");\n}\nelse\n{\n    Console.WriteLine(\"OK\");\n}",
+"input": null,
+"out": "Warnung"
+},
+{
+"code": "string wahl = \"2\";\nswitch (wahl)\n{\n    case \"1\":\n        Console.WriteLine(\"Neues Gerät\");\n        break;\n    case \"2\":\n        Console.WriteLine(\"Liste anzeigen\");\n        break;\n    default:\n        Console.WriteLine(\"Unbekannt\");\n        break;\n}",
+"input": null,
+"out": "Liste anzeigen"
+},
+{
+"code": "int x = 5;\nif (x = 5)\n{\n    Console.WriteLine(\"fünf\");\n}",
+"bad": true
+},
+{
+"code": "int frei = 7;\nstring status;\nif (frei < 5)\n{\n    status = \"Kritisch\";\n}\nelse if (frei < 10)\n{\n    status = \"Warnung\";\n}\nelse\n{\n    status = \"OK\";\n}\nConsole.WriteLine(status);",
+"input": null,
+"out": "Warnung"
+},
+{
+"code": "int akku = int.Parse(Console.ReadLine()!);\nif (akku < 20)\n{\n    Console.WriteLine(\"Laden\");\n}\nelse if (akku < 80)\n{\n    Console.WriteLine(\"OK\");\n}\nelse\n{\n    Console.WriteLine(\"Voll\");\n}",
+"input": "55",
+"out": "OK"
+},
+{
+"code": "for (int i = 1; i <= 3; i++)\n{\n    Console.WriteLine(\"Port \" + i);\n}",
+"input": null,
+"out": "Port 1 Port 2 Port 3"
+},
+{
+"code": "int n = 5;\nwhile (n < 3)\n{\n    Console.WriteLine(\"while\");\n    n++;\n}\ndo\n{\n    Console.WriteLine(\"do\");\n    n++;\n} while (n < 3);",
+"input": null,
+"out": "do"
+},
+{
+"code": "string[] geraete = { \"Router\", \"Switch\" };\nforeach (string g in geraete)\n{\n    Console.WriteLine(g);\n}",
+"input": null,
+"out": "Router Switch"
+},
+{
+"code": "for (int i = 1; i <= 5; i++)\n{\n    if (i == 2) continue;\n    if (i == 4) break;\n    Console.WriteLine(i);\n}",
+"input": null,
+"out": "1 3"
+},
+{
+"code": "int summe = 0;\nfor (int i = 1; i <= 3; i++)\n{\n    summe += i;\n}\nConsole.WriteLine(summe);",
+"input": null,
+"out": "6"
+},
+{
+"code": "for (int i = 1; i <= 10; i++)\n{\n    Console.WriteLine(i);\n}",
+"input": null,
+"out": "1 2 3 4 5 6 7 8 9 10"
+},
+{
+"code": "string[] namen = { \"Router\", \"Switch\", \"Firewall\" };\n\nConsole.WriteLine(namen[1]);",
+"input": null,
+"out": "Switch"
+},
+{
+"code": "List<string> geraete = new List<string>();\ngeraete.Add(\"Router\");\ngeraete.Add(\"Switch\");\ngeraete.Remove(\"Router\");\nConsole.WriteLine(geraete.Count);\nConsole.WriteLine(geraete[0]);",
+"input": null,
+"out": "1 Switch"
+},
+{
+"code": "string name = \"Switch\";\nint ports = 24;\nConsole.WriteLine(name.Length);\nConsole.WriteLine(name.ToUpper());\nConsole.WriteLine(name.Contains(\"wit\"));\nConsole.WriteLine(name.Substring(0, 2));\nConsole.WriteLine($\"{name}: {ports} Ports\");",
+"input": null,
+"out": "6 SWITCH True Sw Switch: 24 Ports"
+},
+{
+"code": "List<string> geraete = new List<string>();\ngeraete.Add(\"Router\");\ngeraete.Add(\"Switch\");\ngeraete.Add(\"NAS\");\ngeraete.Remove(\"Switch\");\nConsole.WriteLine(geraete[1]);\nConsole.WriteLine(geraete.Count);",
+"input": null,
+"out": "NAS 2"
+},
+{
+"code": "List<string> geraete = new List<string> { \"Router\", \"Switch\", \"NAS\" };\nfor (int i = 0; i < geraete.Count; i++)\n{\n    Console.WriteLine($\"{i + 1}: {geraete[i]}\");\n}",
+"input": null,
+"out": "1: Router 2: Switch 3: NAS"
+},
+{
+"code": "static int Addieren(int a, int b)\n{\n    return a + b;\n}\n\nint ergebnis = Addieren(2, 3);\nConsole.WriteLine(ergebnis * 10);",
+"input": null,
+"out": "50"
+},
+{
+"code": "static void Melde(string text)\n{\n    Console.WriteLine(\"Hinweis: \" + text);\n}\n\nstatic bool IstGerade(int zahl)\n{\n    return zahl % 2 == 0;\n}\n\nMelde(\"Backup fertig\");\nConsole.WriteLine(IstGerade(7));",
+"input": null,
+"out": "Hinweis: Backup fertig False"
+},
+{
+"code": "static void Test()\n{\n    int nurHier = 1;\n}\n\nConsole.WriteLine(nurHier);",
+"bad": true
+},
+{
+"code": "static void Erhoehe(int wert)\n{\n    wert++;\n}\n\nint zahl = 5;\nErhoehe(zahl);\nConsole.WriteLine(zahl);",
+"input": null,
+"out": "5"
+},
+{
+"code": "static int Doppelt(int x)\n{\n    return x * 2;\n}\n\nint wert = 4;\nint neu = Doppelt(wert) + 1;\nConsole.WriteLine(neu);",
+"input": null,
+"out": "9"
+},
+{
+"code": "static int Groesser(int a, int b)\n{\n    if (a > b)\n    {\n        return a;\n    }\n    return b;\n}\n\nConsole.WriteLine(Groesser(3, 9));",
+"input": null,
+"out": "9"
+},
+{
+"code": "Router r1 = new Router(\"10.0.0.1\");\nr1.Online = true;\nConsole.WriteLine(r1.Status());\n\nclass Router\n{\n    public string Ip { get; set; }\n    public bool Online { get; set; }\n\n    public Router(string ip)\n    {\n        Ip = ip;\n    }\n\n    public string Status()\n    {\n        return Ip + (Online ? \" online\" : \" offline\");\n    }\n}",
+"input": null,
+"out": "10.0.0.1 online"
+},
+{
+"code": "class Zaehler\n{\n    private int wert;\n    public static int Gesamt = 0;\n\n    public void Plus()\n    {\n        wert++;\n        Gesamt++;\n    }\n\n    public int Wert()\n    {\n        return wert;\n    }\n}",
+"input": null,
+"out": null
+},
+{
+"code": "Geraet g = new Drucker();\nConsole.WriteLine(g.Typ());\n\nclass Geraet\n{\n    public virtual string Typ()\n    {\n        return \"Gerät\";\n    }\n}\n\nclass Drucker : Geraet\n{\n    public override string Typ()\n    {\n        return \"Drucker\";\n    }\n}",
+"input": null,
+"out": "Drucker"
+},
+{
+"code": "IPingbar p = new Server();\nConsole.WriteLine(p.Ping());\n\ninterface IPingbar\n{\n    string Ping();\n}\n\nclass Server : IPingbar\n{\n    public string Ping()\n    {\n        return \"Antwort\";\n    }\n}",
+"input": null,
+"out": "Antwort"
+},
+{
+"code": "Geraet a = new Geraet();\na.Name = \"NAS\";\nGeraet b = a;\nb.Name = \"Backup\";\nConsole.WriteLine(a.Name);\n\nclass Geraet\n{\n    public string Name = \"\";\n}",
+"input": null,
+"out": "Backup"
+},
+{
+"code": "Ticket t = new Ticket(42, \"Drucker offline\");\nConsole.WriteLine(t.Zeile());\n\nclass Ticket\n{\n    public int Nummer { get; set; }\n    public string Text { get; set; }\n\n    public Ticket(int nummer, string text)\n    {\n        Nummer = nummer;\n        Text = text;\n    }\n\n    public string Zeile()\n    {\n        return $\"#{Nummer}: {Text}\";\n    }\n}",
+"input": null,
+"out": "#42: Drucker offline"
+},
+{
+"code": "try\n{\n    int zahl = int.Parse(\"abc\");\n    Console.WriteLine(\"Zahl: \" + zahl);\n}\ncatch (FormatException)\n{\n    Console.WriteLine(\"Das war keine Zahl.\");\n}\nfinally\n{\n    Console.WriteLine(\"Fertig.\");\n}",
+"input": null,
+"out": "Das war keine Zahl. Fertig."
+},
+{
+"code": "string eingabe = \"24\";\nif (int.TryParse(eingabe, out int ports))\n{\n    Console.WriteLine(ports + 1);\n}\nelse\n{\n    Console.WriteLine(\"Bitte eine Zahl.\");\n}",
+"input": null,
+"out": "25"
+},
+{
+"code": "string? name = null;\nif (name != null)\n{\n    Console.WriteLine(name.Length);\n}\nelse\n{\n    Console.WriteLine(\"Kein Name\");\n}",
+"input": null,
+"out": "Kein Name"
+},
+{
+"code": "int[] werte = { 1, 2 };\ntry\n{\n    Console.WriteLine(werte[0]);\n    Console.WriteLine(werte[5]);\n    Console.WriteLine(\"nie\");\n}\ncatch (IndexOutOfRangeException)\n{\n    Console.WriteLine(\"Index falsch\");\n}\nConsole.WriteLine(\"weiter\");",
+"input": null,
+"out": "1 Index falsch weiter"
+},
+{
+"code": "int zahl;\nConsole.WriteLine(\"Zahl?\");\nwhile (!int.TryParse(Console.ReadLine(), out zahl))\n{\n    Console.WriteLine(\"Nochmal:\");\n}\nConsole.WriteLine(zahl);",
+"input": "x\n7",
+"out": "Zahl? Nochmal: 7"
+},
+{
+"code": "string? wahl = \"\";\nwhile (wahl != \"0\")\n{\n    Console.WriteLine(\"1 = Anzeigen, 0 = Ende\");\n    wahl = Console.ReadLine();\n}\nConsole.WriteLine(\"Tschüss\");",
+"input": "1\n0",
+"out": "1 = Anzeigen, 0 = Ende 1 = Anzeigen, 0 = Ende Tschüss"
+},
+{
+"code": "List<Geraet> geraete = new List<Geraet>();\nstring? wahl = \"\";\n\nwhile (wahl != \"0\")\n{\n    Console.WriteLine(\"1 = Hinzufügen, 2 = Liste, 0 = Ende\");\n    wahl = Console.ReadLine();\n\n    switch (wahl)\n    {\n        case \"1\":\n            Hinzufuegen(geraete);\n            break;\n        case \"2\":\n            Anzeigen(geraete);\n            break;\n        case \"0\":\n            Console.WriteLine(\"Tschüss\");\n            break;\n        default:\n            Console.WriteLine(\"Unbekannte Auswahl\");\n            break;\n    }\n}\n\nstatic void Hinzufuegen(List<Geraet> liste)\n{\n    Console.WriteLine(\"Name?\");\n    string? name = Console.ReadLine();\n    Console.WriteLine(\"Typ?\");\n    string? typ = Console.ReadLine();\n\n    if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(typ))\n    {\n        Console.WriteLine(\"Name und Typ dürfen nicht leer sein.\");\n        return;\n    }\n\n    liste.Add(new Geraet(name, typ));\n}\n\nstatic void Anzeigen(List<Geraet> liste)\n{\n    if (liste.Count == 0)\n    {\n        Console.WriteLine(\"Noch keine Geräte.\");\n    }\n\n    foreach (Geraet g in liste)\n    {\n        Console.WriteLine(g.Zeile());\n    }\n}\n\nclass Geraet\n{\n    public string Name { get; }\n    public string Typ { get; }\n\n    public Geraet(string name, string typ)\n    {\n        Name = name;\n        Typ = typ;\n    }\n\n    public string Zeile()\n    {\n        return $\"{Name} ({Typ})\";\n    }\n}",
+"input": "2\n1\nSW-1\nSwitch\n1\n\nRouter\n2\n9\n0",
+"out": "1 = Hinzufügen, 2 = Liste, 0 = Ende Noch keine Geräte. 1 = Hinzufügen, 2 = Liste, 0 = Ende Name? Typ? 1 = Hinzufügen, 2 = Liste, 0 = Ende Name? Typ? Name und Typ dürfen nicht leer sein. 1 = Hinzufügen, 2 = Liste, 0 = Ende SW-1 (Switch) 1 = Hinzufügen, 2 = Liste, 0 = Ende Unbekannte Auswahl 1 = Hinzufügen, 2 = Liste, 0 = Ende Tschüss"
+},
+{
+"code": "List<string> geraete = new List<string>();\nstring[] eingaben = { \"1\", \"2\", \"0\" };\nforeach (string wahl in eingaben)\n{\n    if (wahl == \"1\")\n    {\n        geraete.Add(\"Switch\");\n    }\n    else if (wahl == \"2\")\n    {\n        Console.WriteLine(geraete.Count);\n    }\n}",
+"input": null,
+"out": "1"
+},
+{
+"code": "List<string> geraete = new List<string> { \"Router\", \"NAS\" };\nConsole.WriteLine($\"{geraete.Count} Geräte erfasst.\");",
+"input": null,
+"out": "2 Geräte erfasst."
+},
+{
+"code": "List<int> zahlen = new List<int> { 1, 2 };\nDictionary<string, int> ports = new Dictionary<string, int>();\nports[\"HTTPS\"] = 443;\nConsole.WriteLine(zahlen.Count + \" \" + ports[\"HTTPS\"]);",
+"input": null,
+"out": "2 443"
+},
+{
+"code": "using System.Text;\n\nStringBuilder sb = new StringBuilder();\nsb.Append(\"Log\");\nConsole.WriteLine(sb.ToString());",
+"input": null,
+"out": "Log"
+},
+{
+"code": "using System.Linq;\n\nint[] werte = { 1, 3, 5 };\nConsole.WriteLine(werte.Where(x => x > 2).Count());",
+"input": null,
+"out": "2"
+},
+{
+"code": "File.WriteAllText(\"log.txt\", \"Start\");\nConsole.WriteLine(File.ReadAllText(\"log.txt\"));\nFile.Delete(\"log.txt\");",
+"input": null,
+"out": "Start"
+},
+{
+"code": "static async Task<int> LadeAsync()\n{\n    await Task.Delay(10);\n    return 42;\n}\n\nConsole.WriteLine(await LadeAsync());",
+"input": null,
+"out": "42"
+}
+]
