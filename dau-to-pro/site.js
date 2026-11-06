@@ -77,10 +77,10 @@
       current=null;cancelAnimationFrame(frame);paint(0);
     };
     cards.forEach(card=>{
-      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(card)});
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!card.closest('.is-stacked'))show(card)});
       card.addEventListener('pointerleave',()=>hide(card));
     });
-    addEventListener('scroll',layout,{passive:true});
+    addEventListener('scroll',()=>{if(current&&current.closest('.is-stacked'))reset();else layout()},{passive:true});
     addEventListener('resize',layout,{passive:true});
     document.getElementById("module-grid")?.addEventListener("toggle",layout,true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
