@@ -27,8 +27,6 @@ if ($learnerRow) {
 $query=db()->prepare("SELECT slug,title,subject,description,preview_image,preview_fit,preview_x,preview_y FROM html_pages WHERE published=1 AND category=? ORDER BY updated_at DESC,id DESC");
 $query->execute(['lernen']);
 $modules=$query->fetchAll(PDO::FETCH_ASSOC);
-$urgentModule=null;
-foreach($modules as $module) if($module['slug']==='klausurvorbereitung-061126') $urgentModule=$module;
 $modules=array_values(array_filter($modules,static fn(array $m):bool=>$m['slug']!=='klausurvorbereitung-061126'));
 $comingSoonSlugs=[];
 usort($modules, static fn(array $a, array $b): int =>
@@ -63,7 +61,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if($reveal): ?>  <script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script>
 <?php endif; ?>
   <?=dtp_feedback_assets()?>
-<style>.catalog-panel{container-type:inline-size}.urgent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:center;margin:12px 0 42px}.urgent-module{position:relative;grid-column:2;min-width:0}.mini-module{grid-column:3;width:50%;min-width:0}.mini-module .module-card{--mod:#ed973c;text-decoration:none}.mini-module .module-body{padding:12px}.mini-module .module-category{font-size:9px;letter-spacing:.1em}.mini-module .module-body h2{font-size:17px;margin:6px 0 2px}.mini-module .mini-alias{color:var(--mod);font-size:12px;font-weight:750;line-height:1.3;margin-bottom:6px}.mini-module .module-body p{font-size:11.5px;line-height:1.45;margin:0 0 10px}.mini-module .module-footer{font-size:11px;padding-top:8px}.urgent-module .module-card{width:100%;display:flex}.urgent-module .module-art{aspect-ratio:16/9}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@container (max-width: 955px){.urgent-row{grid-template-columns:repeat(2,minmax(0,1fr))}.urgent-module{grid-column:1}.mini-module{grid-column:2}}@container (max-width: 630px){.urgent-row{grid-template-columns:minmax(0,1fr)}.urgent-module,.mini-module{grid-column:1}.mini-module{justify-self:center}}@media(max-width:600px){.urgent-flag{right:-4px}}</style></head>
+<style>.catalog-panel{container-type:inline-size}.cheat-category{margin-top:42px;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}.cheat-category summary{display:flex;align-items:center;gap:14px;cursor:pointer;list-style:none;padding:20px 0}.cheat-category summary::-webkit-details-marker{display:none}.cheat-category-title{font-size:20px;font-weight:800}.cheat-category-count{color:var(--muted);font-size:13px}.cheat-category .disclaimer-toggle{margin-left:auto}.cheat-category[open] .disclaimer-toggle{transform:rotate(45deg)}.cheat-category-body{padding:0 0 24px}.cheat-category-body .mini-module{width:min(100%,300px)}.urgent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:center;margin:12px 0 42px}.urgent-module{position:relative;grid-column:2;min-width:0}.mini-module{grid-column:3;width:50%;min-width:0}.mini-module .module-card{--mod:#ed973c;text-decoration:none}.mini-module .module-body{padding:12px}.mini-module .module-category{font-size:9px;letter-spacing:.1em}.mini-module .module-body h2{font-size:17px;margin:6px 0 2px}.mini-module .mini-alias{color:var(--mod);font-size:12px;font-weight:750;line-height:1.3;margin-bottom:6px}.mini-module .module-body p{font-size:11.5px;line-height:1.45;margin:0 0 10px}.mini-module .module-footer{font-size:11px;padding-top:8px}.urgent-module .module-card{width:100%;display:flex}.urgent-module .module-art{aspect-ratio:16/9}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@container (max-width: 955px){.urgent-row{grid-template-columns:repeat(2,minmax(0,1fr))}.urgent-module{grid-column:1}.mini-module{grid-column:2}}@container (max-width: 630px){.urgent-row{grid-template-columns:minmax(0,1fr)}.urgent-module,.mini-module{grid-column:1}.mini-module{justify-self:center}}@media(max-width:600px){.urgent-flag{right:-4px}}</style></head>
 <body class="dtp-landing">
 <?=dtp_backdrop()?>
 <a class="skip" href="#lernmodule">Direkt zu den Lernmodulen</a>
@@ -88,14 +86,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
       <div class="catalog-panel">
-<?php if($urgentModule): ?>
-<div class="urgent-row">
-<div class="urgent-module"><span class="urgent-flag">DRINGEND</span>
-<?=dtp_module_card($urgentModule,'../',true,$learnerRow?($cardProgress[$urgentModule['slug']]??null):null)?>
-</div>
-<div class="mini-module"><a class="module-card" href="cheat-sheet.html" aria-label="Cheat-Sheet öffnen"><div class="module-art"><svg viewBox="0 0 320 180" width="100%" height="100%" style="position:absolute;inset:0" aria-hidden="true"><rect width="320" height="180" fill="#0c151b"/><g transform="rotate(-5 160 90)"><rect x="82" y="16" width="156" height="150" rx="3" fill="#f3ead2"/><path d="M82 16h156v24H82z" fill="#ed973c"/><text x="160" y="34" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="15" font-weight="800" fill="#17100a">SPICKZETTEL</text><g font-family="ui-monospace,Consolas,monospace" font-size="19" font-weight="700" fill="#17100a"><text x="96" y="66">22 SSH</text><text x="96" y="92">53 DNS</text><text x="96" y="118">80 HTTP</text><text x="96" y="144">443 HTTPS</text></g></g></svg></div><div class="module-body"><span class="module-category">Lernen auf den letzten Drücker</span><h2>Cheat-Sheet</h2><span class="mini-alias">Für Spätzünder</span><p>Lernplan: heute Abend bis morgen früh.</p><div class="module-footer"><span>Öffnen</span><b aria-hidden="true">↗</b></div></div></a></div>
-</div>
-<?php endif; ?>
         <?php if($modules): ?>
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">
           <button type="button" class="filter-btn active" data-filter="alle" aria-pressed="true">Alle Module</button>
@@ -114,6 +104,12 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
+<details class="cheat-category">
+<summary><span class="cheat-category-title">Cheat Sheets</span><span class="cheat-category-count">1 Cheat Sheet</span><span class="disclaimer-toggle" aria-hidden="true">+</span></summary>
+<div class="cheat-category-body">
+<div class="mini-module"><a class="module-card" href="cheat-sheet.html" aria-label="Cheat-Sheet öffnen"><div class="module-art"><svg viewBox="0 0 320 180" width="100%" height="100%" style="position:absolute;inset:0" aria-hidden="true"><rect width="320" height="180" fill="#0c151b"/><g transform="rotate(-5 160 90)"><rect x="82" y="16" width="156" height="150" rx="3" fill="#f3ead2"/><path d="M82 16h156v24H82z" fill="#ed973c"/><text x="160" y="34" text-anchor="middle" font-family="ui-monospace,Consolas,monospace" font-size="15" font-weight="800" fill="#17100a">SPICKZETTEL</text><g font-family="ui-monospace,Consolas,monospace" font-size="19" font-weight="700" fill="#17100a"><text x="96" y="66">22 SSH</text><text x="96" y="92">53 DNS</text><text x="96" y="118">80 HTTP</text><text x="96" y="144">443 HTTPS</text></g></g></svg></div><div class="module-body"><span class="module-category">Lernen auf den letzten Drücker</span><h2>Cheat-Sheet</h2><span class="mini-alias">Für Spätzünder</span><p>Lernplan: heute Abend bis morgen früh.</p><div class="module-footer"><span>Öffnen</span><b aria-hidden="true">↗</b></div></div></a></div>
+</div>
+</details>
               </div>
     </div>
   </section>
