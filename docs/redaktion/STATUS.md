@@ -119,3 +119,7 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Richtig-Sprüche kommen immer aus der gemeinsamen Liste, die 50 alten Falsch-Sprüche bleiben auf Willis Wunsch.
 - Gelesen wurde dafür eine erzeugte Aufgabe je Typ, in mehreren Modulen nur jeder zweite oder dritte Typ. Die Nachschlagekapitel von Subnetting, Netzwerkgrundlagen, D1, B4 und B5 sind weiterhin nicht vollständig gelesen.
 
+## 06.11.2026 – A1 als Muster für den Spielmodus
+
+- A1 hat jetzt einen Szenensatz vor jeder Aufgabe, konkrete Beispiele im Fragezeichen und im Hinweis sowie Leuchteffekte, Serie und Rekord (`tools/module-game.css`, `tools/module-game.js`).
+- Lösungen und Überschriften sind per Vergleichstest unverändert. Willi testet das Muster, erst danach folgen andere Module.
