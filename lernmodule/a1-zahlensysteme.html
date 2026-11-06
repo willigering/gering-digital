@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-game-id="a1">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1162,6 +1162,100 @@ button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile
 })();
 </script>
 <!-- DTP-FEHLERSPRUECHE END -->
+<!-- DTP-SPIEL START -->
+<style>
+/* DAU TO PRO Spielmodus: Leuchten und Pulsieren. Lösungen und Lernstände bleiben unberührt. */
+.btn,.btn.primary,.btn.secondary,.btn.ghost{clip-path:none!important;border-radius:12px;outline:0!important;border:1.5px solid var(--game,#a6f05a)!important;box-shadow:0 0 0 1px rgba(166,240,90,.14),0 0 16px rgba(166,240,90,.28),inset 0 0 12px rgba(166,240,90,.08);transition:transform .14s,box-shadow .18s,filter .18s}
+.btn:hover:not(:disabled){transform:none;box-shadow:0 0 0 1px rgba(166,240,90,.4),0 0 28px rgba(166,240,90,.58),inset 0 0 16px rgba(166,240,90,.16);filter:brightness(1.1)}
+.btn:active:not(:disabled){transform:scale(.96)}
+.btn.primary:not(:disabled){animation:dtpBtnPulse 1.9s ease-in-out infinite}
+.opt{border-radius:12px!important;border:1.5px solid rgba(110,231,140,.42)!important;box-shadow:0 0 12px rgba(110,231,140,.13);transition:transform .14s,box-shadow .18s,border-color .18s,background .18s}
+.opt:hover:not(:disabled){border-color:#a6f05a!important;box-shadow:0 0 24px rgba(166,240,90,.45)}
+.opt .key{border-radius:7px;background:#a6f05a;box-shadow:0 0 10px rgba(166,240,90,.6)}
+.opt.is-right{border-color:#4ee69b!important;box-shadow:0 0 28px rgba(78,230,155,.65);animation:dtpPop .42s ease-out}
+.opt.is-wrong{border-color:#ff6b6b!important;box-shadow:0 0 24px rgba(255,107,107,.55);animation:dtpShake .4s}
+.ans-row input{border-radius:10px;border:1.5px solid rgba(110,231,140,.5)!important;box-shadow:0 0 14px rgba(110,231,140,.18)}
+.ans-row input:focus{border-color:#a6f05a!important;box-shadow:0 0 24px rgba(166,240,90,.5);outline:0}
+.ans-row input.correct{border-color:#4ee69b!important;box-shadow:0 0 28px rgba(78,230,155,.65);animation:dtpPop .42s}
+.ans-row input.wrong{border-color:#ff6b6b!important;box-shadow:0 0 24px rgba(255,107,107,.55);animation:dtpShake .4s}
+.task-scene{display:block;margin:0 0 8px;color:#ffe4a1;font-size:15.5px;font-weight:650;line-height:1.5}
+.qmark{box-shadow:0 0 12px rgba(110,231,140,.55);animation:dtpSoft 2.4s ease-in-out infinite}
+.qtip{border-radius:10px;box-shadow:0 0 26px rgba(110,231,140,.3);font-size:14px;line-height:1.55}
+.qtip .qex{display:block;margin-top:8px;color:#ffe4a1}
+.hint{border-radius:10px;box-shadow:0 0 16px rgba(110,231,140,.2)}
+.result:not(:empty){border-radius:12px;box-shadow:0 0 22px rgba(78,230,155,.26);animation:dtpPop .34s ease-out}
+.result.bad:not(:empty){box-shadow:0 0 22px rgba(255,107,107,.26)}
+.stage-tile{border-radius:14px!important;box-shadow:0 0 12px rgba(110,231,140,.14);transition:transform .18s,box-shadow .18s}
+.stage-tile:hover:not([aria-disabled="true"]){transform:none;box-shadow:0 0 28px rgba(166,240,90,.45)}
+.stage-tile.done{box-shadow:0 0 18px rgba(78,230,155,.42)}
+.stage-tile.cur{animation:dtpCur 1.8s ease-in-out infinite}
+.stage-tile[aria-disabled="true"]{filter:saturate(.4) brightness(.72)}
+.stage-tile .bar{border-radius:9px;overflow:hidden}.stage-tile .bar i{box-shadow:0 0 12px #a6f05a}
+.area-tabs>*{border-radius:14px!important;transition:transform .16s,box-shadow .18s}
+.area-tabs>*:hover{transform:none;box-shadow:0 0 24px rgba(166,240,90,.4)}
+.area-tabs>[aria-selected="true"],.area-tabs>.active{box-shadow:0 0 26px rgba(234,180,72,.55);animation:dtpSoft 2.6s ease-in-out infinite}
+.mode-tile{border-radius:14px!important;transition:transform .16s,box-shadow .18s}.mode-tile:hover{transform:none;box-shadow:0 0 22px rgba(166,240,90,.4)}.mode-tile.active{box-shadow:0 0 26px rgba(166,240,90,.55)}
+.bitwall span.on{animation:dtpBit 2.2s ease-in-out infinite}
+.bits button,.bits .bit{border-radius:10px;transition:transform .12s,box-shadow .16s}
+.bits button:hover{transform:none;box-shadow:0 0 18px rgba(166,240,90,.55)}
+.metric{border-radius:12px;box-shadow:0 0 12px rgba(110,231,140,.14)}
+.metric strong{text-shadow:0 0 12px rgba(166,240,90,.55)}
+.panel{border-radius:16px;box-shadow:0 0 22px rgba(110,231,140,.07)}
+.timer{text-shadow:0 0 14px currentColor;animation:dtpSoft 1s ease-in-out infinite}
+input[type=range]{-webkit-appearance:none;appearance:none;height:10px;border-radius:9px;background:linear-gradient(90deg,#6ee78c,#a6f05a);box-shadow:0 0 14px rgba(166,240,90,.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#ffe4a1;border:3px solid #a6f05a;box-shadow:0 0 18px #a6f05a;animation:dtpSoft 1.6s ease-in-out infinite}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#ffe4a1;border:3px solid #a6f05a;box-shadow:0 0 18px #a6f05a}
+.filter-btn{border-radius:10px!important;border:1.5px solid rgba(110,231,140,.42)!important;box-shadow:0 0 10px rgba(110,231,140,.14);transition:transform .14s,box-shadow .18s}.filter-btn:hover{transform:none;box-shadow:0 0 20px rgba(166,240,90,.5)}.filter-btn.active{box-shadow:0 0 22px rgba(166,240,90,.7);animation:dtpSoft 2.2s ease-in-out infinite}
+#dtpHud{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;gap:10px;align-items:center;padding:9px 14px;border:1.5px solid #a6f05a;border-radius:999px;background:#07110bf2;color:#f5f0df;font:800 13px/1 ui-monospace,Consolas,monospace;box-shadow:0 0 22px rgba(166,240,90,.45);pointer-events:none}
+#dtpHud b{color:#a6f05a;font-size:17px;text-shadow:0 0 10px #a6f05a}#dtpHud.hot{border-color:#ffb547;box-shadow:0 0 30px rgba(255,181,71,.8);animation:dtpSoft .8s ease-in-out infinite}#dtpHud.hot b{color:#ffb547;text-shadow:0 0 12px #ffb547}#dtpHud small{color:#aebabc;font-size:11px}
+#dtpFlash{position:fixed;inset:0;z-index:58;pointer-events:none;opacity:0}#dtpFlash.ok{box-shadow:inset 0 0 90px rgba(78,230,155,.75);animation:dtpFlash .55s ease-out}#dtpFlash.no{box-shadow:inset 0 0 90px rgba(255,107,107,.72);animation:dtpFlash .5s ease-out}
+.dtp-spark{position:fixed;z-index:61;width:8px;height:8px;border-radius:50%;pointer-events:none;background:#a6f05a;box-shadow:0 0 12px #a6f05a;animation:dtpSpark .75s ease-out forwards}
+#dtpBanner{position:fixed;left:50%;top:22%;z-index:62;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:16px 26px;text-align:center;border:2px solid #ffb547;border-radius:18px;background:#07110bf5;color:#fff;font-weight:900;font-size:clamp(22px,5vw,38px);line-height:1.15;box-shadow:0 0 44px rgba(255,181,71,.75);pointer-events:none;animation:dtpBanner 1.8s ease-out forwards}#dtpBanner small{display:block;margin-top:7px;color:#ffe4a1;font-size:15px;font-weight:650}
+@keyframes dtpBtnPulse{50%{box-shadow:0 0 0 2px rgba(166,240,90,.35),0 0 32px rgba(166,240,90,.7)}}
+@keyframes dtpSoft{50%{filter:brightness(1.3)}}
+@keyframes dtpCur{50%{box-shadow:0 0 34px rgba(234,180,72,.85)}}
+@keyframes dtpBit{50%{box-shadow:0 0 28px rgba(166,240,90,.85)}}
+@keyframes dtpPop{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes dtpShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes dtpFlash{0%{opacity:1}100%{opacity:0}}
+@keyframes dtpSpark{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+@keyframes dtpBanner{0%{opacity:0;transform:translateX(-50%) scale(.6)}14%{opacity:1;transform:translateX(-50%) scale(1.06)}24%{transform:translateX(-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-16px)}}
+@media(max-width:640px){#dtpHud{right:10px;bottom:10px;padding:7px 11px}}
+@media(prefers-reduced-motion:reduce){.btn,.opt,.stage-tile,.area-tabs>*,.qmark,.timer,.bitwall span.on,input[type=range]::-webkit-slider-thumb,#dtpHud,#dtpFlash,#dtpBanner,.result:not(:empty),.ans-row input{animation:none!important}.dtp-spark{display:none}#dtpBanner{opacity:1}}
+</style>
+<script>
+/* DAU TO PRO Spielmodus: Serie, Rekord und Effekte. Speichert nur den eigenen Rekord, nie Lernstände. */
+(function () {
+  if (window.dtpGame) return;
+  var KEY = 'dtp-game-best-' + (document.documentElement.dataset.gameId || location.pathname);
+  var MILESTONES = {3: ['3 am Stück!', 'Das war also kein Zufall.'], 5: ['5ER-SERIE!', 'Wer sitzt da an deinem Platz?'], 10: ['10ER-SERIE!', 'Jetzt wird es unheimlich.'], 15: ['15ER-SERIE!', 'Die Prüfung hat gerade kurz geschluckt.'], 20: ['20ER-SERIE!', 'Ab hier ist es Angeberei. Weiter so.'], 30: ['30ER-SERIE!', 'Bitte einmal melden, wir brauchen dich im Support.']};
+  var combo = 0, best = 0, hud, flash, banner;
+  try { best = Number(localStorage.getItem(KEY)) || 0; } catch (e) {}
+  function ready(fn) { if (document.body) fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  function draw() { if (!hud) return; hud.innerHTML = 'SERIE <b>' + combo + '</b> <small>Rekord ' + best + '</small>'; hud.classList.toggle('hot', combo >= 5); }
+  function build() { hud = document.createElement('div'); hud.id = 'dtpHud'; hud.setAttribute('aria-hidden', 'true'); flash = document.createElement('div'); flash.id = 'dtpFlash'; document.body.append(hud, flash); draw(); }
+  function pulse(cls) { flash.className = ''; void flash.offsetWidth; flash.className = cls; }
+  function sparks(host, n) {
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    var r = host.getBoundingClientRect(), x = Math.min(innerWidth - 20, Math.max(20, r.left + r.width / 2)), y = Math.min(innerHeight - 20, Math.max(20, r.top + 30));
+    for (var i = 0; i < n; i++) { var s = document.createElement('i'), a = i / n * 6.283, d = 60 + (i % 4) * 28; s.className = 'dtp-spark'; s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px'); document.body.append(s); setTimeout(s.remove.bind(s), 800); }
+  }
+  function show(title, line) { if (banner) banner.remove(); banner = document.createElement('div'); banner.id = 'dtpBanner'; banner.setAttribute('role', 'status'); banner.textContent = title; var s = document.createElement('small'); s.textContent = line; banner.append(s); document.body.append(banner); setTimeout(function (b) { b.remove(); }.bind(null, banner), 1900); }
+  window.dtpGame = Object.freeze({answer: function (ok, host) {
+    if (!hud) return;
+    if (ok) {
+      combo++; pulse('ok'); sparks(host, Math.min(8 + combo * 2, 24));
+      var record = combo > best && combo >= 3;
+      if (combo > best) { best = combo; try { localStorage.setItem(KEY, String(best)); } catch (e) {} }
+      if (MILESTONES[combo]) show(MILESTONES[combo][0], MILESTONES[combo][1]);
+      else if (record) show('NEUER REKORD: ' + combo, 'Den alten brauchst du nicht mehr.');
+    } else { if (combo >= 3) show('Serie weg: ' + combo, 'Rekord bleibt ' + best + '. Hol ihn dir zurück.'); combo = 0; pulse('no'); }
+    draw();
+  }});
+  ready(build);
+})();
+</script>
+<!-- DTP-SPIEL END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1702,7 +1796,10 @@ function mc(prompt,right,wrongs,why,extra){const opts=shuffle([right,...shuffle(
 const SYS={2:'Binärsystem',8:'Oktalsystem',10:'Dezimalsystem',16:'Hexadezimalsystem'};
 const ORD=['erste','zweite','dritte','vierte','fünfte','sechste','siebte','achte','neunte','zehnte'];
 const SUBS=[];
-function S(cat,id,label,min,f){SUBS.push({cat,id,label,min,f})}
+const SCENES={"b_values": ["Die Chefin fragt, ob das Feld groß genug ist. Du sagst „klar“ und rechnest lieber vorher nach.", "Stell dir jedes Bit als Lichtschalter vor. Jeder neue Schalter verdoppelt das Chaos."], "b_max": ["Die Null will auch einen Platz. Das vergisst jeder mindestens einmal.", "Kai behauptet, die Antwort sei die Anzahl der Werte. Kai irrt öfter."], "b_need": ["Das Nummernsystem soll reichen, ohne dass nächstes Jahr alle neue Nummern bekommen.", "Zu wenig Bit, und zwei Dinge haben denselben Code. Das gibt Ärger."], "b_place": ["Jede Stelle hat ihren Preis, und je weiter links, desto teurer.", "Stellenwerte sind wie Parkplätze: Entscheidend ist, wo du stehst."], "b_digits": ["Eine Frage für zwischendurch. Die kommt gern, wenn du gerade entspannt bist.", "Kurz Grundwissen, dann darfst du wieder rechnen."], "b_compare": ["Vier Zahlen, vier Verkleidungen. Wer ist wirklich der Größte?", "Die Zahlen machen auf wichtig. Schau, was dahintersteckt."], "d_plain": ["Der Rechner hat gesprochen, und keiner versteht ihn. Du übersetzt.", "Einsen zählen, Nullen dürfen zuschauen."], "d_octet": ["Die Konfiguration steht nur binär da, und der Kollege will die normale Zahl. Menschen halt.", "Acht Bit, ein Block. Den musst du irgendwann im Schlaf können."], "d_error": ["Kai hat wieder gerechnet. Jetzt bist du dran, ihn zu retten.", "Kai ist sich sehr sicher. Das ist meist das erste Warnzeichen."], "d_pattern": ["Diese Zahl sieht nach Arbeit aus. Ist sie aber nicht, wenn du das Muster siehst.", "Hier gewinnt, wer faul genug ist, das Muster zu erkennen."], "e_plain": ["Jetzt andersrum: Du sprichst mit dem Rechner.", "Die Zahl soll in den Rechner. Der nimmt nur Nullen und Einsen."], "e_ones": ["Keine große Rechnung, nur Einsen zählen. Wenn du sie erst mal hast.", "Binär schreiben, Einsen zählen, fertig. Klingt harmlos, oder?"], "e_msb": ["Wer ist der größte Brocken, der noch reinpasst?", "Erst der dicke Brocken, dann der Rest. Wie beim Umzug."], "e_mask": ["Subnetzmasken sind einfach gestrickt: erst Einsen, dann Nullen, keine Überraschungen.", "Das kommt in Subnetting wieder. Versprochen. Oder Drohung."], "h_b2h": ["So viele Nullen und Einsen liest kein Mensch freiwillig. Mach es kürzer.", "Vierergruppen bilden, übersetzen, fertig. Hex ist die Kurzschrift der Admins."], "h_h2b": ["Jetzt packst du die Kurzschrift wieder aus.", "Jede Hex-Ziffer wird zu vier Bit. Kein Rabatt, keine Ausnahme."], "h_h2d": ["Der Kollege versteht kein Hex und fragt nach der normalen Zahl.", "A bis F sind Zahlen in Verkleidung. Aufdecken, bitte."], "h_d2h": ["Das Tool will den Wert in Hex. Diskutieren bringt nichts.", "Die Zahl muss ins Hex. Der Taschenrechner darf zuschauen."], "h_color": ["Das Marketing will wissen, wie viel von dieser Farbe drinsteckt. Natürlich sofort.", "Hinter jeder Webfarbe steckt Hex. Auch hinter dem hässlichen Firmenblau."], "h_net": ["Hex begegnet dir im Netzwerk ständig. Spätestens beim nächsten ipconfig.", "Hier wird Hex plötzlich praktisch. Keine Sorge, das geht vorbei."], "h_oct": ["Oktal ist selten, aber wenn es kommt, dann gern in der Prüfung.", "Basis 8. Wer hat das bestellt? Linux, unter anderem."], "h_chmod": ["Eine Datei, drei Parteien, und jede will was anderes. Linux regelt das mit Zahlen.", "Einmal falsch gesetzt, und alle dürfen alles. Oder keiner. Also genau hinschauen."], "c_add": ["Wie in der Grundschule, nur dass du schon bei 1 + 1 einen Übertrag hast.", "Schriftlich addieren, nur mit sehr wenig Ziffern."], "c_over": ["Der Platz im Register ist begrenzt. Was nicht passt, fliegt raus, ohne Entschuldigung.", "Das Register hat nur 8 Bit. Die Rechnung weiß das noch nicht."], "c_and": ["AND ist der strenge Türsteher: Rein kommt nur, wer zwei Einsen hat.", "Genau damit rechnet dein Router den ganzen Tag. Nur schneller und ohne Kaffee."], "c_orx": ["OR ist großzügig, XOR ist wählerisch. Gleich brauchst du einen von beiden.", "Zwei Bitmuster treffen sich, und die Logik entscheidet, was übrig bleibt."], "c_not": ["Alles, was an war, geht aus. Und umgekehrt. Der Kollege, der immer dagegen ist.", "Die einfachste Logik der Welt. Trotzdem klappt sie nicht immer beim ersten Mal."], "c_shift": ["Alle Bits rutschen weiter. Wie in der Schlange, wenn vorne einer geht.", "Schieben ist Rechnen für Faule. Die CPU liebt das."], "c_net": ["Das macht dein Router bei jedem Paket. Jetzt machst du es einmal von Hand.", "Aus Adresse und Maske wird die Netzadresse. Der Rest darf gehen."], "n_to": ["Der Rechner hat kein Minuszeichen. Wir tricksen.", "Schulden in Binär: Das geht, nur anders als gedacht."], "n_from": ["Die linke Stelle entscheidet: Ist das hier Guthaben oder Schulden?", "Erst mal schauen, ob die Zahl überhaupt im Minus ist."], "n_range": ["Das Minus kostet Platz, und die Null sitzt auf der Plusseite. Darum ist es ungleich verteilt.", "Wie weit geht es nach unten, wie weit nach oben? Beide Seiten sind nicht gleich lang."], "n_sub": ["Die CPU rechnet Minus, indem sie das Negative addiert und so tut, als wäre nichts.", "Minus rechnen, ohne Minus zu rechnen. Klingt nach Betrug, ist Zweierkomplement."], "n_method": ["Drei Verfahren, ein Bitmuster. Wer war es?", "Detektivarbeit: Das Muster hat eine Handschrift."], "n_overflow": ["Zwei Zahlen rein, etwas Seltsames raus. Was ist da passiert?", "Das Ergebnis sieht falsch aus. Die CPU sieht das anders."], "u_same": ["Das Angebot nennt eine Einheit, deine Liste eine andere. Natürlich.", "Nur die Einheit wechselt, die Menge bleibt. Trotzdem geht es gern schief."], "u_cross": ["Hersteller zählen in Tausendern, Betriebssysteme gern in 1.024ern. Du darfst vermitteln.", "Zwei Einheiten-Familien, die nicht miteinander reden. Du übersetzt."], "u_bits": ["Ganz nach unten in die kleinste Einheit. Es werden viele.", "Das Kleinste, was der Rechner zählen kann, und davon ziemlich viele."], "u_disk": ["Die Platte ist neu, die Anzeige kleiner, der Kunde sauer. Du erklärst das.", "Gleich viele Byte, andere Zahl. Der Anruf beim Händler kann warten."], "u_know": ["Der Kunde ruft an und sagt, man habe ihn betrogen. Was sagst du?", "Diese Frage kommt garantiert irgendwann im Support."], "r_time": ["Die Kollegin steht neben dir und fragt, wie lange das noch dauert. Sag jetzt nicht „gleich“.", "Bit und Byte sind hier die beliebteste Falle."], "r_time_iec": ["Gemischte Einheiten. Die Prüfung liebt das.", "Erst die Einheit sauber machen, sonst rechnest du präzise falsch."], "r_need": ["Der Chef will es rechtzeitig fertig haben. Reicht die Leitung?", "Erst rechnen, dann Leitung bestellen. Die Reihenfolge spart Geld."], "r_amount": ["Wie viel ist durch die Leitung gegangen? Der Provider wüsste es auch gern.", "Rate mal Zeit. Das Schwierige sind mal wieder die Einheiten."], "r_mbps": ["Der Provider verspricht viel, der Download zeigt wenig. Betrug? Nein, Bit und Byte.", "Das steht so groß in der Werbung und so klein im Browser."], "r_overhead": ["Nicht alles auf der Leitung sind deine Daten. Ein Teil ist Verwaltung, wie im echten Leben.", "Die Verpackung will auch mit. Die zahlst du in Bandbreite."], "s_img": ["Bilder belegen Platz, und ohne Kompression reichlich.", "Erst die Pixel, dann die Bit, dann die Einheit. In der Reihenfolge tut es weniger weh."], "s_colors": ["Jede Farbe braucht ihren eigenen Code. Wie viele Bit braucht der Maler?", "Mehr Farben, mehr Bit. Aber wie viele wirklich?"], "s_audio": ["Unkomprimiert klingt gut und frisst Speicher.", "Jede Sekunde Ton sind viele kleine Messwerte. Du zählst sie zusammen."], "s_bitrate": ["Wie viel muss pro Sekunde durch die Leitung, damit niemand abgehackt klingt?", "Ganz ohne Kompression: Das Beispiel, bei dem MP3 plötzlich sympathisch wird."], "s_video": ["Ohne Kompression ist Video ein Speicherfresser. Gleich siehst du, wie schlimm.", "Die Zahl wird groß. Nicht erschrecken."], "s_text": ["Buchstaben sind nicht gleich groß. Umlaute nehmen sich mehr Platz.", "Für den Computer ist „ä“ teurer als „a“."], "s_fit": ["Vor dem Urlaub die entscheidende Frage: Reicht die Karte?", "Halbe Fotos speichert niemand. Denk daran beim Ergebnis."], "s_scan": ["Der alte Aktenordner soll ins Digitale. Wie groß wird das?", "Scannen kostet mehr Platz, als man denkt."]};
+const EXAMPLES={"b_values": "Mit 3 Bit gibt es 2 × 2 × 2 = 8 Werte.", "b_max": "Mit 3 Bit gibt es 8 Werte. Die Null zählt mit, also geht es von 0 bis 7.", "b_need": "Für 20 Dinge: 4 Bit ergeben nur 16 Codes, 5 Bit ergeben 32. Also 5 Bit.", "b_place": "Von rechts binär: 1, 2, 4, 8. Oktal: 1, 8, 64. Hex: 1, 16, 256.", "b_digits": "Basis 5 hätte die Ziffern 0 bis 4. Außerdem: Nibble = 4 Bit, Byte = 8 Bit, 0x heißt Hex.", "b_compare": "0x10, 10000₂ und 20₈ sind alle 16. Erst alles in Dezimal umrechnen, dann vergleichen.", "d_plain": "1011: Von rechts stehen 1, 2, 4, 8 darüber. Einsen bei 1, 2 und 8, also 11.", "d_octet": "1100 0000: Einsen bei 128 und 64, also 192.", "d_error": "1101 ist richtig 13. Von links gezählt käme 11 heraus, nur die Nullen addiert käme 2 heraus.", "d_pattern": "1111 ist 16 − 1 = 15. 10000 ist genau 16.", "e_plain": "Bei 13: 8 passt, Rest 5. 4 passt, Rest 1. 2 passt nicht. 1 passt. Also 1101.", "e_ones": "13 ist 1101, darin stehen 3 Einsen.", "e_msb": "Bei 100: 64 passt noch, 128 ist zu groß. Antwort 64.", "e_mask": "Drei Einsen: 128 + 64 + 32 = 224. Umgekehrt: 224 hat drei Einsen.", "h_b2h": "1010 0011: 1010 ist A, 0011 ist 3, also 0xA3.", "h_h2b": "0x2F: 2 ist 0010, F ist 1111, also 0010 1111.", "h_h2d": "0x2F = 2 × 16 + 15 = 47.", "h_d2h": "200 : 16 = 12 Rest 8. 12 ist C, also 0xC8.", "h_color": "#FF8000: Rot FF = 255, Grün 80 = 128, Blau 00 = 0.", "h_net": "Eine Hex-Ziffer sind 4 Bit, ein Byte sind 2 Hex-Ziffern. 2 Byte sind also 16 Bit oder 4 Hex-Ziffern.", "h_oct": "17₈ = 1 × 8 + 7 = 15.", "h_chmod": "chmod 640: 6 = 4 + 2 = rw-, 4 = r--, 0 = ---.", "c_add": "0011 + 0001: Rechts 1 + 1 = 0, 1 im Sinn. Dann 1 + 0 + 1 = 0, wieder 1 im Sinn. Ergebnis 0100.", "c_over": "250 + 10 = 260 passt nicht in 8 Bit: 260 − 256 = 4.", "c_and": "1100 AND 1010 = 1000: Nur wo beide eine 1 haben, bleibt eine 1.", "c_orx": "1100 OR 1010 = 1110. 1100 XOR 1010 = 0110.", "c_not": "NOT 1100 0011 = 0011 1100: Jedes Bit dreht sich um.", "c_shift": "0000 0101 (5) eine Stelle nach links ist 0000 1010 (10). Nach rechts wird halbiert.", "c_net": "IP 200, Maske 224: 1100 1000 AND 1110 0000 = 1100 0000, also 192.", "n_to": "−5: 5 ist 0000 0101, umdrehen 1111 1010, plus 1 ergibt 1111 1011.", "n_from": "1111 1011: Links steht eine 1, also negativ: −128 + 123 = −5. Steht links eine 0, liest du die Zahl normal.", "n_range": "4 Bit: −8 bis 7. 8 Bit: −128 bis 127.", "n_sub": "5 − 3 = 5 + (−3): 0000 0101 + 1111 1101 = 0000 0010. Den Übertrag vorn lässt du fallen.", "n_method": "−5 als Betrag mit Vorzeichen: 1000 0101. Einerkomplement: 1111 1010. Zweierkomplement: 1111 1011.", "n_overflow": "100 + 50 = 150, aber 8 Bit mit Vorzeichen reichen nur bis 127. Darum erscheint −106.", "u_same": "3 GB sind 3.000 MB: Jede Stufe ist Faktor 1.000, bei MiB und GiB 1.024.", "u_cross": "1 GB in MiB: 1.000.000.000 Byte : 1.048.576 = 953,67 MiB.", "u_bits": "1 KiB = 1.024 Byte = 8.192 Bit.", "u_disk": "500 GB = 500.000.000.000 Byte, geteilt durch 1.073.741.824 sind das 465,66 GiB.", "u_know": "Hersteller zählen mit 1.000, Windows mit 1.024. Bei gleich vielen Byte zeigt Windows eine kleinere Zahl.", "r_time": "100 MB sind 800 Mbit. Bei 100 Mbit/s dauert das 8 Sekunden.", "r_time_iec": "1 MiB sind 8.388.608 Bit. Bei 10 Mbit/s dauert das 0,84 Sekunden.", "r_need": "1 GB in 100 Sekunden: 8.000 Mbit : 100 s = 80 Mbit/s.", "r_amount": "100 Mbit/s für 10 Sekunden: 1.000 Mbit = 125 MB = 0,125 GB.", "r_mbps": "100 Mbit/s : 8 = 12,5 MB/s.", "r_overhead": "100 Mbit/s bei 90 % sind 90 Mbit/s. 1 GB = 8.000 Mbit, also 88,89 s = 1,48 Minuten.", "s_img": "1.000 × 1.000 Pixel mit 8 Bit: 8.000.000 Bit : 8 = 1.000.000 Byte = 1 MB.", "s_colors": "64 Farben: 2⁶ = 64, also 6 Bit.", "s_audio": "44.100 Hz × 16 Bit × 2 Kanäle × 60 s = 84.672.000 Bit = 10,58 MB.", "s_bitrate": "44.100 Hz × 16 Bit × 2 Kanäle = 1.411.200 bit/s = 1.411,2 kbit/s.", "s_video": "1.000 × 1.000 × 24 Bit × 25 Bilder/s × 10 s = 6.000.000.000 Bit = 0,75 GB.", "s_text": "„Bär“: B = 1 Byte, ä = 2 Byte, r = 1 Byte, also 4 Byte.", "s_fit": "64 GB und Fotos mit 5 MB: 64.000 MB : 5 = 12.800 Fotos. Immer abrunden.", "s_scan": "4 × 5 Zoll bei 100 dpi: 400 × 500 = 200.000 Pixel. Mal 24 Bit = 4.800.000 Bit = 0,6 MB."};
+let sceneN=0;
+function S(cat,id,label,min,f){SUBS.push({cat,id,label,min,f:lv=>{const t=f(lv);const c=SCENES[id];t.scene=c[(sceneN++)%c.length];return t}})}
 
 /* ---- Stellenwerte & Bits ---- */
 S('basis','b_values','Werte mit n Bit',1,lv=>{
@@ -2165,8 +2262,8 @@ function andWork(t){
 }
 function renderTask(host,t,o){
  o=o||{};lastTask=t;const id='in'+(++uid);
- let h='<p class="task-prompt">'+t.prompt+(t.plain?' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'tip"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'tip"><strong>Einfach gesagt:</strong> '+t.plain+'</span></span>':'')+'</p>';
- h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+'</div>';
+ let h=(t.scene&&!o.short?'<p class="task-scene">'+t.scene+'</p>':'')+'<p class="task-prompt">'+t.prompt+(t.plain?' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'tip"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'tip"><strong>Einfach gesagt:</strong> '+t.plain+(EXAMPLES[t.sub]?'<span class="qex"><strong>Beispiel:</strong> '+EXAMPLES[t.sub]+'</span>':'')+'</span></span>':'')+'</p>';
+ h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+(EXAMPLES[t.sub]?' <strong>Beispiel:</strong> '+EXAMPLES[t.sub]:'')+'</div>';
  if(t.kind==='mc')h+='<div class="options" role="group" aria-label="Antwort wählen">'+t.options.map((x,i)=>'<button type="button" class="opt" data-v="'+i+'"><span class="key">'+'ABCD'[i]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div>';
  else h+=andWork(t)+'<div class="ans-row" data-r="form"><label class="'+(t.andOperands?'':'sr-only')+'" for="'+id+'">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+(t.kind==='hex'?'text':t.kind==='num'?'decimal':'numeric')+'" placeholder="'+PH[t.kind]+'">'+(t.unit?'<span class="ans-unit">'+esc(t.unit)+'</span>':'')+'<button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+(t.fmt||FMT[t.kind])+'</p>';
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
@@ -2183,6 +2280,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.and-work input').forEach(input=>{input.disabled=true});
   const inp=q('form')?.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
+  window.dtpGame?.answer(ok,host);
   res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(o.short?'':'<div class="why">'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
@@ -2389,7 +2487,7 @@ function renderExamNav(){$('examNav').innerHTML=ex.tasks.map((t,i)=>'<button typ
 function renderExamQ(){
  const i=ex.cur,t=ex.tasks[i];$('examConfirm').hidden=true;
  $('examPos').textContent='AUFGABE '+String(i+1).padStart(2,'0')+' / '+ex.tasks.length;$('examPts').textContent=CATNAME[t.cat].toUpperCase()+' · '+t.pts+' PUNKTE';
- let h='<p class="task-prompt">'+t.prompt+'</p>';
+ let h=(t.scene?'<p class="task-scene">'+t.scene+'</p>':'')+'<p class="task-prompt">'+t.prompt+'</p>';
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+=andWork(t)+'<div class="ans-row"><label class="'+(t.andOperands?'':'sr-only')+'" for="exIn">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+(t.kind==='hex'?'text':t.kind==='num'?'decimal':'numeric')+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'">'+(t.unit?'<span class="ans-unit">'+esc(t.unit)+'</span>':'')+'</div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
