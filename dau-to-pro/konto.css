@@ -265,3 +265,4 @@
 .highscore-page .profile-dialog .ach-item .ach-icon{width:60px;height:60px;font-size:29px}
 .highscore-page .profile-dialog .ach-item .ach-icon img{width:54px;height:54px;object-fit:contain;image-rendering:pixelated}
 @media(max-width:540px){.highscore-page .profile-showcase{gap:8px}.highscore-page .profile-showcase-card{padding:12px 7px;min-height:130px}.highscore-page .profile-showcase-card .ach-icon{width:58px;height:58px;font-size:32px}.highscore-page .profile-showcase-card .ach-icon img{width:56px;height:56px}.highscore-page .profile-showcase-card strong{font-size:11px}}
+.showcase-icon [role=tooltip] strong{display:block;color:#eab448;font-weight:700}.showcase-icon [role=tooltip] small{display:block;margin-top:4px;font:400 12px/1.4 Inter,system-ui;color:#d7dde2}.showcase-icon [role=tooltip]{max-width:220px}
