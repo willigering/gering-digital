@@ -1,6 +1,10 @@
 /* DAU TO PRO // NERD RADIO – Cyberpunk-Ghettoblaster.
-   Aufbau in Ebenen: In Blender gerendertes Gehäuse (nerd-radio/chassis.webp, ohne Tasten und Anzeige),
-   darüber echte HTML-Bedienelemente. Tasten und Membranen sind eigene Renders je Zustand.
+   Aufbau in Ebenen (alle aus Blender, leicht schräg gerendert):
+   - nerd-radio/base.webp: Gehäuse mit ausgeschalteten Leuchten, ohne Tasten und Anzeige
+   - nerd-radio/light-gold.webp, light-cyan.webp: reines Licht der Leuchtgruppen inkl. Lichtfall auf
+     Metall und Gitter; additiv überlagert, Helligkeit folgt live der Musik (nerd-radio.js)
+   - Membranen und Tasten als eigene Renders je Platz und Zustand
+   Display und Lautstärkeregler liegen auf .nr-face, das per matrix3d exakt auf die schräge Front gelegt wird.
    Positionen stehen in nerd-radio/layout.css (generiert von tools/nerd-radio/build_boombox.py).
    Alle Maße innerhalb des Geräts in cqw (1 % der Gerätebreite), damit es als Ganzes skaliert.
    Platzierung: eigene Zeile zwischen Hero und Trainingszone, rechts unter dem DAU-TO-PRO-Logo.
@@ -25,13 +29,12 @@
   --cyan:#22dcf5;--cyan-soft:#22dcf566;--gold:#ffb22a;--gold-soft:#ffa21e77;
   position:relative;container-type:inline-size;width:100%;
   color:#e9f9ff;font-family:ui-monospace,"Cascadia Mono",SFMono-Regular,Consolas,monospace;
-  transform:perspective(1600px) rotateY(-7deg) rotateZ(-1deg);transform-origin:40% 60%;
 }
 .nr-chassis{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;user-select:none}
 .nr-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* Boden: Schatten, Lichtring und weiche Reflexion */
-.nr-floor{position:absolute;z-index:-1;left:-2%;right:-2%;bottom:-1%;height:20%;pointer-events:none;
+.nr-floor{position:absolute;z-index:-1;will-change:opacity;left:-2%;right:-2%;bottom:-1%;height:20%;pointer-events:none;
   background:
     radial-gradient(50% 42% at 50% 48%,transparent 0 80%,#ffb22acc 86%,#ffb22a33 92%,transparent 98%),
     radial-gradient(46% 34% at 50% 40%,#000d 0 55%,transparent 100%),
@@ -40,13 +43,20 @@
     radial-gradient(22% 30% at 50% 58%,#ffb22a40,transparent 72%)}
 
 /* ---------- Lautsprecher: Gitter und Pilz als eigene Ebene, die zum Bass atmet ---------- */
-.nr-speaker{position:absolute;border-radius:50%}
-.nr-speaker__glow{position:absolute;inset:4%;border-radius:50%;opacity:.42;will-change:opacity;
-  box-shadow:0 0 3.4cqw .4cqw var(--gold-soft),inset 0 0 2.4cqw .4cqw #ffa21e44}
-.nr-speaker__cone{position:absolute;border-radius:50%;background:center/100% 100% no-repeat;will-change:transform}
+.nr-speaker{position:absolute;z-index:1;border-radius:50%}
+.nr-speaker__cone{position:absolute;inset:0;border-radius:50%;background:center/100% 100% no-repeat;will-change:transform}
+
+/* ---------- Echtes Licht: Lichtebenen (Deckkraft = Lichtstärke), Helligkeit folgt der Musik ---------- */
+.nr-light{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;pointer-events:none;user-select:none;
+  opacity:.75;will-change:opacity}
+
+/* ---------- Schräge Front: Display und Regler werden per matrix3d auf die Gehäusefront gelegt ---------- */
+.nr-face{position:absolute;left:0;top:0;z-index:3;width:1000px;height:450px;transform-origin:0 0;pointer-events:none;container-type:size;visibility:hidden}
+.nr-face.is-placed{visibility:visible}
+.nr-face>*{pointer-events:auto}
 
 /* ---------- Display ---------- */
-.nr-display{position:absolute;padding:0}
+.nr-display{position:absolute;left:27.6%;top:32%;width:44.8%;height:27.111%;padding:0}
 .nr-display__glass{position:relative;height:100%;overflow:hidden;
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr) minmax(0,.85fr);column-gap:2.4%;
   padding:2.4% 4% 2.2%;border-radius:.8cqw;
@@ -95,33 +105,24 @@
 
 /* ---------- Physische Tasten: gerenderte Kappen je Zustand, Symbole als SVG darauf ---------- */
 .nr-transport,.nr-lower{display:contents}
-.nr-key{position:absolute;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
-  background:url(nerd-radio/key-std-up.webp) center/100% 100% no-repeat;
-  transition:filter .16s;-webkit-tap-highlight-color:transparent}
-.nr-key svg{width:32%;height:36%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
+.nr-key{position:absolute;z-index:4;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
+  background:center/100% 100% no-repeat;transition:filter .16s;-webkit-tap-highlight-color:transparent}
+.nr-key svg{width:30%;height:34%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
 .nr-key:hover{filter:brightness(1.18) saturate(1.15) drop-shadow(0 0 .7cqw #22dcf577)}
-.nr-key:active,.nr-key.is-down{background-image:url(nerd-radio/key-std-down.webp)}
 .nr-key:active svg,.nr-key.is-down svg{transform:translateY(4%) scale(.96)}
 .nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:-.6cqw;border-radius:1cqw}
-.nr-key--play{background-image:url(nerd-radio/key-play-up.webp)}
-.nr-key--play:active,.nr-key--play.is-down{background-image:url(nerd-radio/key-play-down.webp)}
 .nr-key--play .nr-icon-pause{display:none}
-.nr-device[data-state=playing] .nr-key--play{color:#ffc650;background-image:url(nerd-radio/key-play-on-up.webp)}
-.nr-device[data-state=playing] .nr-key--play:active,.nr-device[data-state=playing] .nr-key--play.is-down{background-image:url(nerd-radio/key-play-on-down.webp)}
+.nr-device[data-state=playing] .nr-key--play{color:#ffc650}
 .nr-device[data-state=playing] .nr-key--play:hover{filter:brightness(1.15) drop-shadow(0 0 .8cqw #ff9a1488)}
 .nr-device[data-state=playing] .nr-key--play .nr-icon-play{display:none}
 .nr-device[data-state=playing] .nr-key--play .nr-icon-pause{display:block}
 .nr-key--gold{color:#ffc53d}
-.nr-key--round{background-image:url(nerd-radio/key-round-up.webp)}
-.nr-key--round:active,.nr-key--round.is-down{background-image:url(nerd-radio/key-round-down.webp)}
-.nr-key--round svg{width:44%;height:44%}
-.nr-key--gold-rim,.nr-key--round[aria-pressed=true]{background-image:url(nerd-radio/key-round-gold-up.webp);color:#ffd06a}
-.nr-key--gold-rim:active,.nr-key--gold-rim.is-down,.nr-key--round[aria-pressed=true]:active{background-image:url(nerd-radio/key-round-gold-down.webp)}
+.nr-key--round svg{width:42%;height:42%}
+.nr-key--gold-rim,.nr-key--round[aria-pressed=true]{color:#ffd06a}
 .nr-key--gold-rim:hover,.nr-key--round[aria-pressed=true]:hover{filter:brightness(1.15) drop-shadow(0 0 .7cqw #ffb22a77)}
-.nr-key[aria-expanded=true]{background-image:url(nerd-radio/key-round-gold-down.webp)}
 
 /* ---------- Lautstärke ---------- */
-.nr-volume{position:absolute;display:flex;align-items:center;gap:2.2%;padding:0 3%}
+.nr-volume{position:absolute;left:31.6%;top:79.111%;width:36.8%;height:10.222%;display:flex;align-items:center;gap:2.2%;padding:0 3%}
 .nr-volume svg{flex:none;width:3.6cqw;height:3.6cqw;fill:currentColor;color:#dff8ff;filter:drop-shadow(0 0 .4cqw #22dcf599)}
 .nr-volume input{--nr-vol:35%;flex:1;min-width:0;height:100%;margin:0;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
 .nr-volume input::-webkit-slider-runnable-track{height:2.2cqw;border-radius:.3cqw;

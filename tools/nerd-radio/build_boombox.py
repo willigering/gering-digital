@@ -3,7 +3,8 @@
 Aufruf (Blender 5.x, Cycles):
   blender -b --factory-startup --python tools/nerd-radio/build_boombox.py -- --out dau-to-pro/nerd-radio [--preview] [--only chassis|cones|keys]
 
-Erzeugt transparente WebP-Ebenen und anchors.json mit den Bildpositionen aller
+Erzeugt WebP-Ebenen (Gehäuse ohne Leuchten, je eine additive Lichtebene für
+Cyan und Gold, Membranen, Tasten je Platz und Zustand), layout.css und anchors.json mit den Bildpositionen aller
 Bedienelemente. Die Website legt echte HTML-Tasten, Display und Regler darüber.
 Im Gehäuse-Render sind deshalb keine Tasten und keine Anzeige enthalten.
 
@@ -403,6 +404,36 @@ for ob in sticker_parts:
     ob.parent = pivot; ob.matrix_parent_inverse = pivot.matrix_world.inverted()
 pivot.rotation_euler.y = math.radians(-12)   # gegen den Uhrzeigersinn, wie in der Referenz
 
+
+# Rechte Gehäuseseite (durch die schräge Kamera sichtbar): Lüftung, Gold-Neon, Logo-Ring
+def box3(name, center, size, mat, coll='chassis', bevel=0.004):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=center)
+    ob = bpy.context.object; ob.scale = size
+    for cc in ob.users_collection: cc.objects.unlink(ob)
+    link(ob, coll); ob.name = name; ob.data.materials.append(mat)
+    if bevel:
+        m = ob.modifiers.new('bevel', 'BEVEL'); m.width = bevel; m.segments = 2
+    return ob
+def tube3(name, pts, radius, mat, coll='chassis'):
+    cu = bpy.data.curves.new(name, 'CURVE'); cu.dimensions = '3D'
+    sp = cu.splines.new('POLY'); sp.points.add(len(pts) - 1)
+    for i, p in enumerate(pts): sp.points[i].co = (*p, 1)
+    cu.bevel_depth = radius; cu.bevel_resolution = 4; cu.use_fill_caps = True
+    ob = link(bpy.data.objects.new(name, cu), coll); ob.data.materials.append(mat)
+    return ob
+SX = X(980)
+box3('side_plate', (SX + 0.03, 0.85, Z(282)), (0.06, 1.3, 2.0), M['panel'], bevel=0.02)
+for k in range(6):
+    box3('side_vent', (SX + 0.065, 0.42 + k * 0.035 * 0 + 0.0, Z(206 + k * 11)), (0.02, 0.62, 0.05), M['void'])
+    box3('side_vent', (SX + 0.065, 1.26, Z(206 + k * 11)), (0.02, 0.42, 0.05), M['void'])
+tube3('side_neon_g', [(SX + 0.08, 0.2, Z(176)), (SX + 0.08, 0.2, Z(392))], 0.014, M['neon_g'])
+tube3('side_neon_c', [(SX + 0.08, 1.52, Z(190)), (SX + 0.08, 1.52, Z(380))], 0.012, M['neon_c'])
+bpy.ops.mesh.primitive_torus_add(major_radius=0.17, minor_radius=0.022, major_segments=64, minor_segments=12, location=(SX + 0.08, 0.85, Z(320)), rotation=(0, math.pi / 2, 0))
+logo = bpy.context.object
+for cc in logo.users_collection: cc.objects.unlink(logo)
+link(logo); logo.name = 'side_logo'; logo.data.materials.append(M['neon_g'])
+box3('side_logo_bar', (SX + 0.08, 0.85, Z(320)), (0.03, 0.04, 0.26), M['neon_g'], bevel=0.01)
+
 # ---------------------------------------------------------------- Tasten (eigene Ebene)
 def key(name, box, rim_mat, depth_front, cut=12):
     x0, y0, x1, y1 = box
@@ -439,8 +470,9 @@ cam_d = bpy.data.cameras.new('cam'); cam_d.lens = 135; cam_d.sensor_width = 36
 cam = bpy.data.objects.new('cam', cam_d); scene.collection.objects.link(cam); scene.camera = cam
 tilt = math.radians(12)
 dist = 46
-cam.location = (0, -dist * math.cos(tilt), dist * math.sin(tilt) + 0.15)
-cam.rotation_euler = (math.pi / 2 - tilt, 0, 0)
+yaw = math.radians(14)   # leicht schräg: rechte Gehäuseseite sichtbar
+cam.location = (dist * math.cos(tilt) * math.sin(yaw), -dist * math.cos(tilt) * math.cos(yaw), dist * math.sin(tilt) + 0.15)
+cam.rotation_euler = (math.pi / 2 - tilt, 0, yaw)
 W, H = (1100, 560) if PREVIEW else (2200, 1120)
 scene.render.resolution_x, scene.render.resolution_y = W, H
 cam_d.sensor_fit = 'HORIZONTAL'
@@ -475,20 +507,8 @@ try:
         if s is not None:
             try: s.default_value = val
             except Exception: pass
-    over = tree.nodes.new('CompositorNodeAlphaOver')
-    ins = [s for s in over.inputs if s.type == 'RGBA']
-    ins[0].default_value = (0, 0, 0, 1); tree.links.new(rl.outputs['Image'], ins[1])
-    tree.links.new(over.outputs[0], gl.inputs['Image'])
-    glow = tree.nodes.new('CompositorNodeRGBToBW'); tree.links.new(gl.outputs.get('Glare') or gl.outputs[0], glow.inputs[0])
-    boost = tree.nodes.new('ShaderNodeMath'); boost.operation = 'MULTIPLY'; boost.use_clamp = True
-    tree.links.new(glow.outputs[0], boost.inputs[0]); boost.inputs[1].default_value = 1.6
-    mx = tree.nodes.new('ShaderNodeMath'); mx.operation = 'MAXIMUM'
-    tree.links.new(rl.outputs['Alpha'], mx.inputs[0]); tree.links.new(boost.outputs[0], mx.inputs[1])
-    sa = tree.nodes.new('CompositorNodeSetAlpha')
-    try: sa.mode = 'REPLACE_ALPHA'
-    except Exception: pass
-    tree.links.new(gl.outputs['Image'], sa.inputs['Image']); tree.links.new(mx.outputs[0], sa.inputs['Alpha'])
-    go = tree.nodes.new('NodeGroupOutput'); tree.links.new(sa.outputs[0], go.inputs[0])
+    tree.links.new(rl.outputs['Image'], gl.inputs['Image'])
+    go = tree.nodes.new('NodeGroupOutput'); tree.links.new(gl.outputs['Image'], go.inputs[0])
     print('BLOOM ok', [s.name for s in gl.inputs], [s.name for s in gl.outputs])
 except Exception as e:
     print('BLOOM failed', e)
@@ -508,8 +528,7 @@ def bbox(x0, y0, x1, y1, d, pad=0):
 
 def visible(*colls):
     for c in bpy.data.collections:
-        hidden = c.name not in colls
-        c.hide_render = hidden
+        c.hide_render = c.name not in colls
 
 def render(path, border=None):
     r = scene.render
@@ -522,35 +541,88 @@ def render(path, border=None):
     bpy.ops.render.render(write_still=True)
     print('RENDERED', path)
 
+# Leuchtgruppen: werden für die Lichtebenen einzeln ein- und ausgeschaltet
+GROUPS = {'cyan': [M['neon_c'], M['pixel_c']], 'gold': [M['neon_g'], M['ring_g']]}
+BASE_EMIT = {m.name: m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value for g in GROUPS.values() for m in g}
+def emit(group_factors):
+    for g, mats in GROUPS.items():
+        for m in mats:
+            m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = BASE_EMIT[m.name] * group_factors.get(g, 0)
+# Lichtquellen an den Röhren: werfen das Neonlicht sichtbar auf Metall, Gitter und Kanten
+def glow_lamp(name, loc, power, radius, color, group):
+    ld = bpy.data.lights.new(name, 'POINT'); ld.energy = power; ld.shadow_soft_size = radius; ld.color = color
+    ob = bpy.data.objects.new(name, ld); scene.collection.objects.link(ob); ob.location = loc; ob.visible_camera = False
+    ob['group'] = group; return ob
+for i, (x, y) in enumerate(SPK):
+    glow_lamp(f'gl_spk{i}', (X(x), -0.55, Z(y)), 150, 0.9, GOLD, 'gold')
+glow_lamp('gl_bottom', (0, -0.45, Z(432)), 70, 0.6, GOLD, 'gold')
+glow_lamp('gl_side_g', (X(980) + 0.45, 0.3, Z(285)), 90, 0.6, GOLD, 'gold')
+glow_lamp('gl_shoulders_l', (X(40), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
+glow_lamp('gl_shoulders_r', (X(960), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
+glow_lamp('gl_top_l', (X(200), 0.55, Z(62)), 160, 0.8, CYAN, 'cyan')
+glow_lamp('gl_top_r', (X(800), 0.55, Z(62)), 160, 0.8, CYAN, 'cyan')
+glow_lamp('gl_display', (0, -0.7, Z(205)), 90, 1.2, CYAN, 'cyan')
+glow_lamp('gl_side_c', (X(980) + 0.45, 1.5, Z(285)), 70, 0.6, CYAN, 'cyan')
+for i, (x, y) in enumerate(SPK):
+    glow_lamp(f'gl_px{i}', (X(x), -0.35, Z(y)), 25, 0.3, CYAN, 'cyan')
+LAMPS = [o for o in scene.objects if o.type == 'LIGHT' and 'group' not in o]
+GLOW = [o for o in scene.objects if o.type == 'LIGHT' and 'group' in o]
+STATIC_EMIT = [M['heart']]
+def lamps(on, group=None):
+    for o in LAMPS: o.hide_render = not on
+    for o in GLOW: o.hide_render = o['group'] != group
+    bg.inputs['Strength'].default_value = 1.0 if on else 0.0
+    for m in STATIC_EMIT:
+        m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = 0.6 if on else 0.0
+def compositing(on):
+    scene.render.use_compositing = on
+
 bpy.context.view_layer.update()
 RAW = os.path.join(OUT, '_raw'); os.makedirs(RAW, exist_ok=True)
-
 def union(*boxes):
     return [min(b[0] for b in boxes), min(b[1] for b in boxes), max(b[2] for b in boxes), max(b[3] for b in boxes)]
-# Bildausschnitt des Gehäuses: Korpus, Griff (liegt weiter hinten) und Neon-Rückrahmen, plus Rand für den Lichtschein
-CHASSIS = union(bbox(0, 60, 1000, 452, 0.0, pad=22), bbox(260, 6, 740, 40, 0.5, pad=22), bbox(260, 6, 740, 40, 1.0, pad=22),
-                bbox(40, 70, 960, 100, 0.5, pad=22), bbox(20, 96, 980, 168, 1.7, pad=22))
+# Bildausschnitt: Korpus inkl. sichtbarer Rückseite/Seite, Griff und Neon-Rückrahmen, plus Rand für den Lichtschein
+CHASSIS = union(bbox(0, 60, 1000, 452, 0.0, pad=26), bbox(260, 6, 740, 40, 0.5, pad=26), bbox(260, 6, 740, 40, 1.0, pad=26),
+                bbox(40, 70, 960, 100, 0.5, pad=26), bbox(0, 96, 1000, 446, 1.7, pad=26))
 CHASSIS = [max(0, CHASSIS[0]), max(0, CHASSIS[1]), min(1, CHASSIS[2]), min(1, CHASSIS[3])]
 def rel(b):
     cx0, cy0, cx1, cy1 = CHASSIS; w, h = cx1 - cx0, cy1 - cy0
     return [(b[0] - cx0) / w, (b[1] - cy0) / h, (b[2] - cx0) / w, (b[3] - cy0) / h]
+def relp(p):
+    cx0, cy0, cx1, cy1 = CHASSIS
+    return [(p[0] - cx0) / (cx1 - cx0), (p[1] - cy0) / (cy1 - cy0)]
 
-anchors = {'display': bbox(*DISPLAY, 0.06), 'volume': bbox(*VOLUME, 0.05), 'keys': {},
-           'speakers': [bbox(x - 120, y - 120, x + 120, y + 120, -0.16, pad=6) for x, y in SPK],
-           'cones': [bbox(x - 100, y - 100, x + 100, y + 100, 0.04, pad=4) for x, y in SPK]}
-for name, box in KEYS.items():
-    anchors['keys'][name] = bbox(box[0], box[1], box[2], box[3], -0.13, pad=10)
+FACE_D = 0.08   # Ebene, auf der Display und Lautstärkeregler liegen
+anchors = {'keys': {name: bbox(*box, -0.13, pad=10) for name, box in KEYS.items()},
+           'cones': [bbox(x - 100, y - 100, x + 100, y + 100, 0.04, pad=4) for x, y in SPK],
+           'face': [relp(proj(x, y, FACE_D)) for x, y in ((0, 0), (1000, 0), (1000, 450), (0, 450))]}
+
+ims = scene.render.image_settings
+def png(alpha=True):
+    ims.file_format = 'PNG'; ims.color_mode = 'RGBA' if alpha else 'RGB'; ims.color_management = 'FOLLOW_SCENE'
 
 if ONLY in (None, 'chassis'):
-    visible('chassis')
-    render(os.path.join(RAW, 'chassis.png'), CHASSIS)
+    # Grundgehäuse: alle Leuchten aus (Neonröhren als dunkles Glas), nur Studiolicht
+    visible('chassis'); emit({}); lamps(True); compositing(False); scene.render.film_transparent = True; png(True)
+    render(os.path.join(RAW, 'base.png'), CHASSIS)
+    # Lichtebenen: nur eine Leuchtgruppe, kein Studiolicht, schwarzer Hintergrund.
+    # Enthalten die Röhren selbst, ihren Schein und das Licht, das auf Metall, Gitter und Kanten fällt.
+    visible('chassis', 'cones'); lamps(False); compositing(True); scene.render.film_transparent = False; png(False)
+    for g in GROUPS:
+        lamps(False, g); emit({g: 1.6}); render(os.path.join(RAW, f'light-{g}.png'), CHASSIS)
+    emit({g: 1.0 for g in GROUPS}); lamps(True); compositing(False); scene.render.film_transparent = True; png(True)
+
 if ONLY in (None, 'cones'):
-    visible('cones')
+    visible('cones'); emit({}); lamps(True); compositing(False); png(True)
     for i, b in enumerate(anchors['cones']):
         render(os.path.join(RAW, f'cone-{i}.png'), b)
+
 if ONLY in (None, 'keys'):
-    variants = [('std', 'stop', 'cyan'), ('play', 'play', 'cyan'), ('play-on', 'play', 'orange'), ('round', 'mode', 'cyan'), ('round-gold', 'list', 'gold')]
-    for label, slot, rim in variants:
+    # Jede Taste an ihrem Platz, weil die Perspektive links und rechts verschieden ist
+    variants = [(s, 'cyan', '') for s in ('prev', 'stop', 'next', 'shuffle')] + [('play', 'cyan', ''), ('play', 'orange', '-on'),
+                ('mode', 'cyan', ''), ('mode', 'gold', '-on'), ('list', 'gold', '')]
+    visible('keys'); emit({}); lamps(True); compositing(False); png(True)
+    for slot, rim, suffix in variants:
         for state, front in (('up', -0.13), ('down', -0.06)):
             if 'keys' in bpy.data.collections:
                 for ob in list(bpy.data.collections['keys'].objects): bpy.data.objects.remove(ob, do_unlink=True)
@@ -559,44 +631,74 @@ if ONLY in (None, 'keys'):
             base = strength.default_value
             if state == 'down': strength.default_value = base * 1.8
             visible('keys')
-            render(os.path.join(RAW, f'key-{label}-{state}.png'), anchors['keys'][slot])
+            render(os.path.join(RAW, f'key-{slot}{suffix}-{state}.png'), anchors['keys'][slot])
             strength.default_value = base
 
-# WebP für die Website (verlustbehaftet, mit Alpha); Gehäuse zusätzlich in halber Größe für kleine Bildschirme
-def webp(name, half=False):
+# WebP für die Website; Gehäuse und Lichtebenen zusätzlich in halber Größe für kleine Bildschirme
+def webp(name, half=False, alpha=True):
     src = os.path.join(RAW, name + '.png')
     if not os.path.exists(src): return
-    ims = scene.render.image_settings
-    ims.file_format = 'WEBP'; ims.color_mode = 'RGBA'; ims.quality = 84
+    ims.file_format = 'WEBP'; ims.color_mode = 'RGBA' if alpha else 'RGB'; ims.quality = 84
     ims.color_management = 'OVERRIDE'; ims.view_settings.view_transform = 'Standard'; ims.view_settings.look = 'None'; ims.view_settings.exposure = 0
     img = bpy.data.images.load(src)
+    if name.startswith('light-'):
+        # Licht auf Schwarz -> Licht mit Transparenz: Deckkraft = Helligkeit, Farbe = Licht / Deckkraft.
+        # Über dem dunklen Gehäuse entspricht das nahezu additivem Licht, ohne Blend-Modes im Browser.
+        import numpy as np
+        px = np.array(img.pixels[:], dtype=np.float32).reshape(-1, 4)
+        w, h = img.size
+        a = np.clip(px[:, :3].max(axis=1), 0, 1)
+        def blur(arr, rad):                   # Boxfilter (zweimal = annähernd Gauß), getrennt nach Achsen
+            for _ in range(2):
+                for ax in (0, 1):
+                    cs = np.cumsum(np.pad(arr, [(rad + 1, rad) if i == ax else (0, 0) for i in range(arr.ndim)], mode='edge'), axis=ax)
+                    arr = (np.take(cs, range(2 * rad + 1, cs.shape[ax]), axis=ax) - np.take(cs, range(0, cs.shape[ax] - 2 * rad - 1), axis=ax)) / (2 * rad + 1)
+            return arr
+        rgb = px[:, :3].reshape(h, w, 3); rad = max(2, w // 200)
+        # Farbton aus weichgezeichnetem Licht: Licht ändert die Farbe nur langsam, das Bild komprimiert gut
+        col = blur(rgb, rad) / np.maximum(blur(a.reshape(h, w, 1), rad), 1e-4)
+        col = np.clip(col.reshape(-1, 3), 0, 1)
+        # Schwaches Streulicht: geglättet und in Stufen (Alpha wird verlustfrei gespeichert)
+        soft = blur(a.reshape(h, w, 1), max(1, rad // 2)).reshape(-1)
+        dim = a < 0.4
+        a = np.where(dim, np.round(soft * 48) / 48, a)
+        a = np.where(a < 0.03, 0, a)
+        px[:, :3] = col; px[:, 3] = a
+        img.pixels[:] = px.ravel()
+        ims.color_mode = 'RGBA'
     img.save_render(os.path.join(OUT, name + '.webp'), scene=scene)
     if half:
         img.scale(img.size[0] // 2, img.size[1] // 2)
         img.save_render(os.path.join(OUT, name + '-half.webp'), scene=scene)
     print('WEBP', name, os.path.getsize(os.path.join(OUT, name + '.webp')))
-webp('chassis', half=True)
+webp('base', half=True)
+webp('light-cyan', half=True, alpha=False); webp('light-gold', half=True, alpha=False)
 for i in range(2): webp(f'cone-{i}')
-for label in ('std', 'play', 'play-on', 'round', 'round-gold'):
-    for state in ('up', 'down'): webp(f'key-{label}-{state}')
+for f in sorted(os.listdir(RAW)):
+    if f.startswith('key-') and f.endswith('.png'): webp(f[:-4])
 
-# Positionen der HTML-Elemente relativ zum Gehäusebild
+# Positionen relativ zum Gehäusebild
 pct = lambda v: f'{v * 100:.3f}%'
-def box_css(sel, b):
+def place(b):
     r = rel(b)
-    return f'{sel}{{left:{pct(r[0])};top:{pct(r[1])};width:{pct(r[2] - r[0])};height:{pct(r[3] - r[1])}}}'
+    return f'left:{pct(r[0])};top:{pct(r[1])};width:{pct(r[2] - r[0])};height:{pct(r[3] - r[1])}'
 cw, ch = (CHASSIS[2] - CHASSIS[0]) * W, (CHASSIS[3] - CHASSIS[1]) * H
+quad = ' '.join(f'{v:.5f}' for p in anchors['face'] for v in p)
 lines = ['/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */',
-         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)}}}',
-         box_css('.nr-display', anchors['display']), box_css('.nr-volume', anchors['volume'])]
-attr = {'prev': 'prev', 'stop': 'stop', 'play': 'play', 'next': 'next', 'shuffle': 'shuffle', 'mode': 'mode', 'list': 'list'}
-for name, a in attr.items():
-    lines.append(box_css(f'.nr-key[data-radio-{a}]', anchors['keys'][name]))
+         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)};--nr-face:"{quad}"}}']
 for i, side in enumerate(('l', 'r')):
-    lines.append(box_css(f'.nr-speaker--{side}', anchors['speakers'][i]))
-    s, c = rel(anchors['speakers'][i]), rel(anchors['cones'][i])
-    sw, sh = s[2] - s[0], s[3] - s[1]
-    lines.append(f'.nr-speaker--{side} .nr-speaker__cone{{left:{pct((c[0] - s[0]) / sw)};top:{pct((c[1] - s[1]) / sh)};width:{pct((c[2] - c[0]) / sw)};height:{pct((c[3] - c[1]) / sh)};background-image:url(cone-{i}.webp)}}')
+    lines.append(f'.nr-speaker--{side}{{{place(anchors["cones"][i])}}}')
+    lines.append(f'.nr-speaker--{side} .nr-speaker__cone{{background-image:url(cone-{i}.webp)}}')
+for slot in KEYS:
+    sel = f'.nr-key[data-radio-{slot}]'
+    up, down = (f'key-{slot}-up.webp', f'key-{slot}-down.webp')
+    lines.append(f'{sel}{{{place(anchors["keys"][slot])};background-image:url({up})}}')
+    lines.append(f'{sel}:active,{sel}.is-down{{background-image:url({down})}}')
+lines += ['.nr-device[data-state=playing] .nr-key[data-radio-play]{background-image:url(key-play-on-up.webp)}',
+          '.nr-device[data-state=playing] .nr-key[data-radio-play]:active,.nr-device[data-state=playing] .nr-key[data-radio-play].is-down{background-image:url(key-play-on-down.webp)}',
+          '.nr-key[data-radio-mode][aria-pressed=true]{background-image:url(key-mode-on-up.webp)}',
+          '.nr-key[data-radio-mode][aria-pressed=true]:active{background-image:url(key-mode-on-down.webp)}',
+          '.nr-key[data-radio-list][aria-expanded=true]{background-image:url(key-list-down.webp)}']
 with open(os.path.join(OUT, 'layout.css'), 'w', encoding='utf-8') as f:
     f.write('\n'.join(lines) + '\n')
 with open(os.path.join(OUT, 'anchors.json'), 'w') as f:

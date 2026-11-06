@@ -135,6 +135,13 @@ let server, browser;
   const litPlaying = await litPeak();
   assert.ok(litPlaying > 10, `Display reagiert auf das Signal: ${litPlaying}`);
   assert.equal(await key('play').getAttribute('aria-label'), 'Pause');
+  // Echte Beleuchtung: Helligkeit der Lichtebenen folgt der Musik (Gold = Bass, Cyan = Höhen)
+  const lightSamples = [];
+  for (let n = 0; n < 20; n++) { lightSamples.push(await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity)))); await pause(60); }
+  const spread = i => Math.max(...lightSamples.map(s => s[i])) - Math.min(...lightSamples.map(s => s[i]));
+  assert.ok(spread(0) > 0.05 && spread(1) > 0.03, `Licht pulsiert mit der Musik: ${spread(0).toFixed(2)} / ${spread(1).toFixed(2)}`);
+  const faced = await page.evaluate(() => [...document.querySelectorAll('[data-radio-face]')].every(e => e.classList.contains('is-placed') && getComputedStyle(e).transform.startsWith('matrix3d')));
+  assert.ok(faced, 'Display und Regler liegen perspektivisch auf der schrägen Front');
   assert.match(r.title, /^01 – /);
   if (shots) await page.locator('.nr-pin').screenshot({ path: path.join(shots, 'player-playing.png') });
 
@@ -158,6 +165,10 @@ let server, browser;
   assert.equal(r.state, 'stopped', 'Stopp');
   assert.equal(r.time, '00:00', 'Stopp setzt die Zeit zurück');
   assert.equal(await lit(), 0, 'Stopp setzt die Anzeige zurück');
+  await pause(500);
+  const rest = await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity)));
+  await pause(400);
+  assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity))), rest, 'Im Stopp leuchtet das Gerät ruhig');
 
   await key('next').click(); await pause(150);
   r = await radio();

@@ -101,9 +101,13 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <div class="nr-rail">
       <div class="nr-pin">
         <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
-          <img class="nr-chassis" src="nerd-radio/chassis.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis.webp')?>" srcset="nerd-radio/chassis-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis-half.webp')?> 1000w, nerd-radio/chassis.webp?v=<?=filemtime(__DIR__.'/nerd-radio/chassis.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
-          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__cone" data-radio-cone></span></div>
-          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__glow" data-radio-glow></span><span class="nr-speaker__cone" data-radio-cone></span></div>
+          <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__cone" data-radio-cone></span></div>
+          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__cone" data-radio-cone></span></div>
+          <!-- Echtes Licht: additive Lichtebenen (Gold = Bass, Cyan = Mitten/Höhen), Helligkeit folgt der Musik -->
+          <img class="nr-light" data-radio-light="gold" src="nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?>" srcset="nerd-radio/light-gold-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-half.webp')?> 1000w, nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+          <img class="nr-light" data-radio-light="cyan" src="nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?>" srcset="nerd-radio/light-cyan-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-half.webp')?> 1000w, nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+          <div class="nr-face" data-radio-face>
           <div class="nr-display">
             <div class="nr-display__glass">
               <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
@@ -122,6 +126,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             </div>
             <p class="nr-sr" data-radio-status aria-live="polite"></p>
           </div>
+          </div>
           <div class="nr-transport" role="group" aria-label="Wiedergabe">
             <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.6v14H4zM14 5v14L7.4 12zM21.5 5v14L15 12z"/></svg></button>
             <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="1"/></svg></button>
@@ -131,11 +136,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           </div>
           <div class="nr-lower">
             <button class="nr-key nr-key--round" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-dasharray="3.22 3.22"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="2.8"/></svg></button>
-            <div class="nr-volume">
+            <div class="nr-face" data-radio-face><div class="nr-volume">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
               <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5M17.6 6.8a7.4 7.4 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </div>
+            </div></div>
             <button class="nr-key nr-key--round nr-key--gold-rim" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="10.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="16.8" width="12" height="2.6" rx="1.2"/></svg></button>
           </div>
         </div>

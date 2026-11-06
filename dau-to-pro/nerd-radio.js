@@ -51,7 +51,8 @@
     title: $('[data-radio-title]'), elapsed: $('[data-radio-elapsed]'), length: $('[data-radio-length]'), position: $('[data-radio-position]'),
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
-    cones: [...root.querySelectorAll('[data-radio-cone]')], glows: [...root.querySelectorAll('[data-radio-glow]')]
+    cones: [...root.querySelectorAll('[data-radio-cone]')], faces: [...root.querySelectorAll('[data-radio-face]')],
+    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]'), floor: root.parentElement.querySelector('.nr-floor')
   };
   const pen = ui.canvas.getContext('2d');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -61,7 +62,7 @@
   let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null;
   let timer = 0, step = 0, nextStepAt = 0, pending = [];
   let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, shuffleFlash = 0;
-  let frame = 0, lastDraw = 0, bass = 0, waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
+  let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
   const voices = new Set();
   const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
   let freqData = null, waveData = null;
@@ -324,21 +325,64 @@
     ui.play.setAttribute('aria-label', playing ? 'Pause' : 'Abspielen');
     const t = current();
     ui.status.textContent = playing ? `Spielt: ${two(selected + 1)} – ${t.title}` : next === 'paused' ? 'Pausiert' : 'Gestoppt';
-    if (next === 'stopped') { bars.fill(0); peaks.fill(0); waveAmp = 0; bass = 0; applyBass(); }
+    if (next === 'stopped') { bars.fill(0); peaks.fill(0); waveAmp = 0; bass = 0; treble = 0; applyBass(); }
     render();
     wake();
   }
 
+  // Echte Beleuchtung: die gerenderten Lichtebenen werden mit der Musik heller und dunkler.
+  // Gold (Lautsprecherringe, Schultern, Sockel) folgt dem Bass, Cyan (Neonrahmen, Pilze) den Höhen.
   function applyBass() {
     const calm = reduced.matches;
-    ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.045).toFixed(3)})`; });
-    ui.glows.forEach(g => { g.style.opacity = (0.42 + bass * 0.58).toFixed(2); });
+    ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.025).toFixed(3)})`; });
+    const gold = calm ? 0.78 : 0.5 + 0.5 * Math.min(1, bass * 1.35);
+    const cyan = calm ? 0.8 : 0.55 + 0.45 * Math.min(1, treble * 1.8);
+    const key = gold.toFixed(2) + cyan.toFixed(2);
+    if (key === lastLight) return;
+    lastLight = key;
+    if (ui.gold) ui.gold.style.opacity = gold.toFixed(2);
+    if (ui.cyan) ui.cyan.style.opacity = cyan.toFixed(2);
+    if (ui.floor) ui.floor.style.opacity = (0.65 + 0.35 * (gold - 0.5) * 2).toFixed(2);
+  }
+
+  /* Display und Regler auf die schräge Front legen: Homographie aus den vier von Blender
+     exportierten Eckpunkten der Frontebene (--nr-face, relativ zum Gehäusebild). */
+  function homography(src, dst) {
+    const A = [], b = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = src[i], [u, v] = dst[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
+    }
+    for (let i = 0; i < 8; i++) {          // Gauß-Elimination mit Pivotsuche
+      let p = i;
+      for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[p][i])) p = r;
+      [A[i], A[p]] = [A[p], A[i]]; [b[i], b[p]] = [b[p], b[i]];
+      for (let r = i + 1; r < 8; r++) {
+        const f = A[r][i] / A[i][i];
+        for (let k = i; k < 8; k++) A[r][k] -= f * A[i][k];
+        b[r] -= f * b[i];
+      }
+    }
+    const h = new Array(8);
+    for (let i = 7; i >= 0; i--) { let s = b[i]; for (let k = i + 1; k < 8; k++) s -= A[i][k] * h[k]; h[i] = s / A[i][i]; }
+    return h;
+  }
+  function placeFaces() {
+    const q = getComputedStyle(root).getPropertyValue('--nr-face').replace(/["']/g, '').trim().split(/\s+/).map(Number);
+    const W = root.clientWidth, H = root.clientHeight;
+    if (q.length !== 8 || q.some(n => !Number.isFinite(n)) || !W) return;
+    const dst = [0, 1, 2, 3].map(i => [q[i * 2] * W, q[i * 2 + 1] * H]);
+    const [a, b, c2, d, e, f, g, h] = homography([[0, 0], [1000, 0], [1000, 450], [0, 450]], dst);
+    const m = `matrix3d(${[a, d, 0, g, b, e, 0, h, 0, 0, 1, 0, c2, f, 0, 1].map(n => +n.toFixed(8)).join(',')})`;
+    ui.faces.forEach(el => { el.style.transform = m; el.classList.add('is-placed'); });
+    faceScale = Math.hypot(dst[1][0] - dst[0][0], dst[1][1] - dst[0][1]) / 1000;
   }
 
   // Canvas scharf halten (Gerätepixel), ohne bei jedem Frame die Größe zu prüfen.
   function fitCanvas() {
-    const r = ui.canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
-    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+    const dpr = Math.min(2, window.devicePixelRatio || 1) * faceScale;
+    const w = Math.max(1, Math.round(ui.canvas.offsetWidth * dpr)), h = Math.max(1, Math.round(ui.canvas.offsetHeight * dpr));
     if (ui.canvas.width !== w || ui.canvas.height !== h) { ui.canvas.width = w; ui.canvas.height = h; }
     fitTitle();
     paint();
@@ -429,6 +473,9 @@
         bars[b] = level > bars[b] ? level : bars[b] * 0.8 + level * 0.2;
         peaks[b] = bars[b] >= peaks[b] ? bars[b] : Math.max(0, peaks[b] - 0.025);
       }
+      let hi = 0;
+      for (let b = BARS >> 1; b < BARS; b++) hi += bars[b];
+      treble += (hi / (BARS - (BARS >> 1)) - treble) * 0.45;
       moving = true;
     } else {
       // Pause: Anzeige klingt sichtbar aus und kommt zur Ruhe. Stopp hat bereits alles zurückgesetzt.
@@ -439,6 +486,7 @@
       }
       waveAmp *= 0.8; if (waveAmp < 0.005) waveAmp = 0; else moving = true;
       bass *= 0.75; if (bass < 0.01) bass = 0; else moving = true;
+      treble *= 0.75; if (treble < 0.01) treble = 0; else moving = true;
     }
     applyBass();
     paint();
@@ -509,7 +557,9 @@
   });
   document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
   reduced.addEventListener?.('change', () => { applyBass(); wake(); });
-  if ('ResizeObserver' in window) new ResizeObserver(fitCanvas).observe(ui.canvas);
+  const relayout = () => { placeFaces(); fitCanvas(); };
+  if ('ResizeObserver' in window) new ResizeObserver(relayout).observe(root);
+  else addEventListener('resize', relayout);
   addEventListener('pagehide', () => {
     halt('stopped');
     if (ctx) { ctx.close().catch(() => {}); ctx = null; media = null; bands = null; }
@@ -518,7 +568,8 @@
   setVolume(volume);
   setMode(mode);
   setState('stopped');
-  fitCanvas();
+  relayout();
+  applyBass();
 
   // Für automatisierte Prüfungen: Zustand lesen, ohne Interna zu verändern.
   root.nerdRadio = Object.freeze({
