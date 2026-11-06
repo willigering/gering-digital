@@ -40,7 +40,7 @@
 }
 @media(min-width:861px) and (max-width:1060px){
   .hero-art-wrap[data-scene=layers]{width:125%;margin-left:-20%}
-  .hero-copy .hero-lead{max-width:min(100%,340px)}
+  .hero-copy .hero-lead{max-width:min(100%,340px,calc(100% - 70px))}
 }
 @media(max-width:610px){
   .hero-plane--ambient{opacity:.24;transform:translate(0,-4%) scale(1.04)}
