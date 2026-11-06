@@ -1,12 +1,18 @@
-/* DAU TO PRO // NERD RADIO: originale Browser-Chiptunes, keine Drittanbieter-Streams. */
+/* DAU TO PRO // NERD RADIO – interaktiver Ghettoblaster.
+   Musik entsteht im Browser (Web Audio API): keine Streams, keine Drittanbieter, kein Tracking.
+   Signalweg:  Stimmen → synthIn → Tiefpass ─┐
+               <audio> (eigene Dateien) ─────┴→ bus (Play/Pause-Blende) → analyser → out (Lautstärke) → Lautsprecher
+   Die Anzeige liest ausschließlich echte Daten aus dem AnalyserNode. */
 (() => {
   'use strict';
   const root = document.querySelector('[data-nerd-radio]');
   if (!root) return;
 
+  /* Playlist. Generierte Endlos-Loops: kind 'synth'.
+     Eigene Dateien später einfach ergänzen: { kind: 'file', src: 'audio/mein-titel.mp3', title: 'Mein Titel', genre: 'MP3' } */
   const tracks = [
     {
-      title: 'STACK OVERFLOW FM', genre: 'CHIPTUNE // 118 BPM', bpm: 118,
+      kind: 'synth', title: 'Stack Overflow FM', genre: 'Chiptune · 118 BPM', bpm: 118,
       wave: 'square', bassWave: 'triangle',
       lead: ['E5',null,'G5','B5',null,'A5','G5',null,'E5',null,'D5','E5','G5',null,'B5',null,
         'A5',null,'G5','E5',null,'D5','E5','G5','B5',null,'D6','B5','A5','G5','E5',null],
@@ -14,7 +20,7 @@
       chords: [['E4','G4','B4'],['C4','E4','G4'],['G3','B3','D4'],['D4','F#4','A4']]
     },
     {
-      title: 'CTRL + ALT + BEAT', genre: 'ARCADE // 136 BPM', bpm: 136,
+      kind: 'synth', title: 'Ctrl + Alt + Beat', genre: 'Arcade · 136 BPM', bpm: 136,
       wave: 'square', bassWave: 'sawtooth',
       lead: ['C5','E5','G5','C6','B5','G5','E5',null,'D5','F5','A5','D6','C6','A5','F5',null,
         'E5','G5','B5','E6','D6','B5','G5','E5','F5','A5','C6','A5','G5','F5','E5',null],
@@ -22,7 +28,7 @@
       chords: [['C4','E4','G4'],['D4','F4','A4'],['E4','G4','B4'],['F4','A4','C5']]
     },
     {
-      title: '404: SLEEP NOT FOUND', genre: 'LO-FI BITS // 88 BPM', bpm: 88,
+      kind: 'synth', title: '404: Sleep Not Found', genre: 'Lo-Fi · 88 BPM', bpm: 88, soft: true,
       wave: 'triangle', bassWave: 'sine',
       lead: ['A4',null,null,'C5',null,'E5',null,null,'G4',null,'A4',null,'C5',null,null,null,
         'F4',null,'A4',null,'C5',null,'E5',null,'D5',null,null,'C5','A4',null,null,null],
@@ -31,262 +37,486 @@
     }
   ];
 
-  const toggle = root.querySelector('[data-radio-toggle]');
-  const panel = root.querySelector('[data-radio-panel]');
-  const stop = root.querySelector('[data-radio-stop]');
-  const shuffle = root.querySelector('[data-radio-shuffle]');
-  const play = root.querySelector('[data-radio-play]');
-  const miniPlay = root.querySelector('[data-radio-mini-play]');
-  const prev = root.querySelector('[data-radio-prev]');
-  const next = root.querySelector('[data-radio-next]');
-  const volumeInput = root.querySelector('[data-radio-volume]');
-  const status = root.querySelector('[data-radio-status]');
-  const title = root.querySelector('[data-radio-title]');
-  const genre = root.querySelector('[data-radio-genre]');
-  const canvas = root.querySelector('[data-radio-waveform]');
-  const options = [...root.querySelectorAll('[data-radio-track]')];
-  const drawing = canvas.getContext('2d');
-  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
-  let context, master, analyser, noiseBuffer, timer = 0, frame = 0;
-  let selected = 0, step = 0, nextStepAt = 0, playing = false, lastFrameAt = 0;
-  let volume = 0.35;
+  const $ = selector => root.querySelector(selector);
+  const ui = {
+    play: $('[data-radio-play]'), stop: $('[data-radio-stop]'), prev: $('[data-radio-prev]'), next: $('[data-radio-next]'),
+    shuffle: $('[data-radio-shuffle]'), mode: $('[data-radio-mode]'), list: $('[data-radio-list]'), volume: $('[data-radio-volume]'),
+    title: $('[data-radio-title]'), elapsed: $('[data-radio-elapsed]'), length: $('[data-radio-length]'), position: $('[data-radio-position]'),
+    status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
+    shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
+    cones: [...root.querySelectorAll('[data-radio-cone]')], glows: [...root.querySelectorAll('[data-radio-glow]')]
+  };
+  const pen = ui.canvas.getContext('2d');
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const BARS = 18, SEGMENTS = 12, LEVEL_GOLD = 0.72;
 
+  let selected = 0, volume = 0.35, state = 'stopped', mode = 'spectrum', op = 0;
+  let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null;
+  let timer = 0, step = 0, nextStepAt = 0, pending = [];
+  let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, shuffleFlash = 0;
+  let frame = 0, lastDraw = 0, bass = 0, waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
+  const voices = new Set();
+  const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
+  let freqData = null, waveData = null;
+
+  /* ---------- Einstellungen merken (Storage darf verweigert sein) ---------- */
   try {
-    const trackValue = localStorage.getItem('dtp-nerd-radio-track');
-    const volumeValue = localStorage.getItem('dtp-nerd-radio-volume');
-    const savedTrack = Number(trackValue);
-    const savedVolume = Number(volumeValue);
-    if (trackValue !== null && Number.isInteger(savedTrack) && savedTrack >= 0 && savedTrack < tracks.length) selected = savedTrack;
-    if (volumeValue !== null && Number.isFinite(savedVolume) && savedVolume >= 0 && savedVolume <= 1) volume = savedVolume;
-  } catch (_) { /* Storage darf verweigert sein. */ }
-  volumeInput.value = String(Math.round(volume * 100));
-
+    const t = Number(localStorage.getItem('dtp-nerd-radio-track'));
+    const v = localStorage.getItem('dtp-nerd-radio-volume');
+    if (Number.isInteger(t) && t >= 0 && t < tracks.length) selected = t;
+    if (v !== null && Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 1) volume = Number(v);
+    if (localStorage.getItem('dtp-nerd-radio-mode') === 'wave') mode = 'wave';
+  } catch (_) { /* privater Modus */ }
   const save = () => {
     try {
       localStorage.setItem('dtp-nerd-radio-track', String(selected));
       localStorage.setItem('dtp-nerd-radio-volume', String(volume));
-    } catch (_) { /* Privater Modus: Player funktioniert trotzdem. */ }
+      localStorage.setItem('dtp-nerd-radio-mode', mode);
+    } catch (_) { /* Player funktioniert trotzdem */ }
   };
 
+  /* ---------- Klangerzeugung (aus der ersten NERD-RADIO-Version übernommen) ---------- */
   const freq = note => {
-    const match = /^([A-G])(#?)(\d)$/.exec(note || '');
-    if (!match) return 0;
+    const m = /^([A-G])(#?)(\d)$/.exec(note || '');
+    if (!m) return 0;
     const semis = { C:0, D:2, E:4, F:5, G:7, A:9, B:11 };
-    const midi = (Number(match[3]) + 1) * 12 + semis[match[1]] + (match[2] ? 1 : 0);
-    return 440 * Math.pow(2, (midi - 69) / 12);
+    return 440 * Math.pow(2, ((Number(m[3]) + 1) * 12 + semis[m[1]] + (m[2] ? 1 : 0) - 69) / 12);
   };
-
-  const note = (pitch, when, duration, wave = 'square', level = 0.13) => {
+  // Jede geplante Stimme wird registriert, damit Pause/Stopp auch bereits vorgeplante Noten verwirft.
+  const track = (source, ...nodes) => {
+    voices.add(source);
+    source.onended = () => { voices.delete(source); source.disconnect(); nodes.forEach(n => n.disconnect()); };
+  };
+  const note = (pitch, when, duration, wave, level) => {
     const hz = freq(pitch);
-    if (!hz || !master) return;
-    const osc = context.createOscillator();
-    const amp = context.createGain();
+    if (!hz) return;
+    const osc = ctx.createOscillator(), amp = ctx.createGain(), len = Math.max(0.05, duration);
     osc.type = wave;
     osc.frequency.setValueAtTime(hz, when);
     amp.gain.setValueAtTime(0.0001, when);
     amp.gain.exponentialRampToValueAtTime(Math.max(0.001, level), when + 0.012);
-    amp.gain.exponentialRampToValueAtTime(0.0001, when + Math.max(0.05, duration));
-    osc.connect(amp).connect(master);
-    osc.start(when);
-    osc.stop(when + Math.max(0.05, duration) + 0.02);
-    osc.onended = () => { osc.disconnect(); amp.disconnect(); };
+    amp.gain.exponentialRampToValueAtTime(0.0001, when + len);
+    osc.connect(amp).connect(synthIn);
+    osc.start(when); osc.stop(when + len + 0.02);
+    track(osc, amp);
   };
-
   const kick = when => {
-    const osc = context.createOscillator(), amp = context.createGain();
+    const osc = ctx.createOscillator(), amp = ctx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(155, when);
     osc.frequency.exponentialRampToValueAtTime(48, when + 0.16);
     amp.gain.setValueAtTime(0.33, when);
     amp.gain.exponentialRampToValueAtTime(0.0001, when + 0.19);
-    osc.connect(amp).connect(master);
-    osc.start(when); osc.stop(when + 0.20);
-    osc.onended = () => { osc.disconnect(); amp.disconnect(); };
+    osc.connect(amp).connect(synthIn);
+    osc.start(when); osc.stop(when + 0.2);
+    track(osc, amp);
   };
-
   const noise = (when, duration, level, highpass) => {
-    const source = context.createBufferSource();
-    const filter = context.createBiquadFilter();
-    const amp = context.createGain();
-    source.buffer = noiseBuffer;
+    const src = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), amp = ctx.createGain();
+    src.buffer = noiseBuffer;
     filter.type = 'highpass';
     filter.frequency.setValueAtTime(highpass, when);
     amp.gain.setValueAtTime(level, when);
     amp.gain.exponentialRampToValueAtTime(0.0001, when + duration);
-    source.connect(filter).connect(amp).connect(master);
-    source.start(when); source.stop(when + duration);
-    source.onended = () => { source.disconnect(); filter.disconnect(); amp.disconnect(); };
+    src.connect(filter).connect(amp).connect(synthIn);
+    src.start(when); src.stop(when + duration);
+    track(src, filter, amp);
   };
 
   function makeAudio() {
     const Ctor = window.AudioContext || window.webkitAudioContext;
-    if (!Ctor) throw new Error('Web Audio API nicht verfügbar.');
-    context = new Ctor();
-    master = context.createGain();
-    master.gain.value = 0;
-    const filter = context.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 6300;
-    analyser = context.createAnalyser();
-    analyser.fftSize = 1024;
-    analyser.smoothingTimeConstant = 0.77;
-    master.connect(filter).connect(analyser).connect(context.destination);
-    noiseBuffer = context.createBuffer(1, Math.ceil(context.sampleRate * 0.30), context.sampleRate);
+    if (!Ctor) throw new Error('Web Audio API nicht verfügbar');
+    ctx = new Ctor();
+    synthIn = ctx.createGain();
+    const tone = ctx.createBiquadFilter();
+    tone.type = 'lowpass';
+    tone.frequency.value = 6300;
+    bus = ctx.createGain();
+    bus.gain.value = 0;
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    analyser.smoothingTimeConstant = 0.72;
+    analyser.minDecibels = -88;
+    analyser.maxDecibels = -32;
+    out = ctx.createGain();
+    out.gain.value = volume;
+    synthIn.connect(tone).connect(bus);
+    bus.connect(analyser).connect(out).connect(ctx.destination);
+    freqData = new Uint8Array(analyser.frequencyBinCount);
+    waveData = new Uint8Array(analyser.fftSize);
+    noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.3), ctx.sampleRate);
     const data = noiseBuffer.getChannelData(0);
     for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
   }
 
-  function scheduleStep(when) {
-    const track = tracks[selected];
-    const i = step % track.lead.length;
-    const sec = 60 / track.bpm;
-    if (i % 16 === 0 || i % 16 === 8) kick(when);
-    if (i % 16 === 4 || i % 16 === 12) noise(when, 0.13, selected === 2 ? 0.065 : 0.13, 1200);
-    if (i % 2 === 0) noise(when, 0.035, selected === 2 ? 0.02 : 0.038, 5100);
-    if (track.lead[i]) note(track.lead[i], when, sec * (selected === 2 ? 0.39 : 0.19), track.wave, selected === 2 ? 0.13 : 0.085);
-    if (i % 4 === 0) note(track.bass[(i / 4) % track.bass.length], when, sec * 0.39, track.bassWave, 0.17);
-    if (i % 8 === 0) {
-      const chord = track.chords[(Math.floor(step / 8)) % track.chords.length];
-      chord.forEach(pitch => note(pitch, when, sec * 1.25, 'triangle', 0.018));
+  // Eigene MP3/WAV-Dateien: ein einziges <audio>-Element, einmalig in den Signalweg gehängt.
+  function mediaFor(item) {
+    if (!media) {
+      media = new Audio();
+      media.preload = 'none';
+      ctx.createMediaElementSource(media).connect(bus);
+      media.addEventListener('ended', () => choose(selected + 1, true));
+      media.addEventListener('loadedmetadata', render);
     }
+    const src = new URL(item.src, document.baseURI).href;
+    if (media.src !== src) media.src = src;
+    return media;
+  }
+
+  function scheduleStep(when) {
+    const t = tracks[selected], i = step % t.lead.length, sec = 60 / t.bpm, soft = !!t.soft;
+    if (i % 16 === 0 || i % 16 === 8) kick(when);
+    if (i % 16 === 4 || i % 16 === 12) noise(when, 0.13, soft ? 0.065 : 0.13, 1200);
+    if (i % 2 === 0) noise(when, 0.035, soft ? 0.02 : 0.038, 5100);
+    if (t.lead[i]) note(t.lead[i], when, sec * (soft ? 0.39 : 0.19), t.wave, soft ? 0.13 : 0.085);
+    if (i % 4 === 0) note(t.bass[(i / 4) % t.bass.length], when, sec * 0.39, t.bassWave, 0.17);
+    if (i % 8 === 0) t.chords[Math.floor(step / 8) % t.chords.length].forEach(p => note(p, when, sec * 1.25, 'triangle', 0.018));
+    pending.push({ i: step, at: when });
     step++;
     nextStepAt += sec / 4;
   }
-
   function schedule() {
-    if (!playing || !context) return;
-    let count = 0;
-    while (nextStepAt < context.currentTime + 0.16 && count++ < 8) scheduleStep(nextStepAt);
+    if (state !== 'playing' || !ctx) return;
+    const now = ctx.currentTime;
+    while (pending.length && pending[0].at <= now) pending.shift();
+    // Im Hintergrund-Tab drosselt der Browser Timer auf ~1 s: dann weiter vorausplanen.
+    const ahead = document.hidden ? 1.4 : 0.16;
+    let guard = 0;
+    while (nextStepAt < now + ahead && guard++ < 64) scheduleStep(nextStepAt);
   }
 
-  function stopAudio() {
-    playing = false;
-    if (timer) clearInterval(timer);
-    timer = 0;
-    if (master && context) master.gain.setTargetAtTime(0, context.currentTime, 0.015);
-    updateUI();
-  }
+  /* ---------- Transport ---------- */
+  const current = () => tracks[selected];
+  const isFile = () => current().kind === 'file';
 
-  async function startAudio() {
+  async function play() {
+    if (state === 'playing') return;
+    const token = ++op;
+    clearTimeout(suspendTimer);
+    root.classList.remove('has-error');
     try {
-      if (!context) makeAudio();
-      await context.resume();  // ausschließlich als Folge eines Nutzerklicks
-      if (playing) return;
-      playing = true;
-      step = 0;
-      nextStepAt = context.currentTime + 0.07;
-      master.gain.setTargetAtTime(volume, context.currentTime, 0.025);
-      schedule();
-      timer = setInterval(schedule, 70);
-      updateUI();
+      if (!ctx) makeAudio();
+      if (ctx.state !== 'running') await ctx.resume(); // nur nach bewusster Nutzeraktion
+      if (token !== op) return;
+      if (state === 'stopped') { step = 0; playedBefore = 0; }
+      if (isFile()) {
+        const el = mediaFor(current());
+        if (state === 'stopped') el.currentTime = 0;
+        await el.play();
+        if (token !== op) { el.pause(); return; }
+      } else {
+        pending = [];
+        nextStepAt = ctx.currentTime + 0.06;
+        schedule();
+        timer = setInterval(schedule, 40);
+      }
+      const now = ctx.currentTime;
+      playStartedAt = now;
+      bus.gain.cancelScheduledValues(now);
+      bus.gain.setTargetAtTime(1, now, 0.02);
+      setState('playing');
     } catch (error) {
-      stopAudio();
-      status.textContent = 'AUDIO BLOCKIERT // Browser prüfen';
+      if (token !== op) return;
+      halt('stopped');
+      root.classList.add('has-error');
+      ui.title.textContent = 'Audio blockiert – Browser prüfen';
+      ui.status.textContent = 'Audio konnte nicht gestartet werden.';
       console.warn('NERD RADIO:', error);
     }
   }
 
-  const switchPlay = () => playing ? stopAudio() : startAudio();
+  function halt(next) {
+    op++;
+    if (timer) { clearInterval(timer); timer = 0; }
+    if (ctx) {
+      const now = ctx.currentTime;
+      if (state === 'playing') playedBefore += now - playStartedAt;
+      bus.gain.cancelScheduledValues(now);
+      bus.gain.setTargetAtTime(0, now, 0.012);
+      // Pause setzt an der ersten noch nicht erklungenen Note fort – nichts doppelt, nichts verschluckt.
+      if (pending.length) step = pending[0].i;
+      pending = [];
+      const cut = now + 0.06;
+      voices.forEach(v => { try { v.stop(cut); } catch (_) { /* bereits beendet */ } });
+      // Ruhender Kontext spart Rechenzeit; Fortsetzen weckt ihn wieder auf.
+      suspendTimer = setTimeout(() => { if (state !== 'playing' && ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); }, 400);
+    }
+    if (media) media.pause();
+    if (next === 'stopped') {
+      step = 0; playedBefore = 0;
+      if (media && media.readyState > 0) media.currentTime = 0;
+    }
+    setState(next);
+  }
 
-  function changeTrack(index) {
-    const wasPlaying = playing;
-    if (wasPlaying) stopAudio();
+  const toggle = () => (state === 'playing' ? halt('paused') : play());
+
+  function choose(index, autoplay) {
+    const resume = autoplay || state === 'playing';
+    halt('stopped');
     selected = (index + tracks.length) % tracks.length;
     save();
-    updateUI();
-    if (wasPlaying) startAudio();
+    render();
+    if (resume) play();
   }
 
-  function setOpen(open) {
-    root.classList.toggle('is-open', open);
-    panel.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-label', open ? 'Radio-Bedienelemente einklappen' : 'Radio-Bedienelemente aufklappen');
-    toggle.textContent = open ? '−' : '+';
-    if (open) drawWaveform();
-    else if (frame) { cancelAnimationFrame(frame); frame = 0; }
+  /* ---------- Anzeige ---------- */
+  const two = n => String(Math.floor(n)).padStart(2, '0');
+  const clock = s => `${two(s / 60)}:${two(s % 60)}`;
+  function elapsed() {
+    if (isFile()) return media && media.src ? media.currentTime || 0 : 0;
+    return playedBefore + (state === 'playing' && ctx ? ctx.currentTime - playStartedAt : 0);
+  }
+  function updateClock() {
+    const secs = Math.max(0, elapsed());
+    const text = clock(secs);
+    if (text !== lastClock) { ui.elapsed.textContent = text; lastClock = text; }
+    let pos = 0;
+    if (isFile()) pos = media && media.duration > 0 && Number.isFinite(media.duration) ? secs / media.duration : 0;
+    else { const t = current(); const loop = t.lead.length * 60 / t.bpm / 4; pos = (secs % loop) / loop; }
+    const p = (pos * 100).toFixed(1) + '%';
+    if (p !== lastPos) { ui.position.style.setProperty('--nr-pos', p); lastPos = p; }
   }
 
-  function updateUI() {
-    root.classList.toggle('is-playing', playing);
-    root.dataset.state = playing ? 'playing' : 'paused';
-    play.textContent = playing ? 'Ⅱ' : '▶';
-    miniPlay.textContent = '⏻';
-    play.setAttribute('aria-label', playing ? 'Musik pausieren' : 'Musik starten');
-    miniPlay.setAttribute('aria-label', playing ? 'Musik pausieren' : 'Musik starten');
-    title.textContent = tracks[selected].title;
-    genre.textContent = tracks[selected].genre;
-    status.textContent = playing ? 'LIVE // AUDIO ON' : 'STANDBY // AUDIO OFF';
-    options.forEach((button, index) => {
-      button.setAttribute('aria-pressed', String(index === selected));
-      button.classList.toggle('is-selected', index === selected);
-    });
-    if (!panel.hidden) drawWaveform();
+  function render() {
+    const t = current(), number = two(selected + 1);
+    ui.title.textContent = `${number} – ${t.title}`;
+    fitTitle();
+    if (isFile()) {
+      const d = media && Number.isFinite(media.duration) ? media.duration : 0;
+      ui.length.textContent = d ? clock(d) : '--:--';
+    } else ui.length.textContent = '∞ LOOP'; // Endlos-Loop: keine erfundene Titeldauer
+    ui.loopInd.classList.toggle('is-lit', !isFile());
+    [...ui.trackList.children].forEach((li, i) => li.firstElementChild.setAttribute('aria-current', String(i === selected)));
+    lastClock = ''; lastPos = '';
+    updateClock();
   }
 
-  function drawWaveform(time = 0) {
-    if (time === 0 && frame) { cancelAnimationFrame(frame); frame = 0; }
-    if (panel.hidden || !drawing) return;
-    if (time && time - lastFrameAt < (reducedMotion.matches ? 250 : 32)) {
-      frame = requestAnimationFrame(drawWaveform);
-      return;
+  // Zu lange Titel laufen während der Wiedergabe als Laufschrift durch (wie bei einem LCD).
+  function fitTitle() {
+    const box = ui.title.parentElement, shift = box.clientWidth - ui.title.scrollWidth;
+    const long = shift < -1;
+    box.classList.toggle('is-long', long);
+    if (long) {
+      box.style.setProperty('--nr-shift', shift + 'px');
+      box.style.setProperty('--nr-dur', Math.max(4, -shift / 14).toFixed(1) + 's');
     }
-    lastFrameAt = time;
-    const w = canvas.width, h = canvas.height, center = h / 2;
-    drawing.clearRect(0, 0, w, h);
-    drawing.fillStyle = '#09151b';
-    drawing.fillRect(0, 0, w, h);
-    drawing.strokeStyle = '#2a465244';
-    drawing.lineWidth = 1;
-    for (let x = 0; x <= w; x += 40) { drawing.beginPath(); drawing.moveTo(x, 0); drawing.lineTo(x, h); drawing.stroke(); }
-    for (let y = 18; y < h; y += 24) { drawing.beginPath(); drawing.moveTo(0, y); drawing.lineTo(w, y); drawing.stroke(); }
-    const samples = new Uint8Array(analyser ? analyser.fftSize : 1024);
-    if (playing && analyser) analyser.getByteTimeDomainData(samples);
-    else samples.fill(128);
-    const grad = drawing.createLinearGradient(0, 0, w, 0);
-    grad.addColorStop(0, '#76d8df'); grad.addColorStop(0.68, '#76d8df'); grad.addColorStop(1, '#edc477');
-    drawing.beginPath();
-    samples.forEach((value, i) => {
-      const x = i / (samples.length - 1) * w;
-      const y = center + (value - 128) / 128 * center * 0.84;
-      if (i === 0) drawing.moveTo(x, y); else drawing.lineTo(x, y);
-    });
-    drawing.strokeStyle = grad;
-    drawing.lineWidth = 2.5;
-    drawing.shadowColor = '#76d8df';
-    drawing.shadowBlur = playing ? 12 : 0;
-    drawing.stroke();
-    drawing.shadowBlur = 0;
-    if (playing && !document.hidden) frame = requestAnimationFrame(drawWaveform);
-    else frame = 0;
   }
 
-  toggle.addEventListener('click', () => setOpen(panel.hidden));
-  stop.addEventListener('click', () => { stopAudio(); step = 0; });
-  shuffle.addEventListener('click', () => {
-    const offset = 1 + Math.floor(Math.random() * (tracks.length - 1));
-    changeTrack(selected + offset);
+  function setState(next) {
+    state = next;
+    root.dataset.state = next;
+    const playing = next === 'playing';
+    ui.play.setAttribute('aria-label', playing ? 'Pause' : 'Abspielen');
+    const t = current();
+    ui.status.textContent = playing ? `Spielt: ${two(selected + 1)} – ${t.title}` : next === 'paused' ? 'Pausiert' : 'Gestoppt';
+    if (next === 'stopped') { bars.fill(0); peaks.fill(0); waveAmp = 0; bass = 0; applyBass(); }
+    render();
+    wake();
+  }
+
+  function applyBass() {
+    const calm = reduced.matches;
+    ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.045).toFixed(3)})`; });
+    ui.glows.forEach(g => { g.style.opacity = (0.42 + bass * 0.58).toFixed(2); });
+  }
+
+  // Canvas scharf halten (Gerätepixel), ohne bei jedem Frame die Größe zu prüfen.
+  function fitCanvas() {
+    const r = ui.canvas.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+    const w = Math.max(1, Math.round(r.width * dpr)), h = Math.max(1, Math.round(r.height * dpr));
+    if (ui.canvas.width !== w || ui.canvas.height !== h) { ui.canvas.width = w; ui.canvas.height = h; }
+    fitTitle();
+    paint();
+  }
+
+  // Logarithmisch verteilte Frequenzbänder (45 Hz … 9 kHz) – tiefe Töne links, hohe rechts.
+  let bands = null;
+  function makeBands() {
+    const hzPerBin = ctx.sampleRate / analyser.fftSize, lo = 45, hi = 9000;
+    bands = Array.from({ length: BARS }, (_, b) => {
+      const from = lo * Math.pow(hi / lo, b / BARS), to = lo * Math.pow(hi / lo, (b + 1) / BARS);
+      const a = Math.max(1, Math.floor(from / hzPerBin)), z = Math.max(a + 1, Math.ceil(to / hzPerBin));
+      return [a, z];
+    });
+  }
+
+  function paint() {
+    const w = ui.canvas.width, h = ui.canvas.height;
+    pen.clearRect(0, 0, w, h);
+    if (mode === 'wave') return paintWave(w, h);
+    const slot = w / BARS, barW = Math.max(1, slot * 0.66), segH = h / SEGMENTS, gap = Math.max(1, segH * 0.28);
+    for (let b = 0; b < BARS; b++) {
+      const x = b * slot + (slot - barW) / 2, lit = Math.round(bars[b] * SEGMENTS);
+      for (let s = 0; s < SEGMENTS; s++) {
+        const y = h - (s + 1) * segH + gap / 2, on = s < lit, strong = s / SEGMENTS >= LEVEL_GOLD;
+        pen.fillStyle = on ? (strong ? '#ffc23a' : s / SEGMENTS > 0.45 ? '#7ff6ff' : '#22dcf5') : '#0f4450aa';
+        pen.fillRect(x, y, barW, segH - gap);
+      }
+      const peak = Math.round(peaks[b] * SEGMENTS);
+      if (peak > lit && peak > 0) {
+        pen.fillStyle = '#ffd36b';
+        pen.fillRect(x, h - peak * segH + gap / 2, barW, Math.max(1, (segH - gap) * 0.45));
+      }
+    }
+  }
+  function paintWave(w, h) {
+    const mid = h / 2;
+    pen.strokeStyle = '#0d3a46aa';
+    pen.lineWidth = 1;
+    pen.beginPath(); pen.moveTo(0, mid); pen.lineTo(w, mid); pen.stroke();
+    if (!waveData || waveAmp < 0.005) return;
+    const n = waveData.length, stepPx = w / (n - 1);
+    pen.lineWidth = Math.max(1.5, h / 40);
+    pen.lineJoin = 'round';
+    let prevX = 0, prevY = mid, prevStrong = false;
+    pen.beginPath(); pen.strokeStyle = '#22dcf5'; pen.moveTo(0, mid);
+    for (let i = 0; i < n; i += 2) {
+      const v = Math.max(-1, Math.min(1, (waveData[i] - 128) / 128 * waveGain)), y = mid - v * mid * 0.92 * waveAmp, x = i * stepPx, strong = Math.abs(v) > 0.72;
+      if (strong !== prevStrong) { // goldene Spitzen bei kräftigen Pegeln
+        pen.lineTo(x, y); pen.stroke();
+        pen.beginPath(); pen.strokeStyle = strong ? '#ffc23a' : '#22dcf5'; pen.moveTo(x, y);
+        prevStrong = strong;
+      } else pen.lineTo(x, y);
+      prevX = x; prevY = y;
+    }
+    pen.lineTo(prevX, prevY); pen.stroke();
+  }
+
+  function wake() { if (!frame) frame = requestAnimationFrame(draw); }
+  function draw(time) {
+    frame = 0;
+    const live = state === 'playing' && analyser && !document.hidden;
+    const interval = reduced.matches ? 120 : 33;
+    if (time - lastDraw < interval - 2) { frame = requestAnimationFrame(draw); return; }
+    lastDraw = time;
+    let moving = false;
+    if (live) {
+      if (!bands) makeBands();
+      analyser.getByteFrequencyData(freqData);
+      if (mode === 'wave') {
+        analyser.getByteTimeDomainData(waveData);
+        let peak = 0;
+        for (let i = 0; i < waveData.length; i++) { const a = Math.abs(waveData[i] - 128); if (a > peak) peak = a; }
+        // Verstärkung nach nachlaufendem Spitzenpegel: der Titel füllt das Display,
+        // Pausen zwischen den Noten bleiben dabei sichtbar ruhig (kein hochgezogenes Rauschen).
+        wavePeak = Math.max(peak / 128, wavePeak * 0.985, 0.08);
+        waveGain = 0.92 / wavePeak;
+      }
+      let low = 0;
+      for (let k = 1; k <= 6; k++) low += freqData[k];
+      bass += ((low / 6 / 255) - bass) * 0.5;
+      waveAmp = 1;
+      for (let b = 0; b < BARS; b++) {
+        const [a, z] = bands[b];
+        let max = 0;
+        for (let k = a; k < z; k++) if (freqData[k] > max) max = freqData[k];
+        const level = Math.pow(max / 255, 1.15);
+        bars[b] = level > bars[b] ? level : bars[b] * 0.8 + level * 0.2;
+        peaks[b] = bars[b] >= peaks[b] ? bars[b] : Math.max(0, peaks[b] - 0.025);
+      }
+      moving = true;
+    } else {
+      // Pause: Anzeige klingt sichtbar aus und kommt zur Ruhe. Stopp hat bereits alles zurückgesetzt.
+      for (let b = 0; b < BARS; b++) {
+        bars[b] *= 0.78; peaks[b] = Math.max(0, peaks[b] - 0.04);
+        if (bars[b] < 0.01) bars[b] = 0;
+        if (bars[b] || peaks[b]) moving = true;
+      }
+      waveAmp *= 0.8; if (waveAmp < 0.005) waveAmp = 0; else moving = true;
+      bass *= 0.75; if (bass < 0.01) bass = 0; else moving = true;
+    }
+    applyBass();
+    paint();
+    updateClock();
+    const flash = shuffleFlash > time;
+    ui.shuffleInd.classList.toggle('is-lit', flash);
+    if (live || moving || flash || (isFile() && state === 'playing')) frame = requestAnimationFrame(draw);
+  }
+
+  function setMode(next) {
+    mode = next;
+    root.dataset.mode = next;
+    ui.mode.setAttribute('aria-pressed', String(next === 'wave'));
+    ui.mode.setAttribute('aria-label', next === 'wave' ? 'Anzeige auf Spektrum umschalten' : 'Anzeige auf Wellenform umschalten');
+    paint();
+    wake();
+  }
+
+  function setVolume(v) {
+    volume = Math.min(1, Math.max(0, v));
+    ui.volume.value = String(Math.round(volume * 100));
+    ui.volume.style.setProperty('--nr-vol', `${Math.round(volume * 100)}%`);
+    if (out && ctx) out.gain.setTargetAtTime(volume, ctx.currentTime, 0.02);
+  }
+
+  function openList(open) {
+    ui.playlist.hidden = !open;
+    ui.list.setAttribute('aria-expanded', String(open));
+    ui.list.setAttribute('aria-label', open ? 'Playlist schließen' : 'Playlist öffnen');
+    if (open) ui.trackList.children[selected].firstElementChild.focus();
+  }
+
+  /* ---------- Playlist aufbauen ---------- */
+  ui.playlist.setAttribute('aria-label', `Playlist, ${tracks.length} Titel`);
+  tracks.forEach((t, i) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'nr-playlist__item';
+    b.innerHTML = `<b>${two(i + 1)}</b><span></span><small></small>`;
+    b.children[1].textContent = t.title;
+    b.children[2].textContent = t.bpm ? `${t.bpm} BPM` : (t.genre || '');
+    if (t.genre) b.title = t.genre;
+    b.addEventListener('click', () => { openList(false); ui.list.focus(); choose(i, true); });
+    li.append(b);
+    ui.trackList.append(li);
   });
-  play.addEventListener('click', switchPlay);
-  miniPlay.addEventListener('click', switchPlay);
-  prev.addEventListener('click', () => changeTrack(selected - 1));
-  next.addEventListener('click', () => changeTrack(selected + 1));
-  options.forEach((button, index) => button.addEventListener('click', () => changeTrack(index)));
-  volumeInput.addEventListener('input', () => {
-    volume = Number(volumeInput.value) / 100;
-    if (master && context) master.gain.setTargetAtTime(playing ? volume : 0, context.currentTime, 0.02);
-    save();
+
+  /* ---------- Bedienung ---------- */
+  ui.play.addEventListener('click', toggle);
+  ui.stop.addEventListener('click', () => halt('stopped'));
+  ui.prev.addEventListener('click', () => choose(selected - 1));
+  ui.next.addEventListener('click', () => choose(selected + 1));
+  ui.shuffle.addEventListener('click', () => {
+    shuffleFlash = performance.now() + 900;
+    choose(selected + 1 + Math.floor(Math.random() * (tracks.length - 1)), true);
   });
-  root.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !panel.hidden) { setOpen(false); toggle.focus(); }
+  ui.mode.addEventListener('click', () => { setMode(mode === 'wave' ? 'spectrum' : 'wave'); save(); });
+  ui.list.addEventListener('click', () => openList(ui.playlist.hidden));
+  ui.volume.addEventListener('input', () => { setVolume(Number(ui.volume.value) / 100); save(); });
+  root.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !ui.playlist.hidden) { e.stopPropagation(); openList(false); ui.list.focus(); }
   });
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && !panel.hidden) drawWaveform();
+  // Tastendruck per Tastatur sichtbar machen (Leertaste/Enter drücken die Taste ein).
+  root.querySelectorAll('.nr-key').forEach(key => {
+    key.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') key.classList.add('is-down'); });
+    ['keyup', 'blur'].forEach(type => key.addEventListener(type, () => key.classList.remove('is-down')));
   });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
+  reduced.addEventListener?.('change', () => { applyBass(); wake(); });
+  if ('ResizeObserver' in window) new ResizeObserver(fitCanvas).observe(ui.canvas);
   addEventListener('pagehide', () => {
-    if (frame) cancelAnimationFrame(frame);
-    stopAudio();
-    if (context) context.close().catch(() => {});
+    halt('stopped');
+    if (ctx) { ctx.close().catch(() => {}); ctx = null; media = null; bands = null; }
   });
-  updateUI();
+
+  setVolume(volume);
+  setMode(mode);
+  setState('stopped');
+  fitCanvas();
+
+  // Für automatisierte Prüfungen: Zustand lesen, ohne Interna zu verändern.
+  root.nerdRadio = Object.freeze({
+    get state() { return state; },
+    get track() { return selected; },
+    get volume() { return out ? out.gain.value : volume; },
+    get voices() { return voices.size; },
+    get contexts() { return ctx ? 1 : 0; },
+    level() {
+      if (!analyser) return 0;
+      analyser.getByteFrequencyData(freqData);
+      return freqData.reduce((s, v) => s + v, 0) / freqData.length;
+    }
+  });
 })();

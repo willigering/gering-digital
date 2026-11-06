@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 450" width="1000" height="450">
+  <!-- NERD RADIO: reines Gehäuse. Tasten, Display und Lautsprecher sind echte HTML-Elemente darüber. -->
+  <defs>
+    <linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3d464d"/><stop offset=".07" stop-color="#272e34"/><stop offset=".52" stop-color="#171c20"/><stop offset="1" stop-color="#0b0e11"/>
+    </linearGradient>
+    <linearGradient id="face" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#232a30"/><stop offset=".45" stop-color="#161b1f"/><stop offset="1" stop-color="#0e1215"/>
+    </linearGradient>
+    <radialGradient id="sheen" cx=".28" cy=".05" r=".7">
+      <stop offset="0" stop-color="#c9e9ff" stop-opacity=".16"/><stop offset="1" stop-color="#c9e9ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="housing" cx=".5" cy=".46" r=".52">
+      <stop offset="0" stop-color="#0a0d10"/><stop offset=".8" stop-color="#11161a"/><stop offset=".87" stop-color="#2e373e"/><stop offset=".93" stop-color="#0c1013"/><stop offset="1" stop-color="#3b454d"/>
+    </radialGradient>
+    <linearGradient id="handle" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4c565e"/><stop offset=".25" stop-color="#262d33"/><stop offset="1" stop-color="#0f1316"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4a545c"/><stop offset=".18" stop-color="#262d33"/><stop offset="1" stop-color="#11151a"/>
+    </linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#cfd8de"/><stop offset="1" stop-color="#8293a0"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe783"/><stop offset=".5" stop-color="#ffbf2e"/><stop offset="1" stop-color="#c97a10"/>
+    </linearGradient>
+    <linearGradient id="lip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2a3238"/><stop offset="1" stop-color="#07090b"/>
+    </linearGradient>
+    <radialGradient id="bolt" cx=".35" cy=".3" r=".8">
+      <stop offset="0" stop-color="#c7d0d6"/><stop offset=".45" stop-color="#5b666e"/><stop offset="1" stop-color="#14191d"/>
+    </radialGradient>
+    <pattern id="hazard" width="14" height="14" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+      <rect width="14" height="14" fill="#141618"/><rect width="7" height="14" fill="#f5b81c"/>
+    </pattern>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="scratch" x="0" y="0" width="1000" height="450" filterUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency=".9 .05" numOctaves="2" seed="3"/>
+      <feColorMatrix values="0 0 0 0 .78  0 0 0 0 .84  0 0 0 0 .9  0 0 0 9 -6.3"/>
+    </filter>
+    <filter id="rust" x="0" y="0" width="1000" height="450" filterUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency=".022" numOctaves="4" seed="11"/>
+      <feColorMatrix values="0 0 0 0 .44  0 0 0 0 .25  0 0 0 0 .12  0 0 0 7 -4.5"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="1000" height="450" filterUnits="userSpaceOnUse">
+      <feTurbulence type="fractalNoise" baseFrequency="1.6" numOctaves="1" seed="5"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 4 -2.6"/>
+    </filter>
+    <clipPath id="bodyClip"><path d="M20 168L58 128L100 96H900L942 128L980 168V392L950 424H50L20 392Z"/></clipPath>
+    <symbol id="b" viewBox="-7 -7 14 14"><circle r="6" fill="#06080a"/><circle r="4.6" fill="url(#bolt)"/><path d="M-3 -1.2L1.2 3M-1.2 -3L3 1.2" stroke="#0b0e10" stroke-width="1.2"/></symbol>
+  </defs>
+
+  <!-- Neonrahmen hinter dem Gerät -->
+  <g filter="url(#glow)" fill="#0d151a" stroke="#1fd6ff" stroke-width="3" stroke-linejoin="round">
+    <path d="M52 140L106 72H318V100H100Z"/>
+    <path d="M948 140L894 72H682V100H900Z"/>
+    <path d="M986 186V376" fill="none"/>
+    <path d="M14 186V376" fill="none" stroke-opacity=".55"/>
+  </g>
+
+  <!-- Tragegriff -->
+  <path d="M248 104V46L280 12H720L752 46V104H712V58L700 44H300L288 58V104Z" fill="url(#handle)" stroke="#05080a" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M284 16H716" stroke="#7d8a94" stroke-width="2" opacity=".7"/>
+  <path d="M254 100V48L282 18" fill="none" stroke="#5c6870" stroke-width="2" opacity=".6"/>
+  <path d="M292 15H350V41H300L292 50Z" fill="url(#hazard)" opacity=".95"/>
+  <path d="M708 15H650V41H700L708 50Z" fill="url(#hazard)" opacity=".95"/>
+  <rect x="380" y="18" width="240" height="22" rx="4" fill="#0d1114" stroke="#2c353c" stroke-width="2"/>
+  <path d="M392 22H608" stroke="#ffbf2e" stroke-width="2" opacity=".55" filter="url(#glow)"/>
+  <use href="#b" x="363" y="22" width="14" height="14"/><use href="#b" x="623" y="22" width="14" height="14"/>
+
+  <!-- Korpus -->
+  <path d="M20 168L58 128L100 96H900L942 128L980 168V392L950 424H50L20 392Z" fill="url(#metal)" stroke="#04070a" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M22 168L58 130L100 99H900L942 130L978 168" fill="none" stroke="#76828b" stroke-width="2.5" opacity=".75"/>
+  <path d="M40 176L72 146L110 116H890L928 146L960 176V386L940 406H60L40 386Z" fill="url(#face)" stroke="#080b0e" stroke-width="3"/>
+  <path d="M42 176L73 148L111 119H889L927 148L958 176" fill="none" stroke="#4c5860" stroke-width="1.5"/>
+  <path d="M112 121H888" stroke="#d9a43c" stroke-width="1.5" opacity=".35"/>
+  <path d="M40 176L72 146L110 116H890L928 146L960 176V386L940 406H60L40 386Z" fill="url(#sheen)"/>
+
+  <!-- Gebrauchsspuren -->
+  <g clip-path="url(#bodyClip)">
+    <rect width="1000" height="450" filter="url(#rust)" opacity=".3"/>
+    <rect width="1000" height="450" filter="url(#scratch)" opacity=".26"/>
+    <rect width="1000" height="450" filter="url(#grain)" opacity=".05"/>
+  </g>
+
+  <!-- Gold-Neon an den Schultern -->
+  <g filter="url(#glow)" fill="none" stroke="#ffb22a" stroke-width="3" stroke-linecap="round">
+    <path d="M24 176L60 136"/><path d="M976 176L940 136"/>
+    <path d="M24 300V384" stroke-opacity=".8"/><path d="M976 300V384" stroke-opacity=".8"/>
+  </g>
+  <path d="M118 124H206L194 140H106Z" fill="url(#hazard)"/>
+  <path d="M882 124H794L806 140H894Z" fill="url(#hazard)"/>
+
+  <!-- Typenschild -->
+  <path d="M330 66L352 48H648L670 66V116L650 134H350L330 116Z" fill="url(#badge)" stroke="#05080a" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M334 66L354 51H646L666 66" fill="none" stroke="#8a97a0" stroke-width="2" opacity=".7"/>
+  <path d="M346 124H654" stroke="#1fd6ff" stroke-width="2" opacity=".6" filter="url(#glow)"/>
+  <text x="500" y="111" text-anchor="middle" font-family="'Arial Black','Segoe UI Black','Helvetica Neue',Impact,sans-serif" font-size="46" font-style="italic" font-weight="900" letter-spacing="-1" stroke="#07090b" stroke-width="4" paint-order="stroke"><tspan fill="url(#silver)">DAU </tspan><tspan fill="url(#silver)" font-size="28">TO </tspan><tspan fill="url(#gold)">PRO</tspan></text>
+  <path d="M298 108H310L304 122H292ZM314 108H326L320 122H308Z" fill="#f5b81c"/>
+  <path d="M674 108H686L680 122H668ZM690 108H702L696 122H684Z" fill="#f5b81c"/>
+  <use href="#b" x="341" y="59" width="14" height="14"/><use href="#b" x="645" y="59" width="14" height="14"/>
+
+  <!-- Lautsprecher-Aufnahmen -->
+  <g stroke="#04070a" stroke-width="4">
+    <circle cx="150" cy="276" r="112" fill="url(#housing)"/>
+    <circle cx="850" cy="276" r="112" fill="url(#housing)"/>
+  </g>
+  <g fill="none" stroke="#56626b" stroke-width="2" opacity=".8">
+    <path d="M70 196A112 112 0 0 1 230 196"/><path d="M770 196A112 112 0 0 1 930 196"/>
+  </g>
+  <g>
+    <use href="#b" x="69" y="195" width="14" height="14"/><use href="#b" x="217" y="195" width="14" height="14"/>
+    <use href="#b" x="69" y="343" width="14" height="14"/><use href="#b" x="217" y="343" width="14" height="14"/>
+    <use href="#b" x="769" y="195" width="14" height="14"/><use href="#b" x="917" y="195" width="14" height="14"/>
+    <use href="#b" x="769" y="343" width="14" height="14"/><use href="#b" x="917" y="343" width="14" height="14"/>
+    <use href="#b" x="49" y="179" width="14" height="14"/><use href="#b" x="937" y="179" width="14" height="14"/>
+    <use href="#b" x="53" y="385" width="14" height="14"/><use href="#b" x="933" y="385" width="14" height="14"/>
+  </g>
+
+  <!-- Bedienfeld-Rahmen -->
+  <path d="M266 140H734L744 150V416L734 426H266L256 416V150Z" fill="#0b0f12" opacity=".55"/>
+  <path d="M266 141H734" stroke="#3b464e" stroke-width="1.5"/>
+
+  <!-- Sockel, Lüftung und untere Lichtkante -->
+  <path d="M50 424H950L930 442H70Z" fill="url(#lip)" stroke="#04070a" stroke-width="3"/>
+  <g fill="#050709" stroke="#2f383f" stroke-width="1">
+    <rect x="96" y="429" width="12" height="8" rx="2"/><rect x="116" y="429" width="12" height="8" rx="2"/><rect x="136" y="429" width="12" height="8" rx="2"/><rect x="156" y="429" width="12" height="8" rx="2"/><rect x="176" y="429" width="12" height="8" rx="2"/><rect x="196" y="429" width="12" height="8" rx="2"/>
+    <rect x="792" y="429" width="12" height="8" rx="2"/><rect x="812" y="429" width="12" height="8" rx="2"/><rect x="832" y="429" width="12" height="8" rx="2"/><rect x="852" y="429" width="12" height="8" rx="2"/><rect x="872" y="429" width="12" height="8" rx="2"/><rect x="892" y="429" width="12" height="8" rx="2"/>
+  </g>
+  <g filter="url(#glow)" stroke-width="3" stroke-linecap="round">
+    <path d="M430 425H570" stroke="#ffb22a"/>
+    <path d="M60 425H84" stroke="#1fd6ff"/><path d="M916 425H940" stroke="#1fd6ff"/>
+    <path d="M250 425H300" stroke="#ffb22a" stroke-opacity=".7"/><path d="M700 425H750" stroke="#ffb22a" stroke-opacity=".7"/>
+  </g>
+
+  <!-- Aufkleber -->
+  <g transform="rotate(-12 806 120)">
+    <path d="M744 84L860 78L866 152L748 160Z" fill="#c99d61" stroke="#7b5a31" stroke-width="1.5"/>
+    <path d="M744 84L860 78L866 152L748 160Z" fill="#000" filter="url(#grain)" opacity=".18"/>
+    <path d="M800 74L826 73L827 88L801 89Z" fill="#e8e1c9" opacity=".7"/>
+    <text font-family="'Segoe Print','Comic Sans MS','Chalkboard SE',cursive" font-weight="700" fill="#1f160c">
+      <tspan x="760" y="114" font-size="27">NERD</tspan><tspan x="764" y="145" font-size="25">MUSIC</tspan>
+    </text>
+    <path d="M833 96h6v3h-6zM842 96h6v3h-6zM830 99h21v6h-21zM833 105h15v3h-15zM836 108h9v3h-9zM839 111h3v3h-3z" fill="#e3262b" stroke="#5a0d10" stroke-width=".8"/>
+  </g>
+</svg>
