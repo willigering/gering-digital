@@ -380,3 +380,13 @@ main,.dtp-footer{position:relative;z-index:1}
     15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; }
   }
 }
+
+/* Modulstapel (siehe site.js). Das Raster bleibt die Grundlage. */
+.module-grid.is-stacked{display:block;position:relative}
+.module-grid.is-stacked .stack-stage{position:sticky;overflow:visible}
+.module-grid.is-stacked .stack-row{position:absolute;left:0;right:0;top:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch;transform-origin:50% 0;will-change:transform,opacity;transition:filter .3s}
+.module-grid.is-stacked .stack-row .module-card{height:100%;background:#111b22;box-shadow:0 18px 40px #0007}
+.module-grid.is-stacked .stack-row.is-front .module-card{box-shadow:0 22px 50px #000a,0 0 0 1px color-mix(in srgb,var(--mod) 30%,transparent)}
+.module-grid.is-stacked .stack-row.is-behind{filter:brightness(.55) saturate(.7);cursor:pointer}
+.module-grid.is-stacked .stack-row.is-behind .module-card:hover{transform:none}
+

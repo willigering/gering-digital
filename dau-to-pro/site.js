@@ -210,6 +210,7 @@
       if(visible)shown++;
     });
     if(grid)grid.dataset.count=String(shown);
+    globalThis.dtpModuleStack?.rebuild();
     if(empty)empty.hidden=shown!==0;
     buttons.forEach(button=>{
       const active=button.dataset.filter===topic;
@@ -271,4 +272,83 @@
   openNotice();addEventListener('hashchange',openNotice);
 })();
 
+/* Modulstapel: Ab drei Spalten schieben sich die Dreierreihen beim Scrollen übereinander.
+   Jede Reihe braucht nur einen Teil ihrer Höhe als Scrollstrecke, ältere Reihen bleiben als
+   schmale Kante sichtbar und holen sich beim Anklicken nach vorn. Ohne JavaScript, auf schmalen
+   Bildschirmen und bei reduzierter Bewegung bleibt das normale Raster. */
+(()=>{
+  const grid=document.getElementById('module-grid');
+  if(!grid)return;
+  const wide=matchMedia('(min-width:900px)'),calm=matchMedia('(prefers-reduced-motion:reduce)');
+  const all=[...grid.querySelectorAll(':scope > .module-card')];
+  const PEEK=26,STEP=0.42,NEXT=0.30;
+  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false;
+  const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'))||80;
+  function teardown(){
+    if(!on)return;on=false;
+    all.forEach(c=>grid.append(c));
+    grid.querySelectorAll('.stack-row,.stack-stage').forEach(n=>n.remove());
+    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;
+  }
+  function build(){
+    teardown();
+    const visible=all.filter(c=>!c.hidden);
+    if(!wide.matches||calm.matches||visible.length<=3)return;
+    on=true;grid.classList.add('is-stacked');
+    stage=document.createElement('div');stage.className='stack-stage';grid.append(stage);
+    for(let i=0;i<visible.length;i+=3){
+      const row=document.createElement('div');row.className='stack-row';row.dataset.row=String(rows.length);
+      visible.slice(i,i+3).forEach(c=>row.append(c));
+      row.addEventListener('click',e=>{const k=Number(row.dataset.row);if(k!==active()){e.preventDefault();e.stopPropagation();go(k)}},true);
+      stage.append(row);rows.push(row);
+    }
+    all.filter(c=>c.hidden).forEach(c=>grid.append(c));
+    measure();
+  }
+  function measure(){
+    if(!on)return;
+    rows.forEach(r=>{r.style.transform='';r.style.position='static'});
+    rowH=Math.max(...rows.map(r=>r.getBoundingClientRect().height));
+    gap=parseFloat(getComputedStyle(grid).rowGap)||24;
+    rows.forEach(r=>{r.style.position='';r.style.height=rowH+'px'});
+    const peeks=Math.min(rows.length-1,3)*PEEK;
+    const stageH=peeks+rowH+gap+rowH*NEXT;
+    stage.style.height=stageH+'px';stage.style.top=(navH()+16)+'px';
+    grid.style.height=(stageH+(rows.length-1)*rowH*STEP)+'px';
+    paint();
+  }
+  const stepPx=()=>rowH*STEP;
+  function progress(){
+    const top=grid.getBoundingClientRect().top-(navH()+16);
+    return Math.max(0,Math.min(rows.length-1,-top/stepPx()));
+  }
+  const active=()=>Math.round(progress());
+  function paint(){
+    frame=0;if(!on)return;
+    const p=progress(),peeks=Math.min(rows.length-1,3)*PEEK;
+    rows.forEach((r,k)=>{
+      const d=p-k;let y,s=1;
+      if(d>=0){const back=Math.min(d,3);y=peeks-back*PEEK;s=1-back*0.035;}
+      else y=peeks+(-d)*(rowH+gap);
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+s.toFixed(3)+')';
+      r.style.zIndex=String(k+1);
+      r.classList.toggle('is-front',Math.abs(d)<0.5);
+      r.classList.toggle('is-behind',d>=0.5);
+      r.inert=d<-1.2;
+    });
+  }
+  function go(k){
+    const target=scrollY+grid.getBoundingClientRect().top-(navH()+16)+k*stepPx();
+    scrollTo({top:Math.max(0,target),behavior:calm.matches?'auto':'smooth'});
+  }
+  const queue=()=>{if(on&&!frame)frame=requestAnimationFrame(paint)};
+  addEventListener('scroll',queue,{passive:true});
+  addEventListener('resize',()=>{if(wide.matches!==on||on)build()},{passive:true});
+  wide.addEventListener('change',build);calm.addEventListener('change',build);
+  grid.addEventListener('toggle',measure,true);
+  addEventListener('load',measure);
+  grid.addEventListener('focusin',e=>{const r=e.target.closest('.stack-row');if(r&&Number(r.dataset.row)!==active())go(Number(r.dataset.row))});
+  globalThis.dtpModuleStack={rebuild:build};
+  build();
+})();
 

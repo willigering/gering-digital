@@ -123,3 +123,10 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 
 - A1 hat jetzt einen Szenensatz vor jeder Aufgabe, konkrete Beispiele im Fragezeichen und im Hinweis sowie Leuchteffekte, Serie und Rekord (`tools/module-game.css`, `tools/module-game.js`).
 - Lösungen und Überschriften sind per Vergleichstest unverändert. Willi testet das Muster, erst danach folgen andere Module.
+
+## 06.11.2026 – Modulstapel und weniger direkte Wiederholungen
+
+- Startseite: Ab 900 px Breite schieben sich die Dreierreihen beim Scrollen übereinander (`dau-to-pro/site.js`, `style.css`). Bei 10 Modulen braucht die Übersicht 1.409 statt 2.116 px Scrollstrecke, bei 24 Modulen 2.267 statt 4.256 px. Auf Handy, ohne JavaScript und bei reduzierter Bewegung bleibt das Raster.
+- A1, OSI, Subnetting, Netzwerke: Ein Unterthema kommt erst wieder, wenn bis zu drei andere dran waren. Gemessen in Stufen: direkte Wiederholung des Unterthemas vorher 26 bis 36 %, danach 0 % (Netzwerke 10 %, wo Stufen nur wenige Unterthemen haben).
+- Offen: inhaltliche Prüfung aller Fragen auf Sinngleichheit, Kompetenzmix, verratene Antworten und schwache Distraktoren; dieselbe Auswahl-Logik in D1, D2, B4, B5, F2 und C#, die eigene Generatoren haben.
+
