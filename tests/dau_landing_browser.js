@@ -101,7 +101,7 @@ let server,browser;
   assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Notice link also reopens an unchanged hash');
   php(`db()->exec("DELETE FROM html_pages WHERE slug='subnetsprint'");`);
   await page.goto(base+'/dau-to-pro/');
-  assert.equal(await page.locator('.module-card').count(),1,'Single-module catalogue');
+  assert.equal(await page.locator('#module-grid .module-card').count(),1,'Single-module catalogue');
   php(`db()->exec("DELETE FROM html_pages");`);
   await page.reload();
   assert.ok(await page.locator('.empty-state').isVisible(),'Empty catalogue works');
