@@ -8,6 +8,16 @@
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     const cards=[...document.querySelectorAll('.module-card:not(.is-coming-soon)')];
     if(!cards.length||!canHover.matches||reduced.matches)return;
+    // Willi 06.11.2026: vorerst ohne Weichzeichnen und Abdunkeln. Die Karte hebt sich nur selbst hervor.
+    // Auf true setzen, um den Fokus-Effekt wieder einzuschalten.
+    const FOCUS_BLUR=false;
+    if(!FOCUS_BLUR){
+      cards.forEach(card=>{
+        card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')card.classList.add('is-focus-target')});
+        card.addEventListener('pointerleave',()=>card.classList.remove('is-focus-target'));
+      });
+      return;
+    }
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
