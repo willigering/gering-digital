@@ -86,6 +86,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </section>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
+      <div class="catalog-feature-layout">
+        <div class="catalog-feature-main">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
       <div class="catalog-panel">
         <?php if($modules): ?>
@@ -113,6 +115,69 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 </details>
               </div>
+
+        </div><!-- /catalog-feature-main -->
+        <aside class="boombox-stage" aria-label="DAU TO PRO Nerd Radio">
+          <div class="boombox-floor" aria-hidden="true"></div>
+          <div class="nerd-radio boombox-radio is-open" data-nerd-radio data-state="paused">
+            <div class="boombox-handle" aria-hidden="true"><span class="boombox-handle-inner"></span></div>
+            <div class="boombox-shell">
+              <span class="boombox-bolt boombox-bolt--tl" aria-hidden="true"></span>
+              <span class="boombox-bolt boombox-bolt--tr" aria-hidden="true"></span>
+              <span class="boombox-bolt boombox-bolt--bl" aria-hidden="true"></span>
+              <span class="boombox-bolt boombox-bolt--br" aria-hidden="true"></span>
+              <div class="boombox-topline">
+                <span class="boombox-topline__bars" aria-hidden="true">▰▰▰</span>
+                <strong>DAU <em>TO PRO</em></strong>
+                <span>NERD RADIO</span>
+                <button type="button" class="boombox-toggle" data-radio-toggle aria-expanded="true" aria-controls="nerd-radio-panel" aria-label="Radio-Bedienelemente einklappen" title="Radio-Display einklappen">−</button>
+              </div>
+              <div class="boombox-mid">
+                <div class="boombox-speaker boombox-speaker--left" aria-hidden="true">
+                  <div class="boombox-speaker__rim"><div class="boombox-speaker__mesh"><span>◈</span></div></div>
+                </div>
+                <div class="boombox-center">
+                  <div class="nerd-radio__panel" data-radio-panel id="nerd-radio-panel">
+                    <div class="nerd-radio__screen">
+                      <div class="boombox-screenhead"><span class="boombox-led"></span><span data-radio-status aria-live="polite">STANDBY // AUDIO OFF</span><b>♪ DTP.FM</b></div>
+                      <div class="boombox-screenmain">
+                        <span class="boombox-cover" aria-hidden="true"><i></i><b>8 BIT</b></span>
+                        <div class="boombox-screenmusic"><strong data-radio-title>STACK OVERFLOW FM</strong><small data-radio-genre>CHIPTUNE // 118 BPM</small><canvas width="640" height="140" data-radio-waveform role="img" aria-label="Echtzeit-Wellenform des Audiosignals"></canvas></div>
+                      </div>
+                    </div>
+                    <div class="boombox-progress" aria-hidden="true"><span></span></div>
+                    <div class="nerd-radio__controls">
+                      <button class="nerd-radio__ctrl" type="button" data-radio-prev aria-label="Vorheriger Track" title="Vorheriger Titel">⏮</button>
+                      <button class="nerd-radio__ctrl nerd-radio__ctrl--play" type="button" data-radio-play aria-label="Musik starten" title="Musik starten oder pausieren">▶</button>
+                      <button class="nerd-radio__ctrl" type="button" data-radio-stop aria-label="Wiedergabe stoppen" title="Stopp">■</button>
+                      <button class="nerd-radio__ctrl" type="button" data-radio-next aria-label="Nächster Track" title="Nächster Titel">⏭</button>
+                    </div>
+                    <div class="boombox-lower">
+                      <div class="nerd-radio__volume"><label for="nerd-radio-volume">VOL</label><input id="nerd-radio-volume" data-radio-volume type="range" min="0" max="100" step="1" value="35" aria-label="Lautstärke"></div>
+                      <span class="boombox-vu" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                      <button class="boombox-smallbutton" type="button" data-radio-shuffle title="Zufälligen Track wählen" aria-label="Zufälligen Track wählen">⤨</button>
+                      <button class="boombox-smallbutton boombox-smallbutton--power" type="button" data-radio-mini-play aria-label="Musik starten" title="Radio ein/aus">⏻</button>
+                    </div>
+                  </div>
+                  <details class="boombox-playlist">
+                    <summary>▸ PLAYLIST / 3 TRACKS</summary>
+                    <div class="nerd-radio__tracks" role="group" aria-label="Musiktitel auswählen">
+                      <button class="nerd-radio__track is-selected" type="button" data-radio-track aria-pressed="true"><span>01</span> STACK OVERFLOW FM</button>
+                      <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>02</span> CTRL + ALT + BEAT</button>
+                      <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>03</span> 404: SLEEP NOT FOUND</button>
+                    </div>
+                  </details>
+                </div>
+                <div class="boombox-speaker boombox-speaker--right" aria-hidden="true">
+                  <div class="boombox-speaker__rim"><div class="boombox-speaker__mesh"><span>◈</span></div></div>
+                </div>
+              </div>
+              <div class="boombox-base" aria-hidden="true"><i></i><i></i><span>// SYSTEM AUDIO • NO STREAM • NO TRACKING</span><i></i><i></i></div>
+            </div>
+          </div>
+          <p class="boombox-stage__caption">NERD MUSIC // 8-BIT-BEATS DIREKT IM BROWSER</p>
+        </aside>
+      </div><!-- /catalog-feature-layout -->
     </div>
   </section>
   <section class="hs-section" id="highscore" aria-labelledby="hs-title">
@@ -174,44 +239,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
 
-<aside class="nerd-radio" data-nerd-radio data-state="paused" aria-label="NERD RADIO Musikplayer">
-  <div class="nerd-radio__bar">
-    <button class="nerd-radio__toggle" type="button" data-radio-toggle aria-label="Nerd Radio aufklappen" aria-expanded="false" aria-controls="nerd-radio-panel">
-      <span class="nerd-radio__icon" aria-hidden="true">♫</span>
-      <span class="nerd-radio__mini"><strong>NERD RADIO</strong><small>8-BIT // DTP.FM</small></span>
-      <span class="nerd-radio__meters" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
-    </button>
-    <button class="nerd-radio__quickplay" type="button" data-radio-mini-play aria-label="Musik starten" title="Musik an/aus">▶</button>
-  </div>
-  <div class="nerd-radio__panel" id="nerd-radio-panel" data-radio-panel hidden>
-    <div class="nerd-radio__head">
-      <div><span class="nerd-radio__eyebrow">DTP.FM // SYNTH STATION</span><h2>NERD <span>RADIO_</span></h2></div>
-      <button class="nerd-radio__close" type="button" data-radio-close aria-label="Nerd Radio schließen">×</button>
-    </div>
-    <div class="nerd-radio__screen">
-      <span class="nerd-radio__signal" data-radio-status aria-live="polite">STANDBY // AUDIO OFF</span>
-      <canvas width="640" height="140" data-radio-waveform role="img" aria-label="Wellenformvisualisierung des Musiksignals"></canvas>
-    </div>
-    <div class="nerd-radio__song">
-      <div><strong data-radio-title>STACK OVERFLOW FM</strong><small data-radio-genre>CHIPTUNE // 118 BPM</small></div>
-      <span class="nerd-radio__live">♪ DTP.FM</span>
-    </div>
-    <div class="nerd-radio__controls">
-      <button class="nerd-radio__ctrl" type="button" data-radio-prev aria-label="Vorheriger Track" title="Vorheriger Track">⏮</button>
-      <button class="nerd-radio__ctrl nerd-radio__ctrl--play" type="button" data-radio-play aria-label="Musik starten" title="Musik starten oder pausieren">▶</button>
-      <button class="nerd-radio__ctrl" type="button" data-radio-next aria-label="Nächster Track" title="Nächster Track">⏭</button>
-      <div class="nerd-radio__volume"><label for="nerd-radio-volume">VOLUME</label><input id="nerd-radio-volume" data-radio-volume type="range" min="0" max="100" step="1" value="35" aria-label="Lautstärke"></div>
-    </div>
-    <div class="nerd-radio__list"><span class="nerd-radio__list-label">/// SELECT YOUR FREQUENCY</span>
-      <div class="nerd-radio__tracks" role="group" aria-label="Musiktitel auswählen">
-        <button class="nerd-radio__track is-selected" type="button" data-radio-track aria-pressed="true"><span>01</span> STACK OVERFLOW FM</button>
-        <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>02</span> CTRL + ALT + BEAT</button>
-        <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>03</span> 404: SLEEP NOT FOUND</button>
-      </div>
-    </div>
-    <p class="nerd-radio__hint">Eigene 8-Bit-Beats, direkt im Browser erzeugt. Kein Streaming, kein Tracking und kein ungefragtes Autoplay.</p>
-  </div>
-</aside>
 <?=dtp_feedback_dialog('startseite')?>
 </body></html>
 
