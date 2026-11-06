@@ -52,6 +52,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if(!$hero['custom']): ?>  <link rel="stylesheet" href="hero-scene.css?v=<?=filemtime(__DIR__.'/hero-scene.css')?>">
 <?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
+  <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
+  <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
@@ -171,6 +173,45 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </section>
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
+
+<aside class="nerd-radio" data-nerd-radio data-state="paused" aria-label="NERD RADIO Musikplayer">
+  <div class="nerd-radio__bar">
+    <button class="nerd-radio__toggle" type="button" data-radio-toggle aria-label="Nerd Radio aufklappen" aria-expanded="false" aria-controls="nerd-radio-panel">
+      <span class="nerd-radio__icon" aria-hidden="true">♫</span>
+      <span class="nerd-radio__mini"><strong>NERD RADIO</strong><small>8-BIT // DTP.FM</small></span>
+      <span class="nerd-radio__meters" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+    </button>
+    <button class="nerd-radio__quickplay" type="button" data-radio-mini-play aria-label="Musik starten" title="Musik an/aus">▶</button>
+  </div>
+  <div class="nerd-radio__panel" id="nerd-radio-panel" data-radio-panel hidden>
+    <div class="nerd-radio__head">
+      <div><span class="nerd-radio__eyebrow">DTP.FM // SYNTH STATION</span><h2>NERD <span>RADIO_</span></h2></div>
+      <button class="nerd-radio__close" type="button" data-radio-close aria-label="Nerd Radio schließen">×</button>
+    </div>
+    <div class="nerd-radio__screen">
+      <span class="nerd-radio__signal" data-radio-status aria-live="polite">STANDBY // AUDIO OFF</span>
+      <canvas width="640" height="140" data-radio-waveform role="img" aria-label="Wellenformvisualisierung des Musiksignals"></canvas>
+    </div>
+    <div class="nerd-radio__song">
+      <div><strong data-radio-title>STACK OVERFLOW FM</strong><small data-radio-genre>CHIPTUNE // 118 BPM</small></div>
+      <span class="nerd-radio__live">♪ DTP.FM</span>
+    </div>
+    <div class="nerd-radio__controls">
+      <button class="nerd-radio__ctrl" type="button" data-radio-prev aria-label="Vorheriger Track" title="Vorheriger Track">⏮</button>
+      <button class="nerd-radio__ctrl nerd-radio__ctrl--play" type="button" data-radio-play aria-label="Musik starten" title="Musik starten oder pausieren">▶</button>
+      <button class="nerd-radio__ctrl" type="button" data-radio-next aria-label="Nächster Track" title="Nächster Track">⏭</button>
+      <div class="nerd-radio__volume"><label for="nerd-radio-volume">VOLUME</label><input id="nerd-radio-volume" data-radio-volume type="range" min="0" max="100" step="1" value="35" aria-label="Lautstärke"></div>
+    </div>
+    <div class="nerd-radio__list"><span class="nerd-radio__list-label">/// SELECT YOUR FREQUENCY</span>
+      <div class="nerd-radio__tracks" role="group" aria-label="Musiktitel auswählen">
+        <button class="nerd-radio__track is-selected" type="button" data-radio-track aria-pressed="true"><span>01</span> STACK OVERFLOW FM</button>
+        <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>02</span> CTRL + ALT + BEAT</button>
+        <button class="nerd-radio__track" type="button" data-radio-track aria-pressed="false"><span>03</span> 404: SLEEP NOT FOUND</button>
+      </div>
+    </div>
+    <p class="nerd-radio__hint">Eigene 8-Bit-Beats, direkt im Browser erzeugt. Kein Streaming, kein Tracking und kein ungefragtes Autoplay.</p>
+  </div>
+</aside>
 <?=dtp_feedback_dialog('startseite')?>
 </body></html>
 
