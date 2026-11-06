@@ -210,7 +210,7 @@
       if(visible)shown++;
     });
     if(grid)grid.dataset.count=String(shown);
-    window.dtpModuleStack?.rebuild();
+    globalThis.dtpModuleStack?.rebuild();
     if(empty)empty.hidden=shown!==0;
     buttons.forEach(button=>{
       const active=button.dataset.filter===topic;
@@ -348,7 +348,7 @@
   grid.addEventListener('toggle',measure,true);
   addEventListener('load',measure);
   grid.addEventListener('focusin',e=>{const r=e.target.closest('.stack-row');if(r&&Number(r.dataset.row)!==active())go(Number(r.dataset.row))});
-  window.dtpModuleStack={rebuild:build};
+  globalThis.dtpModuleStack={rebuild:build};
   build();
 })();
 
