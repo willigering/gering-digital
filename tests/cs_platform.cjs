@@ -26,7 +26,7 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
  const replies=[];page.on('response',async r=>{if(r.url().endsWith('/api/progress.php'))replies.push(await r.json());});
  await page.goto(base+'/cs1-csharp/');await page.locator('dtp-back').waitFor();assert.equal(await page.locator('dtp-back').count(),1);
  // Solve an actual module question; the injected sync, not a hand-written request, saves it.
- await page.locator('#tab-train').click();const t=await page.evaluate(()=>CSCODE_TEST.last());if(t.kind==='mc')await page.locator('#trainTask [data-v="'+t.answer+'"]').click();else{await page.locator('#trainTask input').fill(String(t.answer).replace('.',','));await page.locator('#trainTask [data-r="check"]').click();}
+ await page.locator('#tab-train').click();const t=await page.evaluate(()=>CSCODE_TEST.last());if(t.kind==='mc')await page.locator('#trainTask [data-v="'+t.answer+'"]').click();else{await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();}
  await page.waitForFunction(()=>document.querySelector('dtp-back'));await pause(1500);
  assert.equal(JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`))['cs-code-stats-v1']!==undefined,true);
  const saved=JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`));assert.equal(JSON.parse(saved['cs-code-stats-v1']).correct,1);
