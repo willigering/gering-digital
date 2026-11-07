@@ -67,7 +67,7 @@ jobs:
                               '.json', '.png', '.jpg', '.jpeg', '.webp',
                               '.svg', '.gif', '.ico', '.woff', '.woff2',
                               '.ttf', '.otf', '.txt', '.xml', '.webmanifest',
-                              '.map', '.wasm'}
+                              '.map', '.wasm', '.mp4'}
           tracked = subprocess.check_output(['git', 'ls-files', '-z']).split(b'\0')
           deploy_files = []
           for raw in tracked:
