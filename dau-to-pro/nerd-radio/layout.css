@@ -11,6 +11,16 @@
 .nr-glow__cyan-halo-r{left:81.581%;top:52.335%;width:9.210%;height:20.048%}
 .nr-glow__cyan-l{left:12.577%;top:52.415%;width:8.763%;height:18.760%}
 .nr-glow__cyan-r{left:81.890%;top:52.979%;width:8.797%;height:18.921%}
+.nr-cone--l{left:6.976%;top:40.338%;width:18.729%;height:43.881%;--mx:52.018%;--my:48.349%}
+.nr-glow__gold-edge-l{left:0.447%;top:19.002%;width:36.048%;height:79.791%}
+.nr-cone--l .nr-glow__cyan-edge-l{left:0.917%;top:0.734%;width:98.349%;height:98.716%}
+.nr-cone--l .nr-glow__cyan-l{left:29.908%;top:27.523%;width:46.789%;height:42.752%}
+.nr-cone--l .nr-glow__cyan-halo-l{left:28.440%;top:26.055%;width:48.807%;height:45.321%}
+.nr-cone--r{left:76.976%;top:40.499%;width:19.519%;height:45.813%;--mx:46.391%;--my:47.276%}
+.nr-glow__gold-edge-r{left:64.742%;top:19.002%;width:34.570%;height:79.549%}
+.nr-cone--r .nr-glow__cyan-edge-r{left:0.704%;top:0.703%;width:97.711%;height:98.770%}
+.nr-cone--r .nr-glow__cyan-r{left:25.176%;top:27.241%;width:45.070%;height:41.301%}
+.nr-cone--r .nr-glow__cyan-halo-r{left:23.592%;top:25.835%;width:47.183%;height:43.761%}
 .nr-key[data-radio-prev]{left:30.000%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-previous-normal.webp)}
 .nr-key[data-radio-prev]:hover{background-image:url(key-previous-hover.webp)}
 .nr-key[data-radio-prev]:active,.nr-key[data-radio-prev].is-down{background-image:url(key-previous-pressed.webp)}

@@ -11,6 +11,9 @@ Schritte:
 - Lichtebenen für die Website, je Lautsprecher zugeschnitten, in voller Paketauflösung, Positionen in pack.json:
   light-gold-*/light-cyan-* = scharfer Kern (Ring bzw. Pixelpilz, Pilz verlustfrei), light-gold-halo-*/light-cyan-halo-*
   = weicher Schein. Kern und Schein sind getrennt, damit der Kern beim Pulsieren hell und scharf bleibt. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
+- Membranen (cone-l/r.webp): Gitter + Pilz innerhalb des Randes, als eigene Ebene, die mit dem Bass pumpt.
+- Kantenlicht (light-gold-edge-*, light-cyan-edge-*): Lichtfall der Ringe auf Gehäusekanten bzw. des Pilzes aufs
+  Gitter, aus Helligkeit und Hochpass der Front berechnet, mit Abfall zur Lichtquelle.
 - Tasten (normal / hover / gedrückt) und Lautstärkeregler als WebP.
 - Gehäuseflächen (optional, Paket „nerd-radio-surfaces“): Seiten, Ober-/Unterseite und Rückwand mit
   ausgeschalteten Lämpchen als work/surfaces/*.png für build_boombox.py.
@@ -129,6 +132,7 @@ under(front, glass, x0 - 8, y0 - 8)
 MUSH = {'left': (486.5, 764.5, 0.785), 'right': (2503.5, 772.0, 0.79)}
 LAYERS = {n: np.zeros((CH, CW, 4), np.float32) for n in ('gold-halo', 'gold', 'cyan-halo', 'cyan')}
 layout_spk = {}
+CONE = {}
 for side in ('left', 'right'):
     x0, y0, x1, y1 = SPK[side]
     pad = 10   # Rand greift etwas unter die Hülle
@@ -153,10 +157,40 @@ for side in ('left', 'right'):
     over(LAYERS['cyan-halo'], resize(g2, round(g2.shape[1] * ms), round(g2.shape[0] * ms)), mx + round((m.shape[1] - g2.shape[1]) * ms / 2), my + round((m.shape[0] - g2.shape[0]) * ms / 2))
     over(LAYERS['cyan'], resize(m, mw, mh), mx, my)
     layout_spk[side] = [ox, oy, W, H]
+    # Membran: Innenfläche des Randes (Mitte und Radius aus der Aussparung im Randbild)
+    lab, _ = ndimage.label(rim[..., 3] < 0.5)
+    inner = lab == lab[H // 2, W // 2]
+    iy, ix = np.nonzero(inner)
+    CONE[side] = (float(ix.mean() + ox), float(iy.mean() + oy), float(np.sqrt(inner.sum() / np.pi)) - 3, (mcx, mcy))
 
 # Front für Blender (verlustfrei, volle Auflösung)
 Image.fromarray((np.clip(front, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(os.path.join(args.work, 'front.png'))
 print('FRONT', front.shape)
+
+# ---------------------------------------------------------------- Membranen und Kantenlicht
+yy, xx = np.mgrid[0:CH, 0:CW].astype(np.float32)
+lum = (front[..., :3] @ np.array([0.3, 0.55, 0.15], np.float32)) * front[..., 3]
+hp = np.clip(lum - ndimage.gaussian_filter(lum, 5), 0, None)          # Kanten und Grate, die Licht fangen
+catch = np.clip(lum * 0.7 + hp * 12, 0, 1)
+CONES = {}
+for side, (cx, cy, r, (mcx, mcy)) in CONE.items():
+    s = side[0]
+    d = np.hypot(xx - cx, yy - cy)
+    disc = np.clip(r - d, 0, 1.5) / 1.5                                  # weiche Kante
+    x0, y0, x1, y1 = int(cx - r - 2), int(cy - r - 2), int(cx + r + 3), int(cy + r + 3)
+    cone = front[y0:y1, x0:x1].copy(); cone[..., 3] *= disc[y0:y1, x0:x1]
+    save(resize(cone, (x1 - x0) // 2, (y1 - y0) // 2), os.path.join(args.web, f'cone-{s}.webp'), quality=90)
+    CONES[s] = {'rect': [x0, y0, x1 - x0, y1 - y0], 'center': [mcx, mcy]}
+    # Gold: Ringlicht fällt auf die Gehäusekanten rund um den Lautsprecher (nicht auf die Membran)
+    fall = np.exp(-np.clip(d - r * 1.08, 0, None) / (r * 0.3)) * (d > r * 1.0)
+    for name, a, col in (('gold-edge', np.clip(catch * fall * 0.8, 0, 1), (1.0, 0.72, 0.28)),
+                         ('cyan-edge', np.clip(catch * np.exp(-np.hypot(xx - mcx, yy - mcy) / (r * 0.38)) * disc * 1.3, 0, 1), (0.25, 0.9, 1.0))):
+        ys_, xs_ = np.nonzero(a > 0.015)
+        bx0, by0, bx1, by1 = int(xs_.min()), int(ys_.min()), int(xs_.max() + 1), int(ys_.max() + 1)
+        lay = np.zeros((by1 - by0, bx1 - bx0, 4), np.float32); lay[..., :3] = col; lay[..., 3] = a[by0:by1, bx0:bx1]
+        lay[lay[..., 3] < 0.004] = 0
+        save(resize(lay, (bx1 - bx0) // 2, (by1 - by0) // 2), os.path.join(args.web, f'light-{name}-{s}.webp'), quality=85)
+        CONES[s][name] = [bx0, by0, bx1 - bx0, by1 - by0]
 
 # ---------------------------------------------------------------- Website-Ebenen
 LIGHTS = {}
@@ -193,7 +227,7 @@ if args.surfaces:
     b = smani['body']
     SURF = {'body_top': b['bodyTopOnFront'], 'body_bottom': b['bodyBottomOnFront'], 'depth': b['depth']}
 
-json.dump({'canvas': [CW, CH], 'surfaces': SURF, 'display': manifest['layout']['display'], 'display_hole': DISP,
+json.dump({'canvas': [CW, CH], 'surfaces': SURF, 'cones': CONES, 'display': manifest['layout']['display'], 'display_hole': DISP,
            'controls': manifest['layout']['controls'], 'volume': manifest['layout']['volume'], 'speakers': layout_spk, 'lights': LIGHTS},
           open(os.path.join(args.work, 'pack.json'), 'w'), indent=1)
 print('PACK', json.dumps(layout_spk), DISP)

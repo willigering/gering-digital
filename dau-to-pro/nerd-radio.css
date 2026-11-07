@@ -39,9 +39,28 @@
 
 /* ---------- Echtes Licht: Ringe (Gold) und Pilze (Cyan); Deckkraft = Lichtstärke ---------- */
 .nr-face>.nr-glow{position:absolute;inset:0;pointer-events:none;opacity:.06}
-.nr-glow img{position:absolute;display:block;user-select:none}   /* Lage je Lautsprecher aus layout.css */
+.nr-glow img,.nr-cone img{position:absolute;display:block;user-select:none}   /* Lage je Lautsprecher aus layout.css */
+.nr-cone [data-radio-light]{opacity:.06}
+/* Kantenlicht addiert sich zum Gehäuse (Licht, keine Farbe) */
+.nr-glow--gold-edge,.nr-cone [data-radio-light=cyan-edge]{mix-blend-mode:screen}
+@supports (mix-blend-mode:plus-lighter){.nr-glow--gold-edge,.nr-cone [data-radio-light=cyan-edge]{mix-blend-mode:plus-lighter}}
 /* Ein- und Ausschalten weich, beim Abspielen folgt die Helligkeit direkt der Musik */
-.nr-device:not([data-state=playing]) .nr-glow{transition:opacity .8s ease-out}
+.nr-device:not([data-state=playing]) :is(.nr-glow,.nr-cone [data-radio-light]){transition:opacity .8s ease-out}
+
+/* ---------- Membranen: pumpen mit dem Bass (Skalierung um die Pilzmitte), im Rand beschnitten ---------- */
+.nr-face>.nr-cone{position:absolute;pointer-events:none;clip-path:circle(50%)}
+.nr-cone__body{position:absolute;inset:0;transform-origin:var(--mx) var(--my);--nr-push:0}
+.nr-device:not([data-state=playing]) .nr-cone__body{transition:transform .5s ease-out}
+.nr-cone__img{left:0;top:0;width:100%;height:100%}
+/* Licht und Schatten der Membran: nach vorn gedrückt heller in der Mitte, dunkler zum Rand hin */
+.nr-cone__shade{position:absolute;inset:0;border-radius:50%;opacity:var(--nr-push);
+  background:radial-gradient(circle at var(--mx) var(--my),#ffffff2e 0,#ffffff0a 30%,transparent 50%,#00000070 100%)}
+/* RGB-Wellen vom Pilz aus */
+.nr-cone__waves{position:absolute;inset:0;mix-blend-mode:screen}
+.nr-wave{position:absolute;left:var(--mx);top:var(--my);width:100%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;
+  border:.32cqw solid hsl(var(--h) 100% 62%);box-shadow:0 0 .9cqw hsl(var(--h) 100% 55%),inset 0 0 .9cqw hsl(var(--h) 100% 55%);
+  animation:nr-wave 1.2s cubic-bezier(.15,.55,.35,1) forwards}
+@keyframes nr-wave{from{scale:.14;opacity:.95}to{scale:1.55;opacity:0}}
 
 /* ---------- Display ---------- */
 .nr-display{position:absolute;padding:0}
@@ -102,7 +121,8 @@
 
 /* ---------- Tasten: Paket-Grafiken je Zustand (normal / hover / gedrückt); Bilder und Positionen in layout.css ---------- */
 .nr-transport{display:contents}
-.nr-key{position:absolute;margin:0;padding:0;border:0;cursor:pointer;background:transparent center/100% 100% no-repeat;-webkit-tap-highlight-color:transparent}
+.nr-key{position:absolute;margin:0;padding:0;border:0;cursor:pointer;background:transparent center/100% 100% no-repeat;-webkit-tap-highlight-color:transparent;
+  filter:drop-shadow(0 .22cqw .3cqw #000c)}   /* Tasten werfen Schatten auf die Front */
 .nr-key:focus-visible{outline:.21cqw solid #fff;outline-offset:-.48cqw;border-radius:.82cqw}
 
 /* ---------- Lautstärke: Schiene, Füllung und Knopf aus dem Paket, darüber ein unsichtbarer Schieberegler ---------- */
@@ -121,5 +141,6 @@
 @media(prefers-reduced-motion:reduce){
   .nr-display__ind{transition:none}
   .nr-device[data-state=paused] .nr-display__icon,.nr-device[data-state=playing] .is-long .nr-marquee{animation:none}
+  .nr-wave{display:none}
   .nr-device[data-state=playing] .is-long .nr-marquee{overflow:hidden;text-overflow:ellipsis;width:auto}
 }

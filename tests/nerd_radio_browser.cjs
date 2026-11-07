@@ -140,9 +140,18 @@ let server, browser;
   assert.equal(await key('play').getAttribute('aria-label'), 'Pause');
   // Echte Beleuchtung: Helligkeit der Lichtebenen folgt der Musik (Gold = Bass, Cyan = Höhen)
   const lightSamples = [];
-  for (let n = 0; n < 20; n++) { lightSamples.push(await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity)))); await pause(60); }
+  // Schein von Ring (Gold) und Pilz (Cyan) sowie der Membranhub folgen der Musik
+  for (let n = 0; n < 20; n++) {
+    lightSamples.push(await page.evaluate(() => {
+      const op = n => Number(getComputedStyle(document.querySelector(`[data-radio-light="${n}"]`)).opacity);
+      const cone = getComputedStyle(document.querySelector('[data-radio-cone]')).transform;
+      return [op('gold-halo'), op('cyan-halo'), cone === 'none' ? 1 : Number(cone.slice(7).split(',')[0])];
+    }));
+    await pause(60);
+  }
   const spread = i => Math.max(...lightSamples.map(s => s[i])) - Math.min(...lightSamples.map(s => s[i]));
   assert.ok(spread(0) > 0.05 && spread(1) > 0.03, `Licht pulsiert mit der Musik: ${spread(0).toFixed(2)} / ${spread(1).toFixed(2)}`);
+  assert.ok(spread(2) > 0.004, `Membranen pumpen mit dem Bass: ${spread(2).toFixed(4)} ${lightSamples.map(s => s.map(v => v.toFixed(3)).join("/")).join(" ")}`);
   const faced = await page.evaluate(() => [...document.querySelectorAll('[data-radio-face]')].every(e => e.classList.contains('is-placed') && getComputedStyle(e).transform.startsWith('matrix3d')));
   assert.ok(faced, 'Display und Regler liegen perspektivisch auf der schrägen Front');
   assert.match(r.title, /^01 – /);

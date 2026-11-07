@@ -226,6 +226,18 @@ lines = ['/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand 
          f'.nr-volume{{{place(PACK["volume"])}}}']
 for key_, rect in PACK['lights'].items():
     lines.append(f'.nr-glow__{key_}{{{place(rect)}}}')
+# Membranen: eigene Ebene je Lautsprecher; Pilz-Licht, Gitterlicht und RGB-Wellen bewegen sich mit ihr.
+# Kinder relativ zur Membran, damit sie gemeinsam pumpen.
+def rel(rect, box):
+    x, y, w, h = rect; bx, by, bw, bh = box
+    return f'left:{pct(x - bx, bw)};top:{pct(y - by, bh)};width:{pct(w, bw)};height:{pct(h, bh)}'
+for s, cone in (PACK.get('cones') or {}).items():
+    box = cone['rect']; mx, my = cone['center']
+    lines.append(f'.nr-cone--{s}{{{place(box)};--mx:{pct(mx - box[0], box[2])};--my:{pct(my - box[1], box[3])}}}')
+    lines.append(f'.nr-glow__gold-edge-{s}{{{place(cone["gold-edge"])}}}')
+    lines.append(f'.nr-cone--{s} .nr-glow__cyan-edge-{s}{{{rel(cone["cyan-edge"], box)}}}')
+    for n in ('cyan', 'cyan-halo'):
+        lines.append(f'.nr-cone--{s} .nr-glow__{n}-{s}{{{rel(PACK["lights"][f"{n}-{s}"], box)}}}')
 KEYMAP = {'prev': 'previous', 'play': 'play', 'pause': 'pause', 'stop': 'stop', 'next': 'next', 'shuffle': 'shuffle', 'mode': 'settings', 'list': 'playlist'}
 PRESSED = {'play': '.nr-device[data-state=playing] {k}', 'pause': '.nr-device[data-state=paused] {k}',
            'mode': '{k}[aria-pressed=true]', 'list': '{k}[aria-expanded=true]'}

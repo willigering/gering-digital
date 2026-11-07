@@ -54,8 +54,8 @@
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
     faces: [...root.querySelectorAll('[data-radio-face]')],
-    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]'),
-    goldHalo: $('[data-radio-light="gold-halo"]'), cyanHalo: $('[data-radio-light="cyan-halo"]')
+    lights: ['gold', 'gold-halo', 'gold-edge', 'cyan', 'cyan-halo', 'cyan-edge'].map(n => [...root.querySelectorAll(`[data-radio-light="${n}"]`)]),
+    cones: [...root.querySelectorAll('[data-radio-cone]')], waves: [...root.querySelectorAll('[data-radio-waves]')]
   };
   const pen = ui.canvas.getContext('2d');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -64,7 +64,7 @@
   let selected = 0, volume = 0.35, state = 'stopped', mode = 'spectrum', op = 0;
   let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null;
   let timer = 0, step = 0, nextStepAt = 0, pending = [];
-  let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, shuffleFlash = 0;
+  let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, suspending = null, shuffleFlash = 0;
   let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, faceAspect = 0, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
   const voices = new Set();
   const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
@@ -214,6 +214,9 @@
     root.classList.remove('has-error');
     try {
       if (!ctx) makeAudio();
+      // Ein gerade laufendes Schlafenlegen abwarten: sonst meldet der Kontext noch „running“,
+      // schläft danach aber ein und die Wiedergabe bleibt stumm.
+      if (suspending) await suspending;
       if (ctx.state !== 'running') await ctx.resume(); // nur nach bewusster Nutzeraktion
       if (token !== op) return;
       if (state === 'stopped') { step = 0; playedBefore = 0; }
@@ -257,7 +260,10 @@
       const cut = now + 0.06;
       voices.forEach(v => { try { v.stop(cut); } catch (_) { /* bereits beendet */ } });
       // Ruhender Kontext spart Rechenzeit; Fortsetzen weckt ihn wieder auf.
-      suspendTimer = setTimeout(() => { if (state !== 'playing' && ctx && ctx.state === 'running') ctx.suspend().catch(() => {}); }, 400);
+      suspendTimer = setTimeout(() => {
+        if (state === 'playing' || !ctx || ctx.state !== 'running') return;
+        suspending = ctx.suspend().catch(() => {}).finally(() => { suspending = null; });
+      }, 400);
     }
     if (media) media.pause();
     if (next === 'stopped') {
@@ -339,16 +345,42 @@
   // Ohne Musik sind die Leuchten aus (nur ein schwacher Bereitschaftsschimmer).
   // Der scharfe Kern (Ring, Pixelpilz) bleibt beim Spielen fast voll hell, nur der weiche Schein pulsiert stark;
   // so wirkt der Pilz nie verwaschen, auch wenn die Musik leise ist.
+  // Kantenlicht: Ringe werfen Gold auf die Gehäusekanten, der Pilz Cyan aufs Gitter.
+  // Membranen pumpen mit dem Bass; bei Bassschlägen laufen RGB-Wellen vom Pilz aus über die Membran.
   const STANDBY = 0.06;
+  let bassAvg = 0, lastWave = 0, lastPump = '';
+  function spawnWaves(now) {
+    const hue = Math.round(now / 22) % 360;
+    ui.waves.forEach((box, i) => {
+      if (box.childElementCount > 5) box.firstElementChild.remove();
+      const w = document.createElement('i');
+      w.className = 'nr-wave';
+      w.style.setProperty('--h', String((hue + i * 40) % 360));
+      w.addEventListener('animationend', () => w.remove(), { once: true });
+      box.append(w);
+    });
+  }
   function applyBass() {
     const calm = reduced.matches, on = state === 'playing';
     const lo = Math.min(1, bass * 1.5), hi = Math.min(1, treble * 2);
-    const v = !on ? [STANDBY, STANDBY, STANDBY, STANDBY] : calm ? [0.95, 0.7, 0.95, 0.7]
-      : [0.82 + 0.18 * lo, 0.12 + 0.88 * lo, 0.85 + 0.15 * hi, 0.12 + 0.88 * hi];
+    // Membranhub: schneller Anstieg mit dem Bass, kein Hub bei reduzierter Bewegung oder im Stopp
+    const push = on && !calm ? Math.pow(Math.min(1, bass * 1.6), 1.4) : 0;
+    const pump = push.toFixed(3);
+    if (pump !== lastPump) {
+      lastPump = pump;
+      ui.cones.forEach(c => { c.style.transform = push ? `scale(${(1 + push * 0.055).toFixed(4)})` : ''; c.style.setProperty('--nr-push', pump); });
+    }
+    if (on && !calm) {
+      const now = performance.now();
+      if (bass > bassAvg * 1.3 + 0.06 && now - lastWave > 240) { lastWave = now; spawnWaves(now); }
+      bassAvg += (bass - bassAvg) * 0.06;
+    } else if (!on) { bassAvg = 0; ui.waves.forEach(b => b.replaceChildren()); }
+    const v = !on ? [STANDBY, STANDBY, STANDBY, STANDBY, STANDBY, STANDBY] : calm ? [0.95, 0.7, 0.5, 0.95, 0.7, 0.5]
+      : [0.82 + 0.18 * lo, 0.12 + 0.88 * lo, 0.08 + 0.92 * lo, 0.85 + 0.15 * hi, 0.12 + 0.88 * hi, 0.1 + 0.9 * hi];
     const key = v.map(n => n.toFixed(2)).join();
     if (key === lastLight) return;
     lastLight = key;
-    [ui.gold, ui.goldHalo, ui.cyan, ui.cyanHalo].forEach((el, i) => { if (el) el.style.opacity = v[i].toFixed(2); });
+    ui.lights.forEach((els, i) => els.forEach(el => { el.style.opacity = v[i].toFixed(2); }));
   }
 
   /* Display und Regler auf die schräge Front legen: Homographie aus den vier von Blender

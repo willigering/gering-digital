@@ -107,12 +107,21 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
           <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
           <div class="nr-face" data-radio-face>
-          <!-- Echtes Licht: nur Lautsprecherringe (Gold = Bass) und Pixelpilze (Cyan = Höhen) leuchten, Helligkeit folgt der Musik -->
-<?php foreach (['gold-halo', 'cyan-halo'] as $nrL): ?>
-          <div class="nr-glow" data-radio-light="<?=$nrL?>" aria-hidden="true"><?php foreach (['l', 'r'] as $nrS): $nrF = "nerd-radio/light-$nrL-$nrS.webp"; ?><img class="nr-glow__<?=$nrL?>-<?=$nrS?>" src="<?=$nrF?>?v=<?=filemtime(__DIR__.'/'.$nrF)?>" alt="" decoding="async"><?php endforeach; ?></div>
+<?php $nrImg = function (string $file, string $cls, string $light = ''): string {
+            $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
+            return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
+          }; ?>
+          <!-- Membranen: pumpen mit dem Bass; Pilz, Pilzlicht auf dem Gitter und RGB-Wellen bewegen sich mit -->
+<?php foreach (['l', 'r'] as $nrS): ?>
+          <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
+            <?=$nrImg("cone-$nrS", 'nr-cone__img')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?>
+            <span class="nr-cone__waves" data-radio-waves></span><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?><span class="nr-cone__shade"></span>
+          </div></div>
 <?php endforeach; ?>
-          <div class="nr-glow" data-radio-light="gold" aria-hidden="true"><img class="nr-glow__gold-l" src="nerd-radio/light-gold-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-l.webp')?>" alt="" decoding="async"><img class="nr-glow__gold-r" src="nerd-radio/light-gold-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-r.webp')?>" alt="" decoding="async"></div>
-          <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img class="nr-glow__cyan-l" src="nerd-radio/light-cyan-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-l.webp')?>" alt="" decoding="async"><img class="nr-glow__cyan-r" src="nerd-radio/light-cyan-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-r.webp')?>" alt="" decoding="async"></div>
+          <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
+<?php foreach (['gold-edge', 'gold-halo', 'gold'] as $nrL): ?>
+          <div class="nr-glow nr-glow--<?=$nrL?>" data-radio-light="<?=$nrL?>" aria-hidden="true"><?=$nrImg("light-$nrL-l", "nr-glow__$nrL-l")?><?=$nrImg("light-$nrL-r", "nr-glow__$nrL-r")?></div>
+<?php endforeach; ?>
           <div class="nr-display">
             <div class="nr-display__glass">
               <div class="nr-display__brand"><span class="nr-display__logo"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"></span><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
