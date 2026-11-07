@@ -1,0 +1,12 @@
+NERD RADIO – eigene Musik
+
+MP3-, WAV-, OGG- oder M4A-Dateien in diesen Ordner legen und committen.
+Sie erscheinen automatisch in der Playlist des Ghettoblasters, sortiert nach
+Dateiname. Nur wenn der Ordner leer ist, spielt das Gerät drei generierte Loops.
+
+Titel = Dateiname ohne Endung. Eine führende Nummer wird nur zum Sortieren
+benutzt und nicht angezeigt; Unterstriche werden zu Leerzeichen:
+  01_Bits & Bytes (LoFi).mp3   ->  01 – Bits & Bytes (LoFi)
+  02 Packet Loss Blues.mp3     ->  02 – Packet Loss Blues
+
+Nur eigene oder lizenzfreie Musik verwenden.
