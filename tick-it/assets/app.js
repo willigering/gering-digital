@@ -3,7 +3,7 @@ const API='api.php';
 const state={actor:null,csrf:document.body.dataset.csrf,categories:[],view:'tickets',filter:'all',search:'',dateFrom:'',dateTo:'',page:1,
   stats:{cards:{}},list:{items:[],total:0,page:1,pages:1},selected:null,detail:null,
   participants:[],supporters:[],reviews:[],ranking:[],audit:[],private:null,pmGuest:null,unread:0,
-  generator:null,roleChoice:'customer',adminLogin:false,mobileMenu:false,modal:null,loading:false,lastUpdated:null,requestSeq:0};
+  generator:null,generatorError:null,generatorDiagnostics:null,roleChoice:'customer',adminLogin:false,mobileMenu:false,modal:null,loading:false,lastUpdated:null,requestSeq:0};
 const el=document.getElementById('app');
 const S=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(d)=>{if(!d)return '—';const date=new Date(d.replace(' ','T')+'Z');return Number.isNaN(+date)?S(d):new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}).format(date)};
@@ -153,14 +153,16 @@ function generatorPanel(){
      <div class="gen-actions"><button class="btn btn-primary" type="submit">${active?'Einstellungen übernehmen':'▶ Lauf starten'}</button>
        ${running?'<button class="btn" type="button" data-action="generator-pause">Ⅱ Pausieren</button>':''}
        ${paused?'<button class="btn btn-primary" type="button" data-action="generator-resume">▶ Fortsetzen</button>':''}
-       ${active?'<button class="btn btn-danger" type="button" data-action="generator-stop">■ Lauf stoppen</button>':''}
+       ${active?'<button class="btn btn-danger" type="button" data-action="generator-stop">■ Lauf stoppen</button>':''}<button class="btn" type="button" data-action="generator-diagnostics">Datenbank prüfen</button>
      </div>
    </form>
    <p class="hint">Der Start erzeugt standardmäßig sofort 100 veröffentlichte Übungstickets. Das Stoppen löscht <strong>keine</strong> bereits erzeugten Tickets. Automatische Kundenantworten sind nicht aktiviert.</p>
  </section>`;
 }
 function trainingView(){const drafts=state.list.items||[];
-return `<div class="view-grid">${generatorPanel()}<section class="card panel-pad"><h2>Neuen Übungsfall vorbereiten</h2><form data-form="training"><div class="form-field"><label for="training-subject">Betreff</label><input id="training-subject" name="subject" required minlength="4" maxlength="180" placeholder="z. B. DHCP-Server nicht erreichbar"></div>
+const diagnostic=state.generatorDiagnostics;
+const problem=state.generatorError||(!diagnostic?.ready&&diagnostic?.message)||'';
+return `<div class="view-grid">${problem?`<div class="notice" role="alert" style="grid-column:1/-1;border-color:#ce795e"><strong>Generator prüfen:</strong> ${S(problem)} <button class="btn btn-sm" data-action="generator-diagnostics" type="button">Datenbankdiagnose</button></div>`:''}${generatorPanel()}<section class="card panel-pad"><h2>Neuen Übungsfall vorbereiten</h2><form data-form="training"><div class="form-field"><label for="training-subject">Betreff</label><input id="training-subject" name="subject" required minlength="4" maxlength="180" placeholder="z. B. DHCP-Server nicht erreichbar"></div>
 <div class="form-grid"><div class="form-field"><label for="training-category">Kategorie</label><select id="training-category" name="category_id">${categoryOptions(null)}</select></div><div class="form-field"><label for="training-prio">Priorität</label><select id="training-prio" name="priority">${selectOptions(priorityLabels,'normal')}</select></div></div>
 <div class="form-field"><label for="training-description">Simulierte Kundenanfrage</label><textarea id="training-description" name="description" required minlength="10" maxlength="15000"></textarea></div>
 <div class="form-field"><label for="training-solution">Musterlösung (nur Dozent sichtbar)</label><textarea id="training-solution" name="sample_solution" minlength="3" required maxlength="20000"></textarea></div>
@@ -200,7 +202,7 @@ function draw(){if(!state.actor)return drawLogin();
 async function route(view,opts={}){
  if(!state.actor)return;
  if(!navs[state.actor.role].some(x=>x[0]===view))view=navs[state.actor.role][0][0];
- const seq=++state.requestSeq;state.view=view;state.mobileMenu=false;state.loading=true;state.detail=null;state.selected=null;
+ const seq=++state.requestSeq;if(view==='training'){state.generatorError=null;state.generatorDiagnostics=null;}state.view=view;state.mobileMenu=false;state.loading=true;state.detail=null;state.selected=null;
  state.filter=view==='mine'?'mine':view==='tickets'&&state.actor.role==='supporter'?'pool':'all';state.page=1;state.search='';state.dateFrom='';state.dateTo='';draw();
  try {
    if(['dashboard','tickets','mine'].includes(view)){
@@ -217,7 +219,7 @@ async function route(view,opts={}){
    else if(view==='training'){[state.list,state.generator]=await Promise.all([api('tickets',null,{filter:'drafts'}),api('generator_status')]);}
    else if(view==='audit'){state.audit=await api('audit');}
    else if(view==='settings'){state.allCategories=await api('categories_admin');}
- }catch(e){toast(e.message,true)}finally{if(seq===state.requestSeq){state.loading=false;draw();scrollChats()}}
+ }catch(e){if(view==='training')state.generatorError=e.message;toast(e.message,true)}finally{if(seq===state.requestSeq){state.loading=false;draw();scrollChats()}}
 }
 async function refreshCurrent(keep=true){if(!state.actor)return;
   const prev=keep?state.selected:null;
@@ -270,6 +272,11 @@ async function doClick(node){const action=node.dataset.action;const id=+(node.da
  if(action==='publish-many'){const ids=[...document.querySelectorAll('.training-check:checked')].map(x=>+x.value);
    if(!ids.length)return toast('Bitte zuerst Entwürfe auswählen.',true);
    if(await post('publish_many',{ids})){toast(ids.length+' Übungsfälle zur Veröffentlichung ausgewählt.');await route('training')}return;}
+ if(action==='generator-diagnostics'){
+   try{const report=await api('generator_diagnostics');state.generatorDiagnostics=report;state.generatorError=report.ready?'':report.message;toast(report.message,!report.ready);draw();}
+   catch(err){state.generatorError=err.message;toast(err.message,true);draw();}
+   return;
+ }
  if(action==='generator-pause'||action==='generator-resume'||action==='generator-stop'){
    const verb=action.split('-')[1];
    if(verb==='stop'&&!confirm('Ticket-Zustrom stoppen? Bereits eingegangene Tickets bleiben erhalten.'))return;
@@ -320,6 +327,7 @@ document.addEventListener('submit',async e=>{const form=e.target;if(!form.matche
   if(what==='generator-start'||what==='generator-update'){
    for(const key of ['initial_count','batch_count','interval_minutes','max_total'])if(data[key]!==undefined)data[key]=Number(data[key]);
    const response=await post(what==='generator-start'?'generator_start':'generator_update',data);
+   if(!response){try{const d=await api('generator_diagnostics');state.generatorDiagnostics=d;state.generatorError=d.ready?'Der Start ist fehlgeschlagen. Bitte die Fehler-ID aus der Meldung nennen.':d.message;draw();}catch(err){state.generatorError=err.message;draw();}}
    if(response){
      if(what==='generator-start'){
        // Sichere Pakete: keine 100 einzelnen Tickets in einer einzigen PHP-Anfrage.

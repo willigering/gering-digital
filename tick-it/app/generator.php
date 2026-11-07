@@ -39,6 +39,36 @@ function generator_status(): array {
         'published_in_run'=>(int)(one('SELECT COUNT(*) AS n FROM generator_issued WHERE run_no=?',[(int)$control['run_no']])['n'] ?? 0),
         'scheduler'=>'Besucher-Polling; optional STRATO-Cronjob für minutengetreue Ausführung'];
 }
+/** Nur fuer angemeldete Dozenten: sichere Diagnose ohne Zugangsdaten. */
+function generator_diagnostics(): array {
+    must_admin();
+    $required=['generator_control','generator_usage','generator_issued'];
+    $tables=many("SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name IN ('generator_control','generator_usage','generator_issued')");
+    $found=array_map(static fn(array $row): string => strtolower((string)array_values($row)[0]),$tables);
+    $missing=array_values(array_diff($required,$found));
+    $missingCategories=[];
+    $catalogReady=false;
+    try {
+        $catalog=generator_catalog();
+        $categories=array_unique(array_column($catalog['variants'],'category'));
+        $active=array_column(many('SELECT name FROM categories WHERE is_active=1'),'name');
+        $missingCategories=array_values(array_diff($categories,$active));
+        $catalogReady=count($catalog['variants'])===900;
+    }catch(Throwable $e){error_log('[IT Support] generator_diagnostics categories: '.$e::class);}
+    $controlReady=false;
+    if(!in_array('generator_control',$missing,true)){
+        try{$controlReady=one('SELECT id FROM generator_control WHERE id=1')!==null;}
+        catch(Throwable $e){$controlReady=false;}
+    }
+    $message=$missing ? 'Generator-Tabellen fehlen: '.implode(', ',$missing).'. Die Datei database/generator-migration.sql muss in die bestehende Tick-It-Datenbank importiert werden (ohne Tabellen zu löschen).'
+        : (!$controlReady ? 'Der Steuerdatensatz des Generators fehlt. Die idempotente Generator-Migration erneut ausführen.'
+        : ($missingCategories ? 'Diese Kategorien fehlen oder sind deaktiviert: '.implode(', ',$missingCategories).'. Im Dozentenbereich unter Administration aktivieren.'
+        : (!$catalogReady ? 'Der Vorlagenkatalog ist unvollständig.' : 'Die Voraussetzungen für den Generatorstart sind vorhanden.')));
+    return ['ready'=>!$missing&&$controlReady&&!$missingCategories&&$catalogReady,
+        'missing_tables'=>$missing,'control_ready'=>$controlReady,
+        'missing_categories'=>$missingCategories,'catalog_ready'=>$catalogReady,'message'=>$message];
+}
+
 function generator_parameters(array $d): array {
     $initial = filter_var($d['initial_count'] ?? 100, FILTER_VALIDATE_INT);
     $batch = filter_var($d['batch_count'] ?? 5, FILTER_VALIDATE_INT);
@@ -100,7 +130,15 @@ function generator_issue_locked(int $n, int $runNo, int $adminId): array {
     return $results;
 }
 function generator_start(array $d): array {
-    $admin=must_admin();generator_schema();$p=generator_parameters($d);
+    $admin=must_admin();
+    try{generator_schema();}catch(PDOException $e){
+        $number=(int)($e->errorInfo[1]??0);
+        if(in_array($number,[1044,1142,1143],true))app_error('STRATO verweigert die Erstellung der Generator-Tabellen. Importiere einmalig database/generator-migration.sql in die bestehende Tick-It-Datenbank. Es werden keine Tickets gelöscht.',409);
+        throw $e;
+    }
+    $p=generator_parameters($d);
+    $diagnostics=generator_diagnostics();
+    if(!$diagnostics['ready'])app_error($diagnostics['message'],409);
     // Der Lauf wird zunächst ohne 100 einzelne INSERTs angelegt.
     // Die Sofort-Tickets folgen in kleinen, wiederaufnehmbaren Transaktionen.
     // So kann ein PHP-Timeout keinen bereits gestarteten Lauf doppelt auslösen.
