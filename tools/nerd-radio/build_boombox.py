@@ -353,8 +353,6 @@ text('PRO', 877, 143, 0.36, M['goldmetal'], blk, d=LOGO_D, extrude=0.02)
 for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)],   # rechts oben sitzt statt Warnstreifen der Schriftzug
             [(292, 106), (330, 106), (322, 120), (284, 120)], [(670, 106), (708, 106), (716, 120), (678, 120)]):
     prism('hazard', pts, -0.09, 0.05, M['hazard'], bevel=0.004)
-tube('neon_back_l', [(52, 140), (106, 74), (318, 74)], 0.5, 0.02, M['neon_c'])
-tube('neon_back_r', [(948, 140), (894, 74), (682, 74)], 0.5, 0.02, M['neon_c'])
 tube('neon_side_l', [(14, 190), (14, 372)], 0.4, 0.018, M['neon_c'])
 tube('neon_side_r', [(986, 190), (986, 372)], 0.4, 0.018, M['neon_c'])
 tube('neon_shoulder_l', [(26, 176), (62, 136)], -0.02, 0.016, M['neon_g'])
@@ -576,8 +574,6 @@ glow_lamp('gl_bottom', (0, -0.45, Z(432)), 70, 0.6, GOLD, 'gold')
 glow_lamp('gl_side_g', (X(980) + 0.45, 0.3, Z(285)), 90, 0.6, GOLD, 'gold')
 glow_lamp('gl_shoulders_l', (X(40), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
 glow_lamp('gl_shoulders_r', (X(960), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
-glow_lamp('gl_top_l', (X(200), 0.55, Z(62)), 160, 0.8, CYAN, 'cyan')
-glow_lamp('gl_top_r', (X(800), 0.55, Z(62)), 160, 0.8, CYAN, 'cyan')
 glow_lamp('gl_display', (0, -0.7, Z(205)), 90, 1.2, CYAN, 'cyan')
 glow_lamp('gl_side_c', (X(980) + 0.45, 1.5, Z(285)), 70, 0.6, CYAN, 'cyan')
 for i, (x, y) in enumerate(SPK):
