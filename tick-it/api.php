@@ -67,6 +67,7 @@ try {
         'password_change'=>act_change_password($d),
         'training_reset'=>act_training_reset($d),
         'generator_start'=>generator_start($d),
+        'generator_fill'=>generator_fill(),
         'generator_update'=>generator_update($d),
         'generator_pause'=>generator_switch('pause'),
         'generator_resume'=>generator_switch('resume'),

@@ -117,3 +117,14 @@ automatisch. Offene Formulare werden vor einem Reload abgefangen.
 Das Deployment löscht **keine** Datenbankeinträge, Tickets, Notizen, Bewertungen,
 Kunden- und Supporterdaten und setzt **keine** Generatorläufe zurück.
 Weitere Regeln und Testgrenzen: `DEPLOYMENT.md`.
+
+
+### Generator: fehlertoleranter Start
+
+Bei 100 Soforttickets legt der Dozent den Lauf zunächst atomar an und danach
+werden bis zu zehn Tickets je HTTP-Anfrage erstellt. Die Oberfläche zeigt den
+Fortschritt an. Bei Netzwerkabbruch, PHP-Timeout oder einem geschlossenen Tab
+bleiben bereits angelegte Tickets erhalten und die fehlenden Tickets werden bei
+folgenden authentifizierten Aufrufen weiter erzeugt. Wiederholte Aufrufe
+verursachen keine doppelten Tickets. Bestehende Datenbanken werden beim
+Code-Deployment weder gelöscht noch migriert.

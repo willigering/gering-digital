@@ -320,7 +320,26 @@ document.addEventListener('submit',async e=>{const form=e.target;if(!form.matche
   if(what==='generator-start'||what==='generator-update'){
    for(const key of ['initial_count','batch_count','interval_minutes','max_total'])if(data[key]!==undefined)data[key]=Number(data[key]);
    const response=await post(what==='generator-start'?'generator_start':'generator_update',data);
-   if(response){toast(what==='generator-start'?`${response.created} Übungstickets im Pool veröffentlicht.`:'Zustellfrequenz angepasst.');await route('training');}
+   if(response){
+     if(what==='generator-start'){
+       // Sichere Pakete: keine 100 einzelnen Tickets in einer einzigen PHP-Anfrage.
+       // Jede Welle wird serverseitig atomar protokolliert und kann fortgesetzt werden.
+       const target=Number(response.initial_target||0);let current=0;let failed=false;
+       let label=document.createElement('div');label.className='notice';label.setAttribute('role','status');
+       if(target>0){form.prepend(label);label.textContent=`Starte Ticketstrom: 0 / ${target} Tickets …`;}
+       for(let i=0;i<Math.ceil(target/10)+3&&current<target;i++){
+         try{
+           const step=await api('generator_fill',{});
+           current=Number(step.generated||0);
+           if(target>0)label.textContent=`Ticketstrom wird aufgebaut: ${Math.min(current,target)} / ${target} Tickets …`;
+           if(step.status!=='running'||current>=target)break;
+           if(Number(step.created||0)===0)await new Promise(resolve=>setTimeout(resolve,450));
+         }catch(err){toast('Lauf gespeichert, aber die Sofortzustellung ist unterbrochen: '+err.message,true);failed=true;break;}
+       }
+       if(!failed)toast(`${current} Übungstickets veröffentlicht. Der Lauf ist aktiv.`);
+     }else toast('Zustellfrequenz angepasst.');
+     await route('training');
+   }
    return;
   }
   if(what==='create'||what==='training'){
