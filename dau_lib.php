@@ -166,7 +166,7 @@ function dtp_module_description(array $module): string {
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
-function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null, bool $comingSoon=false): string {
+function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null, bool $comingSoon=false, ?string $note=null): string {
     if ($comingSoon) {
         $link=false;
         $progress=null;
@@ -203,6 +203,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     }
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
+    if ($note!==null && !$comingSoon) $html.=$note;   // z. B. NERD-FM-Song freischaltbar (fertiges, escaptes HTML)
     if ($progress!==null) $html.=dtp_card_progress($progress);
     $footer=$comingSoon?'<span>Bald verfügbar</span>':'<span>Lernmodul öffnen</span><b aria-hidden="true">↗</b>';
     $html.=$tag==='article' && $link
@@ -540,11 +541,12 @@ function dtp_hero_people_picture(): string {
 
 /** Schriftzug „DAU TO PRO“ in der Seitenschrift statt als Rastergrafik: gestochen scharf, ohne Kasten. */
 function dtp_hero_brand(): string {
-    return '<svg class="hero-brand" viewBox="0 0 1448 186" aria-hidden="true" focusable="false"><defs>'
+    // Schriftzug hinter den Figuren im Bild, oben zwischen den Köpfen; Abstände wie im bisherigen Schriftzug (Koordinaten wie das Motiv, 1448 × 1086).
+    return '<svg class="hero-brand" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><defs>'
         .'<linearGradient id="dtp-brand-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9d3c4"/></linearGradient>'
         .'<linearGradient id="dtp-brand-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#f2b53c"/><stop offset="1" stop-color="#d98a1c"/></linearGradient>'
-        .'</defs><text x="724" y="160" text-anchor="middle" class="hero-brand-text">'
-        .'<tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="22">TO</tspan><tspan fill="url(#dtp-brand-gold)" dx="22">PRO</tspan></text></svg>';
+        .'</defs><text x="548" y="196" class="hero-brand-text">'
+        .'<tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="16">TO</tspan><tspan fill="url(#dtp-brand-gold)" dx="16">PRO</tspan></text></svg>';
 }
 
 /** Power-up: Sprechblase, Pixelpilz und Funken als saubere Vektorgrafik (Pilz-Koordinaten wie im Original). */

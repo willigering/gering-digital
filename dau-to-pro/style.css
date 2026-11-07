@@ -23,7 +23,9 @@ main,.dtp-footer{position:relative;z-index:1}
 /* Drei Tiefen: Platine, Leiterbahnen und die durchgehenden goldenen Lichtlinien. */
 .dtp-world-texture{position:fixed;top:0;left:0;width:100%;height:128vh;z-index:-1;pointer-events:none;background-image:linear-gradient(180deg,#090e11b8,#090e11ed 60%,#090e11f5),var(--dtp-bg,none);background-size:100% 100%,cover;background-position:center,center top;background-repeat:no-repeat;background-color:var(--base)}
 .dtp-parallax-clip{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.dtp-world-traces,.dtp-eternal-rays{position:absolute;inset:-300px 0 -60px;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
+/* Ohne mix-blend-mode: Der Mischmodus zwang den Browser, die großen Parallax-Ebenen bei jedem Scrollbild neu zu
+   verrechnen (Ruckeln). Auf dem dunklen Grund sieht normale Überblendung gleich aus (max. 3/255 Abweichung). */
+.dtp-world-traces,.dtp-eternal-rays{position:absolute;inset:-300px 0 -60px;pointer-events:none;overflow:hidden}
 .dtp-world-traces{opacity:.22}
 .dtp-eternal-rays{opacity:.30}
 .dtp-world-traces svg,.dtp-eternal-rays svg{display:block;width:100%;height:100%}
@@ -114,6 +116,11 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-number{display:inline-grid;place-items:center;min-width:2.2em;aspect-ratio:1;border:1px solid currentColor;border-radius:50%;flex:none;font-size:11px;line-height:1}
 .module-body h2{color:var(--cream);font-size:24px;line-height:1.25;letter-spacing:-.03em;margin:12px 0}
 .module-body p{color:var(--muted);font-size:14px;line-height:1.75;margin:0 0 22px;flex:1}
+/* NERD FM: Song auf dieser Karte freischaltbar bzw. freigeschaltet */
+.module-body p.module-song{flex:none;display:flex;align-items:baseline;gap:7px;margin:-8px 0 18px;padding:7px 11px;border:1px solid #ffb22a40;border-radius:10px;background:#ffb22a0f;color:#f2c46b;font-size:12px;line-height:1.45;font-weight:650}
+.module-body p.module-song>span{color:#ffb22a;font-size:14px}
+.module-body p.module-song.is-unlocked{border-color:#22dcf555;background:#22dcf510;color:#9cf3ff}
+.module-body p.module-song.is-unlocked>span{color:#22dcf5}
 .module-footer{border-top:1px solid var(--stroke);padding-top:15px;margin-top:auto;display:flex;align-items:center;justify-content:space-between;color:var(--cream);font-size:12px;font-weight:650}
 .module-footer b{font-size:21px;color:var(--mod);font-weight:500}
 .search-empty,.empty-state{color:var(--muted);background:#111b22;border:1px dashed #ffffff30;border-radius:var(--radius);padding:32px;text-align:center}

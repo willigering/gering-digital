@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Test rare feedback Easter egg
         run: node tests/feedback_easter_egg_test.cjs
       - name: Test topic tab filters (without exam finder)
@@ -32,6 +32,8 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Check NERD FM song unlocks and protected song delivery
+        run: php tests/nerd_fm_test.php
       - name: Test D2 module integration and achievement rules
         run: php tests/d2_integration_test.php
       - name: Test D1 registration, achievements and stored exam reviews
@@ -84,6 +86,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/dau_landing_browser.js
+      - name: Check NERD RADIO controls, real audio data and placement beside the module stack
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
+        run: node tests/nerd_radio_browser.cjs
       - name: Check achievements in the real learning modules
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

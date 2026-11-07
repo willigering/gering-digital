@@ -2,6 +2,7 @@
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../learner_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
+require_once __DIR__.'/../nerd_fm_lib.php';
 require_once __DIR__.'/feedback-form.php';
 $learnerRow=learner_current();
 $learnerName=$learnerRow['username']??null;
@@ -37,6 +38,22 @@ $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
+// NERD FM: Playlist aus nerd_fm_lib.php – nur verfügbare Songs (APIPA sofort, weitere nach Freischaltung),
+// jeweils mit signiertem, sitzungsgebundenem Link auf api/song.php. Die Dateien selbst sind nicht direkt abrufbar.
+// NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/, statisch ausgeliefert).
+$nrFiles=[];
+$nrSub=getenv('NERD_RADIO_AUDIO');
+$nfmCodes=nfm_unlocked_codes($learnerRow);
+if(!is_string($nrSub)||!preg_match('~^audio/[a-z0-9-]+$~',$nrSub)){$nrSub='';$nrFiles=nfm_tracks($learnerRow);}
+$nrDir=__DIR__.'/'.$nrSub;
+if($nrSub!==''&&is_dir($nrDir)){
+  $nrNames=array_values(array_filter(scandir($nrDir)?:[],fn($n)=>$n[0]!=='.'&&is_file($nrDir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
+  natcasesort($nrNames);
+  foreach($nrNames as $n){
+    $label=trim(str_replace('_',' ',preg_replace('/^\d+[\s._-]*/','',pathinfo($n,PATHINFO_FILENAME))));
+    $nrFiles[]=['src'=>$nrSub.'/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
+  }
+}
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
 ?>
 <!doctype html>
@@ -52,6 +69,9 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if(!$hero['custom']): ?>  <link rel="stylesheet" href="hero-scene.css?v=<?=filemtime(__DIR__.'/hero-scene.css')?>">
 <?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
+  <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
+  <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
+  <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
@@ -85,6 +105,71 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
+    <aside class="nr-stage" aria-labelledby="nr-title">
+      <div class="nr-stage__inner">
+      <div class="nr-rail">
+        <div class="nr-pin">
+          <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
+            <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+            <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
+            <div class="nr-face" data-radio-face>
+  <?php $nrImg = function (string $file, string $cls, string $light = ''): string {
+              $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
+              return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
+            }; ?>
+            <!-- Lautsprecher: Membran schwingt mit dem Bass hinter dem stehenden Gitter mit eingesetztem Pixelpilz;
+                 das RGB-Licht fällt auf die Membran und ist nur durch die Gitterlöcher zu sehen.
+                 Darüber je ein RGB-LED-Ring um den Tieftöner (Farbe wandert, Helligkeit folgt dem Bass). -->
+  <?php foreach (['l', 'r'] as $nrS): ?>
+            <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
+              <?=$nrImg("cone-$nrS", 'nr-cone__img')?><span class="nr-cone__mesh"></span><span class="nr-cone__shade"></span>
+            </div><?=$nrImg("grille-$nrS", 'nr-cone__grille')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?></div>
+            <div class="nr-led nr-cone--<?=$nrS?>" aria-hidden="true"></div>
+  <?php endforeach; ?>
+            <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
+  <?php foreach (['gold-edge', 'gold-halo', 'gold'] as $nrL): ?>
+            <div class="nr-glow nr-glow--<?=$nrL?>" data-radio-light="<?=$nrL?>" aria-hidden="true"><?=$nrImg("light-$nrL-l", "nr-glow__$nrL-l")?><?=$nrImg("light-$nrL-r", "nr-glow__$nrL-r")?></div>
+  <?php endforeach; ?>
+            <div class="nr-display">
+              <div class="nr-display__glass">
+                <h2 id="nr-title" class="nr-sr">NERD FM</h2>
+                <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
+                <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
+                <div class="nr-display__meta">
+                  <span class="nr-display__time" data-radio-elapsed>00:00</span>
+                  <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
+                  <span class="nr-display__time" data-radio-length>∞ LOOP</span>
+                  <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
+                  <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>
+                </div>
+                <div class="nr-playlist" id="nr-playlist" data-radio-playlist role="group" aria-label="Playlist" hidden>
+                  <ol class="nr-playlist__list" data-radio-tracks></ol>
+                </div>
+              </div>
+              <p class="nr-sr" data-radio-status aria-live="polite"></p>
+            </div>
+            <div class="nr-transport" role="group" aria-label="Wiedergabe">
+              <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"></button>
+              <button class="nr-key" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"></button>
+              <button class="nr-key" type="button" data-radio-pause aria-label="Pause" title="Pause"></button>
+              <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"></button>
+              <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"></button>
+              <button class="nr-key" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"></button>
+            </div>
+            <button class="nr-key" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"></button>
+            <div class="nr-volume">
+              <img class="nr-volume__track" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
+              <img class="nr-volume__fill" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
+              <img class="nr-volume__knob" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
+              <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
+            </div>
+            <button class="nr-key" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </aside>
       <div class="catalog-panel">
         <?php if($modules): ?>
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">
@@ -99,7 +184,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true))?>
+<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true),note:nfm_card_note((string)$module['slug'],$nfmCodes))?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
@@ -171,6 +256,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </section>
 </main>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
+
 <?=dtp_feedback_dialog('startseite')?>
 </body></html>
 
