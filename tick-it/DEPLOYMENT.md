@@ -33,3 +33,35 @@ Nach der Anmeldung als Dozent unter **Schulungsfälle** automatisch initialisier
 Ohne Cronjob werden fällige Ticket-Wellen bei neuen, authentifizierten Seitenabfragen verarbeitet. Für eine minutengetreue Freigabe optional in STRATO einen Cronjob mit **CLI-PHP** jede Minute für `tick-it/bin/generator-cron.php` anlegen; Paketverfügbarkeit und tatsächlichen absoluten Pfad prüfen. Das Skript enthält keine Web-Tokens oder Zugangsdaten. Die lokalen Dateien `config.local.php`, `storage/` und bestehende Daten werden beim Deploy nicht überschrieben.
 
 Weitere Details und fachliche Quellen: `GESCHAEFTSFAELLE.md`.
+
+## Nicht-destruktive Updates und Benachrichtigung
+
+**Wichtig: Ein Code-Update ist niemals ein Daten-Reset.** Der separate GitHub-Workflow
+überträgt ausschließlich freigegebene Dateien unter `tick-it/`; er führt weder SQL
+noch Lösch-/Resetoperationen auf dem Server aus. `config.local.php`, `storage/`,
+`uploads/`, `data/`, `runtime/`, `sessions/`, `backups/` und lokale
+Datenbanken werden ausgeschlossen und bleiben auf dem Server bestehen.
+
+- Übernommene/zugewiesene Tickets, laufende Bearbeitungen, Tickets im Pool,
+  Kunden- und Supporternachrichten, interne Notizen, Bewertungen,
+  Ticket- und Auditverläufe sowie aktuelle Übungsläufe liegen weiterhin in
+  der **bestehenden Tick-It-Datenbank**.
+- Keine DB-Initialisierung bei Updates und **keine** destruktive Migration.
+  Sollte eine zukünftige Änderung eine Datenbankmigration benötigen, muss
+  diese separat und nicht-destruktiv geprüft und mit Backup abgesichert werden.
+- Dateien werden nach Möglichkeit einzeln atomar übertragen. Erst wenn
+  alle Code-Dateien vollständig auf STRATO liegen, aktiviert das Deployment
+  atomar die neue `release.json` mit der Git-Revision. Die Datei ist über
+  `.htaccess` von direktem Abruf ausgeschlossen.
+- Ein offener Browser fragt `version.php` alle 60 Sekunden und bei
+  Wiederaktivierung des Tabs ab. Erst bei abweichender Revision wird die
+  persistent sichtbare Benachrichtigung angezeigt. **Es gibt keinen
+  automatischen Reload.** Offene/ungespeicherte Formulare blockieren den
+  „Jetzt aktualisieren“-Button, bis ihre Eingaben gesichert sind.
+- Das Neuladen des Browsers ändert keine Datenbankeinträge und beendet keine
+  gültigen Gast-/Dozentensitzungen. Für Browserdaten gilt weiterhin:
+  Bei einem **manuellen Löschen der Cookies** kann ein Gast ohne Passwort
+  nicht durch seinen Anzeigenamen wiederhergestellt werden.
+- Vor größeren Upgrades reguläres STRATO-Datenbankbackup erstellen;
+  einen Wiederherstellungstest separat durchführen. Live-End-to-End- und
+  echte Backup-Wiederherstellungstests sind nicht durch bloßes SFTP-Deployment bewiesen.
