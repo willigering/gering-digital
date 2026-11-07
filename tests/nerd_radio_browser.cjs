@@ -172,6 +172,7 @@ let server, browser;
   const rest = await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity)));
   await pause(400);
   assert.deepEqual(await page.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity))), rest, 'Im Stopp leuchtet das Gerät ruhig');
+  assert.ok(rest.every(v => v < 0.1), `Ohne Musik sind die Leuchten aus: ${rest}`);
 
   await key('next').click(); await pause(150);
   r = await radio();

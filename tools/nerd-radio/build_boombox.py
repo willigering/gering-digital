@@ -8,9 +8,6 @@ Cyan und Gold, Membranen, Tasten je Platz und Zustand), layout.css und anchors.j
 Bedienelemente. Die Website legt echte HTML-Tasten, Display und Regler darüber.
 Im Gehäuse-Render sind deshalb keine Tasten und keine Anzeige enthalten.
 
-Metalloberflächen nutzen CC0-Foto-Texturen von Poly Haven (metal_plate_02, rusty_painted_metal,
-rusty_metal_02). Das Skript lädt sie beim ersten Lauf nach tools/nerd-radio/textures/ (nicht im Repo).
-
 Koordinaten: Entwurf im 1000 x 450 Layoutraster (x nach rechts, y nach unten),
 1 Blender-Einheit = 100 Layoutpixel. Vorderseite des Korpus liegt bei Y = 0,
 der Korpus reicht nach hinten (+Y). Kamera blickt von vorn (-Y) leicht von oben.
@@ -109,36 +106,6 @@ def subtract(target, *cutters):
         w, s = bev.width, bev.segments; target.modifiers.remove(bev)
         b = target.modifiers.new('bevel', 'BEVEL'); b.width = w; b.segments = s; b.limit_method = 'ANGLE'
 
-# ---------------------------------------------------------------- Foto-Texturen (Poly Haven, CC0)
-# Werden beim ersten Lauf von Poly Haven geladen und in tools/nerd-radio/textures/ zwischengespeichert
-# (per .gitignore nicht im Repo). Fehlen sie und es gibt kein Netz, bleibt es bei den prozeduralen Materialien.
-TEX_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'textures')
-TEXTURES = {'metal_plate_02': ('Diffuse', 'nor_gl', 'Rough'),
-            'rusty_painted_metal': ('Diffuse',),
-            'rusty_metal_02': ('Diffuse',)}
-def fetch_textures():
-    import urllib.request
-    have = {}
-    for asset, maps in TEXTURES.items():
-        try:
-            files = None
-            for m in maps:
-                path = os.path.join(TEX_DIR, f'{asset}_{m}_2k.jpg')
-                if not os.path.exists(path):
-                    if files is None:
-                        req = urllib.request.Request(f'https://api.polyhaven.com/files/{asset}', headers={'User-Agent': 'nerd-radio-build'})
-                        files = json.load(urllib.request.urlopen(req, timeout=30))
-                    url = files[m]['2k']['jpg']['url']
-                    os.makedirs(TEX_DIR, exist_ok=True)
-                    req = urllib.request.Request(url, headers={'User-Agent': 'nerd-radio-build'})
-                    with urllib.request.urlopen(req, timeout=120) as r, open(path + '.part', 'wb') as f: f.write(r.read())
-                    os.replace(path + '.part', path); print('TEXTURE', os.path.basename(path))
-                have.setdefault(asset, {})[m] = path
-        except Exception as e:
-            print('TEXTURE fehlt', asset, e); have.pop(asset, None)
-    return have
-TEX = fetch_textures()
-
 # ---------------------------------------------------------------- Materialien
 def nodes(mat):
     mat.use_nodes = True; nt = mat.node_tree
@@ -197,71 +164,33 @@ def edge_mask(nt, radius=0.012, gain=7.0):
     inv = math_node(nt, 'SUBTRACT', 1.0, dot.outputs['Value'])
     return math_node(nt, 'MULTIPLY', inv, gain, clamp=True)
 
-def tex(nt, asset, m, scale=0.55, color=False):
-    """Foto-Textur per Box-Projektion in Weltkoordinaten (keine UVs nötig, keine Verzerrung bei skalierten Objekten)."""
-    if m not in TEX.get(asset, {}): return None
-    img = bpy.data.images.load(TEX[asset][m], check_existing=True)
-    img.colorspace_settings.name = 'sRGB' if color else 'Non-Color'
-    n = nt.nodes.new('ShaderNodeTexImage'); n.image = img; n.projection = 'BOX'; n.projection_blend = 0.25
-    geo = nt.nodes.new('ShaderNodeNewGeometry'); mp = nt.nodes.new('ShaderNodeMapping')
-    mp.inputs['Scale'].default_value = (scale,) * 3
-    seed = sum(map(ord, asset + name_seed[0]))   # fester Versatz je Material, damit sich das Muster nicht wiederholt
-    mp.inputs['Location'].default_value = (seed % 97 / 97, seed % 89 / 89, seed % 83 / 83)
-    nt.links.new(geo.outputs['Position'], mp.inputs[0]); nt.links.new(mp.outputs[0], n.inputs['Vector'])
-    return n.outputs['Color']
-name_seed = ['']
-def lum(nt, c):
-    n = nt.nodes.new('ShaderNodeRGBToBW'); nt.links.new(c, n.inputs[0]); return n.outputs[0]
-
-def math_vec_scale(nt, c, k):
-    n = nt.nodes.new('ShaderNodeVectorMath'); n.operation = 'SCALE'; nt.links.new(c, n.inputs[0]); n.inputs['Scale'].default_value = k
-    return n.outputs[0]
-
 def mat_metal(name, base=(0.05, 0.06, 0.07), rust=0.55, wear=1.0, rough=0.42):
     """Dunkles Gunmetal mit Kantenabrieb, Kratzern, Schmutz und Rostflecken."""
-    m = bpy.data.materials.new(name); nt = nodes(m); name_seed[0] = name
+    m = bpy.data.materials.new(name); nt = nodes(m)
     b = principled(nt, **{'Metallic': 1.0, 'Roughness': rough})
     grime = noise(nt, 6, 8, 0.6).outputs['Fac']
-    col = mix_color(nt, ramp(nt, grime, [(0.35, (0, 0, 0)), (0.7, (1, 1, 1))]), base, tuple(c * 1.6 for c in base))
-    plate = tex(nt, 'metal_plate_02', 'Diffuse', color=True)
-    if plate:   # Fotostruktur der Metallplatte, auf den dunklen Grundton eingefärbt
-        tint = nt.nodes.new('ShaderNodeMix'); tint.data_type = 'RGBA'; tint.blend_type = 'MULTIPLY'
-        sock(tint, 'Factor_Float').default_value = 1.0
-        nt.links.new(col, sock(tint, 'A_Color')); nt.links.new(plate, sock(tint, 'B_Color'))
-        col = math_vec_scale(nt, sock(tint, 'Result_Color'), 3.2)
+    col = mix_color(nt, ramp(nt, grime, [(0.3, (0, 0, 0)), (0.75, (1, 1, 1))]), base, tuple(c * 1.25 for c in base))
     # Rost: großflächige Flecken, bevorzugt an Rändern und in Vertiefungen
     rn = noise(nt, 2.2, 10, 0.7).outputs['Fac']
     rmask = ramp(nt, rn, [(0.58 - 0.12 * rust, (0, 0, 0)), (0.66 - 0.1 * rust, (1, 1, 1))])
     rmask = math_node(nt, 'MULTIPLY', ramp(nt, noise(nt, 18, 4).outputs['Fac'], [(0.4, (0.2, 0.2, 0.2)), (0.6, (1, 1, 1))]), rmask)
     rmask = math_node(nt, 'MULTIPLY', rmask, rust)
     rustc = mix_color(nt, noise(nt, 30, 3).outputs['Fac'], (0.16, 0.06, 0.02), (0.38, 0.17, 0.05))
-    rust_photo = tex(nt, 'rusty_metal_02', 'Diffuse', scale=0.8, color=True)
-    if rust_photo: rustc = mix_color(nt, 0.8, rustc, rust_photo)
-    paint = tex(nt, 'rusty_painted_metal', 'Diffuse', scale=0.7, color=True)
-    if paint:   # Rostflecken folgen zusätzlich der Fotovorlage
-        rmask = math_node(nt, 'MULTIPLY', rmask, ramp(nt, lum(nt, paint), [(0.25, (1.4, 1.4, 1.4)), (0.6, (0.5, 0.5, 0.5))]), clamp=True)
     col = mix_color(nt, rmask, col, rustc)
     # Kantenabrieb: blankes, helleres Metall an allen Fasen
     em = math_node(nt, 'MULTIPLY', edge_mask(nt), wear)
-    chip = lum(nt, paint) if paint else noise(nt, 40, 2).outputs['Fac']
-    em = math_node(nt, 'MULTIPLY', em, ramp(nt, chip, [(0.35, (0.25, 0.25, 0.25)), (0.55, (1, 1, 1))]))
+    em = math_node(nt, 'MULTIPLY', em, ramp(nt, noise(nt, 40, 2).outputs['Fac'], [(0.35, (0.25, 0.25, 0.25)), (0.55, (1, 1, 1))]))
     col = mix_color(nt, em, col, (0.42, 0.44, 0.46))
     nt.links.new(col, b.inputs['Base Color'])
     metal = math_node(nt, 'SUBTRACT', 1.0, rmask)
     nt.links.new(metal, b.inputs['Metallic'])
     scratches = noise(nt, 60, 2, 0.5, stretch=(1, 1, 40)).outputs['Fac']
     r = ramp(nt, scratches, [(0.45, (rough + 0.12,) * 3), (0.62, (rough - 0.18,) * 3)])
-    prough = tex(nt, 'metal_plate_02', 'Rough')
-    if prough: r = math_node(nt, 'ADD', math_node(nt, 'MULTIPLY', r, 0.55), math_node(nt, 'MULTIPLY', lum(nt, prough), 0.45 * rough / 0.42))
     r = math_node(nt, 'MAXIMUM', r, math_node(nt, 'MULTIPLY', rmask, 0.95))
     r = math_node(nt, 'SUBTRACT', r, math_node(nt, 'MULTIPLY', em, 0.18))
     nt.links.new(r, b.inputs['Roughness'])
     bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.18
     nt.links.new(math_node(nt, 'ADD', math_node(nt, 'MULTIPLY', scratches, 0.4), math_node(nt, 'MULTIPLY', rmask, 1.2)), bump.inputs['Height'])
-    pnor = tex(nt, 'metal_plate_02', 'nor_gl')
-    if pnor:   # Normalen der Foto-Metallplatte (metal_plate_02), Bump für Kratzer und Rost oben drauf
-        nm = nt.nodes.new('ShaderNodeNormalMap'); nm.inputs['Strength'].default_value = 1.0
-        nt.links.new(pnor, nm.inputs['Color']); nt.links.new(nm.outputs['Normal'], bump.inputs['Normal'])
     nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
@@ -315,18 +244,21 @@ def mat_card(name):
     return m
 
 CYAN, GOLD, ORANGE = (0.0, 0.62, 1.0), (1.0, 0.42, 0.0), (1.0, 0.22, 0.0)
+GLASS = (0.035, 0.04, 0.045)
 M = {
-    'body': mat_metal('body', (0.024, 0.03, 0.038), rust=0.34, wear=1.4),
-    'panel': mat_metal('panel', (0.036, 0.043, 0.052), rust=0.26, wear=1.4, rough=0.36),
-    'dark': mat_metal('dark', (0.02, 0.023, 0.027), rust=0.15, wear=0.5, rough=0.5),
-    'handle': mat_metal('handle', (0.03, 0.035, 0.042), rust=0.3, rough=0.34),
-    'badge': mat_metal('badge', (0.045, 0.05, 0.056), rust=0.2, rough=0.3),
+    # Ruhiges, sauberes Gunmetal: nur leichter Kantenabrieb, kaum Rost (wirkt weniger nach CGI-Effekt)
+    'body': mat_metal('body', (0.04, 0.046, 0.054), rust=0.06, wear=0.6, rough=0.38),
+    'panel': mat_metal('panel', (0.055, 0.062, 0.072), rust=0.04, wear=0.6, rough=0.34),
+    'dark': mat_metal('dark', (0.026, 0.03, 0.035), rust=0.0, wear=0.3, rough=0.48),
+    'handle': mat_metal('handle', (0.045, 0.05, 0.058), rust=0.04, wear=0.6, rough=0.32),
+    'badge': mat_metal('badge', (0.07, 0.076, 0.084), rust=0.0, wear=0.5, rough=0.28),
     'chrome': mat_simple('chrome', (0.85, 0.88, 0.9), 1.0, 0.12),
     'goldmetal': mat_simple('goldmetal', (1.0, 0.68, 0.18), 1.0, 0.22),
-    'neon_c': mat_simple('neon_c', CYAN, emit=CYAN, strength=2.6),
-    'neon_g': mat_simple('neon_g', GOLD, emit=GOLD, strength=2.6),
-    'ring_g': mat_simple('ring_g', GOLD, emit=GOLD, strength=2.0),
-    'pixel_c': mat_simple('pixel_c', CYAN, emit=CYAN, strength=2.2),
+    # Leuchtmittel: ausgeschaltet dunkles Glas (kein farbiger Schein ohne Musik), Farbe nur über die Emission
+    'neon_c': mat_simple('neon_c', GLASS, rough=0.2, emit=CYAN, strength=2.6),
+    'neon_g': mat_simple('neon_g', GLASS, rough=0.2, emit=GOLD, strength=2.6),
+    'ring_g': mat_simple('ring_g', GLASS, rough=0.2, emit=GOLD, strength=2.0),
+    'pixel_c': mat_simple('pixel_c', GLASS, rough=0.3, emit=CYAN, strength=2.2),
     'hazard': mat_hazard('hazard'),
     'grille': mat_grille('grille'),
     'card': mat_card('card'),
@@ -511,6 +443,45 @@ def key(name, box, rim_mat, depth_front, cut=12):
     base = prism(f'key_{name}_rim', rect(x0, y0, x1, y1, cut), depth_front + 0.035, 0.12, rim_mat, bevel=0.01, coll='keys')
     cap = prism(f'key_{name}_cap', rect(x0 + 3.5, y0 + 3.5, x1 - 3.5, y1 - 3.5, cut - 2), depth_front, 0.16, M['keycap'], bevel=0.025, segs=4, coll='keys')
     return base, cap
+# Tastensymbole als leuchtende Geometrie auf der Kappe: sitzen perspektivisch exakt (24er-Raster wie die SVG-Icons)
+def bezier(p0, p1, p2, p3, n=14):
+    return [tuple((1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d for a, b, c, d in zip(p0, p1, p2, p3))
+            for t in (i / n for i in range(n + 1))]
+ICONS = {
+    'prev': {'polys': [[(4, 5), (6.6, 5), (6.6, 19), (4, 19)], [(14, 5), (14, 19), (7.4, 12)], [(21.5, 5), (21.5, 19), (15, 12)]]},
+    'next': {'polys': [[(20, 5), (17.4, 5), (17.4, 19), (20, 19)], [(10, 5), (16.6, 12), (10, 19)], [(2.5, 5), (9, 12), (2.5, 19)]]},
+    'stop': {'polys': [[(5.5, 5.5), (18.5, 5.5), (18.5, 18.5), (5.5, 18.5)]]},
+    'play': {'polys': [[(7, 4.5), (19.5, 12), (7, 19.5)]]},
+    'pause': {'polys': [[(6, 4.5), (10.4, 4.5), (10.4, 19.5), (6, 19.5)], [(13.6, 4.5), (18, 4.5), (18, 19.5), (13.6, 19.5)]]},
+    'shuffle': {'polys': [[(18, 3.2), (22.2, 7), (18, 10.8)], [(18, 13.2), (22.2, 17), (18, 20.8)]],
+                'strokes': [[(3, 7)] + bezier((6.5, 7), (11, 7), (13, 17), (17.5, 17)) + [(19, 17)],
+                            [(3, 17)] + bezier((6.5, 17), (8.3, 17), (9.5, 15.4), (10.5, 13.6)),
+                            bezier((13.5, 9.4), (14.5, 7.8), (15.7, 7), (17.5, 7)) + [(19, 7)]], 'width': 2.6},
+    'mode': {'rings': [(5.4, 1.4)],
+             'polys': [[(12 + r * math.cos(a), 12 + r * math.sin(a)) for r, a in
+                        [(6.5, k * math.pi / 4 + t * 0.39 / 4) for t in range(5)] + [(9.9, k * math.pi / 4 + t * 0.39 / 4) for t in range(4, -1, -1)]]
+                       for k in range(8)]},
+    'list': {'dots': [(4.5, 6, 2), (4.5, 12, 2), (4.5, 18, 2)],
+             'polys': [[(9, y), (21, y), (21, y + 2.6), (9, y + 2.6)] for y in (4.8, 10.8, 16.8)]},
+}
+def key_icon(icon, box, front, mat, round_key):
+    x0, y0, x1, y1 = box; cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    size = (x1 - x0) * 0.44 if round_key else (y1 - y0) * 0.38
+    sc = size / 24
+    pt = lambda u, v: (cx + (u - 12) * sc, cy + (v - 12) * sc)
+    f, d = front - 0.01, 0.014
+    spec = ICONS[icon]
+    for i, poly in enumerate(spec.get('polys', [])):
+        prism(f'icon_{icon}_{i}', [pt(u, v) for u, v in poly], f, d, mat, bevel=0.002, segs=1, coll='keys')
+    for i, stroke in enumerate(spec.get('strokes', [])):
+        tube(f'icon_{icon}_s{i}', [pt(u, v) for u, v in stroke], f + d / 2, spec['width'] / 2 * sc / 100, mat, coll='keys')
+    for i, (r, w) in enumerate(spec.get('rings', [])):
+        torus(f'icon_{icon}_r{i}', *pt(12, 12), r * sc, w * sc, f + d / 2, mat, coll='keys')
+    for i, (u, v, r) in enumerate(spec.get('dots', [])):
+        cyl(f'icon_{icon}_d{i}', *pt(u, v), r * sc, f, d, mat, verts=32, coll='keys', bevel=0)
+ICON_MAT = {'white': mat_simple('icon_w', (0.85, 0.97, 1.0), emit=(0.75, 0.95, 1.0), strength=1.4),
+            'gold': mat_simple('icon_g', (1.0, 0.75, 0.3), emit=(1.0, 0.62, 0.15), strength=1.6)}
+
 RIM = {'cyan': mat_simple('rim_c', CYAN, emit=CYAN, strength=0.75), 'orange': mat_simple('rim_o', ORANGE, emit=ORANGE, strength=1.1),
        'gold': mat_simple('rim_g', GOLD, emit=GOLD, strength=0.75)}
 
@@ -518,8 +489,8 @@ RIM = {'cyan': mat_simple('rim_c', CYAN, emit=CYAN, strength=0.75), 'orange': ma
 world = bpy.data.worlds.new('w'); scene.world = world; wn = nodes(world)
 bg = wn.nodes.new('ShaderNodeBackground'); bg.inputs['Color'].default_value = (0.012, 0.016, 0.022, 1); bg.inputs['Strength'].default_value = 1.0
 wo = wn.nodes.new('ShaderNodeOutputWorld'); wn.links.new(bg.outputs[0], wo.inputs[0])
-# Studiolicht nur noch als schwaches Grundlicht: beleuchtet wird das Gerät von seinen eigenen Leuchten
-STUDIO = 0.22
+# Studiolicht als Grundlicht (Gerät bleibt auch ohne Musik gut sichtbar); Akzente setzen die eigenen Leuchten
+STUDIO = 0.6
 def light(name, loc, power, size, color=(1, 1, 1), target=(0, 0, 0)):
     ld = bpy.data.lights.new(name, 'AREA'); ld.energy = power * STUDIO; ld.size = size; ld.color = color
     ob = bpy.data.objects.new(name, ld); scene.collection.objects.link(ob); ob.location = loc
@@ -528,8 +499,8 @@ def light(name, loc, power, size, color=(1, 1, 1), target=(0, 0, 0)):
     return ob
 light('key', (-5, -6, 7), 1300, 3)
 light('top', (0, -0.5, 8), 650, 7, (0.85, 0.92, 1.0))
-light('rim_c', (-8, 4, 3.5), 5200, 3, (0.15, 0.7, 1.0))
-light('rim_o', (8, 4, 3.5), 4200, 3, (1.0, 0.5, 0.1))
+light('rim_c', (-8, 4, 3.5), 3200, 3, (0.8, 0.9, 1.0))   # neutrale Kantenlichter: Farbe kommt nur von den Leuchten
+light('rim_o', (8, 4, 3.5), 2600, 3, (1.0, 0.94, 0.86))
 light('fill', (3, -8, -1), 160, 8, (0.6, 0.8, 1.0))
 light('graze', (-9, -1.2, 1.2), 2600, 1.2, (0.9, 0.95, 1.0), target=(2, 0, 0.3))
 light('sheen', (2.5, -9, 4.5), 900, 2.5, (1.0, 0.9, 0.8))
@@ -569,8 +540,8 @@ scene.cycles.samples = 96 if PREVIEW else 512
 scene.cycles.use_denoising = True
 scene.render.film_transparent = True
 scene.view_settings.view_transform = 'AgX'
-scene.view_settings.look = 'AgX - Punchy'
-scene.view_settings.exposure = -0.1
+scene.view_settings.look = 'AgX - Medium High Contrast'
+scene.view_settings.exposure = 0.1
 # Bloom: Neon strahlt, und der Schein bleibt im transparenten Bild erhalten
 try:
     tree = bpy.data.node_groups.new('bloom', 'CompositorNodeTree')
@@ -582,7 +553,7 @@ try:
     for k, v in (('glare_type', 'BLOOM'), ('quality', 'HIGH')):
         try: setattr(gl, k, v)
         except Exception: pass
-    for name, val in (('Type', 'Bloom'), ('Threshold', 0.9), ('Strength', 0.9), ('Size', 0.7), ('Quality', 'High')):
+    for name, val in (('Type', 'Bloom'), ('Threshold', 1.2), ('Strength', 0.5), ('Size', 0.55), ('Quality', 'High')):
         s = gl.inputs.get(name)
         if s is not None:
             try: s.default_value = val
@@ -630,7 +601,7 @@ def emit(group_factors):
             m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = BASE_EMIT[m.name] * group_factors.get(g, 0)
 # Lichtquellen an den Röhren: werfen das Neonlicht sichtbar auf Metall, Gitter und Kanten
 def glow_lamp(name, loc, power, radius, color, group):
-    ld = bpy.data.lights.new(name, 'POINT'); ld.energy = power * 2.2; ld.shadow_soft_size = radius; ld.color = color
+    ld = bpy.data.lights.new(name, 'POINT'); ld.energy = power * 1.8; ld.shadow_soft_size = radius; ld.color = color
     ob = bpy.data.objects.new(name, ld); scene.collection.objects.link(ob); ob.location = loc; ob.visible_camera = False
     ob['group'] = group; return ob
 for i, (x, y) in enumerate(SPK):
@@ -689,7 +660,7 @@ if ONLY in (None, 'chassis'):
     # Enthalten die Röhren selbst, ihren Schein und das Licht, das auf Metall, Gitter und Kanten fällt.
     visible('chassis', 'cones'); lamps(False); compositing(True); scene.render.film_transparent = False; png(False)
     for g in GROUPS:
-        lamps(False, g); emit({g: 1.6}); render(os.path.join(RAW, f'light-{g}.png'), CHASSIS)
+        lamps(False, g); emit({g: 2.2}); render(os.path.join(RAW, f'light-{g}.png'), CHASSIS)
     emit({g: 1.0 for g in GROUPS}); lamps(True); compositing(False); scene.render.film_transparent = True; png(True)
 
 if ONLY in (None, 'cones'):
@@ -699,14 +670,17 @@ if ONLY in (None, 'cones'):
 
 if ONLY in (None, 'keys'):
     # Jede Taste an ihrem Platz, weil die Perspektive links und rechts verschieden ist
-    variants = [(s, 'cyan', '') for s in ('prev', 'stop', 'next', 'shuffle')] + [('play', 'cyan', ''), ('play', 'orange', '-on'),
-                ('mode', 'cyan', ''), ('mode', 'gold', '-on'), ('list', 'gold', '')]
+    # (Platz, Rahmenfarbe, Dateizusatz, Symbol, Symbolfarbe)
+    variants = [(s, 'cyan', '', s, 'white') for s in ('prev', 'stop', 'next')] + [('shuffle', 'cyan', '', 'shuffle', 'gold'),
+                ('play', 'cyan', '', 'play', 'white'), ('play', 'orange', '-on', 'pause', 'gold'),
+                ('mode', 'cyan', '', 'mode', 'white'), ('mode', 'gold', '-on', 'mode', 'gold'), ('list', 'gold', '', 'list', 'gold')]
     visible('keys'); emit({}); lamps(True); compositing(False); png(True)
-    for slot, rim, suffix in variants:
+    for slot, rim, suffix, icon, icol in variants:
         for state, front in (('up', -0.13), ('down', -0.06)):
             if 'keys' in bpy.data.collections:
                 for ob in list(bpy.data.collections['keys'].objects): bpy.data.objects.remove(ob, do_unlink=True)
             key(slot, KEYS[slot], RIM[rim], front, 16 if slot in ('mode', 'list') else 12)
+            key_icon(icon, KEYS[slot], front, ICON_MAT[icol], slot in ('mode', 'list'))
             strength = RIM[rim].node_tree.nodes['Principled BSDF'].inputs['Emission Strength']
             base = strength.default_value
             if state == 'down': strength.default_value = base * 1.8
@@ -765,7 +739,7 @@ def place(b):
 cw, ch = (CHASSIS[2] - CHASSIS[0]) * W, (CHASSIS[3] - CHASSIS[1]) * H
 quad = ' '.join(f'{v:.5f}' for p in anchors['face'] for v in p)
 lines = ['/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */',
-         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)};--nr-face:"{quad}";--nr-roll:{-math.degrees(roll) + 0:g}deg}}']
+         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)};--nr-face:"{quad}"}}']
 for i, side in enumerate(('l', 'r')):
     lines.append(f'.nr-speaker--{side}{{{place(anchors["cones"][i])}}}')
     lines.append(f'.nr-speaker--{side} .nr-speaker__cone{{background-image:url(cone-{i}.webp)}}')

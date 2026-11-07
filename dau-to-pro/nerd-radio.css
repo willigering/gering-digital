@@ -39,7 +39,9 @@
 
 /* ---------- Echtes Licht: Lichtebenen (Deckkraft = Lichtstärke), Helligkeit folgt der Musik ---------- */
 .nr-light{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;pointer-events:none;user-select:none;
-  opacity:.75;will-change:opacity}
+  opacity:.06;will-change:opacity}
+/* Ein- und Ausschalten weich, beim Abspielen folgt die Helligkeit direkt der Musik */
+.nr-device:not([data-state=playing]) .nr-light{transition:opacity .8s ease-out}
 
 /* ---------- Schräge Front: Display und Regler werden per matrix3d auf die Gehäusefront gelegt ---------- */
 .nr-face{position:absolute;left:0;top:0;z-index:3;width:1000px;height:450px;transform-origin:0 0;pointer-events:none;container-type:size;visibility:hidden}
@@ -98,15 +100,12 @@
 .nr-transport,.nr-lower{display:contents}
 .nr-key{position:absolute;z-index:4;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
   background:center/100% 100% no-repeat;transition:filter .16s;-webkit-tap-highlight-color:transparent}
-.nr-key svg{rotate:var(--nr-roll,0deg);width:30%;height:34%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
+/* Die Symbole sind perspektivisch in die Tasten-Renders eingebaut; die SVGs bleiben nur als Rückfall im Markup */
+.nr-key svg{display:none}
 .nr-key:hover{filter:brightness(1.18) saturate(1.15) drop-shadow(0 0 .7cqw #22dcf577)}
-.nr-key:active svg,.nr-key.is-down svg{transform:translateY(4%) scale(.96)}
 .nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:-.6cqw;border-radius:1cqw}
-.nr-key--play .nr-icon-pause{display:none}
 .nr-device[data-state=playing] .nr-key--play{color:#ffc650}
 .nr-device[data-state=playing] .nr-key--play:hover{filter:brightness(1.15) drop-shadow(0 0 .8cqw #ff9a1488)}
-.nr-device[data-state=playing] .nr-key--play .nr-icon-play{display:none}
-.nr-device[data-state=playing] .nr-key--play .nr-icon-pause{display:block}
 .nr-key--gold{color:#ffc53d}
 .nr-key--round svg{width:42%;height:42%}
 .nr-key--gold-rim,.nr-key--round[aria-pressed=true]{color:#ffd06a}

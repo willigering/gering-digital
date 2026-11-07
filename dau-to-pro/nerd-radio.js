@@ -327,18 +327,21 @@
     ui.play.setAttribute('aria-label', playing ? 'Pause' : 'Abspielen');
     const t = current();
     ui.status.textContent = playing ? `Spielt: ${two(selected + 1)} – ${t.title}` : next === 'paused' ? 'Pausiert' : 'Gestoppt';
-    if (next === 'stopped') { bars.fill(0); peaks.fill(0); waveAmp = 0; bass = 0; treble = 0; applyBass(); }
+    if (next === 'stopped') { bars.fill(0); peaks.fill(0); waveAmp = 0; bass = 0; treble = 0; }
+    applyBass();
     render();
     wake();
   }
 
   // Echte Beleuchtung: die gerenderten Lichtebenen werden mit der Musik heller und dunkler.
   // Gold (Lautsprecherringe, Schultern, Sockel) folgt dem Bass, Cyan (Neonrahmen, Pilze) den Höhen.
+  // Ohne Musik sind die Leuchten aus (nur ein schwacher Bereitschaftsschimmer).
+  const STANDBY = 0.06;
   function applyBass() {
-    const calm = reduced.matches;
+    const calm = reduced.matches, on = state === 'playing';
     ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.025).toFixed(3)})`; });
-    const gold = calm ? 0.85 : 0.62 + 0.38 * Math.min(1, bass * 1.35);
-    const cyan = calm ? 0.85 : 0.65 + 0.35 * Math.min(1, treble * 1.8);
+    const gold = !on ? STANDBY : calm ? 0.9 : 0.3 + 0.7 * Math.min(1, bass * 1.5);
+    const cyan = !on ? STANDBY : calm ? 0.9 : 0.4 + 0.6 * Math.min(1, treble * 2);
     const key = gold.toFixed(2) + cyan.toFixed(2);
     if (key === lastLight) return;
     lastLight = key;

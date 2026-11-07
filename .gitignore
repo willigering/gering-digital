@@ -8,6 +8,3 @@ data/*
 start.bat
 runtime/
 node_modules/
-
-# Foto-Texturen für den NERD-RADIO-Render (Poly Haven, CC0); lädt tools/nerd-radio/build_boombox.py bei Bedarf
-tools/nerd-radio/textures/
