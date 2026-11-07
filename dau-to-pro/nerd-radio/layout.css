@@ -1,22 +1,22 @@
 /* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */
-.nr-device{aspect-ratio:1898/987;--nr-face:"0.02873 0.04963 0.95363 0.12216 0.94381 0.93996 0.03752 0.82833"}
-.nr-speaker--l{left:7.046%;top:35.531%;width:18.752%;height:38.219%}
+.nr-device{aspect-ratio:1780/958;--nr-face:"0.03256 0.06337 0.95701 0.02838 0.94683 0.93833 0.03912 0.79935"}
+.nr-speaker--l{left:6.603%;top:34.739%;width:16.807%;height:36.551%}
 .nr-speaker--l .nr-speaker__cone{background-image:url(cone-0.webp)}
-.nr-speaker--r{left:70.433%;top:41.651%;width:20.088%;height:39.564%}
+.nr-speaker--r{left:67.730%;top:37.054%;width:22.345%;height:42.352%}
 .nr-speaker--r .nr-speaker__cone{background-image:url(cone-1.webp)}
-.nr-key[data-radio-prev]{left:27.892%;top:56.908%;width:8.617%;height:13.175%;background-image:url(key-prev-up.webp)}
+.nr-key[data-radio-prev]{left:24.804%;top:54.144%;width:8.386%;height:13.182%;background-image:url(key-prev-up.webp)}
 .nr-key[data-radio-prev]:active,.nr-key[data-radio-prev].is-down{background-image:url(key-prev-down.webp)}
-.nr-key[data-radio-stop]{left:35.098%;top:57.686%;width:8.654%;height:13.214%;background-image:url(key-stop-up.webp)}
+.nr-key[data-radio-stop]{left:31.612%;top:54.734%;width:8.581%;height:13.342%;background-image:url(key-stop-up.webp)}
 .nr-key[data-radio-stop]:active,.nr-key[data-radio-stop].is-down{background-image:url(key-stop-down.webp)}
-.nr-key[data-radio-play]{left:42.363%;top:58.469%;width:10.168%;height:13.418%;background-image:url(key-play-up.webp)}
+.nr-key[data-radio-play]{left:38.651%;top:55.344%;width:10.271%;height:13.667%;background-image:url(key-play-up.webp)}
 .nr-key[data-radio-play]:active,.nr-key[data-radio-play].is-down{background-image:url(key-play-down.webp)}
-.nr-key[data-radio-next]{left:51.150%;top:59.418%;width:8.772%;height:13.299%;background-image:url(key-next-up.webp)}
+.nr-key[data-radio-next]{left:47.411%;top:56.104%;width:9.075%;height:13.716%;background-image:url(key-next-up.webp)}
 .nr-key[data-radio-next]:active,.nr-key[data-radio-next].is-down{background-image:url(key-next-down.webp)}
-.nr-key[data-radio-shuffle]{left:58.531%;top:60.216%;width:8.844%;height:13.339%;background-image:url(key-shuffle-up.webp)}
+.nr-key[data-radio-shuffle]{left:54.987%;top:56.762%;width:9.335%;height:13.896%;background-image:url(key-shuffle-up.webp)}
 .nr-key[data-radio-shuffle]:active,.nr-key[data-radio-shuffle].is-down{background-image:url(key-shuffle-down.webp)}
-.nr-key[data-radio-mode]{left:23.839%;top:67.448%;width:6.972%;height:13.994%;background-image:url(key-mode-up.webp)}
+.nr-key[data-radio-mode]{left:21.043%;top:64.669%;width:6.758%;height:14.048%;background-image:url(key-mode-up.webp)}
 .nr-key[data-radio-mode]:active,.nr-key[data-radio-mode].is-down{background-image:url(key-mode-down.webp)}
-.nr-key[data-radio-list]{left:64.425%;top:72.084%;width:7.198%;height:14.225%;background-image:url(key-list-up.webp)}
+.nr-key[data-radio-list]{left:61.191%;top:69.232%;width:7.703%;height:15.085%;background-image:url(key-list-up.webp)}
 .nr-key[data-radio-list]:active,.nr-key[data-radio-list].is-down{background-image:url(key-list-down.webp)}
 .nr-device[data-state=playing] .nr-key[data-radio-play]{background-image:url(key-play-on-up.webp)}
 .nr-device[data-state=playing] .nr-key[data-radio-play]:active,.nr-device[data-state=playing] .nr-key[data-radio-play].is-down{background-image:url(key-play-on-down.webp)}

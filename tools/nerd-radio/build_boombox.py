@@ -466,11 +466,14 @@ floor = None
 bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 2, Z(447)))
 floor = bpy.context.object; floor.name = 'floor_unused'; floor.hide_render = True  # Bodenschatten macht die Website
 
-cam_d = bpy.data.cameras.new('cam'); cam_d.lens = 135; cam_d.sensor_width = 36
+# Leicht schräg: das Gerät ist um die Hochachse gedreht, die rechte Ecke zeigt zur Kamera.
+# Normalbrennweite aus der Nähe, damit die Perspektive sichtbar ist (rechts größer als links);
+# kaum Aufsicht, damit Ober- und Unterkante nicht verkippt wirken.
+cam_d = bpy.data.cameras.new('cam'); cam_d.lens = 50; cam_d.sensor_width = 36
 cam = bpy.data.objects.new('cam', cam_d); scene.collection.objects.link(cam); scene.camera = cam
-tilt = math.radians(12)
-dist = 46
-yaw = math.radians(14)   # leicht schräg: rechte Gehäuseseite sichtbar
+tilt = math.radians(4)
+dist = 17.5
+yaw = math.radians(22)
 cam.location = (dist * math.cos(tilt) * math.sin(yaw), -dist * math.cos(tilt) * math.cos(yaw), dist * math.sin(tilt) + 0.15)
 cam.rotation_euler = (math.pi / 2 - tilt, 0, yaw)
 W, H = (1100, 560) if PREVIEW else (2200, 1120)
