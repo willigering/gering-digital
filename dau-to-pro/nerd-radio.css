@@ -107,7 +107,7 @@
 .nr-transport,.nr-lower{display:contents}
 .nr-key{position:absolute;z-index:4;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
   background:center/100% 100% no-repeat;transition:filter .16s;-webkit-tap-highlight-color:transparent}
-.nr-key svg{width:30%;height:34%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
+.nr-key svg{rotate:var(--nr-roll,0deg);width:30%;height:34%;fill:currentColor;filter:drop-shadow(0 0 .45cqw currentColor);pointer-events:none;transition:transform .07s}
 .nr-key:hover{filter:brightness(1.18) saturate(1.15) drop-shadow(0 0 .7cqw #22dcf577)}
 .nr-key:active svg,.nr-key.is-down svg{transform:translateY(4%) scale(.96)}
 .nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:-.6cqw;border-radius:1cqw}
