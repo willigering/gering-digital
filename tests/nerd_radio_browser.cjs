@@ -119,7 +119,7 @@ let server, browser;
   // Leuchtende Segmente im Display zählen (Türkis- und Goldtöne mit hoher Helligkeit).
   const lit = () => page.evaluate(() => {
     const c = document.querySelector('[data-radio-viz]'), d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
-    let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) > 180) n++;
+    let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 90 && Math.max(d[i], d[i + 1], d[i + 2]) > 160) n++;
     return n;
   });
   // Höchstwert über eine Sekunde: die Testsignale haben echte Pausen im Rhythmus.
@@ -161,6 +161,11 @@ let server, browser;
   await key('play').click(); await pause(1200);
   r = await radio();
   assert.equal(r.state, 'playing', 'Fortsetzen nach Pause');
+  await key('pause').click(); await pause(400);
+  assert.equal((await radio()).state, 'paused', 'Pause-Taste hält an');
+  await key('pause').click(); await pause(200);
+  assert.equal((await radio()).state, 'paused', 'Pause-Taste startet nicht neu');
+  await key('play').click(); await pause(1200);
   assert.ok(r.time >= pausedAt, 'Zeit läuft nach der Pause weiter');
 
   await key('stop').click(); await pause(400);
@@ -227,7 +232,9 @@ let server, browser;
   calmPage.on('pageerror', e => errors.push(`reduced: ${e.message}`));
   await calmPage.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
   await calmPage.locator('[data-radio-play]').click(); await pause(1200);
-  assert.equal(await calmPage.locator('[data-radio-cone]').first().evaluate(e => e.style.transform), '', 'Keine Lautsprecherbewegung bei reduzierter Bewegung');
+  const calmLight = await calmPage.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity)));
+  await pause(500);
+  assert.deepEqual(await calmPage.evaluate(() => [...document.querySelectorAll('[data-radio-light]')].map(e => Number(getComputedStyle(e).opacity))), calmLight, 'Kein Pulsieren bei reduzierter Bewegung');
   await calmPage.locator('[data-radio-stop]').click();
   await calm.close();
 

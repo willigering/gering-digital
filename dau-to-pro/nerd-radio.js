@@ -48,12 +48,12 @@
 
   const $ = selector => root.querySelector(selector);
   const ui = {
-    play: $('[data-radio-play]'), stop: $('[data-radio-stop]'), prev: $('[data-radio-prev]'), next: $('[data-radio-next]'),
+    play: $('[data-radio-play]'), pause: $('[data-radio-pause]'), stop: $('[data-radio-stop]'), prev: $('[data-radio-prev]'), next: $('[data-radio-next]'),
     shuffle: $('[data-radio-shuffle]'), mode: $('[data-radio-mode]'), list: $('[data-radio-list]'), volume: $('[data-radio-volume]'),
     title: $('[data-radio-title]'), elapsed: $('[data-radio-elapsed]'), length: $('[data-radio-length]'), position: $('[data-radio-position]'),
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
-    cones: [...root.querySelectorAll('[data-radio-cone]')], faces: [...root.querySelectorAll('[data-radio-face]')],
+    faces: [...root.querySelectorAll('[data-radio-face]')],
     gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]')
   };
   const pen = ui.canvas.getContext('2d');
@@ -339,7 +339,6 @@
   const STANDBY = 0.06;
   function applyBass() {
     const calm = reduced.matches, on = state === 'playing';
-    ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.025).toFixed(3)})`; });
     const gold = !on ? STANDBY : calm ? 0.9 : 0.3 + 0.7 * Math.min(1, bass * 1.5);
     const cyan = !on ? STANDBY : calm ? 0.9 : 0.4 + 0.6 * Math.min(1, treble * 2);
     const key = gold.toFixed(2) + cyan.toFixed(2);
@@ -377,10 +376,11 @@
     const W = root.clientWidth, H = root.clientHeight;
     if (q.length !== 8 || q.some(n => !Number.isFinite(n)) || !W) return;
     const dst = [0, 1, 2, 3].map(i => [q[i * 2] * W, q[i * 2 + 1] * H]);
-    const [a, b, c2, d, e, f, g, h] = homography([[0, 0], [1000, 0], [1000, 450], [0, 450]], dst);
+    const fw = ui.faces[0].offsetWidth || 1000, fh = ui.faces[0].offsetHeight || 450;   // Paket-Koordinaten aus layout.css
+    const [a, b, c2, d, e, f, g, h] = homography([[0, 0], [fw, 0], [fw, fh], [0, fh]], dst);
     const m = `matrix3d(${[a, d, 0, g, b, e, 0, h, 0, 0, 1, 0, c2, f, 0, 1].map(n => +n.toFixed(8)).join(',')})`;
     ui.faces.forEach(el => { el.style.transform = m; el.classList.add('is-placed'); });
-    faceScale = Math.hypot(dst[1][0] - dst[0][0], dst[1][1] - dst[0][1]) / 1000;
+    faceScale = Math.hypot(dst[1][0] - dst[0][0], dst[1][1] - dst[0][1]) / fw;
   }
 
   // Canvas scharf halten (Gerätepixel), ohne bei jedem Frame die Größe zu prüfen.
@@ -541,6 +541,7 @@
 
   /* ---------- Bedienung ---------- */
   ui.play.addEventListener('click', toggle);
+  ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
   ui.prev.addEventListener('click', () => choose(selected - 1));
   ui.next.addEventListener('click', () => choose(selected + 1));

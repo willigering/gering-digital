@@ -1,25 +1,29 @@
-/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */
-.nr-device{aspect-ratio:1830/984;--nr-face:"0.06271 0.06648 0.92512 0.00704 0.89320 1.01800 0.03367 0.78560"}
-.nr-speaker--l{left:6.261%;top:33.973%;width:15.600%;height:37.028%}
-.nr-speaker--l .nr-speaker__cone{background-image:url(cone-0.webp)}
-.nr-speaker--r{left:61.772%;top:37.416%;width:23.852%;height:47.203%}
-.nr-speaker--r .nr-speaker__cone{background-image:url(cone-1.webp)}
-.nr-key[data-radio-prev]{left:21.542%;top:53.485%;width:7.931%;height:13.561%;background-image:url(key-prev-up.webp)}
-.nr-key[data-radio-prev]:active,.nr-key[data-radio-prev].is-down{background-image:url(key-prev-down.webp)}
-.nr-key[data-radio-stop]{left:27.575%;top:54.376%;width:8.225%;height:13.837%;background-image:url(key-stop-up.webp)}
-.nr-key[data-radio-stop]:active,.nr-key[data-radio-stop].is-down{background-image:url(key-stop-down.webp)}
-.nr-key[data-radio-play]{left:33.932%;top:55.315%;width:9.922%;height:14.385%;background-image:url(key-play-up.webp)}
-.nr-key[data-radio-play]:active,.nr-key[data-radio-play].is-down{background-image:url(key-play-down.webp)}
-.nr-key[data-radio-next]{left:42.026%;top:56.511%;width:8.959%;height:14.506%;background-image:url(key-next-up.webp)}
-.nr-key[data-radio-next]:active,.nr-key[data-radio-next].is-down{background-image:url(key-next-down.webp)}
-.nr-key[data-radio-shuffle]{left:49.195%;top:57.570%;width:9.339%;height:14.841%;background-image:url(key-shuffle-up.webp)}
-.nr-key[data-radio-shuffle]:active,.nr-key[data-radio-shuffle].is-down{background-image:url(key-shuffle-down.webp)}
-.nr-key[data-radio-mode]{left:17.742%;top:63.986%;width:6.473%;height:14.439%;background-image:url(key-mode-up.webp)}
-.nr-key[data-radio-mode]:active,.nr-key[data-radio-mode].is-down{background-image:url(key-mode-down.webp)}
-.nr-key[data-radio-list]{left:54.740%;top:71.254%;width:7.888%;height:16.321%;background-image:url(key-list-up.webp)}
-.nr-key[data-radio-list]:active,.nr-key[data-radio-list].is-down{background-image:url(key-list-down.webp)}
-.nr-device[data-state=playing] .nr-key[data-radio-play]{background-image:url(key-play-on-up.webp)}
-.nr-device[data-state=playing] .nr-key[data-radio-play]:active,.nr-device[data-state=playing] .nr-key[data-radio-play].is-down{background-image:url(key-play-on-down.webp)}
-.nr-key[data-radio-mode][aria-pressed=true]{background-image:url(key-mode-on-up.webp)}
-.nr-key[data-radio-mode][aria-pressed=true]:active{background-image:url(key-mode-on-down.webp)}
-.nr-key[data-radio-list][aria-expanded=true]{background-image:url(key-list-down.webp)}
+/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. Positionen in Paket-Koordinaten. */
+.nr-device{aspect-ratio:1758/961;--nr-face:"0.03563 0.06078 0.93544 0.00636 0.90375 0.99364 0.00683 0.76208"}
+.nr-face{width:2910px;height:1242px}
+.nr-display{left:28.763%;top:33.333%;width:45.361%;height:24.155%}
+.nr-volume{left:37.010%;top:79.469%;width:28.969%;height:9.420%}
+.nr-key[data-radio-prev]{left:30.000%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-previous-normal.webp)}
+.nr-key[data-radio-prev]:hover{background-image:url(key-previous-hover.webp)}
+.nr-key[data-radio-prev]:active,.nr-key[data-radio-prev].is-down{background-image:url(key-previous-pressed.webp)}
+.nr-key[data-radio-play]{left:37.320%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-play-normal.webp)}
+.nr-key[data-radio-play]:hover{background-image:url(key-play-hover.webp)}
+.nr-key[data-radio-play]:active,.nr-key[data-radio-play].is-down,.nr-device[data-state=playing] .nr-key[data-radio-play]{background-image:url(key-play-pressed.webp)}
+.nr-key[data-radio-pause]{left:44.639%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-pause-normal.webp)}
+.nr-key[data-radio-pause]:hover{background-image:url(key-pause-hover.webp)}
+.nr-key[data-radio-pause]:active,.nr-key[data-radio-pause].is-down,.nr-device[data-state=paused] .nr-key[data-radio-pause]{background-image:url(key-pause-pressed.webp)}
+.nr-key[data-radio-stop]{left:51.959%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-stop-normal.webp)}
+.nr-key[data-radio-stop]:hover{background-image:url(key-stop-hover.webp)}
+.nr-key[data-radio-stop]:active,.nr-key[data-radio-stop].is-down{background-image:url(key-stop-pressed.webp)}
+.nr-key[data-radio-next]{left:59.278%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-next-normal.webp)}
+.nr-key[data-radio-next]:hover{background-image:url(key-next-hover.webp)}
+.nr-key[data-radio-next]:active,.nr-key[data-radio-next].is-down{background-image:url(key-next-pressed.webp)}
+.nr-key[data-radio-shuffle]{left:66.598%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-shuffle-normal.webp)}
+.nr-key[data-radio-shuffle]:hover{background-image:url(key-shuffle-hover.webp)}
+.nr-key[data-radio-shuffle]:active,.nr-key[data-radio-shuffle].is-down{background-image:url(key-shuffle-pressed.webp)}
+.nr-key[data-radio-mode]{left:30.103%;top:79.710%;width:5.361%;height:9.662%;background-image:url(key-settings-normal.webp)}
+.nr-key[data-radio-mode]:hover{background-image:url(key-settings-hover.webp)}
+.nr-key[data-radio-mode]:active,.nr-key[data-radio-mode].is-down,.nr-key[data-radio-mode][aria-pressed=true]{background-image:url(key-settings-pressed.webp)}
+.nr-key[data-radio-list]{left:67.423%;top:79.710%;width:5.361%;height:9.662%;background-image:url(key-playlist-normal.webp)}
+.nr-key[data-radio-list]:hover{background-image:url(key-playlist-hover.webp)}
+.nr-key[data-radio-list]:active,.nr-key[data-radio-list].is-down,.nr-key[data-radio-list][aria-expanded=true]{background-image:url(key-playlist-pressed.webp)}

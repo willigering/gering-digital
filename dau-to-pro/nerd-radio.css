@@ -1,12 +1,11 @@
 /* DAU TO PRO // NERD RADIO – Cyberpunk-Ghettoblaster.
-   Aufbau in Ebenen (alle aus Blender, leicht schräg gerendert):
-   - nerd-radio/base.webp: Gehäuse mit ausgeschalteten Leuchten, ohne Tasten und Anzeige
-   - nerd-radio/light-gold.webp, light-cyan.webp: reines Licht der Leuchtgruppen inkl. Lichtfall auf
-     Metall und Gitter; additiv überlagert, Helligkeit folgt live der Musik (nerd-radio.js)
-   - Membranen und Tasten als eigene Renders je Platz und Zustand
-   Display und Lautstärkeregler liegen auf .nr-face, das per matrix3d exakt auf die schräge Front gelegt wird.
+   Aufbau (Grafikpaket „nerd-radio-pack“ + Blender):
+   - nerd-radio/base.webp: 3D-Gehäuse aus Blender, Front mit der Paket-Grafik, alle Leuchten aus
+   - .nr-face: Frontebene in Paket-Koordinaten (2910 x 1242), per matrix3d exakt auf die schräge Front gelegt.
+     Darin liegen die Lichtebenen (nur Ringe und Pixelpilze leuchten, Helligkeit folgt der Musik),
+     das Display, die Tasten (Paket-Grafiken normal / hover / gedrückt) und der Lautstärkeregler.
    Positionen stehen in nerd-radio/layout.css (generiert von tools/nerd-radio/build_boombox.py).
-   Alle Maße innerhalb des Geräts in cqw (1 % der Gerätebreite), damit es als Ganzes skaliert.
+   Schriftgrößen im Display in cqw (1 % der Frontbreite), damit alles als Ganzes skaliert.
    Platzierung: eigene Zeile zwischen Hero und Trainingszone, rechts unter dem DAU-TO-PRO-Logo.
    Das Gerät scrollt normal mit und ist während der Modulauswahl nicht mehr sichtbar.
    Modulraster und Modulstapel bleiben unverändert. */
@@ -33,23 +32,19 @@
 .nr-chassis{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;user-select:none}
 .nr-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-/* ---------- Lautsprecher: Gitter und Pilz als eigene Ebene, die zum Bass atmet ---------- */
-.nr-speaker{position:absolute;z-index:1;border-radius:50%}
-.nr-speaker__cone{position:absolute;inset:0;border-radius:50%;background:center/100% 100% no-repeat;will-change:transform}
-
-/* ---------- Echtes Licht: Lichtebenen (Deckkraft = Lichtstärke), Helligkeit folgt der Musik ---------- */
-.nr-light{position:absolute;inset:0;z-index:2;width:100%;height:100%;display:block;pointer-events:none;user-select:none;
-  opacity:.06;will-change:opacity}
-/* Ein- und Ausschalten weich, beim Abspielen folgt die Helligkeit direkt der Musik */
-.nr-device:not([data-state=playing]) .nr-light{transition:opacity .8s ease-out}
-
-/* ---------- Schräge Front: Display und Regler werden per matrix3d auf die Gehäusefront gelegt ---------- */
-.nr-face{position:absolute;left:0;top:0;z-index:3;width:1000px;height:450px;transform-origin:0 0;pointer-events:none;container-type:size;visibility:hidden}
+/* ---------- Schräge Front: Frontebene per matrix3d auf die Gehäusefront gelegt (Größe aus layout.css) ---------- */
+.nr-face{position:absolute;left:0;top:0;z-index:3;transform-origin:0 0;pointer-events:none;container-type:size;visibility:hidden}
 .nr-face.is-placed{visibility:visible}
 .nr-face>*{pointer-events:auto}
 
+/* ---------- Echtes Licht: Ringe (Gold) und Pilze (Cyan); Deckkraft = Lichtstärke ---------- */
+.nr-face>.nr-glow{position:absolute;inset:0;pointer-events:none;opacity:.06;will-change:opacity}
+.nr-glow img{display:block;width:100%;height:100%;user-select:none}
+/* Ein- und Ausschalten weich, beim Abspielen folgt die Helligkeit direkt der Musik */
+.nr-device:not([data-state=playing]) .nr-glow{transition:opacity .8s ease-out}
+
 /* ---------- Display ---------- */
-.nr-display{position:absolute;left:27.6%;top:32%;width:44.8%;height:27.111%;padding:0}
+.nr-display{position:absolute;padding:0}
 .nr-display__glass{position:relative;height:100%;overflow:hidden;
   display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.2fr) minmax(0,1fr) minmax(0,.85fr);column-gap:2.4%;
   padding:2.4% 4% 2.2%;border-radius:.8cqw;
@@ -96,42 +91,26 @@
 .nr-playlist__item:hover{border-color:#22dcf588;background:#0b2f3a}
 .nr-playlist__item[aria-current=true]{background:#0e3b47;color:#fff;border-color:var(--cyan);box-shadow:0 0 .8cqw #22dcf555}
 
-/* ---------- Physische Tasten: gerenderte Kappen je Zustand, Symbole als SVG darauf ---------- */
-.nr-transport,.nr-lower{display:contents}
-.nr-key{position:absolute;z-index:4;display:grid;place-items:center;margin:0;padding:0;border:0;cursor:pointer;color:#eafaff;
-  background:center/100% 100% no-repeat;transition:filter .16s;-webkit-tap-highlight-color:transparent}
-/* Die Symbole sind perspektivisch in die Tasten-Renders eingebaut; die SVGs bleiben nur als Rückfall im Markup */
-.nr-key svg{display:none}
-.nr-key:hover{filter:brightness(1.18) saturate(1.15) drop-shadow(0 0 .7cqw #22dcf577)}
-.nr-key:focus-visible{outline:.32cqw solid #fff;outline-offset:-.6cqw;border-radius:1cqw}
-.nr-device[data-state=playing] .nr-key--play{color:#ffc650}
-.nr-device[data-state=playing] .nr-key--play:hover{filter:brightness(1.15) drop-shadow(0 0 .8cqw #ff9a1488)}
-.nr-key--gold{color:#ffc53d}
-.nr-key--round svg{width:42%;height:42%}
-.nr-key--gold-rim,.nr-key--round[aria-pressed=true]{color:#ffd06a}
-.nr-key--gold-rim:hover,.nr-key--round[aria-pressed=true]:hover{filter:brightness(1.15) drop-shadow(0 0 .7cqw #ffb22a77)}
+/* ---------- Tasten: Paket-Grafiken je Zustand (normal / hover / gedrückt); Bilder und Positionen in layout.css ---------- */
+.nr-transport{display:contents}
+.nr-key{position:absolute;margin:0;padding:0;border:0;cursor:pointer;background:transparent center/100% 100% no-repeat;-webkit-tap-highlight-color:transparent}
+.nr-key:focus-visible{outline:6px solid #fff;outline-offset:-14px;border-radius:24px}
 
-/* ---------- Lautstärke ---------- */
-.nr-volume{position:absolute;left:31.6%;top:79.111%;width:36.8%;height:10.222%;display:flex;align-items:center;gap:2.2%;padding:0 3%}
-.nr-volume svg{flex:none;width:3.6cqw;height:3.6cqw;fill:currentColor;color:#dff8ff;filter:drop-shadow(0 0 .4cqw #22dcf599)}
-.nr-volume input{--nr-vol:35%;flex:1;min-width:0;height:100%;margin:0;background:transparent;cursor:pointer;-webkit-appearance:none;appearance:none}
-.nr-volume input::-webkit-slider-runnable-track{height:2.2cqw;border-radius:.3cqw;
-  background:repeating-linear-gradient(90deg,transparent 0 .62cqw,#05080a .62cqw .95cqw),linear-gradient(90deg,var(--cyan) var(--nr-vol),#0c3440 var(--nr-vol));
-  box-shadow:0 0 .9cqw #22dcf555}
-.nr-volume input::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:3.8cqw;height:3.8cqw;margin-top:-.8cqw;border:0;border-radius:50%;
-  background:radial-gradient(circle,#0a1418 0 40%,#c9fbff 46%,var(--cyan) 58%,#0b6b7a 100%);box-shadow:0 0 1.2cqw var(--cyan),0 .2cqw .4cqw #000}
-.nr-volume input::-moz-range-track{height:2.2cqw;border-radius:.3cqw;
-  background:repeating-linear-gradient(90deg,transparent 0 .62cqw,#05080a .62cqw .95cqw),linear-gradient(90deg,var(--cyan) var(--nr-vol),#0c3440 var(--nr-vol))}
-.nr-volume input::-moz-range-thumb{width:3.8cqw;height:3.8cqw;border:0;border-radius:50%;
-  background:radial-gradient(circle,#0a1418 0 40%,#c9fbff 46%,var(--cyan) 58%,#0b6b7a 100%);box-shadow:0 0 1.2cqw var(--cyan)}
-.nr-volume input:focus-visible{outline:.3cqw solid #fff;outline-offset:.3cqw;border-radius:.4cqw}
+/* ---------- Lautstärke: Schiene, Füllung und Knopf aus dem Paket, darüber ein unsichtbarer Schieberegler ---------- */
+.nr-volume{position:absolute;--nr-vol:35%}
+.nr-volume img{position:absolute;pointer-events:none;user-select:none}
+.nr-volume__track,.nr-volume__fill{left:0;top:0;width:100%;height:100%}
+.nr-volume__fill{clip-path:inset(0 calc(100% - 3.4% - var(--nr-vol) * .94) 0 0)}
+.nr-volume__knob{top:50%;left:calc(3.4% + var(--nr-vol) * .94);height:112%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.nr-volume input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.nr-volume:has(input:focus-visible){outline:6px solid #fff;outline-offset:6px;border-radius:20px}
 
 /* Fehlerhinweis (z. B. Audio vom Browser blockiert) */
 .nr-device.has-error .nr-display__track{color:#ffb4a0;text-shadow:0 0 .6cqw #ff5a3a}
 
 /* ---------- Reduzierte Bewegung ---------- */
 @media(prefers-reduced-motion:reduce){
-  .nr-key,.nr-key svg,.nr-display__ind{transition:none}
+  .nr-display__ind{transition:none}
   .nr-device[data-state=paused] .nr-display__icon,.nr-device[data-state=playing] .is-long .nr-marquee{animation:none}
   .nr-device[data-state=playing] .is-long .nr-marquee{overflow:hidden;text-overflow:ellipsis;width:auto}
 }

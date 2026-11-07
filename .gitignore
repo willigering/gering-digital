@@ -8,3 +8,6 @@ data/*
 start.bat
 runtime/
 node_modules/
+
+# Zwischenstände des NERD-RADIO-Builds (Front-Textur, Render)
+tools/nerd-radio/.work/

@@ -105,12 +105,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <div class="nr-pin">
         <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
           <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
-          <div class="nr-speaker nr-speaker--l" aria-hidden="true"><span class="nr-speaker__cone" data-radio-cone></span></div>
-          <div class="nr-speaker nr-speaker--r" aria-hidden="true"><span class="nr-speaker__cone" data-radio-cone></span></div>
-          <!-- Echtes Licht: additive Lichtebenen (Gold = Bass, Cyan = Mitten/Höhen), Helligkeit folgt der Musik -->
-          <img class="nr-light" data-radio-light="gold" src="nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?>" srcset="nerd-radio/light-gold-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-half.webp')?> 1000w, nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
-          <img class="nr-light" data-radio-light="cyan" src="nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?>" srcset="nerd-radio/light-cyan-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-half.webp')?> 1000w, nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+          <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
           <div class="nr-face" data-radio-face>
+          <!-- Echtes Licht: nur Lautsprecherringe (Gold = Bass) und Pixelpilze (Cyan = Höhen) leuchten, Helligkeit folgt der Musik -->
+          <div class="nr-glow" data-radio-light="gold" aria-hidden="true"><img src="nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?>" alt="" decoding="async"></div>
+          <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img src="nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?>" alt="" decoding="async"></div>
           <div class="nr-display">
             <div class="nr-display__glass">
               <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
@@ -129,22 +128,22 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             </div>
             <p class="nr-sr" data-radio-status aria-live="polite"></p>
           </div>
-          </div>
           <div class="nr-transport" role="group" aria-label="Wiedergabe">
-            <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h2.6v14H4zM14 5v14L7.4 12zM21.5 5v14L15 12z"/></svg></button>
-            <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5.5" y="5.5" width="13" height="13" rx="1"/></svg></button>
-            <button class="nr-key nr-key--play" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"><svg class="nr-icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg><svg class="nr-icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h4.4v15H6zM13.6 4.5H18v15h-4.4z"/></svg></button>
-            <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 5h-2.6v14H20zM10 5v14l6.6-7zM2.5 5v14L9 12z"/></svg></button>
-            <button class="nr-key nr-key--gold" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M18 3.2l4.2 3.8-4.2 3.8zM18 13.2l4.2 3.8-4.2 3.8z"/></svg></button>
+            <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"></button>
+            <button class="nr-key" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"></button>
+            <button class="nr-key" type="button" data-radio-pause aria-label="Pause" title="Pause"></button>
+            <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"></button>
+            <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"></button>
+            <button class="nr-key" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"></button>
           </div>
-          <div class="nr-lower">
-            <button class="nr-key nr-key--round" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="3.4" stroke-dasharray="3.22 3.22"/><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="2.8"/></svg></button>
-            <div class="nr-face" data-radio-face><div class="nr-volume">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-              <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path d="M15 9.5a3.5 3.5 0 0 1 0 5M17.6 6.8a7.4 7.4 0 0 1 0 10.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </div></div>
-            <button class="nr-key nr-key--round nr-key--gold-rim" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="10.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="16.8" width="12" height="2.6" rx="1.2"/></svg></button>
+          <button class="nr-key" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"></button>
+          <div class="nr-volume">
+            <img class="nr-volume__track" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
+            <img class="nr-volume__fill" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
+            <img class="nr-volume__knob" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
+            <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
+          </div>
+          <button class="nr-key" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"></button>
           </div>
         </div>
       </div>
