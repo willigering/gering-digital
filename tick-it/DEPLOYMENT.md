@@ -25,3 +25,11 @@ Der SFTP-Workflow lädt nur Dateien von `tick-it/` hoch und löscht keine Remote
 - Falls der Schemaimport mittendrin scheitert, werden die bereits angelegten Tabellen *nicht automatisch gelöscht*. Wähle für den nächsten Versuch eine **neue leere Datenbank**; keine destruktiven Aktionen an bestehenden Datenbanken.
 - Die Anwendung ist für Unterrichtszwecke entworfen; die Belastbarkeit mit 50 parallelen Teilnehmern muss auf STRATO noch getestet werden.
 - Nach erfolgreichem Import Administrationsfunktion, Gastzugänge, atomare Ticketübernahme, PM und geschützte Anhänge mit mehreren Browsern prüfen, bevor die gesamte Klasse eingeladen wird.
+
+## Erweiterung: automatischer Anfrage-Strom
+
+Nach der Anmeldung als Dozent unter **Schulungsfälle** automatisch initialisieren lassen. Die ergänzenden Tabellen werden durch `database/generator-migration.sql` idempotent angelegt; keine manuelle Änderung an vorhandenen Tabellen erforderlich. Es werden 900 rein synthetische Anfragetexte in 11 geschützten JSON-Dateien unter `app/generator-data/` bereitgestellt.
+
+Ohne Cronjob werden fällige Ticket-Wellen bei neuen, authentifizierten Seitenabfragen verarbeitet. Für eine minutengetreue Freigabe optional in STRATO einen Cronjob mit **CLI-PHP** jede Minute für `tick-it/bin/generator-cron.php` anlegen; Paketverfügbarkeit und tatsächlichen absoluten Pfad prüfen. Das Skript enthält keine Web-Tokens oder Zugangsdaten. Die lokalen Dateien `config.local.php`, `storage/` und bestehende Daten werden beim Deploy nicht überschrieben.
+
+Weitere Details und fachliche Quellen: `GESCHAEFTSFAELLE.md`.

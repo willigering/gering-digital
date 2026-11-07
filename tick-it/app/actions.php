@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/bootstrap.php';
+require_once __DIR__.'/generator.php';
 
 function act_login_guest(array $d): array {
     $name = field_string($d,'name',80,2);
@@ -276,11 +277,14 @@ function act_supporters(): array {
 function act_participants(array $q=[]): array {
     $a=must_admin();$term=trim((string)($q['search']??''));if(mb_strlen($term)>120) app_error('Suche zu lang.');
     $w=$term!==''?'WHERE g.display_name LIKE ?':'';$bind=$term!==''?['%'.$term.'%']:[];
+    $excludeGenerated = one("SHOW TABLES LIKE 'generator_issued'") !== null
+       ? ($w ? ' AND ' : ' WHERE ') . 'NOT EXISTS (SELECT 1 FROM generator_issued gi WHERE gi.guest_id=g.id)'
+       : '';
     return many("SELECT g.id,g.display_name,g.role,g.banned_at,g.last_seen_at,
       (g.last_seen_at >= UTC_TIMESTAMP()-INTERVAL 2 MINUTE) online,
       (SELECT COUNT(*) FROM tickets t WHERE t.assigned_supporter_id=g.id AND t.status NOT IN ('solved','closed')) active_tickets,
       (SELECT COUNT(*) FROM private_messages pm WHERE pm.guest_id=g.id AND pm.sender_role='guest' AND pm.read_at IS NULL) unread_pm
-      FROM guests g $w ORDER BY online DESC,g.last_seen_at DESC LIMIT 200",$bind);
+      FROM guests g $w $excludeGenerated ORDER BY online DESC,g.last_seen_at DESC LIMIT 200",$bind);
 }
 function act_admin_ban(array $d): array {
     $a=must_admin();$id=positive_id($d['guest_id']??null);
@@ -360,15 +364,22 @@ function act_change_password(array $d): array {
     audit($a,'password_changed');return ['saved'=>true];
 }
 function act_training_reset(array $d): array {
-    $a=must_admin();
+    $a=must_admin();generator_schema();
     if (($d['confirm']??null)!=='ÜBUNGSFÄLLE LÖSCHEN') app_error('Zur Bestätigung bitte exakt „ÜBUNGSFÄLLE LÖSCHEN“ eingeben.');
     db()->beginTransaction();
     try {
+        sql("UPDATE generator_control SET status='stopped',next_due_at=NULL,stopped_at=UTC_TIMESTAMP() WHERE status IN ('running','paused') AND id=1");
+        $syntheticIds=array_column(many('SELECT guest_id FROM generator_issued'), 'guest_id');
         $n=one("SELECT COUNT(*) n FROM tickets WHERE source='training'");
         $stored=many("SELECT a.storage_name FROM attachments a
           JOIN ticket_messages m ON m.id=a.message_id
           JOIN tickets t ON t.id=m.ticket_id WHERE t.source='training'");
         sql("DELETE FROM tickets WHERE source='training'");
+        // Nur simulierte Gastidentitäten entfernen, niemals echte angemeldete Kunden.
+        foreach(array_chunk($syntheticIds,100) as $ids) {
+           $marks=implode(',',array_fill(0,count($ids),'?'));
+           sql("DELETE FROM guests WHERE id IN ($marks) AND NOT EXISTS (SELECT 1 FROM tickets WHERE tickets.customer_id=guests.id)",$ids);
+        }
         audit($a,'training_reset','ticket',null,'deleted training tickets: '.$n['n']);
         db()->commit();
         foreach($stored as $file) @unlink(PROJECT_ROOT.'/storage/uploads/'.$file['storage_name']);

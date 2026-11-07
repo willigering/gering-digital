@@ -99,3 +99,10 @@ Das Testskript öffnet 50 unabhängige Gastsitzungen (25 Kunden und 25 Supporter
 - Vor echtem produktiven Datenschutzbetrieb: Löschfristen und Löschfunktion für Gäste/Kundentickets ergänzen, Retention für Session- und Rate-Limit-Daten operativ automatisieren, Datensicherung und Wiederherstellung testen, Pflichttexte und Zugriffsprotokollierung klären.
 - Keine E-Mail-Benachrichtigungen, SSO, SLA-/Eskalationsregeln oder umfangreiche Berichtsexporte. Diese wurden nicht als zwingender Schulungsablauf beschrieben.
 - Optionaler Dozenten-Zusatztest benötigt manuell eingerichtetes Administratorkonto.
+
+## Automatischer Anfrage-Strom (900 Übungstickets)
+
+Im Dozentenbereich unter **Schulungsfälle** befindet sich ein Regler-gesteuerter Generator:
+100 sofortige Übungstickets (änderbar auf 0–100), weitere 1–30 pro Welle im Abstand von 1–60 Minuten, Gesamtlimit 100–5000. Stoppen, pausieren und fortsetzen sind möglich. Kundennamen und Texte werden unabhängig gezogen. Die vergangenen 600 Formulierungen werden nach Möglichkeit gesperrt. Für bestehende Datenbanken werden nur drei neue, eigenständige Tabellen angelegt. Eine Datenbankmigration erfolgt automatisch beim ersten Aufruf der Dozentenansicht, ohne die bestehenden Tabellen zu verändern.
+
+Siehe [`GESCHAEFTSFAELLE.md`](GESCHAEFTSFAELLE.md) für Quellen, Technik, Einrichtung eines optionalen STRATO-Cronjobs und Testgrenzen.

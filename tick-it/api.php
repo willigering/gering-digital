@@ -13,10 +13,12 @@ try {
         if($method!=='GET') app_error('Methode nicht erlaubt.',405);
         act_download(positive_id($_GET['id']??null));
     }
-    $getRoutes=['session','stats','tickets','ticket','participants','private','unread','reviews','supporter_stats','audit','categories_admin','supporters'];
+    $getRoutes=['generator_status','session','stats','tickets','ticket','participants','private','unread','reviews','supporter_stats','audit','categories_admin','supporters'];
     if(in_array($action,$getRoutes,true)) {
         if($method!=='GET')app_error('Methode nicht erlaubt.',405);
+        if(in_array($action,['session','tickets','stats','unread'],true) && auth()) generator_tick();
         $res=match($action) {
+            'generator_status'=>generator_status(),
             'session'=>act_session(),
             'stats'=>act_stats(),
             'tickets'=>act_ticket_list($_GET),
@@ -64,6 +66,11 @@ try {
         'category_save'=>act_categories_manage($d),
         'password_change'=>act_change_password($d),
         'training_reset'=>act_training_reset($d),
+        'generator_start'=>generator_start($d),
+        'generator_update'=>generator_update($d),
+        'generator_pause'=>generator_switch('pause'),
+        'generator_resume'=>generator_switch('resume'),
+        'generator_stop'=>generator_switch('stop'),
         default=>app_error('Unbekannte Aktion.',404),
     };
     json_response($res);

@@ -6,3 +6,15 @@
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 @media(max-width:690px){.sidebar.mobile-open>nav{display:flex;flex-direction:column;position:absolute;left:9px;right:9px;top:51px;max-height:75vh;overflow:auto;border:1px solid #34636b;border-radius:11px;padding:9px;background:#112630;box-shadow:0 25px 55px #000a}.sidebar.mobile-open .nav-item{justify-content:flex-start;text-align:left}.sidebar.mobile-open .nav-item .nav-label{display:inline}.sidebar.mobile-open .nav-item .nav-badge{display:inline;margin-left:auto}}
+/* Dozenten-Steuerung für den zeitgesteuerten Ticket-Strom. */
+.gen-panel{grid-column:1/-1;border-color:#275b61;}
+.gen-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0;}
+.gen-stats>div{background:#111d24;border:1px solid #2a414d;border-radius:11px;padding:14px;min-width:0;}
+.gen-stats b{display:block;font-size:1.3rem;overflow-wrap:anywhere;color:#66e5dc;}
+.gen-stats small{display:block;color:#a1b0be;line-height:1.35;margin-top:6px;}
+.gen-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 22px;margin-top:20px;}
+.gen-form .form-field{margin:0;}
+.gen-form input[type=range]{width:100%;min-height:28px;accent-color:#16d4c8;cursor:pointer;}
+.gen-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.gen-actions button{min-height:42px;}
+@media(max-width:760px){.gen-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.gen-form{grid-template-columns:1fr;}.gen-actions .btn{flex:1 1 140px;}}

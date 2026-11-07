@@ -3,7 +3,7 @@ const API='api.php';
 const state={actor:null,csrf:document.body.dataset.csrf,categories:[],view:'tickets',filter:'all',search:'',dateFrom:'',dateTo:'',page:1,
   stats:{cards:{}},list:{items:[],total:0,page:1,pages:1},selected:null,detail:null,
   participants:[],supporters:[],reviews:[],ranking:[],audit:[],private:null,pmGuest:null,unread:0,
-  roleChoice:'customer',adminLogin:false,mobileMenu:false,modal:null,loading:false,lastUpdated:null,requestSeq:0};
+  generator:null,roleChoice:'customer',adminLogin:false,mobileMenu:false,modal:null,loading:false,lastUpdated:null,requestSeq:0};
 const el=document.getElementById('app');
 const S=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=(d)=>{if(!d)return '—';const date=new Date(d.replace(' ','T')+'Z');return Number.isNaN(+date)?S(d):new Intl.DateTimeFormat('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Berlin'}).format(date)};
@@ -87,7 +87,7 @@ function ticketDetail(){if(!state.detail)return `<section class="card detail">${
   const statuses=a.role==='admin'?statusLabels:Object.fromEntries(Object.entries(statusLabels).filter(([k])=>!['new','open'].includes(k)));
   const readOnly=a.role==='customer'&&t.status==='closed';
   return `<section class="card detail"><div class="detail-head"><div class="detail-toprow"><div><div class="detail-title"><span class="ticket-id mono">${S(t.ticket_no)}</span> – ${S(t.subject)}</div><div class="minor"><span>♙ ${S(t.customer_name||'Übungsszenario')}</span><span>▣ ${S(t.category_name)}</span><span>◷ ${fmt(t.created_at)}</span></div></div><button class="icon-button" data-action="close-detail" title="Detailansicht schließen">×</button></div></div>
-  <div class="detail-body">${t.source==='training'?'<div class="notice">⚑ Übungsfall: Diese Anfrage wurde zu Trainingszwecken erstellt.</div>':''}
+  <div class="detail-body">${t.source==='training'?'<div class="notice">⚑ Übungsfall: Diese Anfrage wurde zu Trainingszwecken erstellt. Simulierte Absender können nicht selbstständig antworten.</div>':''}
     <div class="detail-grid"><div><h3>Kommunikationsverlauf</h3><div class="timeline" id="timeline">${messages.length?messages.map(m=>messageHtml(m,a)).join(''):empty('Noch keine Nachrichten','Beginne die Unterhaltung mit einer freundlichen, konkreten Antwort.')}</div>
     ${(!readOnly&&(owner||staff))?`<form class="compose" data-form="message" data-ticket="${t.id}">${staff?`<label for="message-type">Sichtbarkeit</label><select id="message-type" name="type"><option value="public">Öffentliche Antwort</option><option value="internal">Interne Notiz – nur für Support</option></select>`:''}
        <label for="message-body">${staff?'Antwort oder Notiz':'Nachricht an den Support'}</label><textarea id="message-body" name="body" placeholder="Schreibe hier deine Nachricht …" maxlength="12000" required></textarea>
@@ -134,8 +134,33 @@ function statsView(){const a=state.actor;return `<div class="card panel-pad"><h2
   <p class="hint" style="margin-top:16px">Bewertungen sind subjektive Rückmeldungen und keine automatische Leistungsbeurteilung.</p></div>`}
 function reviewsView(){return `<div class="card panel-pad"><h2>Ticketbewertungen</h2>${state.reviews.length?`<div class="table-scroll"><table class="plain-table"><thead><tr><th>Ticket</th><th>Supporter</th><th>Sterne</th><th>Einzelkriterien</th><th>Kommentar</th></tr></thead><tbody>${state.reviews.map(r=>`<tr><td>${S(r.ticket_no)}</td><td>${S(r.supporter_name)}</td><td><span class="stars">${'★'.repeat(+r.stars)}${'☆'.repeat(5-(+r.stars))}</span></td>
   <td>Freundlichkeit ${r.friendliness} · Verständlichkeit ${r.clarity} · Lösung ${r.resolution} · Tempo ${r.speed}</td><td>${S(r.comment||'–')}</td></tr>`).join('')}</tbody></table></div>`:empty('Noch keine Bewertungen','Nach einem Abschluss können Kunden ihre Erfahrung bewerten.')}</div>`}
+function generatorPanel(){
+ const data=state.generator,run=data?.run||{},status=run.status||'idle';
+ const running=status==='running',paused=status==='paused',active=running||paused;
+ const count=Number(run.generated||0),max=Number(run.max_total||1000),next=run.next_due_at?fmt(run.next_due_at):'—';
+ const startCount=active?Number(run.initial_count||100):100;
+ const rate=Number(run.batch_count||5),period=Number(run.interval_minutes||5);
+ const stateNames={idle:'Noch kein Lauf',running:'Läuft',paused:'Pausiert',stopped:'Gestoppt',complete:'Abgeschlossen'};
+ return `<section class="card panel-pad gen-panel" aria-label="Automatischer Anfragenstrom">
+   <div class="section-heading"><div><h2>◈ Automatischer Anfrage-Strom</h2><p class="muted" style="margin-top:7px">Realistische IT-Meldungen in Wellen. Nur der Dozent steuert den Lauf.</p></div><span class="pill ${running?'status-in_progress':'status-closed'}">${S(stateNames[status])}</span></div>
+   <div class="gen-stats"><div><b>${data?.templates||900}</b><small>verschiedene Formulierungen</small></div><div><b>${data?.topics||60}</b><small>reale Problemarten</small></div><div><b id="generator-issued">${count} / ${max}</b><small>in diesem Lauf gesendet</small></div><div><b id="generator-next">${S(next)}</b><small>nächste Zustellung</small></div></div>
+   <p class="hint">Vier Sprachstile · zufällige, unabhängige Absendernamen · 600-Texte-Wiederholungssperre · fällige Wellen beim nächsten Seitenaufruf (oder exakt per STRATO-Cronjob).</p>
+   <form data-form="${active?'generator-update':'generator-start'}" class="gen-form">
+     ${!active?`<div class="form-field"><label for="gen-initial">Tickets direkt beim Start <b data-range-label="gen-initial">${startCount}</b></label><input id="gen-initial" name="initial_count" type="range" min="0" max="100" step="5" value="${startCount}" aria-label="Sofort zu Beginn" /></div>`:''}
+     <div class="form-field"><label for="gen-rate">Neue Tickets je Welle <b data-range-label="gen-rate">${rate}</b></label><input id="gen-rate" name="batch_count" type="range" min="1" max="30" step="1" value="${rate}" aria-label="Ticketanzahl pro Welle" /></div>
+     <div class="form-field"><label for="gen-interval">Abstand zwischen Wellen <b><span data-range-label="gen-interval">${period}</span> Min.</b></label><input id="gen-interval" name="interval_minutes" type="range" min="1" max="60" step="1" value="${period}" aria-label="Zeitabstand in Minuten" /></div>
+     <div class="form-field"><label for="gen-limit">Maximal für diesen Lauf</label><input id="gen-limit" type="number" name="max_total" value="${max}" min="100" max="5000" step="50" required /></div>
+     <div class="gen-actions"><button class="btn btn-primary" type="submit">${active?'Einstellungen übernehmen':'▶ Lauf starten'}</button>
+       ${running?'<button class="btn" type="button" data-action="generator-pause">Ⅱ Pausieren</button>':''}
+       ${paused?'<button class="btn btn-primary" type="button" data-action="generator-resume">▶ Fortsetzen</button>':''}
+       ${active?'<button class="btn btn-danger" type="button" data-action="generator-stop">■ Lauf stoppen</button>':''}
+     </div>
+   </form>
+   <p class="hint">Der Start erzeugt standardmäßig sofort 100 veröffentlichte Übungstickets. Das Stoppen löscht <strong>keine</strong> bereits erzeugten Tickets. Automatische Kundenantworten sind nicht aktiviert.</p>
+ </section>`;
+}
 function trainingView(){const drafts=state.list.items||[];
-return `<div class="view-grid"><section class="card panel-pad"><h2>Neuen Übungsfall vorbereiten</h2><form data-form="training"><div class="form-field"><label for="training-subject">Betreff</label><input id="training-subject" name="subject" required minlength="4" maxlength="180" placeholder="z. B. DHCP-Server nicht erreichbar"></div>
+return `<div class="view-grid">${generatorPanel()}<section class="card panel-pad"><h2>Neuen Übungsfall vorbereiten</h2><form data-form="training"><div class="form-field"><label for="training-subject">Betreff</label><input id="training-subject" name="subject" required minlength="4" maxlength="180" placeholder="z. B. DHCP-Server nicht erreichbar"></div>
 <div class="form-grid"><div class="form-field"><label for="training-category">Kategorie</label><select id="training-category" name="category_id">${categoryOptions(null)}</select></div><div class="form-field"><label for="training-prio">Priorität</label><select id="training-prio" name="priority">${selectOptions(priorityLabels,'normal')}</select></div></div>
 <div class="form-field"><label for="training-description">Simulierte Kundenanfrage</label><textarea id="training-description" name="description" required minlength="10" maxlength="15000"></textarea></div>
 <div class="form-field"><label for="training-solution">Musterlösung (nur Dozent sichtbar)</label><textarea id="training-solution" name="sample_solution" minlength="3" required maxlength="20000"></textarea></div>
@@ -189,7 +214,7 @@ async function route(view,opts={}){
      if(state.private)await api('private_read',state.actor.role==='admin'?{guest_id:state.pmGuest}:{});
    }else if(view==='stats'){state.ranking=await api('supporter_stats')}
    else if(view==='reviews'){state.reviews=await api('reviews')}
-   else if(view==='training'){state.list=await api('tickets',null,{filter:'drafts'});}
+   else if(view==='training'){[state.list,state.generator]=await Promise.all([api('tickets',null,{filter:'drafts'}),api('generator_status')]);}
    else if(view==='audit'){state.audit=await api('audit');}
    else if(view==='settings'){state.allCategories=await api('categories_admin');}
  }catch(e){toast(e.message,true)}finally{if(seq===state.requestSeq){state.loading=false;draw();scrollChats()}}
@@ -245,6 +270,12 @@ async function doClick(node){const action=node.dataset.action;const id=+(node.da
  if(action==='publish-many'){const ids=[...document.querySelectorAll('.training-check:checked')].map(x=>+x.value);
    if(!ids.length)return toast('Bitte zuerst Entwürfe auswählen.',true);
    if(await post('publish_many',{ids})){toast(ids.length+' Übungsfälle zur Veröffentlichung ausgewählt.');await route('training')}return;}
+ if(action==='generator-pause'||action==='generator-resume'||action==='generator-stop'){
+   const verb=action.split('-')[1];
+   if(verb==='stop'&&!confirm('Ticket-Zustrom stoppen? Bereits eingegangene Tickets bleiben erhalten.'))return;
+   if(await post('generator_'+verb,{})){toast(verb==='pause'?'Lauf pausiert.':verb==='resume'?'Lauf fortgesetzt.':'Lauf gestoppt.');await route('training');}
+   return;
+ }
  if(action==='training-reset'){const answer=prompt('Nur Übungsfälle werden dauerhaft gelöscht. Zur Bestätigung exakt eingeben:\nÜBUNGSFÄLLE LÖSCHEN');
    if(answer==='ÜBUNGSFÄLLE LÖSCHEN'){const r=await post('training_reset',{confirm:answer});if(r){toast(r.deleted+' Übungsfälle gelöscht.');await route('training')}}return;}
  if(action==='participant-tickets'){await route('tickets',{selectFirst:false});state.search=node.dataset.name;state.page=1;await refreshCurrent(false);return;}
@@ -272,7 +303,11 @@ document.addEventListener('change',async e=>{const input=e.target;
  const d={id};if(change==='status')d.status=input.value;if(change==='priority')d.priority=input.value;if(change==='category')d.category_id=+input.value;
  if(await post(change,d)){toast('Änderung gespeichert.');await refreshCurrent();}else await openTicket(id);
 });
-let searchTimer=null;document.addEventListener('input',e=>{if(e.target.id==='ticket-search'){
+let searchTimer=null;document.addEventListener('input',e=>{
+ if(e.target.matches('input[type=range]')&&e.target.id.startsWith('gen-')){
+   const label=document.querySelector(`[data-range-label="${e.target.id}"]`);if(label)label.textContent=e.target.value;
+ }
+ if(e.target.id==='ticket-search'){
  const value=e.target.value;clearTimeout(searchTimer);searchTimer=setTimeout(async()=>{state.search=value;state.page=1;await refreshCurrent(false);document.getElementById('ticket-search')?.focus()},420);}});
 document.addEventListener('submit',async e=>{const form=e.target;if(!form.matches('[data-form]'))return;e.preventDefault();
  const what=form.dataset.form;const data=Object.fromEntries(new FormData(form).entries());const submit=form.querySelector('[type="submit"]');if(submit)submit.disabled=true;
@@ -281,6 +316,12 @@ document.addEventListener('submit',async e=>{const form=e.target;if(!form.matche
    const a=what==='guest-login'?'login_guest':'login_admin';if(a==='login_guest')data.role=state.roleChoice;
    const r=await post(a,data);if(!r)return;state.csrf=r.csrf;const session=await api('session');state.actor=session.actor;state.categories=session.categories;state.csrf=session.csrf;
    state.adminLogin=false;await route(state.actor.role==='customer'?'tickets':'dashboard');return;
+  }
+  if(what==='generator-start'||what==='generator-update'){
+   for(const key of ['initial_count','batch_count','interval_minutes','max_total'])if(data[key]!==undefined)data[key]=Number(data[key]);
+   const response=await post(what==='generator-start'?'generator_start':'generator_update',data);
+   if(response){toast(what==='generator-start'?`${response.created} Übungstickets im Pool veröffentlicht.`:'Zustellfrequenz angepasst.');await route('training');}
+   return;
   }
   if(what==='create'||what==='training'){
    data.category_id=+data.category_id;const r=await post(what==='create'?'ticket_create':'training_create',data);if(!r)return;
@@ -313,6 +354,12 @@ setInterval(async()=>{
  try{const x=await api('unread');const changed=state.lastUpdated!==null&&state.lastUpdated!==x.updated;
    state.lastUpdated=x.updated;const unreadChanged=state.unread!==x.unread_pm;state.unread=x.unread_pm;
    if(document.activeElement?.matches('input,textarea,select,[contenteditable]'))return;
+   if(state.view==='training'&&state.actor.role==='admin'){
+     try{state.generator=await api('generator_status');const count=state.generator.run;
+       const issued=document.getElementById('generator-issued');if(issued)issued.textContent=count.generated+' / '+count.max_total;
+       const next=document.getElementById('generator-next');if(next)next.textContent=count.next_due_at?fmt(count.next_due_at):'—';
+     }catch(_){/* unaufdringlich erneut versuchen */}
+   }
    if(changed&&['dashboard','tickets','mine'].includes(state.view))await refreshCurrent();
    else if(unreadChanged){if(state.view==='messages')await route('messages');else draw();}
  }catch(_){/* Nächster Abgleich versucht es erneut. */}
