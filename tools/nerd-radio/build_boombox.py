@@ -232,17 +232,6 @@ def mat_grille(name):
     nt.links.new(hole, bump.inputs['Height']); nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
-def mat_card(name):
-    m = bpy.data.materials.new(name); nt = nodes(m)
-    b = principled(nt, **{'Roughness': 0.85})
-    n = noise(nt, 40, 8, 0.7).outputs['Fac']
-    col = mix_color(nt, n, (0.42, 0.28, 0.13), (0.62, 0.45, 0.24))
-    col = mix_color(nt, ramp(nt, noise(nt, 4, 6).outputs['Fac'], [(0.55, (0, 0, 0)), (0.75, (1, 1, 1))]), col, (0.3, 0.19, 0.08))
-    nt.links.new(col, b.inputs['Base Color'])
-    bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.25
-    nt.links.new(n, bump.inputs['Height']); nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
-    return m
-
 CYAN, GOLD, ORANGE = (0.0, 0.62, 1.0), (1.0, 0.42, 0.0), (1.0, 0.22, 0.0)
 GLASS = (0.035, 0.04, 0.045)
 M = {
@@ -251,7 +240,6 @@ M = {
     'panel': mat_metal('panel', (0.055, 0.062, 0.072), rust=0.04, wear=0.6, rough=0.34),
     'dark': mat_metal('dark', (0.026, 0.03, 0.035), rust=0.0, wear=0.3, rough=0.48),
     'handle': mat_metal('handle', (0.045, 0.05, 0.058), rust=0.04, wear=0.6, rough=0.32),
-    'badge': mat_metal('badge', (0.07, 0.076, 0.084), rust=0.0, wear=0.5, rough=0.28),
     'chrome': mat_simple('chrome', (0.85, 0.88, 0.9), 1.0, 0.12),
     # Gebürstetes Silber: matter als Chrom, damit es vor dunkler Umgebung hell und silbern wirkt
     'silver': mat_simple('silver', (0.78, 0.8, 0.83), 0.55, 0.3),
@@ -263,9 +251,6 @@ M = {
     'pixel_c': mat_simple('pixel_c', GLASS, rough=0.3, emit=CYAN, strength=2.2),
     'hazard': mat_hazard('hazard'),
     'grille': mat_grille('grille'),
-    'card': mat_card('card'),
-    'ink': mat_simple('ink', (0.02, 0.015, 0.01), rough=0.6),
-    'heart': mat_simple('heart', (0.8, 0.03, 0.03), rough=0.4, emit=(1, 0.05, 0.05), strength=0.6),
     'bolt': mat_simple('bolt', (0.5, 0.52, 0.55), 1.0, 0.3),
     'void': mat_simple('void', (0.004, 0.005, 0.006), rough=0.9),
     'lcdwell': mat_simple('lcdwell', (0.004, 0.012, 0.016), rough=0.7),
@@ -351,9 +336,7 @@ prism('handle_grip', rect(380, 14, 620, 32, 6), 0.46, 0.4, M['dark'], bevel=0.02
 for x0 in (296, 652):
     prism(f'handle_hazard{x0}', rect(x0, 13, x0 + 52, 33, 0), 0.47, 0.05, M['hazard'], bevel=0)
 
-# Typenschild mit Schriftzug: kompakt, „DAU to“ in Silber, „PRO“ in Gold
-badge = prism('badge', [(392, 70), (406, 58), (594, 58), (608, 70), (608, 104), (595, 116), (405, 116), (392, 104)], -0.16, 0.5, M['badge'], bevel=0.025)
-tube('badge_neon', [(408, 110), (592, 110)], -0.17, 0.007, M['neon_c'])
+# Schriftzug „DAU to PRO“: erhabene Metallbuchstaben direkt auf der Front, rechts oben über dem Lautsprecher
 def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll='chassis', align='CENTER'):
     cu = bpy.data.curves.new('txt', 'FONT'); cu.body = body_txt; cu.size = size
     if fnt: cu.font = fnt
@@ -361,12 +344,13 @@ def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll
     ob = link(bpy.data.objects.new('txt_' + body_txt, cu), coll); ob.location = (X(x), d, Z(y)); ob.rotation_euler = (math.pi / 2, 0, 0)
     ob.data.materials.append(mat); return ob
 blk = font('ariblk.ttf')
-text('DAU', 457, 103, 0.36, M['silver'], blk, extrude=0.02)
-text('TO', 504, 101, 0.22, M['silver'], blk, extrude=0.02)
-text('PRO', 554, 103, 0.36, M['goldmetal'], blk, extrude=0.02)
+LOGO_D = -0.095   # Frontplatte liegt bei -0.07, Buchstaben stehen 0,05 hervor
+text('DAU', 783, 143, 0.36, M['silver'], blk, d=LOGO_D, extrude=0.02)
+text('TO', 830, 140, 0.22, M['silver'], blk, d=LOGO_D, extrude=0.02)
+text('PRO', 877, 143, 0.36, M['goldmetal'], blk, d=LOGO_D, extrude=0.02)
 
 # Warnstreifen, Neon, Schrauben, Lüftung
-for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)], [(882, 124), (794, 124), (806, 140), (894, 140)],
+for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)],   # rechts oben sitzt statt Warnstreifen der Schriftzug
             [(292, 106), (330, 106), (322, 120), (284, 120)], [(670, 106), (708, 106), (716, 120), (678, 120)]):
     prism('hazard', pts, -0.09, 0.05, M['hazard'], bevel=0.004)
 tube('neon_back_l', [(52, 140), (106, 74), (318, 74)], 0.5, 0.02, M['neon_c'])
@@ -388,26 +372,6 @@ for k in range(5):
     prism('vent_side', rect(912, 200 + k * 12, 944, 206 + k * 12, 2), -0.08, 0.03, M['void'], bevel=0.003)
     prism('vent_side', rect(56, 200 + k * 12, 88, 206 + k * 12, 2), -0.08, 0.03, M['void'], bevel=0.003)
 
-# Aufkleber "NERD MUSIC" mit Pixelherz
-card = prism('sticker', [(744, 84), (860, 78), (866, 152), (748, 160)], -0.2, 0.012, M['card'], bevel=0.003)
-pv = Vector((X(806), 0, Z(120)))
-sticker_parts = [card]
-print_font = font('segoeprb.ttf') or font('segoepr.ttf')
-sticker_parts.append(text('NERD', 800, 114, 0.27, M['ink'], print_font, d=-0.215, shear=0, extrude=0.002))
-sticker_parts.append(text('MUSIC', 800, 146, 0.25, M['ink'], print_font, d=-0.215, shear=0, extrude=0.002))
-HEART = ['.XX.XX.', 'XXXXXXX', 'XXXXXXX', '.XXXXX.', '..XXX..', '...X...']
-for r, line in enumerate(HEART):
-    for c, ch in enumerate(line):
-        if ch == 'X':
-            bpy.ops.mesh.primitive_cube_add(size=1, location=(X(838 + c * 3.2), -0.215, Z(94 + r * 3.2)))
-            ob = bpy.context.object; ob.scale = (0.03, 0.006, 0.03)
-            for cc in ob.users_collection: cc.objects.unlink(ob)
-            link(ob); ob.data.materials.append(M['heart']); sticker_parts.append(ob)
-pivot = bpy.data.objects.new("sticker_pivot", None); scene.collection.objects.link(pivot); pivot.location = pv
-bpy.context.view_layer.update()
-for ob in sticker_parts:
-    ob.parent = pivot; ob.matrix_parent_inverse = pivot.matrix_world.inverted()
-pivot.rotation_euler.y = math.radians(-12)   # gegen den Uhrzeigersinn, wie in der Referenz
 
 
 # Rechte Gehäuseseite (durch die schräge Kamera sichtbar): Lüftung, Gold-Neon, Logo-Ring
@@ -620,7 +584,7 @@ for i, (x, y) in enumerate(SPK):
     glow_lamp(f'gl_px{i}', (X(x), -0.35, Z(y)), 25, 0.3, CYAN, 'cyan')
 LAMPS = [o for o in scene.objects if o.type == 'LIGHT' and 'group' not in o]
 GLOW = [o for o in scene.objects if o.type == 'LIGHT' and 'group' in o]
-STATIC_EMIT = [M['heart']]
+STATIC_EMIT = []
 def lamps(on, group=None):
     for o in LAMPS: o.hide_render = not on
     for o in GLOW: o.hide_render = o['group'] != group
