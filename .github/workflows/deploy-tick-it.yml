@@ -28,6 +28,7 @@ jobs:
           find tick-it -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check tick-it/assets/app.js
           php tick-it/tests/generator-tests.php
+          node tick-it/tests/update-notice-tests.js
           # The helper checks do not require MySQL.
           test -f tick-it/.htaccess
           test -f tick-it/database/schema.sql
@@ -52,7 +53,7 @@ jobs:
         shell: bash
         run: |
           python - <<'PY'
-          import os, pathlib, posixpath, subprocess, tempfile
+          import datetime, io, json, os, pathlib, posixpath, re, subprocess, tempfile
           import paramiko
 
           needed = ('STRATO_HOST','STRATO_USER','STRATO_PASSWORD','STRATO_REMOTE_PATH','STRATO_KNOWN_HOSTS')
@@ -70,14 +71,18 @@ jobs:
               rel = pathlib.PurePosixPath(os.fsdecode(raw))
               parts = rel.parts
               if len(parts)<2 or parts[0]!='tick-it' or '..' in parts: continue
-              if any(part in ('storage','uploads','tests','vendor','data') for part in parts[1:-1]): continue
-              if parts[-1] in ('config.local.php',) or parts[-1].startswith('.env'): continue
+              if any(part in ('storage','uploads','tests','vendor','data','runtime','backups','sessions','cache') for part in parts[1:-1]): continue
+              if parts[-1] in ('config.local.php','release.json') or parts[-1].startswith('.env'): continue
               if rel.suffix.lower() not in allow and parts[-1] != '.htaccess': continue
               local = pathlib.Path(*parts)
               if not local.is_file() or local.is_symlink(): continue
               paths.append((local,'/'.join(parts[1:])))
           if not any(rel == '.htaccess' for _,rel in paths): raise SystemExit('Missing Tick-It access protection')
           if not any(rel == 'index.php' for _,rel in paths): raise SystemExit('Missing Tick-It index')
+          if not any(rel == 'version.php' for _,rel in paths): raise SystemExit('Missing version endpoint')
+          if not any(rel == 'assets/update-notice.js' for _,rel in paths): raise SystemExit('Missing update notification')
+          # Code-Updates kopieren oder ändern weder Datenbankinhalte noch Sessions/Uploads.
+          # Es werden ausschließlich freigegebene Quellcodedateien übertragen, nie DELETE/DROP/Migrationen ausgeführt.
           paths.sort(key=lambda item: ({'.htaccess':0,'tick-it-deployment.json':1}.get(item[1],2),item[1]))
 
           with tempfile.NamedTemporaryFile(mode='w',encoding='utf8') as known_file:
@@ -111,9 +116,21 @@ jobs:
                               curr=posixpath.join(curr,piece)
                               try:sftp.stat(curr)
                               except OSError:sftp.mkdir(curr)
-                          sftp.put(str(local),posixpath.join(target,relative),confirm=True)
-                          print('Uploaded tick-it/'+relative)
-                      print('Tick-It source deployment complete. DB setup is separate.')
+                          destination=posixpath.join(target,relative)
+                          temporary=destination+'.uploading'
+                          sftp.put(str(local),temporary,confirm=True)
+                          sftp.posix_rename(temporary,destination)
+                          print('Uploaded atomically tick-it/'+relative)
+                      # Release-ID erst NACH allen Dateien atomar aktivieren.
+                      # Browser sehen eine neue Version nur nach vollständig erfolgreichem Upload.
+                      revision=os.environ['GITHUB_SHA']
+                      if not re.fullmatch(r'[a-f0-9]{40}', revision):
+                          raise SystemExit('Invalid git revision; release not activated')
+                      receipt=json.dumps({'revision':revision,'published_at':datetime.datetime.now(datetime.timezone.utc).isoformat()},sort_keys=True).encode('utf-8')
+                      release=posixpath.join(target,'release.json')
+                      sftp.putfo(io.BytesIO(receipt),release+'.tmp',confirm=True)
+                      sftp.posix_rename(release+'.tmp',release)
+                      print('Tick-It release activated: '+revision[:12]+'. Existing tickets, assignments, messages, sessions, and database data left untouched.')
                   finally:sftp.close()
               finally:ssh.close()
           PY

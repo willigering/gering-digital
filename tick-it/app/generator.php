@@ -101,21 +101,32 @@ function generator_issue_locked(int $n, int $runNo, int $adminId): array {
 }
 function generator_start(array $d): array {
     $admin=must_admin();generator_schema();$p=generator_parameters($d);
+    // Der Lauf wird zunächst ohne 100 einzelne INSERTs angelegt.
+    // Die Sofort-Tickets folgen in kleinen, wiederaufnehmbaren Transaktionen.
+    // So kann ein PHP-Timeout keinen bereits gestarteten Lauf doppelt auslösen.
     db()->beginTransaction();
     try {
         $control=generator_control(true);
-        if ($control['status']==='running') app_error('Ein Lauf ist bereits aktiv. Zuerst stoppen oder pausieren.',409);
+        if ($control['status']==='running' || $control['status']==='paused') {
+            app_error('Ein Lauf ist bereits aktiv. Zuerst stoppen.',409);
+        }
         $runNo=(int)$control['run_no']+1;
-        $ids=generator_issue_locked($p['initial'],$runNo,(int)$admin['id']);
-        $finished=count($ids)>=$p['limit'];
-        sql("UPDATE generator_control SET run_no=?,status=?,initial_count=?,batch_count=?,interval_minutes=?,max_total=?,generated=?,
-            created_by_admin_id=?,started_at=UTC_TIMESTAMP(),last_emitted_at=IF(? > 0,UTC_TIMESTAMP(),NULL),
-            next_due_at=IF(?=1,NULL,DATE_ADD(UTC_TIMESTAMP(),INTERVAL ? MINUTE)),stopped_at=NULL WHERE id=1",
-            [$runNo,$finished?'complete':'running',$p['initial'],$p['batch'],$p['interval'],$p['limit'],count($ids),$admin['id'],count($ids),$finished?1:0,$p['interval']]);
+        sql("UPDATE generator_control SET run_no=?,status='running',initial_count=?,batch_count=?,interval_minutes=?,max_total=?,generated=0,
+            created_by_admin_id=?,started_at=UTC_TIMESTAMP(),last_emitted_at=NULL,
+            next_due_at=IF(? > 0,UTC_TIMESTAMP(),DATE_ADD(UTC_TIMESTAMP(),INTERVAL ? MINUTE)),stopped_at=NULL WHERE id=1",
+            [$runNo,$p['initial'],$p['batch'],$p['interval'],$p['limit'],$admin['id'],$p['initial'],$p['interval']]);
         audit($admin,'generator_start','generator',$runNo,json_encode($p));
         db()->commit();
-        return ['run_no'=>$runNo,'created'=>count($ids),'status'=>$finished?'complete':'running'];
+        return ['run_no'=>$runNo,'created'=>0,'status'=>'running','initial_target'=>$p['initial']];
     } catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}
+}
+/** Genau eine kleine, transaktionsgesicherte Sofort-Welle nachliefern. */
+function generator_fill(): array {
+    must_admin();
+    $created=generator_tick();
+    $state=generator_control();
+    return ['created'=>$created,'generated'=>(int)$state['generated'],
+        'initial_target'=>(int)$state['initial_count'],'status'=>$state['status']];
 }
 function generator_update(array $d): array {
     $admin=must_admin();generator_schema();$p=generator_parameters($d);
@@ -147,29 +158,34 @@ function generator_switch(string $command): array {
     }catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}
 }
 function generator_tick(bool $schemaKnown=false): int {
-    // Wird vom Cron oder beim regulären Zugriff ausgeführt. Alle Webnutzer dürfen Fälligkeiten
-    // anstoßen, jedoch keine Parameter ändern: diese sind ausschließlich im Adminbereich verfügbar.
+    // Eine fällige Welle, immer mit SELECT FOR UPDATE gesperrt.
+    // Bei einem Start mit 100 Tickets sind maximal 10 pro Request erlaubt;
+    // andere Requests dürfen nach einer Unterbrechung nahtlos fortsetzen.
     try {
         $row=one("SELECT status,next_due_at FROM generator_control WHERE id=1 AND status='running' AND next_due_at<=UTC_TIMESTAMP()");
     }catch(PDOException $e){
-        if ($e->getCode()==='42S02' || ($e->errorInfo[1]??null)===1146) return 0; // Noch nicht initialisiert
+        if ($e->getCode()==='42S02' || ($e->errorInfo[1]??null)===1146) return 0;
         throw $e;
     }
     if (!$row) return 0;
     db()->beginTransaction();
     try {
         $control=generator_control(true);
-        if($control['status']!=='running' || !$control['next_due_at'] || strtotime($control['next_due_at'].' UTC')>time()) {
+        if ($control['status']!=='running' || !$control['next_due_at'] || strtotime($control['next_due_at'].' UTC')>time()) {
             db()->commit();return 0;
         }
         $remaining=(int)$control['max_total']-(int)$control['generated'];
-        $n=min((int)$control['batch_count'],$remaining,30);
+        $initialRemaining=max(0,(int)$control['initial_count']-(int)$control['generated']);
+        // 100 Sofort-Tickets: 10 sichere Requests statt 100 Tickets in einem einzigen Request.
+        $n=$initialRemaining>0 ? min(10,$initialRemaining,$remaining)
+                               : min((int)$control['batch_count'],$remaining,30);
         $ids=$n>0?generator_issue_locked($n,(int)$control['run_no'],(int)$control['created_by_admin_id']):[];
         $newTotal=(int)$control['generated']+count($ids);
         $finished=$newTotal>=(int)$control['max_total'];
+        $moreInitial=$newTotal<(int)$control['initial_count'];
         sql("UPDATE generator_control SET generated=?,last_emitted_at=UTC_TIMESTAMP(),status=?,
-          next_due_at=IF(?=1,NULL,DATE_ADD(UTC_TIMESTAMP(),INTERVAL ? MINUTE)) WHERE id=1",
-          [$newTotal,$finished?'complete':'running',$finished?1:0,(int)$control['interval_minutes']]);
+          next_due_at=IF(?=1,NULL,IF(?=1,UTC_TIMESTAMP(),DATE_ADD(UTC_TIMESTAMP(),INTERVAL ? MINUTE))) WHERE id=1",
+          [$newTotal,$finished?'complete':'running',$finished?1:0,$moreInitial?1:0,(int)$control['interval_minutes']]);
         db()->commit();return count($ids);
     } catch(Throwable $e){if(db()->inTransaction())db()->rollBack();throw $e;}
 }

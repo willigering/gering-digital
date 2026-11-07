@@ -106,3 +106,25 @@ Im Dozentenbereich unter **Schulungsfälle** befindet sich ein Regler-gesteuerte
 100 sofortige Übungstickets (änderbar auf 0–100), weitere 1–30 pro Welle im Abstand von 1–60 Minuten, Gesamtlimit 100–5000. Stoppen, pausieren und fortsetzen sind möglich. Kundennamen und Texte werden unabhängig gezogen. Die vergangenen 600 Formulierungen werden nach Möglichkeit gesperrt. Für bestehende Datenbanken werden nur drei neue, eigenständige Tabellen angelegt. Eine Datenbankmigration erfolgt automatisch beim ersten Aufruf der Dozentenansicht, ohne die bestehenden Tabellen zu verändern.
 
 Siehe [`GESCHAEFTSFAELLE.md`](GESCHAEFTSFAELLE.md) für Quellen, Technik, Einrichtung eines optionalen STRATO-Cronjobs und Testgrenzen.
+
+## Updatebenachrichtigung / Datenerhalt
+
+Nach jedem erfolgreichen Tick-It-Code-Deployment schreibt GitHub Actions **zuletzt**
+eine atomare Revisionsmarkierung. Offene Tabs prüfen bei aktiver Nutzung etwa
+jede Minute `version.php` und zeigen ein gut sichtbares Update-Fenster im
+DAU-to-Pro-Stil. Es verschwindet erst nach bewusster Aktualisierung, niemals
+automatisch. Offene Formulare werden vor einem Reload abgefangen.
+Das Deployment löscht **keine** Datenbankeinträge, Tickets, Notizen, Bewertungen,
+Kunden- und Supporterdaten und setzt **keine** Generatorläufe zurück.
+Weitere Regeln und Testgrenzen: `DEPLOYMENT.md`.
+
+
+### Generator: fehlertoleranter Start
+
+Bei 100 Soforttickets legt der Dozent den Lauf zunächst atomar an und danach
+werden bis zu zehn Tickets je HTTP-Anfrage erstellt. Die Oberfläche zeigt den
+Fortschritt an. Bei Netzwerkabbruch, PHP-Timeout oder einem geschlossenen Tab
+bleiben bereits angelegte Tickets erhalten und die fehlenden Tickets werden bei
+folgenden authentifizierten Aufrufen weiter erzeugt. Wiederholte Aufrufe
+verursachen keine doppelten Tickets. Bestehende Datenbanken werden beim
+Code-Deployment weder gelöscht noch migriert.

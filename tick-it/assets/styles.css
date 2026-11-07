@@ -18,3 +18,15 @@
 .gen-actions{grid-column:1/-1;display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;}
 .gen-actions button{min-height:42px;}
 @media(max-width:760px){.gen-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.gen-form{grid-template-columns:1fr;}.gen-actions .btn{flex:1 1 140px;}}
+
+/* Versionen werden nur nach ausdrücklichem Klick übernommen; niemals einen Ticket-Entwurf überblenden. */
+.tickit-update-notice{position:fixed;right:18px;bottom:86px;z-index:240;width:min(380px,calc(100vw - 28px));padding:18px;border:1px solid #26c9bd;border-radius:14px;background:#13252d;color:#eaf4f6;box-shadow:0 16px 48px #000c,0 0 0 1px #1b484b;animation:tickit-update-appear .25s ease-out}
+.tickit-update-notice strong{display:block;font-size:.95rem;letter-spacing:.035em;color:#55e6d9}
+.tickit-update-notice p{font-size:14px;font-weight:450;margin:10px 0 15px;line-height:1.5;color:#e0edf0}
+.tickit-update-notice button{width:100%;min-height:42px;border:1px solid #43f1df;background:#21d7c9;color:#052326;border-radius:9px;font-weight:800;transition:background .18s,transform .18s}
+.tickit-update-notice button:hover{background:#6af3e9;transform:translateY(-1px)}
+.tickit-update-notice button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.tickit-update-notice button:disabled{opacity:.6;cursor:default;transform:none}
+@keyframes tickit-update-appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:690px){.tickit-update-notice{bottom:72px;right:14px;left:14px;width:auto;padding:15px}}
+@media(prefers-reduced-motion:reduce){.tickit-update-notice{animation:none}.tickit-update-notice button{transition:none}}
