@@ -6,22 +6,24 @@
      das Display, die Tasten (Paket-Grafiken normal / hover / gedrückt) und der Lautstärkeregler.
    Positionen stehen in nerd-radio/layout.css (generiert von tools/nerd-radio/build_boombox.py).
    Schriftgrößen im Display in cqw (1 % der Frontbreite), damit alles als Ganzes skaliert.
-   Platzierung: eigene Zeile zwischen Hero und Trainingszone, rechts unter dem DAU-TO-PRO-Logo.
+   Platzierung: im Kopf der Trainingszone (Desktop rechts daneben ohne Platz im Seitenfluss, mobil unter der Überschrift).
    Das Gerät scrollt normal mit und ist während der Modulauswahl nicht mehr sichtbar.
    Modulraster und Modulstapel bleiben unverändert. */
 
-/* ---------- Platzierung ---------- */
-.nr-stage{position:relative;z-index:1;width:min(100%,var(--content,1200px));margin:-28px auto 0;padding-inline:32px}
-.nr-stage__inner{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:36px}
-.nr-rail{grid-column:2;justify-self:center;width:min(100%,560px)}
+/* ---------- Platzierung ----------
+   Im Kopf der Trainingszone: Desktop rechts neben Überschrift und Einleitung, ragt nach oben in den freien Raum
+   unter den Hero-Figuren und nimmt keinen Platz im Seitenfluss ein (die Trainingszone rutscht nicht nach unten).
+   Mobil steht es direkt unter der Überschrift. Es scrollt normal mit, die Modulauswahl darunter bleibt frei. */
+.catalog-section .section-shell{position:relative}
+.nr-stage{position:relative;z-index:2;width:min(100%,520px);margin:-6px auto 26px}
+.nr-stage__inner,.nr-rail{width:100%}
 .nr-pin{position:relative;padding:0 0 3%}
-@media(max-width:1060px){.nr-stage__inner{gap:20px}}
-@media(max-width:860px){
-  .nr-stage{margin-top:4px;padding-inline:24px}
-  .nr-stage__inner{display:block}
-  .nr-rail{width:min(100%,560px);margin-inline:auto}
+@media(min-width:861px){
+  .catalog-section{--nr-w:clamp(360px,36vw,470px)}
+  .nr-stage{position:absolute;right:32px;top:calc(var(--nr-w) * -.33);width:var(--nr-w);margin:0}   /* 32px = Innenabstand von .section-shell */
+  .catalog-section .section-heading{padding-right:calc(var(--nr-w) + 16px);min-height:calc(var(--nr-w) * .2)}
+  .catalog-section .section-heading .section-count{position:absolute;right:32px;top:calc(var(--nr-w) * .2)}
 }
-@media(max-width:610px){.nr-stage{padding-inline:20px}}
 
 /* ---------- Gerät ---------- */
 .nr-device{

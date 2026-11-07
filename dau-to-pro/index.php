@@ -102,74 +102,74 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       </div>
     </div>
   </section>
-  <aside class="nr-stage" aria-labelledby="nr-title">
-    <div class="nr-stage__inner">
-    <div class="nr-rail">
-      <div class="nr-pin">
-        <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
-          <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
-          <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
-          <div class="nr-face" data-radio-face>
-<?php $nrImg = function (string $file, string $cls, string $light = ''): string {
-            $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
-            return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
-          }; ?>
-          <!-- Lautsprecher: Membran schwingt mit dem Bass hinter dem stehenden Gitter mit eingesetztem Pixelpilz;
-               das RGB-Licht fällt auf die Membran und ist nur durch die Gitterlöcher zu sehen.
-               Darüber je ein RGB-LED-Ring um den Tieftöner (Farbe wandert, Helligkeit folgt dem Bass). -->
-<?php foreach (['l', 'r'] as $nrS): ?>
-          <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
-            <?=$nrImg("cone-$nrS", 'nr-cone__img')?><span class="nr-cone__mesh"></span><span class="nr-cone__shade"></span>
-          </div><?=$nrImg("grille-$nrS", 'nr-cone__grille')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?></div>
-          <div class="nr-led nr-cone--<?=$nrS?>" aria-hidden="true"></div>
-<?php endforeach; ?>
-          <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
-<?php foreach (['gold-edge', 'gold-halo', 'gold'] as $nrL): ?>
-          <div class="nr-glow nr-glow--<?=$nrL?>" data-radio-light="<?=$nrL?>" aria-hidden="true"><?=$nrImg("light-$nrL-l", "nr-glow__$nrL-l")?><?=$nrImg("light-$nrL-r", "nr-glow__$nrL-r")?></div>
-<?php endforeach; ?>
-          <div class="nr-display">
-            <div class="nr-display__glass">
-              <h2 id="nr-title" class="nr-sr">NERD FM</h2>
-              <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
-              <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
-              <div class="nr-display__meta">
-                <span class="nr-display__time" data-radio-elapsed>00:00</span>
-                <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
-                <span class="nr-display__time" data-radio-length>∞ LOOP</span>
-                <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
-                <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>
-              </div>
-              <div class="nr-playlist" id="nr-playlist" data-radio-playlist role="group" aria-label="Playlist" hidden>
-                <ol class="nr-playlist__list" data-radio-tracks></ol>
-              </div>
-            </div>
-            <p class="nr-sr" data-radio-status aria-live="polite"></p>
-          </div>
-          <div class="nr-transport" role="group" aria-label="Wiedergabe">
-            <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"></button>
-            <button class="nr-key" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"></button>
-            <button class="nr-key" type="button" data-radio-pause aria-label="Pause" title="Pause"></button>
-            <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"></button>
-            <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"></button>
-            <button class="nr-key" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"></button>
-          </div>
-          <button class="nr-key" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"></button>
-          <div class="nr-volume">
-            <img class="nr-volume__track" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
-            <img class="nr-volume__fill" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
-            <img class="nr-volume__knob" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
-            <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
-          </div>
-          <button class="nr-key" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"></button>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-  </aside>
   <section class="catalog-section" id="lernmodule" aria-labelledby="modules-title">
     <div class="section-shell">
       <div class="section-heading" data-reveal><div><span class="eyebrow"><?=e($c['modules_eyebrow'])?></span><h2 id="modules-title"><?=e($c['modules_title'])?><?php if($c['modules_title_highlight']!==''): ?> <span><?=e($c['modules_title_highlight'])?></span><?php endif; ?></h2><?php if($c['modules_intro']!==''): ?><p><?=dtp_inline($c['modules_intro'])?></p><?php endif; ?></div><span class="section-count"><?=count($modules)?> <?=count($modules)===1?'Modul':'Module'?></span></div>
+    <aside class="nr-stage" aria-labelledby="nr-title">
+      <div class="nr-stage__inner">
+      <div class="nr-rail">
+        <div class="nr-pin">
+          <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
+            <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+            <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
+            <div class="nr-face" data-radio-face>
+  <?php $nrImg = function (string $file, string $cls, string $light = ''): string {
+              $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
+              return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
+            }; ?>
+            <!-- Lautsprecher: Membran schwingt mit dem Bass hinter dem stehenden Gitter mit eingesetztem Pixelpilz;
+                 das RGB-Licht fällt auf die Membran und ist nur durch die Gitterlöcher zu sehen.
+                 Darüber je ein RGB-LED-Ring um den Tieftöner (Farbe wandert, Helligkeit folgt dem Bass). -->
+  <?php foreach (['l', 'r'] as $nrS): ?>
+            <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
+              <?=$nrImg("cone-$nrS", 'nr-cone__img')?><span class="nr-cone__mesh"></span><span class="nr-cone__shade"></span>
+            </div><?=$nrImg("grille-$nrS", 'nr-cone__grille')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?></div>
+            <div class="nr-led nr-cone--<?=$nrS?>" aria-hidden="true"></div>
+  <?php endforeach; ?>
+            <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
+  <?php foreach (['gold-edge', 'gold-halo', 'gold'] as $nrL): ?>
+            <div class="nr-glow nr-glow--<?=$nrL?>" data-radio-light="<?=$nrL?>" aria-hidden="true"><?=$nrImg("light-$nrL-l", "nr-glow__$nrL-l")?><?=$nrImg("light-$nrL-r", "nr-glow__$nrL-r")?></div>
+  <?php endforeach; ?>
+            <div class="nr-display">
+              <div class="nr-display__glass">
+                <h2 id="nr-title" class="nr-sr">NERD FM</h2>
+                <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
+                <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
+                <div class="nr-display__meta">
+                  <span class="nr-display__time" data-radio-elapsed>00:00</span>
+                  <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
+                  <span class="nr-display__time" data-radio-length>∞ LOOP</span>
+                  <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
+                  <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>
+                </div>
+                <div class="nr-playlist" id="nr-playlist" data-radio-playlist role="group" aria-label="Playlist" hidden>
+                  <ol class="nr-playlist__list" data-radio-tracks></ol>
+                </div>
+              </div>
+              <p class="nr-sr" data-radio-status aria-live="polite"></p>
+            </div>
+            <div class="nr-transport" role="group" aria-label="Wiedergabe">
+              <button class="nr-key" type="button" data-radio-prev aria-label="Vorheriger Titel" title="Vorheriger Titel"></button>
+              <button class="nr-key" type="button" data-radio-play aria-label="Abspielen" title="Abspielen / Pause"></button>
+              <button class="nr-key" type="button" data-radio-pause aria-label="Pause" title="Pause"></button>
+              <button class="nr-key" type="button" data-radio-stop aria-label="Stopp" title="Stopp"></button>
+              <button class="nr-key" type="button" data-radio-next aria-label="Nächster Titel" title="Nächster Titel"></button>
+              <button class="nr-key" type="button" data-radio-shuffle aria-label="Zufälligen Titel abspielen" title="Zufälliger Titel"></button>
+            </div>
+            <button class="nr-key" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"></button>
+            <div class="nr-volume">
+              <img class="nr-volume__track" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
+              <img class="nr-volume__fill" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
+              <img class="nr-volume__knob" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
+              <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
+            </div>
+            <button class="nr-key" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </aside>
       <div class="catalog-panel">
         <?php if($modules): ?>
         <div class="filterbar" role="group" aria-label="Lernmodule nach Thema">

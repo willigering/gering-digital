@@ -1,5 +1,5 @@
 'use strict';
-// NERD RADIO: Bedienung, echte Audiodaten, eigene Audiodateien, Platzierung unter dem Hero, Mobilansicht.
+// NERD FM: Bedienung, echte Audiodaten, eigene Audiodateien, Platzierung im Kopf der Trainingszone, Mobilansicht.
 // npm install --no-save playwright@1.62.1; npx playwright install chromium
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -55,12 +55,12 @@ let server, browser;
   browser = await chromium.launch({ headless: true, ...(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {}), args: ['--no-sandbox'] });
   const errors = [];
 
-  /* ---------- Platzierung: unter dem Hero, rechts unter dem Logo, scrollt normal mit ---------- */
+  /* ---------- Platzierung: Desktop rechts im Kopf der Trainingszone (ohne Platz im Fluss), mobil unter der Überschrift ---------- */
   const layout = page => page.evaluate(() => {
     const box = e => e.getBoundingClientRect();
     const device = box(document.querySelector('.nr-device'));
     const cards = [...document.querySelectorAll('#module-grid .module-card')].filter(c => !c.closest('.stack-row.is-behind') && c.getClientRects().length);
-    const blocks = [...cards, ...document.querySelectorAll('.hero-copy,.catalog-section .section-heading,.filterbar')].map(box);
+    const blocks = [...cards, ...document.querySelectorAll('.hero-copy,.catalog-section .section-heading>div,.catalog-section .section-count,.filterbar')].map(box);
     // Nur sichtbare Überdeckung zählt: Schnittfläche innerhalb des Viewports.
     const top = Math.max(0, device.top), bottom = Math.min(innerHeight, device.bottom);
     const hit = r => bottom > top && !(r.right <= device.left || r.left >= device.right || Math.min(r.bottom, innerHeight) <= top || Math.max(r.top, 0) >= bottom);
@@ -73,6 +73,9 @@ let server, browser;
       device: { left: device.left, right: device.right, top: device.top, bottom: device.bottom, width: device.width, center: (device.left + device.right) / 2 },
       overlaps: blocks.filter(hit).length, nav,
       heroBottom: box(document.querySelector('.hero-inner')).bottom,
+      art: (({ top, height }) => ({ top, height }))(box(document.querySelector('.hero-art-wrap'))),
+      stagePos: getComputedStyle(document.querySelector('.nr-stage')).position,
+      headingTextBottom: box(document.querySelector('.catalog-section .section-heading>div')).bottom,
       headingTop: box(document.querySelector('.catalog-section .section-heading')).top,
       gridTop: box(document.getElementById('module-grid')).top,
       stageWidth: document.querySelector('.nr-rail').offsetWidth
@@ -87,9 +90,21 @@ let server, browser;
     assert.equal(g.players, 1, `Genau ein Player bei ${width}`);
     assert.ok(g.overflow <= 0, `Kein horizontales Scrollen bei ${width}: ${g.overflow}`);
     assert.ok(Math.abs(g.cardsCenter - g.pageCenter) < 1.5, `Modulkarten bleiben mittig bei ${width}: ${g.cardsCenter} vs ${g.pageCenter}`);
-    assert.ok(g.device.top >= g.heroBottom - 1, `Gerät steht unter dem Hero bei ${width}`);
-    assert.ok(g.device.bottom <= g.headingTop, `Gerät steht über der Trainingszone bei ${width}`);
-    if (width > 860) assert.ok(g.device.center > g.pageCenter, `Gerät steht rechts unter dem Logo bei ${width}`);
+    // Die Trainingszone rutscht durch das Gerät nicht nach unten: Überschrift steht wie ohne Gerät.
+    const headingWithout = await page.evaluate(() => {
+      const st = document.querySelector('.nr-stage'); st.style.display = 'none';
+      const t = document.querySelector('.catalog-section .section-heading').getBoundingClientRect().top;
+      st.style.display = ''; return t;
+    });
+    if (width > 860) {
+      assert.equal(g.stagePos, 'absolute', `Gerät nimmt keinen Platz im Seitenfluss ein bei ${width}`);
+      assert.ok(Math.abs(g.headingTop - headingWithout) < 1, `Trainingszone wird nicht nach unten geschoben bei ${width}`);
+      assert.ok(g.device.top >= g.art.top + g.art.height * 0.85, `Gerät steht unter den Hero-Figuren bei ${width}`);
+      assert.ok(g.device.bottom <= g.gridTop, `Gerät endet über der Modulauswahl bei ${width}`);
+      assert.ok(g.device.center > g.pageCenter, `Gerät steht rechts bei ${width}`);
+    } else {
+      assert.ok(g.device.top >= g.headingTextBottom - 1 && g.device.bottom <= g.gridTop, `Mobil: Gerät zwischen Überschrift und Modulauswahl bei ${width}`);
+    }
     assert.ok(g.stageWidth <= Math.min(560, width - 40) + 1, `Gerät passt in die Breite bei ${width}`);
     assert.ok(g.device.width >= Math.min(280, width - 48), `Gerät bleibt bedienbar groß bei ${width}: ${g.device.width}`);
     // Die ganze Startseite bis unter die Module durchscrollen: nie eine Überdeckung,
@@ -102,7 +117,7 @@ let server, browser;
       if (s.gridTop <= s.nav + 20) assert.ok(s.device.bottom <= s.nav, `Gerät ist während der Modulauswahl nicht sichtbar (${width}, y=${y})`);
     }
     if (shots) { await page.evaluate(() => scrollTo(0, 0)); await pause(200); await page.screenshot({ path: path.join(shots, `layout-${width}.png`), fullPage: width < 800 }); }
-    console.log(`${width}×${height}: Gerät ${g.device.width.toFixed(0)} px unter dem Hero, Karten mittig, keine Überdeckung`);
+    console.log(`${width}×${height}: Gerät ${g.device.width.toFixed(0)} px im Kopf der Trainingszone, Karten mittig, keine Überdeckung`);
     await context.close();
   }
 
