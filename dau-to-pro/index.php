@@ -108,8 +108,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
           <div class="nr-face" data-radio-face>
           <!-- Echtes Licht: nur Lautsprecherringe (Gold = Bass) und Pixelpilze (Cyan = Höhen) leuchten, Helligkeit folgt der Musik -->
-          <div class="nr-glow" data-radio-light="gold" aria-hidden="true"><img src="nerd-radio/light-gold.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold.webp')?>" alt="" decoding="async"></div>
-          <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img src="nerd-radio/light-cyan.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan.webp')?>" alt="" decoding="async"></div>
+          <div class="nr-glow" data-radio-light="gold" aria-hidden="true"><img class="nr-glow__gold-l" src="nerd-radio/light-gold-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-l.webp')?>" alt="" decoding="async"><img class="nr-glow__gold-r" src="nerd-radio/light-gold-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-r.webp')?>" alt="" decoding="async"></div>
+          <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img class="nr-glow__cyan-l" src="nerd-radio/light-cyan-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-l.webp')?>" alt="" decoding="async"><img class="nr-glow__cyan-r" src="nerd-radio/light-cyan-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-r.webp')?>" alt="" decoding="async"></div>
           <div class="nr-display">
             <div class="nr-display__glass">
               <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>

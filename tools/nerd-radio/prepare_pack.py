@@ -7,8 +7,9 @@ Schritte:
 - Front-Textur für Blender (work/front.png, 2910 x 1242, Paket-Koordinaten): modulare Hülle mit
   ausgeschalteten Leuchten. Leuchtstreifen, Seitenschlitze und Neonlinien zum Griff werden abgedunkelt bzw.
   entfernt. In die Aussparungen kommen Lautsprecher (Gitter + Rand, Ring aus) und das leere Display-Glas.
-- Lichtebenen für die Website (light-gold.webp = Lautsprecherringe + Schein, light-cyan.webp = Pixelpilze +
-  Schein), deckungsgleich mit der Front. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
+- Lichtebenen für die Website (light-gold-l/r.webp = Lautsprecherringe + Schein, light-cyan-l/r.webp =
+  Pixelpilze + Schein), je Lautsprecher zugeschnitten, in voller Paketauflösung (Pilze verlustfrei, damit
+  die feinen Pixellinien scharf bleiben), Positionen in pack.json. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
 - Tasten (normal / hover / gedrückt) und Lautstärkeregler als WebP.
 - work/pack.json mit allen Platzierungen (Paket-Koordinaten) für build_boombox.py.
 """
@@ -27,7 +28,6 @@ A = lambda p: os.path.join(PACK, 'assets', p)
 os.makedirs(args.web, exist_ok=True); os.makedirs(args.work, exist_ok=True)
 manifest = json.load(open(os.path.join(PACK, 'manifest.json'), encoding='utf-8'))
 CW, CH = manifest['layout']['canvas']
-WEB_SCALE = 0.5   # Lichtebenen: halbe Paketauflösung reicht für max. 560 CSS-px Gerätebreite bei 2x
 
 def load(p):
     return np.asarray(Image.open(A(p)).convert('RGBA')).astype(np.float32) / 255
@@ -81,8 +81,8 @@ def resize(img, w, h):
     out = np.clip(out, 0, 1); out[..., :3] /= np.maximum(out[..., 3:4], 1e-5)
     return np.clip(out, 0, 1)
 
-def save(img, path, quality=86):
-    Image.fromarray((np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(path, 'WEBP', quality=quality, method=6)
+def save(img, path, quality=86, lossless=False):
+    Image.fromarray((np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(path, 'WEBP', quality=quality, method=6, lossless=lossless)
     print('WEB', os.path.basename(path), os.path.getsize(path))
 
 # ---------------------------------------------------------------- Hülle
@@ -155,9 +155,16 @@ Image.fromarray((np.clip(front, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').sav
 print('FRONT', front.shape)
 
 # ---------------------------------------------------------------- Website-Ebenen
-lw, lh = round(CW * WEB_SCALE), round(CH * WEB_SCALE)
-save(resize(gold, lw, lh), os.path.join(args.web, 'light-gold.webp'), 82)
-save(resize(cyan, lw, lh), os.path.join(args.web, 'light-cyan.webp'), 82)
+LIGHTS = {}
+for name, layer in (('gold', gold), ('cyan', cyan)):
+    for side, (x0, x1) in (('l', (0, CW // 2)), ('r', (CW // 2, CW))):
+        ys_, xs_ = np.nonzero(layer[:, x0:x1, 3] > 0.004)
+        bx0, by0, bx1, by1 = int(xs_.min() + x0), int(ys_.min()), int(xs_.max() + x0 + 1), int(ys_.max() + 1)
+        crop = layer[by0:by1, bx0:bx1]
+        crop[crop[..., 3] < 0.004] = 0      # transparente Pixel ohne Farbe -> kleinere Datei
+        # Pilze verlustfrei (feine Pixellinien, sonst verschmiert die Farbunterabtastung), Ringschein in hoher Qualität
+        save(crop, os.path.join(args.web, f'light-{name}-{side}.webp'), quality=92, lossless=(name == 'cyan'))
+        LIGHTS[f'{name}-{side}'] = [bx0, by0, bx1 - bx0, by1 - by0]
 
 KEY_W = 200   # Tasten: 416 x 320 im Paket -> 200 px breit (reicht für 2x bei max. Gerätegröße)
 KEYS = ['previous', 'play', 'pause', 'stop', 'next', 'shuffle', 'settings', 'playlist']
@@ -170,6 +177,6 @@ for src, dst, w in (('volume/volume-track.png', 'vol-track.webp', 512), ('volume
     img = load(src); save(resize(img, w, round(w * img.shape[0] / img.shape[1])), os.path.join(args.web, dst))
 
 json.dump({'canvas': [CW, CH], 'display': manifest['layout']['display'], 'display_hole': DISP,
-           'controls': manifest['layout']['controls'], 'volume': manifest['layout']['volume'], 'speakers': layout_spk},
+           'controls': manifest['layout']['controls'], 'volume': manifest['layout']['volume'], 'speakers': layout_spk, 'lights': LIGHTS},
           open(os.path.join(args.work, 'pack.json'), 'w'), indent=1)
 print('PACK', json.dumps(layout_spk), DISP)

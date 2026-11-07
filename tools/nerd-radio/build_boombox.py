@@ -139,8 +139,9 @@ try:
     scene.cycles.device = 'GPU'
 except Exception:
     scene.cycles.device = 'CPU'
-scene.cycles.samples = 64 if PREVIEW else 256
-scene.cycles.use_denoising = True
+scene.cycles.samples = 64 if PREVIEW else 1024
+# Kein Denoiser: er würde die feinen Strukturen der Front-Textur weichzeichnen (die Front ist rauschfrei)
+scene.cycles.use_denoising = False
 scene.cycles.transparent_max_bounces = 16
 scene.render.film_transparent = True
 scene.view_settings.view_transform = 'Standard'   # Front-Textur 1:1
@@ -163,7 +164,7 @@ ims = r.image_settings; ims.file_format = 'PNG'; ims.color_mode = 'RGBA'
 r.filepath = os.path.join(RAW, 'base.png')
 bpy.ops.render.render(write_still=True)
 
-ims.file_format = 'WEBP'; ims.color_mode = 'RGBA'; ims.quality = 86
+ims.file_format = 'WEBP'; ims.color_mode = 'RGBA'; ims.quality = 92
 rimg = bpy.data.images.load(os.path.join(RAW, 'base.png'))
 rimg.save_render(os.path.join(OUT, 'base.webp'), scene=scene)
 rimg.scale(rimg.size[0] // 2, rimg.size[1] // 2)
@@ -186,6 +187,8 @@ lines = ['/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand 
          f'.nr-face{{width:{CW}px;height:{CH}px}}',
          f'.nr-display{{{place((dx0 + inset, dy0 + inset, dx1 - dx0 - 2 * inset, dy1 - dy0 - 2 * inset))}}}',
          f'.nr-volume{{{place(PACK["volume"])}}}']
+for key_, rect in PACK['lights'].items():
+    lines.append(f'.nr-glow__{key_}{{{place(rect)}}}')
 KEYMAP = {'prev': 'previous', 'play': 'play', 'pause': 'pause', 'stop': 'stop', 'next': 'next', 'shuffle': 'shuffle', 'mode': 'settings', 'list': 'playlist'}
 PRESSED = {'play': '.nr-device[data-state=playing] {k}', 'pause': '.nr-device[data-state=paused] {k}',
            'mode': '{k}[aria-pressed=true]', 'list': '{k}[aria-expanded=true]'}
