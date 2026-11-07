@@ -466,15 +466,17 @@ floor = None
 bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 2, Z(447)))
 floor = bpy.context.object; floor.name = 'floor_unused'; floor.hide_render = True  # Bodenschatten macht die Website
 
-# Leicht schräg: das Gerät ist um die Blickachse gekippt, die rechte Seite steht höher.
-# Frontal, mit leichter Aufsicht und mittlerer Brennweite.
-cam_d = bpy.data.cameras.new('cam'); cam_d.lens = 85; cam_d.sensor_width = 36
+# Leicht schräg: das Gerät ist um die senkrechte Achse gedreht, die vordere rechte Ecke
+# ist näher an der Kamera als die linke (rechter Lautsprecher wirkt größer).
+# Normalbrennweite aus der Nähe, damit die Perspektive sichtbar ist; kaum Aufsicht.
+cam_d = bpy.data.cameras.new('cam'); cam_d.lens = 50; cam_d.sensor_width = 36
 cam = bpy.data.objects.new('cam', cam_d); scene.collection.objects.link(cam); scene.camera = cam
 tilt = math.radians(4)
-dist = 27
-roll = math.radians(6)
-cam.location = (0, -dist * math.cos(tilt), dist * math.sin(tilt) + 0.15)
-cam.rotation_euler = (math.pi / 2 - tilt, roll, 0)
+dist = 16.5
+yaw = math.radians(34)
+roll = 0.0
+cam.location = (dist * math.cos(tilt) * math.sin(yaw), -dist * math.cos(tilt) * math.cos(yaw), dist * math.sin(tilt) + 0.15)
+cam.rotation_euler = (math.pi / 2 - tilt, roll, yaw)
 W, H = (1100, 560) if PREVIEW else (2200, 1120)
 scene.render.resolution_x, scene.render.resolution_y = W, H
 cam_d.sensor_fit = 'HORIZONTAL'
@@ -687,7 +689,7 @@ def place(b):
 cw, ch = (CHASSIS[2] - CHASSIS[0]) * W, (CHASSIS[3] - CHASSIS[1]) * H
 quad = ' '.join(f'{v:.5f}' for p in anchors['face'] for v in p)
 lines = ['/* Generiert von tools/nerd-radio/build_boombox.py – nicht von Hand ändern. */',
-         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)};--nr-face:"{quad}";--nr-roll:{-math.degrees(roll):g}deg}}']
+         f'.nr-device{{aspect-ratio:{round(cw)}/{round(ch)};--nr-face:"{quad}";--nr-roll:{-math.degrees(roll) + 0:g}deg}}']
 for i, side in enumerate(('l', 'r')):
     lines.append(f'.nr-speaker--{side}{{{place(anchors["cones"][i])}}}')
     lines.append(f'.nr-speaker--{side} .nr-speaker__cone{{background-image:url(cone-{i}.webp)}}')
