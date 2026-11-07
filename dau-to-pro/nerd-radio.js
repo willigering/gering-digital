@@ -41,8 +41,10 @@
   const tracks = [
     ...(Array.isArray(files) ? files : []).filter(f => f && typeof f.src === 'string')
       .map(f => ({ kind: 'file', src: f.src, title: String(f.title || 'Titel'), genre: String(f.genre || '') })),
-    ...loops
+    ...[]
   ];
+  // Die generierten Loops sind nur noch Ersatz, falls der Musikordner leer ist.
+  if (!tracks.length) tracks.push(...loops);
 
   const $ = selector => root.querySelector(selector);
   const ui = {

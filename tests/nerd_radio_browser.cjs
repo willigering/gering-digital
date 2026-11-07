@@ -10,7 +10,7 @@ const { spawn, spawnSync } = require('node:child_process');
 const { chromium } = require('playwright');
 const root = path.resolve(__dirname, '..');
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'dtp-radio-'));
-const env = { ...process.env, GD_ROOT: root, GD_DB_PATH: path.join(scratch, 'site.sqlite') };
+const env = { ...process.env, GD_ROOT: root, GD_DB_PATH: path.join(scratch, 'site.sqlite'), NERD_RADIO_AUDIO: 'audio/nerd-radio-test' };
 const port = 22000 + Math.floor(Math.random() * 1000);
 const base = `http://127.0.0.1:${port}`;
 const shots = process.env.DTP_SCREENSHOT_DIR ? path.join(process.env.DTP_SCREENSHOT_DIR, 'nerd-radio') : '';
@@ -23,16 +23,17 @@ const php = code => {
 php(`db()->exec("DELETE FROM html_pages"); $q=db()->prepare("INSERT INTO html_pages(slug,title,description,category,published) VALUES(?,?,?,'lernen',1)");
 foreach(['osi','subnetsprint','m3','m4','m5','m6','m7','m8'] as $i=>$s)$q->execute([$s,'Modul '.($i+1),'Beschreibung '.($i+1)]);`);
 
-// Kurzes Testsignal (Akkord mit Rhythmus) als eigene Datei im Musikordner; wird am Ende gelöscht.
-const testTrack = path.join(root, 'dau-to-pro/audio/nerd-radio/99_Testsignal_Nerd_Radio.wav');
-const wav = seconds => {
+// Eigener Musikordner nur für den Test (NERD_RADIO_AUDIO): drei Testsignale, wird am Ende gelöscht.
+// So hängt der Test nicht davon ab, welche Songs im echten Ordner liegen.
+const testDir = path.join(root, 'dau-to-pro/audio/nerd-radio-test');
+const wav = (seconds, f = 110) => {
   const rate = 22050, n = Math.round(rate * seconds), buf = Buffer.alloc(44 + n * 2);
   buf.write('RIFF', 0); buf.writeUInt32LE(36 + n * 2, 4); buf.write('WAVEfmt ', 8); buf.writeUInt32LE(16, 16);
   buf.writeUInt16LE(1, 20); buf.writeUInt16LE(1, 22); buf.writeUInt32LE(rate, 24); buf.writeUInt32LE(rate * 2, 28);
   buf.writeUInt16LE(2, 32); buf.writeUInt16LE(16, 34); buf.write('data', 36); buf.writeUInt32LE(n * 2, 40);
   for (let i = 0; i < n; i++) {
-    const t = i / rate, gate = (t * 4) % 1 < 0.7 ? 1 : 0.15;
-    const v = gate * 0.25 * (Math.sin(2 * Math.PI * 110 * t) + Math.sin(2 * Math.PI * 220 * t) + 0.6 * Math.sin(2 * Math.PI * 660 * t));
+    const t = i / rate, gate = (t * 2) % 1 < 0.5 ? 1 : 0;
+    const v = gate * 0.25 * (Math.sin(2 * Math.PI * f * t) + Math.sin(2 * Math.PI * 2 * f * t) + 0.6 * Math.sin(2 * Math.PI * 6 * f * t));
     buf.writeInt16LE(Math.max(-32767, Math.min(32767, Math.round(v * 32767))), 44 + i * 2);
   }
   return buf;
@@ -40,6 +41,8 @@ const wav = seconds => {
 
 let server, browser;
 (async () => {
+  fs.rmSync(testDir, { recursive: true, force: true }); fs.mkdirSync(testDir, { recursive: true });
+  ['01_Testsignal_Alpha', '02_Testsignal_Beta', '03_Testsignal_Gamma'].forEach((n, i) => fs.writeFileSync(path.join(testDir, n + '.wav'), wav(20, 110 + i * 27)));
   if (shots) fs.mkdirSync(shots, { recursive: true });
   server = spawn('php', ['-S', `127.0.0.1:${port}`, '-t', root, path.join(__dirname, 'support/router.php')], { env, stdio: 'ignore' });
   // node:http statt fetch: robust, auch wenn der PHP-Server die Verbindung beim Start früh schließt.
@@ -119,7 +122,7 @@ let server, browser;
     let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200 && Math.max(d[i], d[i + 1], d[i + 2]) > 180) n++;
     return n;
   });
-  // Höchstwert über eine Sekunde: die Chiptunes haben echte Pausen zwischen den Noten.
+  // Höchstwert über eine Sekunde: die Testsignale haben echte Pausen im Rhythmus.
   const litPeak = async () => { let m = 0; for (let n = 0; n < 10; n++) { m = Math.max(m, await lit()); await pause(100); } return m; };
   const key = name => page.locator(`[data-radio-${name}]`);
 
@@ -227,9 +230,7 @@ let server, browser;
   await calmPage.locator('[data-radio-stop]').click();
   await calm.close();
 
-  /* ---------- Eigene Audiodatei aus audio/nerd-radio/ ---------- */
-  fs.mkdirSync(path.dirname(testTrack), { recursive: true });
-  fs.writeFileSync(testTrack, wav(2.6));
+  /* ---------- Songs aus dem Musikordner, keine generierten Loops ---------- */
   const own = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const ownPage = await own.newPage();
   ownPage.on('pageerror', e => errors.push(`datei: ${e.message}`));
@@ -241,26 +242,24 @@ let server, browser;
   });
   await ownPage.locator('[data-radio-list]').click();
   const items = ownPage.locator('.nr-playlist__item');
-  const count = await items.count();
-  assert.ok(count >= 4, 'Datei erscheint zusätzlich zu den drei Loops');
-  const index = (await items.allInnerTexts()).findIndex(t => t.includes('Testsignal Nerd Radio'));
-  assert.ok(index >= 0 && index < count - 3, 'Eigene Dateien stehen vor den Loops, Titel aus dem Dateinamen ohne Nummer');
-  await items.nth(index).click(); await pause(1300);
+  assert.equal(await items.count(), 3, 'Nur die Songs aus dem Ordner, keine Loops');
+  const texts = await items.allInnerTexts();
+  assert.ok(texts[0].includes('Testsignal Alpha') && !texts.some(t => /Stack Overflow|Ctrl \+ Alt|404/.test(t)), 'Titel aus dem Dateinamen ohne Nummer, keine Loops');
+  await items.nth(0).click(); await pause(1300);
   let o = await ownState();
   assert.equal(o.state, 'playing', 'Datei spielt');
-  assert.match(o.title, /Testsignal Nerd Radio$/);
-  assert.equal(o.length, '00:02', 'Echte Dateilänge statt Loop-Anzeige');
+  assert.match(o.title, /Testsignal Alpha$/);
+  assert.equal(o.length, '00:20', 'Echte Dateilänge statt Loop-Anzeige');
   assert.ok(o.level > 0, 'Analyser liefert Daten der Datei');
   assert.equal(o.time, '00:01', 'Zeit läuft mit der Datei');
   await ownPage.locator('[data-radio-stop]').click(); await pause(300);
   o = await ownState();
   assert.equal(o.state, 'stopped'); assert.equal(o.time, '00:00', 'Stopp setzt die Datei zurück');
   await own.close();
-  fs.rmSync(testTrack, { force: true });
-  console.log('Eigene Audiodatei: Playlist, Wiedergabe, Länge und Stopp bestanden');
+  console.log('Songs: Playlist ohne Loops, Wiedergabe, Länge und Stopp bestanden');
 
   assert.deepEqual(errors, [], 'Keine JavaScript-Fehler');
   console.log('NERD RADIO: Bedienung, Audiodaten, Platzierung und reduzierte Bewegung bestanden');
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
-  fs.rmSync(testTrack, { force: true }); if (browser) await browser.close(); if (server) server.kill(); fs.rmSync(scratch, { recursive: true, force: true });
+  fs.rmSync(testDir, { recursive: true, force: true }); if (browser) await browser.close(); if (server) server.kill(); fs.rmSync(scratch, { recursive: true, force: true });
 });

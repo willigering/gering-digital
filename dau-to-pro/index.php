@@ -38,14 +38,17 @@ $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
 // NERD RADIO: MP3/WAV/OGG/M4A aus audio/nerd-radio/ erscheinen automatisch in der Playlist (natürliche Sortierung nach Dateiname).
+// NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/).
 $nrFiles=[];
-$nrDir=__DIR__.'/audio/nerd-radio';
+$nrSub=getenv('NERD_RADIO_AUDIO');
+if(!is_string($nrSub)||!preg_match('~^audio/[a-z0-9-]+$~',$nrSub))$nrSub='audio/nerd-radio';
+$nrDir=__DIR__.'/'.$nrSub;
 if(is_dir($nrDir)){
   $nrNames=array_values(array_filter(scandir($nrDir)?:[],fn($n)=>$n[0]!=='.'&&is_file($nrDir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
   natcasesort($nrNames);
   foreach($nrNames as $n){
     $label=trim(str_replace('_',' ',preg_replace('/^\d+[\s._-]*/','',pathinfo($n,PATHINFO_FILENAME))));
-    $nrFiles[]=['src'=>'audio/nerd-radio/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
+    $nrFiles[]=['src'=>$nrSub.'/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
   }
 }
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
