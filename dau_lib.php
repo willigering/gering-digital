@@ -541,12 +541,12 @@ function dtp_hero_people_picture(): string {
 
 /** Schriftzug „DAU TO PRO“ in der Seitenschrift statt als Rastergrafik: gestochen scharf, ohne Kasten. */
 function dtp_hero_brand(): string {
-    // Schriftzug hinter den Figuren im Bild: „DAU to“ zwischen den Köpfen, „PRO“ über dem PRO (Koordinaten wie das Motiv, 1448 × 1086).
+    // Schriftzug hinter den Figuren im Bild, oben zwischen den Köpfen; Abstände wie im bisherigen Schriftzug (Koordinaten wie das Motiv, 1448 × 1086).
     return '<svg class="hero-brand" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><defs>'
         .'<linearGradient id="dtp-brand-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9d3c4"/></linearGradient>'
         .'<linearGradient id="dtp-brand-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#f2b53c"/><stop offset="1" stop-color="#d98a1c"/></linearGradient>'
-        .'</defs><text x="512" y="200" class="hero-brand-text hero-brand-dau"><tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="14">TO</tspan></text>'
-        .'<text x="985" y="192" class="hero-brand-text hero-brand-pro" fill="url(#dtp-brand-gold)">PRO</text></svg>';
+        .'</defs><text x="548" y="196" class="hero-brand-text">'
+        .'<tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="16">TO</tspan><tspan fill="url(#dtp-brand-gold)" dx="16">PRO</tspan></text></svg>';
 }
 
 /** Power-up: Sprechblase, Pixelpilz und Funken als saubere Vektorgrafik (Pilz-Koordinaten wie im Original). */

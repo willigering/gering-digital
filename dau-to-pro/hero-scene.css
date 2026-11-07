@@ -54,10 +54,8 @@
 @media(prefers-reduced-motion:reduce){.hero-plane{translate:none!important;transition:none;will-change:auto}}
 /* Schriftzug und Power-up als Vektor: keine Rasterkanten, kein Kasten. */
 .hero-brand{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 6px 14px #000a)}
-.hero-brand-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:122px;font-weight:900;font-style:italic;letter-spacing:-4px;paint-order:stroke;stroke:#0b0f12;stroke-width:9px;stroke-linejoin:round}
-.hero-brand-dau{font-size:104px;letter-spacing:-3px}
-.hero-brand-dau .hero-brand-to{font-size:70px}
-.hero-brand-pro{font-size:140px}
+.hero-brand-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:128px;font-weight:900;font-style:italic;letter-spacing:-4.3px;paint-order:stroke;stroke:#0b0f12;stroke-width:9px;stroke-linejoin:round}
+.hero-brand-to{font-size:86px}   /* Verhältnis wie bisher (178 : 120) */
 .hero-powerup{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 10px #0008)}
 .hero-powerup-text{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;font-size:46px;font-weight:900;font-style:italic;letter-spacing:0;fill:#fff}
 .hero-pixelpilz{position:absolute;left:83.839779%;top:48.066298%;width:13.190608%;height:16.022099%;object-fit:contain;image-rendering:pixelated;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 4px 10px #0008)}

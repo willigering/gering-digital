@@ -15,12 +15,12 @@
    unter den Hero-Figuren und nimmt keinen Platz im Seitenfluss ein (die Trainingszone rutscht nicht nach unten).
    Mobil steht es direkt unter der Überschrift. Es scrollt normal mit, die Modulauswahl darunter bleibt frei. */
 .catalog-section .section-shell{position:relative}
-.nr-stage{position:relative;z-index:2;width:min(100%,520px);margin:-6px auto 26px}
+.nr-stage{position:relative;z-index:2;width:min(100%,600px);margin:-6px auto 26px}
 .nr-stage__inner,.nr-rail{width:100%}
 .nr-pin{position:relative;padding:0 0 3%}
 @media(min-width:861px){
-  .catalog-section{--nr-w:clamp(360px,36vw,470px)}
-  .nr-stage{position:absolute;right:32px;top:calc(var(--nr-w) * -.33);width:var(--nr-w);margin:0}   /* 32px = Innenabstand von .section-shell */
+  .catalog-section{--nr-w:clamp(400px,43vw,566px)}   /* max.: bleibt rechts neben der Textspalte des Hero */
+  .nr-stage{position:absolute;right:32px;top:calc(var(--nr-w) * -.27);width:var(--nr-w);margin:0}   /* 32px = Innenabstand von .section-shell */
   .catalog-section .section-heading{padding-right:calc(var(--nr-w) + 16px);min-height:calc(var(--nr-w) * .2)}
   .catalog-section .section-heading .section-count{position:absolute;right:32px;top:calc(var(--nr-w) * .2)}
 }
