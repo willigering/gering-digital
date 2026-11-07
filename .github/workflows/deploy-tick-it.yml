@@ -27,6 +27,7 @@ jobs:
           set -euo pipefail
           find tick-it -name '*.php' -print0 | xargs -0 -n1 php -l
           node --check tick-it/assets/app.js
+          php tick-it/tests/generator-tests.php
           # The helper checks do not require MySQL.
           test -f tick-it/.htaccess
           test -f tick-it/database/schema.sql
