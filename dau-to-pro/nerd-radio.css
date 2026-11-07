@@ -53,7 +53,16 @@
 .nr-display__glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 .035cqw,transparent .035cqw .1cqw)}
 .nr-display__brand{grid-column:1;grid-row:1;display:flex;align-items:center;gap:4%;min-width:0}
-.nr-display__brand img{width:4.4cqw;height:4.4cqw;flex:none;image-rendering:pixelated;filter:drop-shadow(0 0 .5cqw #ff6b4a88)}
+/* Pixelpilz als leuchtende Displaypixel: nur helle Pixel strahlen (screen), dunkle verschwinden im Glas,
+   feine Rasterfugen zwischen den 18 x 18 Bildpunkten, roter Schein wie die Cyan-Schrift. Liegt unter dem Glasreflex. */
+.nr-display__logo{flex:none;width:4.4cqw;height:4.4cqw;mix-blend-mode:screen;opacity:.95;
+  filter:drop-shadow(0 0 .18cqw #ff5a3acc) drop-shadow(0 0 .7cqw #ff3a2a77)}
+.nr-display__logo img{display:block;width:100%;height:100%;image-rendering:pixelated;filter:saturate(1.15) brightness(1.05);
+  --px:calc(100% / 18);
+  -webkit-mask:linear-gradient(90deg,#000 78%,transparent 0) 0 0/var(--px) 100%,linear-gradient(#000 78%,transparent 0) 0 0/100% var(--px);
+  -webkit-mask-composite:source-in;
+  mask:linear-gradient(90deg,#000 78%,transparent 0) 0 0/var(--px) 100%,linear-gradient(#000 78%,transparent 0) 0 0/100% var(--px);
+  mask-composite:intersect}
 .nr-display__brand h2{flex:1;min-width:0;margin:0;line-height:0}
 .nr-display__brand h2 svg{display:block;width:100%;height:auto;overflow:visible}
 .nr-display__brand text{font:900 30px ui-monospace,"Cascadia Mono",SFMono-Regular,Consolas,monospace;fill:#5ff3ff;filter:drop-shadow(0 0 2px #22dcf5) drop-shadow(0 0 6px #22dcf588)}

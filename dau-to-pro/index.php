@@ -115,7 +115,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img class="nr-glow__cyan-l" src="nerd-radio/light-cyan-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-l.webp')?>" alt="" decoding="async"><img class="nr-glow__cyan-r" src="nerd-radio/light-cyan-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-r.webp')?>" alt="" decoding="async"></div>
           <div class="nr-display">
             <div class="nr-display__glass">
-              <div class="nr-display__brand"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
+              <div class="nr-display__brand"><span class="nr-display__logo"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"></span><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
               <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
               <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
               <div class="nr-display__meta">
