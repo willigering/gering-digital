@@ -1,7 +1,7 @@
 # Passwortschutz fuer das Testspiel (Basic-Auth ohne .htpasswd, weil der Deploy diese Datei nicht hochlaedt).
 RewriteEngine On
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-RewriteCond %{HTTP:Authorization} !^Basic\ d2lsbGk6V0FReGxDTzZaV0RM$
-RewriteCond %{ENV:REDIRECT_HTTP_AUTHORIZATION} !^Basic\ d2lsbGk6V0FReGxDTzZaV0RM$
+RewriteCond %{HTTP:Authorization} !^Basic\ d2lsbGk6TU0xNzU0$
+RewriteCond %{ENV:REDIRECT_HTTP_AUTHORIZATION} !^Basic\ d2lsbGk6TU0xNzU0$
 RewriteRule ^ - [R=401,L]
 Header always set WWW-Authenticate 'Basic realm="Mila und Maja"' "expr=%{REQUEST_STATUS} == 401"
