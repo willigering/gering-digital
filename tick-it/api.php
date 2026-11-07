@@ -13,12 +13,13 @@ try {
         if($method!=='GET') app_error('Methode nicht erlaubt.',405);
         act_download(positive_id($_GET['id']??null));
     }
-    $getRoutes=['generator_status','session','stats','tickets','ticket','participants','private','unread','reviews','supporter_stats','audit','categories_admin','supporters'];
+    $getRoutes=['generator_status','generator_diagnostics','session','stats','tickets','ticket','participants','private','unread','reviews','supporter_stats','audit','categories_admin','supporters'];
     if(in_array($action,$getRoutes,true)) {
         if($method!=='GET')app_error('Methode nicht erlaubt.',405);
         if(in_array($action,['session','tickets','stats','unread'],true) && auth()) generator_tick();
         $res=match($action) {
             'generator_status'=>generator_status(),
+            'generator_diagnostics'=>generator_diagnostics(),
             'session'=>act_session(),
             'stats'=>act_stats(),
             'tickets'=>act_ticket_list($_GET),
@@ -83,7 +84,26 @@ try {
     http_response_code(400);header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['ok'=>false,'error'=>'Ungültiges JSON.']);
 } catch(Throwable $e) {
-    error_log('[IT Support] '.$e);
+    // Vollstaendige Ausnahme ausschliesslich in serverseitigen Fehlerlogs.
+    // Der Dozent sieht nur eine sichere Fehlerkategorie und eine Referenz.
+    $reference=bin2hex(random_bytes(4));
+    error_log('[IT Support]['.$reference.'] '.$e);
+    $message='Ein interner Fehler ist aufgetreten. Fehler-ID: '.$reference;
+    $requestedAction=(string)($_GET['action']??'');
+    if(str_starts_with($requestedAction,'generator_')&&!empty($_SESSION['admin_id'])){
+        $driver=$e instanceof PDOException?(int)($e->errorInfo[1]??0):0;
+        $message=match($driver){
+            1044,1142,1143=>'Der Tick-It-Datenbankbenutzer hat nicht die benoetigten Schreib-/Tabellenrechte. Die Generator-Migration pruefen.',
+            1146=>'Eine Generator-Datenbanktabelle fehlt. Die Datei database/generator-migration.sql muss einmalig importiert werden.',
+            1054=>'Die Generator-Datenbankstruktur ist unvollstaendig. Die nicht-destruktive Migration pruefen.',
+            1452=>'Eine Datenbank-Verknuepfung fehlt. Bitte die Generator-Diagnose ausfuehren.',
+            1205,1213=>'Die Datenbank ist gerade gesperrt. Bitte in einigen Sekunden erneut versuchen.',
+            1406=>'Ein Text ist fuer die Datenbank zu lang. Generator-Katalog pruefen.',
+            2002,2003,2006,2013=>'Die Datenbankverbindung ist unterbrochen. Verfuegbarkeit bei STRATO pruefen.',
+            default=>$e instanceof PDOException?'Datenbankfehler beim Generatorstart (MySQL-Code '.$driver.').':'Ein interner Generatorfehler ist aufgetreten.'
+        };
+        $message.=' Fehler-ID: '.$reference;
+    }
     http_response_code(500);header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['ok'=>false,'error'=>'Ein interner Fehler ist aufgetreten.']);
+    echo json_encode(['ok'=>false,'error'=>$message],JSON_UNESCAPED_UNICODE);
 }

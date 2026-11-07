@@ -20,7 +20,9 @@ $schema=preg_replace('/^\s*--[^\r\n]*(?:\r?\n|$)/m','',$schema);
 foreach(explode(';',$schema) as $statement){if(trim($statement)!=='')db()->exec(trim($statement));}
 sql('INSERT INTO admins (username,password_hash) VALUES (?,?)',['DozentCI',password_hash('ci-password-only',PASSWORD_BCRYPT)]);
 $adminId=(int)db()->lastInsertId();$_SESSION=['admin_id'=>$adminId,'last_active'=>time()];
-$status=generator_status();assertci($status['templates']===900,'Vorlagen');
+$before=generator_diagnostics();assertci(!$before['ready']&&count($before['missing_tables'])===3,'Fehlende Generator-Tabellen diagnostizieren');
+$status=generator_status();
+$after=generator_diagnostics();assertci($after['ready'],'Generator-Tabellen und Kategorien nach Migration vollstaendig');assertci($status['templates']===900,'Vorlagen');
 $run=generator_start(['initial_count'=>100,'batch_count'=>5,'interval_minutes'=>2,'max_total'=>200]);
 assertci($run['created']===0,'Start muss ohne teure 100er-Anfrage auskommen');
 $created=0;$iterations=0;
