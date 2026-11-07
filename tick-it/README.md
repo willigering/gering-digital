@@ -1,3 +1,11 @@
+# Tick-It – Aktuelle STRATO-Installation
+
+**Bevorzugter Weg:** Einmaligen geschützten Installationsassistenten unter `https://geringdigital.de/tick-it/setup.php` nutzen. Bitte `DEPLOYMENT.md` beachten. Er verbindet die neue, leere eigene MySQL-Datenbank, importiert das SQL-Schema und richtet den Dozentenzugang mit deinem selbst gewählten Passwort ein. Ein privater, zufälliger Einrichtungscode ist dafür erforderlich; im öffentlichen Repository liegt nur dessen Hash.
+
+Die folgenden ursprünglichen manuellen Schritte bleiben als technische Referenz erhalten.
+
+---
+
 # IT Support – Ticketsystem für die FISI-Schulung
 
 **Stand:** 7. November 2026 · eigenständiges PHP/MySQL-Webprojekt
