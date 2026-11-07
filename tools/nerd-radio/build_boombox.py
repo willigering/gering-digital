@@ -245,8 +245,9 @@ M = {
     'silver': mat_simple('silver', (0.78, 0.8, 0.83), 0.55, 0.3),
     'goldmetal': mat_simple('goldmetal', (1.0, 0.68, 0.18), 1.0, 0.22),
     # Leuchtmittel: ausgeschaltet dunkles Glas (kein farbiger Schein ohne Musik), Farbe nur über die Emission
-    'neon_c': mat_simple('neon_c', GLASS, rough=0.2, emit=CYAN, strength=2.6),
-    'neon_g': mat_simple('neon_g', GLASS, rough=0.2, emit=GOLD, strength=2.6),
+    # Zierleisten (frühere Neonröhren): leuchten nicht selbst, nur getöntes Glas, das Licht der Ringe/Pilze spiegelt
+    'neon_c': mat_simple('neon_c', (0.03, 0.06, 0.08), rough=0.15, coat=1.0),
+    'neon_g': mat_simple('neon_g', (0.09, 0.06, 0.02), rough=0.15, coat=1.0),
     'ring_g': mat_simple('ring_g', GLASS, rough=0.2, emit=GOLD, strength=2.0),
     'pixel_c': mat_simple('pixel_c', GLASS, rough=0.3, emit=CYAN, strength=2.2),
     'hazard': mat_hazard('hazard'),
@@ -336,7 +337,7 @@ prism('handle_grip', rect(380, 14, 620, 32, 6), 0.46, 0.4, M['dark'], bevel=0.02
 for x0 in (296, 652):
     prism(f'handle_hazard{x0}', rect(x0, 13, x0 + 52, 33, 0), 0.47, 0.05, M['hazard'], bevel=0)
 
-# Schriftzug „DAU to PRO“: erhabene Metallbuchstaben direkt auf der Front, rechts oben über dem Lautsprecher
+# Schriftzug „DAU to PRO“: erhabene Metallbuchstaben direkt auf der Front, mittig auf der Frontleiste über dem Display
 def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll='chassis', align='CENTER'):
     cu = bpy.data.curves.new('txt', 'FONT'); cu.body = body_txt; cu.size = size
     if fnt: cu.font = fnt
@@ -345,12 +346,12 @@ def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll
     ob.data.materials.append(mat); return ob
 blk = font('ariblk.ttf')
 LOGO_D = -0.095   # Frontplatte liegt bei -0.07, Buchstaben stehen 0,05 hervor
-text('DAU', 783, 143, 0.36, M['silver'], blk, d=LOGO_D, extrude=0.02)
-text('TO', 830, 140, 0.22, M['silver'], blk, d=LOGO_D, extrude=0.02)
-text('PRO', 877, 143, 0.36, M['goldmetal'], blk, d=LOGO_D, extrude=0.02)
+text('DAU', 467, 132, 0.25, M['silver'], blk, d=LOGO_D, extrude=0.02)
+text('TO', 501, 130, 0.15, M['silver'], blk, d=LOGO_D, extrude=0.02)
+text('PRO', 534, 132, 0.25, M['goldmetal'], blk, d=LOGO_D, extrude=0.02)
 
 # Warnstreifen, Neon, Schrauben, Lüftung
-for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)],   # rechts oben sitzt statt Warnstreifen der Schriftzug
+for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)], [(882, 124), (794, 124), (806, 140), (894, 140)],
             [(292, 106), (330, 106), (322, 120), (284, 120)], [(670, 106), (708, 106), (716, 120), (678, 120)]):
     prism('hazard', pts, -0.09, 0.05, M['hazard'], bevel=0.004)
 tube('neon_side_l', [(14, 190), (14, 372)], 0.4, 0.018, M['neon_c'])
@@ -557,7 +558,8 @@ def render(path, border=None):
     print('RENDERED', path)
 
 # Leuchtgruppen: werden für die Lichtebenen einzeln ein- und ausgeschaltet
-GROUPS = {'cyan': [M['neon_c'], M['pixel_c']], 'gold': [M['neon_g'], M['ring_g']]}
+# Nur die Lautsprecherringe (Gold) und die Pixelpilze (Cyan) leuchten selbst; alles andere wird nur von ihnen angestrahlt
+GROUPS = {'cyan': [M['pixel_c']], 'gold': [M['ring_g']]}
 BASE_EMIT = {m.name: m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value for g in GROUPS.values() for m in g}
 def emit(group_factors):
     for g, mats in GROUPS.items():
@@ -570,14 +572,8 @@ def glow_lamp(name, loc, power, radius, color, group):
     ob['group'] = group; return ob
 for i, (x, y) in enumerate(SPK):
     glow_lamp(f'gl_spk{i}', (X(x), -0.55, Z(y)), 150, 0.9, GOLD, 'gold')
-glow_lamp('gl_bottom', (0, -0.45, Z(432)), 70, 0.6, GOLD, 'gold')
-glow_lamp('gl_side_g', (X(980) + 0.45, 0.3, Z(285)), 90, 0.6, GOLD, 'gold')
-glow_lamp('gl_shoulders_l', (X(40), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
-glow_lamp('gl_shoulders_r', (X(960), -0.4, Z(160)), 40, 0.4, GOLD, 'gold')
-glow_lamp('gl_display', (0, -0.7, Z(205)), 90, 1.2, CYAN, 'cyan')
-glow_lamp('gl_side_c', (X(980) + 0.45, 1.5, Z(285)), 70, 0.6, CYAN, 'cyan')
 for i, (x, y) in enumerate(SPK):
-    glow_lamp(f'gl_px{i}', (X(x), -0.35, Z(y)), 25, 0.3, CYAN, 'cyan')
+    glow_lamp(f'gl_px{i}', (X(x), -0.45, Z(y)), 70, 0.5, CYAN, 'cyan')
 LAMPS = [o for o in scene.objects if o.type == 'LIGHT' and 'group' not in o]
 GLOW = [o for o in scene.objects if o.type == 'LIGHT' and 'group' in o]
 STATIC_EMIT = []
@@ -674,11 +670,14 @@ def webp(name, half=False, alpha=True):
         # Farbton aus weichgezeichnetem Licht: Licht ändert die Farbe nur langsam, das Bild komprimiert gut
         col = blur(rgb, rad) / np.maximum(blur(a.reshape(h, w, 1), rad), 1e-4)
         col = np.clip(col.reshape(-1, 3), 0, 1)
-        # Schwaches Streulicht: geglättet und in Stufen (Alpha wird verlustfrei gespeichert)
+        # Schwaches Streulicht geglättet und ohne Schwellwert weich auslaufen lassen (keine harten Kanten)
         soft = blur(a.reshape(h, w, 1), max(1, rad // 2)).reshape(-1)
-        dim = a < 0.4
-        a = np.where(dim, np.round(soft * 48) / 48, a)
-        a = np.where(a < 0.03, 0, a)
+        a = np.where(a < 0.4, soft, a)
+        a = a * np.clip(a / 0.05, 0, 1)
+        # Zum Bildrand hin ausblenden, damit der Lichtschein nicht an der Bildkante abgeschnitten wirkt
+        fy = np.clip(np.minimum(np.arange(h), h - 1 - np.arange(h)) / (h * 0.08), 0, 1)
+        fx = np.clip(np.minimum(np.arange(w), w - 1 - np.arange(w)) / (w * 0.05), 0, 1)
+        a = a * (fy[:, None] * fx[None, :]).reshape(-1)
         px[:, :3] = col; px[:, 3] = a
         img.pixels[:] = px.ravel()
         ims.color_mode = 'RGBA'
