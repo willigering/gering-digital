@@ -55,7 +55,7 @@
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
     faces: [...root.querySelectorAll('[data-radio-face]')],
     lights: ['gold', 'gold-halo', 'gold-edge', 'cyan', 'cyan-halo', 'cyan-edge'].map(n => [...root.querySelectorAll(`[data-radio-light="${n}"]`)]),
-    cones: [...root.querySelectorAll('[data-radio-cone]')], waves: [...root.querySelectorAll('[data-radio-waves]')]
+    cones: [...root.querySelectorAll('[data-radio-cone]')]
   };
   const pen = ui.canvas.getContext('2d');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -260,8 +260,10 @@
       const cut = now + 0.06;
       voices.forEach(v => { try { v.stop(cut); } catch (_) { /* bereits beendet */ } });
       // Ruhender Kontext spart Rechenzeit; Fortsetzen weckt ihn wieder auf.
+      clearTimeout(suspendTimer);
+      const quiet = op;   // jede Transportaktion (Play, Titelwechsel) erhöht op und bricht das Schlafenlegen ab
       suspendTimer = setTimeout(() => {
-        if (state === 'playing' || !ctx || ctx.state !== 'running') return;
+        if (op !== quiet || state === 'playing' || !ctx || ctx.state !== 'running') return;
         suspending = ctx.suspend().catch(() => {}).finally(() => { suspending = null; });
       }, 400);
     }
@@ -346,20 +348,10 @@
   // Der scharfe Kern (Ring, Pixelpilz) bleibt beim Spielen fast voll hell, nur der weiche Schein pulsiert stark;
   // so wirkt der Pilz nie verwaschen, auch wenn die Musik leise ist.
   // Kantenlicht: Ringe werfen Gold auf die Gehäusekanten, der Pilz Cyan aufs Gitter.
-  // Membranen pumpen mit dem Bass; bei Bassschlägen laufen RGB-Wellen vom Pilz aus über die Membran.
+  // Membranen pumpen mit dem Bass. RGB-LED-Ring und Licht durchs Gitter wie bei Party-Boomboxen:
+  // Farbe wandert fließend (bei Bass schneller), Helligkeit folgt dem Bass.
   const STANDBY = 0.06;
-  let bassAvg = 0, lastWave = 0, lastPump = '';
-  function spawnWaves(now) {
-    const hue = Math.round(now / 22) % 360;
-    ui.waves.forEach((box, i) => {
-      if (box.childElementCount > 5) box.firstElementChild.remove();
-      const w = document.createElement('i');
-      w.className = 'nr-wave';
-      w.style.setProperty('--h', String((hue + i * 40) % 360));
-      w.addEventListener('animationend', () => w.remove(), { once: true });
-      box.append(w);
-    });
-  }
+  let lastPump = '', phase = 0, lastHueAt = 0, lastRgb = '';
   function applyBass() {
     const calm = reduced.matches, on = state === 'playing';
     const lo = Math.min(1, bass * 1.5), hi = Math.min(1, treble * 2);
@@ -370,11 +362,18 @@
       lastPump = pump;
       ui.cones.forEach(c => { c.style.transform = push ? `scale(${(1 + push * 0.055).toFixed(4)})` : ''; c.style.setProperty('--nr-push', pump); });
     }
-    if (on && !calm) {
-      const now = performance.now();
-      if (bass > bassAvg * 1.3 + 0.06 && now - lastWave > 240) { lastWave = now; spawnWaves(now); }
-      bassAvg += (bass - bassAvg) * 0.06;
-    } else if (!on) { bassAvg = 0; ui.waves.forEach(b => b.replaceChildren()); }
+    const now = performance.now(), dt = lastHueAt ? Math.min(0.1, (now - lastHueAt) / 1000) : 0;
+    lastHueAt = now;
+    if (on && !calm) phase = (phase + dt * (0.12 + 0.9 * lo)) % (Math.PI * 2);
+    const hue = 185 + 140 * (0.5 - 0.5 * Math.cos(phase));   // pendelt Türkis (185) ↔ Pink (325)
+    const led = !on ? 0 : calm ? 0.75 : 0.22 + 0.78 * lo, mesh = !on ? 0 : calm ? 0.25 : 0.06 + 0.5 * push;
+    const rgb = `${Math.round(hue)}|${led.toFixed(2)}|${mesh.toFixed(2)}`;
+    if (rgb !== lastRgb) {
+      lastRgb = rgb;
+      root.style.setProperty('--nr-hue', String(Math.round(hue)));
+      root.style.setProperty('--nr-led', led.toFixed(2));
+      root.style.setProperty('--nr-mesh', mesh.toFixed(2));
+    }
     const v = !on ? [STANDBY, STANDBY, STANDBY, STANDBY, STANDBY, STANDBY] : calm ? [0.95, 0.7, 0.5, 0.95, 0.7, 0.5]
       : [0.82 + 0.18 * lo, 0.12 + 0.88 * lo, 0.08 + 0.92 * lo, 0.85 + 0.15 * hi, 0.12 + 0.88 * hi, 0.1 + 0.9 * hi];
     const key = v.map(n => n.toFixed(2)).join();

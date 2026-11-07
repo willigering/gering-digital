@@ -55,12 +55,30 @@
 /* Licht und Schatten der Membran: nach vorn gedrückt heller in der Mitte, dunkler zum Rand hin */
 .nr-cone__shade{position:absolute;inset:0;border-radius:50%;opacity:var(--nr-push);
   background:radial-gradient(circle at var(--mx) var(--my),#ffffff2e 0,#ffffff0a 30%,transparent 50%,#00000070 100%)}
-/* RGB-Wellen vom Pilz aus */
-.nr-cone__waves{position:absolute;inset:0;mix-blend-mode:screen}
-.nr-wave{position:absolute;left:var(--mx);top:var(--my);width:100%;aspect-ratio:1;border-radius:50%;translate:-50% -50%;
-  border:.32cqw solid hsl(var(--h) 100% 62%);box-shadow:0 0 .9cqw hsl(var(--h) 100% 55%),inset 0 0 .9cqw hsl(var(--h) 100% 55%);
-  animation:nr-wave 1.2s cubic-bezier(.15,.55,.35,1) forwards}
-@keyframes nr-wave{from{scale:.14;opacity:.95}to{scale:1.55;opacity:0}}
+/* ---------- RGB-Licht wie bei Party-Boomboxen ----------
+   --nr-hue wandert fließend (bei Bassschlägen schneller), --nr-led / --nr-mesh = Helligkeit aus nerd-radio.js.
+   Farbverlauf über drei benachbarte Farbtöne, damit es satt wirkt statt bunt durcheinander.
+   Farbbereich Türkis – Blau – Lila – Pink (kein Gelb/Grün neben dem Gold der Ringe). */
+.nr-device{--nr-hue:190;--nr-led:0;--nr-mesh:0;
+  --nr-c1:hsl(var(--nr-hue) 95% 55%);--nr-c2:hsl(calc(var(--nr-hue) + 30) 95% 58%);--nr-c3:hsl(calc(var(--nr-hue) - 30) 95% 50%)}
+/* Licht scheint durch die Löcher des Gitters (Maske aus layout.css), Mitte am hellsten, pumpt mit der Membran */
+.nr-cone__mesh{position:absolute;inset:0;opacity:var(--nr-mesh);mix-blend-mode:screen;
+  background:radial-gradient(circle at var(--mx) var(--my),var(--nr-c2) 0,var(--nr-c1) 50%,var(--nr-c3) 100%);
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+/* LED-Ring um den Tieftöner: einzelne LEDs plus weicher Schein, der über Rand und Gehäuse strahlt */
+.nr-face>.nr-led{position:absolute;pointer-events:none;opacity:var(--nr-led);mix-blend-mode:screen}
+.nr-led::before,.nr-led::after{content:"";position:absolute;border-radius:50%;
+  background:conic-gradient(from calc(var(--nr-hue) * 1deg),var(--nr-c1),var(--nr-c2),var(--nr-c3),var(--nr-c2),var(--nr-c1))}
+.nr-led::after{inset:0;
+  -webkit-mask:radial-gradient(closest-side,transparent 88.5%,#000 90%,#000 97%,transparent 98.5%),repeating-conic-gradient(#000 0 7deg,transparent 7deg 11.25deg);
+  -webkit-mask-composite:source-in;
+  mask:radial-gradient(closest-side,transparent 88.5%,#000 90%,#000 97%,transparent 98.5%),repeating-conic-gradient(#000 0 7deg,transparent 7deg 11.25deg);
+  mask-composite:intersect}
+.nr-led::before{inset:-9%;filter:blur(1.1cqw);opacity:.85;
+  -webkit-mask:radial-gradient(closest-side,transparent 70%,#000 82%,#000 90%,transparent 100%);
+  mask:radial-gradient(closest-side,transparent 70%,#000 82%,#000 90%,transparent 100%)}
+@supports (mix-blend-mode:plus-lighter){.nr-face>.nr-led,.nr-cone__mesh{mix-blend-mode:plus-lighter}}
+.nr-device:not([data-state=playing]) :is(.nr-led,.nr-cone__mesh){transition:opacity .8s ease-out}
 
 /* ---------- Display ---------- */
 .nr-display{position:absolute;padding:0}
@@ -72,16 +90,6 @@
 .nr-display__glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 .035cqw,transparent .035cqw .1cqw)}
 .nr-display__brand{grid-column:1;grid-row:1;display:flex;align-items:center;gap:4%;min-width:0}
-/* Pixelpilz als leuchtende Displaypixel: nur helle Pixel strahlen (screen), dunkle verschwinden im Glas,
-   feine Rasterfugen zwischen den 18 x 18 Bildpunkten, roter Schein wie die Cyan-Schrift. Liegt unter dem Glasreflex. */
-.nr-display__logo{flex:none;width:4.4cqw;height:4.4cqw;mix-blend-mode:screen;opacity:.95;
-  filter:drop-shadow(0 0 .18cqw #ff5a3acc) drop-shadow(0 0 .7cqw #ff3a2a77)}
-.nr-display__logo img{display:block;width:100%;height:100%;image-rendering:pixelated;filter:saturate(1.15) brightness(1.05);
-  --px:calc(100% / 18);
-  -webkit-mask:linear-gradient(90deg,#000 78%,transparent 0) 0 0/var(--px) 100%,linear-gradient(#000 78%,transparent 0) 0 0/100% var(--px);
-  -webkit-mask-composite:source-in;
-  mask:linear-gradient(90deg,#000 78%,transparent 0) 0 0/var(--px) 100%,linear-gradient(#000 78%,transparent 0) 0 0/100% var(--px);
-  mask-composite:intersect}
 .nr-display__brand h2{flex:1;min-width:0;margin:0;line-height:0}
 .nr-display__brand h2 svg{display:block;width:100%;height:auto;overflow:visible}
 .nr-display__brand text{font:900 30px ui-monospace,"Cascadia Mono",SFMono-Regular,Consolas,monospace;fill:#5ff3ff;filter:drop-shadow(0 0 2px #22dcf5) drop-shadow(0 0 6px #22dcf588)}
@@ -141,6 +149,5 @@
 @media(prefers-reduced-motion:reduce){
   .nr-display__ind{transition:none}
   .nr-device[data-state=paused] .nr-display__icon,.nr-device[data-state=playing] .is-long .nr-marquee{animation:none}
-  .nr-wave{display:none}
   .nr-device[data-state=playing] .is-long .nr-marquee{overflow:hidden;text-overflow:ellipsis;width:auto}
 }

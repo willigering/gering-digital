@@ -111,12 +111,14 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
             return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
           }; ?>
-          <!-- Membranen: pumpen mit dem Bass; Pilz, Pilzlicht auf dem Gitter und RGB-Wellen bewegen sich mit -->
+          <!-- Membranen: pumpen mit dem Bass; Pilz, Pilzlicht und farbiges Licht durchs Lochgitter bewegen sich mit.
+               Darüber je ein RGB-LED-Ring um den Tieftöner (Farbe wandert, Helligkeit folgt dem Bass). -->
 <?php foreach (['l', 'r'] as $nrS): ?>
           <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
             <?=$nrImg("cone-$nrS", 'nr-cone__img')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?>
-            <span class="nr-cone__waves" data-radio-waves></span><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?><span class="nr-cone__shade"></span>
+            <span class="nr-cone__mesh"></span><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?><span class="nr-cone__shade"></span>
           </div></div>
+          <div class="nr-led nr-cone--<?=$nrS?>" aria-hidden="true"></div>
 <?php endforeach; ?>
           <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
 <?php foreach (['gold-edge', 'gold-halo', 'gold'] as $nrL): ?>
@@ -124,7 +126,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endforeach; ?>
           <div class="nr-display">
             <div class="nr-display__glass">
-              <div class="nr-display__brand"><span class="nr-display__logo"><img src="../assets/dau-to-pro-pixelpilz.svg?v=20261103" alt="" width="18" height="18"></span><h2 id="nr-title"><span class="nr-sr">NERD RADIO</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="167" lengthAdjust="spacingAndGlyphs">NERD RADIO</text></svg></h2></div>
+              <div class="nr-display__brand"><h2 id="nr-title"><span class="nr-sr">NERD FM</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="117" lengthAdjust="spacingAndGlyphs">NERD FM</text></svg></h2></div>
               <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
               <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
               <div class="nr-display__meta">

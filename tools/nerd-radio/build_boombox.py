@@ -235,6 +235,7 @@ for s, cone in (PACK.get('cones') or {}).items():
     box = cone['rect']; mx, my = cone['center']
     lines.append(f'.nr-cone--{s}{{{place(box)};--mx:{pct(mx - box[0], box[2])};--my:{pct(my - box[1], box[3])}}}')
     lines.append(f'.nr-glow__gold-edge-{s}{{{place(cone["gold-edge"])}}}')
+    lines.append(f'.nr-cone--{s} .nr-cone__mesh{{-webkit-mask-image:url(mesh-{s}.webp);mask-image:url(mesh-{s}.webp)}}')
     lines.append(f'.nr-cone--{s} .nr-glow__cyan-edge-{s}{{{rel(cone["cyan-edge"], box)}}}')
     for n in ('cyan', 'cyan-halo'):
         lines.append(f'.nr-cone--{s} .nr-glow__{n}-{s}{{{rel(PACK["lights"][f"{n}-{s}"], box)}}}')

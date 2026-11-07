@@ -3,24 +3,26 @@
 .nr-face{width:2910px;height:1242px}
 .nr-display{left:28.763%;top:33.333%;width:45.361%;height:24.155%}
 .nr-volume{left:37.010%;top:79.469%;width:28.969%;height:9.420%}
-.nr-glow__gold-halo-l{left:5.945%;top:35.346%;width:20.790%;height:53.784%}
-.nr-glow__gold-halo-r{left:75.842%;top:35.427%;width:21.787%;height:55.958%}
-.nr-glow__gold-l{left:6.564%;top:36.876%;width:19.588%;height:50.886%}
-.nr-glow__gold-r{left:76.495%;top:36.957%;width:20.550%;height:52.979%}
+.nr-glow__gold-halo-l{left:6.873%;top:37.923%;width:18.797%;height:48.631%}
+.nr-glow__gold-halo-r{left:76.770%;top:37.923%;width:18.797%;height:48.631%}
+.nr-glow__gold-l{left:7.423%;top:39.291%;width:17.732%;height:46.055%}
+.nr-glow__gold-r{left:77.320%;top:39.291%;width:17.732%;height:46.055%}
 .nr-glow__cyan-halo-l{left:12.302%;top:51.771%;width:9.141%;height:19.887%}
-.nr-glow__cyan-halo-r{left:81.581%;top:52.335%;width:9.210%;height:20.048%}
+.nr-glow__cyan-halo-r{left:81.443%;top:51.771%;width:9.141%;height:19.887%}
 .nr-glow__cyan-l{left:12.577%;top:52.415%;width:8.763%;height:18.760%}
-.nr-glow__cyan-r{left:81.890%;top:52.979%;width:8.797%;height:18.921%}
-.nr-cone--l{left:6.976%;top:40.338%;width:18.729%;height:43.881%;--mx:52.018%;--my:48.349%}
-.nr-glow__gold-edge-l{left:0.447%;top:19.002%;width:36.048%;height:79.791%}
-.nr-cone--l .nr-glow__cyan-edge-l{left:0.917%;top:0.734%;width:98.349%;height:98.716%}
-.nr-cone--l .nr-glow__cyan-l{left:29.908%;top:27.523%;width:46.789%;height:42.752%}
-.nr-cone--l .nr-glow__cyan-halo-l{left:28.440%;top:26.055%;width:48.807%;height:45.321%}
-.nr-cone--r{left:76.976%;top:40.499%;width:19.519%;height:45.813%;--mx:46.391%;--my:47.276%}
-.nr-glow__gold-edge-r{left:64.742%;top:19.002%;width:34.570%;height:79.549%}
-.nr-cone--r .nr-glow__cyan-edge-r{left:0.704%;top:0.703%;width:97.711%;height:98.770%}
-.nr-cone--r .nr-glow__cyan-r{left:25.176%;top:27.241%;width:45.070%;height:41.301%}
-.nr-cone--r .nr-glow__cyan-halo-r{left:23.592%;top:25.835%;width:47.183%;height:43.761%}
+.nr-glow__cyan-r{left:81.718%;top:52.415%;width:8.763%;height:18.760%}
+.nr-cone--l{left:7.801%;top:42.432%;width:16.942%;height:39.694%;--mx:52.637%;--my:48.174%}
+.nr-glow__gold-edge-l{left:0.515%;top:19.002%;width:34.811%;height:79.710%}
+.nr-cone--l .nr-cone__mesh{-webkit-mask-image:url(mesh-l.webp);mask-image:url(mesh-l.webp)}
+.nr-cone--l .nr-glow__cyan-edge-l{left:1.217%;top:0.811%;width:97.972%;height:98.580%}
+.nr-cone--l .nr-glow__cyan-l{left:28.195%;top:25.152%;width:51.724%;height:47.262%}
+.nr-cone--l .nr-glow__cyan-halo-l{left:26.572%;top:23.529%;width:53.955%;height:50.101%}
+.nr-cone--r{left:77.698%;top:42.432%;width:16.942%;height:39.694%;--mx:48.174%;--my:48.174%}
+.nr-glow__gold-edge-r{left:67.182%;top:19.002%;width:32.131%;height:79.469%}
+.nr-cone--r .nr-cone__mesh{-webkit-mask-image:url(mesh-r.webp);mask-image:url(mesh-r.webp)}
+.nr-cone--r .nr-glow__cyan-edge-r{left:1.014%;top:0.811%;width:98.174%;height:98.580%}
+.nr-cone--r .nr-glow__cyan-r{left:23.732%;top:25.152%;width:51.724%;height:47.262%}
+.nr-cone--r .nr-glow__cyan-halo-r{left:22.110%;top:23.529%;width:53.955%;height:50.101%}
 .nr-key[data-radio-prev]{left:30.000%;top:63.043%;width:6.598%;height:12.077%;background-image:url(key-previous-normal.webp)}
 .nr-key[data-radio-prev]:hover{background-image:url(key-previous-hover.webp)}
 .nr-key[data-radio-prev]:active,.nr-key[data-radio-prev].is-down{background-image:url(key-previous-pressed.webp)}

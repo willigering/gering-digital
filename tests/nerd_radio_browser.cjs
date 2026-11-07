@@ -289,7 +289,7 @@ let server, browser;
   console.log('Songs: Playlist ohne Loops, Wiedergabe, Länge und Stopp bestanden');
 
   assert.deepEqual(errors, [], 'Keine JavaScript-Fehler');
-  console.log('NERD RADIO: Bedienung, Audiodaten, Platzierung und reduzierte Bewegung bestanden');
+  console.log('NERD FM: Bedienung, Audiodaten, Platzierung und reduzierte Bewegung bestanden');
 })().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
   fs.rmSync(testDir, { recursive: true, force: true }); if (browser) await browser.close(); if (server) server.kill(); fs.rmSync(scratch, { recursive: true, force: true });
 });

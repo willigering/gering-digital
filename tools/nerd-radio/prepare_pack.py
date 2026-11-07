@@ -12,6 +12,7 @@ Schritte:
   light-gold-*/light-cyan-* = scharfer Kern (Ring bzw. Pixelpilz, Pilz verlustfrei), light-gold-halo-*/light-cyan-halo-*
   = weicher Schein. Kern und Schein sind getrennt, damit der Kern beim Pulsieren hell und scharf bleibt. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
 - Membranen (cone-l/r.webp): Gitter + Pilz innerhalb des Randes, als eigene Ebene, die mit dem Bass pumpt.
+- Gitter-Lochmasken (mesh-l/r.webp) für das RGB-Licht, das durch die Membran scheint.
 - Kantenlicht (light-gold-edge-*, light-cyan-edge-*): Lichtfall der Ringe auf Gehäusekanten bzw. des Pilzes aufs
   Gitter, aus Helligkeit und Hochpass der Front berechnet, mit Abfall zur Lichtquelle.
 - Tasten (normal / hover / gedrückt) und Lautstärkeregler als WebP.
@@ -110,7 +111,9 @@ alpha = shell[..., 3]
 # ---------------------------------------------------------------- Aussparungen messen
 hole = alpha < 0.04
 def hole_bbox(x0, y0, x1, y1):
-    sub = hole[y0:y1, x0:x1]; ys, xs = np.nonzero(sub)
+    # nur die zusammenhängende Öffnung um die Mitte des Suchfensters (keine durchsichtigen Nachbarpixel)
+    lab, _ = ndimage.label(hole[y0:y1, x0:x1])
+    sub = lab == lab[(y1 - y0) // 2, (x1 - x0) // 2]; ys, xs = np.nonzero(sub)
     return [int(xs.min() + x0), int(ys.min() + y0), int(xs.max() + x0 + 1), int(ys.max() + y0 + 1)]
 spk_rects = manifest['layout']['speakers']
 SPK = {}
@@ -129,17 +132,18 @@ under(front, glass, x0 - 8, y0 - 8)
 
 # Lautsprecher: Gitter + Rand mit ausgeschaltetem Ring, dazu ausgeschaltete Pixelpilze
 # Pilzmitte und -größe aus der integrierten Hülle des Pakets gemessen
-MUSH = {'left': (486.5, 764.5, 0.785), 'right': (2503.5, 772.0, 0.79)}
+# Pilz links gemessen; rechts gespiegelt an der Lautsprechermitte, damit beide Seiten gleich sitzen
+MUSH = {'left': (486.5, 764.5, 0.785)}
+_lc, _rc = (SPK['left'][0] + SPK['left'][2]) / 2, (SPK['right'][0] + SPK['right'][2]) / 2
+MUSH['right'] = (_rc - (MUSH['left'][0] - _lc), MUSH['left'][1] + (SPK['right'][1] - SPK['left'][1]), MUSH['left'][2])
 LAYERS = {n: np.zeros((CH, CW, 4), np.float32) for n in ('gold-halo', 'gold', 'cyan-halo', 'cyan')}
 layout_spk = {}
 CONE = {}
 for side in ('left', 'right'):
     x0, y0, x1, y1 = SPK[side]
-    pad = 10   # Rand greift etwas unter die Hülle
-    rim_bbox = (37, 37, 987, 991)          # sichtbarer Rand im 1024er Lautsprecherbild
-    sx = (x1 - x0 + 2 * pad) / (rim_bbox[2] - rim_bbox[0]); sy = (y1 - y0 + 2 * pad) / (rim_bbox[3] - rim_bbox[1])
-    W, H = round(1024 * sx), round(1024 * sy)
-    ox, oy = round(x0 - pad - rim_bbox[0] * sx), round(y0 - pad - rim_bbox[1] * sy)
+    # Lautsprecherbild genau in das Rechteck aus dem Manifest (wie in der Paketvorschau): der Rand sitzt dann mit
+    # Abstand im Rahmen. Den Rand auf die Öffnung zu ziehen machte beide Lautsprecher ~8 % zu groß.
+    ox, oy, W, H = spk_rects[side]
     spk = resize(lights_off(load(f'speakers/grille-{side}.png')), W, H)
     rim = resize(lights_off(load(f'speakers/rim-{side}.png')), W, H)
     over(spk, rim, 0, 0)
@@ -181,6 +185,11 @@ for side, (cx, cy, r, (mcx, mcy)) in CONE.items():
     cone = front[y0:y1, x0:x1].copy(); cone[..., 3] *= disc[y0:y1, x0:x1]
     save(resize(cone, (x1 - x0) // 2, (y1 - y0) // 2), os.path.join(args.web, f'cone-{s}.webp'), quality=90)
     CONES[s] = {'rect': [x0, y0, x1 - x0, y1 - y0], 'center': [mcx, mcy]}
+    # Lochmaske des Gitters: dunkle Löcher gegenüber ihrer Umgebung -> dort scheint das RGB-Licht durch
+    cl = (cone[..., :3] @ np.array([0.3, 0.55, 0.15], np.float32))
+    holes = np.clip((ndimage.gaussian_filter(cl, 4) - cl) / (ndimage.gaussian_filter(cl, 4) + 0.02) * 3, 0, 1) * cone[..., 3]
+    mask = np.ones(cone.shape, np.float32); mask[..., 3] = holes
+    save(resize(mask, (x1 - x0) // 2, (y1 - y0) // 2), os.path.join(args.web, f'mesh-{s}.webp'), quality=85)
     # Gold: Ringlicht fällt auf die Gehäusekanten rund um den Lautsprecher (nicht auf die Membran)
     fall = np.exp(-np.clip(d - r * 1.08, 0, None) / (r * 0.3)) * (d > r * 1.0)
     for name, a, col in (('gold-edge', np.clip(catch * fall * 0.8, 0, 1), (1.0, 0.72, 0.28)),
