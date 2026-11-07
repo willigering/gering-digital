@@ -195,6 +195,10 @@ slab('handle', parts['handle'], HANDLE_FRONT, HANDLE_DEPTH)
 # ---------------------------------------------------------------- Bodenschatten (Shadow Catcher: nur der Schatten wird sichtbar)
 bpy.ops.mesh.primitive_plane_add(size=40, location=(0, DEPTH / 2, Z(CH) - 0.002))
 floor = bpy.context.active_object; floor.name = 'floor'; floor.is_shadow_catcher = True
+# Licht steil von hinten oben: wirft den Schatten nach vorn sichtbar unter das Gerät (Kamera sieht den Boden davor)
+sun_d = bpy.data.lights.new('shadow', 'SUN'); sun_d.energy = 5.0; sun_d.angle = math.radians(18)
+sun = bpy.data.objects.new('shadow', sun_d); scene.collection.objects.link(sun)
+sun.rotation_euler = (math.radians(-32), math.radians(6), 0)
 
 # ---------------------------------------------------------------- Licht, Kamera, Welt
 world = bpy.data.worlds.new('w'); scene.world = world; wn = nodes(world)
@@ -244,7 +248,7 @@ def proj(x, y, d):
     return co.x, 1 - co.y
 pts = [proj(x, y, d) for x in (0, CW) for y in (0, CH) for d in (0, DEPTH)]
 SH = 0.7 / U   # Bodenschatten reicht etwas über das Gerät hinaus
-pts += [proj(x, CH, d) for x in (-SH, CW + SH) for d in (-0.5, DEPTH + 1.0)]
+pts += [proj(x, CH, d) for x in (-SH, CW + SH) for d in (-1.6, DEPTH + 0.6)]
 pad = 12 / W
 CROP = [max(0, min(p[0] for p in pts) - pad), max(0, min(p[1] for p in pts) - pad), min(1, max(p[0] for p in pts) + pad), min(1, max(p[1] for p in pts) + pad)]
 r = scene.render
@@ -290,7 +294,6 @@ for s, cone in (PACK.get('cones') or {}).items():
     box = cone['rect']; mx, my = cone['center']
     lines.append(f'.nr-cone--{s}{{{place(box)};--mx:{pct(mx - box[0], box[2])};--my:{pct(my - box[1], box[3])}}}')
     lines.append(f'.nr-glow__gold-edge-{s}{{{place(cone["gold-edge"])}}}')
-    lines.append(f'.nr-cone--{s} .nr-cone__mesh{{-webkit-mask-image:url(mesh-{s}.webp);mask-image:url(mesh-{s}.webp)}}')
     lines.append(f'.nr-cone--{s} .nr-glow__cyan-edge-{s}{{{rel(cone["cyan-edge"], box)}}}')
     for n in ('cyan', 'cyan-halo'):
         lines.append(f'.nr-cone--{s} .nr-glow__{n}-{s}{{{rel(PACK["lights"][f"{n}-{s}"], box)}}}')

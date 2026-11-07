@@ -384,7 +384,7 @@
     }
     if (on && !calm) phase = (phase + dt * (0.12 + 0.9 * lo)) % (Math.PI * 2);
     const hue = 185 + 140 * (0.5 - 0.5 * Math.cos(phase));   // pendelt Türkis (185) ↔ Pink (325)
-    const led = !on ? 0 : calm ? 0.75 : 0.22 + 0.78 * lo, mesh = !on ? 0 : calm ? 0.25 : 0.06 + 0.5 * push;
+    const led = !on ? 0 : calm ? 0.75 : 0.22 + 0.78 * lo, mesh = !on ? 0 : calm ? 0.4 : 0.12 + 0.85 * push;
     const rgb = `${Math.round(hue)}|${led.toFixed(2)}|${mesh.toFixed(2)}`;
     if (rgb !== lastRgb) {
       lastRgb = rgb;

@@ -2,7 +2,7 @@
 
 Aufruf (Python 3 mit Pillow, NumPy, SciPy):
   python tools/nerd-radio/prepare_pack.py --pack <Ordner mit nerd-radio-pack> [--web dau-to-pro/nerd-radio] [--work tools/nerd-radio/.work]
-         [--surfaces <Ordner mit nerd-radio-surfaces>]
+         [--surfaces <Ordner mit nerd-radio-surfaces>] --speakers <Ordner mit nerd-radio-speaker-layers>
 
 Schritte:
 - Front-Textur für Blender (work/front.png, 2910 x 1242, Paket-Koordinaten): modulare Hülle mit
@@ -11,8 +11,10 @@ Schritte:
 - Lichtebenen für die Website, je Lautsprecher zugeschnitten, in voller Paketauflösung, Positionen in pack.json:
   light-gold-*/light-cyan-* = scharfer Kern (Ring bzw. Pixelpilz, Pilz verlustfrei), light-gold-halo-*/light-cyan-halo-*
   = weicher Schein. Kern und Schein sind getrennt, damit der Kern beim Pulsieren hell und scharf bleibt. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
-- Membranen (cone-l/r.webp): Gitter + Pilz innerhalb des Randes, als eigene Ebene, die mit dem Bass pumpt.
-- Gitter-Lochmasken (mesh-l/r.webp) für das RGB-Licht, das durch die Membran scheint.
+- Lautsprecher aus dem Ebenenpaket „nerd-radio-speaker-layers“ (rechts geliefert, links gespiegelt):
+  Membran (cone-l/r.webp, schwingt mit dem Bass), stehendes Gitter mit eingesetztem Pilz (grille-l/r.webp,
+  Löcher durchsichtig), Pilz-LEDs und Pilzschein als Lichtebenen. Rand und Goldring bleiben aus dem Grafikpaket.
+- RGB-Licht fällt in der Website auf die Membran und ist so nur durch die Gitterlöcher sichtbar.
 - Kantenlicht (light-gold-edge-*, light-cyan-edge-*): Lichtfall der Ringe auf Gehäusekanten bzw. des Pilzes aufs
   Gitter, aus Helligkeit und Hochpass der Front berechnet, mit Abfall zur Lichtquelle.
 - Tasten (normal / hover / gedrückt) und Lautstärkeregler als WebP.
@@ -30,6 +32,7 @@ ap.add_argument('--pack', required=True)
 ap.add_argument('--web', default='dau-to-pro/nerd-radio')
 ap.add_argument('--work', default='tools/nerd-radio/.work')
 ap.add_argument('--surfaces')
+ap.add_argument('--speakers', required=True, help='Ordner mit nerd-radio-speaker-layers (Membran, Gitter, Pilz-LEDs)')
 args = ap.parse_args()
 PACK = args.pack if os.path.isdir(os.path.join(args.pack, 'assets')) else os.path.join(args.pack, 'nerd-radio-pack')
 A = lambda p: os.path.join(PACK, 'assets', p)
@@ -133,9 +136,18 @@ under(front, glass, x0 - 8, y0 - 8)
 # Lautsprecher: Gitter + Rand mit ausgeschaltetem Ring, dazu ausgeschaltete Pixelpilze
 # Pilzmitte und -größe aus der integrierten Hülle des Pakets gemessen
 # Pilz links gemessen; rechts gespiegelt an der Lautsprechermitte, damit beide Seiten gleich sitzen
-MUSH = {'left': (486.5, 764.5, 0.785)}
-_lc, _rc = (SPK['left'][0] + SPK['left'][2]) / 2, (SPK['right'][0] + SPK['right'][2]) / 2
-MUSH['right'] = (_rc - (MUSH['left'][0] - _lc), MUSH['left'][1] + (SPK['right'][1] - SPK['left'][1]), MUSH['left'][2])
+SL = args.speakers if os.path.isdir(os.path.join(args.speakers, 'optional-alpha')) else os.path.join(args.speakers, 'nerd-radio-speaker-layers')
+def sl_rgba(name):
+    return np.asarray(Image.open(os.path.join(SL, name)).convert('RGBA')).astype(np.float32) / 255
+def sl_light(name):
+    """Lichtebene auf Schwarz -> RGBA (Deckkraft = hellster Kanal, Farbe entmultipliziert)."""
+    rgb = np.asarray(Image.open(os.path.join(SL, name)).convert('RGB')).astype(np.float32) / 255
+    a = rgb.max(-1); out = np.zeros(rgb.shape[:2] + (4,), np.float32)
+    out[..., :3] = rgb / np.maximum(a, 1e-4)[..., None]; out[..., 3] = a
+    return out
+SP = {'cone': sl_rgba('optional-alpha/01-woofer-cone-alpha.png'), 'grille': sl_rgba('optional-alpha/02-grille-led-off-alpha.png'),
+      'led': sl_light('03-mushroom-led-on-black.png'), 'glow': sl_light('04-mushroom-glow-black.png')}
+GRILLES = {}
 LAYERS = {n: np.zeros((CH, CW, 4), np.float32) for n in ('gold-halo', 'gold', 'cyan-halo', 'cyan')}
 layout_spk = {}
 CONE = {}
@@ -144,28 +156,27 @@ for side in ('left', 'right'):
     # Lautsprecherbild genau in das Rechteck aus dem Manifest (wie in der Paketvorschau): der Rand sitzt dann mit
     # Abstand im Rahmen. Den Rand auf die Öffnung zu ziehen machte beide Lautsprecher ~8 % zu groß.
     ox, oy, W, H = spk_rects[side]
-    spk = resize(lights_off(load(f'speakers/grille-{side}.png')), W, H)
+    flip = (lambda a: a[:, ::-1]) if side == 'left' else (lambda a: a)   # Ebenen sind für rechts gebaut
     rim = resize(lights_off(load(f'speakers/rim-{side}.png')), W, H)
-    over(spk, rim, 0, 0)
-    mcx, mcy, ms = MUSH[side]
-    m = load(f'speakers/mushroom-{side}.png'); mw, mh = round(m.shape[1] * ms), round(m.shape[0] * ms)
-    m_off = m.copy(); g = m_off[..., :3].mean(-1, keepdims=True)
-    m_off[..., :3] = g * np.array([0.16, 0.22, 0.24], np.float32); m_off[..., 3] *= 0.8   # LED-Pixel aus: dunkles Glas
-    mx, my = round(mcx - mw / 2), round(mcy - mh / 2)
-    over(spk, resize(m_off, mw, mh), mx - ox, my - oy)
+    cone_img = resize(flip(SP['cone']), W, H); grille = resize(flip(SP['grille']), W, H)
+    cone_img[..., :3] *= 0.72; grille[..., :3] *= 0.85        # an das dunkle Gehäuse angleichen
+    # Innenfläche des Randes = sichtbarer Bereich von Membran und Gitter
+    lab, _ = ndimage.label(rim[..., 3] < 0.5)
+    inner = (lab == lab[H // 2, W // 2]).astype(np.float32)
+    inner = np.clip(ndimage.gaussian_filter(ndimage.binary_erosion(inner > 0, iterations=2).astype(np.float32), 0.8), 0, 1)
+    spk = cone_img.copy(); over(spk, grille, 0, 0); over(spk, rim, 0, 0)
     under(front, spk, ox, oy)
     # Lichtebenen in gleicher Lage
     over(LAYERS['gold-halo'], resize(load(f'speakers/glow-amber-{side}.png'), W, H), ox, oy)
     over(LAYERS['gold'], resize(load(f'speakers/ring-amber-{side}.png'), W, H), ox, oy)
-    g2 = load(f'speakers/mushroom-glow-{side}.png')
-    over(LAYERS['cyan-halo'], resize(g2, round(g2.shape[1] * ms), round(g2.shape[0] * ms)), mx + round((m.shape[1] - g2.shape[1]) * ms / 2), my + round((m.shape[0] - g2.shape[0]) * ms / 2))
-    over(LAYERS['cyan'], resize(m, mw, mh), mx, my)
+    over(LAYERS['cyan-halo'], resize(flip(SP['glow']), W, H), ox, oy)
+    over(LAYERS['cyan'], resize(flip(SP['led']), W, H), ox, oy)
     layout_spk[side] = [ox, oy, W, H]
-    # Membran: Innenfläche des Randes (Mitte und Radius aus der Aussparung im Randbild)
-    lab, _ = ndimage.label(rim[..., 3] < 0.5)
-    inner = lab == lab[H // 2, W // 2]
-    iy, ix = np.nonzero(inner)
-    CONE[side] = (float(ix.mean() + ox), float(iy.mean() + oy), float(np.sqrt(inner.sum() / np.pi)) - 3, (mcx, mcy))
+    iy, ix = np.nonzero(inner > 0.5)
+    bx0, by0, bx1, by1 = int(ix.min()), int(iy.min()), int(ix.max() + 1), int(iy.max() + 1)
+    cone_img[..., 3] *= inner; grille[..., 3] *= inner
+    GRILLES[side] = (cone_img[by0:by1, bx0:bx1], grille[by0:by1, bx0:bx1])
+    CONE[side] = (bx0 + ox, by0 + oy, bx1 - bx0, by1 - by0)
 
 # Front für Blender (verlustfrei, volle Auflösung)
 Image.fromarray((np.clip(front, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(os.path.join(args.work, 'front.png'))
@@ -177,23 +188,21 @@ lum = (front[..., :3] @ np.array([0.3, 0.55, 0.15], np.float32)) * front[..., 3]
 hp = np.clip(lum - ndimage.gaussian_filter(lum, 5), 0, None)          # Kanten und Grate, die Licht fangen
 catch = np.clip(lum * 0.7 + hp * 12, 0, 1)
 CONES = {}
-for side, (cx, cy, r, (mcx, mcy)) in CONE.items():
+for side, (x0, y0, w, h) in CONE.items():
     s = side[0]
+    cx, cy = x0 + w / 2, y0 + h / 2; r = min(w, h) / 2
+    mcx, mcy = cx, cy                                                    # Pilz sitzt mittig im Gitter
     d = np.hypot(xx - cx, yy - cy)
-    disc = np.clip(r - d, 0, 1.5) / 1.5                                  # weiche Kante
-    x0, y0, x1, y1 = int(cx - r - 2), int(cy - r - 2), int(cx + r + 3), int(cy + r + 3)
-    cone = front[y0:y1, x0:x1].copy(); cone[..., 3] *= disc[y0:y1, x0:x1]
-    save(resize(cone, (x1 - x0) // 2, (y1 - y0) // 2), os.path.join(args.web, f'cone-{s}.webp'), quality=90)
-    CONES[s] = {'rect': [x0, y0, x1 - x0, y1 - y0], 'center': [mcx, mcy]}
-    # Lochmaske des Gitters: dunkle Löcher gegenüber ihrer Umgebung -> dort scheint das RGB-Licht durch
-    cl = (cone[..., :3] @ np.array([0.3, 0.55, 0.15], np.float32))
-    holes = np.clip((ndimage.gaussian_filter(cl, 4) - cl) / (ndimage.gaussian_filter(cl, 4) + 0.02) * 3, 0, 1) * cone[..., 3]
-    mask = np.ones(cone.shape, np.float32); mask[..., 3] = holes
-    save(resize(mask, (x1 - x0) // 2, (y1 - y0) // 2), os.path.join(args.web, f'mesh-{s}.webp'), quality=85)
+    disc = np.zeros((CH, CW), np.float32)
+    disc[y0:y0 + h, x0:x0 + w] = GRILLES[side][1][..., 3] > 0           # nur Gitterstege fangen Licht
+    cone_img, grille = GRILLES[side]
+    save(resize(cone_img, w // 2, h // 2), os.path.join(args.web, f'cone-{s}.webp'), quality=90)
+    save(grille, os.path.join(args.web, f'grille-{s}.webp'), quality=84)
+    CONES[s] = {'rect': [x0, y0, w, h], 'center': [mcx, mcy]}
     # Gold: Ringlicht fällt auf die Gehäusekanten rund um den Lautsprecher (nicht auf die Membran)
     fall = np.exp(-np.clip(d - r * 1.08, 0, None) / (r * 0.3)) * (d > r * 1.0)
     for name, a, col in (('gold-edge', np.clip(catch * fall * 0.8, 0, 1), (1.0, 0.72, 0.28)),
-                         ('cyan-edge', np.clip(catch * np.exp(-np.hypot(xx - mcx, yy - mcy) / (r * 0.38)) * disc * 1.3, 0, 1), (0.25, 0.9, 1.0))):
+                         ('cyan-edge', np.clip(catch * np.exp(-np.hypot(xx - mcx, yy - mcy) / (r * 0.45)) * disc * 1.3, 0, 1), (0.25, 0.9, 1.0))):
         ys_, xs_ = np.nonzero(a > 0.015)
         bx0, by0, bx1, by1 = int(xs_.min()), int(ys_.min()), int(xs_.max() + 1), int(ys_.max() + 1)
         lay = np.zeros((by1 - by0, bx1 - bx0, 4), np.float32); lay[..., :3] = col; lay[..., 3] = a[by0:by1, bx0:bx1]

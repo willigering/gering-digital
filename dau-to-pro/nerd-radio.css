@@ -48,7 +48,8 @@
 .nr-device:not([data-state=playing]) :is(.nr-glow,.nr-cone [data-radio-light]){transition:opacity .8s ease-out}
 
 /* ---------- Membranen: pumpen mit dem Bass (Skalierung um die Pilzmitte), im Rand beschnitten ---------- */
-.nr-face>.nr-cone{position:absolute;pointer-events:none;clip-path:circle(50%)}
+.nr-face>.nr-cone{position:absolute;pointer-events:none;clip-path:ellipse(50% 50%)}
+.nr-cone__grille{left:0;top:0;width:100%;height:100%}   /* steht still, Löcher durchsichtig */
 .nr-cone__body{position:absolute;inset:0;transform-origin:var(--mx) var(--my);--nr-push:0}
 .nr-device:not([data-state=playing]) .nr-cone__body{transition:transform .5s ease-out}
 .nr-cone__img{left:0;top:0;width:100%;height:100%}
@@ -61,10 +62,10 @@
    Farbbereich Türkis – Blau – Lila – Pink (kein Gelb/Grün neben dem Gold der Ringe). */
 .nr-device{--nr-hue:190;--nr-led:0;--nr-mesh:0;
   --nr-c1:hsl(var(--nr-hue) 95% 55%);--nr-c2:hsl(calc(var(--nr-hue) + 30) 95% 58%);--nr-c3:hsl(calc(var(--nr-hue) - 30) 95% 50%)}
-/* Licht scheint durch die Löcher des Gitters (Maske aus layout.css), Mitte am hellsten, pumpt mit der Membran */
+/* RGB-Licht auf der Membran (Mitte am hellsten); durch das stehende Gitter darüber nur in den Löchern sichtbar */
 .nr-cone__mesh{position:absolute;inset:0;opacity:var(--nr-mesh);mix-blend-mode:screen;
   background:radial-gradient(circle at var(--mx) var(--my),var(--nr-c2) 0,var(--nr-c1) 50%,var(--nr-c3) 100%);
-  -webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+}
 /* LED-Ring um den Tieftöner: einzelne LEDs plus weicher Schein, der über Rand und Gehäuse strahlt */
 .nr-face>.nr-led{position:absolute;pointer-events:none;opacity:var(--nr-led);mix-blend-mode:screen}
 .nr-led::before,.nr-led::after{content:"";position:absolute;border-radius:50%;

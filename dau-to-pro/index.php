@@ -111,13 +111,13 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
             return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
           }; ?>
-          <!-- Membranen: pumpen mit dem Bass; Pilz, Pilzlicht und farbiges Licht durchs Lochgitter bewegen sich mit.
+          <!-- Lautsprecher: Membran schwingt mit dem Bass hinter dem stehenden Gitter mit eingesetztem Pixelpilz;
+               das RGB-Licht fällt auf die Membran und ist nur durch die Gitterlöcher zu sehen.
                Darüber je ein RGB-LED-Ring um den Tieftöner (Farbe wandert, Helligkeit folgt dem Bass). -->
 <?php foreach (['l', 'r'] as $nrS): ?>
           <div class="nr-cone nr-cone--<?=$nrS?>" aria-hidden="true"><div class="nr-cone__body" data-radio-cone>
-            <?=$nrImg("cone-$nrS", 'nr-cone__img')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?>
-            <span class="nr-cone__mesh"></span><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?><span class="nr-cone__shade"></span>
-          </div></div>
+            <?=$nrImg("cone-$nrS", 'nr-cone__img')?><span class="nr-cone__mesh"></span><span class="nr-cone__shade"></span>
+          </div><?=$nrImg("grille-$nrS", 'nr-cone__grille')?><?=$nrImg("light-cyan-edge-$nrS", "nr-glow__cyan-edge-$nrS", 'cyan-edge')?><?=$nrImg("light-cyan-halo-$nrS", "nr-glow__cyan-halo-$nrS", 'cyan-halo')?><?=$nrImg("light-cyan-$nrS", "nr-glow__cyan-$nrS", 'cyan')?></div>
           <div class="nr-led nr-cone--<?=$nrS?>" aria-hidden="true"></div>
 <?php endforeach; ?>
           <!-- Echtes Licht: Ringe (Gold = Bass) samt Lichtfall auf die Gehäusekanten; Helligkeit folgt der Musik -->
