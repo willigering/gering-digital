@@ -65,7 +65,7 @@
   let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null;
   let timer = 0, step = 0, nextStepAt = 0, pending = [];
   let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, shuffleFlash = 0;
-  let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
+  let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, faceAspect = 0, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
   const voices = new Set();
   const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
   let freqData = null, waveData = null;
@@ -379,11 +379,18 @@
     const W = root.clientWidth, H = root.clientHeight;
     if (q.length !== 8 || q.some(n => !Number.isFinite(n)) || !W) return;
     const dst = [0, 1, 2, 3].map(i => [q[i * 2] * W, q[i * 2 + 1] * H]);
-    const fw = ui.faces[0].offsetWidth || 1000, fh = ui.faces[0].offsetHeight || 450;   // Paket-Koordinaten aus layout.css
+    /* Die Frontebene bekommt ungefähr ihre sichtbare Bildschirmgröße (Seitenverhältnis aus layout.css, Paket-Koordinaten).
+       Wäre sie in voller Paketgröße (2910 px) und per matrix3d auf ein Fünftel verkleinert, rechnen Browser die 3D-Ebene
+       groß und verkleinern sie grob auf der Grafikkarte – Pilze, Tasten und Schrift verschwimmen. Alle Positionen und
+       Schriftgrößen darin sind relativ (% bzw. cqw), daher skaliert der Inhalt mit. */
+    if (!faceAspect) faceAspect = (ui.faces[0].offsetHeight || 450) / (ui.faces[0].offsetWidth || 1000);
+    const len = (p, q2) => Math.hypot(q2[0] - p[0], q2[1] - p[1]);
+    const fw = Math.max(1, Math.ceil(Math.max(len(dst[0], dst[1]), len(dst[3], dst[2]), Math.max(len(dst[0], dst[3]), len(dst[1], dst[2])) / faceAspect)));
+    const fh = fw * faceAspect;
     const [a, b, c2, d, e, f, g, h] = homography([[0, 0], [fw, 0], [fw, fh], [0, fh]], dst);
     const m = `matrix3d(${[a, d, 0, g, b, e, 0, h, 0, 0, 1, 0, c2, f, 0, 1].map(n => +n.toFixed(8)).join(',')})`;
-    ui.faces.forEach(el => { el.style.transform = m; el.classList.add('is-placed'); });
-    faceScale = Math.hypot(dst[1][0] - dst[0][0], dst[1][1] - dst[0][1]) / fw;
+    ui.faces.forEach(el => { el.style.width = `${fw}px`; el.style.height = `${fh}px`; el.style.transform = m; el.classList.add('is-placed'); });
+    faceScale = len(dst[0], dst[1]) / fw;
   }
 
   // Canvas scharf halten (Gerätepixel), ohne bei jedem Frame die Größe zu prüfen.

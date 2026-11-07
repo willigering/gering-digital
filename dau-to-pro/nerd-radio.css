@@ -1,7 +1,7 @@
 /* DAU TO PRO // NERD RADIO – Cyberpunk-Ghettoblaster.
    Aufbau (Grafikpaket „nerd-radio-pack“ + Blender):
    - nerd-radio/base.webp: 3D-Gehäuse aus Blender, Front mit der Paket-Grafik, alle Leuchten aus
-   - .nr-face: Frontebene in Paket-Koordinaten (2910 x 1242), per matrix3d exakt auf die schräge Front gelegt.
+   - .nr-face: Frontebene (Seitenverhältnis des Pakets, Größe ≈ sichtbare Größe), per matrix3d exakt auf die schräge Front gelegt.
      Darin liegen die Lichtebenen (nur Ringe und Pixelpilze leuchten, Helligkeit folgt der Musik),
      das Display, die Tasten (Paket-Grafiken normal / hover / gedrückt) und der Lautstärkeregler.
    Positionen stehen in nerd-radio/layout.css (generiert von tools/nerd-radio/build_boombox.py).
@@ -51,7 +51,7 @@
   background:radial-gradient(120% 90% at 25% 0%,#0d3b48e6 0,#04161df2 55%,#020b0f 100%);
   box-shadow:inset 0 0 1.8cqw #22dcf544,inset 0 .3cqw .6cqw #000c}
 .nr-display__glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
-  background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 1px,transparent 1px 3px)}
+  background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 .035cqw,transparent .035cqw .1cqw)}
 .nr-display__brand{grid-column:1;grid-row:1;display:flex;align-items:center;gap:4%;min-width:0}
 .nr-display__brand img{width:4.4cqw;height:4.4cqw;flex:none;image-rendering:pixelated;filter:drop-shadow(0 0 .5cqw #ff6b4a88)}
 .nr-display__brand h2{flex:1;min-width:0;margin:0;line-height:0}
@@ -68,7 +68,7 @@
 .nr-device[data-state=paused] .nr-display__icon{clip-path:none;background:linear-gradient(90deg,var(--gold) 0 36%,transparent 36% 64%,var(--gold) 64%);filter:drop-shadow(0 0 .4cqw var(--gold));animation:nr-blink 1.1s steps(2,jump-none) infinite}
 .nr-device[data-state=stopped] .nr-display__icon{clip-path:inset(8%)}
 @keyframes nr-blink{50%{opacity:.25}}
-.nr-display__meta{grid-column:1/-1;grid-row:3;display:flex;align-items:center;gap:2.4%;min-width:0;border-top:1px solid #22dcf530;padding-top:.5cqw;font-weight:700;font-size:2.15cqw;line-height:1;color:#9cf3ff}
+.nr-display__meta{grid-column:1/-1;grid-row:3;display:flex;align-items:center;gap:2.4%;min-width:0;border-top:.05cqw solid #22dcf530;padding-top:.5cqw;font-weight:700;font-size:2.15cqw;line-height:1;color:#9cf3ff}
 .nr-display__time{flex:none;font-variant-numeric:tabular-nums;letter-spacing:.03em}
 .nr-display__bar{position:relative;flex:1;height:.7cqw;min-width:0;border-radius:1cqw;background:#0b3540;box-shadow:inset 0 0 .3cqw #000}
 .nr-display__bar i{position:absolute;inset:0 auto 0 0;width:var(--nr-pos,0%);border-radius:inherit;background:linear-gradient(90deg,#0fb8d4,var(--cyan));box-shadow:0 0 .8cqw var(--cyan)}
@@ -83,7 +83,7 @@
   background:#03141a}
 .nr-playlist[hidden]{display:none}
 .nr-playlist__list{list-style:none;margin:0;padding:0;display:grid;gap:.1cqw}
-.nr-playlist__item{display:flex;align-items:center;gap:3%;width:100%;padding:.2cqw 1cqw;border:1px solid transparent;border-radius:.6cqw;background:transparent;color:#bff7ff;cursor:pointer;text-align:left;
+.nr-playlist__item{display:flex;align-items:center;gap:3%;width:100%;padding:.2cqw 1cqw;border:.05cqw solid transparent;border-radius:.6cqw;background:transparent;color:#bff7ff;cursor:pointer;text-align:left;
   font:700 1.95cqw/1.2 ui-monospace,"Cascadia Mono",Consolas,monospace;white-space:nowrap}
 .nr-playlist__item b{flex:none;color:var(--gold);font-weight:800}
 .nr-playlist__item span{min-width:0;overflow:hidden;text-overflow:ellipsis}
@@ -94,7 +94,7 @@
 /* ---------- Tasten: Paket-Grafiken je Zustand (normal / hover / gedrückt); Bilder und Positionen in layout.css ---------- */
 .nr-transport{display:contents}
 .nr-key{position:absolute;margin:0;padding:0;border:0;cursor:pointer;background:transparent center/100% 100% no-repeat;-webkit-tap-highlight-color:transparent}
-.nr-key:focus-visible{outline:6px solid #fff;outline-offset:-14px;border-radius:24px}
+.nr-key:focus-visible{outline:.21cqw solid #fff;outline-offset:-.48cqw;border-radius:.82cqw}
 
 /* ---------- Lautstärke: Schiene, Füllung und Knopf aus dem Paket, darüber ein unsichtbarer Schieberegler ---------- */
 .nr-volume{position:absolute;--nr-vol:35%}
@@ -103,7 +103,7 @@
 .nr-volume__fill{clip-path:inset(0 calc(100% - 3.4% - var(--nr-vol) * .94) 0 0)}
 .nr-volume__knob{top:50%;left:calc(3.4% + var(--nr-vol) * .94);height:112%;aspect-ratio:1;transform:translate(-50%,-50%)}
 .nr-volume input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
-.nr-volume:has(input:focus-visible){outline:6px solid #fff;outline-offset:6px;border-radius:20px}
+.nr-volume:has(input:focus-visible){outline:.21cqw solid #fff;outline-offset:.21cqw;border-radius:.69cqw}
 
 /* Fehlerhinweis (z. B. Audio vom Browser blockiert) */
 .nr-device.has-error .nr-display__track{color:#ffb4a0;text-shadow:0 0 .6cqw #ff5a3a}
