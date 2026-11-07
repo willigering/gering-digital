@@ -8,6 +8,9 @@ Cyan und Gold, Membranen, Tasten je Platz und Zustand), layout.css und anchors.j
 Bedienelemente. Die Website legt echte HTML-Tasten, Display und Regler darüber.
 Im Gehäuse-Render sind deshalb keine Tasten und keine Anzeige enthalten.
 
+Metalloberflächen nutzen CC0-Foto-Texturen von Poly Haven (metal_plate_02, rusty_painted_metal,
+rusty_metal_02). Das Skript lädt sie beim ersten Lauf nach tools/nerd-radio/textures/ (nicht im Repo).
+
 Koordinaten: Entwurf im 1000 x 450 Layoutraster (x nach rechts, y nach unten),
 1 Blender-Einheit = 100 Layoutpixel. Vorderseite des Korpus liegt bei Y = 0,
 der Korpus reicht nach hinten (+Y). Kamera blickt von vorn (-Y) leicht von oben.
@@ -106,6 +109,36 @@ def subtract(target, *cutters):
         w, s = bev.width, bev.segments; target.modifiers.remove(bev)
         b = target.modifiers.new('bevel', 'BEVEL'); b.width = w; b.segments = s; b.limit_method = 'ANGLE'
 
+# ---------------------------------------------------------------- Foto-Texturen (Poly Haven, CC0)
+# Werden beim ersten Lauf von Poly Haven geladen und in tools/nerd-radio/textures/ zwischengespeichert
+# (per .gitignore nicht im Repo). Fehlen sie und es gibt kein Netz, bleibt es bei den prozeduralen Materialien.
+TEX_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'textures')
+TEXTURES = {'metal_plate_02': ('Diffuse', 'nor_gl', 'Rough'),
+            'rusty_painted_metal': ('Diffuse',),
+            'rusty_metal_02': ('Diffuse',)}
+def fetch_textures():
+    import urllib.request
+    have = {}
+    for asset, maps in TEXTURES.items():
+        try:
+            files = None
+            for m in maps:
+                path = os.path.join(TEX_DIR, f'{asset}_{m}_2k.jpg')
+                if not os.path.exists(path):
+                    if files is None:
+                        req = urllib.request.Request(f'https://api.polyhaven.com/files/{asset}', headers={'User-Agent': 'nerd-radio-build'})
+                        files = json.load(urllib.request.urlopen(req, timeout=30))
+                    url = files[m]['2k']['jpg']['url']
+                    os.makedirs(TEX_DIR, exist_ok=True)
+                    req = urllib.request.Request(url, headers={'User-Agent': 'nerd-radio-build'})
+                    with urllib.request.urlopen(req, timeout=120) as r, open(path + '.part', 'wb') as f: f.write(r.read())
+                    os.replace(path + '.part', path); print('TEXTURE', os.path.basename(path))
+                have.setdefault(asset, {})[m] = path
+        except Exception as e:
+            print('TEXTURE fehlt', asset, e); have.pop(asset, None)
+    return have
+TEX = fetch_textures()
+
 # ---------------------------------------------------------------- Materialien
 def nodes(mat):
     mat.use_nodes = True; nt = mat.node_tree
@@ -164,33 +197,71 @@ def edge_mask(nt, radius=0.012, gain=7.0):
     inv = math_node(nt, 'SUBTRACT', 1.0, dot.outputs['Value'])
     return math_node(nt, 'MULTIPLY', inv, gain, clamp=True)
 
+def tex(nt, asset, m, scale=0.55, color=False):
+    """Foto-Textur per Box-Projektion in Weltkoordinaten (keine UVs nötig, keine Verzerrung bei skalierten Objekten)."""
+    if m not in TEX.get(asset, {}): return None
+    img = bpy.data.images.load(TEX[asset][m], check_existing=True)
+    img.colorspace_settings.name = 'sRGB' if color else 'Non-Color'
+    n = nt.nodes.new('ShaderNodeTexImage'); n.image = img; n.projection = 'BOX'; n.projection_blend = 0.25
+    geo = nt.nodes.new('ShaderNodeNewGeometry'); mp = nt.nodes.new('ShaderNodeMapping')
+    mp.inputs['Scale'].default_value = (scale,) * 3
+    seed = sum(map(ord, asset + name_seed[0]))   # fester Versatz je Material, damit sich das Muster nicht wiederholt
+    mp.inputs['Location'].default_value = (seed % 97 / 97, seed % 89 / 89, seed % 83 / 83)
+    nt.links.new(geo.outputs['Position'], mp.inputs[0]); nt.links.new(mp.outputs[0], n.inputs['Vector'])
+    return n.outputs['Color']
+name_seed = ['']
+def lum(nt, c):
+    n = nt.nodes.new('ShaderNodeRGBToBW'); nt.links.new(c, n.inputs[0]); return n.outputs[0]
+
+def math_vec_scale(nt, c, k):
+    n = nt.nodes.new('ShaderNodeVectorMath'); n.operation = 'SCALE'; nt.links.new(c, n.inputs[0]); n.inputs['Scale'].default_value = k
+    return n.outputs[0]
+
 def mat_metal(name, base=(0.05, 0.06, 0.07), rust=0.55, wear=1.0, rough=0.42):
     """Dunkles Gunmetal mit Kantenabrieb, Kratzern, Schmutz und Rostflecken."""
-    m = bpy.data.materials.new(name); nt = nodes(m)
+    m = bpy.data.materials.new(name); nt = nodes(m); name_seed[0] = name
     b = principled(nt, **{'Metallic': 1.0, 'Roughness': rough})
     grime = noise(nt, 6, 8, 0.6).outputs['Fac']
     col = mix_color(nt, ramp(nt, grime, [(0.35, (0, 0, 0)), (0.7, (1, 1, 1))]), base, tuple(c * 1.6 for c in base))
+    plate = tex(nt, 'metal_plate_02', 'Diffuse', color=True)
+    if plate:   # Fotostruktur der Metallplatte, auf den dunklen Grundton eingefärbt
+        tint = nt.nodes.new('ShaderNodeMix'); tint.data_type = 'RGBA'; tint.blend_type = 'MULTIPLY'
+        sock(tint, 'Factor_Float').default_value = 1.0
+        nt.links.new(col, sock(tint, 'A_Color')); nt.links.new(plate, sock(tint, 'B_Color'))
+        col = math_vec_scale(nt, sock(tint, 'Result_Color'), 3.2)
     # Rost: großflächige Flecken, bevorzugt an Rändern und in Vertiefungen
     rn = noise(nt, 2.2, 10, 0.7).outputs['Fac']
     rmask = ramp(nt, rn, [(0.58 - 0.12 * rust, (0, 0, 0)), (0.66 - 0.1 * rust, (1, 1, 1))])
     rmask = math_node(nt, 'MULTIPLY', ramp(nt, noise(nt, 18, 4).outputs['Fac'], [(0.4, (0.2, 0.2, 0.2)), (0.6, (1, 1, 1))]), rmask)
     rmask = math_node(nt, 'MULTIPLY', rmask, rust)
     rustc = mix_color(nt, noise(nt, 30, 3).outputs['Fac'], (0.16, 0.06, 0.02), (0.38, 0.17, 0.05))
+    rust_photo = tex(nt, 'rusty_metal_02', 'Diffuse', scale=0.8, color=True)
+    if rust_photo: rustc = mix_color(nt, 0.8, rustc, rust_photo)
+    paint = tex(nt, 'rusty_painted_metal', 'Diffuse', scale=0.7, color=True)
+    if paint:   # Rostflecken folgen zusätzlich der Fotovorlage
+        rmask = math_node(nt, 'MULTIPLY', rmask, ramp(nt, lum(nt, paint), [(0.25, (1.4, 1.4, 1.4)), (0.6, (0.5, 0.5, 0.5))]), clamp=True)
     col = mix_color(nt, rmask, col, rustc)
     # Kantenabrieb: blankes, helleres Metall an allen Fasen
     em = math_node(nt, 'MULTIPLY', edge_mask(nt), wear)
-    em = math_node(nt, 'MULTIPLY', em, ramp(nt, noise(nt, 40, 2).outputs['Fac'], [(0.35, (0.25, 0.25, 0.25)), (0.55, (1, 1, 1))]))
+    chip = lum(nt, paint) if paint else noise(nt, 40, 2).outputs['Fac']
+    em = math_node(nt, 'MULTIPLY', em, ramp(nt, chip, [(0.35, (0.25, 0.25, 0.25)), (0.55, (1, 1, 1))]))
     col = mix_color(nt, em, col, (0.42, 0.44, 0.46))
     nt.links.new(col, b.inputs['Base Color'])
     metal = math_node(nt, 'SUBTRACT', 1.0, rmask)
     nt.links.new(metal, b.inputs['Metallic'])
     scratches = noise(nt, 60, 2, 0.5, stretch=(1, 1, 40)).outputs['Fac']
     r = ramp(nt, scratches, [(0.45, (rough + 0.12,) * 3), (0.62, (rough - 0.18,) * 3)])
+    prough = tex(nt, 'metal_plate_02', 'Rough')
+    if prough: r = math_node(nt, 'ADD', math_node(nt, 'MULTIPLY', r, 0.55), math_node(nt, 'MULTIPLY', lum(nt, prough), 0.45 * rough / 0.42))
     r = math_node(nt, 'MAXIMUM', r, math_node(nt, 'MULTIPLY', rmask, 0.95))
     r = math_node(nt, 'SUBTRACT', r, math_node(nt, 'MULTIPLY', em, 0.18))
     nt.links.new(r, b.inputs['Roughness'])
     bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0.18
     nt.links.new(math_node(nt, 'ADD', math_node(nt, 'MULTIPLY', scratches, 0.4), math_node(nt, 'MULTIPLY', rmask, 1.2)), bump.inputs['Height'])
+    pnor = tex(nt, 'metal_plate_02', 'nor_gl')
+    if pnor:   # Normalen der Foto-Metallplatte (metal_plate_02), Bump für Kratzer und Rost oben drauf
+        nm = nt.nodes.new('ShaderNodeNormalMap'); nm.inputs['Strength'].default_value = 1.0
+        nt.links.new(pnor, nm.inputs['Color']); nt.links.new(nm.outputs['Normal'], bump.inputs['Normal'])
     nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
     return m
 
