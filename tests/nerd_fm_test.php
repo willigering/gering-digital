@@ -51,6 +51,7 @@ check(!nfm_link_ok('apipa',$lid,'sess-a',$q['e'],str_repeat('0',40),$now),'Gefä
 check(str_contains((string)nfm_card_note('osi-sprint',[]),'„7 Schichten“ freischaltbar'),'OSI-Karte: Song freischaltbar');
 check(str_contains((string)nfm_card_note('b5-netzwerkdienste',['b5.lernpfad'=>'x']),'freigeschaltet'),'B5-Karte nach Freischaltung');
 check(nfm_card_note('d2-it-sicherheit',[])===null,'Andere Karten ohne Vermerk');
+check(str_contains((string)nfm_card_note('osi',[]),'„7 Schichten“') && str_contains((string)nfm_card_note('osi-modell',[]),'„7 Schichten“'),'OSI-Karte auch unter älteren Adressen (osi, osi-modell)');
 $all=implode('',array_map(fn($s)=>(string)nfm_card_note($s,[]),['osi-sprint','b5-netzwerkdienste','a1-zahlensysteme','d2-it-sicherheit','b4-ipv6','cs1-csharp','f2-kalkulation','d1-datenschutz','netzwerke-sprint','subnet-sprint']));
 check(!str_contains($all,'DAU to PRO'),'Kein Vermerk für den versteckten Song');
 
