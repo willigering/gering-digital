@@ -52,7 +52,7 @@
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
     cones: [...root.querySelectorAll('[data-radio-cone]')], faces: [...root.querySelectorAll('[data-radio-face]')],
-    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]'), floor: root.parentElement.querySelector('.nr-floor')
+    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]')
   };
   const pen = ui.canvas.getContext('2d');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -335,14 +335,13 @@
   function applyBass() {
     const calm = reduced.matches;
     ui.cones.forEach(c => { c.style.transform = calm || !bass ? '' : `scale(${(1 + bass * 0.025).toFixed(3)})`; });
-    const gold = calm ? 0.78 : 0.5 + 0.5 * Math.min(1, bass * 1.35);
-    const cyan = calm ? 0.8 : 0.55 + 0.45 * Math.min(1, treble * 1.8);
+    const gold = calm ? 0.85 : 0.62 + 0.38 * Math.min(1, bass * 1.35);
+    const cyan = calm ? 0.85 : 0.65 + 0.35 * Math.min(1, treble * 1.8);
     const key = gold.toFixed(2) + cyan.toFixed(2);
     if (key === lastLight) return;
     lastLight = key;
     if (ui.gold) ui.gold.style.opacity = gold.toFixed(2);
     if (ui.cyan) ui.cyan.style.opacity = cyan.toFixed(2);
-    if (ui.floor) ui.floor.style.opacity = (0.65 + 0.35 * (gold - 0.5) * 2).toFixed(2);
   }
 
   /* Display und Regler auf die schräge Front legen: Homographie aus den vier von Blender

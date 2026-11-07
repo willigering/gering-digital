@@ -13,7 +13,7 @@ Koordinaten: Entwurf im 1000 x 450 Layoutraster (x nach rechts, y nach unten),
 der Korpus reicht nach hinten (+Y). Kamera blickt von vorn (-Y) leicht von oben.
 """
 import bpy, bmesh, math, json, os, sys
-from mathutils import Vector
+from mathutils import Vector, Matrix
 from bpy_extras.object_utils import world_to_camera_view
 
 argv = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
@@ -447,8 +447,10 @@ RIM = {'cyan': mat_simple('rim_c', CYAN, emit=CYAN, strength=0.75), 'orange': ma
 world = bpy.data.worlds.new('w'); scene.world = world; wn = nodes(world)
 bg = wn.nodes.new('ShaderNodeBackground'); bg.inputs['Color'].default_value = (0.012, 0.016, 0.022, 1); bg.inputs['Strength'].default_value = 1.0
 wo = wn.nodes.new('ShaderNodeOutputWorld'); wn.links.new(bg.outputs[0], wo.inputs[0])
+# Studiolicht nur noch als schwaches Grundlicht: beleuchtet wird das Gerät von seinen eigenen Leuchten
+STUDIO = 0.22
 def light(name, loc, power, size, color=(1, 1, 1), target=(0, 0, 0)):
-    ld = bpy.data.lights.new(name, 'AREA'); ld.energy = power; ld.size = size; ld.color = color
+    ld = bpy.data.lights.new(name, 'AREA'); ld.energy = power * STUDIO; ld.size = size; ld.color = color
     ob = bpy.data.objects.new(name, ld); scene.collection.objects.link(ob); ob.location = loc
     ob.rotation_euler = (Vector(target) - Vector(loc)).to_track_quat('-Z', 'Y').to_euler()
     ob.visible_camera = False; ob.visible_glossy = True
@@ -477,6 +479,9 @@ yaw = math.radians(34)
 roll = 0.0
 cam.location = (dist * math.cos(tilt) * math.sin(yaw), -dist * math.cos(tilt) * math.cos(yaw), dist * math.sin(tilt) + 0.15)
 cam.rotation_euler = (math.pi / 2 - tilt, roll, yaw)
+# Gerät leicht nach hinten gekippt (Oberkante weiter weg): Kamera um die Querachse des Geräts schwenken
+lean = math.radians(7)
+cam.matrix_world = Matrix.Rotation(lean, 4, 'X') @ Matrix.Translation(cam.location) @ cam.rotation_euler.to_matrix().to_4x4()
 W, H = (1100, 560) if PREVIEW else (2200, 1120)
 scene.render.resolution_x, scene.render.resolution_y = W, H
 cam_d.sensor_fit = 'HORIZONTAL'
@@ -554,7 +559,7 @@ def emit(group_factors):
             m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = BASE_EMIT[m.name] * group_factors.get(g, 0)
 # Lichtquellen an den Röhren: werfen das Neonlicht sichtbar auf Metall, Gitter und Kanten
 def glow_lamp(name, loc, power, radius, color, group):
-    ld = bpy.data.lights.new(name, 'POINT'); ld.energy = power; ld.shadow_soft_size = radius; ld.color = color
+    ld = bpy.data.lights.new(name, 'POINT'); ld.energy = power * 2.2; ld.shadow_soft_size = radius; ld.color = color
     ob = bpy.data.objects.new(name, ld); scene.collection.objects.link(ob); ob.location = loc; ob.visible_camera = False
     ob['group'] = group; return ob
 for i, (x, y) in enumerate(SPK):

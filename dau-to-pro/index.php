@@ -144,7 +144,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <button class="nr-key nr-key--round nr-key--gold-rim" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="4.5" cy="6" r="2"/><circle cx="4.5" cy="12" r="2"/><circle cx="4.5" cy="18" r="2"/><rect x="9" y="4.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="10.8" width="12" height="2.6" rx="1.2"/><rect x="9" y="16.8" width="12" height="2.6" rx="1.2"/></svg></button>
           </div>
         </div>
-        <div class="nr-floor" aria-hidden="true"></div>
       </div>
     </div>
     </div>

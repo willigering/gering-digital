@@ -33,15 +33,6 @@
 .nr-chassis{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;user-select:none}
 .nr-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
-/* Boden: Schatten, Lichtring und weiche Reflexion */
-.nr-floor{position:absolute;z-index:-1;will-change:opacity;left:-2%;right:-2%;bottom:-1%;height:20%;pointer-events:none;
-  background:
-    radial-gradient(50% 42% at 50% 48%,transparent 0 80%,#ffb22acc 86%,#ffb22a33 92%,transparent 98%),
-    radial-gradient(46% 34% at 50% 40%,#000d 0 55%,transparent 100%),
-    radial-gradient(30% 40% at 22% 60%,#22dcf52e,transparent 70%),
-    radial-gradient(30% 40% at 78% 60%,#22dcf52e,transparent 70%),
-    radial-gradient(22% 30% at 50% 58%,#ffb22a40,transparent 72%)}
-
 /* ---------- Lautsprecher: Gitter und Pilz als eigene Ebene, die zum Bass atmet ---------- */
 .nr-speaker{position:absolute;z-index:1;border-radius:50%}
 .nr-speaker__cone{position:absolute;inset:0;border-radius:50%;background:center/100% 100% no-repeat;will-change:transform}
