@@ -54,7 +54,8 @@
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
     faces: [...root.querySelectorAll('[data-radio-face]')],
-    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]')
+    gold: $('[data-radio-light="gold"]'), cyan: $('[data-radio-light="cyan"]'),
+    goldHalo: $('[data-radio-light="gold-halo"]'), cyanHalo: $('[data-radio-light="cyan-halo"]')
   };
   const pen = ui.canvas.getContext('2d');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)');
@@ -336,16 +337,18 @@
   // Echte Beleuchtung: die gerenderten Lichtebenen werden mit der Musik heller und dunkler.
   // Gold (Lautsprecherringe, Schultern, Sockel) folgt dem Bass, Cyan (Neonrahmen, Pilze) den Höhen.
   // Ohne Musik sind die Leuchten aus (nur ein schwacher Bereitschaftsschimmer).
+  // Der scharfe Kern (Ring, Pixelpilz) bleibt beim Spielen fast voll hell, nur der weiche Schein pulsiert stark;
+  // so wirkt der Pilz nie verwaschen, auch wenn die Musik leise ist.
   const STANDBY = 0.06;
   function applyBass() {
     const calm = reduced.matches, on = state === 'playing';
-    const gold = !on ? STANDBY : calm ? 0.9 : 0.3 + 0.7 * Math.min(1, bass * 1.5);
-    const cyan = !on ? STANDBY : calm ? 0.9 : 0.4 + 0.6 * Math.min(1, treble * 2);
-    const key = gold.toFixed(2) + cyan.toFixed(2);
+    const lo = Math.min(1, bass * 1.5), hi = Math.min(1, treble * 2);
+    const v = !on ? [STANDBY, STANDBY, STANDBY, STANDBY] : calm ? [0.95, 0.7, 0.95, 0.7]
+      : [0.82 + 0.18 * lo, 0.12 + 0.88 * lo, 0.85 + 0.15 * hi, 0.12 + 0.88 * hi];
+    const key = v.map(n => n.toFixed(2)).join();
     if (key === lastLight) return;
     lastLight = key;
-    if (ui.gold) ui.gold.style.opacity = gold.toFixed(2);
-    if (ui.cyan) ui.cyan.style.opacity = cyan.toFixed(2);
+    [ui.gold, ui.goldHalo, ui.cyan, ui.cyanHalo].forEach((el, i) => { if (el) el.style.opacity = v[i].toFixed(2); });
   }
 
   /* Display und Regler auf die schräge Front legen: Homographie aus den vier von Blender

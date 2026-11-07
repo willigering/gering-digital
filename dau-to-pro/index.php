@@ -108,6 +108,9 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
           <div class="nr-face" data-radio-face>
           <!-- Echtes Licht: nur Lautsprecherringe (Gold = Bass) und Pixelpilze (Cyan = Höhen) leuchten, Helligkeit folgt der Musik -->
+<?php foreach (['gold-halo', 'cyan-halo'] as $nrL): ?>
+          <div class="nr-glow" data-radio-light="<?=$nrL?>" aria-hidden="true"><?php foreach (['l', 'r'] as $nrS): $nrF = "nerd-radio/light-$nrL-$nrS.webp"; ?><img class="nr-glow__<?=$nrL?>-<?=$nrS?>" src="<?=$nrF?>?v=<?=filemtime(__DIR__.'/'.$nrF)?>" alt="" decoding="async"><?php endforeach; ?></div>
+<?php endforeach; ?>
           <div class="nr-glow" data-radio-light="gold" aria-hidden="true"><img class="nr-glow__gold-l" src="nerd-radio/light-gold-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-l.webp')?>" alt="" decoding="async"><img class="nr-glow__gold-r" src="nerd-radio/light-gold-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-gold-r.webp')?>" alt="" decoding="async"></div>
           <div class="nr-glow" data-radio-light="cyan" aria-hidden="true"><img class="nr-glow__cyan-l" src="nerd-radio/light-cyan-l.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-l.webp')?>" alt="" decoding="async"><img class="nr-glow__cyan-r" src="nerd-radio/light-cyan-r.webp?v=<?=filemtime(__DIR__.'/nerd-radio/light-cyan-r.webp')?>" alt="" decoding="async"></div>
           <div class="nr-display">

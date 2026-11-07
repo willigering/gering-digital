@@ -2,15 +2,18 @@
 
 Aufruf (Python 3 mit Pillow, NumPy, SciPy):
   python tools/nerd-radio/prepare_pack.py --pack <Ordner mit nerd-radio-pack> [--web dau-to-pro/nerd-radio] [--work tools/nerd-radio/.work]
+         [--surfaces <Ordner mit nerd-radio-surfaces>]
 
 Schritte:
 - Front-Textur für Blender (work/front.png, 2910 x 1242, Paket-Koordinaten): modulare Hülle mit
   ausgeschalteten Leuchten. Leuchtstreifen, Seitenschlitze und Neonlinien zum Griff werden abgedunkelt bzw.
   entfernt. In die Aussparungen kommen Lautsprecher (Gitter + Rand, Ring aus) und das leere Display-Glas.
-- Lichtebenen für die Website (light-gold-l/r.webp = Lautsprecherringe + Schein, light-cyan-l/r.webp =
-  Pixelpilze + Schein), je Lautsprecher zugeschnitten, in voller Paketauflösung (Pilze verlustfrei, damit
-  die feinen Pixellinien scharf bleiben), Positionen in pack.json. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
+- Lichtebenen für die Website, je Lautsprecher zugeschnitten, in voller Paketauflösung, Positionen in pack.json:
+  light-gold-*/light-cyan-* = scharfer Kern (Ring bzw. Pixelpilz, Pilz verlustfrei), light-gold-halo-*/light-cyan-halo-*
+  = weicher Schein. Kern und Schein sind getrennt, damit der Kern beim Pulsieren hell und scharf bleibt. Nur diese beiden leuchten, ihre Helligkeit folgt der Musik.
 - Tasten (normal / hover / gedrückt) und Lautstärkeregler als WebP.
+- Gehäuseflächen (optional, Paket „nerd-radio-surfaces“): Seiten, Ober-/Unterseite und Rückwand mit
+  ausgeschalteten Lämpchen als work/surfaces/*.png für build_boombox.py.
 - work/pack.json mit allen Platzierungen (Paket-Koordinaten) für build_boombox.py.
 """
 import argparse, json, os
@@ -22,6 +25,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--pack', required=True)
 ap.add_argument('--web', default='dau-to-pro/nerd-radio')
 ap.add_argument('--work', default='tools/nerd-radio/.work')
+ap.add_argument('--surfaces')
 args = ap.parse_args()
 PACK = args.pack if os.path.isdir(os.path.join(args.pack, 'assets')) else os.path.join(args.pack, 'nerd-radio-pack')
 A = lambda p: os.path.join(PACK, 'assets', p)
@@ -123,7 +127,7 @@ under(front, glass, x0 - 8, y0 - 8)
 # Lautsprecher: Gitter + Rand mit ausgeschaltetem Ring, dazu ausgeschaltete Pixelpilze
 # Pilzmitte und -größe aus der integrierten Hülle des Pakets gemessen
 MUSH = {'left': (486.5, 764.5, 0.785), 'right': (2503.5, 772.0, 0.79)}
-gold = np.zeros((CH, CW, 4), np.float32); cyan = np.zeros((CH, CW, 4), np.float32)
+LAYERS = {n: np.zeros((CH, CW, 4), np.float32) for n in ('gold-halo', 'gold', 'cyan-halo', 'cyan')}
 layout_spk = {}
 for side in ('left', 'right'):
     x0, y0, x1, y1 = SPK[side]
@@ -143,11 +147,11 @@ for side in ('left', 'right'):
     over(spk, resize(m_off, mw, mh), mx - ox, my - oy)
     under(front, spk, ox, oy)
     # Lichtebenen in gleicher Lage
-    over(gold, resize(load(f'speakers/glow-amber-{side}.png'), W, H), ox, oy)
-    over(gold, resize(load(f'speakers/ring-amber-{side}.png'), W, H), ox, oy)
+    over(LAYERS['gold-halo'], resize(load(f'speakers/glow-amber-{side}.png'), W, H), ox, oy)
+    over(LAYERS['gold'], resize(load(f'speakers/ring-amber-{side}.png'), W, H), ox, oy)
     g2 = load(f'speakers/mushroom-glow-{side}.png')
-    over(cyan, resize(g2, round(g2.shape[1] * ms), round(g2.shape[0] * ms)), mx + round((m.shape[1] - g2.shape[1]) * ms / 2), my + round((m.shape[0] - g2.shape[0]) * ms / 2))
-    over(cyan, resize(m, mw, mh), mx, my)
+    over(LAYERS['cyan-halo'], resize(g2, round(g2.shape[1] * ms), round(g2.shape[0] * ms)), mx + round((m.shape[1] - g2.shape[1]) * ms / 2), my + round((m.shape[0] - g2.shape[0]) * ms / 2))
+    over(LAYERS['cyan'], resize(m, mw, mh), mx, my)
     layout_spk[side] = [ox, oy, W, H]
 
 # Front für Blender (verlustfrei, volle Auflösung)
@@ -156,14 +160,14 @@ print('FRONT', front.shape)
 
 # ---------------------------------------------------------------- Website-Ebenen
 LIGHTS = {}
-for name, layer in (('gold', gold), ('cyan', cyan)):
+for name, layer in LAYERS.items():
     for side, (x0, x1) in (('l', (0, CW // 2)), ('r', (CW // 2, CW))):
         ys_, xs_ = np.nonzero(layer[:, x0:x1, 3] > 0.004)
         bx0, by0, bx1, by1 = int(xs_.min() + x0), int(ys_.min()), int(xs_.max() + x0 + 1), int(ys_.max() + 1)
         crop = layer[by0:by1, bx0:bx1]
         crop[crop[..., 3] < 0.004] = 0      # transparente Pixel ohne Farbe -> kleinere Datei
-        # Pilze verlustfrei (feine Pixellinien, sonst verschmiert die Farbunterabtastung), Ringschein in hoher Qualität
-        save(crop, os.path.join(args.web, f'light-{name}-{side}.webp'), quality=92, lossless=(name == 'cyan'))
+        # Pilz verlustfrei (feine Pixellinien, sonst verschmiert die Farbunterabtastung), Ring in hoher Qualität, Schein komprimiert
+        save(crop, os.path.join(args.web, f'light-{name}-{side}.webp'), quality=(94 if name == 'gold' else 88), lossless=(name == 'cyan'))
         LIGHTS[f'{name}-{side}'] = [bx0, by0, bx1 - bx0, by1 - by0]
 
 KEY_W = 200   # Tasten: 416 x 320 im Paket -> 200 px breit (reicht für 2x bei max. Gerätegröße)
@@ -176,7 +180,20 @@ for src, dst, w in (('volume/volume-track.png', 'vol-track.webp', 512), ('volume
                     ('volume/slider-handle.png', 'vol-knob.webp', 96)):
     img = load(src); save(resize(img, w, round(w * img.shape[0] / img.shape[1])), os.path.join(args.web, dst))
 
-json.dump({'canvas': [CW, CH], 'display': manifest['layout']['display'], 'display_hole': DISP,
+# ---------------------------------------------------------------- Gehäuseflächen (Ergänzungspaket)
+SURF = None
+if args.surfaces:
+    sdir = args.surfaces if os.path.isdir(os.path.join(args.surfaces, 'assets')) else os.path.join(args.surfaces, 'nerd-radio-surfaces')
+    smani = json.load(open(os.path.join(sdir, 'manifest.json'), encoding='utf-8'))
+    os.makedirs(os.path.join(args.work, 'surfaces'), exist_ok=True)
+    for name in ('side-left', 'side-right', 'top', 'bottom', 'rear'):
+        img = np.asarray(Image.open(os.path.join(sdir, 'assets', f'{name}.png')).convert('RGBA')).astype(np.float32) / 255
+        img = lights_off(img)              # Lämpchen an den Seiten bleiben aus: nur Ringe und Pilze leuchten
+        Image.fromarray((np.clip(img, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(os.path.join(args.work, 'surfaces', f'{name}.png'))
+    b = smani['body']
+    SURF = {'body_top': b['bodyTopOnFront'], 'body_bottom': b['bodyBottomOnFront'], 'depth': b['depth']}
+
+json.dump({'canvas': [CW, CH], 'surfaces': SURF, 'display': manifest['layout']['display'], 'display_hole': DISP,
            'controls': manifest['layout']['controls'], 'volume': manifest['layout']['volume'], 'speakers': layout_spk, 'lights': LIGHTS},
           open(os.path.join(args.work, 'pack.json'), 'w'), indent=1)
 print('PACK', json.dumps(layout_spk), DISP)

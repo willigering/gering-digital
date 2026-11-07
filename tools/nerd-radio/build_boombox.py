@@ -6,7 +6,9 @@ Aufruf (Blender 5.x, Cycles):
 
 Modell: Die gemalte Paket-Front (Leuchten aus) liegt als Textur auf einem Korpus, der aus ihrer Silhouette
 extrudiert wird. Korpus und Logo-Schild haben volle Tiefe, der Griff sitzt zurückversetzt. Die Front wird
-unverändert wiedergegeben (Farben 1:1 aus dem Paket), Seiten und Oberseite sind echtes, beleuchtetes Metall.
+unverändert wiedergegeben (Farben 1:1 aus dem Paket). Seiten, Ober-/Unterseite und Rückwand tragen die Flächen
+aus dem Ergänzungspaket (nerd-radio-surfaces, per prepare_pack.py --surfaces), Projektion je Flächenrichtung;
+ohne sie bleibt es bei schlichtem dunklem Metall.
 Die Kamera schaut leicht schräg: rechte vordere Ecke näher, Gerät leicht nach hinten gekippt.
 
 Ausgabe: base.webp / base-half.webp (Gehäuse) und layout.css (Seitenverhältnis, Eckpunkte der Frontebene
@@ -40,6 +42,9 @@ k = CW / 1400                            # Messraster der Vorschau (siehe prepar
 BODY_TOP = 116 * k                       # Oberkante Korpus; darüber Griff und Logo-Schild
 PLATE = (440 * k, 80 * k, 970 * k)       # Logo-Schild: x0, Oberkante, x1
 DEPTH, HANDLE_FRONT, HANDLE_DEPTH = 1.7, 0.55, 0.5
+SURF = PACK.get('surfaces')
+if SURF:
+    DEPTH = SURF['depth'] * U             # Tiefe passend zu den Gehäuseflächen (432 px bei 2910 px Breite)
 
 # ---------------------------------------------------------------- Materialien
 def nodes(mat):
@@ -66,6 +71,31 @@ bump = nt.nodes.new('ShaderNodeBump'); bump.inputs['Strength'].default_value = 0
 nt.links.new(nz.outputs['Fac'], bump.inputs['Height']); nt.links.new(bump.outputs['Normal'], b.inputs['Normal'])
 o = nt.nodes.new('ShaderNodeOutputMaterial'); nt.links.new(b.outputs[0], o.inputs[0])
 
+# Gehäuseflächen: Farbtextur mit eingebrannter Materialbeleuchtung, wie die Front ungeschattet wiedergegeben
+# (Studiolicht würde den dunklen Lack grau überstrahlen). Je Richtung etwas dunkler, damit der Körper plastisch wirkt.
+SURF_NAMES = ['side-left', 'side-right', 'top', 'bottom', 'rear']
+SURF_LEVEL = {'side-left': 0.8, 'side-right': 0.8, 'top': 0.92, 'bottom': 0.55, 'rear': 0.65}
+surf_mats = []
+for name in (SURF_NAMES if SURF else []):
+    m = bpy.data.materials.new(name); nt = nodes(m)
+    t = nt.nodes.new('ShaderNodeTexImage'); t.image = bpy.data.images.load(os.path.join(WORK, 'surfaces', f'{name}.png'))
+    t.image.colorspace_settings.name = 'sRGB'; t.interpolation = 'Cubic'; t.extension = 'EXTEND'
+    e = nt.nodes.new('ShaderNodeEmission'); nt.links.new(t.outputs['Color'], e.inputs['Color']); e.inputs['Strength'].default_value = SURF_LEVEL[name]
+    o = nt.nodes.new('ShaderNodeOutputMaterial'); nt.links.new(e.outputs[0], o.inputs[0])
+    surf_mats.append(m)
+
+def surface_uv(n, co):
+    """Materialindex und UV einer Außenfläche nach ihrer Richtung (Bildorientierung laut README des Ergänzungspakets)."""
+    u = (co.x / U + CW / 2) / CW                         # 0 = links, 1 = rechts (wie Front)
+    d = min(1.0, max(0.0, co.y / DEPTH))                 # 0 = vorne, 1 = hinten
+    zt, zb = Z(SURF['body_top']), Z(SURF['body_bottom'])
+    v = (co.z - zb) / (zt - zb)                          # 0 = unten, 1 = Körperoberkante
+    if abs(n.x) >= max(abs(n.y), abs(n.z)):
+        return (2, (1 - d, v)) if n.x < 0 else (3, (d, v))   # links: vorne rechts im Bild; rechts: vorne links
+    if abs(n.z) >= abs(n.y):
+        return (4, (u, d)) if n.z > 0 else (5, (u, 1 - d))   # oben: hinten am oberen Bildrand; unten: vorne oben
+    return 6, (1 - u, v)                                     # Rückwand von außen: links = Front rechts
+
 # ---------------------------------------------------------------- Korpus aus der Silhouette
 px = np.array(img.pixels[:], dtype=np.float32).reshape(CH, CW, 4)[::-1]   # Blender speichert von unten nach oben
 CELL = 6 if PREVIEW else 3
@@ -77,7 +107,7 @@ upper = np.broadcast_to(ys[:, None] < BODY_TOP, solid.shape)
 plate = upper & (ys[:, None] >= PLATE[1]) & (xs[None, :] >= PLATE[0]) & (xs[None, :] <= PLATE[2])
 parts = {'body': solid & (~upper | plate), 'handle': solid & upper & ~plate}
 
-def slab(name, cells, front, depth):
+def slab(name, cells, front, depth, surfaces=False):
     """Zellen der Silhouette als Fläche bei Y=front anlegen und nach hinten extrudieren."""
     vid = -np.ones((gh + 1, gw + 1), np.int64); verts = []
     rr, cc = np.nonzero(cells)
@@ -89,6 +119,7 @@ def slab(name, cells, front, depth):
     faces = [(int(vid[r, c]), int(vid[r + 1, c]), int(vid[r + 1, c + 1]), int(vid[r, c + 1])) for r, c in zip(rr, cc)]
     me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.update()
     me.materials.append(front_mat); me.materials.append(side_mat)
+    for m in surf_mats: me.materials.append(m)
     bm = bmesh.new(); bm.from_mesh(me)
     uv = bm.loops.layers.uv.new('UVMap')
     for f in bm.faces:
@@ -100,10 +131,16 @@ def slab(name, cells, front, depth):
     bmesh.ops.translate(bm, verts=moved, vec=(0, depth, 0))
     for f in bm.faces: f.material_index = 0 if f in fronts else 1
     bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    if surfaces and surf_mats:
+        for f in bm.faces:
+            if f in fronts: continue
+            f.normal_update()
+            for l in f.loops:
+                f.material_index, l[uv].uv = surface_uv(f.normal, l.vert.co)
     bm.to_mesh(me); bm.free()
     ob = bpy.data.objects.new(name, me); scene.collection.objects.link(ob)
     return ob
-slab('body', parts['body'], 0.0, DEPTH)
+slab('body', parts['body'], 0.0, DEPTH, surfaces=True)
 slab('handle', parts['handle'], HANDLE_FRONT, HANDLE_DEPTH)
 
 # ---------------------------------------------------------------- Licht, Kamera, Welt

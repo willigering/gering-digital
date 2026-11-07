@@ -191,10 +191,16 @@ let server, browser;
   assert.equal(r.state, 'playing', 'Zufallstitel spielt');
   assert.notEqual(r.track, 2, 'Zufall wählt einen anderen Titel');
 
-  await key('volume').fill('0'); await pause(300);
-  assert.ok((await radio()).volume < 0.02, 'Lautstärke 0 wirkt auf die Wiedergabe');
-  await key('volume').fill('80'); await pause(300);
-  assert.ok(Math.abs((await radio()).volume - 0.8) < 0.03, 'Lautstärke 80 wirkt auf die Wiedergabe');
+  // Die Lautstärke gleitet im Audio-Thread zum Ziel; auf langsamen Rechnern bis zu 3 s darauf warten
+  const volumeReaches = async target => {
+    let v = NaN;
+    for (let t = 0; t < 30; t++) { await pause(100); v = (await radio()).volume; if (Math.abs(v - target) < 0.03) break; }
+    return v;
+  };
+  await key('volume').fill('0');
+  { const v = await volumeReaches(0); assert.ok(v < 0.03, `Lautstärke 0 wirkt auf die Wiedergabe: ${v}`); }
+  await key('volume').fill('80');
+  { const v = await volumeReaches(0.8); assert.ok(Math.abs(v - 0.8) < 0.03, `Lautstärke 80 wirkt auf die Wiedergabe: ${v}`); }
 
   await key('list').click();
   assert.ok(await page.locator('[data-radio-playlist]').isVisible(), 'Playlist öffnet im Display');
