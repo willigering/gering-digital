@@ -253,6 +253,8 @@ M = {
     'handle': mat_metal('handle', (0.045, 0.05, 0.058), rust=0.04, wear=0.6, rough=0.32),
     'badge': mat_metal('badge', (0.07, 0.076, 0.084), rust=0.0, wear=0.5, rough=0.28),
     'chrome': mat_simple('chrome', (0.85, 0.88, 0.9), 1.0, 0.12),
+    # Gebürstetes Silber: matter als Chrom, damit es vor dunkler Umgebung hell und silbern wirkt
+    'silver': mat_simple('silver', (0.78, 0.8, 0.83), 0.55, 0.3),
     'goldmetal': mat_simple('goldmetal', (1.0, 0.68, 0.18), 1.0, 0.22),
     # Leuchtmittel: ausgeschaltet dunkles Glas (kein farbiger Schein ohne Musik), Farbe nur über die Emission
     'neon_c': mat_simple('neon_c', GLASS, rough=0.2, emit=CYAN, strength=2.6),
@@ -349,9 +351,9 @@ prism('handle_grip', rect(380, 14, 620, 32, 6), 0.46, 0.4, M['dark'], bevel=0.02
 for x0 in (296, 652):
     prism(f'handle_hazard{x0}', rect(x0, 13, x0 + 52, 33, 0), 0.47, 0.05, M['hazard'], bevel=0)
 
-# Typenschild mit Schriftzug
-badge = prism('badge', [(330, 66), (352, 48), (648, 48), (670, 66), (670, 116), (650, 134), (350, 134), (330, 116)], -0.16, 0.5, M['badge'], bevel=0.035)
-tube('badge_neon', [(352, 126), (648, 126)], -0.17, 0.01, M['neon_c'])
+# Typenschild mit Schriftzug: kompakt, „DAU to“ in Silber, „PRO“ in Gold
+badge = prism('badge', [(392, 70), (406, 58), (594, 58), (608, 70), (608, 104), (595, 116), (405, 116), (392, 104)], -0.16, 0.5, M['badge'], bevel=0.025)
+tube('badge_neon', [(408, 110), (592, 110)], -0.17, 0.007, M['neon_c'])
 def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll='chassis', align='CENTER'):
     cu = bpy.data.curves.new('txt', 'FONT'); cu.body = body_txt; cu.size = size
     if fnt: cu.font = fnt
@@ -359,9 +361,9 @@ def text(body_txt, x, y, size, mat, fnt, d=-0.19, shear=0.18, extrude=0.03, coll
     ob = link(bpy.data.objects.new('txt_' + body_txt, cu), coll); ob.location = (X(x), d, Z(y)); ob.rotation_euler = (math.pi / 2, 0, 0)
     ob.data.materials.append(mat); return ob
 blk = font('ariblk.ttf')
-text('DAU', 440, 116, 0.5, M['chrome'], blk)
-text('TO', 506, 114, 0.3, M['chrome'], blk)
-text('PRO', 578, 116, 0.5, M['goldmetal'], blk)
+text('DAU', 457, 103, 0.36, M['silver'], blk, extrude=0.02)
+text('TO', 504, 101, 0.22, M['silver'], blk, extrude=0.02)
+text('PRO', 554, 103, 0.36, M['goldmetal'], blk, extrude=0.02)
 
 # Warnstreifen, Neon, Schrauben, Lüftung
 for pts in ([(118, 124), (206, 124), (194, 140), (106, 140)], [(882, 124), (794, 124), (806, 140), (894, 140)],
@@ -378,7 +380,7 @@ tube('neon_corner_r', [(974, 300), (974, 384)], -0.02, 0.014, M['neon_g'])
 tube('neon_bottom', [(420, 428), (580, 428)], -0.05, 0.014, M['neon_g'])
 tube('neon_bottom_l', [(64, 428), (96, 428)], -0.05, 0.012, M['neon_c'])
 tube('neon_bottom_r', [(904, 428), (936, 428)], -0.05, 0.012, M['neon_c'])
-for x, y in [(56, 186), (944, 186), (60, 394), (940, 394), (346, 62), (654, 62), (346, 124), (654, 124), (276, 140), (724, 140), (276, 272), (724, 272)]:
+for x, y in [(56, 186), (944, 186), (60, 394), (940, 394), (346, 124), (654, 124), (276, 140), (724, 140), (276, 272), (724, 272)]:
     cyl('bolt', x, y, 6, -0.11, 0.06, M['bolt'], verts=24, bevel=0.012)
 for x0 in list(range(100, 230, 20)) + list(range(780, 910, 20)):
     prism('vent', rect(x0, 430, x0 + 12, 438, 2), -0.05, 0.03, M['void'], bevel=0.003)
