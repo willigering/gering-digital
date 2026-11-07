@@ -122,6 +122,7 @@ function xp_public_profile(int $id): ?array {
 /** Real graphics, with a focusable/touch-accessible name; secret locked icons never expose their code. */
 function xp_icon_html(array $a,bool $tooltip=false): string {
     $name=e($a['name']);$icon=!empty($a['icon'])&&!($a['secret']??false)?'<img src="'.e($a['icon']).'" alt="" width="42" height="42" loading="lazy">':'<span aria-hidden="true">'.(($a['secret']??false)?'?':'🏆').'</span>';
-    if($tooltip)return '<button type="button" class="showcase-icon tier-'.e($a['tier']).'" aria-label="'.$name.'" title="'.$name.'">'.$icon.'<span role="tooltip">'.$name.'</span></button>';
+    if($tooltip){$desc=trim((string)($a['desc']??''));$label=$name.($desc!==''?': '.e($desc):'');
+        return '<button type="button" class="showcase-icon tier-'.e($a['tier']).'" aria-label="'.$label.'"'.'>'.$icon.'<span role="tooltip"><strong>'.$name.'</strong>'.($desc!==''?'<small>'.e($desc).'</small>':'').'</span></button>';}
     return '<span class="ach-icon" aria-hidden="true">'.$icon.'</span>';
 }
