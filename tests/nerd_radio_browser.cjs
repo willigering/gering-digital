@@ -191,15 +191,22 @@ let server, browser;
   assert.equal(r.state, 'playing', 'Zufallstitel spielt');
   assert.notEqual(r.track, 2, 'Zufall wählt einen anderen Titel');
 
-  // Die Lautstärke gleitet im Audio-Thread zum Ziel; auf langsamen Rechnern bis zu 3 s darauf warten
+  // Playwright fill() auf type=range setzt oft nur den Wert ohne input-Event.
+  // Deshalb Wert setzen und input explizit auslösen; danach auf die Audio-Rampe warten.
+  const setVolumeUi = async pct => {
+    await key('volume').evaluate((el, v) => {
+      el.value = String(v);
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, pct);
+  };
   const volumeReaches = async target => {
     let v = NaN;
     for (let t = 0; t < 30; t++) { await pause(100); v = (await radio()).volume; if (Math.abs(v - target) < 0.03) break; }
     return v;
   };
-  await key('volume').fill('0');
+  await setVolumeUi(0);
   { const v = await volumeReaches(0); assert.ok(v < 0.03, `Lautstärke 0 wirkt auf die Wiedergabe: ${v}`); }
-  await key('volume').fill('80');
+  await setVolumeUi(80);
   { const v = await volumeReaches(0.8); assert.ok(Math.abs(v - 0.8) < 0.03, `Lautstärke 80 wirkt auf die Wiedergabe: ${v}`); }
 
   await key('list').click();

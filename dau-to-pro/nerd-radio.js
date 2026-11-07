@@ -521,9 +521,17 @@
 
   function setVolume(v) {
     volume = Math.min(1, Math.max(0, v));
-    ui.volume.value = String(Math.round(volume * 100));
-    ui.volume.style.setProperty('--nr-vol', `${Math.round(volume * 100)}%`);
-    if (out && ctx) out.gain.setTargetAtTime(volume, ctx.currentTime, 0.02);
+    const pct = Math.round(volume * 100);
+    ui.volume.value = String(pct);
+    // CSS-Variable gehört auf .nr-volume (Eltern), sonst bewegen sich Füllung und Knopf nicht.
+    (ui.volume.closest('.nr-volume') || ui.volume).style.setProperty('--nr-vol', `${pct}%`);
+    if (out && ctx) {
+      const now = ctx.currentTime;
+      out.gain.cancelScheduledValues(now);
+      // Bei 0 hart stummschalten: setTargetAtTime nähert sich nur asymptotisch an.
+      if (volume <= 0) out.gain.setValueAtTime(0, now);
+      else out.gain.setTargetAtTime(volume, now, 0.02);
+    }
   }
 
   function openList(open) {
@@ -561,7 +569,9 @@
   });
   ui.mode.addEventListener('click', () => { setMode(mode === 'wave' ? 'spectrum' : 'wave'); save(); });
   ui.list.addEventListener('click', () => openList(ui.playlist.hidden));
-  ui.volume.addEventListener('input', () => { setVolume(Number(ui.volume.value) / 100); save(); });
+  const onVolume = () => { setVolume(Number(ui.volume.value) / 100); save(); };
+  ui.volume.addEventListener('input', onVolume);
+  ui.volume.addEventListener('change', onVolume);
   root.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !ui.playlist.hidden) { e.stopPropagation(); openList(false); ui.list.focus(); }
   });
