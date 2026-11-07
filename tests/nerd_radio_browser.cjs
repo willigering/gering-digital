@@ -194,6 +194,14 @@ let server, browser;
   assert.equal(r.state, 'stopped', 'Titelwechsel im Stopp startet nichts');
   await key('prev').click(); await key('prev').click(); await pause(150);
   assert.match((await radio()).title, /^03 – /, 'Zurück springt zyklisch zum letzten Titel');
+  // Mausrad über dem Gerät schaltet den Sender um (zyklisch), ohne die Seite zu scrollen
+  await page.locator('.nr-device').hover();
+  const scrollBefore = await page.evaluate(() => scrollY);
+  await page.mouse.wheel(0, 120); await pause(450);
+  assert.match((await radio()).title, /^01 – /, 'Mausrad nach unten: nächster Sender');
+  await page.mouse.wheel(0, -120); await pause(450);
+  assert.match((await radio()).title, /^03 – /, 'Mausrad nach oben: vorheriger Sender');
+  assert.equal(await page.evaluate(() => scrollY), scrollBefore, 'Mausrad über dem Radio scrollt die Seite nicht');
 
   await key('shuffle').click(); await pause(900);
   r = await radio();

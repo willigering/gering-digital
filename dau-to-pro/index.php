@@ -2,6 +2,7 @@
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../learner_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
+require_once __DIR__.'/../nerd_fm_lib.php';
 require_once __DIR__.'/feedback-form.php';
 $learnerRow=learner_current();
 $learnerName=$learnerRow['username']??null;
@@ -37,13 +38,15 @@ $c=dtp_page_content();
 $hero=dtp_hero();
 $subtitle=dtp_subtitle_parts($c['subtitle']);
 $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
-// NERD RADIO: MP3/WAV/OGG/M4A aus audio/nerd-radio/ erscheinen automatisch in der Playlist (natürliche Sortierung nach Dateiname).
-// NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/).
+// NERD FM: Playlist aus nerd_fm_lib.php – nur verfügbare Songs (APIPA sofort, weitere nach Freischaltung),
+// jeweils mit signiertem, sitzungsgebundenem Link auf api/song.php. Die Dateien selbst sind nicht direkt abrufbar.
+// NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/, statisch ausgeliefert).
 $nrFiles=[];
 $nrSub=getenv('NERD_RADIO_AUDIO');
-if(!is_string($nrSub)||!preg_match('~^audio/[a-z0-9-]+$~',$nrSub))$nrSub='audio/nerd-radio';
+$nfmCodes=nfm_unlocked_codes($learnerRow);
+if(!is_string($nrSub)||!preg_match('~^audio/[a-z0-9-]+$~',$nrSub)){$nrSub='';$nrFiles=nfm_tracks($learnerRow);}
 $nrDir=__DIR__.'/'.$nrSub;
-if(is_dir($nrDir)){
+if($nrSub!==''&&is_dir($nrDir)){
   $nrNames=array_values(array_filter(scandir($nrDir)?:[],fn($n)=>$n[0]!=='.'&&is_file($nrDir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
   natcasesort($nrNames);
   foreach($nrNames as $n){
@@ -181,7 +184,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php else: ?>
 <div class="module-grid" id="module-grid" data-count="<?=count($modules)?>">
 <?php foreach($modules as $module): ?>
-<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true))?>
+<?=dtp_module_card($module,'../',true,$learnerRow?($cardProgress[$module['slug']]??null):null,comingSoon:in_array($module['slug'],$comingSoonSlugs,true),note:nfm_card_note((string)$module['slug'],$nfmCodes))?>
 <?php endforeach; ?>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>

@@ -32,6 +32,8 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Check NERD FM song unlocks and protected song delivery
+        run: php tests/nerd_fm_test.php
       - name: Test D2 module integration and achievement rules
         run: php tests/d2_integration_test.php
       - name: Test D1 registration, achievements and stored exam reviews

@@ -166,7 +166,7 @@ function dtp_module_description(array $module): string {
 }
 
 /** One public module card. Used by the landing page and by the exact admin preview. */
-function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null, bool $comingSoon=false): string {
+function dtp_module_card(array $module, string $base='../', bool $link=true, ?array $progress=null, bool $comingSoon=false, ?string $note=null): string {
     if ($comingSoon) {
         $link=false;
         $progress=null;
@@ -203,6 +203,7 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     }
     $html.='<h2>'.e($title).'</h2>';
     $html.='<p>'.e($description).'</p>';
+    if ($note!==null && !$comingSoon) $html.=$note;   // z. B. NERD-FM-Song freischaltbar (fertiges, escaptes HTML)
     if ($progress!==null) $html.=dtp_card_progress($progress);
     $footer=$comingSoon?'<span>Bald verfügbar</span>':'<span>Lernmodul öffnen</span><b aria-hidden="true">↗</b>';
     $html.=$tag==='article' && $link

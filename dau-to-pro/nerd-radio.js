@@ -627,6 +627,16 @@
     choose(selected + 1 + Math.floor(Math.random() * (tracks.length - 1)), true);
   });
   ui.mode.addEventListener('click', () => { setMode(mode === 'wave' ? 'spectrum' : 'wave'); save(); });
+  // Mausrad über dem Gerät schaltet den Sender um (nur wenn es mehr als einen Song gibt; sonst scrollt die Seite normal).
+  let wheelAt = 0;
+  root.addEventListener('wheel', e => {
+    if (tracks.length < 2 || Math.abs(e.deltaY) < 4 || e.ctrlKey) return;
+    e.preventDefault();
+    const now = performance.now();
+    if (now - wheelAt < 350) return;
+    wheelAt = now;
+    choose(selected + (e.deltaY > 0 ? 1 : -1), state === 'playing');
+  }, { passive: false });
   ui.list.addEventListener('click', () => openList(ui.playlist.hidden));
   const onVolume = () => { setVolume(Number(ui.volume.value) / 100); save(); };
   ui.volume.addEventListener('input', onVolume);
