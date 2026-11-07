@@ -42,6 +42,10 @@ k = CW / 1400                            # Messraster der Vorschau (siehe prepar
 BODY_TOP = 116 * k                       # Oberkante Korpus; darüber Griff und Logo-Schild
 PLATE = (440 * k, 80 * k, 970 * k)       # Logo-Schild: x0, Oberkante, x1
 DEPTH, HANDLE_FRONT, HANDLE_DEPTH = 1.7, 0.55, 0.5
+# Relief der Front: Höhenkarte aus prepare_pack.py (0 = Öffnungen, 1 = Rahmen, 1.6 = Lautsprecherränder)
+RELIEF = 0.05                            # Einheiten je Höhenstufe (Gerät = 10 Einheiten breit)
+HMAP = np.load(os.path.join(WORK, 'height.npy')) if os.path.exists(os.path.join(WORK, 'height.npy')) else None
+FACE_Y = -RELIEF if HMAP is not None else 0.0   # HTML-Frontebene liegt auf Rahmenhöhe
 SURF = PACK.get('surfaces')
 if SURF:
     DEPTH = SURF['depth'] * U             # Tiefe passend zu den Gehäuseflächen (432 px bei 2910 px Breite)
@@ -67,6 +71,23 @@ def shade_factor(nt, lo=0.66, hi=1.08):
     nt.links.new(mz.outputs['Result'], mul.inputs[0]); nt.links.new(mx.outputs['Result'], mul.inputs[1])
     return mul.outputs[0]
 
+def relief_factor(nt):
+    """Verschattung des Reliefs für die ungeschattete Front: Umgebungsverdeckung (Vertiefungen dunkler) und
+    Ausrichtung zum Hauptlicht (Stufen, die vom Licht wegzeigen, dunkler; zum Licht hin heller)."""
+    ao = nt.nodes.new('ShaderNodeAmbientOcclusion'); ao.inputs['Distance'].default_value = 0.12; ao.samples = 8
+    aom = nt.nodes.new('ShaderNodeMapRange'); aom.inputs['To Min'].default_value = 0.45
+    nt.links.new(ao.outputs['AO'], aom.inputs['Value'])
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    dot = nt.nodes.new('ShaderNodeVectorMath'); dot.operation = 'DOT_PRODUCT'
+    dot.inputs[1].default_value = Vector((-5, -6, 7)).normalized()
+    nt.links.new(geo.outputs['Normal'], dot.inputs[0])
+    dm = nt.nodes.new('ShaderNodeMapRange'); dm.inputs['From Min'].default_value = -0.4; dm.inputs['From Max'].default_value = 0.9
+    dm.inputs['To Min'].default_value = 0.5; dm.inputs['To Max'].default_value = 1.2
+    nt.links.new(dot.outputs['Value'], dm.inputs['Value'])
+    mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'
+    nt.links.new(aom.outputs['Result'], mul.inputs[0]); nt.links.new(dm.outputs['Result'], mul.inputs[1])
+    return mul.outputs[0]
+
 def edge_light(nt, base):
     """Lichtkante: weich gerundete Kantennormale (Bevel-Node, keine Geometrie) fängt das Studiolicht als Glanz.
     Nur an Kanten aktiv (Abweichung zur echten Flächennormale), die Flächen bleiben wie gemalt."""
@@ -89,7 +110,9 @@ img.colorspace_settings.name = 'sRGB'; img.alpha_mode = 'STRAIGHT'
 front_mat = bpy.data.materials.new('front'); nt = nodes(front_mat)
 tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = img; tex.interpolation = 'Cubic'
 em = nt.nodes.new('ShaderNodeEmission'); nt.links.new(tex.outputs['Color'], em.inputs['Color'])
-nt.links.new(shade_factor(nt), em.inputs['Strength'])
+rf = nt.nodes.new('ShaderNodeMath'); rf.operation = 'MULTIPLY'
+nt.links.new(shade_factor(nt), rf.inputs[0]); nt.links.new(relief_factor(nt), rf.inputs[1])
+nt.links.new(rf.outputs[0], em.inputs['Strength'])
 tr = nt.nodes.new('ShaderNodeBsdfTransparent'); mix = nt.nodes.new('ShaderNodeMixShader')
 # Deckkraft steil: innen voll deckend (sonst scheinen Innenflächen durch halbtransparente Pixel), Silhouette bleibt scharf
 op = nt.nodes.new('ShaderNodeMapRange'); op.inputs['From Min'].default_value = 0.1; op.inputs['From Max'].default_value = 0.5
@@ -156,15 +179,18 @@ upper = np.broadcast_to(ys[:, None] < BODY_TOP, solid.shape)
 plate = upper & (ys[:, None] >= PLATE[1]) & (xs[None, :] >= PLATE[0]) & (xs[None, :] <= PLATE[2])
 parts = {'body': solid & (~upper | plate), 'handle': solid & upper & ~plate}
 
-def slab(name, cells, front, depth, surfaces=False):
-    """Zellen der Silhouette als Fläche bei Y=front anlegen und nach hinten extrudieren."""
+def slab(name, cells, front, depth, surfaces=False, relief=False):
+    """Zellen der Silhouette als Fläche bei Y=front anlegen und nach hinten extrudieren.
+    Mit relief=True wird jeder Frontpunkt nach der Höhenkarte nach vorn (−Y) geschoben."""
     vid = -np.ones((gh + 1, gw + 1), np.int64); verts = []
     rr, cc = np.nonzero(cells)
     for r, c in zip(rr, cc):
         for dr, dc in ((0, 0), (0, 1), (1, 1), (1, 0)):
             if vid[r + dr, c + dc] < 0:
                 vid[r + dr, c + dc] = len(verts)
-                verts.append((X((c + dc) * CELL), front, Z((r + dr) * CELL)))
+                px_, py_ = min(CW - 1, (c + dc) * CELL), min(CH - 1, (r + dr) * CELL)
+                lift = float(HMAP[py_, px_]) * RELIEF if relief and HMAP is not None else 0.0
+                verts.append((X((c + dc) * CELL), front - lift, Z((r + dr) * CELL)))
     faces = [(int(vid[r, c]), int(vid[r + 1, c]), int(vid[r + 1, c + 1]), int(vid[r, c + 1])) for r, c in zip(rr, cc)]
     me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces); me.update()
     me.materials.append(front_mat); me.materials.append(side_mat)
@@ -189,7 +215,7 @@ def slab(name, cells, front, depth, surfaces=False):
     bm.to_mesh(me); bm.free()
     ob = bpy.data.objects.new(name, me); scene.collection.objects.link(ob)
     return ob
-slab('body', parts['body'], 0.0, DEPTH, surfaces=True)
+slab('body', parts['body'], 0.0, DEPTH, surfaces=True, relief=True)
 slab('handle', parts['handle'], HANDLE_FRONT, HANDLE_DEPTH)
 
 # ---------------------------------------------------------------- Bodenschatten (Shadow Catcher: nur der Schatten wird sichtbar)
@@ -270,7 +296,7 @@ print('WEBP base', os.path.getsize(os.path.join(OUT, 'base.webp')))
 # ---------------------------------------------------------------- layout.css
 def relp(p):
     return ((p[0] - CROP[0]) / (CROP[2] - CROP[0]), (p[1] - CROP[1]) / (CROP[3] - CROP[1]))
-quad = ' '.join(f'{v:.5f}' for c in ((0, 0), (CW, 0), (CW, CH), (0, CH)) for v in relp(proj(*c, 0)))
+quad = ' '.join(f'{v:.5f}' for c in ((0, 0), (CW, 0), (CW, CH), (0, CH)) for v in relp(proj(*c, FACE_Y)))
 cw, ch = (CROP[2] - CROP[0]) * W, (CROP[3] - CROP[1]) * H
 pct = lambda v, t: f'{v / t * 100:.3f}%'
 def place(rect):

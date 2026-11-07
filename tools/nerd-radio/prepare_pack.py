@@ -126,6 +126,9 @@ dx, dy, dw, dh = manifest['layout']['display']
 DISP = hole_bbox(dx - 20, dy - 20, dx + dw + 20, dy + dh + 20)
 
 front = shell.copy()
+# Höhenkarte der Front (für das Relief in Blender): 0 = Öffnungen (Display, Lautsprecher, Tastenmulden),
+# 1 = Gehäuserahmen, 1.6 = Lautsprecherränder. Weiche Übergänge = abgeschrägte Stufen.
+HEIGHT = (alpha > 0.5).astype(np.float32)
 
 # Display-Glas in die Aussparung (Inhalt kommt live aus HTML)
 x0, y0, x1, y1 = DISP
@@ -172,11 +175,20 @@ for side in ('left', 'right'):
     over(LAYERS['cyan-halo'], resize(flip(SP['glow']), W, H), ox, oy)
     over(LAYERS['cyan'], resize(flip(SP['led']), W, H), ox, oy)
     layout_spk[side] = [ox, oy, W, H]
+    reg = HEIGHT[oy:oy + H, ox:ox + W]
+    reg[:] = np.maximum(reg, (rim[..., 3] > 0.5) * 1.6)
     iy, ix = np.nonzero(inner > 0.5)
     bx0, by0, bx1, by1 = int(ix.min()), int(iy.min()), int(ix.max() + 1), int(iy.max() + 1)
     cone_img[..., 3] *= inner; grille[..., 3] *= inner
     GRILLES[side] = (cone_img[by0:by1, bx0:bx1], grille[by0:by1, bx0:bx1])
     CONE[side] = (bx0 + ox, by0 + oy, bx1 - bx0, by1 - by0)
+
+# Höhenkarte mit leicht abgeschrägten Stufen speichern (Paket-Koordinaten, float32)
+# Rahmen zusätzlich leicht gewölbt nach Helligkeit (helle Paneele und Grate erhaben, dunkle Fugen vertieft)
+lum_s = ndimage.gaussian_filter((shell[..., :3] @ np.array([0.3, 0.55, 0.15], np.float32)), 5)
+lum_s = (lum_s - np.percentile(lum_s[alpha > 0.5], 5)) / (np.percentile(lum_s[alpha > 0.5], 95) - np.percentile(lum_s[alpha > 0.5], 5) + 1e-6)
+HEIGHT += np.clip(lum_s, 0, 1) * 0.45 * (alpha > 0.5) * (HEIGHT < 1.5)
+np.save(os.path.join(args.work, 'height.npy'), ndimage.gaussian_filter(HEIGHT, 2.0).astype(np.float32))
 
 # Front für Blender (verlustfrei, volle Auflösung)
 Image.fromarray((np.clip(front, 0, 1) * 255 + 0.5).astype(np.uint8), 'RGBA').save(os.path.join(args.work, 'front.png'))
