@@ -89,13 +89,9 @@
   box-shadow:inset 0 0 1.8cqw #22dcf544,inset 0 .3cqw .6cqw #000c}
 .nr-display__glass::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
   background:linear-gradient(162deg,#ffffff17 0 16%,transparent 32%),repeating-linear-gradient(0deg,#ffffff07 0 .035cqw,transparent .035cqw .1cqw)}
-.nr-display__brand{grid-column:1;grid-row:1;display:flex;align-items:center;gap:4%;min-width:0}
-.nr-display__brand h2{flex:1;min-width:0;margin:0;line-height:0}
-.nr-display__brand h2 svg{display:block;width:100%;height:auto;overflow:visible}
-.nr-display__brand text{font:900 30px ui-monospace,"Cascadia Mono",SFMono-Regular,Consolas,monospace;fill:#5ff3ff;filter:drop-shadow(0 0 2px #22dcf5) drop-shadow(0 0 6px #22dcf588)}
 .nr-display__viz{grid-column:2;grid-row:1/span 2;position:relative;min-height:0;margin:.5cqw 0 .6cqw}
 .nr-display__viz canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-.nr-display__track{grid-column:1;grid-row:2;display:flex;align-items:center;gap:3%;min-width:0;margin:0;font-weight:700;font-size:2.45cqw;line-height:1.2;color:#c4f9ff;text-shadow:0 0 .6cqw #22dcf588}
+.nr-display__track{grid-column:1;grid-row:1/span 2;display:flex;align-items:center;gap:3%;min-width:0;margin:0;font-weight:700;font-size:2.45cqw;line-height:1.2;color:#c4f9ff;text-shadow:0 0 .6cqw #22dcf588}
 .nr-display__titlebox{flex:1;min-width:0;overflow:hidden}
 .nr-marquee{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .nr-device[data-state=playing] .is-long .nr-marquee{overflow:visible;text-overflow:clip;width:max-content;animation:nr-marquee var(--nr-dur,8s) ease-in-out infinite alternate}

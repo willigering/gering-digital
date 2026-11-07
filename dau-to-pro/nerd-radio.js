@@ -68,7 +68,7 @@
   let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, faceAspect = 0, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
   const voices = new Set();
   const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
-  let freqData = null, waveData = null;
+  let freqData = null, waveData = null, punch = null, punchData = null, punchAvg = 0, hit = 0, lastHit = 0;
 
   /* ---------- Einstellungen merken (Storage darf verweigert sein) ---------- */
   try {
@@ -154,6 +154,12 @@
     synthIn.connect(tone).connect(bus);
     bus.connect(analyser).connect(out).connect(ctx.destination);
     freqData = new Uint8Array(analyser.frequencyBinCount);
+    // Eigene Bassanalyse für die Membranen: kaum geglättet und mit viel Aussteuerungsreserve,
+    // damit auch bei dauerhaft lautem Bass jeder Anschlag (Kick) erkennbar bleibt.
+    punch = ctx.createAnalyser();
+    punch.fftSize = 1024; punch.smoothingTimeConstant = 0.2; punch.minDecibels = -75; punch.maxDecibels = -5;
+    bus.connect(punch);
+    punchData = new Uint8Array(punch.frequencyBinCount);
     waveData = new Uint8Array(analyser.fftSize);
     noiseBuffer = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * 0.3), ctx.sampleRate);
     const data = noiseBuffer.getChannelData(0);
@@ -352,18 +358,30 @@
   // Farbe wandert fließend (bei Bass schneller), Helligkeit folgt dem Bass.
   const STANDBY = 0.06;
   let lastPump = '', phase = 0, lastHueAt = 0, lastRgb = '';
+  // Membran als gedämpfte Feder (~7 Hz, wenig Dämpfung): jeder Bassanschlag gibt einen Stoß,
+  // danach schwingt sie sichtbar nach – auch kurz nach innen – wie ein echter Tieftöner.
+  let coneX = 0, coneV = 0;
+  const K = (2 * Math.PI * 7) ** 2, C = 2 * 0.22 * 2 * Math.PI * 7;
   function applyBass() {
     const calm = reduced.matches, on = state === 'playing';
     const lo = Math.min(1, bass * 1.5), hi = Math.min(1, treble * 2);
-    // Membranhub: schneller Anstieg mit dem Bass, kein Hub bei reduzierter Bewegung oder im Stopp
-    const push = on && !calm ? Math.pow(Math.min(1, bass * 1.6), 1.4) : 0;
-    const pump = push.toFixed(3);
-    if (pump !== lastPump) {
-      lastPump = pump;
-      ui.cones.forEach(c => { c.style.transform = push ? `scale(${(1 + push * 0.055).toFixed(4)})` : ''; c.style.setProperty('--nr-push', pump); });
-    }
     const now = performance.now(), dt = lastHueAt ? Math.min(0.1, (now - lastHueAt) / 1000) : 0;
     lastHueAt = now;
+    const drive = on && !calm ? Math.min(1, bass * 1.6) : 0;
+    if (drive && hit) coneV += hit * 26;                                       // Anschlag: Stoß nach vorn
+    hit = 0;
+    for (let t = 0; t < dt; t += 0.004) {                                      // stabile kleine Schritte
+      const h = Math.min(0.004, dt - t);
+      coneV += (-K * (coneX - drive * 0.2) - C * coneV) * h;
+      coneX = Math.max(-0.7, Math.min(1.4, coneX + coneV * h));
+    }
+    if (!drive && Math.abs(coneX) < 0.002 && Math.abs(coneV) < 0.01) { coneX = 0; coneV = 0; }
+    const push = Math.max(0, Math.min(1, coneX));
+    const pump = coneX.toFixed(3);
+    if (pump !== lastPump) {
+      lastPump = pump;
+      ui.cones.forEach(c => { c.style.transform = coneX ? `scale(${(1 + coneX * 0.075).toFixed(4)})` : ''; c.style.setProperty('--nr-push', push.toFixed(3)); });
+    }
     if (on && !calm) phase = (phase + dt * (0.12 + 0.9 * lo)) % (Math.PI * 2);
     const hue = 185 + 140 * (0.5 - 0.5 * Math.cos(phase));   // pendelt Türkis (185) ↔ Pink (325)
     const led = !on ? 0 : calm ? 0.75 : 0.22 + 0.78 * lo, mesh = !on ? 0 : calm ? 0.25 : 0.06 + 0.5 * push;
@@ -377,9 +395,11 @@
     const v = !on ? [STANDBY, STANDBY, STANDBY, STANDBY, STANDBY, STANDBY] : calm ? [0.95, 0.7, 0.5, 0.95, 0.7, 0.5]
       : [0.82 + 0.18 * lo, 0.12 + 0.88 * lo, 0.08 + 0.92 * lo, 0.85 + 0.15 * hi, 0.12 + 0.88 * hi, 0.1 + 0.9 * hi];
     const key = v.map(n => n.toFixed(2)).join();
-    if (key === lastLight) return;
-    lastLight = key;
-    ui.lights.forEach((els, i) => els.forEach(el => { el.style.opacity = v[i].toFixed(2); }));
+    if (key !== lastLight) {
+      lastLight = key;
+      ui.lights.forEach((els, i) => els.forEach(el => { el.style.opacity = v[i].toFixed(2); }));
+    }
+    return coneX !== 0;   // Membran schwingt noch: Zeichenschleife weiterlaufen lassen
   }
 
   /* Display und Regler auf die schräge Front legen: Homographie aus den vier von Blender
@@ -509,6 +529,14 @@
       let low = 0;
       for (let k = 1; k <= 6; k++) low += freqData[k];
       bass += ((low / 6 / 255) - bass) * 0.5;
+      // Kick-Erkennung: Bassenergie springt über ihren gleitenden Mittelwert
+      punch.getByteFrequencyData(punchData);
+      let e = 0;
+      for (let k = 1; k <= 4; k++) e += punchData[k];
+      e /= 4 * 255;
+      const rise = e - punchAvg;
+      if (rise > 0.035 && time - lastHit > 110) { hit = Math.min(1, rise * 6); lastHit = time; }
+      punchAvg += (e - punchAvg) * (rise > 0 ? 0.12 : 0.05);
       waveAmp = 1;
       for (let b = 0; b < BARS; b++) {
         const [a, z] = bands[b];
@@ -533,7 +561,7 @@
       bass *= 0.75; if (bass < 0.01) bass = 0; else moving = true;
       treble *= 0.75; if (treble < 0.01) treble = 0; else moving = true;
     }
-    applyBass();
+    if (applyBass()) moving = true;
     paint();
     updateClock();
     const flash = shuffleFlash > time;

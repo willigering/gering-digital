@@ -52,13 +52,49 @@ def nodes(mat):
     for n in list(nt.nodes): nt.nodes.remove(n)
     return nt
 
+def shade_factor(nt, lo=0.66, hi=1.08):
+    """Helligkeitsverlauf für die ungeschatteten Texturen: oben heller, unten dunkler (Licht von oben),
+    zur vorderen rechten Ecke hin minimal heller. Gibt einen Float-Ausgang zurück."""
+    tc = nt.nodes.new('ShaderNodeTexCoord'); sep = nt.nodes.new('ShaderNodeSeparateXYZ')
+    nt.links.new(tc.outputs['Object'], sep.inputs[0])
+    mz = nt.nodes.new('ShaderNodeMapRange'); mz.inputs['From Min'].default_value = Z(CH); mz.inputs['From Max'].default_value = Z(0)
+    mz.inputs['To Min'].default_value = lo; mz.inputs['To Max'].default_value = hi
+    nt.links.new(sep.outputs['Z'], mz.inputs['Value'])
+    mx = nt.nodes.new('ShaderNodeMapRange'); mx.inputs['From Min'].default_value = X(0); mx.inputs['From Max'].default_value = X(CW)
+    mx.inputs['To Min'].default_value = 0.94; mx.inputs['To Max'].default_value = 1.03
+    nt.links.new(sep.outputs['X'], mx.inputs['Value'])
+    mul = nt.nodes.new('ShaderNodeMath'); mul.operation = 'MULTIPLY'
+    nt.links.new(mz.outputs['Result'], mul.inputs[0]); nt.links.new(mx.outputs['Result'], mul.inputs[1])
+    return mul.outputs[0]
+
+def edge_light(nt, base):
+    """Lichtkante: weich gerundete Kantennormale (Bevel-Node, keine Geometrie) fängt das Studiolicht als Glanz.
+    Nur an Kanten aktiv (Abweichung zur echten Flächennormale), die Flächen bleiben wie gemalt."""
+    bev = nt.nodes.new('ShaderNodeBevel'); bev.inputs['Radius'].default_value = 0.045; bev.samples = 8
+    geo = nt.nodes.new('ShaderNodeNewGeometry')
+    dot = nt.nodes.new('ShaderNodeVectorMath'); dot.operation = 'DOT_PRODUCT'
+    nt.links.new(bev.outputs['Normal'], dot.inputs[0]); nt.links.new(geo.outputs['Normal'], dot.inputs[1])
+    edge = nt.nodes.new('ShaderNodeMapRange'); edge.inputs['From Min'].default_value = 0.99; edge.inputs['From Max'].default_value = 0.75
+    nt.links.new(dot.outputs['Value'], edge.inputs['Value'])
+    gl = nt.nodes.new('ShaderNodeBsdfGlossy'); gl.inputs['Roughness'].default_value = 0.3
+    gl.inputs['Color'].default_value = (0.42, 0.45, 0.5, 1)   # dezenter Metallglanz, kein weißer Rand
+    nt.links.new(bev.outputs['Normal'], gl.inputs['Normal'])
+    add = nt.nodes.new('ShaderNodeAddShader'); nt.links.new(base, add.inputs[0]); nt.links.new(gl.outputs[0], add.inputs[1])
+    mix = nt.nodes.new('ShaderNodeMixShader'); nt.links.new(edge.outputs['Result'], mix.inputs[0])
+    nt.links.new(base, mix.inputs[1]); nt.links.new(add.outputs[0], mix.inputs[2])
+    return mix.outputs[0]
+
 img = bpy.data.images.load(os.path.join(WORK, 'front.png'))
 img.colorspace_settings.name = 'sRGB'; img.alpha_mode = 'STRAIGHT'
 front_mat = bpy.data.materials.new('front'); nt = nodes(front_mat)
 tex = nt.nodes.new('ShaderNodeTexImage'); tex.image = img; tex.interpolation = 'Cubic'
 em = nt.nodes.new('ShaderNodeEmission'); nt.links.new(tex.outputs['Color'], em.inputs['Color'])
+nt.links.new(shade_factor(nt), em.inputs['Strength'])
 tr = nt.nodes.new('ShaderNodeBsdfTransparent'); mix = nt.nodes.new('ShaderNodeMixShader')
-nt.links.new(tex.outputs['Alpha'], mix.inputs[0]); nt.links.new(tr.outputs[0], mix.inputs[1]); nt.links.new(em.outputs[0], mix.inputs[2])
+# Deckkraft steil: innen voll deckend (sonst scheinen Innenflächen durch halbtransparente Pixel), Silhouette bleibt scharf
+op = nt.nodes.new('ShaderNodeMapRange'); op.inputs['From Min'].default_value = 0.1; op.inputs['From Max'].default_value = 0.5
+nt.links.new(tex.outputs['Alpha'], op.inputs['Value'])
+nt.links.new(op.outputs['Result'], mix.inputs[0]); nt.links.new(tr.outputs[0], mix.inputs[1]); nt.links.new(edge_light(nt, em.outputs[0]), mix.inputs[2])
 out = nt.nodes.new('ShaderNodeOutputMaterial'); nt.links.new(mix.outputs[0], out.inputs[0])
 
 side_mat = bpy.data.materials.new('side'); nt = nodes(side_mat)
@@ -80,8 +116,10 @@ for name in (SURF_NAMES if SURF else []):
     m = bpy.data.materials.new(name); nt = nodes(m)
     t = nt.nodes.new('ShaderNodeTexImage'); t.image = bpy.data.images.load(os.path.join(WORK, 'surfaces', f'{name}.png'))
     t.image.colorspace_settings.name = 'sRGB'; t.interpolation = 'Cubic'; t.extension = 'EXTEND'
-    e = nt.nodes.new('ShaderNodeEmission'); nt.links.new(t.outputs['Color'], e.inputs['Color']); e.inputs['Strength'].default_value = SURF_LEVEL[name]
-    o = nt.nodes.new('ShaderNodeOutputMaterial'); nt.links.new(e.outputs[0], o.inputs[0])
+    e = nt.nodes.new('ShaderNodeEmission'); nt.links.new(t.outputs['Color'], e.inputs['Color'])
+    lv = nt.nodes.new('ShaderNodeMath'); lv.operation = 'MULTIPLY'; lv.inputs[1].default_value = SURF_LEVEL[name]
+    nt.links.new(shade_factor(nt), lv.inputs[0]); nt.links.new(lv.outputs[0], e.inputs['Strength'])
+    o = nt.nodes.new('ShaderNodeOutputMaterial'); nt.links.new(edge_light(nt, e.outputs[0]), o.inputs[0])
     surf_mats.append(m)
 
 def surface_uv(n, co):
@@ -102,6 +140,17 @@ CELL = 6 if PREVIEW else 3
 gh, gw = CH // CELL, CW // CELL
 cov = px[:gh * CELL, :gw * CELL, 3].reshape(gh, CELL, gw, CELL).mean(axis=(1, 3))
 solid = cov > 0.5
+# Innere Löcher (Tasten-, Rand- und Lückenbereiche) schließen: nur die Außenkontur bekommt Wände und Lichtkanten.
+# Hintergrund = von außen erreichbare leere Zellen (Flutfüllung per wiederholter Ausdehnung, ohne SciPy).
+outside = np.zeros_like(solid); outside[0, :] = outside[-1, :] = True; outside[:, 0] = outside[:, -1] = True
+outside &= ~solid
+while True:
+    grown = outside.copy()
+    grown[1:, :] |= outside[:-1, :]; grown[:-1, :] |= outside[1:, :]; grown[:, 1:] |= outside[:, :-1]; grown[:, :-1] |= outside[:, 1:]
+    grown &= ~solid
+    if (grown == outside).all(): break
+    outside = grown
+solid = ~outside
 ys = (np.arange(gh) + 0.5) * CELL; xs = (np.arange(gw) + 0.5) * CELL
 upper = np.broadcast_to(ys[:, None] < BODY_TOP, solid.shape)
 plate = upper & (ys[:, None] >= PLATE[1]) & (xs[None, :] >= PLATE[0]) & (xs[None, :] <= PLATE[2])
@@ -143,6 +192,10 @@ def slab(name, cells, front, depth, surfaces=False):
 slab('body', parts['body'], 0.0, DEPTH, surfaces=True)
 slab('handle', parts['handle'], HANDLE_FRONT, HANDLE_DEPTH)
 
+# ---------------------------------------------------------------- Bodenschatten (Shadow Catcher: nur der Schatten wird sichtbar)
+bpy.ops.mesh.primitive_plane_add(size=40, location=(0, DEPTH / 2, Z(CH) - 0.002))
+floor = bpy.context.active_object; floor.name = 'floor'; floor.is_shadow_catcher = True
+
 # ---------------------------------------------------------------- Licht, Kamera, Welt
 world = bpy.data.worlds.new('w'); scene.world = world; wn = nodes(world)
 bg = wn.nodes.new('ShaderNodeBackground'); bg.inputs['Color'].default_value = (0.02, 0.025, 0.03, 1); bg.inputs['Strength'].default_value = 1.0
@@ -176,7 +229,7 @@ try:
     scene.cycles.device = 'GPU'
 except Exception:
     scene.cycles.device = 'CPU'
-scene.cycles.samples = 64 if PREVIEW else 1024
+scene.cycles.samples = 256 if PREVIEW else 1024
 # Kein Denoiser: er würde die feinen Strukturen der Front-Textur weichzeichnen (die Front ist rauschfrei)
 scene.cycles.use_denoising = False
 scene.cycles.transparent_max_bounces = 16
@@ -190,6 +243,8 @@ def proj(x, y, d):
     co = world_to_camera_view(scene, cam, Vector((X(x), d, Z(y))))
     return co.x, 1 - co.y
 pts = [proj(x, y, d) for x in (0, CW) for y in (0, CH) for d in (0, DEPTH)]
+SH = 0.7 / U   # Bodenschatten reicht etwas über das Gerät hinaus
+pts += [proj(x, CH, d) for x in (-SH, CW + SH) for d in (-0.5, DEPTH + 1.0)]
 pad = 12 / W
 CROP = [max(0, min(p[0] for p in pts) - pad), max(0, min(p[1] for p in pts) - pad), min(1, max(p[0] for p in pts) + pad), min(1, max(p[1] for p in pts) + pad)]
 r = scene.render

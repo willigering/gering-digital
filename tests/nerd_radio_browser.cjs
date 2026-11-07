@@ -217,6 +217,8 @@ let server, browser;
   { const v = await volumeReaches(0); assert.ok(v < 0.03, `Lautstärke 0 wirkt auf die Wiedergabe: ${v}`); }
   await setVolumeUi(80);
   { const v = await volumeReaches(0.8); assert.ok(Math.abs(v - 0.8) < 0.03, `Lautstärke 80 wirkt auf die Wiedergabe: ${v}`); }
+  // Knopf und Füllung folgen dem Regler (Wert am gemeinsamen Container)
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.nr-volume')).getPropertyValue('--nr-vol').trim()), '80%', 'Lautstärkeknopf bewegt sich mit');
 
   await key('list').click();
   assert.ok(await page.locator('[data-radio-playlist]').isVisible(), 'Playlist öffnet im Display');

@@ -126,7 +126,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endforeach; ?>
           <div class="nr-display">
             <div class="nr-display__glass">
-              <div class="nr-display__brand"><h2 id="nr-title"><span class="nr-sr">NERD FM</span><svg viewBox="0 0 170 30" aria-hidden="true" focusable="false"><text x="1" y="25" textLength="117" lengthAdjust="spacingAndGlyphs">NERD FM</text></svg></h2></div>
+              <h2 id="nr-title" class="nr-sr">NERD FM</h2>
               <div class="nr-display__viz"><canvas data-radio-viz width="300" height="120" role="img" aria-label="Echtzeit-Anzeige des Audiosignals"></canvas></div>
               <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
               <div class="nr-display__meta">
