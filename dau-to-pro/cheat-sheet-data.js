@@ -1,8 +1,8 @@
-/* DAU TO PRO – eigenständige IHK-orientierte Spickzettel-Sammlung.
-   Keine offiziellen IHK-Fragen. Fachliche Merkkarten, bewusst kurz und anwendungsorientiert. */
+/* DAU TO PRO – eigenständige IHK-orientierte Themen-Spickzettel.
+   Keine offiziellen IHK-Fragen. Je Themengebiet EIN zusammenhängender Spickzettel mit acht kompakten Abschnitten. Keine 88 Einzelkarten. */
 globalThis.DTP_CHEAT_GROUPS=[
 {
- id:"zahlen",name:"Zahlensysteme",symbol:"01",color:"#f4aa5b",cards:[
+ id:"zahlen",name:"Zahlensysteme",symbol:"01",color:"#f4aa5b",sections:[
  ["Bit, Byte & Co.","Die Einheiten entscheiden, ob deine Rechnung stimmt.","Bit::Kleinste Informationseinheit, 0 oder 1.|Byte::1 Byte = 8 Bit.|Größen::kB/MB sind nicht dasselbe wie kbit/Mbit.","Wie viele Bit sind 12 Byte?","12 × 8 = 96 Bit.","Großes B = Byte, kleines b = Bit. Klingt klein, macht Faktor 8.","BASIS"],
  ["Binär → Dezimal","Jedes gesetzte Bit zählt seinen Stellenwert.","Stellenwerte::128 · 64 · 32 · 16 · 8 · 4 · 2 · 1.|Regel::Werte der Einsen addieren.|Beispiel::10101100₂ = 128 + 32 + 8 + 4 = 172.","Welcher Dezimalwert steckt hinter 11001010₂?","128 + 64 + 8 + 2 = 202.","Nicht die Anzahl der Einsen zählen. Die Stellen haben unterschiedliche Gewichte.","RECHNEN"],
  ["Dezimal → Binär","Wiederholt durch 2 teilen und die Reste rückwärts lesen.","Methode::Durch 2 teilen, Rest (0/1) merken.|Reihenfolge::Reste vom letzten zum ersten lesen.|Kontrolle::Ergebnis mit Zweierpotenzen zurückrechnen.","Wie lautet 13 dezimal als Binärzahl?","13 = 8 + 4 + 1 → 1101₂.","Reste von oben nach unten ablesen ergibt fast garantiert Murks.","RECHNEN"],
@@ -13,7 +13,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Textcodierung","Zeichen sind Zahlen – aber der Zeichensatz entscheidet.","ASCII::Klassischer 7-Bit-Zeichensatz mit 128 Codes.|Unicode::Definiert Zeichen über viele Schriftsysteme hinweg.|UTF-8::Variable Codierung mit 1 bis 4 Byte pro Unicode-Codepunkt.","Braucht jedes UTF-8-Zeichen ein Byte?","Nein. ASCII-Zeichen meist 1 Byte, andere Codepunkte bis 4.","UTF-8 ist eine Codierung, Unicode der Zeichensatz-Standard.","WISSEN"]
 ]},
 {
- id:"osi",name:"OSI-Modell",symbol:"07",color:"#6cdad4",cards:[
+ id:"osi",name:"OSI-Modell",symbol:"07",color:"#6cdad4",sections:[
  ["Die sieben Schichten","Ein Ordnungsmodell, kein echter Netzwerkapparat.","7–5::Anwendung, Darstellung, Sitzung.|4–3::Transport, Vermittlung/Netzwerk.|2–1::Sicherung, Bitübertragung.","Auf welcher Schicht arbeitet IP?","Auf Schicht 3 (Vermittlungs-/Netzwerkschicht).","Ein Protokoll muss nicht exakt in nur eine OSI-Schublade passen.","BASIS"],
  ["Kapselung","Jede Schicht ergänzt ihre Steuerinformationen.","Transport::TCP-Segment oder UDP-Datagramm.|Netzwerk::IP-Paket mit Quell- und Ziel-IP.|Sicherung::Ethernet-Frame mit MAC-Adressen.","In welcher Reihenfolge wird beim Senden gekapselt?","Anwendungsdaten → Transport → IP-Paket → Frame → Bits.","MAC- und IP-Adressen erfüllen verschiedene Aufgaben.","WISSEN"],
  ["OSI und TCP/IP","Zwei Modelle beschreiben denselben Kommunikationsweg.","TCP/IP-Anwendung::Fasst OSI-Schichten 5–7 zusammen.|TCP/IP-Transport::Entspricht grob OSI-Schicht 4.|TCP/IP-Internet/Zugang::Internet ≈ OSI 3; Netzzugang ≈ OSI 1–2.","Wie viele Schichten nutzt das gebräuchliche TCP/IP-Modell?","Häufig vier: Anwendung, Transport, Internet, Netzzugang.","Nicht jedes Lehrbuch zeichnet TCP/IP mit derselben Schichtenzahl.","WISSEN"],
@@ -24,7 +24,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["PDU und Geräte","Welche Dateneinheit gehört wohin?","Schicht 4::Segment (TCP), Datagramm (UDP).|Schicht 3::Paket (IP).|Schicht 2::Frame (Ethernet).","Welche Dateneinheit verarbeitet ein Ethernet-Switch typischerweise?","Frames auf Schicht 2.","Frame und Paket sind nicht synonym – auch wenn's im Alltag passiert.","WISSEN"]
 ]},
 {
- id:"subnet",name:"Subnetting",symbol:"/24",color:"#89df8a",cards:[
+ id:"subnet",name:"Subnetting",symbol:"/24",color:"#89df8a",sections:[
  ["CIDR verstehen","Der Präfix sagt, wie viele IPv4-Bits zum Netz gehören.","IPv4::Insgesamt 32 Bit pro Adresse.|/24::24 Netzbits und 8 Hostbits.|Maske::/24 = 255.255.255.0; /26 = 255.255.255.192.","Wie viele Hostbits besitzt ein /27-Netz?","32 − 27 = 5 Hostbits.","Die 27 ist keine Anzahl von Geräten, sondern von Netzbits.","RECHNEN"],
  ["Präfix-Merktabelle","Die häufigsten Werte auswendig spart Zeit.","/25–/26::128 / 64 Adressen je Subnetz.|/27–/28::32 / 16 Adressen je Subnetz.|/29–/30::8 / 4 Adressen je Subnetz.","Wie viele nutzbare Hosts hat ein klassisches /28?","16 Adressen minus Netz und Broadcast = 14 Hosts.","Die bekannte Minus-2-Regel gilt nicht uneingeschränkt bei /31 und /32.","RECHNEN"],
  ["Sprungweite","Ermittle die Subnetzgrenzen blitzschnell.","Formel::256 − Maskenwert des maßgeblichen Oktetts.|/27::Maske .224 → Sprungweite 32.|Grenzen::0, 32, 64, 96, 128, 160, 192, 224.","In welchem /27-Netz liegt 192.168.10.70?","Im Bereich .64 bis .95, also Netz 192.168.10.64/27.","Die Sprungweite gehört zum variablen Oktett, nicht beliebig zum letzten.","RECHNEN"],
@@ -35,7 +35,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["/31 und /32","Die wichtige Ausnahme zur Minus-2-Regel.","/31::Für Punkt-zu-Punkt-Links sind beide Adressen nutzbar (RFC 3021).|/32::Bezeichnet genau eine einzelne IPv4-Adresse.|Kontext::Prüfungsaufgaben nennen meist klassische LAN-Subnetze.","Hat ein /31 grundsätzlich null nutzbare Endpunkte?","Nein. Bei Punkt-zu-Punkt-Verbindungen sind beide nutzbar.","Minus zwei ist eine Faustregel für gewöhnliche IPv4-LANs, kein Naturgesetz.","WISSEN"]
 ]},
 {
- id:"netzwerk",name:"Netzwerk",symbol:"LAN",color:"#e1c16d",cards:[
+ id:"netzwerk",name:"Netzwerk",symbol:"LAN",color:"#e1c16d",sections:[
  ["Switch und MAC-Tabelle","Der Switch lernt, an welchem Port welche MAC hängt.","Lernen::Absender-MAC und Eingangsport merken.|Bekanntes Ziel::Frame gezielt weiterleiten.|Unbekanntes Ziel::Im VLAN an weitere Ports fluten.","Was macht der Switch mit einer unbekannten Ziel-MAC?","Er flutet den Frame im betreffenden VLAN, außer am Eingangsport.","Broadcast und unbekannter Unicast sind nicht dasselbe.","WISSEN"],
  ["Gateway und Routing","Ohne Route bleibt das Paket im falschen Netz.","Lokal::Ziel im eigenen Subnetz → direkte Zustellung.|Fremdnetz::Ziel außerhalb → an Next Hop/Default Gateway.|Route::Längstes passendes Präfix gewinnt.","Wohin sendet ein PC ein Paket zu einer externen IP?","An die MAC-Adresse des nächsten Routers (Default Gateway), sofern die Route so lautet.","Die Ziel-IP bleibt beim Routing grundsätzlich die des Empfängers.","PRAXIS"],
  ["VLAN-Grundlagen","Ein physisches Netz, mehrere logische Broadcast-Domänen.","Access-Port::Transportiert in der Regel ein ungetaggtes VLAN.|Trunk::Transportiert mehrere VLANs meist per 802.1Q-Tag.|Inter-VLAN::Benötigt Routing zwischen IP-Netzen.","Dürfen Geräte in VLAN 10 und 20 ohne Routing direkt kommunizieren?","Normalerweise nein: Die Layer-2-Broadcast-Domänen sind getrennt.","VLAN ist Segmentierung, keine automatische Sicherheitsgarantie.","WISSEN"],
@@ -46,7 +46,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Netzwerktopologien","Die Struktur entscheidet über Kosten und Ausfälle.","Stern::Ausfall eines Endgerätekabels betrifft meist nur diesen Teilnehmer.|Bus::Gemeinsames Medium, Fehler oft mit großer Wirkung.|Vermascht::Redundanz, dafür höhere Kosten und Komplexität.","Was ist ein Nachteil der Sterntopologie?","Die zentrale Komponente kann zum Single Point of Failure werden.","Physische und logische Topologie können voneinander abweichen.","WISSEN"]
 ]},
 {
- id:"ipv6",name:"IPv6",symbol:"::",color:"#a5a0ff",cards:[
+ id:"ipv6",name:"IPv6",symbol:"::",color:"#a5a0ff",sections:[
  ["IPv6-Aufbau","128 Bit, acht hexadezimale Gruppen.","Format::8 Gruppen à 16 Bit, getrennt durch Doppelpunkte.|Präfix::Übliche LAN-Präfixlänge ist /64.|Beispiel::2001:db8:1:2:0:0:0:1 (2001:db8::/32 ist Dokumentation).","Wie viele Bit stecken in einer IPv6-Adresse?","128 Bit; eine normale ausgeschriebene Adresse hat acht Gruppen.","Sechs Gruppen ohne :: ergeben keine vollständige IPv6-Adresse.","BASIS"],
  ["IPv6 kürzen","Weniger schreiben, nichts dazuerfinden.","Führende Nullen::In jeder Gruppe dürfen führende Nullen entfallen.|Nullergruppen::Eine zusammenhängende Folge kann durch :: ersetzt werden.|Regel::Nur ein einziges :: pro Adresse erlaubt.","Kürze 2001:0db8:0000:0000:0000:0000:0000:0001.","2001:db8::1.","Ein einzelnes 0-Feld wird in der kanonischen Schreibweise nicht mit :: gekürzt.","RECHNEN"],
  ["IPv6 wieder auffüllen","Aus :: müssen wieder insgesamt acht Gruppen werden.","Zählen::Gruppen links und rechts von :: zählen.|Ergänzen::Fehlende Nullgruppen bis insgesamt acht auffüllen.|Schreiben::Jede Gruppe bei Bedarf auf vier Hex-Ziffern ergänzen.","Wie viele Nullgruppen verbirgt 2001:db8::5?","8 − 2 − 1 = 5 Gruppen mit 0000.","Nicht erst sechs Gruppen hinschreiben und sie dann passend nennen.","RECHNEN"],
@@ -57,7 +57,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Dual Stack & Präfixe","IPv4 und IPv6 können gleichzeitig laufen.","Dual Stack::Ein Gerät nutzt beide Protokollfamilien parallel.|/48 zu /64::16 zusätzliche Subnetzbits → 65.536 /64-Netze.|IPv6-NAT::Für normale globale IPv6-Kommunikation meist nicht nötig.","Wie viele /64-Subnetze stecken in einem /48?","2^(64 − 48) = 65.536.","IPv6-Präfixe werden in Bit gezählt, nicht in Hex-Gruppen.","RECHNEN"]
 ]},
 {
- id:"dienste",name:"Ports & Dienste",symbol:":443",color:"#ff9984",cards:[
+ id:"dienste",name:"Ports & Dienste",symbol:":443",color:"#ff9984",sections:[
  ["Die Standardports","Der Klassiker: Dienst und Port korrekt zuordnen.","Web::HTTP 80/TCP, HTTPS 443/TCP (auch HTTP/3 über UDP 443).|Administration::SSH 22/TCP, Telnet 23/TCP.|Namen::DNS 53/UDP und TCP.","Ein Admin soll verschlüsselt auf einen Linux-Server zugreifen. Welcher Port?","SSH verwendet standardmäßig TCP 22.","Port und Protokoll gehören zusammen. Nur 53 ist nicht immer die volle Antwort.","BASIS"],
  ["E-Mail-Protokolle","Senden und Abrufen sind unterschiedliche Jobs.","SMTP::Typisch 25 (Server-zu-Server), 587 (Submission mit STARTTLS).|IMAP::143, verschlüsselt mit implizitem TLS meist 993.|POP3::110, verschlüsselt mit implizitem TLS meist 995.","Welcher Dienst ruft Mails synchronisiert vom Server ab?","IMAP, häufig über Port 993/TCP.","SMTP versendet; IMAP und POP3 holen Nachrichten ab.","WISSEN"],
  ["DNS – Namen finden","DNS löst Namen in Einträge auf, nicht nur IPv4.","A/AAAA::IPv4- bzw. IPv6-Adresse.|MX/CNAME::Mailserver bzw. Aliasname.|Abfragen::Meist UDP 53, ggf. TCP 53.","Welcher DNS-Record liefert IPv6-Adressen?","AAAA-Record.","DNS-Auflösung und Internetverbindung sind zwei verschiedene Probleme.","WISSEN"],
@@ -68,7 +68,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Paketverlust & Latenz","Teams ruckelt nicht nur bei schlechtem Downloadtest.","Latenz::Zeit für Übertragung und Verarbeitung.|Jitter::Schwankung der Paketlaufzeit.|Paketverlust::Verlorene Pakete stören vor allem Echtzeitdienste.","Warum ist hoher Paketverlust bei Videokonferenzen kritisch?","Sprache und Bild haben Aussetzer, obwohl nominell genug Bandbreite vorhanden ist.","Hohe Mbit/s sind keine Garantie für stabile Echtzeitkommunikation.","PRAXIS"]
 ]},
 {
- id:"sicherheit",name:"IT-Sicherheit",symbol:"SEC",color:"#f280b4",cards:[
+ id:"sicherheit",name:"IT-Sicherheit",symbol:"SEC",color:"#f280b4",sections:[
  ["CIA-Schutzziele","Drei Begriffe, auf die viele Sicherheitsfragen hinauslaufen.","Vertraulichkeit::Nur Berechtigte dürfen Informationen lesen.|Integrität::Daten bleiben korrekt und unverändert.|Verfügbarkeit::Systeme und Daten sind nutzbar, wenn sie gebraucht werden.","Welches Schutzziel verletzt ein unbemerkter Datenmanipulationsangriff?","Die Integrität der Daten.","Ein Backup verbessert vor allem Wiederherstellbarkeit, nicht automatisch Vertraulichkeit.","BASIS"],
  ["Hash oder Verschlüsselung?","Einwegsicherheit und Rückweg sind nicht dasselbe.","Hash::Einwegfunktion, z. B. zur Integritätsprüfung.|Verschlüsselung::Daten mit Schlüssel wieder entschlüsselbar.|Passwortspeicherung::Geeigneter Passwort-Hash mit Salt und Kostenfaktor.","Kann man einen sicheren Hashwert einfach entschlüsseln?","Nein, Hashing ist keine umkehrbare Verschlüsselung.","SHA-256 allein ist für Passwortspeicherung kein gutes Standardverfahren.","WISSEN"],
  ["Symmetrisch & asymmetrisch","Zwei Schlüsselkonzepte, zwei Stärken.","Symmetrisch::Derselbe geheime Schlüssel für Ver- und Entschlüsselung.|Asymmetrisch::Öffentlicher und privater Schlüssel gehören zusammen.|Hybrid::TLS kombiniert Verfahren für Schlüsselaustausch und Datenverkehr.","Warum ist symmetrische Verschlüsselung bei großen Datenmengen üblich?","Sie ist in der Regel deutlich effizienter.","Mit öffentlichem Schlüssel verschlüsseln ist etwas anderes als digital signieren.","WISSEN"],
@@ -79,7 +79,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Firewall & Angriffstypen","Schutzmaßnahmen müssen zum Angriff passen.","Firewall::Regelt erlaubten Verkehr anhand definierter Kriterien.|Phishing::Täuscht Menschen, um Daten oder Handlungen zu erschleichen.|Ransomware::Erpresst nach Verschlüsselung/Sperrung von Daten.","Welche Maßnahmen helfen gegen Phishing?","Schulung, MFA, E-Mail-Prüfung und möglichst phishing-resistente Anmeldung.","Eine Firewall beseitigt kein Social Engineering.","PRAXIS"]
 ]},
 {
- id:"datenschutz",name:"Datenschutz",symbol:"DSGVO",color:"#79c8b0",cards:[
+ id:"datenschutz",name:"Datenschutz",symbol:"DSGVO",color:"#79c8b0",sections:[
  ["Personenbezogene Daten","Auch indirekte Zuordnung kann genügen.","Definition::Informationen über eine identifizierte oder identifizierbare Person.|Beispiele::Name, E-Mail, Personalnummer, personenbezogene IP-Adresse.|Pseudonym::Weiterhin personenbezogen, wenn Re-Identifizierung möglich ist.","Sind pseudonymisierte Nutzerdaten automatisch anonym?","Nein. Bei möglicher Zuordnung bleibt die DSGVO relevant.","Anonymisierung und Pseudonymisierung sind nicht dasselbe.","BASIS"],
  ["Rechtsgrundlagen","Nicht jede Verarbeitung braucht eine Einwilligung.","Art. 6 DSGVO::Nennt Rechtsgrundlagen für Verarbeitung.|Möglich::Vertrag, gesetzliche Pflicht, Einwilligung, berechtigte Interessen u. a.|Grundsatz::Zweck und Rechtsgrundlage vorher festlegen.","Braucht ein Händler für eine Lieferadresse immer eine Einwilligung?","Nein. Verarbeitung kann zur Erfüllung des Kaufvertrags erforderlich sein.","Einwilligung ist keine Allzweck-Ausrede für jede Datensammlung.","WISSEN"],
  ["Datenschutzgrundsätze","So wenig wie nötig, so klar wie möglich.","Zweckbindung::Nur für bestimmte, legitime Zwecke verarbeiten.|Datenminimierung::Nicht mehr Daten als nötig erfassen.|Speicherbegrenzung::Nicht länger als erforderlich aufbewahren.","Warum ist eine unnötige Geburtsdatumsabfrage problematisch?","Sie kann gegen den Grundsatz der Datenminimierung verstoßen.","„Vielleicht brauchen wir das mal“ ist kein sauberer Zweck.","WISSEN"],
@@ -90,7 +90,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Cookies und Transparenz","Technik und Rechtsgrundlage getrennt prüfen.","Notwendig::Technisch erforderliche Funktionen können ohne Einwilligung möglich sein.|Tracking::Nicht erforderlicher Zugriff/Speicherung bedarf regelmäßig Einwilligung.|Information::Betroffene müssen verständlich informiert werden.","Ist ein Analytics-Cookie automatisch technisch notwendig?","Nein. Tracking benötigt regelmäßig eine wirksame Einwilligung.","DSGVO und Regeln für Endgerätezugriff (z. B. TDDDG) wirken zusammen.","WISSEN"]
 ]},
 {
- id:"rechnung",name:"Kalkulation",symbol:"€",color:"#f7c36e",cards:[
+ id:"rechnung",name:"Kalkulation",symbol:"€",color:"#f7c36e",sections:[
  ["Rabatt & Skonto","Nicht zweimal vom selben Ursprungspreis abziehen.","Rabatt::Preisnachlass auf den Listenpreis.|Skonto::Nachlass bei fristgerechter Zahlung auf den Zielpreis.|Beispiel::1.000 € − 10 % = 900 €; davon 2 % Skonto = 882 €.","Was sind 2 % Skonto auf 900 €?","18 €; Barpreis = 882 €.","Prozente nacheinander auf den jeweils neuen Betrag anwenden.","RECHNEN"],
  ["Bezugskalkulation","Vom Listenpreis bis zum tatsächlichen Einkauf.","Reihenfolge::Listenpreis − Rabatt = Zieleinkaufspreis.|Danach::− Skonto = Bareinkaufspreis.|Zuletzt::+ Bezugskosten = Bezugspreis.","Ein Artikel kostet 1.000 € − 10 % Rabatt − 2 % Skonto + 20 € Fracht. Bezugspreis?","900 € → 882 € → 902 € (netto, vereinfacht).","Fracht kommt nicht schon vor dem Rabatt in die Rechnung.","RECHNEN"],
  ["Angebote vergleichen","Der günstigste Stückpreis kann teuer werden.","Bezugspreis::Preisnachlässe und Nebenkosten einrechnen.|Qualität::Lieferzeit, Garantie, Support, Ausfallrisiko beachten.|Bewertung::Kostenvergleich und Nutzwertanalyse sind verschiedene Methoden.","Warum ist das billigste Angebot nicht immer das beste?","Folgekosten, Lieferbedingungen oder Qualität können schwerer wiegen.","Preis und Nutzen sind keine identischen Größen.","PRAXIS"],
@@ -101,7 +101,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Break-even","Ab welcher Menge entsteht Gewinn?","Deckungsbeitrag::Verkaufspreis je Stück − variable Kosten je Stück.|Formel::Fixkosten / Deckungsbeitrag je Stück.|Beispiel::4.000 € Fixkosten / 20 € = 200 Stück.","Fixkosten 6.000 €, DB 30 € pro Gerät: Break-even?","200 Geräte (sofern Stückzahlen und Kosten konstant sind).","Bei Deckungsbeitrag ≤ 0 erreicht man so keinen Break-even.","RECHNEN"]
 ]},
 {
- id:"csharp",name:"C#-Grundlagen",symbol:"C#",color:"#8eb7ff",cards:[
+ id:"csharp",name:"C#-Grundlagen",symbol:"C#",color:"#8eb7ff",sections:[
  ["Datentypen","Der Typ bestimmt, welche Werte passen.","int::Ganzzahl, z. B. 42.|double::Gleitkommazahl, z. B. 3.14.|bool/char::Wahrheitswert bzw. einzelnes Zeichen.","Welchen Typ wählst du für true oder false?","bool.","char speichert ein Zeichen, string eine Zeichenfolge.","BASIS"],
  ["Variablen & var","var lässt den Compiler einen Typ ableiten.","Deklaration::int alter = 40; legt eine Ganzzahl fest.|var::var zahl = 12; wird beim Kompilieren zu int.|Typbindung::C# ist weiterhin statisch typisiert.","Kann var zahl = 5; später einfach Text aufnehmen?","Nein, zahl hat den Typ int.","var bedeutet nicht „beliebiger Typ zu jedem Zeitpunkt“.","WISSEN"],
  ["if und Vergleich","Eine Bedingung braucht einen bool-Wert.","Vergleich::== gleich, != ungleich, < und > kleiner/größer.|Logik::&& = UND; || = ODER; ! = NICHT.|Verzweigung::if, else if, else.","Was ist der Unterschied zwischen = und ==?","= weist zu; == prüft auf Gleichheit.","Ein einzelnes = in einer Bedingung ist nicht automatisch ein Vergleich.","BASIS"],
@@ -112,7 +112,7 @@ globalThis.DTP_CHEAT_GROUPS=[
  ["Methoden und Rückgabe","Wiederverwendbare Logik bekommt einen Namen.","Parameter::Werte, die beim Aufruf übergeben werden.|return::Gibt einen Wert an den Aufrufer zurück.|void::Methode liefert keinen Rückgabewert.","Was bedeutet void bei einer Methodendeklaration?","Die Methode gibt keinen Wert zurück.","Ausgabe mit Console.WriteLine ist keine Rückgabe per return.","WISSEN"]
 ]},
 {
- id:"mix",name:"Prüfungs-Mix",symbol:"IHK",color:"#d6a3f4",cards:[
+ id:"mix",name:"Prüfungs-Mix",symbol:"IHK",color:"#d6a3f4",sections:[
  ["RAID ist kein Backup","Verfügbarkeit und Wiederherstellung sind zwei Paar Schuhe.","RAID 0::Striping, keine Redundanz.|RAID 1::Spiegelung, Mindestzahl typischerweise 2 Platten.|RAID 5::Parität, ab 3 Platten, Kapazität grob (n−1) × kleinste Größe.","Was passiert bei RAID 0, wenn eine Platte ausfällt?","In der Regel ist der gesamte Verbund nicht mehr nutzbar.","RAID schützt nicht vor versehentlichem Löschen oder Ransomware.","WISSEN"],
  ["RAM, SSD, HDD","Wo Daten liegen, macht einen Unterschied.","RAM::Flüchtiger Arbeitsspeicher; verliert Inhalt ohne Strom.|SSD::Nichtflüchtiger Flashspeicher, meist kurze Zugriffszeiten.|HDD::Magnetische rotierende Datenträger, bewegliche Teile.","Welches dieser Medien speichert Daten typischerweise ohne Strom nicht dauerhaft?","RAM.","SSD ist nicht dasselbe wie RAM, auch wenn beide schnell sind.","BASIS"],
  ["Virtualisierung","Eine Hardware, mehrere getrennte Systeme.","Hypervisor Typ 1::Läuft direkt auf Hardware.|Hypervisor Typ 2::Läuft auf einem Host-Betriebssystem.|Snapshot::Punkt-in-Zeit-Zustand, kein vollwertiges Backup.","Warum nutzt man VMs in einer Testumgebung?","Für isolierte, reproduzierbare Systeme ohne zusätzliche Hardware.","Ein Snapshot ist keine verlässliche Langzeit-Backupstrategie.","WISSEN"],
