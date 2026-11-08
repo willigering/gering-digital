@@ -138,4 +138,141 @@ Wie prüfst du zuerst einen ausgefallenen LAN-Anschluss?¦Kabel/Link-LED, Port, 
 Wofür steht EMV?¦Elektromagnetische Verträglichkeit.
 Worin liegt der Unterschied zwischen physischer und logischer Topologie?¦Physisch ist Verkabelung; logisch ist Kommunikationsstruktur.
 \`.trim()
+,
+ipv6: \`
+Wie lang ist eine IPv6-Adresse?¦128 Bit.
+Aus wie vielen Gruppen besteht eine ausgeschriebene IPv6-Adresse?¦Acht Gruppen.
+Wie viele Hex-Ziffern hat eine vollständig ausgeschriebene IPv6-Adresse?¦32 Hex-Ziffern.
+Wie viele Bit umfasst eine IPv6-Gruppe?¦16 Bit.
+Wie viele Hostbits bleiben bei einem /64-Präfix?¦64 Bit.
+Was ist die Loopbackadresse von IPv6?¦::1.
+Was ist die nicht spezifizierte IPv6-Adresse?¦::.
+Welche IPv6-Adressfamilie beginnt bei ff00::/8?¦Multicast.
+Welche Adressen zählen zu Link-Local?¦fe80::/10.
+Ist fe80::1 als Standardgateway möglich?¦Ja, Router nutzen oft Link-Local-Adressen als Next Hop.
+Was ist die Aufgabe einer Zone-ID wie %3?¦Sie wählt die lokale Schnittstelle für eine Link-Local-Adresse.
+Wozu dient SLAAC?¦Ein Host erzeugt eigenständig Adressen aus per Router angekündigten Präfixen.
+Welche Nachrichten transportieren Router Advertisements?¦ICMPv6-Nachrichten.
+Wird der IPv6-Default-Router normalerweise durch DHCPv6 verteilt?¦Nein, üblicherweise durch Router Advertisements.
+Wofür steht DAD?¦Duplicate Address Detection; prüft die Einmaligkeit einer Adresse am Link.
+Welche Technik ersetzt ARP in IPv6?¦Neighbor Discovery mit ICMPv6.
+Was ist Neighbor Solicitation?¦Eine ICMPv6-Anfrage, etwa zur Ermittlung eines Nachbarn.
+Was ist Neighbor Advertisement?¦Eine ICMPv6-Antwort mit Informationen über Nachbarn.
+Worin unterscheiden sich Global Unicast und ULA?¦Global Unicast ist für globales Routing vorgesehen; ULA für interne Netze.
+Wie lautet das Präfix für Unique Local Addresses?¦fc00::/7.
+Welche Präfixlänge hat ein übliches IPv6-LAN?¦/64.
+Wie viele /64-Subnetze stecken in /56?¦2⁸ = 256.
+Wie viele /64-Netze stecken in /48?¦2¹⁶ = 65.536.
+Kürze 2001:0db8:0000:0000:0000:0000:0000:abcd.¦2001:db8::abcd.
+Schreibe 2001:db8::2 vollständig aus.¦2001:0db8:0000:0000:0000:0000:0000:0002.
+Warum darf :: nur einmal vorkommen?¦Sonst wäre die Zahl ausgelassener Nullgruppen mehrdeutig.
+Darfst du in einer IPv6-Gruppe Nullen am Ende einfach streichen?¦Nein, nur führende Nullen dürfen ohne :: wegfallen.
+Wie erkennst du eine Dokumentationsadresse im IPv6-Beispielnetz?¦Sie verwendet 2001:db8::/32.
+Was heißt Dual Stack?¦IPv4 und IPv6 werden parallel betrieben.
+Existiert bei IPv6 ein klassischer Broadcast?¦Nein, entsprechende Funktionen nutzen Multicast.
+Warum ist ICMPv6 wichtig für IPv6?¦Unter anderem für NDP, Fehlermeldungen und Router Advertisements.
+Kann eine IPv6-Adresse ohne DHCPv6 automatisch entstehen?¦Ja, durch SLAAC.
+\`.trim(),
+dienste: \`
+Welcher TCP-Port wird üblicherweise für SSH genutzt?¦22.
+Welcher Port wird standardmäßig für Telnet genutzt?¦TCP 23.
+Was ist der Standardport für HTTP?¦TCP 80.
+Was ist der klassische HTTPS-Port?¦TCP 443; HTTP/3 nutzt UDP 443.
+Welche Ports nutzt DNS?¦UDP und TCP 53.
+Welche Ports verwendet DHCPv4?¦UDP 67 für Server, 68 für Client.
+Welcher Port dient SMTP zwischen Mailservern meist?¦TCP 25.
+Welcher Port wird für Mail-Submission häufig verwendet?¦TCP 587.
+Welcher Port ist für IMAPS typisch?¦TCP 993.
+Welcher Port ist für POP3S typisch?¦TCP 995.
+Wie lautet der Standardport von RDP?¦TCP 3389, teils auch UDP 3389.
+Welcher Port gehört zu NTP?¦UDP 123.
+Welcher Port gehört zu LDAP ohne TLS?¦TCP/UDP 389 je nach Verwendung.
+Welcher Port gehört zu LDAPS?¦TCP 636.
+Welcher Dienst nutzt TCP 445 typischerweise?¦SMB/CIFS für Windows-Dateifreigaben.
+Was bedeutet DNS-A-Record?¦Er ordnet einem Namen eine IPv4-Adresse zu.
+Wozu dient ein AAAA-Record?¦Er ordnet einem Namen eine IPv6-Adresse zu.
+Wofür steht ein MX-Record?¦Er nennt Mail-Exchanger für eine Domain.
+Was ist ein DNS-CNAME?¦Ein Alias auf einen anderen Domainnamen.
+Welche vier DORA-Schritte verwendet DHCPv4?¦Discover, Offer, Request, Acknowledge.
+Was bewirkt eine DHCP-Lease?¦Sie begrenzt die Nutzungszeit einer zugeteilten Adresse.
+Was ist APIPA unter Windows?¦Automatische IPv4-Adresse aus 169.254.0.0/16 bei fehlender geeigneter Konfiguration.
+Kann APIPA ein gewöhnliches Internet-Gateway ersetzen?¦Nein.
+Wozu dient TTL bei einem DNS-Record?¦Sie legt die maximale Cache-Lebensdauer fest.
+Was ist ein TCP-SYN?¦Das gesetzte SYN-Flag initiiert eine TCP-Verbindung.
+Welches TCP-Flag bestätigt typischerweise Empfang?¦ACK.
+Was bedeutet verbindungslos bei UDP?¦Es gibt keinen verbindungsorientierten Handshake oder Transportzustellgarantie.
+Warum nutzt man TLS bei Webdiensten?¦Zur Sicherung der Übertragung und Authentifizierung des Servers.
+Welche Folge kann ein abgelaufenes TLS-Zertifikat haben?¦Der Client warnt oder verweigert die Verbindung.
+Was prüft nslookup?¦Die Namensauflösung über DNS.
+Wozu dient traceroute/tracert?¦Zur groben Ermittlung der durchlaufenen Router-Hops.
+Ping funktioniert, Webseiten nicht: nenne zwei Ursachen.¦DNS-Fehler oder gestörter Webdienst/Port/Proxy.
+\`.trim(),
+sicherheit: \`
+Welche drei Schutzziele bilden die CIA-Triade?¦Vertraulichkeit, Integrität, Verfügbarkeit.
+Welches Schutzziel verletzt das Mitlesen von Kundendaten?¦Vertraulichkeit.
+Welches Schutzziel verletzt die heimliche Änderung einer Rechnung?¦Integrität.
+Welches Schutzziel ist bei einem Serverausfall verletzt?¦Verfügbarkeit.
+Was ist der Unterschied zwischen Hash und Verschlüsselung?¦Hashing ist nicht reversibel; verschlüsselte Daten sind mit Schlüssel entschlüsselbar.
+Nenne zwei Eigenschaften eines kryptografischen Hashverfahrens.¦Deterministisch und praktisch kollisionsresistent.
+Was bedeutet Salt bei Passwort-Hashes?¦Ein individueller Zusatzwert pro Passwort erschwert vorberechnete Angriffe.
+Warum sollte man Passwörter nicht mit einfachem SHA-256 speichern?¦Es ist für Passwortangriffe zu schnell; KDFs wie Argon2id sind geeigneter.
+Was ist ein symmetrischer Schlüssel?¦Derselbe geheime Schlüssel dient zum Ver- und Entschlüsseln.
+Wie funktionieren öffentliche und private Schlüssel grundsätzlich?¦Sie sind mathematisch verbunden und unterstützen asymmetrische Verfahren.
+Womit prüft man eine digitale Signatur?¦Mit dem öffentlichen Schlüssel des Unterzeichners.
+Welche Ziele unterstützt eine digitale Signatur?¦Authentizität und Integrität.
+Warum bietet eine Signatur allein keine Vertraulichkeit?¦Sie macht Daten nicht geheim.
+Nenne die drei Arten von Authentifizierungsfaktoren.¦Wissen, Besitz, biometrisches Merkmal.
+Sind Passwort und Sicherheitsfrage echte MFA?¦Nein, beides ist Wissen.
+Was ist ein Vorteil von FIDO2/Passkeys?¦Phishing-resistente, schlüsselbasierte Authentisierung.
+Warum ist RAID 1 kein Backup?¦Fehlerhafte Änderungen und Löschungen werden mitgespiegelt.
+Was bedeutet 3-2-1 bei Backups?¦Drei Kopien auf zwei Medientypen, eine extern.
+Wofür steht RTO?¦Angestrebte maximale Wiederherstellungszeit.
+Wofür steht RPO?¦Maximal tolerierter Datenverlust, gemessen in Zeit.
+Wozu dient ein Restore-Test?¦Er prüft, ob Backups tatsächlich wiederherstellbar sind.
+Was sind Malware und Ransomware?¦Malware ist Schadsoftware; Ransomware sperrt/verschlüsselt Daten gegen Lösegeld.
+Was ist Phishing?¦Betrug mit gefälschten Nachrichten oder Seiten zur Datenerbeutung.
+Was bedeutet Social Engineering?¦Manipulation von Menschen zur Umgehung von Schutzmaßnahmen.
+Was ist Least Privilege?¦Berechtigungen auf das tatsächlich benötigte Minimum begrenzen.
+Wozu dient eine Firewall?¦Sie filtert Netzwerkverkehr nach Regeln.
+Warum ist eine Firewall kein Virenscanner?¦Sie kontrolliert Verkehr, untersucht aber nicht automatisch jede Schadsoftware.
+Was versteht man unter einem Patch?¦Softwareaktualisierung, oft zum Beheben von Fehlern und Sicherheitslücken.
+Was ist eine Schwachstelle?¦Eine ausnutzbare Sicherheitslücke in Technik, Prozess oder Verhalten.
+Was ist eine Bedrohung?¦Ein möglicher Auslöser eines Schadens.
+Was ist eine Risikoanalyse?¦Bewertung von Eintrittswahrscheinlichkeit und Schadensfolgen.
+Was bedeutet Schutzbedarf „sehr hoch“?¦Ein Schaden könnte besonders gravierende Auswirkungen haben.
+\`.trim(),
+datenschutz: \`
+Was sind personenbezogene Daten?¦Informationen über identifizierte oder identifizierbare Personen.
+Ist eine Personalnummer personenbezogen?¦Ja, wenn sie einer Person zugeordnet werden kann.
+Sind pseudonymisierte Daten grundsätzlich frei von Datenschutzregeln?¦Nein, wenn Re-Identifizierung möglich ist.
+Was ist der Unterschied zwischen anonymisiert und pseudonymisiert?¦Anonyme Daten sind nicht mehr mit vertretbarem Aufwand zuordenbar; Pseudonyme grundsätzlich schon.
+Nenne zwei Rechtsgrundlagen aus Art. 6 DSGVO.¦Vertragserfüllung und rechtliche Verpflichtung, beispielsweise.
+Ist eine Einwilligung für jede Datenverarbeitung nötig?¦Nein, es gibt andere Rechtsgrundlagen.
+Was heißt Zweckbindung?¦Daten dürfen nur für festgelegte, legitime Zwecke verarbeitet werden.
+Was bedeutet Datenminimierung?¦Es dürfen nur die notwendigen Daten erhoben werden.
+Was bedeutet Speicherbegrenzung?¦Daten sind nicht länger als nötig zu speichern.
+Was ist ein Verantwortlicher?¦Die Stelle, die Zwecke und Mittel der Verarbeitung festlegt.
+Was ist ein Auftragsverarbeiter?¦Eine Stelle, die personenbezogene Daten im Auftrag verarbeitet.
+Wann ist ein AV-Vertrag relevant?¦Bei Auftragsverarbeitung nach Art. 28 DSGVO.
+Darf jede Person eine Datenauskunft verlangen?¦Betroffene haben grundsätzlich ein Auskunftsrecht nach Art. 15.
+Was beschreibt das Recht auf Berichtigung?¦Falsche personenbezogene Daten dürfen korrigiert werden.
+Besteht ein uneingeschränktes Recht auf Löschung?¦Nein, Ausnahmen wie Aufbewahrungspflichten können entgegenstehen.
+Was ist das Recht auf Datenübertragbarkeit?¦Unter bestimmten Bedingungen Daten in einem gängigen Format erhalten/übermitteln.
+Was sind TOM?¦Technische und organisatorische Maßnahmen zum Schutz personenbezogener Daten.
+Nenne zwei technische Schutzmaßnahmen.¦Verschlüsselung und Zugangskontrolle.
+Nenne zwei organisatorische Schutzmaßnahmen.¦Berechtigungskonzept und Mitarbeiterschulung.
+Was ist eine Datenpanne?¦Eine Verletzung der Sicherheit personenbezogener Daten.
+Wann läuft die 72-Stunden-Frist einer meldepflichtigen Panne?¦Ab Bekanntwerden bei dem Verantwortlichen.
+Muss jede Datenpanne der Behörde gemeldet werden?¦Nein, nicht wenn voraussichtlich kein Risiko für Rechte und Freiheiten besteht.
+Wann müssen Betroffene über eine Panne informiert werden?¦Grundsätzlich bei voraussichtlich hohem Risiko.
+Warum sind Auskunftsrechte wichtig?¦Sie schaffen Transparenz und Kontrolle über Daten.
+Was ist eine Datenschutz-Folgenabschätzung?¦Eine strukturierte Risikobewertung bei voraussichtlich hohem Risiko.
+Wozu braucht man ein Löschkonzept?¦Für rechtmäßige, nachvollziehbare Löschfristen und -abläufe.
+Was ist „Privacy by Design“?¦Datenschutz bereits bei der technischen Gestaltung berücksichtigen.
+Was ist „Privacy by Default“?¦Datenschutzfreundliche Voreinstellungen.
+Wann brauchen nicht notwendige Tracking-Cookies üblicherweise Einwilligung?¦Vor dem Setzen bzw. Endgerätezugriff.
+Ersetzt ein Cookie-Banner automatisch eine gültige Einwilligung?¦Nein; Einwilligung muss informiert und freiwillig sein.
+Warum können IP-Adressen personenbezogen sein?¦Weil sie unter Umständen einer Person zugeordnet werden können.
+Warum sollte ein Admin Kundendaten nicht wahllos einsehen?¦Zweckbindung, Vertraulichkeit und geringstmögliche Zugriffsrechte.
+\`.trim()
 };
