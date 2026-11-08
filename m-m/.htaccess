@@ -1,5 +1,12 @@
 # Passwortschutz fuer das Testspiel (Basic-Auth ohne .htpasswd, weil der Deploy diese Datei nicht hochlaedt).
 RewriteEngine On
+# HTTPS erzwingen: Unter http:// (Port 80) setzt der Browser kein sicheres Session-Cookie,
+# dann scheitern Anmeldung und CSRF-Prüfung. Umgeleitet wird nur, wenn keines der Signale
+# für HTTPS vorliegt (HTTPS-Variable, X-Forwarded-Proto, Port 443): schützt vor Umleitungsschleifen.
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
+RewriteCond %{SERVER_PORT} !^443$
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 RewriteCond %{HTTP:Authorization} !^Basic\ d2lsbGk6TU0xNzU0$
 RewriteCond %{ENV:REDIRECT_HTTP_AUTHORIZATION} !^Basic\ d2lsbGk6TU0xNzU0$
