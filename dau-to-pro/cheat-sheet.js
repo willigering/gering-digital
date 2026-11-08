@@ -1,156 +1,166 @@
-/* DAU TO PRO // Pocket-Deck. Unabhängig vom Modulstapel der Startseite. */
+/* DAU TO PRO – Elf THEMEN-Spickzettel, keine 88 Einzelkarten. */
 (()=>{
   "use strict";
   const groups=globalThis.DTP_CHEAT_GROUPS||[];
   const board=document.getElementById("sheet-board");
-  const filters=document.getElementById("sheet-filters");
   const search=document.getElementById("sheet-search");
   const count=document.getElementById("sheet-count");
+  const detail=document.getElementById("sheet-detail");
   const progress=document.getElementById("stack-progress");
-  if(!board||!groups.length)return;
+  const intro=document.getElementById("board-intro");
+  const empty=document.getElementById("sheet-empty");
+  if(!board||!detail||!groups.length)return;
+  const descriptions={
+    zahlen:"Bit, Byte, Binär, Hex und Datenraten",
+    osi:"Sieben Schichten, Protokolle, Kapselung",
+    subnet:"CIDR, Netzadresse, Hosts, VLSM",
+    netzwerk:"Router, Switch, VLAN, WLAN und Kabel",
+    ipv6:"Adressarten, Kürzung, SLAAC, NDP",
+    dienste:"Ports, DNS, DHCP, TCP und TLS",
+    sicherheit:"Schutzziele, Hashes, MFA und Backup",
+    datenschutz:"DSGVO, Rechtsgrundlagen und TOM",
+    rechnung:"Rabatt, Skonto, TCO und Break-even",
+    csharp:"Datentypen, Bedingungen und Schleifen",
+    mix:"Hardware, RAID, SQL und Projektplanung"
+  };
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-  let selected="alle",query="",cards=[],rows=[],stage=null,rowH=0,shown=null,frame=0,stacked=false,activeIndex=-1;
+  let cards=[],rows=[],stage=null,rowH=0,shown=null,frame=0,stacked=false,lastRow=-1;
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
-  const PEEK=19,STEP=.46,TAIL=.3;
-  const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h"))||92;
-  const total=groups.reduce((n,g)=>n+g.cards.length,0);
-  document.querySelectorAll("[data-cheat-total]").forEach(el=>el.textContent=String(total));
-  document.querySelectorAll("[data-cheat-groups]").forEach(el=>el.textContent=String(groups.length));
-  function cardHTML(g,c,i){
-    const [title,lead,factString,question,answer,trap,kind]=c;
-    const facts=factString.split("|").filter(Boolean).map(f=>{
-      const cut=f.indexOf("::"),key=cut<0?"Merke":f.slice(0,cut),value=cut<0?f:f.slice(cut+2);
-      return '<li><b>'+safe(key)+'</b><span>'+safe(value)+'</span></li>';
-    }).join("");
-    const label=kind||(g.id==="rechnung"||g.id==="subnet"||g.id==="zahlen"?"RECHNEN":"WISSEN");
-    return '<article class="sheet" style="--tone:'+g.color+'" data-title="'+safe(g.name+" "+title+" "+lead+" "+factString+" "+question+" "+answer+" "+trap).toLowerCase()+'" data-group="'+safe(g.id)+'">'
-      +'<header class="sheet-top"><span>'+safe(g.symbol)+' &nbsp; '+safe(g.name)+'</span><span class="sheet-nr">'+String(i+1).padStart(2,"0")+'</span></header>'
-      +'<div class="sheet-type">'+safe(label)+' <span aria-hidden="true">/ /</span></div>'
-      +'<h2>'+safe(title)+'</h2><p class="sheet-lead">'+safe(lead)+'</p>'
-      +'<ul class="sheet-facts">'+facts+'</ul>'
-      +'<div class="sheet-question"><span>✦ &nbsp;PRÜFUNGSFRAGE</span><strong>'+safe(question)+'</strong><p>'+safe(answer)+'</p></div>'
-      +'<p class="sheet-trap"><b>⚠ MERK DIR:</b> '+safe(trap)+'</p>'
-      +'</article>';
+  const PEEK=20,STEP=.47,TAIL=.32;
+  const navH=()=>document.querySelector(".topbar")?.getBoundingClientRect().height||86;
+  const start=document.title;
+  document.querySelectorAll("[data-cheat-total]").forEach(x=>x.textContent=String(groups.length));
+  document.querySelectorAll("[data-cheat-groups]").forEach(x=>x.textContent=String(groups.length));
+  function topicLink(g,n){
+    return '<a class="topic-card" href="?thema='+encodeURIComponent(g.id)+'" style="--tone:'+g.color+'" data-id="'+safe(g.id)+'">'
+      +'<span class="topic-top"><span>POCKET GUIDE // '+String(n+1).padStart(2,"0")+'</span><b>'+safe(g.symbol)+'</b></span>'
+      +'<span class="topic-icon" aria-hidden="true">'+safe(g.symbol)+'</span>'
+      +'<span class="topic-subtitle">SPICKZETTEL '+String(n+1).padStart(2,"0")+'</span>'
+      +'<strong class="topic-name">'+safe(g.name)+'</strong>'
+      +'<span class="topic-desc">'+safe(descriptions[g.id]||g.sections.map(c=>c[0]).slice(0,3).join(", "))+'</span>'
+      +'<span class="topic-foot"><span>'+g.sections.length+' ABSCHNITTE</span><b>LESEN ↗</b></span>'
+      +'</a>';
   }
-  function buildFilters(){
-    const list=[{id:"alle",name:"Alle Themen",color:"#eadbaf"},...groups];
-    filters.innerHTML=list.map(g=>'<button type="button" class="filter-chip" data-topic="'+safe(g.id)+'" style="--tone:'+g.color+'" aria-pressed="'+(g.id===selected?'true':'false')+'">'+safe(g.name)+'</button>').join("");
-    filters.addEventListener("click",e=>{
-      const b=e.target.closest("button[data-topic]");if(!b)return;
-      selected=b.dataset.topic;
-      [...filters.querySelectorAll("button")].forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
-      render();
-    });
-  }
-  function dispose(){
+  function destroyStack(){
     if(!stacked)return;
     cards.forEach(c=>board.append(c));
-    stage?.remove();stage=null;rows=[];stacked=false;shown=null;activeIndex=-1;
+    stage?.remove();stage=null;rows=[];stacked=false;shown=null;lastRow=-1;
     board.classList.remove("is-stacked");board.style.height="";
     cancelAnimationFrame(frame);frame=0;
   }
   function measure(){
-    if(!stacked||!stage)return;
-    rows.forEach(r=>{r.style.position="static";r.style.transform="";r.style.height="auto"});
-    rowH=Math.ceil(Math.max(...rows.map(r=>r.getBoundingClientRect().height),400));
+    if(!stacked)return;
+    rows.forEach(r=>{r.style.transform="";r.style.position="static";r.style.height="auto";r.style.visibility="visible"});
+    rowH=Math.ceil(Math.max(...rows.map(r=>r.getBoundingClientRect().height),260));
     rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
-    const peeks=Math.min(rows.length-1,3)*PEEK;
-    const stageH=peeks+rowH+rowH*TAIL;
-    stage.style.height=stageH+"px";
-    stage.style.top=(navH()+14)+"px";
-    board.style.height=(stageH+(rows.length-1)*rowH*STEP)+"px";
+    const offset=Math.min(rows.length-1,3)*PEEK;
+    const stHeight=offset+rowH+rowH*TAIL;
+    stage.style.top=navH()+15+"px";stage.style.height=stHeight+"px";
+    board.style.height=stHeight+(rows.length-1)*rowH*STEP+"px";
     paint();
   }
-  const stepPx=()=>rowH*STEP;
-  function scrollPos(){
-    if(!rows.length)return 0;
-    const top=board.getBoundingClientRect().top-navH()-14;
-    return Math.max(0,Math.min(rows.length-1,-top/Math.max(1,stepPx())));
-  }
-  function active(){return Math.round(shown===null?scrollPos():shown)}
+  const position=()=>Math.max(0,Math.min(rows.length-1,-(board.getBoundingClientRect().top-navH()-15)/Math.max(1,rowH*STEP)));
+  const active=()=>Math.round(shown??position());
   function go(k){
-    const target=scrollY+board.getBoundingClientRect().top-navH()-14+k*stepPx();
-    scrollTo({top:Math.max(0,target),behavior:calm.matches?"auto":"smooth"});
+    scrollTo({top:Math.max(0,scrollY+board.getBoundingClientRect().top-navH()-15+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
   }
   function paint(){
     frame=0;if(!stacked)return;
-    const goal=scrollPos();if(shown===null)shown=goal;
+    const goal=position();if(shown===null)shown=goal;
     shown+=(goal-shown)*.17;
     if(Math.abs(goal-shown)<.002)shown=goal;else frame=requestAnimationFrame(paint);
-    const peeks=Math.min(rows.length-1,3)*PEEK,p=shown,now=Math.round(p);
+    const p=shown,peek=Math.min(rows.length-1,3)*PEEK;
     rows.forEach((r,k)=>{
-      const d=p-k,back=Math.min(Math.max(0,d),3);
-      const y=d>=0?peeks-back*PEEK:peeks+(-d)*(rowH+14);
-      const scale=1-back*.028;
-      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+scale.toFixed(3)+')';
+      const d=p-k,back=Math.min(Math.max(d,0),3);
+      const y=d>=0?peek-back*PEEK:peek+(-d)*(rowH+15);
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.03).toFixed(3)+')';
       r.style.zIndex=String(k+1);
       r.style.visibility=d< -1.5?"hidden":"visible";
       r.classList.toggle("is-front",Math.abs(d)<.5);
-      r.classList.toggle("is-behind",d>.52);
-      r.inert=d< -1.15;
+      r.classList.toggle("is-behind",d>=.52);
+      r.inert=d< -1.1;
     });
-    if(now!==activeIndex){
-      activeIndex=now;
-      progress.textContent=String(now+1).padStart(2,"0")+" / "+String(rows.length).padStart(2,"0")+" · REIHEN";
+    const index=Math.round(p);
+    if(lastRow!==index){
+      lastRow=index;progress.textContent=String(index+1).padStart(2,"0")+" / "+String(rows.length).padStart(2,"0")+" REIHEN";
     }
   }
-  function queue(){if(stacked&&!frame)frame=requestAnimationFrame(paint)}
   function rebuild(){
-    dispose();
-    if(!wide.matches||calm.matches||cards.length<=5){
-      progress.hidden=true;return;
-    }
+    destroyStack();
+    if(!wide.matches||calm.matches||cards.length<=5){progress.hidden=true;return}
     progress.hidden=false;stacked=true;board.classList.add("is-stacked");
     stage=document.createElement("div");stage.className="sheet-stage";board.append(stage);
     for(let i=0;i<cards.length;i+=5){
-      const row=document.createElement("div");
-      row.className="sheet-row";row.dataset.row=String(rows.length);
+      const row=document.createElement("div");row.className="sheet-row";row.dataset.row=String(rows.length);
       cards.slice(i,i+5).forEach(c=>row.append(c));
       row.addEventListener("click",e=>{
-        const k=Number(row.dataset.row);
-        if(k!==active()&&row.classList.contains("is-behind")){
-          e.preventDefault();e.stopPropagation();go(k);
+        if(row.classList.contains("is-behind")&&Number(row.dataset.row)!==active()){
+          e.preventDefault();e.stopPropagation();go(Number(row.dataset.row));
         }
       },true);
       stage.append(row);rows.push(row);
     }
     measure();
   }
-  function render(){
-    dispose();
-    const fragments=[];
-    groups.forEach(g=>{
-      if(selected!=="alle"&&g.id!==selected)return;
-      g.cards.forEach((c,i)=>{
-        const searchable=(g.name+" "+c.join(" ")).toLocaleLowerCase("de");
-        if(query&& !searchable.includes(query))return;
-        fragments.push(cardHTML(g,c,i));
-      });
-    });
-    board.innerHTML=fragments.join("");
-    cards=[...board.querySelectorAll(".sheet")];
-    count.textContent=cards.length+" / "+total+" KARTEN";
-    document.getElementById("sheet-empty").hidden=cards.length!==0;
-    board.hidden=cards.length===0;
+  function listing(){
+    destroyStack();
+    document.title=start;
+    detail.hidden=true;intro.hidden=false;
+    board.hidden=false;search.closest(".search").hidden=false;
+    const q=search.value.trim().toLocaleLowerCase("de");
+    const visible=groups.filter(g=>(g.name+" "+descriptions[g.id]+" "+g.sections.map(c=>c.join(" ")).join(" ")).toLocaleLowerCase("de").includes(q));
+    board.innerHTML=visible.map(g=>topicLink(g,groups.indexOf(g))).join("");
+    cards=[...board.querySelectorAll(".topic-card")];
+    count.textContent=visible.length+" / "+groups.length+" THEMEN";
+    empty.hidden=visible.length!==0;
+    if(visible.length===0){board.hidden=true;progress.hidden=true;return}
     rebuild();
   }
-  buildFilters();
-  search.addEventListener("input",()=>{query=search.value.trim().toLocaleLowerCase("de");render()});
-  addEventListener("scroll",queue,{passive:true});
-  addEventListener("resize",()=>{rebuild()},{passive:true});
-  wide.addEventListener("change",rebuild);
-  calm.addEventListener("change",rebuild);
-  addEventListener("load",()=>{if(stacked)measure()},{once:true});
-  if("ResizeObserver" in window){
-    let timer;new ResizeObserver(()=>{clearTimeout(timer);timer=setTimeout(()=>{if(stacked)measure()},120)}).observe(document.querySelector(".topbar"));
+  function sectionHTML(c,i){
+    const [heading,lead,lines]=c;
+    const facts=lines.split("|").map(f=>{
+      const n=f.indexOf("::");
+      return '<div class="fact"><dt>'+safe(n>=0?f.slice(0,n):"Merke")+'</dt><dd>'+safe(n>=0?f.slice(n+2):f)+'</dd></div>';
+    }).join("");
+    return '<section class="detail-section"><span class="section-num">'+String(i+1).padStart(2,"0")+'</span><div>'
+      +'<h3>'+safe(heading)+'</h3><p class="section-lead">'+safe(lead)+'</p><dl>'+facts+'</dl></div></section>';
   }
-  board.addEventListener("focusin",e=>{const r=e.target.closest(".sheet-row");if(r&&Number(r.dataset.row)!==active())go(Number(r.dataset.row))});
-  board.addEventListener("pointermove",e=>{
-    if(e.pointerType!=="mouse")return;
-    const card=e.target.closest(".sheet");if(!card)return;
-    const b=card.getBoundingClientRect();
-    card.style.setProperty("--cursor-x",((e.clientX-b.left)/b.width*100).toFixed(1)+"%");
-    card.style.setProperty("--cursor-y",((e.clientY-b.top)/b.height*100).toFixed(1)+"%");
-  },{passive:true});
-  render();
+  function showTopic(id){
+    const g=groups.find(item=>item.id===id);
+    if(!g){history.replaceState(null,"",location.pathname);listing();return}
+    destroyStack();board.hidden=true;intro.hidden=true;empty.hidden=true;detail.hidden=false;
+    search.closest(".search").hidden=true;
+    document.title=g.name+" · Spickzettel · DAU TO PRO";
+    const exampleIds=[1,3,6].filter(n=>n<g.sections.length);
+    const questions=exampleIds.map(i=>{
+      const c=g.sections[i];
+      return '<div class="exam-qa"><span>PRÜFUNGSFRAGE '+String(exampleIds.indexOf(i)+1).padStart(2,"0")+'</span><strong>'+safe(c[3])+'</strong><p>'+safe(c[4])+'</p></div>';
+    }).join("");
+    const traps=[0,4,7].filter(n=>n<g.sections.length).map(i=>'<li>'+safe(g.sections[i][5])+'</li>').join("");
+    detail.innerHTML='<div class="detail-actions"><a class="detail-back" href="cheat-sheet.html">← ALLE SPICKZETTEL</a><button type="button" class="print-button" id="sheet-print">⎙ ALS PDF DRUCKEN</button></div>'
+      +'<article class="one-sheet" style="--tone:'+g.color+'">'
+      +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // IHK-POCKET GUIDE</span><span class="detail-code">'+safe(g.symbol)+'</span>'
+      +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigen Regeln, Zusammenhänge und Beispiele auf einem übersichtlichen Themenblatt.</p>'
+      +'<div class="detail-line"><span>'+g.sections.length+' PRÜFUNGSRELEVANTE ABSCHNITTE</span><span>KEIN OFFIZIELLES IHK-DOKUMENT</span></div></div>'
+      +'<div class="detail-grid">'+g.sections.map(sectionHTML).join("")+'</div>'
+      +'<div class="detail-exam"><h3>✦ TYPISCHE PRÜFUNGSFRAGEN</h3><div class="exam-grid">'+questions+'</div></div>'
+      +'<div class="detail-traps"><strong>⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></div>'
+      +'<p class="detail-signoff">Fachinformatiker lernen mit Verstand. Die Prüfung kann andere Schwerpunkte setzen.</p>'
+      +'</article>';
+    document.getElementById("sheet-print").addEventListener("click",()=>print());
+    progress.hidden=true;
+    scrollTo({top:0,behavior:"instant"});
+  }
+  function route(){
+    const id=new URLSearchParams(location.search).get("thema");
+    if(id)showTopic(id);else listing();
+  }
+  search.addEventListener("input",()=>{if(!new URLSearchParams(location.search).has("thema"))listing()});
+  addEventListener("popstate",route);
+  addEventListener("scroll",()=>{if(stacked&&!frame)frame=requestAnimationFrame(paint)},{passive:true});
+  addEventListener("resize",()=>{if(!detail.hidden)return;rebuild()},{passive:true});
+  wide.addEventListener("change",()=>{if(detail.hidden)rebuild()});
+  calm.addEventListener("change",()=>{if(detail.hidden)rebuild()});
+  addEventListener("load",()=>{if(stacked)measure()},{once:true});
+  route();
 })();
