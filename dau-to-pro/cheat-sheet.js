@@ -84,6 +84,7 @@
       const scale=1-back*.028;
       r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+scale.toFixed(3)+')';
       r.style.zIndex=String(k+1);
+      r.style.visibility=d< -1.5?"hidden":"visible";
       r.classList.toggle("is-front",Math.abs(d)<.5);
       r.classList.toggle("is-behind",d>.52);
       r.inert=d< -1.15;
