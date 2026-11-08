@@ -6,6 +6,8 @@
   const PEEK=19,STEP=.46,TAIL=.30;
   let rows=[],stage=null,shown=null,rowH=0,frame=0,on=false;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height"))||80;
+  const triggerY=()=>Math.max(navH()+18,window.innerHeight*.5);
+  const stickY=()=>Math.max(navH()+16,triggerY()-rowH*.38);
   const active=()=>Math.round(shown??progress());
   function teardown(){
     if(!on)return;
@@ -19,11 +21,11 @@
     rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
     const peek=Math.min(rows.length-1,3)*PEEK;
     const sh=peek+rowH+rowH*TAIL;
-    stage.style.height=sh+"px";stage.style.top=navH()+15+"px";
+    stage.style.height=sh+"px";stage.style.top=stickY()+"px";
     grid.style.height=sh+(rows.length-1)*rowH*STEP+"px";
     paint();
   }
-  function progress(){return Math.max(0,Math.min(rows.length-1,-(grid.getBoundingClientRect().top-navH()-15)/Math.max(1,rowH*STEP)))}
+  function progress(){return Math.max(0,Math.min(rows.length-1,-(grid.getBoundingClientRect().top-triggerY())/Math.max(1,rowH*STEP)))}
   function paint(){
     frame=0;if(!on)return;
     const target=progress();if(shown===null)shown=target;
@@ -39,7 +41,7 @@
       r.inert=d< -1.1;
     });
   }
-  function go(k){scrollTo({top:Math.max(0,scrollY+grid.getBoundingClientRect().top-navH()-15+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"})}
+  function go(k){scrollTo({top:Math.max(0,scrollY+grid.getBoundingClientRect().top-triggerY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"})}
   function build(){
     teardown();if(!wide.matches||calm.matches||all.length<=5)return;
     on=true;grid.classList.add("is-stacked");stage=document.createElement("div");stage.className="cheat-stack-stage";grid.append(stage);
