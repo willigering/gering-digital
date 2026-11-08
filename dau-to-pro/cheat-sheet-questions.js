@@ -275,4 +275,107 @@ Ersetzt ein Cookie-Banner automatisch eine gültige Einwilligung?¦Nein; Einwill
 Warum können IP-Adressen personenbezogen sein?¦Weil sie unter Umständen einer Person zugeordnet werden können.
 Warum sollte ein Admin Kundendaten nicht wahllos einsehen?¦Zweckbindung, Vertraulichkeit und geringstmögliche Zugriffsrechte.
 \`.trim()
+,
+rechnung: \`
+Ein Listenpreis beträgt 500 €, Rabatt 10 %. Zielpreis?¦450 €.
+Ein Zielpreis beträgt 800 €, Skonto 2 %. Skontobetrag?¦16 €.
+Ein Artikel kostet nach 5 % Rabatt noch 950 €. Listenpreis?¦950 / 0,95 = 1.000 €.
+Wozu dienen Bezugskosten?¦Sie erfassen zusätzliche Kosten bis zur Beschaffung.
+Was ist der Unterschied zwischen Brutto und Netto?¦Brutto enthält die relevante Umsatzsteuer, Netto nicht.
+Ein Artikel kostet 100 € netto, USt 19 %. Bruttopreis?¦119 €.
+Aus 119 € brutto bei 19 % USt: Nettopreis?¦119 / 1,19 = 100 €.
+Kann man 10 % Rabatt und 2 % Skonto einfach zu 12 % addieren?¦Nein, sie beziehen sich auf unterschiedliche Zwischensummen.
+Nenne drei Kriterien einer Nutzwertanalyse.¦Zum Beispiel Preis, Qualität, Lieferzeit.
+Wie müssen Gewichte in einer Nutzwertanalyse summiert werden?¦Zu 100 % bzw. 1,0.
+Ein Kriterium hat 30 % Gewicht und 5 Punkte: Beitrag?¦0,30 × 5 = 1,5 Punkte.
+Wie berechnet man die gewichtete Gesamtnote?¦Summe aus Gewicht × Bewertung für alle Kriterien.
+Was gehört zu TCO?¦Anschaffung, Betrieb, Wartung, Lizenzen und Entsorgung.
+Warum vergleicht man TCO über denselben Zeitraum?¦Nur dann sind Alternativen sinnvoll vergleichbar.
+Ein Gerät verbraucht 100 W über 10 h. Energiebedarf?¦1 kWh.
+Ein Server zieht 200 W für 24 Stunden. Verbrauch?¦4,8 kWh.
+1.000 kWh bei 0,35 €/kWh kosten wie viel?¦350 €.
+Eine SSD kostet 120 €, eine HDD 80 €. Welcher weitere Faktor zählt?¦Leistung, Strom, Haltbarkeit und Einsatzzweck.
+Was ist lineare Abschreibung?¦Gleichmäßige Verteilung des abschreibbaren Wertes über die Nutzungsjahre.
+Ein Gerät kostet 1.800 €, Nutzungsdauer 3 Jahre, kein Restwert: jährlich?¦600 €.
+Welchen Zweck hat ein Restwert bei der Abschreibung?¦Er mindert den insgesamt abzuschreibenden Betrag.
+Was ist die einfache Amortisationsdauer?¦Investitionsbetrag geteilt durch jährliche Netto-Rückflüsse/Einsparungen.
+Investition 9.000 €, Einsparung 3.000 € pro Jahr: Zeit?¦3 Jahre.
+Wie unterscheidet sich Amortisation von Gewinn?¦Amortisation betrachtet die Rückgewinnung der Ausgabe, Gewinn einen Überschuss.
+Was sind Fixkosten?¦Kosten, die im betrachteten Bereich nicht von der Stückzahl abhängen.
+Was sind variable Kosten?¦Kosten, die mit der produzierten/verkauften Menge variieren.
+Wie berechnet man den Deckungsbeitrag pro Stück?¦Verkaufspreis minus variable Stückkosten.
+Preis 50 €, variable Kosten 30 €: Deckungsbeitrag?¦20 €.
+Fixkosten 5.000 €, DB 25 €: Break-even-Menge?¦200 Stück.
+Was passiert, wenn der Deckungsbeitrag negativ ist?¦Mehr Verkäufe decken die Fixkosten nicht.
+Welche Faktoren beeinflussen Make-or-Buy?¦Kosten, Know-how, Qualität, Kapazität und Abhängigkeiten.
+Warum sind Leasing und Kauf nicht nur über Monatsraten vergleichbar?¦Laufzeit, Restwert, Wartung und Gesamtkosten unterscheiden sich.
+\`.trim(),
+csharp: \`
+Was speichert der Typ int typischerweise?¦Eine 32-Bit-Ganzzahl.
+Welchen Typ nutzt du für true/false?¦bool.
+Wie lautet ein einzelnes Zeichen in C#?¦Zum Beispiel 'A' als char.
+Wie schreibt man eine Zeichenfolge?¦Zum Beispiel "Hallo" als string.
+Welcher Operator weist einen Wert zu?¦=.
+Welcher Operator prüft Gleichheit?¦==.
+Wie lautet der Operator für ungleich?¦!=.
+Wie kombinierst du zwei bool-Bedingungen mit UND?¦&&.
+Wie kombinierst du Bedingungen mit ODER?¦||.
+Was prüft if (alter >= 18)?¦Ob alter mindestens 18 ist.
+Was ist der Unterschied zwischen if und else if?¦else if wird erst geprüft, wenn vorherige Zweige nicht zutrafen.
+Was wird bei int x = 8 / 3; gespeichert?¦2.
+Was ist 9 % 4 als Ganzzahl?¦1.
+Wie erzielst du bei 5 / 2 ein Gleitkommaergebnis?¦Zum Beispiel 5.0 / 2 = 2.5.
+Was bedeutet var zahl = 3; für den Typ?¦Der Compiler leitet int ab.
+Kann eine var-Variable nachträglich den Typ wechseln?¦Nein, C# bleibt statisch typisiert.
+Welche Schleife ist für eine bekannte Wiederholungszahl geeignet?¦for.
+Welche Schleife prüft vor jedem Durchlauf?¦while oder for.
+Welche Schleife läuft mindestens einmal?¦do-while.
+Wie oft läuft for (int i=1; i<=4; i++)?¦Viermal.
+Was bewirkt i++?¦Es erhöht i um eins.
+Was bewirkt break in einer Schleife?¦Beendet die Schleife.
+Was bewirkt continue in einer Schleife?¦Springt zum nächsten Durchlauf.
+Was gibt Console.WriteLine aus?¦Text bzw. Werte in der Konsole mit Zeilenende.
+Was liefert Console.ReadLine()?¦Einen string oder null.
+Warum ist TryParse bei Nutzereingaben sinnvoll?¦Es meldet ungültige Zahlen ohne Format-Ausnahme.
+Wie ist der erste Index eines C#-Arrays?¦0.
+Wie viele gültige Indizes hat ein Array mit Length 4?¦0, 1, 2 und 3.
+Wie liest du die Länge eines Arrays arr?¦arr.Length.
+Was ist der Unterschied zwischen Parameter und Rückgabewert?¦Parameter sind Eingaben, return liefert ein Ergebnis.
+Was bedeutet void bei einer Methode?¦Sie liefert keinen Rückgabewert.
+Warum sind Methoden hilfreich?¦Sie zerlegen Programme in wiederverwendbare, testbare Aufgaben.
+\`.trim(),
+mix: \`
+Was bedeutet RAID 0?¦Striping ohne Redundanz.
+Welche Redundanz bietet RAID 1?¦Spiegelung derselben Daten auf mindestens zwei Laufwerke.
+Wie viele Laufwerke braucht RAID 5 mindestens?¦Drei.
+Vier Platten à 2 TB in RAID 5: rohe nutzbare Kapazität?¦(4 − 1) × 2 TB = 6 TB.
+Warum ist RAID kein Backup?¦Löschungen und Verschlüsselungen können alle Verbunddaten treffen.
+Ist RAM flüchtig?¦Ja, gewöhnlicher RAM verliert ohne Strom den Inhalt.
+Welche typische Stärke hat eine SSD gegenüber einer HDD?¦Geringere Zugriffszeit durch fehlende mechanische Teile.
+Wofür steht NVMe?¦Non-Volatile Memory Express, Protokoll für schnellen nichtflüchtigen Speicher.
+Was ist eine USV?¦Unterbrechungsfreie Stromversorgung zur Überbrückung und geordneten Abschaltung.
+Welche Einheit misst elektrische Leistung?¦Watt.
+Warum sind VA und W nicht immer gleich?¦Der Leistungsfaktor beeinflusst die Wirkleistung.
+Was ist ein Hypervisor?¦Softwareebene, die virtuelle Maschinen bereitstellt und verwaltet.
+Was bedeutet Typ-1-Hypervisor?¦Läuft direkt auf der Hardware.
+Was bedeutet Typ-2-Hypervisor?¦Läuft auf einem Host-Betriebssystem.
+Warum ist ein VM-Snapshot kein Backup?¦Er hängt oft vom selben Speicher/der VM-Infrastruktur ab.
+Welche Windows-Konsole zeigt die IP-Konfiguration?¦ipconfig /all.
+Welcher Linux-Befehl zeigt IP-Adressen?¦ip addr.
+Wie zeigst du Linux-Routingtabellen an?¦ip route.
+Welcher Windows-Befehl testet DNS-Namensauflösung?¦nslookup.
+Was macht SELECT in SQL?¦Liest Daten aus einer Datenquelle.
+Was macht WHERE in SQL?¦Filtert Zeilen nach einer Bedingung.
+Was bedeutet ein Primärschlüssel?¦Eindeutige Kennung eines Datensatzes.
+Was bedeutet ein Fremdschlüssel?¦Verweis auf Schlüsselwerte einer anderen Tabelle.
+Warum kann ein Fremdschlüssel doppelt vorkommen?¦Mehrere Datensätze dürfen auf denselben Eltern-Datensatz zeigen.
+Was ist ein ER-Modell?¦Modell von Entitäten und ihren Beziehungen.
+Was ist das Lastenheft?¦Anforderungen aus Sicht des Auftraggebers.
+Was ist das Pflichtenheft?¦Beschreibung, wie der Auftragnehmer Anforderungen umsetzt.
+Wofür steht SMART bei Zielen?¦Spezifisch, messbar, attraktiv/akzeptiert, realistisch und terminiert.
+Was beschreibt der kritische Pfad eines Netzplans?¦Vorgangskette, deren Verzögerung den Endtermin verschiebt.
+Was bedeutet TCO bei einer Beschaffung?¦Gesamtkosten über die Nutzungszeit.
+Warum muss eine IT-Dokumentation aktuell sein?¦Sie unterstützt Betrieb, Fehlersuche, Wartung und Vertretung.
+Was ist ein Ticket in einem Supportsystem?¦Dokumentierter Vorgang mit Problem, Status, Bearbeitung und Kommunikation.
+\`.trim()
 };
