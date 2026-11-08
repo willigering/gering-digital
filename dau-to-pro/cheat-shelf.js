@@ -54,11 +54,16 @@
     const p=shown,peek=Math.min(rows.length-1,3)*PEEK;
     rows.forEach((r,k)=>{
       const d=p-k,back=Math.min(Math.max(d,0),3);
-      const y=d>=0?peek-back*PEEK:peek+(-d)*(rowH+14);
-      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.032).toFixed(3)+')';
-      r.style.zIndex=String(k+1);r.style.visibility=d< -1.5?"hidden":"visible";
-      r.classList.toggle("is-front",Math.abs(d)<.5);
+      // Auch Reihe 3 ist von Beginn an durch einen Kartenrand sichtbar.
+      const waiting=Math.max(0,-d),frontIndex=Math.round(p);
+      const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.032-waiting*.008).toFixed(3)+')';
+      r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
+      r.style.visibility="visible";
+      r.style.opacity=String(d<0?.63+.37*Math.max(0,1-waiting):1);
+      r.classList.toggle("is-front",k===frontIndex);
       r.classList.toggle("is-behind",d>=.52);
+      r.classList.toggle("is-waiting",d<-.52);
       r.inert=d< -1.1;
     });
   }

@@ -161,3 +161,21 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   .one-sheet .detail-section,.one-sheet .exam-qa{background:#fff!important;border-color:#aaa!important;box-shadow:none!important}
   .one-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* Prüfungsaufgaben wie ein lesbares Fragenblatt: Spalten statt Einzelkacheln. */
+.one-sheet .exam-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+.one-sheet .exam-qa{display:grid;grid-template-columns:30px minmax(0,1fr);align-content:start;column-gap:11px;row-gap:5px;background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--tone) 23%,#24333b);border-radius:0;padding:15px 2px 16px;box-shadow:none;min-width:0;break-inside:avoid}
+.one-sheet .exam-qa span{grid-column:1;grid-row:1 / span 2;font-size:10px;line-height:1.6;font-weight:900;color:var(--tone);letter-spacing:.04em}
+.one-sheet .exam-qa strong{grid-column:2;display:block;font-size:13px;line-height:1.44;margin:0;color:#f4f6f5;font-weight:800}
+.one-sheet .exam-qa p{grid-column:2;font-size:12px;line-height:1.52;margin:0;color:#c0d5d8}
+@media(min-width:1400px){.one-sheet .exam-grid{grid-template-columns:repeat(3,minmax(0,1fr));column-gap:27px}}
+@media(max-width:850px){.one-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:18px}}
+@media(max-width:650px){.one-sheet .exam-grid{grid-template-columns:1fr}}
+@media print{
+  .one-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 5mm}
+  .one-sheet .exam-qa{background:transparent!important;border:0!important;border-bottom:1px solid #aaa!important;padding:2.5mm 0;grid-template-columns:7mm 1fr}
+  .one-sheet .exam-qa strong,.one-sheet .exam-qa p{font-size:8.5pt}
+}
+
+.board.is-stacked .sheet-row.is-waiting{filter:brightness(.72) saturate(.82);pointer-events:none}

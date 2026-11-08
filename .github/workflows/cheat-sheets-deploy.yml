@@ -30,6 +30,7 @@ jobs:
         run: |
           node --check dau-to-pro/cheat-sheet-data.js
           node --check dau-to-pro/cheat-sheet-questions.js
+          node --check dau-to-pro/cheat-sheet-enrichment.js
           node --check dau-to-pro/cheat-sheet.js
           node --check dau-to-pro/cheat-shelf.js
           node <<'JS'
@@ -39,10 +40,15 @@ jobs:
           const code=fs.readFileSync('dau-to-pro/cheat-sheet-data.js','utf8');
           const scope={};vm.runInNewContext(code,scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-questions.js","utf8"),scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-enrichment.js","utf8"),scope);
           const groups=scope.DTP_CHEAT_GROUPS;
           assert.equal(groups.length,11,'Expected eleven complete topic sheets');
           assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),88,'Expected 88 sections within eleven sheets');
           const extras=scope.DTP_CHEAT_EXTRAS;
+          const deep=scope.DTP_CHEAT_ENRICHMENT;
+          assert.equal(Object.keys(deep).length,11,'All eleven sheets need extended coverage');
+          assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('Datenschutzbeauftragter')),'DSB section missing');
+          assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('ISB')),'ISB section missing');
           assert.equal(Object.keys(extras).length,11,"One question bank per topic");
           const seen=new Set();
           for(const g of groups){
@@ -50,10 +56,14 @@ jobs:
             const questions=g.sections.map(c=>[c[3],c[4]]);
             const supplemental=extras[g.id].split(/\r?\n/).filter(Boolean).map(s=>s.split("¦"));
             questions.push(...supplemental);
-            assert.equal(questions.length,40,"Expected exactly 40 exam-style questions for "+g.name);
+            assert.equal(questions.length,40,"Expected 40 original exam-style questions for "+g.name);
+            assert.ok(deep[g.id].sections.length>=3,'Missing deep-dive chapters for '+g.name);
+            assert.equal(deep[g.id].questions.length,8,'Expected eight advanced Q&A for '+g.name);
+            questions.push(...deep[g.id].questions);
+            assert.equal(questions.length,48,'Expected 48 questions for '+g.name);
             assert.ok(questions.every(q=>q.length===2&&q[0].trim()&&q[1].trim()),"Malformed question/answer pair in "+g.name);
             const unique=new Set(questions.map(q=>q[0].toLocaleLowerCase("de")));
-            assert.equal(unique.size,40,"Duplicate question in "+g.name);
+            assert.equal(unique.size,48,"Duplicate question in "+g.name);
             for(const c of g.sections){
               assert.ok(c.length===6||c.length===7,'Malformed section in '+g.name);
               assert.ok(c.every(x=>typeof x==='string'&&x.trim().length>0),'Empty topic section');
@@ -73,12 +83,13 @@ jobs:
           assert.ok(index.includes('id="cheat-mini-grid"')&&shelf.includes('repeat(5,minmax(0,1fr))'));
           assert.ok(html.includes('id="sheet-detail"')&&html.includes('11 THEMEN'));
           assert.ok(html.includes('cheat-sheet-questions.js'),'Question bank script not loaded');
+          assert.ok(html.includes('cheat-sheet-enrichment.js'),'Deep-dive content script not loaded');
           assert.ok(!/IHK/i.test(html),'No unwanted IHK reference in sheet page');
           assert.ok(!/IHK-POCKET/i.test(index),'No IHK label in cheat section');
           const sheetJs=fs.readFileSync('dau-to-pro/cheat-sheet.js','utf8');
           assert.ok(sheetJs.includes('assets/dau-backgrounds'),'Must reuse real thematic textures');
           assert.equal([...index.matchAll(/\['(?:zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix)',/g)].length,11,'Landing needs eleven topic entries');
-          console.log('Verified: 11 complete sheets, 440 Q&A (40 each), 88 knowledge sections, themed textures and 5-column layout.');
+          console.log('Verified: 11 complete sheets, 528 Q&A (48 each), 35 deep-dive sections, DSB/ISB coverage, and 5-column layout.');
           JS
       - name: Check landing PHP syntax
         run: php -l dau-to-pro/index.php

@@ -10,6 +10,9 @@
   const intro=document.getElementById("board-intro");
   const empty=document.getElementById("sheet-empty");
   if(!board||!detail||!groups.length)return;
+  const enrichments=globalThis.DTP_CHEAT_ENRICHMENT||{};
+  const deepSections=g=>(enrichments[g.id]?.sections||[]);
+  const fullSections=g=>g.sections.concat(deepSections(g));
   const descriptions={
     zahlen:"Bit, Byte, Binär, Hex und Datenraten",
     osi:"Sieben Schichten, Protokolle, Kapselung",
@@ -27,6 +30,8 @@
   let cards=[],rows=[],stage=null,rowH=0,shown=null,frame=0,stacked=false,lastRow=-1;
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
   const PEEK=20,STEP=.47,TAIL=.32;
+  const overlapY=()=>Math.max(navH()+110,Math.min(innerHeight*.30,navH()+150));
+  const stagePin=()=>navH()+34;
   const navH=()=>document.querySelector(".topbar")?.getBoundingClientRect().height||86;
   const start=document.title;
   const textureByTopic={
@@ -47,12 +52,12 @@
       +'<span class="topic-subtitle">SPICKZETTEL '+String(n+1).padStart(2,"0")+'</span>'
       +'<strong class="topic-name">'+safe(g.name)+'</strong>'
       +'<span class="topic-desc">'+safe(descriptions[g.id]||g.sections.map(c=>c[0]).slice(0,3).join(", "))+'</span>'
-      +'<span class="topic-foot"><span>'+g.sections.length+' ABSCHNITTE</span><b>LESEN ↗</b></span>'
+      +'<span class="topic-foot"><span>'+fullSections(g).length+' ABSCHNITTE</span><b>LESEN ↗</b></span>'
       +'</a>';
   }
   function destroyStack(){
     if(!stacked)return;
-    cards.forEach(c=>board.append(c));
+    cards.forEach(c=>{c.inert=false;board.append(c)});
     stage?.remove();stage=null;rows=[];stacked=false;shown=null;lastRow=-1;
     board.classList.remove("is-stacked");board.style.height="";
     cancelAnimationFrame(frame);frame=0;
@@ -64,14 +69,14 @@
     rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
     const offset=Math.min(rows.length-1,3)*PEEK;
     const stHeight=offset+rowH+rowH*TAIL;
-    stage.style.top=Math.max(navH()+14,innerHeight*.5-rowH*.38)+"px";stage.style.height=stHeight+"px";
+    stage.style.top=stagePin()+"px";stage.style.height=stHeight+"px";
     board.style.height=stHeight+(rows.length-1)*rowH*STEP+"px";
     paint();
   }
-  const position=()=>Math.max(0,Math.min(rows.length-1,-(board.getBoundingClientRect().top-Math.max(navH()+18,innerHeight*.5))/Math.max(1,rowH*STEP)));
+  const position=()=>Math.max(0,Math.min(rows.length-1,(overlapY()-board.getBoundingClientRect().top)/Math.max(1,rowH*STEP)));
   const active=()=>Math.round(shown??position());
   function go(k){
-    scrollTo({top:Math.max(0,scrollY+board.getBoundingClientRect().top-Math.max(navH()+18,innerHeight*.5)+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
+    scrollTo({top:Math.max(0,scrollY+board.getBoundingClientRect().top-overlapY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
   }
   function paint(){
     frame=0;if(!stacked)return;
@@ -81,12 +86,19 @@
     const p=shown,peek=Math.min(rows.length-1,3)*PEEK;
     rows.forEach((r,k)=>{
       const d=p-k,back=Math.min(Math.max(d,0),3);
-      const y=d>=0?peek-back*PEEK:peek+(-d)*(rowH+15);
-      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.03).toFixed(3)+')';
-      r.style.zIndex=String(k+1);
-      r.style.visibility=d< -1.5?"hidden":"visible";
-      r.classList.toggle("is-front",Math.abs(d)<.5);
+      // Nachfolgende Reihen bleiben als schmale Kanten des Stapels sichtbar.
+      // Kein visibility-Sprung mehr bei der letzten, einzelnen Themenkarte.
+      const waiting=Math.max(0,-d);
+      const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
+      const near=Math.max(0,1-Math.abs(d));
+      const frontIndex=Math.round(p);
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.03-waiting*.008).toFixed(3)+')';
+      r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
+      r.style.visibility="visible";
+      r.style.opacity=String(d<0 ? .63+.37*near : 1);
+      r.classList.toggle("is-front",k===frontIndex);
       r.classList.toggle("is-behind",d>=.52);
+      r.classList.toggle("is-waiting",d<-.52);
       r.inert=d< -1.1;
     });
     const index=Math.round(p);
@@ -118,7 +130,7 @@
     detail.hidden=true;intro.hidden=false;
     board.hidden=false;search.closest(".search").hidden=false;
     const q=search.value.trim().toLocaleLowerCase("de");
-    const visible=groups.filter(g=>(g.name+" "+descriptions[g.id]+" "+g.sections.map(c=>c.join(" ")).join(" ")).toLocaleLowerCase("de").includes(q));
+    const visible=groups.filter(g=>(g.name+" "+descriptions[g.id]+" "+fullSections(g).map(c=>c.join(" ")).join(" ")).toLocaleLowerCase("de").includes(q));
     board.innerHTML=visible.map(g=>topicLink(g,groups.indexOf(g))).join("");
     cards=[...board.querySelectorAll(".topic-card")];
     count.textContent=visible.length+" / "+groups.length+" THEMEN";
@@ -142,7 +154,7 @@
       const divider=row.indexOf("¦");
       return divider<0?null:[row.slice(0,divider).trim(),row.slice(divider+1).trim()];
     }).filter(Boolean);
-    return own.concat(additional);
+    return own.concat(additional,(enrichments[g.id]?.questions||[]));
   }
   function refreshParallax(){
     parallaxFrame=0;
@@ -180,11 +192,11 @@
     document.querySelector(".hero").hidden=true;
     search.closest(".search").hidden=true;
     document.title=g.name+" · Spickzettel · DAU TO PRO";
-    const questions=getQuestions(g),texture=textureByTopic[g.id]||"circuit";
+    const questions=getQuestions(g),sections=fullSections(g),texture=textureByTopic[g.id]||"circuit";
     const imageUrl="../assets/dau-backgrounds/"+texture+"-1536.webp";
     const images='<div class="sheet-parallax" aria-hidden="true"><div class="sheet-parallax-viewport">'
       +'<div class="sheet-parallax-back"></div><div class="sheet-parallax-front"></div></div></div>';
-    const rendered=questions.map((c,i)=>'<div class="exam-qa"><span>FRAGE '+String(i+1).padStart(2,"0")+'</span>'
+    const rendered=questions.map((c,i)=>'<div class="exam-qa"><span>'+String(i+1).padStart(2,"0")+'</span>'
       +'<strong>'+safe(c[0])+'</strong><p>'+safe(c[1])+'</p></div>').join("");
     const traps=[0,4,7].filter(n=>n<g.sections.length).map(i=>'<li>'+safe(g.sections[i][5])+'</li>').join("");
     detail.innerHTML='<div class="detail-actions"><a class="detail-back" href="cheat-sheet.html">← ALLE SPICKZETTEL</a><button type="button" class="print-button" id="sheet-print">⎙ ALS PDF DRUCKEN</button></div>'
@@ -192,8 +204,8 @@
       +images
       +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // SPICKZETTEL</span><span class="detail-code">'+safe(g.symbol)+'</span>'
       +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigsten Regeln, Zusammenhänge und Beispiele übersichtlich auf einem Themenblatt.</p>'
-      +'<div class="detail-line"><span>'+g.sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div></div>'
-      +'<div class="detail-grid">'+g.sections.map(sectionHTML).join("")+'</div>'
+      +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div></div>'
+      +'<div class="detail-grid">'+sections.map(sectionHTML).join("")+'</div>'
       +'<div class="detail-exam"><h3>✦ '+questions.length+' TYPISCHE PRÜFUNGSFRAGEN MIT ANTWORTEN</h3><div class="exam-grid">'+rendered+'</div></div>'
       +'<div class="detail-traps"><strong>⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></div>'
       +'<p class="detail-signoff">DAU TO PRO · Wissen anwenden, nicht bloß aufsagen.</p>'
