@@ -1,0 +1,16 @@
+.dtp-mini{position:fixed;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483000;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:7px 8px 7px 14px;border:1px solid rgba(240,185,75,.55);border-radius:999px;background:rgba(9,12,14,.94);color:#f3ede0;font:600 13px/1.2 system-ui,-apple-system,"Segoe UI",sans-serif;box-shadow:0 6px 24px rgba(0,0,0,.45);backdrop-filter:blur(6px)}
+.dtp-mini__note{color:#f0b94b;font-size:16px}
+.dtp-mini__info{display:flex;flex-direction:column;min-width:0}
+.dtp-mini__label{font-size:10px;letter-spacing:.14em;color:#7fd6e6}
+.dtp-mini__title{max-width:42vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dtp-mini__time{font-variant-numeric:tabular-nums;color:#b9b19e;font-weight:500}
+.dtp-mini__btn{all:unset;box-sizing:border-box;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;cursor:pointer;color:#f3ede0;font-size:14px}
+.dtp-mini__btn:hover{background:rgba(255,255,255,.1)}
+.dtp-mini__btn:focus-visible{outline:2px solid #7fd6e6;outline-offset:1px}
+.dtp-mini__btn--main{background:#f0b94b;color:#15110a}
+.dtp-mini__btn--main:hover{background:#ffd06f}
+.dtp-mini.is-waiting .dtp-mini__btn--main{animation:dtp-mini-pulse 1.2s ease-in-out infinite}
+@keyframes dtp-mini-pulse{50%{box-shadow:0 0 0 6px rgba(240,185,75,.28)}}
+@media (prefers-reduced-motion:reduce){.dtp-mini.is-waiting .dtp-mini__btn--main{animation:none}}
+@media (max-width:520px){.dtp-mini__time,.dtp-mini__label{display:none}.dtp-mini__title{max-width:36vw}}
+@media print{.dtp-mini{display:none}}

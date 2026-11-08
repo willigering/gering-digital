@@ -111,6 +111,12 @@ Im geöffneten Playlist-Display schaltet ein Klick auf den Titel ihn an oder aus
 
 **Update:** `lib.php` (Tabelle `learner_prefs`, wird beim ersten Aufruf angelegt), `learner_lib.php`, `nerd_fm_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/nerd-radio.js`, `dau-to-pro/nerd-radio.css` und neu `dau-to-pro/api/radio.php` gemeinsam übertragen. Bestehende Konten und Fortschritte bleiben unverändert.
 
+### NERD FM: Musik läuft in Modulen und Spickzetteln weiter
+
+Beim Verlassen der Startseite legt das Radio Titel und Position in `localStorage` (`dtp-nerd-radio-resume`, höchstens 30 Minuten gültig) ab. Module (über `learner_inject_sync()`) und `cheat-sheet.html` laden `dau-to-pro/nerd-miniplayer.js/.css`: Ist eine Übergabe da, holt der Mini-Player die aktive Playlist mit frischen Links von `dau-to-pro/api/radio-tracks.php` (nur GET), spult an die Position und spielt weiter. Er bietet Play/Pause, nächsten Titel und Beenden. Beim Seitenwechsel gibt es eine kurze Lücke, weil jede Seite neu lädt. Sperrt der Browser Autoplay, bleibt der Mini-Player sichtbar und pulsiert, bis einmal Play geklickt wird. Ohne Übergabe (nichts gespielt, Beenden geklickt, Musik läuft in einem anderen Tab) lädt er nichts und bleibt unsichtbar. Gespielt werden nur die Dateititel, nicht die Ersatz-Loops. Die Startseite wählt beim Zurückkommen den zuletzt gehörten Titel, startet aber nicht von allein.
+
+**Update:** `nerd_fm_lib.php`, `learner_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/nerd-radio.js`, `dau-to-pro/cheat-sheet.html` und neu `dau-to-pro/nerd-miniplayer.js`, `dau-to-pro/nerd-miniplayer.css`, `dau-to-pro/api/radio-tracks.php` gemeinsam übertragen. Keine Datenbankänderung.
+
 **Alles auf null setzen (Konto-Einstellungen):** Lernende können ihren gesamten Lernstand zurücksetzen: Fortschritt aller Module (als Löschmarken, damit andere Geräte ihn ebenfalls entfernen), Achievements, XP, Level, Lerntage, Bestwerte und Highscore-Sichtbarkeit. Schutz: Warnhinweis, aktuelles Passwort, Eingabe „NULL“ und Rückfrage. Das Konto selbst bleibt. „Willkommen, DAU“ wird danach wie bei jedem neuen Konto wieder vergeben.
 
 ## Mitgelieferte Lernmodule (`lernmodule/`)

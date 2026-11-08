@@ -509,6 +509,13 @@ function learner_inject_sync(string $html,string $slug,string $file,?string $ver
     $script=(string)file_get_contents(__DIR__.'/dau-to-pro/achievement-toast.js')."\n".(string)file_get_contents(__DIR__.'/dau-to-pro/sync.js');
     $tag='<link rel="icon" type="image/svg+xml" href="/assets/dau-to-pro-pixelpilz.svg?v=20261103">'."\n"
         ."<script>window.__DTP_SYNC__=$json;</script>\n<script>".str_ireplace('</script','<\/script',$script)."</script>\n";
+    // NERD FM: Musik von der Startseite läuft im Mini-Player weiter (lädt nur etwas, wenn das Radio Musik übergeben hat).
+    $mini=__DIR__.'/dau-to-pro/nerd-miniplayer';
+    if (is_file($mini.'.js') && is_file($mini.'.css')) {
+        $miniRoot=learner_root_prefix($file).'dau-to-pro/';
+        $tag.='<link rel="stylesheet" href="'.$miniRoot.'nerd-miniplayer.css?v='.filemtime($mini.'.css').'">'."\n"
+            .'<script src="'.$miniRoot.'nerd-miniplayer.js?v='.filemtime($mini.'.js').'" data-api="'.$miniRoot.'api/radio-tracks.php" defer></script>'."\n";
+    }
     // Opt-in-Updatehinweis für jedes veröffentlichte Modul, auch ältere importierte Versionen.
     // Erstes Polling nach DOMContentLoaded, keine automatische Seitenaktualisierung.
     $updateConfig=json_encode([

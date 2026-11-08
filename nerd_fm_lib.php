@@ -104,6 +104,30 @@ function nfm_tracks(?array $learner): array {
     return $tracks;
 }
 
+/** Testordner (nur Browsertest) oder '' im Normalbetrieb. */
+function nfm_test_audio(): string {
+    $sub=getenv('NERD_RADIO_AUDIO');
+    return is_string($sub) && preg_match('~^audio/[a-z0-9-]+$~',$sub) ? $sub : '';
+}
+/**
+ * Titelliste für Radio und Mini-Player. Links gelten relativ zum Ordner dau-to-pro/.
+ * NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/, statisch ausgeliefert).
+ */
+function nfm_radio_files(?array $learner): array {
+    $sub=nfm_test_audio();
+    if ($sub==='') return nfm_tracks($learner);
+    $dir=__DIR__.'/dau-to-pro/'.$sub;
+    $files=[];
+    if (!is_dir($dir)) return $files;
+    $names=array_values(array_filter(scandir($dir)?:[],fn($n)=>$n[0]!=='.'&&is_file($dir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
+    natcasesort($names);
+    foreach ($names as $n) {
+        $label=trim(str_replace('_',' ',preg_replace('/^\d+[\s._-]*/','',pathinfo($n,PATHINFO_FILENAME))));
+        $files[]=['src'=>$sub.'/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
+    }
+    return $files;
+}
+
 /** Vermerk auf der Modulkarte: freischaltbarer bzw. bereits freigeschalteter Song (null = kein Vermerk). */
 function nfm_card_note(string $slug,array $codes): ?string {
     foreach (nfm_songs() as $song) {
