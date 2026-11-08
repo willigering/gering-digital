@@ -41,19 +41,9 @@ $fx=dtp_hero_fx_attrs($hero,$learnerName!==null);
 // NERD FM: Playlist aus nerd_fm_lib.php – nur verfügbare Songs (APIPA sofort, weitere nach Freischaltung),
 // jeweils mit signiertem, sitzungsgebundenem Link auf api/song.php. Die Dateien selbst sind nicht direkt abrufbar.
 // NERD_RADIO_AUDIO setzt nur der Browsertest (eigener Ordner mit Testsignalen unter audio/, statisch ausgeliefert).
-$nrFiles=[];
-$nrSub=getenv('NERD_RADIO_AUDIO');
+$nrSub=nfm_test_audio();
+$nrFiles=nfm_radio_files($learnerRow);
 $nfmCodes=nfm_unlocked_codes($learnerRow);
-if(!is_string($nrSub)||!preg_match('~^audio/[a-z0-9-]+$~',$nrSub)){$nrSub='';$nrFiles=nfm_tracks($learnerRow);}
-$nrDir=__DIR__.'/'.$nrSub;
-if($nrSub!==''&&is_dir($nrDir)){
-  $nrNames=array_values(array_filter(scandir($nrDir)?:[],fn($n)=>$n[0]!=='.'&&is_file($nrDir.'/'.$n)&&preg_match('/\.(mp3|wav|ogg|m4a)$/i',$n)));
-  natcasesort($nrNames);
-  foreach($nrNames as $n){
-    $label=trim(str_replace('_',' ',preg_replace('/^\d+[\s._-]*/','',pathinfo($n,PATHINFO_FILENAME))));
-    $nrFiles[]=['src'=>$nrSub.'/'.rawurlencode($n),'title'=>$label!==''?$label:pathinfo($n,PATHINFO_FILENAME),'genre'=>strtoupper(pathinfo($n,PATHINFO_EXTENSION))];
-  }
-}
 $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>'IT-Sicherheit','pruefung'=>'Prüfung','sonstiges'=>'Grundlagen','wirtschaft'=>'Wirtschaft & Projekte'];
 ?>
 <!doctype html>

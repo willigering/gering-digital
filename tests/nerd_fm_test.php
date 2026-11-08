@@ -22,6 +22,7 @@ foreach ($songs as $id=>$s) {
 }
 check(trim((string)file_get_contents(nfm_dir().'/.htaccess'))==='Deny from all','Songordner ist für direkte Abrufe gesperrt');
 
+check(nfm_radio_files(null)===nfm_tracks(null),'Radio und Mini-Player nutzen dieselbe Titelliste');
 $guest=nfm_tracks(null);
 check(count($guest)===1 && $guest[0]['title']==='Diggy Thal – APIPA','Gäste hören nur APIPA');
 check(!str_contains(json_encode($guest),'.mp3'),'Playlist verrät keine Dateinamen');

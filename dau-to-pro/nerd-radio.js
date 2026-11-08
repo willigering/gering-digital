@@ -98,6 +98,25 @@
   };
   const activeCount = () => tracks.filter(t => t.on).length;
   if (!tracks[selected].on) selected = neighbor(selected, 1);
+  // Übergabe an den Mini-Player (Module, Spickzettel): beim Verlassen der Seite wird Titel und Position abgelegt.
+  // Kommt man von dort zurück, startet das Radio nicht von allein, wählt aber den zuletzt gehörten Titel.
+  const RESUME = 'dtp-nerd-radio-resume';
+  try {
+    const r = JSON.parse(localStorage.getItem(RESUME) || 'null');
+    localStorage.removeItem(RESUME);
+    if (r && typeof r.id === 'string' && Date.now() - r.at < 30 * 60 * 1000) {
+      const i = tracks.findIndex(t => t.id === r.id && t.on);
+      if (i >= 0) selected = i;
+    }
+  } catch (_) { /* privater Modus */ }
+  const handoff = () => {
+    try {
+      const t = tracks[selected];
+      if (t && t.kind === 'file' && (state === 'playing' || state === 'paused')) {
+        localStorage.setItem(RESUME, JSON.stringify({ id: t.id, t: media && media.src ? media.currentTime || 0 : 0, playing: state === 'playing', handoff: true, at: Date.now() }));
+      } else localStorage.removeItem(RESUME);
+    } catch (_) { /* Radio funktioniert trotzdem */ }
+  };
   const save = () => {
     try {
       localStorage.setItem('dtp-nerd-radio-track', String(selected));
@@ -740,6 +759,7 @@
   if ('ResizeObserver' in window) new ResizeObserver(relayout).observe(root);
   else addEventListener('resize', relayout);
   addEventListener('pagehide', () => {
+    handoff();
     halt('stopped');
     if (ctx) { ctx.close().catch(() => {}); ctx = null; media = null; bands = null; }
   });

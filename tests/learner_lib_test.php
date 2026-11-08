@@ -117,6 +117,8 @@ $html=learner_inject_sync('<html><head></head></html>','osi-sprint','kapitel/zwe
 check(!str_contains($html,'</script><script>alert(1)'),'Gespeicherte Werte können das Skript nicht beenden');
 check(str_contains($html,'"api":"..\/..\/dau-to-pro\/api\/progress.php"'),'Pfade stimmen auch in Unterordnern');
 check(str_starts_with(learner_inject_sync("<!doctype html><p>ohne head",'osi-sprint','index.html'),'<!doctype html>'),'Ohne <head> bleibt der Doctype vorne (kein Quirks-Modus)');
+check(str_contains($html,'dau-to-pro/nerd-miniplayer.js') && str_contains($html,'data-api="../../dau-to-pro/api/radio-tracks.php"'),'Module laden den NERD-FM-Mini-Player (Pfade auch in Unterordnern)');
+check(substr_count($html,'nerd-miniplayer.css')===1,'Mini-Player-Stil nur einmal');
 learner_logout();
 $guest=learner_sync_config('osi-sprint','index.html');
 check($guest['user']===null && !isset($guest['data']) && !isset($guest['csrf']),'Gäste bekommen keine Daten');
