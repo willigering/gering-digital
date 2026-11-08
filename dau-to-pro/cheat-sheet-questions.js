@@ -2,7 +2,7 @@
    Zusammen mit acht vorhandenen Abschnittsfragen: exakt 40 pro Thema.
    Eigenständige Übungsaufgaben, keine echten Prüfungsaufgaben. */
 globalThis.DTP_CHEAT_EXTRAS={
-zahlen: \`
+zahlen: `
 Wie viele Bit sind 5 Byte?¦40 Bit.
 Wieviele Byte enthalten 2.048 Bit?¦256 Byte.
 Wieviele Kilobyte sind 3.000 Byte (dezimal)?¦3 kB.
@@ -35,8 +35,8 @@ Warum reicht ASCII nicht für alle Weltsprachen?¦ASCII hat nur 128 Zeichenposit
 Wie viele Byte benötigt ein ASCII-Buchstabe in UTF-8?¦Ein Byte.
 Wie viel UTF-8-Speicher braucht ein Unicode-Codepunkt maximal?¦Bis zu vier Byte.
 Ist ein Emoji in UTF-8 immer genau ein Zeichen und vier Byte?¦Nein. Ein sichtbares Emoji kann aus mehreren Codepunkten bestehen.
-\`.trim(),
-osi: \`
+`.trim(),
+osi: `
 Welche OSI-Schicht überträgt rohe Bits?¦Schicht 1: Bitübertragung.
 Welche OSI-Schicht verarbeitet Ethernet-Frames?¦Schicht 2: Sicherung.
 Welche Schicht ist für IP-Routing zuständig?¦Schicht 3: Vermittlung.
@@ -69,8 +69,8 @@ Auf welcher Schicht ordnet man VLAN-Tags bei Ethernet ein?¦Schicht 2.
 Wodurch unterscheiden sich TCP und UDP bei der Zustellung?¦TCP bietet geordneten, zuverlässigen Bytestrom; UDP keine Liefergarantie.
 Welches Konzept teilt im TCP/IP-Modell die Aufgaben der unteren OSI-Schichten auf?¦Die Netzzugangsschicht.
 Warum ist die Aussage „HTTPS arbeitet nur auf OSI-Schicht 7“ ungenau?¦HTTPS nutzt HTTP, TLS und den darunterliegenden Transport.
-\`.trim(),
-subnet: \`
+`.trim(),
+subnet: `
 Wie viele IPv4-Bits bestehen insgesamt?¦32 Bit.
 Was bedeutet /25 bei IPv4?¦25 Netzbits und 7 Hostbits.
 Welche Maske entspricht /27?¦255.255.255.224.
@@ -103,8 +103,8 @@ Ein /24 hat welche Maskenbits im letzten Oktett?¦00000000₂.
 Wie viele Hostbits hat /20?¦12.
 Wie viele Adressen enthält /20?¦2¹² = 4096.
 Welche Sonderregel gilt für /31 auf Punkt-zu-Punkt-Links?¦Beide Adressen können als Endpunkte genutzt werden.
-\`.trim(),
-netzwerk: \`
+`.trim(),
+netzwerk: `
 Was speichert eine MAC-Tabelle im Switch?¦MAC-Adressen und die zugehörigen Switchports je VLAN.
 Wie lernt ein Switch MAC-Adressen?¦Aus der Quell-MAC empfangener Frames.
 Was macht ein Switch mit unbekanntem Unicast-Ziel?¦Er flutet den Frame im betreffenden VLAN.
@@ -137,9 +137,9 @@ Wozu wird WPA3 verwendet?¦Zur Absicherung von WLAN-Verbindungen.
 Wie prüfst du zuerst einen ausgefallenen LAN-Anschluss?¦Kabel/Link-LED, Port, Adapter und IP-Konfiguration prüfen.
 Wofür steht EMV?¦Elektromagnetische Verträglichkeit.
 Worin liegt der Unterschied zwischen physischer und logischer Topologie?¦Physisch ist Verkabelung; logisch ist Kommunikationsstruktur.
-\`.trim()
+`.trim()
 ,
-ipv6: \`
+ipv6: `
 Wie lang ist eine IPv6-Adresse?¦128 Bit.
 Aus wie vielen Gruppen besteht eine ausgeschriebene IPv6-Adresse?¦Acht Gruppen.
 Wie viele Hex-Ziffern hat eine vollständig ausgeschriebene IPv6-Adresse?¦32 Hex-Ziffern.
@@ -172,8 +172,8 @@ Was heißt Dual Stack?¦IPv4 und IPv6 werden parallel betrieben.
 Existiert bei IPv6 ein klassischer Broadcast?¦Nein, entsprechende Funktionen nutzen Multicast.
 Warum ist ICMPv6 wichtig für IPv6?¦Unter anderem für NDP, Fehlermeldungen und Router Advertisements.
 Kann eine IPv6-Adresse ohne DHCPv6 automatisch entstehen?¦Ja, durch SLAAC.
-\`.trim(),
-dienste: \`
+`.trim(),
+dienste: `
 Welcher TCP-Port wird üblicherweise für SSH genutzt?¦22.
 Welcher Port wird standardmäßig für Telnet genutzt?¦TCP 23.
 Was ist der Standardport für HTTP?¦TCP 80.
@@ -206,8 +206,8 @@ Welche Folge kann ein abgelaufenes TLS-Zertifikat haben?¦Der Client warnt oder 
 Was prüft nslookup?¦Die Namensauflösung über DNS.
 Wozu dient traceroute/tracert?¦Zur groben Ermittlung der durchlaufenen Router-Hops.
 Ping funktioniert, Webseiten nicht: nenne zwei Ursachen.¦DNS-Fehler oder gestörter Webdienst/Port/Proxy.
-\`.trim(),
-sicherheit: \`
+`.trim(),
+sicherheit: `
 Welche drei Schutzziele bilden die CIA-Triade?¦Vertraulichkeit, Integrität, Verfügbarkeit.
 Welches Schutzziel verletzt das Mitlesen von Kundendaten?¦Vertraulichkeit.
 Welches Schutzziel verletzt die heimliche Änderung einer Rechnung?¦Integrität.
@@ -240,8 +240,8 @@ Was ist eine Schwachstelle?¦Eine ausnutzbare Sicherheitslücke in Technik, Proz
 Was ist eine Bedrohung?¦Ein möglicher Auslöser eines Schadens.
 Was ist eine Risikoanalyse?¦Bewertung von Eintrittswahrscheinlichkeit und Schadensfolgen.
 Was bedeutet Schutzbedarf „sehr hoch“?¦Ein Schaden könnte besonders gravierende Auswirkungen haben.
-\`.trim(),
-datenschutz: \`
+`.trim(),
+datenschutz: `
 Was sind personenbezogene Daten?¦Informationen über identifizierte oder identifizierbare Personen.
 Ist eine Personalnummer personenbezogen?¦Ja, wenn sie einer Person zugeordnet werden kann.
 Sind pseudonymisierte Daten grundsätzlich frei von Datenschutzregeln?¦Nein, wenn Re-Identifizierung möglich ist.
@@ -274,9 +274,9 @@ Wann brauchen nicht notwendige Tracking-Cookies üblicherweise Einwilligung?¦Vo
 Ersetzt ein Cookie-Banner automatisch eine gültige Einwilligung?¦Nein; Einwilligung muss informiert und freiwillig sein.
 Warum können IP-Adressen personenbezogen sein?¦Weil sie unter Umständen einer Person zugeordnet werden können.
 Warum sollte ein Admin Kundendaten nicht wahllos einsehen?¦Zweckbindung, Vertraulichkeit und geringstmögliche Zugriffsrechte.
-\`.trim()
+`.trim()
 ,
-rechnung: \`
+rechnung: `
 Ein Listenpreis beträgt 500 €, Rabatt 10 %. Zielpreis?¦450 €.
 Ein Zielpreis beträgt 800 €, Skonto 2 %. Skontobetrag?¦16 €.
 Ein Artikel kostet nach 5 % Rabatt noch 950 €. Listenpreis?¦950 / 0,95 = 1.000 €.
@@ -309,8 +309,8 @@ Fixkosten 5.000 €, DB 25 €: Break-even-Menge?¦200 Stück.
 Was passiert, wenn der Deckungsbeitrag negativ ist?¦Mehr Verkäufe decken die Fixkosten nicht.
 Welche Faktoren beeinflussen Make-or-Buy?¦Kosten, Know-how, Qualität, Kapazität und Abhängigkeiten.
 Warum sind Leasing und Kauf nicht nur über Monatsraten vergleichbar?¦Laufzeit, Restwert, Wartung und Gesamtkosten unterscheiden sich.
-\`.trim(),
-csharp: \`
+`.trim(),
+csharp: `
 Was speichert der Typ int typischerweise?¦Eine 32-Bit-Ganzzahl.
 Welchen Typ nutzt du für true/false?¦bool.
 Wie lautet ein einzelnes Zeichen in C#?¦Zum Beispiel 'A' als char.
@@ -343,8 +343,8 @@ Wie liest du die Länge eines Arrays arr?¦arr.Length.
 Was ist der Unterschied zwischen Parameter und Rückgabewert?¦Parameter sind Eingaben, return liefert ein Ergebnis.
 Was bedeutet void bei einer Methode?¦Sie liefert keinen Rückgabewert.
 Warum sind Methoden hilfreich?¦Sie zerlegen Programme in wiederverwendbare, testbare Aufgaben.
-\`.trim(),
-mix: \`
+`.trim(),
+mix: `
 Was bedeutet RAID 0?¦Striping ohne Redundanz.
 Welche Redundanz bietet RAID 1?¦Spiegelung derselben Daten auf mindestens zwei Laufwerke.
 Wie viele Laufwerke braucht RAID 5 mindestens?¦Drei.
@@ -377,5 +377,5 @@ Was beschreibt der kritische Pfad eines Netzplans?¦Vorgangskette, deren Verzög
 Was bedeutet TCO bei einer Beschaffung?¦Gesamtkosten über die Nutzungszeit.
 Warum muss eine IT-Dokumentation aktuell sein?¦Sie unterstützt Betrieb, Fehlersuche, Wartung und Vertretung.
 Was ist ein Ticket in einem Supportsystem?¦Dokumentierter Vorgang mit Problem, Status, Bearbeitung und Kommunikation.
-\`.trim()
+`.trim()
 };
