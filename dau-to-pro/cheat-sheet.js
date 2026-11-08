@@ -105,6 +105,7 @@
   function listing(){
     destroyStack();
     document.title=start;
+    document.querySelector(".hero").hidden=false;
     detail.hidden=true;intro.hidden=false;
     board.hidden=false;search.closest(".search").hidden=false;
     const q=search.value.trim().toLocaleLowerCase("de");
@@ -129,6 +130,7 @@
     const g=groups.find(item=>item.id===id);
     if(!g){history.replaceState(null,"",location.pathname);listing();return}
     destroyStack();board.hidden=true;intro.hidden=true;empty.hidden=true;detail.hidden=false;
+    document.querySelector(".hero").hidden=true;
     search.closest(".search").hidden=true;
     document.title=g.name+" · Spickzettel · DAU TO PRO";
     const exampleIds=[1,3,6].filter(n=>n<g.sections.length);
@@ -149,7 +151,7 @@
       +'</article>';
     document.getElementById("sheet-print").addEventListener("click",()=>print());
     progress.hidden=true;
-    scrollTo({top:0,behavior:"instant"});
+    scrollTo({top:0,behavior:"auto"});
   }
   function route(){
     const id=new URLSearchParams(location.search).get("thema");
