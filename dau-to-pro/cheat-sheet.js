@@ -164,13 +164,14 @@
     if(!sheet)return;
     const b=sheet.getBoundingClientRect();
     const x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/Math.min(b.height,innerHeight)-.5;
-    sheet.style.setProperty("--sheet-pointer-x",(x*19).toFixed(1)+"px");
-    sheet.style.setProperty("--sheet-pointer-y",(y*13).toFixed(1)+"px");
+    sheet.style.setProperty("--parallax-back-x",(-x*7).toFixed(1)+"px");
+    sheet.style.setProperty("--parallax-back-y",(-y*7).toFixed(1)+"px");
+    sheet.style.setProperty("--parallax-front-x",(x*13).toFixed(1)+"px");
+    sheet.style.setProperty("--parallax-front-y",(y*11).toFixed(1)+"px");
   },{passive:true});
   detail.addEventListener("pointerleave",()=>{
     const sheet=detail.querySelector(".one-sheet");if(!sheet)return;
-    sheet.style.setProperty("--sheet-pointer-x","0px");
-    sheet.style.setProperty("--sheet-pointer-y","0px");
+    for(const key of ["--parallax-back-x","--parallax-back-y","--parallax-front-x","--parallax-front-y"]){sheet.style.setProperty(key,"0px")}
   });
   function showTopic(id){
     const g=groups.find(item=>item.id===id);
