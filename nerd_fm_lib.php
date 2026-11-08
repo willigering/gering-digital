@@ -76,7 +76,11 @@ function nfm_tracks(?array $learner): array {
 /** Vermerk auf der Modulkarte: freischaltbarer bzw. bereits freigeschalteter Song (null = kein Vermerk). */
 function nfm_card_note(string $slug,array $codes): ?string {
     foreach (nfm_songs() as $song) {
-        if ($song['module']!==$slug) continue;
+        if ($song['module']===null) continue;
+        // Module laufen teils unter älteren Adressen (z. B. „osi“ statt „osi-sprint“): alle Adressen des Moduls zählen.
+        $slugs=[$song['module']];
+        foreach (ach_modules() as $m) if (in_array($song['module'],$m['slugs'],true)) $slugs=array_merge($slugs,$m['slugs']);
+        if (!in_array($slug,$slugs,true)) continue;
         $name=preg_replace('/^.*–\s*/u','',$song['title']);
         $on=isset($codes[$song['unlock']]);
         return '<p class="module-song'.($on?' is-unlocked':'').'"><span aria-hidden="true">♪</span> '
