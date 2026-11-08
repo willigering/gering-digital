@@ -66,6 +66,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
+  <link rel="stylesheet" href="cheat-shelf.css?v=<?=filemtime(__DIR__.'/cheat-shelf.css')?>">
+  <script src="cheat-shelf.js?v=<?=filemtime(__DIR__.'/cheat-shelf.js')?>" defer></script>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
   <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
@@ -79,7 +81,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if($reveal): ?>  <script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script>
 <?php endif; ?>
   <?=dtp_feedback_assets()?>
-<style>.catalog-panel{container-type:inline-size}.cheat-shelf{position:relative;isolation:isolate;display:grid;grid-template-columns:155px minmax(0,1fr) auto;align-items:center;gap:24px;margin:48px 0 12px;padding:24px 26px;border:1px solid #74e3d344;border-radius:16px;background:radial-gradient(ellipse at 5% 30%,#1b646b42,transparent 44%),linear-gradient(110deg,#101a23,#0b111b 80%);overflow:hidden;box-shadow:0 18px 42px #0006}.cheat-shelf:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(90deg,#7cead010 1px,transparent 1px),linear-gradient(#7cead010 1px,transparent 1px);background-size:27px 27px;mask-image:linear-gradient(90deg,#000,transparent 75%)}.cheat-shelf-art{position:relative;width:136px;height:133px;filter:drop-shadow(0 8px 18px #000a)}.cheat-shelf-art i{position:absolute;display:block;width:99px;height:119px;left:23px;top:5px;border:1px solid #87e7d08c;border-radius:7px;background:linear-gradient(145deg,#214150,#0c1c25);transform:rotate(12deg)}.cheat-shelf-art i:nth-child(2){transform:rotate(-9deg);left:6px;top:9px;border-color:#f1bd6590}.cheat-shelf-art i:nth-child(3){transform:rotate(2deg);left:17px;top:0;background:linear-gradient(145deg,#1a353f,#091620);box-shadow:0 0 26px #70e5d42b;display:grid;place-items:center}.cheat-shelf-art i span{color:#baf6e7;font:850 13px/2 ui-monospace,Consolas,monospace;white-space:nowrap;letter-spacing:.02em}.cheat-shelf-info{min-width:0}.cheat-shelf-kicker{color:#83e8d7;font-size:10px;letter-spacing:.13em;font-weight:900}.cheat-shelf h3{margin:6px 0 9px;font-size:clamp(20px,2.35vw,32px);font-weight:950;letter-spacing:-.055em;line-height:1.1}.cheat-shelf h3 em{font-style:normal;color:#edb75e}.cheat-shelf-info p{font-size:13px;line-height:1.65;color:#bdcdd0;margin:0 0 12px;max-width:660px}.cheat-shelf-tags{display:flex;flex-wrap:wrap;gap:7px}.cheat-shelf-tags span{font:800 9px ui-monospace,Consolas,monospace;letter-spacing:.06em;color:#9bb9bc;padding:5px 8px;border:1px solid #71c9c32a;border-radius:4px;background:#101f26}.cheat-shelf-cta{display:flex;align-items:center;gap:16px;text-decoration:none;white-space:nowrap;font-size:11px;font-weight:950;letter-spacing:.05em;border-radius:9px;padding:15px 16px;background:#edb75e;color:#13171b;box-shadow:0 0 26px #edb75e22;transition:transform .2s,box-shadow .2s}.cheat-shelf-cta:hover{transform:translateY(-3px);box-shadow:0 0 30px #edb75e55}.cheat-shelf-cta b{font-size:20px}.cheat-shelf-cta:focus-visible{outline:2px solid white;outline-offset:3px}@media(max-width:1020px){.cheat-shelf{grid-template-columns:112px minmax(0,1fr);padding:18px;gap:12px}.cheat-shelf-art{transform:scale(.78);transform-origin:left center;width:110px}.cheat-shelf-cta{grid-column:2;justify-self:start}}@media(max-width:600px){.cheat-shelf{grid-template-columns:1fr;padding:18px}.cheat-shelf-art{height:85px;transform:scale(.63);transform-origin:left top}.cheat-shelf-cta{grid-column:1;width:100%;justify-content:space-between}}.urgent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:center;margin:12px 0 42px}.urgent-module{position:relative;grid-column:2;min-width:0}.mini-module{grid-column:3;width:50%;min-width:0}.mini-module .module-card{--mod:#ed973c;text-decoration:none}.mini-module .module-body{padding:12px}.mini-module .module-category{font-size:9px;letter-spacing:.1em}.mini-module .module-body h2{font-size:17px;margin:6px 0 2px}.mini-module .mini-alias{color:var(--mod);font-size:12px;font-weight:750;line-height:1.3;margin-bottom:6px}.mini-module .module-body p{font-size:11.5px;line-height:1.45;margin:0 0 10px}.mini-module .module-footer{font-size:11px;padding-top:8px}.urgent-module .module-card{width:100%;display:flex}.urgent-module .module-art{aspect-ratio:16/9}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@container (max-width: 955px){.urgent-row{grid-template-columns:repeat(2,minmax(0,1fr))}.urgent-module{grid-column:1}.mini-module{grid-column:2}}@container (max-width: 630px){.urgent-row{grid-template-columns:minmax(0,1fr)}.urgent-module,.mini-module{grid-column:1}.mini-module{justify-self:center}}@media(max-width:600px){.urgent-flag{right:-4px}}</style></head>
+<style>.catalog-panel{container-type:inline-size}.urgent-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:center;margin:12px 0 42px}.urgent-module{position:relative;grid-column:2;min-width:0}.mini-module{grid-column:3;width:50%;min-width:0}.mini-module .module-card{--mod:#ed973c;text-decoration:none}.mini-module .module-body{padding:12px}.mini-module .module-category{font-size:9px;letter-spacing:.1em}.mini-module .module-body h2{font-size:17px;margin:6px 0 2px}.mini-module .mini-alias{color:var(--mod);font-size:12px;font-weight:750;line-height:1.3;margin-bottom:6px}.mini-module .module-body p{font-size:11.5px;line-height:1.45;margin:0 0 10px}.mini-module .module-footer{font-size:11px;padding-top:8px}.urgent-module .module-card{width:100%;display:flex}.urgent-module .module-art{aspect-ratio:16/9}.urgent-flag{position:absolute;right:-8px;top:18px;z-index:3;background:#ed973c;color:#17100a;padding:10px 24px 10px 18px;font-weight:900;letter-spacing:.12em;clip-path:polygon(0 0,100% 0,91% 50%,100% 100%,0 100%);box-shadow:0 6px 20px #0006}@container (max-width: 955px){.urgent-row{grid-template-columns:repeat(2,minmax(0,1fr))}.urgent-module{grid-column:1}.mini-module{grid-column:2}}@container (max-width: 630px){.urgent-row{grid-template-columns:minmax(0,1fr)}.urgent-module,.mini-module{grid-column:1}.mini-module{justify-self:center}}@media(max-width:600px){.urgent-flag{right:-4px}}</style></head>
 <body class="dtp-landing">
 <?=dtp_backdrop()?>
 <a class="skip" href="#lernmodule">Direkt zu den Lernmodulen</a>
@@ -187,15 +189,43 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
-<section class="cheat-shelf" id="cheat-sheets" aria-labelledby="cheat-shelf-title">
-  <div class="cheat-shelf-art" aria-hidden="true"><i></i><i></i><i><span>IP / 27<br>DNS : 53<br>OSI : 7</span></i></div>
-  <div class="cheat-shelf-info">
-    <span class="cheat-shelf-kicker">EXTRA WISSEN // IHK-ORIENTIERT</span>
-    <h3 id="cheat-shelf-title">SPICKZETTEL-<em>DECK</em></h3>
-    <p>88 kleine, direkt lesbare Wissenskarten in 11 Themenwelten. Prüfungsfragen, Merksätze und Denkfallen – getrennt von den Lernmodulen.</p>
-    <div class="cheat-shelf-tags"><span>88 KARTEN</span><span>5 PRO REIHE</span><span>MIT PRÜFUNGSFRAGEN</span></div>
+<?php $cheatTopics=[
+  ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
+  ['osi','OSI-Modell','Schichten, Protokolle und Kapselung','07','#6cdad4'],
+  ['subnet','Subnetting','CIDR, Netz-ID, Hosts und VLSM','/24','#89df8a'],
+  ['netzwerk','Netzwerk','Switch, Router, VLAN und WLAN','LAN','#e1c16d'],
+  ['ipv6','IPv6','Kürzen, SLAAC, Adressen und NDP','::','#a5a0ff'],
+  ['dienste','Ports & Dienste','TCP, DNS, DHCP, Mail und TLS',':443','#ff9984'],
+  ['sicherheit','IT-Sicherheit','Schutzziele, MFA, Backup und Hash','SEC','#f280b4'],
+  ['datenschutz','Datenschutz','DSGVO, Betroffenenrechte und TOM','DSGVO','#79c8b0'],
+  ['rechnung','Kalkulation','Rabatt, Skonto, TCO und Gewinn','€','#f7c36e'],
+  ['csharp','C#-Grundlagen','Datentypen, if, Schleifen und Methoden','C#','#8eb7ff'],
+  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IHK','#d6a3f4']
+]; ?>
+<section class="cheat-collection" id="cheat-sheets" aria-labelledby="cheat-title">
+  <header class="cheat-head">
+    <div><span class="cheat-kicker">IHK-POCKET GUIDES // EXTRA WISSEN</span>
+      <h3 id="cheat-title">EIN THEMA. <em>EIN SPICKZETTEL.</em></h3>
+      <p>Elf Themen, elf übersichtliche Spickzettel. Kleinere Karten, eigene Optik und der bekannte Scroll-Stapel – völlig getrennt von den Lernmodulen.</p>
+    </div>
+    <div class="cheat-head-count" aria-label="Elf Spickzettel"><b>11</b> SPICKZETTEL</div>
+  </header>
+  <div class="cheat-mini-grid" id="cheat-mini-grid">
+    <?php foreach($cheatTopics as $i=>$sheet): ?>
+    <a class="cheat-mini" style="--cheat:<?=e($sheet[4])?>" href="cheat-sheet.html?thema=<?=e($sheet[0])?>" aria-label="Spickzettel <?=e($sheet[1])?> öffnen">
+      <span class="cheat-mini-bar"><span>POCKET GUIDE <?=str_pad((string)($i+1),2,'0',STR_PAD_LEFT)?></span><b><?=e($sheet[3])?></b></span>
+      <span class="cheat-mini-icon" aria-hidden="true"><?=e($sheet[3])?></span>
+      <span class="cheat-mini-kind">SPICKZETTEL // <?=str_pad((string)($i+1),2,'0',STR_PAD_LEFT)?></span>
+      <strong class="cheat-mini-title"><?=e($sheet[1])?></strong>
+      <span class="cheat-mini-desc"><?=e($sheet[2])?></span>
+      <span class="cheat-mini-foot"><span>1 THEMENBLATT</span><strong>ÖFFNEN ↗</strong></span>
+    </a>
+    <?php endforeach; ?>
   </div>
-  <a class="cheat-shelf-cta" href="cheat-sheet.html">SPICKZETTEL ANSEHEN <b aria-hidden="true">↗</b></a>
+  <div class="cheat-cta-row">
+    <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
+    <a class="cheat-all" href="cheat-sheet.html">ALLE ELF SPICKZETTEL ↗</a>
+  </div>
 </section>
               </div>
     </div>
