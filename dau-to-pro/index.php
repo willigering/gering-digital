@@ -200,15 +200,13 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   ['datenschutz','Datenschutz','DSGVO, Betroffenenrechte und TOM','DSGVO','#79c8b0'],
   ['rechnung','Kalkulation','Rabatt, Skonto, TCO und Gewinn','€','#f7c36e'],
   ['csharp','C#-Grundlagen','Datentypen, if, Schleifen und Methoden','C#','#8eb7ff'],
-  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IHK','#d6a3f4']
+  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4']
 ]; ?>
 <section class="cheat-collection" id="cheat-sheets" aria-labelledby="cheat-title">
   <header class="cheat-head">
-    <div><span class="cheat-kicker">IHK-POCKET GUIDES // EXTRA WISSEN</span>
+    <div>
       <h3 id="cheat-title">EIN THEMA. <em>EIN SPICKZETTEL.</em></h3>
-      <p>Elf Themen, elf übersichtliche Spickzettel. Kleinere Karten, eigene Optik und der bekannte Scroll-Stapel – völlig getrennt von den Lernmodulen.</p>
     </div>
-    <div class="cheat-head-count" aria-label="Elf Spickzettel"><b>11</b> SPICKZETTEL</div>
   </header>
   <div class="cheat-mini-grid" id="cheat-mini-grid">
     <?php foreach($cheatTopics as $i=>$sheet): ?>
