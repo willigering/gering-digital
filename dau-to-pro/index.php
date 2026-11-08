@@ -203,6 +203,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4']
 ]; ?>
 <section class="cheat-collection" id="cheat-sheets" aria-labelledby="cheat-title">
+  <!-- Überschrift und Karten teilen sich beim Stapeln denselben Sticky-Anker. -->
+  <div class="cheat-stack-frame">
   <header class="cheat-head">
     <div>
       <h3 id="cheat-title">EIN THEMA. <em>EIN SPICKZETTEL.</em></h3>
@@ -220,6 +222,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     </a>
     <?php endforeach; ?>
   </div>
+  </div><!-- /.cheat-stack-frame -->
+  <div class="cheat-stack-runway" aria-hidden="true"></div>
   <div class="cheat-cta-row">
     <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
     <a class="cheat-all" href="cheat-sheet.html">ALLE ELF SPICKZETTEL ↗</a>
