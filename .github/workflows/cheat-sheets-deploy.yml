@@ -1,0 +1,67 @@
+name: Cheat Sheets verify and deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dau-to-pro/cheat-sheet*'
+      - 'dau-to-pro/index.php'
+      - '.github/workflows/cheat-sheets-deploy.yml'
+  pull_request:
+    paths:
+      - 'dau-to-pro/cheat-sheet*'
+      - 'dau-to-pro/index.php'
+      - '.github/workflows/cheat-sheets-deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate pocket-deck JavaScript and all 88 cards
+        run: |
+          node --check dau-to-pro/cheat-sheet-data.js
+          node --check dau-to-pro/cheat-sheet.js
+          node <<'JS'
+          const fs=require('node:fs');
+          const vm=require('node:vm');
+          const assert=require('node:assert/strict');
+          const code=fs.readFileSync('dau-to-pro/cheat-sheet-data.js','utf8');
+          const scope={};vm.runInNewContext(code,scope);
+          const groups=scope.DTP_CHEAT_GROUPS;
+          assert.equal(groups.length,11,'Expected eleven distinct themes');
+          assert.equal(groups.reduce((n,g)=>n+g.cards.length,0),88,'Expected 88 cheat sheets');
+          const seen=new Set();
+          for(const g of groups){
+            assert.equal(g.cards.length,8,'Expected eight cards for '+g.name);
+            for(const c of g.cards){
+              assert.ok(c.length===6||c.length===7,'Malformed card in '+g.name);
+              assert.ok(c.every(x=>typeof x==='string'&&x.trim().length>0),'Empty card section');
+              assert.ok(c[2].split('|').length>=3,'Card needs at least 3 facts: '+c[0]);
+              const key=g.id+':'+c[0];
+              assert.ok(!seen.has(key),'Duplicate card '+key);
+              seen.add(key);
+            }
+          }
+          const html=fs.readFileSync('dau-to-pro/cheat-sheet.html','utf8');
+          const css=fs.readFileSync('dau-to-pro/cheat-sheet.css','utf8');
+          const index=fs.readFileSync('dau-to-pro/index.php','utf8');
+          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js'));
+          assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
+          assert.ok(index.includes('id="cheat-sheets"')&&index.includes('href="cheat-sheet.html"'));
+          console.log('Pocket deck verified: 11 topics, 88 valid cards, five-column layout.');
+          JS
+      - name: Check landing PHP syntax
+        run: php -l dau-to-pro/index.php
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: verify
+    uses: ./.github/workflows/deploy-strato.yml
+    secrets: inherit
