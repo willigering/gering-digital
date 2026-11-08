@@ -123,3 +123,41 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   .detail-signoff{font-size:8pt;color:#444}
   @page{size:A4;margin:12mm}
 }
+
+/* Wiederverwendete DAU-TO-PRO-WebP-Hintergründe IN den geöffneten Themenblättern.
+   Zwei Geschwindigkeitsebenen reagieren sanft auf Scrollen und Mausbewegung.
+   Der eigentliche Lesetext bleibt auf deckenden, kontrastreichen Flächen. */
+.one-sheet{position:relative;isolation:isolate;overflow:hidden;--sheet-pointer-x:0px;--sheet-pointer-y:0px;--sheet-scroll-back:0px;--sheet-scroll-front:0px}
+.sheet-parallax{position:absolute;inset:0;z-index:0;overflow:clip;pointer-events:none;user-select:none}
+.sheet-parallax-viewport{position:sticky;top:0;height:min(100vh,900px);overflow:hidden;isolation:isolate}
+.sheet-parallax-back,.sheet-parallax-front{position:absolute;inset:-13%;background-image:var(--sheet-texture);background-repeat:no-repeat;background-size:cover;background-position:50% 42%;will-change:transform}
+.sheet-parallax-back{opacity:.29;filter:blur(3px) saturate(.65);transform:translate3d(calc(var(--sheet-pointer-x) * -.34),calc(var(--sheet-scroll-back) + var(--sheet-pointer-y) * -.5),0) scale(1.04)}
+.sheet-parallax-front{opacity:.14;mix-blend-mode:screen;filter:contrast(1.2) saturate(.65);background-position:70% 55%;transform:translate3d(calc(var(--sheet-pointer-x) * .65),calc(var(--sheet-scroll-front) + var(--sheet-pointer-y) * .8),0) scale(1.13)}
+.sheet-parallax-viewport:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#0c151d90,transparent 40%,#0c151d6f),linear-gradient(180deg,#0c151d6a,transparent 24%,transparent 65%,#0c151d83)}
+.one-sheet > :not(.sheet-parallax){position:relative;z-index:1}
+.one-sheet .detail-header{background:radial-gradient(ellipse at 89% 15%,color-mix(in srgb,var(--tone) 14%,transparent),transparent 47%),linear-gradient(145deg,#141e2af0,#0c161ddd)}
+.one-sheet .detail-grid{background:#07101abd;gap:10px 24px;padding-top:17px;padding-bottom:17px}
+.one-sheet .detail-section{padding:19px 13px 22px;background:#0c151ce6;border:1px solid #ffffff18;border-radius:9px;box-shadow:0 6px 20px #0003}
+.one-sheet .detail-exam{background:#090f16e8}
+.one-sheet .detail-traps{background:#131316eb}
+.one-sheet .detail-signoff{background:#0c151ddd}
+.one-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.one-sheet .exam-qa{padding:12px 14px;background:#111b24f2;min-width:0}
+.one-sheet .exam-qa span{font-size:10px}
+.one-sheet .exam-qa strong{font-size:12.6px}
+.one-sheet .exam-qa p{font-size:12px;color:#dae4e5}
+@media(max-width:730px){
+  .one-sheet .detail-grid{gap:9px}
+  .one-sheet .exam-grid{grid-template-columns:1fr}
+  .sheet-parallax-back{opacity:.20}
+  .sheet-parallax-front{opacity:.1}
+}
+@media(prefers-reduced-motion:reduce){
+  .sheet-parallax-back,.sheet-parallax-front{will-change:auto;transform:none!important}
+}
+@media print{
+  .sheet-parallax{display:none!important}
+  .one-sheet .detail-grid,.one-sheet .detail-exam,.one-sheet .detail-traps,.one-sheet .detail-signoff{background:#fff!important}
+  .one-sheet .detail-section,.one-sheet .exam-qa{background:#fff!important;border-color:#aaa!important;box-shadow:none!important}
+  .one-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
