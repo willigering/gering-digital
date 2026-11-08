@@ -416,10 +416,11 @@ function dtp_subtitle_parts(string $subtitle): array {
 /* Hero image                                                          */
 /* ------------------------------------------------------------------ */
 
-const DTP_HERO_DEFAULT='assets/dau-to-pro-hero-freigestellt.png';
+const DTP_HERO_DEFAULT='assets/dau-to-pro-hero-v2-1770.webp';
+const DTP_HERO_DEFAULT_SIZE=[1770,889];
 
 /** Transparent margins of the default artwork (fractions of width/height), measured once with alpha > 10. */
-function dtp_hero_default_trim(): array {return ['top'=>72/1086,'right'=>(1447-1429)/1448,'bottom'=>(1085-979)/1086,'left'=>38/1448];}
+function dtp_hero_default_trim(): array {return ['top'=>0.0,'right'=>0.0,'bottom'=>0.0,'left'=>0.0];}
 
 function dtp_setting_get(string $key): ?string {
     $stmt=db()->prepare('SELECT value FROM settings WHERE key=?');
@@ -440,7 +441,7 @@ function dtp_hero(): array {
             return ['src'=>$custom,'width'=>(int)$meta['width'],'height'=>(int)$meta['height'],'trim'=>dtp_hero_trim_sanitize((array)($meta['trim']??[])),'custom'=>true];
         }
     }
-    return ['src'=>DTP_HERO_DEFAULT,'width'=>1448,'height'=>1086,'trim'=>dtp_hero_default_trim(),'custom'=>false];
+    return ['src'=>DTP_HERO_DEFAULT,'width'=>DTP_HERO_DEFAULT_SIZE[0],'height'=>DTP_HERO_DEFAULT_SIZE[1],'trim'=>dtp_hero_default_trim(),'custom'=>false];
 }
 
 function dtp_hero_trim_sanitize(array $trim): array {
@@ -529,93 +530,17 @@ function dtp_hero_style(array $hero): string {
 /** Responsive, pixel-identical artwork. Copies share the same browser-cached source. */
 function dtp_hero_picture(array $hero,string $alt,string $class='hero-logo'): string {
     $source='';
-    if (empty($hero['custom']) && is_file(__DIR__.'/assets/dau-to-pro-hero-1448.webp') && is_file(__DIR__.'/assets/dau-to-pro-hero-768.webp'))
-        $source='<source type="image/webp" srcset="../assets/dau-to-pro-hero-768.webp 768w, ../assets/dau-to-pro-hero-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px">';
+    if (empty($hero['custom']) && is_file(__DIR__.'/assets/dau-to-pro-hero-v2-1770.webp') && is_file(__DIR__.'/assets/dau-to-pro-hero-v2-885.webp'))
+        $source='<source type="image/webp" srcset="../assets/dau-to-pro-hero-v2-885.webp 885w, ../assets/dau-to-pro-hero-v2-1770.webp 1770w" sizes="(min-width: 861px) 860px, (min-width: 611px) 480px, 360px">';
     return '<picture>'.$source.'<img class="'.e($class).'" src="../'.e($hero['src']).'" width="'.(int)$hero['width'].'" height="'.(int)$hero['height'].'" '.($class==='hero-logo'?'fetchpriority="high" ':'').'decoding="async" alt="'.e($alt).'" draggable="false"></picture>';
 }
 
-/** Cleanly generated character cutouts; the logo and mushroom keep their original source. */
-function dtp_hero_people_picture(): string {
-    return '<picture><source type="image/webp" srcset="../assets/dau-to-pro-people-clean-768.webp 768w, ../assets/dau-to-pro-people-clean-1448.webp 1448w" sizes="(min-width: 861px) 540px, (min-width: 611px) 480px, 360px"><img class="hero-part-image" src="../assets/dau-to-pro-people-clean-1448.webp" width="1448" height="1086" decoding="async" alt="" draggable="false"></picture>';
-}
-
-/** Schriftzug „DAU TO PRO“ in der Seitenschrift statt als Rastergrafik: gestochen scharf, ohne Kasten. */
-function dtp_hero_brand(): string {
-    // Schriftzug hinter den Figuren im Bild, oben zwischen den Köpfen; Abstände wie im bisherigen Schriftzug (Koordinaten wie das Motiv, 1448 × 1086).
-    return '<svg class="hero-brand" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><defs>'
-        .'<linearGradient id="dtp-brand-cream" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#d9d3c4"/></linearGradient>'
-        .'<linearGradient id="dtp-brand-gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset=".55" stop-color="#f2b53c"/><stop offset="1" stop-color="#d98a1c"/></linearGradient>'
-        .'</defs><text x="548" y="196" class="hero-brand-text">'
-        .'<tspan fill="url(#dtp-brand-cream)">DAU</tspan><tspan class="hero-brand-to" fill="url(#dtp-brand-cream)" dx="16">TO</tspan><tspan fill="url(#dtp-brand-gold)" dx="16">PRO</tspan></text></svg>';
-}
-
-/** Power-up: Sprechblase, Pixelpilz und Funken als saubere Vektorgrafik (Pilz-Koordinaten wie im Original). */
-function dtp_hero_powerup(): string {
-    $step=static function(float $x,float $y,float $w,float $h,float $s): string {
-        // Rechteck mit zweistufig abgetreppten Ecken (Pixel-Look).
-        $a=$s;$b=2*$s;
-        return "M".($x+$b)." $y H".($x+$w-$b)." v$a h$a v$a h$a V".($y+$h-$b)." h-$a v$a h-$a v$a H".($x+$b)." v-$a h-$a v-$a h-$a V".($y+$b)." h$a v-$a h$a Z";
-    };
-    $outer=$step(1162,348,272,124,10);
-    $inner=$step(1172,358,252,104,8);
-    $tail='M1236 466 h44 v10 h-10 v10 h-10 v10 h-10 v10 h-14 Z';
-    $tailInner='M1244 462 h28 v8 h-8 v8 h-8 v8 h-8 v8 h-4 Z';
-    $svg='<svg class="hero-powerup" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false" shape-rendering="crispEdges">'
-        .'<path d="'.$outer.' '.$tail.'" fill="#ffd23f"/>'
-        .'<path d="'.$inner.' '.$tailInner.'" fill="#0d1114"/>'
-        .'<text x="1298" y="432" text-anchor="middle" class="hero-powerup-text" shape-rendering="auto">LEVEL UP!</text>'
-        .'<g fill="#ffd23f"><path d="M1352 478h12v34h-12z" transform="rotate(-24 1358 495)"/><path d="M1384 492h12v30h-12z" transform="rotate(18 1390 507)"/><path d="M1404 530h28v12h-28z" transform="rotate(-8 1418 536)"/></g>'
-        .'</svg>';
-    $pilz='../assets/dau-to-pro-pixelpilz.svg?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.svg');
-    return $svg.'<img class="hero-pixelpilz" src="'.e($pilz).'" alt="" width="191" height="174" decoding="async" draggable="false">';
-}
-
 /**
- * Native scene planes: clean character cutouts, original branding/power-up and a code-native backdrop.
- * Percentage polygons share one coordinate system with the mushroom and work in admin previews with a base URL.
- * Custom admin artwork keeps its original, unsliced rendering.
+ * Hero: die fertige Grafik (Figuren, Schriftzug, Balken mit Reflexion, Power-up) als ein Bild.
+ * Der Pilz-Effekt (hero-fx.js) legt sich über die Pilz-Position, siehe dtp_hero_fx_attrs().
  */
 function dtp_hero_scene(array $hero,string $alt): string {
-    if (!empty($hero['custom'])) return dtp_hero_picture($hero,$alt);
-    $novice=[[38,350],[57,333],[43,310],[46,270],[75,247],[63,237],[85,216],[87,167],[113,146],[178,132],[218,139],[240,131],[246,99],[279,76],[356,65],[404,79],[423,89],[442,91],[478,95],[476,122],[503,137],[536,152],[560,181],[570,220],[554,247],[576,263],[585,290],[582,326],[570,338],[606,351],[622,380],[616,413],[598,433],[570,449],[580,466],[568,484],[566,515],[575,537],[578,564],[562,587],[545,627],[542,655],[538,707],[55,707],[50,666],[50,594],[57,554],[95,539],[124,539],[124,503],[138,467],[164,444],[130,443],[110,447],[74,441],[49,426],[31,405],[32,375]];
-    $pro=[[862,183],[880,184],[898,166],[910,180],[916,193],[929,169],[939,184],[949,194],[959,188],[969,207],[980,217],[980,224],[997,230],[1012,237],[1030,239],[1033,261],[1046,281],[1037,294],[1053,312],[1049,340],[1032,358],[1016,371],[1044,383],[1060,403],[1099,414],[1134,439],[1159,475],[1185,497],[1206,533],[1222,559],[1229,601],[1227,637],[1205,663],[1180,675],[1187,707],[855,707],[854,677],[842,655],[827,628],[811,601],[802,565],[789,528],[785,485],[789,451],[800,420],[811,399],[810,382],[817,365],[831,358],[813,336],[800,313],[793,292],[786,280],[796,262],[795,245],[807,235],[810,215],[829,222],[834,203],[849,205]];
-    $powerup=[[1151,395],[1448,331],[1448,707],[1205,707],[1205,537],[1176,522],[1151,505]];
-    $brand=[[0,719],[1448,719],[1448,904],[0,904]];
-    $cleanPeople=is_file(__DIR__.'/assets/dau-to-pro-people-clean-1448.webp') && is_file(__DIR__.'/assets/dau-to-pro-people-clean-768.webp');
-    if($cleanPeople){
-        // The new asset has isolated silhouettes with transparent gaps, so broad rectangles are sufficient.
-        $novice=[[0,0],[630,0],[630,715],[0,715]];
-        $pro=[[780,120],[1240,120],[1240,715],[780,715]];
-    }
-    $polygon=static function(array $points): string {
-        return 'polygon('.implode(',',array_map(static fn($p)=>sprintf('%.6F%% %.6F%%',$p[0]/1448*100,$p[1]/1086*100),$points)).')';
-    };
-    $shapes=['dau'=>$polygon($novice),'pro'=>$polygon($pro),'powerup'=>$polygon($powerup),'brand'=>$polygon($brand)];
-    $html='<div class="hero-canvas'.($cleanPeople?' hero-canvas--clean-people':'').'"><div class="hero-reference">'.dtp_hero_picture($hero,$alt).'</div>';
-    foreach(['ambient'=>-.4,'dau'=>.32,'pro'=>.62,'brand'=>.18,'powerup'=>.8] as $name=>$depth){
-        $html.='<div class="hero-plane hero-plane--'.$name.'">';
-        if($name==='ambient') {
-            // Decorative native paths continue the circuit language of the page, without raster cut edges.
-            $html.='<svg class="hero-circuit" viewBox="0 0 1448 1086" aria-hidden="true" focusable="false"><g fill="none" stroke-linecap="round" stroke-linejoin="round"><path class="scene-wire-cyan" d="M-120 460H230L450 230H680L760 150H1050L1220 320H1560 M-100 570H320L460 430H655L730 350 M540 270H690L780 180H940 M920 400H1110L1260 550H1550"/><path class="scene-wire-gold" d="M-100 750H255L510 495H660L810 345H1080L1280 145H1560 M930 660H1110L1215 765H1530"/></g><g class="scene-dots"><circle cx="680" cy="230" r="10"/><circle cx="655" cy="430" r="8"/><circle cx="1110" cy="660" r="8"/></g></svg>';
-        } elseif($name==='brand') {
-            $html.=dtp_hero_brand();
-        } elseif($name==='powerup' && is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) {
-            $html.=dtp_hero_powerup();
-        } else {
-            $picture=$cleanPeople && in_array($name,['dau','pro'],true)?dtp_hero_people_picture():dtp_hero_picture($hero,'','hero-part-image');
-            $html.='<div class="hero-slice" aria-hidden="true" style="clip-path:'.$shapes[$name].'">'.$picture.'</div>';
-        }
-        if($name==='powerup')$html.='<div class="hero-mushroom-anchor" data-mushroom-anchor></div>';
-        $html.='</div>';
-    }
-    // Separate, fully opaque layer between the figures: visibly a learning progression.
-    $html.='<svg class="hero-learning-growth" viewBox="0 0 1448 1086" role="img" aria-label="Dein Lernfortschritt: vom DAU zum PRO">'
-        .'<title>Dein Lernfortschritt – vom DAU zum PRO</title>'
-        .'<g stroke-linejoin="round" stroke-linecap="round"><path class="growth-outline" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
-        .'<path class="growth-arrow" d="M570 590L785 365M785 365L780 475M785 365L675 380"/>'
-        .'<g class="growth-bars"><path d="M574 695V650H614V695Z M637 695V600H677V695Z M700 695V550H740V695Z M763 695V500H803V695Z"/></g></g>'
-        .'</svg>';
-    return $html.'</div>';
+    return dtp_hero_picture($hero,$alt);
 }
 
 /**
@@ -717,6 +642,8 @@ function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) return '';
     $video=__DIR__.'/assets/dau-to-pro-easteregg.mp4';
     $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.svg?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.svg').'"';
+    // Pilz in der Standardgrafik (Pixel der 1770 × 889 großen Datei): x, y, Breite, Höhe.
+    $attrs.=' data-fx-art="'.(int)DTP_HERO_DEFAULT_SIZE[0].'x'.(int)DTP_HERO_DEFAULT_SIZE[1].'" data-fx-box="1353,473,181,171"';
     $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
     // Mit Lernkonto meldet das Video das Achievement „Fremdscham erfolgreich freigeschaltet“ (200 XP).
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';

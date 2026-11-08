@@ -97,20 +97,19 @@ Die bestehenden Originalgrafiken, `dau-to-pro/hero-fx.js`, `assets/dau-to-pro-pi
 
 **Browserprüfung:** `npm install --no-save --package-lock=false playwright@1.62.1`, `npx playwright install chromium`, dann `node tests/dau_landing_browser.js`. Optional `CHROME_PATH` für einen vorhandenen Chromium/Chrome setzen und `DTP_SCREENSHOT_DIR` für Screenshots. Der Test startet einen eigenen PHP-Server mit temporärer Datenbank und prüft 1440, 1366, 1024, 768, 390 und 320 Pixel Breite, Suchformular, Filter, Mobilmenü, Hinweis, Pixelpilz, Parallax, reduzierte Bewegung und leere Kataloge. CI stellt die Screenshots als Artefakt `dau-main-desktop-mobile` bereit.
 
-### Hero als integrierte Szene
+### Hero als fertige Grafik
 
-Die Originalgrafik wird im Browser in fünf Ebenen dargestellt: dezente Platinen-/Leuchtgrafik, DAU-Figur, PRO-Figur, Schriftzug und Power-up mit Pilz. Die Vordergrundteile werden mit nativen CSS-Ausschnitten und Masken angeordnet. Schriftzug und Pilz verwenden die unveränderte Originalquelle; die Figuren nutzen die neue transparente Quelle, sofern deren Dateien vorhanden sind. Dezente, direkt gezeichnete SVG-Leiterbahnen verbinden die Szene mit dem Seitenhintergrund. Die Ebenen sind räumlich leicht versetzt und reagieren bei Mausbedienung unterschiedlich auf Scrollen und Zeigerbewegung. Auf Touch-Geräten bleibt die Anordnung ruhig; reduzierte Bewegung deaktiviert auch die Bewegung der einzelnen Ebenen.
+Der Hero ist ein einzelnes Bild: `assets/dau-to-pro-hero-v2-1770.webp` (1770 × 889) und `assets/dau-to-pro-hero-v2-885.webp` für kleine Bildschirme, mit Figuren, Schriftzug, Lernbalken samt Reflexion und Power-up. Die Ränder laufen per CSS-Maske in den Seitenhintergrund aus (`.hero-art-wrap[data-scene=flat]` in `dau-to-pro/style.css`); die Grafik bleibt auf jeder Bildschirmbreite im Fenster.
 
-Der Pilz besitzt innerhalb seiner eigenen Ebene einen separaten Anker. Klickfläche, Farbwechsel, Wachstum, Zähler, Level-up, Video und XP-Abschluss bewegen sich dadurch zusammen. Eigene Hero-Uploads werden weiterhin als vollständiges Originalbild dargestellt.
+Der Pixelpilz-Effekt (`dau-to-pro/hero-fx.js`) legt sich über die Pilz-Position im Bild. Der Server übergibt sie als `data-fx-art` (Bildgröße) und `data-fx-box` (x, y, Breite, Höhe in Pixeln der Originaldatei, siehe `dtp_hero_fx_attrs()` in `dau_lib.php`). Eigene Hero-Uploads im Admin bleiben unverändert und ohne Effekt.
 
-**Update zusätzlich zur kompakten Hauptseite:** `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/site.js`, `dau-to-pro/hero-fx.js` und die neue `dau-to-pro/hero-scene.css` gemeinsam übertragen. Keine Datenbank oder Uploads ersetzen. Der Browsertest prüft zusätzlich die Ebenenbewegung, Pilz-Ausrichtung nach Scrollen und die vollständige Fünf-Klick-/Video-/XP-Sequenz auf Desktop und Smartphone.
+**Update:** `dau_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/style.css`, `dau-to-pro/hero-fx.js` sowie die beiden neuen Hero-Bilder gemeinsam übertragen. `dau-to-pro/hero-scene.css` und die früheren Ebenen-Bilder (`dau-to-pro-people-clean-*`, `dau-to-pro-hero-768/1448`) werden nicht mehr benötigt.
 
+### NERD FM: Playlist-Editor
 
-### Sauber freigestellte Figuren
+Im geöffneten Playlist-Display schaltet ein Klick auf den Titel ihn an oder aus (Haken, abgewählte Titel sind durchgestrichen und werden bei Weiter, Zurück, Zufall, Mausrad und am Titelende übersprungen); die Nummer spielt den Titel ab. Mindestens ein Titel bleibt immer aktiv. Mit Lernkonto speichert `dau-to-pro/api/radio.php` die Auswahl in der neuen Tabelle `learner_prefs` (Schlüssel `nfm.off`, im Datenexport unter `einstellungen`), ohne Konto merkt sich der Browser sie lokal. Das Mausrad wechselt den Titel nur direkt über der Titelzeile; dort wird der Mauszeiger zum Mausrad-Symbol.
 
-Die beiden Figuren wurden anhand der Originalgrafik im gleichen Zeichenstil neu als transparentes Motiv erstellt, um matte und farbige Rückstände außerhalb der Konturen zu entfernen. Das neue Figurenmotiv enthält nur DAU mit Laptop und Sprechblasen sowie PRO. Schriftzug und Pilz einschließlich Level-up-Schild kommen weiterhin aus den Originaldateien. Die Pilzkoordinaten und seine Interaktionslogik bleiben unverändert.
-
-**Update:** `dau_lib.php`, `dau-to-pro/hero-scene.css` sowie `assets/dau-to-pro-people-clean-768.webp` und `assets/dau-to-pro-people-clean-1448.webp` gemeinsam übertragen. Fehlen die neuen Figuren-Dateien, wird die bisherige Originalgrafik weiter verwendet. Eigene Hero-Uploads bleiben unverändert.
+**Update:** `lib.php` (Tabelle `learner_prefs`, wird beim ersten Aufruf angelegt), `learner_lib.php`, `nerd_fm_lib.php`, `dau-to-pro/index.php`, `dau-to-pro/nerd-radio.js`, `dau-to-pro/nerd-radio.css` und neu `dau-to-pro/api/radio.php` gemeinsam übertragen. Bestehende Konten und Fortschritte bleiben unverändert.
 
 **Alles auf null setzen (Konto-Einstellungen):** Lernende können ihren gesamten Lernstand zurücksetzen: Fortschritt aller Module (als Löschmarken, damit andere Geräte ihn ebenfalls entfernen), Achievements, XP, Level, Lerntage, Bestwerte und Highscore-Sichtbarkeit. Schutz: Warnhinweis, aktuelles Passwort, Eingabe „NULL“ und Rückfrage. Das Konto selbst bleibt. „Willkommen, DAU“ wird danach wie bei jedem neuen Konto wieder vergeben.
 

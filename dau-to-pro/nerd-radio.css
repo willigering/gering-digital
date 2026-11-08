@@ -114,17 +114,34 @@
 .nr-display__ind.is-lit{color:var(--gold);opacity:1;filter:drop-shadow(0 0 .6cqw var(--gold))}
 
 /* Playlist erscheint im Display selbst */
-.nr-playlist{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:safe center;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#22dcf5 transparent;padding:2% 4%;
+.nr-playlist{position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;justify-content:safe center;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#22dcf5 transparent;padding:1% 4%;
   background:#03141a}
 .nr-playlist[hidden]{display:none}
-.nr-playlist__list{list-style:none;margin:0;padding:0;display:grid;gap:.1cqw}
-.nr-playlist__item{display:flex;align-items:center;gap:3%;width:100%;padding:.2cqw 1cqw;border:.05cqw solid transparent;border-radius:.6cqw;background:transparent;color:#bff7ff;cursor:pointer;text-align:left;
-  font:700 1.95cqw/1.2 ui-monospace,"Cascadia Mono",Consolas,monospace;white-space:nowrap}
-.nr-playlist__item b{flex:none;color:var(--gold);font-weight:800}
+.nr-playlist__list{list-style:none;margin:0;padding:0;display:grid;gap:0}
+/* Playlist-Editor: Nummer = abspielen, Titel anklicken = an/aus (Haken); abgewählte Titel sind durchgestrichen und werden übersprungen. */
+.nr-playlist__row{display:flex;align-items:center;gap:.5cqw;border-radius:.6cqw}
+.nr-playlist__play,.nr-playlist__item{border:.05cqw solid transparent;border-radius:.6cqw;background:transparent;cursor:pointer;
+  font:700 1.6cqw/1.05 ui-monospace,"Cascadia Mono",Consolas,monospace;white-space:nowrap}
+.nr-playlist__play{flex:none;min-width:4cqw;padding:0 .6cqw;color:var(--gold);font-weight:800;text-align:center}
+.nr-playlist__item{display:flex;align-items:center;gap:3%;flex:1;min-width:0;padding:0 1cqw;color:#bff7ff;text-align:left}
 .nr-playlist__item span{min-width:0;overflow:hidden;text-overflow:ellipsis}
 .nr-playlist__item small{flex:none;margin-left:auto;font-size:.8em;color:#5fb6c4}
-.nr-playlist__item:hover{border-color:#22dcf588;background:#0b2f3a}
-.nr-playlist__item[aria-current=true]{background:#0e3b47;color:#fff;border-color:var(--cyan);box-shadow:0 0 .8cqw #22dcf555}
+.nr-playlist__check{flex:none;position:relative;width:1.5cqw;height:1.5cqw;border:.2cqw solid #22dcf5;border-radius:.4cqw;box-sizing:border-box}
+.nr-playlist__row[data-on=true] .nr-playlist__check{background:#22dcf5}
+.nr-playlist__row[data-on=true] .nr-playlist__check:after{content:"";position:absolute;left:28%;top:6%;width:30%;height:58%;border:solid #03141a;border-width:0 .28cqw .28cqw 0;transform:rotate(40deg)}
+.nr-playlist__row[data-on=false] .nr-playlist__item{color:#5fb6c4}
+.nr-playlist__row[data-on=false] .nr-playlist__item span{text-decoration:line-through;opacity:.7}
+.nr-playlist__row[data-on=false] .nr-playlist__check{border-color:#3d7e8a}
+.nr-playlist__play:hover,.nr-playlist__item:hover{border-color:#22dcf588;background:#0b2f3a}
+.nr-playlist__play:focus-visible,.nr-playlist__item:focus-visible{outline:.2cqw solid #22dcf5;outline-offset:.1cqw}
+.nr-playlist__row:has(.nr-playlist__play[aria-current=true]){background:#0e3b47;box-shadow:0 0 .8cqw #22dcf555}
+.nr-playlist__row:has(.nr-playlist__play[aria-current=true]) .nr-playlist__item{color:#fff}
+.nr-playlist__row:has(.nr-playlist__play[aria-current=true]) .nr-playlist__play{color:#ffd16a}
+@media(prefers-reduced-motion:no-preference){.nr-playlist__row.is-denied{animation:nr-denied .32s ease}}
+@keyframes nr-denied{20%,60%{transform:translateX(-.8cqw)}40%,80%{transform:translateX(.8cqw)}}
+
+/* Mausrad wechselt den Titel nur direkt auf der Titelzeile; dort wird der Mauszeiger zum Mausrad-Symbol (nur mit mindestens zwei aktiven Titeln). */
+.nr-device.has-wheel .nr-display__track{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg fill='%2304181d' stroke='%2304181d' stroke-width='3' stroke-linejoin='round'%3E%3Cpath d='M14 1l5 5h-10z'/%3E%3Cpath d='M14 27l5-5h-10z'/%3E%3Crect x='9' y='8' width='10' height='12' rx='5'/%3E%3C/g%3E%3Cpath d='M14 2.5l3.6 3.6h-7.2z' fill='%2322dcf5'/%3E%3Cpath d='M14 25.5l3.6-3.6h-7.2z' fill='%2322dcf5'/%3E%3Crect x='9' y='8' width='10' height='12' rx='5' fill='%230b2f3a' stroke='%2322dcf5' stroke-width='1.6'/%3E%3Crect x='13' y='11' width='2' height='4' rx='1' fill='%23ffd16a'/%3E%3C/svg%3E") 14 14,ns-resize}
 
 /* ---------- Tasten: Paket-Grafiken je Zustand (normal / hover / gedrückt); Bilder und Positionen in layout.css ---------- */
 .nr-transport{display:contents}

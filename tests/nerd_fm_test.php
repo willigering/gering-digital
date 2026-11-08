@@ -36,6 +36,29 @@ check($titles===['Diggy Thal – APIPA','Diggy Thal – Klopf, Klopf'],'Lernpfad
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
 check(in_array('DAU to PRO',array_column(nfm_tracks($learner),'title'),true),'Easter Egg schaltet „DAU to PRO“ frei');
 
+// ---------------------------------------------------------------- Playlist-Editor: abgewählte Titel im Konto
+check(array_column(nfm_tracks($learner),'on')===[true,true,true],'Standard: alle freigeschalteten Titel sind aktiv');
+check(nfm_save_off($learner,['klopf-klopf'])===['klopf-klopf'] && nfm_off_ids($learner)===['klopf-klopf'],'Abgewählter Titel wird im Konto gespeichert');
+$on=array_column(nfm_tracks($learner),'on','id');
+check($on['klopf-klopf']===false && $on['apipa']===true && $on['dau-to-pro']===true,'Playlist liefert den gespeicherten Stand (aus für „Klopf, Klopf“)');
+check(nfm_save_off($learner,['apipa','unbekannt','../x',42,'sieben-schichten'])===['apipa'],'Unbekannte, nicht freigeschaltete und ungültige IDs werden ignoriert');
+check(nfm_off_ids($learner)===['apipa'],'Gespeichert wird nur, was dem Konto zur Verfügung steht');
+try { nfm_save_off($learner,['apipa','klopf-klopf','dau-to-pro']); check(false,'Alle Titel abwählen wird abgelehnt'); }
+catch (LearnerError $e) { check(str_contains($e->getMessage(),'Mindestens ein Titel'),'Alle Titel abwählen wird abgelehnt'); }
+check(nfm_off_ids($learner)===['apipa'],'Abgelehnte Änderung lässt den Stand unverändert');
+nfm_save_off($learner,[]);
+check(array_column(nfm_tracks($learner),'on')===[true,true,true] && nfm_off_ids($learner)===[],'Alle wieder aktivieren');
+nfm_save_off($learner,['dau-to-pro']);
+check(nfm_off_ids(null)===[] && !in_array(false,array_column(nfm_tracks(null),'on'),true),'Gäste haben keine Konto-Einstellung');
+$export=learner_export($learner);
+check(isset($export['einstellungen'][NFM_PREF_KEY]) && $export['einstellungen'][NFM_PREF_KEY]===['dau-to-pro'],'Datenexport enthält die Playlist-Einstellung');
+db()->prepare('DELETE FROM learners WHERE id=?')->execute([$lid]);
+check((int)db()->query('SELECT COUNT(*) FROM learner_prefs')->fetchColumn()===0,'Einstellungen verschwinden mit dem Konto');
+db()->prepare('INSERT INTO learners(id,username,password_hash) VALUES(?,?,?)')->execute([$lid,'hoerer','x']);
+db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'b5.lernpfad','2026-11-07 12:00:00']);
+db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
+$learner=learner_by_id($lid);
+
 // ---------------------------------------------------------------- Links
 $now=1800000000;
 $link=nfm_link('apipa',$lid,'sess-a',$now);

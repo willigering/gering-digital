@@ -209,14 +209,22 @@ let server, browser;
   assert.equal(r.state, 'stopped', 'Titelwechsel im Stopp startet nichts');
   await key('prev').click(); await key('prev').click(); await pause(150);
   assert.match((await radio()).title, /^03 – /, 'Zurück springt zyklisch zum letzten Titel');
-  // Mausrad über dem Gerät schaltet den Sender um (zyklisch), ohne die Seite zu scrollen
-  await page.locator('.nr-device').hover();
+  // Mausrad wechselt den Titel nur direkt auf der Titelzeile (dort zeigt der Mauszeiger ein Mausrad-Symbol);
+  // über dem übrigen Gerät passiert nichts am Radio.
+  const titleRow = page.locator('.nr-display__track');
+  const cursorOf = locator => locator.evaluate(e => getComputedStyle(e).cursor);
+  await page.locator('[data-radio-play]').hover();
+  await page.mouse.wheel(0, 120); await pause(450);
+  assert.match((await radio()).title, /^03 – /, 'Mausrad über dem Gerät (nicht auf dem Titel) wechselt nichts');
+  assert.match(await cursorOf(titleRow), /^url\("data:image\/svg\+xml/, 'Mauszeiger auf der Titelzeile wird zum Mausrad-Symbol');
+  assert.ok(!/^url/.test(await cursorOf(page.locator('[data-radio-play]'))), 'Auf den Tasten bleibt der normale Mauszeiger');
+  await titleRow.hover();
   const scrollBefore = await page.evaluate(() => scrollY);
   await page.mouse.wheel(0, 120); await pause(450);
-  assert.match((await radio()).title, /^01 – /, 'Mausrad nach unten: nächster Sender');
+  assert.match((await radio()).title, /^01 – /, 'Mausrad auf dem Titel nach unten: nächster Titel');
   await page.mouse.wheel(0, -120); await pause(450);
-  assert.match((await radio()).title, /^03 – /, 'Mausrad nach oben: vorheriger Sender');
-  assert.equal(await page.evaluate(() => scrollY), scrollBefore, 'Mausrad über dem Radio scrollt die Seite nicht');
+  assert.match((await radio()).title, /^03 – /, 'Mausrad auf dem Titel nach oben: vorheriger Titel');
+  assert.equal(await page.evaluate(() => scrollY), scrollBefore, 'Mausrad auf dem Titel scrollt die Seite nicht');
 
   await key('shuffle').click(); await pause(900);
   r = await radio();
@@ -246,7 +254,7 @@ let server, browser;
   await key('list').click();
   assert.ok(await page.locator('[data-radio-playlist]').isVisible(), 'Playlist öffnet im Display');
   assert.equal(await page.locator('.nr-playlist__item').count(), 3);
-  await page.locator('.nr-playlist__item').nth(1).click(); await pause(500);
+  await page.locator('.nr-playlist__play').nth(1).click(); await pause(500);
   r = await radio();
   assert.ok(await page.locator('[data-radio-playlist]').isHidden(), 'Playlist schließt nach Auswahl');
   assert.equal(r.track, 1); assert.equal(r.state, 'playing');
@@ -300,7 +308,7 @@ let server, browser;
   assert.equal(await items.count(), 3, 'Nur die Songs aus dem Ordner, keine Loops');
   const texts = await items.allInnerTexts();
   assert.ok(texts[0].includes('Testsignal Alpha') && !texts.some(t => /Stack Overflow|Ctrl \+ Alt|404/.test(t)), 'Titel aus dem Dateinamen ohne Nummer, keine Loops');
-  await items.nth(0).click(); await pause(1300);
+  await ownPage.locator('.nr-playlist__play').nth(0).click(); await pause(1300);
   let o = await ownState();
   assert.equal(o.state, 'playing', 'Datei spielt');
   assert.match(o.title, /Testsignal Alpha$/);
@@ -312,6 +320,55 @@ let server, browser;
   assert.equal(o.state, 'stopped'); assert.equal(o.time, '00:00', 'Stopp setzt die Datei zurück');
   await own.close();
   console.log('Songs: Playlist ohne Loops, Wiedergabe, Länge und Stopp bestanden');
+
+  /* ---------- Playlist-Editor: Titel per Klick an/aus, wird gemerkt, übersprungen, mindestens einer bleibt aktiv ---------- */
+  const edit = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const ep = await edit.newPage();
+  ep.on('pageerror', e => errors.push(`editor: ${e.message}`));
+  await ep.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
+  const eState = () => ep.evaluate(() => { const r = document.querySelector('[data-nerd-radio]').nerdRadio; return { track: r.track, state: r.state }; });
+  const toggles = ep.locator('.nr-playlist__item');
+  const eKey = n => ep.locator(`[data-radio-${n}]`);
+  await eKey('list').click();
+  assert.deepEqual(await toggles.evaluateAll(l => l.map(e => e.getAttribute('aria-checked'))), ['true', 'true', 'true'], 'Anfangs sind alle Titel aktiv');
+  await toggles.nth(1).click();
+  assert.equal(await toggles.nth(1).getAttribute('aria-checked'), 'false', 'Klick auf den Titel schaltet ihn aus');
+  assert.equal(await ep.locator('.nr-playlist__row').nth(1).getAttribute('data-on'), 'false');
+  assert.equal(await ep.locator('[data-radio-playlist]').isVisible(), true, 'Playlist bleibt zum weiteren Bearbeiten offen');
+  assert.match(await ep.locator('[data-radio-playlist]').getAttribute('aria-label'), /2 von 3 Titeln aktiv/);
+  await eKey('list').click();   // schließen
+  assert.equal((await eState()).track, 0);
+  await eKey('next').click(); await pause(150);
+  assert.equal((await eState()).track, 2, 'Weiter überspringt den abgewählten Titel');
+  await eKey('prev').click(); await pause(150);
+  assert.equal((await eState()).track, 0, 'Zurück überspringt ihn ebenfalls');
+  await ep.locator('.nr-display__track').hover();
+  await ep.mouse.wheel(0, 120); await pause(450);
+  assert.equal((await eState()).track, 2, 'Mausrad überspringt den abgewählten Titel');
+  await eKey('shuffle').click(); await pause(700);
+  assert.equal((await eState()).track, 0, 'Zufall wählt nur unter aktiven Titeln');
+  await eKey('stop').click();
+  // Der Stand bleibt über ein Neuladen erhalten (Gäste: im Browser).
+  await ep.reload({ waitUntil: 'networkidle' });
+  await eKey('list').click();
+  assert.deepEqual(await toggles.evaluateAll(l => l.map(e => e.getAttribute('aria-checked'))), ['true', 'false', 'true'], 'Auswahl bleibt nach dem Neuladen erhalten');
+  // Ein abgewählter Titel lässt sich gezielt abspielen; er wird dabei wieder aktiv.
+  await ep.locator('.nr-playlist__play').nth(1).click(); await pause(600);
+  assert.equal((await eState()).track, 1);
+  assert.equal(await ep.locator('.nr-playlist__row').nth(1).getAttribute('data-on'), 'true', 'Abspielen aktiviert den Titel wieder');
+  await eKey('stop').click();
+  // Nur noch ein aktiver Titel: Abwählen wird verweigert, das Mausrad hat keine Wirkung mehr.
+  await eKey('list').click();
+  await toggles.nth(1).click(); await toggles.nth(2).click();
+  assert.deepEqual(await toggles.evaluateAll(l => l.map(e => e.getAttribute('aria-checked'))), ['true', 'false', 'false']);
+  await toggles.nth(0).click();
+  assert.equal(await toggles.nth(0).getAttribute('aria-checked'), 'true', 'Der letzte aktive Titel bleibt an');
+  assert.match(await ep.locator('[data-radio-status]').textContent(), /Mindestens ein Titel/);
+  await eKey('list').click();
+  assert.equal(await ep.locator('.nr-device').evaluate(e => e.classList.contains('has-wheel')), false, 'Mit nur einem aktiven Titel gibt es kein Mausrad-Symbol');
+  assert.ok(!/^url/.test(await ep.locator('.nr-display__track').evaluate(e => getComputedStyle(e).cursor)), 'Dann bleibt der Mauszeiger normal');
+  await edit.close();
+  console.log('Playlist-Editor: an/aus, überspringen, merken, Mindestens-einer und Mausrad-Symbol bestanden');
 
   assert.deepEqual(errors, [], 'Keine JavaScript-Fehler');
   console.log('NERD FM: Bedienung, Audiodaten, Platzierung und reduzierte Bewegung bestanden');

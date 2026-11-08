@@ -127,6 +127,22 @@ try {
     file_put_contents($jars['anna'],implode("\n",array_filter(explode("\n",$jar),fn($l)=>!str_contains($l,'PHPSESSID'))));
     check((sync_config(http('GET',"/$lern/",'','anna')['body'])['user']??'')==='Anna.Lernt','Nach Browser-Neustart automatisch wieder angemeldet');
 
+    // --- NERD FM: Playlist-Einstellung im Konto (api/radio.php) ---
+    $landing=http('GET','/dau-to-pro/','','anna')['body'];
+    preg_match('/data-radio-api="api\/radio\.php" data-radio-csrf="([a-f0-9]{64})"/',$landing,$rm);
+    check(!empty($rm[1]),'Startseite übergibt dem Radio mit Konto die Speicher-Schnittstelle');
+    check(!str_contains(http('GET','/dau-to-pro/','','none')['body'],'data-radio-api'),'Gäste bekommen keine Speicher-Schnittstelle');
+    $radio=fn(string $who,string $csrf,string $body,array $extra=[])=>http('POST','/dau-to-pro/api/radio.php',$body,$who,array_merge(['Content-Type: application/json','X-DTP-CSRF: '.$csrf],$extra));
+    check($radio('none','x','{"off":[]}')['status']===401,'Radio-API: ohne Konto abgewiesen');
+    check($radio('anna','falsch','{"off":[]}')['status']===403,'Radio-API: falsches CSRF-Token abgewiesen');
+    check($radio('anna',$rm[1]??'','{"off":[]}',['Sec-Fetch-Site: cross-site'])['status']===403,'Radio-API: fremde Websites abgewiesen');
+    check($radio('anna',$rm[1]??'','kaputt')['status']===400 && $radio('anna',$rm[1]??'','{"off":"apipa"}')['status']===400,'Radio-API: ungültige Anfragen abgewiesen');
+    check(http('GET','/dau-to-pro/api/radio.php','','anna')['status']===405,'Radio-API: nur POST');
+    $ok=$radio('anna',$rm[1]??'','{"off":[]}');
+    check($ok['status']===200 && (json_decode($ok['body'],true)['ok']??false)===true,'Radio-API: leere Abwahl wird gespeichert');
+    $deny=$radio('anna',$rm[1]??'','{"off":["apipa"]}');
+    check($deny['status']===422 && str_contains($deny['body'],'Mindestens ein Titel'),'Radio-API: der letzte aktive Titel kann nicht abgewählt werden');
+
     // --- Wiederherstellungscode ---
     $form=http('GET','/dau-to-pro/konto.php?modus=vergessen','','fremd');
     $r=http('POST','/dau-to-pro/konto.php',['action'=>'recover','csrf'=>token($form['body']),'username'=>'Anna.Lernt','code'=>strtolower($code),'password'=>'neues-passwort-1','password2'=>'neues-passwort-1','website'=>'','ft'=>learner_form_token(time()-6)],'fremd');

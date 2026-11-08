@@ -18,6 +18,11 @@ const php=code=>{
 };
 const seed=()=>php(`db()->exec("DELETE FROM html_pages"); $q=db()->prepare("INSERT INTO html_pages(slug,title,description,category,published) VALUES(?,?,?,'lernen',1)"); $q->execute(['osi','OSI-Schichten','Easy OSI']); $q->execute(['subnetsprint','Subnet Sprint','Subnetting, Subnetting, Subnetting...']);`);
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+// Pilz-Effektebene gegen die Soll-Position im Hero-Bild (1770 × 889: x 1353, y 473, 181 × 171) messen.
+const pilzBox=page=>page.evaluate(()=>{
+  const i=document.querySelector('.hero-art-wrap img.hero-logo').getBoundingClientRect(),l=document.querySelector('.hero-art-wrap > .fx-layer').getBoundingClientRect();
+  return {ex:i.left+i.width*1353/1770,ey:i.top+i.height*473/889,ew:i.width*181/1770,eh:i.height*171/889,x:l.left,y:l.top,w:l.width,h:l.height};
+});
 let server,browser;
 (async()=>{
   seed();
@@ -32,11 +37,14 @@ let server,browser;
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
-    assert.equal(await page.locator('.hero-plane').count(),5,'Artwork retains its five fixed layers');
-    assert.equal(await page.locator('[data-hero-depth]').count(),0,'Artwork has no motion depths');
-    assert.equal(await page.locator('.hero-learning-growth').count(),1,'Learning progression has a separate visible graphic');
-    assert.equal(await page.locator('.hero-canvas--clean-people .hero-part-image[src*="people-clean"]').count(),2,'Both character planes use the cleaned cutouts');
-    assert.equal(await page.locator('[data-mushroom-anchor] .fx-layer').count(),1,'Mushroom interaction belongs to its moving plane');
+    assert.equal(await page.locator('.hero-plane').count(),0,'Hero is one finished artwork, not stacked layers');
+    const hero=await page.locator('.hero-art-wrap[data-scene=flat] img.hero-logo').evaluate(e=>({src:e.currentSrc,loaded:e.complete&&e.naturalWidth>0,right:e.getBoundingClientRect().right,left:e.getBoundingClientRect().left,view:document.documentElement.clientWidth}));
+    assert.match(hero.src,/dau-to-pro-hero-v2-(885|1770)\.webp/,'Hero uses the new artwork');
+    assert.ok(hero.loaded,'Hero artwork loads');
+    assert.ok(hero.left>=0&&hero.right<=hero.view+0.5,`Hero artwork stays inside the window (${hero.left}..${hero.right} of ${hero.view})`);
+    assert.equal(await page.locator('.hero-art-wrap > .fx-layer').count(),1,'Mushroom interaction sits over the artwork');
+    const pilz=await pilzBox(page);
+    for(const axis of ['x','y','w','h'])assert.ok(Math.abs(pilz[axis]-pilz['e'+axis])<1.5,`Mushroom layer matches the artwork position (${axis})`);
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .secondary-action').getBoundingClientRect();
       const grid=getComputedStyle(document.querySelector('.module-grid'));
@@ -82,18 +90,14 @@ let server,browser;
   await page.evaluate(()=>scrollTo(0,300));await pause(150);
   assert.notEqual(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Background parallax runs');
   assert.equal(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Hero stays fixed while scrolling');
-  const shifts=await page.locator('.hero-plane').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate));
-  assert.ok(shifts.length===5 && shifts.every(t=>t==='none'),'All hero layers stay fixed');
   await page.locator('.hero-visual').hover();await pause(300);
-  const anchorBox=await page.locator('[data-mushroom-anchor]').boundingBox();
-  const layerBox=await page.locator('[data-mushroom-anchor] .fx-layer').boundingBox();
-  for(const axis of ['x','y','width','height'])assert.ok(Math.abs(anchorBox[axis]-layerBox[axis])<1,'Pilz stays aligned after scroll and pointer motion');
+  const moved=await pilzBox(page);
+  for(const axis of ['x','y','w','h'])assert.ok(Math.abs(moved[axis]-moved['e'+axis])<1.5,'Pilz stays aligned after scroll and pointer motion');
   await page.evaluate(()=>scrollTo(0,document.documentElement.scrollHeight));await pause(150);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight),originalHeight,'Effects do not extend the document');
   await page.emulateMedia({reducedMotion:'reduce'});await pause(100);
   assert.equal(await page.locator('.hero-art-wrap').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the artwork');
   assert.equal(await page.locator('.dtp-world-texture').evaluate(e=>getComputedStyle(e).translate),'none','Reduced motion stops the backdrop');
-  assert.ok((await page.locator('.hero-plane').evaluateAll(elements=>elements.map(e=>getComputedStyle(e).translate))).every(t=>t==='none'),'Reduced motion also stops individual planes');
   await page.goto(base+'/dau-to-pro/#hinweis');
   assert.ok(await page.locator('.disclaimer-shell').evaluate(e=>e.open),'Footer deep link opens full notice');
   await page.locator('.disclaimer-shell summary').click();
