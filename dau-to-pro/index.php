@@ -107,7 +107,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <div class="nr-stage__inner">
       <div class="nr-rail">
         <div class="nr-pin">
-          <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>">
+          <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>"<?php if($learnerRow && $nrSub===''): ?> data-radio-api="api/radio.php" data-radio-csrf="<?=e(csrf())?>"<?php endif; ?>>
             <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
             <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
             <div class="nr-face" data-radio-face>

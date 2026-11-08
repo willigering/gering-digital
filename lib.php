@@ -48,6 +48,8 @@ function db(){
     $db->exec("CREATE TABLE IF NOT EXISTS learner_attempts(id INTEGER PRIMARY KEY, bucket TEXT NOT NULL, created_at INTEGER NOT NULL)");
     $db->exec("CREATE INDEX IF NOT EXISTS learner_attempts_bucket ON learner_attempts(bucket,created_at)");
     $db->exec("CREATE INDEX IF NOT EXISTS learner_progress_module ON learner_progress(learner_id,module_slug)");
+    // Persönliche Einstellungen eines Lernkontos (z. B. abgewählte NERD-FM-Titel). Neue Tabelle, bestehende Daten bleiben unverändert.
+    $db->exec("CREATE TABLE IF NOT EXISTS learner_prefs(learner_id INTEGER NOT NULL REFERENCES learners(id) ON DELETE CASCADE, pref_key TEXT NOT NULL, value TEXT NOT NULL DEFAULT '', updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(learner_id,pref_key))");
     // DAU TO PRO Achievements, XP/Level und Highscore (Opt-in). Neue Tabellen, bestehende Daten bleiben unverändert.
     $db->exec("CREATE TABLE IF NOT EXISTS learner_achievements(learner_id INTEGER NOT NULL REFERENCES learners(id) ON DELETE CASCADE, code TEXT NOT NULL, unlocked_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY(learner_id,code))");
     $db->exec("CREATE TABLE IF NOT EXISTS learner_stats(learner_id INTEGER PRIMARY KEY REFERENCES learners(id) ON DELETE CASCADE, xp INTEGER NOT NULL DEFAULT 0, level INTEGER NOT NULL DEFAULT 1, achievements INTEGER NOT NULL DEFAULT 0, best TEXT NOT NULL DEFAULT '{}', days INTEGER NOT NULL DEFAULT 0, last_day TEXT NOT NULL DEFAULT '', highscore_visible INTEGER NOT NULL DEFAULT 0, highscore_blocked INTEGER NOT NULL DEFAULT 0, xp_changed_at TEXT, updated_at TEXT)");

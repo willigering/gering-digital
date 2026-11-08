@@ -401,7 +401,17 @@ function learner_export(array $learner): array {
     $entries=[];
     foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row) $entries[]=['modul'=>$row['module_slug'],'schluessel'=>$row['storage_key'],'wert'=>$row['value'],'geaendert_utc'=>$row['updated_at']];
     return ['format'=>'dau-to-pro-lernkonto/1','exportiert_utc'=>learner_now(),'benutzername'=>$learner['username'],
-        'konto_erstellt_utc'=>$learner['created_at'],'letzte_anmeldung_utc'=>$learner['last_login_at'],'fortschritt'=>$entries];
+        'konto_erstellt_utc'=>$learner['created_at'],'letzte_anmeldung_utc'=>$learner['last_login_at'],'fortschritt'=>$entries,
+        'einstellungen'=>learner_prefs_export((int)$learner['id'])];
+}
+
+/** Persönliche Einstellungen für den Datenexport (Schlüssel => Wert). */
+function learner_prefs_export(int $learnerId): array {
+    $q=db()->prepare('SELECT pref_key,value FROM learner_prefs WHERE learner_id=? ORDER BY pref_key');
+    $q->execute([$learnerId]);
+    $out=[];
+    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row) $out[$row['pref_key']]=json_decode($row['value'],true)??$row['value'];
+    return $out;
 }
 
 // ---------------------------------------------------------------- Einbindung in Lernmodule

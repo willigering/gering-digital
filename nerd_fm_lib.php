@@ -61,15 +61,46 @@ function nfm_rate_hit(string $sessionId,?int $now=null): bool {
     return true;
 }
 
-/** Playlist für das Radio: nur verfügbare Songs, jeweils mit eigenem Abruf-Link. */
+const NFM_PREF_KEY='nfm.off';   // Konto-Einstellung: Song-IDs, die in der eigenen Playlist abgewählt sind (JSON-Liste)
+
+/** Abgewählte Songs eines Lernkontos (nur IDs, die es im Katalog gibt; Gäste: leer). */
+function nfm_off_ids(?array $learner): array {
+    if (!$learner) return [];
+    try {
+        $q=db()->prepare('SELECT value FROM learner_prefs WHERE learner_id=? AND pref_key=?');
+        $q->execute([(int)$learner['id'],NFM_PREF_KEY]);
+        $list=json_decode((string)$q->fetchColumn(),true);
+    } catch (Throwable $error) { error_log('NERD FM: '.$error->getMessage()); return []; }
+    return is_array($list)?array_values(array_intersect(array_keys(nfm_songs()),array_filter($list,'is_string'))):[];
+}
+
+/**
+ * Speichert die abgewählten Songs. Erlaubt sind nur Songs, die dem Konto zur Verfügung stehen;
+ * mindestens ein verfügbarer Song muss aktiv bleiben. Gibt die gespeicherte Liste zurück.
+ */
+function nfm_save_off(array $learner,array $ids): array {
+    $available=[];
+    $codes=nfm_unlocked_codes($learner);
+    foreach (nfm_songs() as $id=>$song) if (nfm_is_available($song,$codes) && is_file(nfm_dir().'/'.$song['file'])) $available[]=$id;
+    $off=array_values(array_intersect($available,array_filter($ids,'is_string')));
+    if ($available && !array_diff($available,$off)) throw new LearnerError('Mindestens ein Titel muss aktiv bleiben.');
+    db()->prepare('INSERT INTO learner_prefs(learner_id,pref_key,value,updated_at) VALUES(?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(learner_id,pref_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP')
+        ->execute([(int)$learner['id'],NFM_PREF_KEY,json_encode($off)]);
+    return $off;
+}
+
+/** Playlist für das Radio: nur verfügbare Songs, jeweils mit eigenem Abruf-Link und Stand „aktiv“ (aus dem Konto). */
 function nfm_tracks(?array $learner): array {
     $codes=nfm_unlocked_codes($learner);
+    $off=nfm_off_ids($learner);
     $lid=$learner?(int)$learner['id']:0;
     $tracks=[];
     foreach (nfm_songs() as $id=>$song) {
         if (!nfm_is_available($song,$codes) || !is_file(nfm_dir().'/'.$song['file'])) continue;
-        $tracks[]=['src'=>nfm_link($id,$lid,session_id()),'title'=>$song['title'],'genre'=>'MP3'];
+        $tracks[]=['id'=>$id,'src'=>nfm_link($id,$lid,session_id()),'title'=>$song['title'],'genre'=>'MP3','on'=>!in_array($id,$off,true)];
     }
+    // Sind (z. B. nach einer Freischaltung auf anderem Weg) alle abgewählt, bleibt die Playlist nicht stumm.
+    if ($tracks && !array_filter($tracks,fn($t)=>$t['on'])) $tracks[0]['on']=true;
     return $tracks;
 }
 

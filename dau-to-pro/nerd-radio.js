@@ -40,11 +40,21 @@
   try { files = JSON.parse(root.dataset.tracks || '[]'); } catch (_) { files = []; }
   const tracks = [
     ...(Array.isArray(files) ? files : []).filter(f => f && typeof f.src === 'string')
-      .map(f => ({ kind: 'file', src: f.src, title: String(f.title || 'Titel'), genre: String(f.genre || '') })),
+      .map(f => ({ kind: 'file', id: String(f.id || f.src), src: f.src, title: String(f.title || 'Titel'), genre: String(f.genre || ''), on: f.on !== false })),
     ...[]
   ];
   // Die generierten Loops sind nur noch Ersatz, falls der Musikordner leer ist.
   if (!tracks.length) tracks.push(...loops);
+  tracks.forEach((t, i) => { if (!t.id) t.id = 'loop-' + i; if (t.on === undefined) t.on = true; });
+  // Playlist-Editor: angemeldet speichert das Lernkonto die abgewählten Titel (api), Gäste merken sie sich im Browser.
+  const prefApi = root.dataset.radioApi || '', prefCsrf = root.dataset.radioCsrf || '';
+  if (!prefApi) {
+    try {
+      const off = JSON.parse(localStorage.getItem('dtp-nerd-radio-off') || '[]');
+      if (Array.isArray(off)) tracks.forEach(t => { t.on = !off.includes(t.id); });
+    } catch (_) { /* privater Modus */ }
+  }
+  if (tracks.length && !tracks.some(t => t.on)) tracks[0].on = true;   // eine leere Playlist gibt es nicht
 
   const $ = selector => root.querySelector(selector);
   const ui = {
@@ -78,6 +88,16 @@
     if (v !== null && Number.isFinite(Number(v)) && Number(v) >= 0 && Number(v) <= 1) volume = Number(v);
     if (localStorage.getItem('dtp-nerd-radio-mode') === 'wave') mode = 'wave';
   } catch (_) { /* privater Modus */ }
+  // Nächster aktiver Titel in Richtung dir (+1/-1), zyklisch; ohne weiteren aktiven Titel bleibt es beim aktuellen.
+  const neighbor = (from, dir) => {
+    for (let k = 1; k <= tracks.length; k++) {
+      const i = ((from + dir * k) % tracks.length + tracks.length) % tracks.length;
+      if (tracks[i].on) return i;
+    }
+    return from;
+  };
+  const activeCount = () => tracks.filter(t => t.on).length;
+  if (!tracks[selected].on) selected = neighbor(selected, 1);
   const save = () => {
     try {
       localStorage.setItem('dtp-nerd-radio-track', String(selected));
@@ -172,7 +192,7 @@
       media = new Audio();
       media.preload = 'none';
       ctx.createMediaElementSource(media).connect(bus);
-      media.addEventListener('ended', () => choose(selected + 1, true));
+      media.addEventListener('ended', () => choose(neighbor(selected, 1), true));
       media.addEventListener('loadedmetadata', render);
       media.addEventListener('error', () => {
         if (!media.getAttribute('src')) return;
@@ -600,42 +620,107 @@
     if (open) ui.trackList.children[selected].firstElementChild.focus();
   }
 
-  /* ---------- Playlist aufbauen ---------- */
-  ui.playlist.setAttribute('aria-label', `Playlist, ${tracks.length} Titel`);
+  /* ---------- Playlist aufbauen (Editor: Klick auf den Titel schaltet ihn an/aus, die Nummer spielt ihn ab) ---------- */
+  const rows = [];
+  // has-wheel: nur mit mindestens zwei aktiven Titeln hat das Mausrad über dem Titel eine Wirkung (und der Mauszeiger das Symbol).
+  const labelPlaylist = () => {
+    ui.playlist.setAttribute('aria-label', `Playlist, ${activeCount()} von ${tracks.length} Titeln aktiv`);
+    root.classList.toggle('has-wheel', activeCount() > 1);
+  };
+  const paintRow = i => {
+    const t = tracks[i], row = rows[i];
+    row.li.dataset.on = String(t.on);
+    row.toggle.setAttribute('aria-checked', String(t.on));
+    row.toggle.setAttribute('aria-label', `${t.title}: ${t.on ? 'aktiv' : 'aus'}. Klicken zum ${t.on ? 'Deaktivieren' : 'Aktivieren'}`);
+    row.toggle.title = t.on ? 'Klicken: Titel aus der Playlist nehmen' : 'Klicken: Titel wieder aktivieren';
+  };
+  labelPlaylist();
   tracks.forEach((t, i) => {
     const li = document.createElement('li');
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'nr-playlist__item';
-    b.innerHTML = `<b>${two(i + 1)}</b><span></span><small></small>`;
-    b.children[1].textContent = t.title;
-    b.children[2].textContent = t.bpm ? `${t.bpm} BPM` : (t.genre || '');
-    if (t.genre) b.title = t.genre;
-    b.addEventListener('click', () => { openList(false); ui.list.focus(); choose(i, true); });
-    li.append(b);
+    li.className = 'nr-playlist__row';
+    const play = document.createElement('button');
+    play.type = 'button';
+    play.className = 'nr-playlist__play';
+    play.textContent = two(i + 1);
+    play.setAttribute('aria-label', `Titel ${two(i + 1)} abspielen`);
+    play.title = 'Abspielen';
+    play.addEventListener('click', () => {
+      if (!t.on) setOn(i, true);
+      openList(false); ui.list.focus(); choose(i, true);
+    });
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'nr-playlist__item';
+    toggle.setAttribute('role', 'switch');
+    toggle.innerHTML = '<span></span><small></small><i class="nr-playlist__check" aria-hidden="true"></i>';
+    toggle.children[0].textContent = t.title;
+    toggle.children[1].textContent = t.bpm ? `${t.bpm} BPM` : (t.genre || '');
+    toggle.addEventListener('click', () => setOn(i, !t.on));
+    li.append(play, toggle);
     ui.trackList.append(li);
+    rows.push({ li, play, toggle });
+    paintRow(i);
   });
+
+  let saving = Promise.resolve();
+  function persist() {
+    const off = tracks.filter(t => !t.on).map(t => t.id);
+    if (!prefApi) {
+      try { localStorage.setItem('dtp-nerd-radio-off', JSON.stringify(off)); } catch (_) { /* nur diese Sitzung */ }
+      return Promise.resolve(true);
+    }
+    // Speichern nacheinander, damit der zuletzt gewählte Stand im Konto landet.
+    saving = saving.then(() => fetch(prefApi, {
+      method: 'POST', credentials: 'same-origin', cache: 'no-store',
+      headers: { 'Content-Type': 'application/json', 'X-DTP-CSRF': prefCsrf }, body: JSON.stringify({ off })
+    }).then(async r => {
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.ok) throw new Error(j.error || 'Die Playlist konnte nicht gespeichert werden.');
+      return true;
+    })).catch(error => { ui.status.textContent = error.message; return false; });
+    return saving;
+  }
+  async function setOn(i, on) {
+    const t = tracks[i];
+    if (t.on === on) return;
+    if (!on && activeCount() < 2) {
+      ui.status.textContent = 'Mindestens ein Titel muss aktiv bleiben.';
+      rows[i].li.classList.remove('is-denied'); void rows[i].li.offsetWidth; rows[i].li.classList.add('is-denied');
+      return;
+    }
+    t.on = on; paintRow(i); labelPlaylist();
+    ui.status.textContent = on ? `${t.title} ist wieder in der Playlist.` : `${t.title} ist aus der Playlist genommen.`;
+    // Der gerade gewählte Titel wird im Stopp gleich durch den nächsten aktiven ersetzt; laufende Titel spielen zu Ende.
+    if (!on && i === selected && state !== 'playing') choose(neighbor(selected, 1), false);
+    if (!await persist()) {   // Konto hat abgelehnt: Anzeige zurücksetzen
+      t.on = !on; paintRow(i); labelPlaylist();
+    }
+  }
 
   /* ---------- Bedienung ---------- */
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
-  ui.prev.addEventListener('click', () => choose(selected - 1));
-  ui.next.addEventListener('click', () => choose(selected + 1));
+  ui.prev.addEventListener('click', () => choose(neighbor(selected, -1)));
+  ui.next.addEventListener('click', () => choose(neighbor(selected, 1)));
   ui.shuffle.addEventListener('click', () => {
     shuffleFlash = performance.now() + 900;
-    choose(selected + 1 + Math.floor(Math.random() * (tracks.length - 1)), true);
+    const others = tracks.map((t, i) => i).filter(i => tracks[i].on && i !== selected);
+    choose(others.length ? others[Math.floor(Math.random() * others.length)] : selected, true);
   });
   ui.mode.addEventListener('click', () => { setMode(mode === 'wave' ? 'spectrum' : 'wave'); save(); });
-  // Mausrad über dem Gerät schaltet den Sender um (nur wenn es mehr als einen Song gibt; sonst scrollt die Seite normal).
+  // Mausrad schaltet den Titel nur um, wenn der Mauszeiger direkt auf der Titelzeile steht (dort zeigt er ein Mausrad-Symbol);
+  // überall sonst scrollt die Seite normal. Gewechselt wird nur zwischen aktiven Titeln.
+  const titleRow = ui.title.closest('.nr-display__track') || ui.title.parentElement;
+  titleRow.title = 'Mausrad: Titel wechseln';
   let wheelAt = 0;
-  root.addEventListener('wheel', e => {
-    if (tracks.length < 2 || Math.abs(e.deltaY) < 4 || e.ctrlKey) return;
+  titleRow.addEventListener('wheel', e => {
+    if (activeCount() < 2 || Math.abs(e.deltaY) < 4 || e.ctrlKey) return;
     e.preventDefault();
     const now = performance.now();
     if (now - wheelAt < 350) return;
     wheelAt = now;
-    choose(selected + (e.deltaY > 0 ? 1 : -1), state === 'playing');
+    choose(neighbor(selected, e.deltaY > 0 ? 1 : -1), state === 'playing');
   }, { passive: false });
   ui.list.addEventListener('click', () => openList(ui.playlist.hidden));
   const onVolume = () => { setVolume(Number(ui.volume.value) / 100); save(); };
