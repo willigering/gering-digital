@@ -57,7 +57,7 @@
   }
   function destroyStack(){
     if(!stacked)return;
-    cards.forEach(c=>board.append(c));
+    cards.forEach(c=>{c.inert=false;board.append(c)});
     stage?.remove();stage=null;rows=[];stacked=false;shown=null;lastRow=-1;
     board.classList.remove("is-stacked");board.style.height="";
     cancelAnimationFrame(frame);frame=0;
@@ -95,7 +95,7 @@
       r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.03-waiting*.008).toFixed(3)+')';
       r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
       r.style.visibility="visible";
-      r.style.opacity=String(d<0?.63+.37*near:1);
+      r.style.opacity=String(d<0 ? .63+.37*near : 1);
       r.classList.toggle("is-front",k===frontIndex);
       r.classList.toggle("is-behind",d>=.52);
       r.classList.toggle("is-waiting",d<-.52);
