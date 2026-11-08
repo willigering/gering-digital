@@ -3,65 +3,62 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="88 kompakte IHK-orientierte Spickzettel für Fachinformatiker: Zahlensysteme, OSI, Subnetting, IPv6, Dienste, Sicherheit, DSGVO, Kalkulation, C# und mehr.">
+<meta name="description" content="Elf eigenständige IHK-orientierte Spickzettel zu Zahlensystemen, OSI, Subnetting, IPv6, Sicherheit, Kalkulation und weiteren Fachinformatiker-Themen.">
 <meta name="theme-color" content="#080c11">
-<title>Spickzettel-Deck · DAU TO PRO</title>
+<title>Spickzettel · DAU TO PRO</title>
 <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg">
-<link rel="stylesheet" href="cheat-sheet.css?v=20261108-1">
-<script src="cheat-sheet-data.js?v=20261108-1" defer></script>
-<script src="cheat-sheet.js?v=20261108-2" defer></script>
+<link rel="stylesheet" href="cheat-sheet.css?v=20261108-3">
+<script src="cheat-sheet-data.js?v=20261108-3" defer></script>
+<script src="cheat-sheet.js?v=20261108-3" defer></script>
 </head>
 <body>
 <header class="topbar">
   <div class="wrap">
     <div class="topline">
-      <a class="back" href="./#cheat-sheets" aria-label="Zurück zur DAU-TO-PRO-Startseite">← ZURÜCK ZU DAU TO PRO</a>
-      <span class="brand">DAU TO PRO <b>/ POCKET DECK</b></span>
-      <span class="bar-meta">IHK-FOKUS // V 1.0</span>
+      <a class="back" href="./#cheat-sheets">← ZURÜCK ZU DAU TO PRO</a>
+      <span class="brand">DAU TO PRO <b>/ POCKET GUIDES</b></span>
+      <span class="bar-meta">IHK-FOKUS // V 2.0</span>
     </div>
-    <div class="toolbar" aria-label="Spickzettel filtern">
-      <nav class="filters" id="sheet-filters" aria-label="Themenfilter"></nav>
+    <div class="toolbar">
+      <span class="top-count">11 THEMEN-SPICKZETTEL</span>
       <label class="search">
-        <span style="position:absolute;width:1px;height:1px;clip:rect(0 0 0 0);overflow:hidden">Spickzettel durchsuchen</span>
-        <input type="search" id="sheet-search" placeholder="Thema oder Begriff suchen …" autocomplete="off" aria-controls="sheet-board">
+        <span style="position:absolute;width:1px;height:1px;clip:rect(0 0 0 0);overflow:hidden">Themen durchsuchen</span>
+        <input type="search" id="sheet-search" placeholder="Themen durchsuchen …" autocomplete="off" aria-controls="sheet-board">
       </label>
     </div>
   </div>
 </header>
-
 <section class="hero" aria-labelledby="page-title">
-  <div class="wrap hero-copy">
-    <span class="eyebrow">WISSEN KOMPRIMIERT // PRÜFUNG IM VISIER</span>
-    <h1 id="page-title">KLEINE KARTEN.<br><em>GROSSE AHNUNG.</em></h1>
-    <p class="lead">Das DAU-TO-PRO-Spickzettel-Deck: kein 40-seitiges Nachschlagwerk, sondern genau das, was du kurz vor einer Aufgabe wissen solltest. Merksatz, Fakten, Prüfungsfrage und Denkfalle – alles auf einer Karte.</p>
+  <div class="wrap">
+    <span class="eyebrow">PRÜFUNGSWISSEN // OHNE BLABLABLA</span>
+    <h1 id="page-title">ELF THEMEN.<br><em>ELF SPICKZETTEL.</em></h1>
+    <p class="lead">Jedes Fachthema bekommt genau ein eigenes Wissensblatt: die wichtigsten Zusammenhänge, Rechenwege, typischen IHK-Fragestellungen und Denkfallen. Auswählen, durchlesen, merken.</p>
     <div class="hero-stats">
-      <span><b data-cheat-total>88</b> SPICKZETTEL</span>
-      <span><b data-cheat-groups>11</b> THEMENWELTEN</span>
-      <span><b>5</b> KARTEN PRO REIHE (DESKTOP)</span>
+      <span><b data-cheat-total>11</b> SPICKZETTEL</span>
+      <span><b data-cheat-groups>11</b> THEMEN</span>
+      <span><b>5</b> PRO REIHE AM PC</span>
     </div>
-    <p class="hero-note">IHK-orientierte Lernhilfen, keine offiziellen Prüfungsfragen. Die Themenwahl ist eine Lernempfehlung, keine Prognose. Auf dem Schreibtisch erlaubt – in der Prüfung nur, wenn die Prüfungsregeln es ausdrücklich zulassen.</p>
+    <p class="hero-note">IHK-orientierte Lernhilfen, keine offiziellen Prüfungsaufgaben. Auf dem Klausurtisch nur, wenn es die Prüfungsregeln erlauben.</p>
   </div>
 </section>
-
 <main class="wrap" id="karten">
-  <div class="board-intro">
-    <div>
-      <h2>DEIN <span>SPICKZETTEL-DECK</span></h2>
-      <p>Alles offen, nichts ausklappen. Runterscrollen, merken, weitermachen.</p>
+  <div class="board-intro" id="board-intro">
+    <div><h2>DEINE <span>SPICKZETTEL</span></h2>
+      <p>Fünf kleine Themenkarten pro Reihe. Jede öffnet einen vollständigen Spickzettel – keine Unterkarten, kein Ausklappen.</p>
     </div>
     <div class="board-readout">
-      <span id="sheet-count" aria-live="polite">88 / 88 KARTEN</span>
-      <span id="stack-progress" aria-label="Aktive Kartenreihe" hidden></span>
+      <span id="sheet-count" aria-live="polite">11 / 11 THEMEN</span>
+      <span id="stack-progress" hidden></span>
     </div>
   </div>
-  <div class="board" id="sheet-board" aria-label="Spickzettel"></div>
-  <p class="empty" id="sheet-empty" hidden>Hier ist nichts zu finden. Versuch einen anderen Suchbegriff – das Wissen hat sich nicht versteckt.</p>
-  <noscript><p class="empty">Für die filterbaren Spickzettel muss JavaScript aktiviert sein.</p></noscript>
+  <div class="board" id="sheet-board" aria-label="Die elf Themen-Spickzettel"></div>
+  <p class="empty" id="sheet-empty" hidden>Zu deinem Suchbegriff ist kein Thema zu finden.</p>
+  <section class="detail" id="sheet-detail" aria-label="Vollständiger Themen-Spickzettel" hidden></section>
+  <noscript><p class="empty">Zum Anzeigen der Themen-Spickzettel ist JavaScript erforderlich.</p></noscript>
 </main>
-
 <footer class="bottom"><div class="wrap">
-  <span>DAU TO PRO <b>POCKET DECK</b> · Wissen zum Wiederholen, nicht zum Vorsagen.</span>
-  <span>Fachlich kompakt. Nicht offiziell. Kontrolle ist besser als Vertrauen.</span>
+  <span>DAU TO PRO <b>POCKET GUIDES</b> · Ein Spickzettel pro Fachthema.</span>
+  <span>Nicht offiziell. Fachliche Inhalte vor der Prüfung selbst kontrollieren.</span>
 </div></footer>
 </body>
 </html>
