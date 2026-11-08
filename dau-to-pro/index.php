@@ -66,8 +66,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
-<?php if(!$hero['custom']): ?>  <link rel="stylesheet" href="hero-scene.css?v=<?=filemtime(__DIR__.'/hero-scene.css')?>">
-<?php endif; ?>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
   <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
@@ -98,7 +96,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <div class="hero-meta"><span><b><?=count($modules)?></b> <?=count($modules)===1?'Lernmodul':'Lernmodule'?></span><?php foreach([$c['meta_1'],$c['meta_2']] as $meta): if($meta==='')continue; ?><span><?=e($meta)?></span><?php endforeach; ?></div>
       </div>
       <div class="hero-visual">
-        <div class="hero-art-wrap"<?php if(!$hero['custom']): ?> data-scene="layers"<?php endif; ?> style="<?=e(dtp_hero_style($hero))?>"<?=$fx?>><?=dtp_hero_scene($hero,$c['hero_alt'])?></div>
+        <div class="hero-art-wrap"<?php if(!$hero['custom']): ?> data-scene="flat"<?php endif; ?> style="<?=e(dtp_hero_style($hero))?>"<?=$fx?>><?=dtp_hero_scene($hero,$c['hero_alt'])?></div>
       </div>
     </div>
   </section>

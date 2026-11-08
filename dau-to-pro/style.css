@@ -89,6 +89,20 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse,#4ccddc12,transparent 65%);pointer-events:none}
 .hero-art-wrap{position:relative;display:flow-root;width:100%;margin:0;pointer-events:none}
 .hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain}
+/* Standard-Hero: fertige Grafik, die Ränder laufen weich in den Seitenhintergrund aus. */
+.hero-art-wrap[data-scene=flat] .hero-logo{user-select:none;-webkit-user-drag:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);mask-composite:intersect}
+@media(min-width:861px){
+  .hero-visual{align-self:stretch;align-content:center}
+  /* Die Grafik ragt nach links und rechts in den Seitenrand, bleibt aber immer im Fenster (--hero-pad = Randbreite). */
+  .hero-art-wrap[data-scene=flat]{--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
+  .hero-copy .hero-lead{max-width:min(100%,390px);text-wrap:pretty;hyphens:auto}
+}
+@media(min-width:861px) and (max-width:1060px){
+  .hero-art-wrap[data-scene=flat]{width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
+  .hero-copy .hero-lead{max-width:min(100%,340px)}
+}
 .eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}
 /* Der Katalog passt seine Spalten an tatsächlich sichtbare Module an. */
 .catalog-section{padding:52px 0 60px}
