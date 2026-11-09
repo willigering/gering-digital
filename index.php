@@ -128,8 +128,9 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       </div>
       <div class="gdv3-gold-rule" aria-hidden="true"></div>
       <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
+        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle Projekte <span><?=count($apps)+1?></span></button>
         <?php foreach($categories as $key=>$label): ?>
-        <button type="button" class="catalog-filter<?=$key===array_key_first($categories)?' is-active':''?>" data-category="<?=e($key)?>" aria-pressed="<?=$key===array_key_first($categories)?'true':'false'?>"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
+        <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
         <?php endforeach; ?>
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
