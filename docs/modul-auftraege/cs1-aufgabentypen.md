@@ -2,14 +2,14 @@
 
 | ID | Name | Form | Teilthema | Stufe |
 | --- | --- | --- | --- | --- |
-| `w_begriff` | Grundbegriffe zuordnen | mc | Was ist Programmieren? | 1 |
-| `w_eva` | EVA erkennen | set | Was ist Programmieren? | 1 |
-| `w_algo` | Algorithmus sortieren | order | Was ist Programmieren? | 1 |
-| `w_name` | Fachbegriff nennen | word | Was ist Programmieren? | 1 |
-| `w_sprache` | Programmiersprache erkennen | set | Was ist Programmieren? | 1 |
-| `w_genau` | Der Computer denkt nicht mit | mc | Was ist Programmieren? | 1 |
-| `w_frei` | EVA erklären | free | Was ist Programmieren? | 1 |
-| `w_html` | HTML ist keine Programmiersprache | mc | Was ist Programmieren? | 1 |
+| `w_begriff` | Grundbegriffe zuordnen | mc | Was ist ein Programm? | 1 |
+| `w_eva` | EVA erkennen | set | Was ist ein Programm? | 1 |
+| `w_algo` | Algorithmus sortieren | order | Was ist ein Programm? | 1 |
+| `w_name` | Fachbegriff nennen | word | Was ist ein Programm? | 1 |
+| `w_sprache` | Programmiersprache erkennen | set | Was ist ein Programm? | 1 |
+| `w_genau` | Der Computer denkt nicht mit | mc | Was ist ein Programm? | 1 |
+| `w_frei` | EVA erklären | free | Was ist ein Programm? | 1 |
+| `w_html` | HTML ist keine Programmiersprache | mc | Was ist ein Programm? | 1 |
 | `u_wer` | Compiler oder Interpreter | mc | Compiler, Interpreter und .NET | 2 |
 | `u_eigen` | Eigenschaften zuordnen | set | Compiler, Interpreter und .NET | 2 |
 | `u_weg` | Weg des C#-Programms | order | Compiler, Interpreter und .NET | 2 |

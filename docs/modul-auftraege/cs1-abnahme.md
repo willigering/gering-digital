@@ -8,7 +8,7 @@ Wie bisher führt das Modul keinen Nutzercode aus. Eigener Code entsteht lokal m
 
 | Stufe | Kapitel | Typen | Formen |
 | --- | --- | --- | --- |
-| 1 | Was ist Programmieren? | 8 | mc, set, order, word, free |
+| 1 | Was ist ein Programm? | 8 | mc, set, order, word, free |
 | 2 | Compiler, Interpreter und .NET | 8 | mc, set, order, word, free |
 | 3 | Aufbau eines C#-Programms | 8 | out, fix, gap, order, mc, set |
 | 4 | Datentypen | 8 | mc, word, set, out, fix |

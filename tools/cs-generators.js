@@ -39,7 +39,62 @@ const NAME=['SW-01','RT-07','FW-02','NAS-3','PC-42','AP-11'];
 const pre='Was gibt dieses Programm aus?',simple='Lies den Code von oben nach unten und schreib auf, was im Terminal steht.';
 
 const FORMS={mc:'mc',out:'out',fix:'code',gap:'code',write:'code',order:'order',set:'set',word:'text',free:'free'};
-function S(cat,id,form,f){const stage=LESSONS.findIndex(c=>c.cat===cat);if(stage<0)throw new Error('Kategorie fehlt: '+cat);const type=LESSONS[stage].types.find(t=>t[0]===id);if(!type)throw new Error('Typ fehlt im Inhalt: '+id);if(!FORMS[form])throw new Error('Form fehlt: '+form);SUBS.push({id,cat,label:type[1],form,min:stage+1,f:lv=>{const t=f(lv);t.form=form;return t}});}
+function S(cat,id,form,f){const stage=LESSONS.findIndex(c=>c.cat===cat);if(stage<0)throw new Error('Kategorie fehlt: '+cat);const type=LESSONS[stage].types.find(t=>t[0]===id);if(!type)throw new Error('Typ fehlt im Inhalt: '+id);if(!FORMS[form])throw new Error('Form fehlt: '+form);SUBS.push({id,cat,label:type[1],form,min:stage+1,f:lv=>{const t=withHumor(id,f(lv));t.form=form;return t}});}
+
+/* Szenen mit Pointe für den Aufgabeneinstieg. Zufällig gewählt, damit sich nichts abnutzt.
+   pre: wird vor den sachlichen Einstieg gesetzt. set: ersetzt einen Einstiegssatz ohne Fachinformation. */
+const HUMOR={
+ w_begriff:{m:'pre',l:['Montag, 8:02 Uhr. Der Kaffee läuft noch, die Fachbegriffe schon.','Aus dem Projekt-Glossar, das jemand angefangen und niemand fertiggeschrieben hat.','Der Ausbilder fragt beiläufig. Beiläufig ist bei Ausbildern nie beiläufig.']},
+ w_eva:{m:'pre',l:['Fast jede Software ist im Kern EVA. Auch die, die sich für eine KI hält.','Ob Kantinenkasse oder Kraftwerk: rein, rechnen, raus.']},
+ w_algo:{m:'pre',l:['Die Schritte stimmen alle. Nur hat sie jemand in den Mixer geworfen.','Ein Algorithmus ist nur so gut wie seine Reihenfolge. Frag jeden, der schon mal die Socken über die Schuhe gezogen hat.']},
+ w_name:{m:'pre',l:['Bullshit-Bingo im Meeting, aber diesmal mit Begriffen, die wirklich etwas bedeuten.','Die Frage kommt garantiert in der Prüfung. Und vorher noch dreimal im Betrieb.']},
+ w_sprache:{m:'set',l:['Ein Bewerber listet seine „Programmiersprachen“ auf. Direkt darunter steht: „Word (fließend)“.','Im Profil steht „Fullstack-Entwickler“. Darunter diese Liste.']},
+ w_frei:{m:'set',l:['Erklär es so, dass es auch der Kollege aus dem Vertrieb versteht. Ohne Folien.','Kurz und in eigenen Worten. Wer „siehe Wikipedia“ schreibt, bringt morgen Kuchen mit.','Ein Satz reicht. Den liest ausnahmsweise nicht der Compiler.']},
+ u_wer:{m:'pre',l:['Kleiner Krimi in einem Absatz. Wer war es?','Die ewige Frage der Übersetzerbranche.']},
+ u_eigen:{m:'set',l:['Jemand hat die Notizen zu Compiler und Interpreter auf denselben Zettel geschrieben. Jetzt ist alles durcheinander.','Speeddating der Übersetzer: Wer passt zu welcher Eigenschaft?']},
+ u_weg:{m:'set',l:['Vom Quelltext bis zur CPU: kurze Reise, zwei Übersetzer, ein Ziel.','Dein Programm auf dem Weg zur CPU. Wie eine Paketzustellung, nur ohne Zettel „nicht angetroffen“.']},
+ u_begriff:{m:'pre',l:['Abkürzungen, die in jedem .NET-Gespräch fallen. Gern von Leuten, die sie selbst nicht ausschreiben könnten.','Drei Buchstaben, große Wirkung. Typisch IT.']},
+ u_nein:{m:'set',l:['Freitag, 16:55 Uhr. Noch schnell dotnet run, dann Feierabend.','Der Kollege sagt „Läuft bestimmt“ und startet mit dotnet run.','Letzter Test vor der Präsentation beim Chef. dotnet run.']},
+ u_sprache:{m:'pre',l:['Stammtischfrage unter Entwicklern, aber diesmal mit eindeutiger Antwort.','In der IT gibt es Glaubenskriege um Tabs und Leerzeichen. Hier geht es nur um Fakten.']},
+ u_frei:{m:'set',l:['Dein Chef will es in zwei Sätzen. Die Mail liest er sowieso nur bis zum ersten.','Kurz, in eigenen Worten, ohne Folien.']},
+ u_fehlerart:{m:'set',l:['Irgendwas stimmt hier nicht. Die Frage ist nur, wer es zuerst merkt.','Ein Fehler steckt im Code. Wer findet ihn zuerst: der Compiler, die Laufzeit oder der Kunde?']},
+ g_teile:{m:'set',l:['Ein Programm in Einzelteilen, wie ein Möbelbausatz. Diesmal bleibt keine Schraube übrig.','Code-Review auf Zeilenebene.']},
+ g_ausgabe:{m:'pre',l:['Erst lesen, dann tippen. Der Klassiker unter den Prüfungsfragen.']},
+ v_typ:{m:'set',l:['Ein Wert sucht eine Wohnung. Welcher Typ passt?','Du willst einen Wert speichern. Der Compiler will vorher wissen, als was.']},
+ t_wahl:{m:'pre',l:['Den falschen Typ wählen ist wie Schuhe zwei Nummern zu klein kaufen: Es geht, bis es nicht mehr geht.','Typwahl ist keine Geschmacksfrage. Der Compiler hat da eine klare Meinung.']},
+ t_literal:{m:'set',l:['Ein Kollege hat Variablen angelegt. Er meint: „Der Compiler ist da nicht so streng.“ Doch, ist er.','Variablen aus einem Skript, das „eigentlich schon lief“.']},
+ t_passt:{m:'pre',l:['Rund 2,1 Milliarden klingt nach viel. Bis man anfängt, Bytes zu zählen.','int ist groß, aber nicht so groß, wie man denkt.']},
+ t_bits:{m:'pre',l:['Speicher ist billig. Bis man ihn eine Million Mal zu großzügig verteilt.']},
+ v_fix:{m:'pre',l:['Rote Wellenlinie im Editor. Der Compiler hat recht. Mal wieder.']},
+ d_erkennen:{m:'set',l:['Prüfungsklassiker: drei Begriffe, die fast gleich klingen und es nicht sind.','Deklarieren, initialisieren, zuweisen. Klingt nach Amtsdeutsch, ist aber Alltag.']},
+ d_markieren:{m:'set',l:['Ein Ausschnitt aus einem Admin-Tool, geschrieben an einem Freitagnachmittag.','Schubladen-Inventur im Code.']},
+ d_split:{m:'pre',l:['Der Ausbilder will es ausführlich sehen. Also zwei Zeilen statt einer.']},
+ d_compiler:{m:'set',l:['Der Build läuft. Alle halten kurz die Luft an.','Ein Kollege schwört, dass das kompiliert. Ausprobiert hat er es nicht.']},
+ d_name:{m:'set',l:['Variablennamen aus einem Code-Review. Einige davon wurden nachts um drei getippt.','Kreative Namensgebung. Nicht alles, was kreativ ist, ist auch erlaubt.']},
+ d_tausch:{m:'pre',l:['Zwei Kollegen tauschen die Schreibtische. Ohne Zwischenlager steht am Ende einer ohne da.']},
+ v_wert:{m:'pre',l:['Eine Variable merkt sich immer nur das Neueste. Wie ein Goldfisch mit Datentyp.']},
+ k_implizit:{m:'pre',l:['Manches wandelt der Compiler freiwillig um. Anderes nur gegen Unterschrift.']},
+ k_tryparse:{m:'set',l:['Benutzer tippen alles Mögliche ein. Darum wird hier vorsichtig umgewandelt.','Die Eingabe kommt aus einem Formular. Vertrauen ist gut, TryParse ist besser.']},
+ k_methode:{m:'pre',l:['Der Werkzeugkasten von .NET ist riesig. Du brauchst genau ein Werkzeug daraus.']},
+ k_wann:{m:'set',l:['Eine Zeile aus einem Importskript, das „schon immer so lief“:','Nachtschicht, Importskript, vierter Kaffee. Diese Zeile steht darin:']},
+ o_int:{m:'pre',l:['Integerdivision: ehrlich, aber ohne Nachkommastellen.']},
+ o_vergl:{m:'pre',l:['Wahr oder falsch wie in einer Quizshow. Nur ohne Telefonjoker.']},
+ o_gerade:{m:'pre',l:['Modulo: der Operator, den man in der Schule angeblich nie brauchen würde. Bis heute.']},
+ o_operator:{m:'pre',l:['Operatoren sind die Satzzeichen der Programmierung. Wer sie verwechselt, schreibt Unsinn mit Ansage.']},
+ o_klammer:{m:'pre',l:['Punkt vor Strich. Das wusste schon deine Mathelehrerin, und der Compiler hört auf sie.']},
+ i_switch:{m:'pre',l:['Ein Menü wie in der Telefon-Hotline: Drücken Sie die 1 für …']},
+ i_werte:{m:'set',l:['Ein Monitoring-Skript prüft die Auslastung in Prozent. Bei „Warnung“ klingelt nachts das Handy der Bereitschaft.','Ein Monitoring-Skript prüft die Auslastung in Prozent. Zu viele Warnungen nerven, zu wenige auch.']},
+ i_order:{m:'pre',l:['Alle Zeilen sind da. Nur die Reihenfolge war im Urlaub.']},
+ i_wort:{m:'pre',l:['Kleine Wörter, große Wirkung. Und alle kleingeschrieben.']},
+ l_welche:{m:'pre',l:['Vier Schleifenarten, ein Job. Nimm die, die man am wenigsten erklären muss.']},
+ l_order:{m:'pre',l:['Gauß hätte das im Kopf gerechnet. Wir bauen trotzdem eine Schleife.']},
+ a_index:{m:'pre',l:['Erste Regel des Arrays: Gezählt wird ab null.']},
+ a_gueltig:{m:'pre',l:['Indizes beginnen bei 0. Das sorgt seit Jahrzehnten für Abstürze und Kaffeepausen.']},
+ m_aufruf:{m:'pre',l:['Eine Methode ist wie ein Kollege: Du gibst ihr etwas, sie gibt dir etwas zurück. Meistens.']},
+ m_teile:{m:'set',l:['Ein Methodenkopf aus einem Admin-Tool. Der Rest der Methode ist laut Kommentar „selbsterklärend“:']},
+};
+function withHumor(id,t){const h=HUMOR[id];if(!h||typeof t.scenario!=='string')return t;const line=pick(h.l);
+ if(h.m==='pre')t.scenario=line+' '+t.scenario;else{const i=t.scenario.indexOf('<');t.scenario=i<0?line:line+t.scenario.slice(i)}return t}
 const LETTERS='ABCDEFGH';
 /* Mehrere richtige Antworten: Buchstaben in beliebiger Reihenfolge. items: [Zeile, richtig?, Begründung]. */
 function setTask(text,items,prompt,plain,why,o={}){
@@ -132,7 +187,7 @@ S('liste','m_param','out',()=>{const a=rint(2,9),b=rint(10,19);return out('Die R
 S('liste','m_return','fix',()=>{const [h,a,y]=pick([['static int Doppelt(int x)\n{\n    x * 2;\n}',['return x * 2;'],'Der Wert muss mit return zurückgegeben werden.'],['static bool IstLeer(string s)\n{\n    s.Length == 0;\n}',['return s.Length == 0;'],'Der Vergleich liefert einen bool. return gibt ihn zurück.'],['static string Gruss(string n)\n{\n    "Hallo " + n;\n}',['return "Hallo " + n;'],'Der zusammengesetzte Text muss mit return zurückgegeben werden.']]);const sig=h.split('\n')[0];return code('Der Compiler beschwert sich über die mittlere Zeile.','Schreibe die korrigierte Zeile im Methodenrumpf.','Wie kommt der Wert aus der Methode heraus?',a,y,`${sig}\n{\n    @@\n}`,{show:h})});
 S('liste','m_kopf','write',()=>{const [t,a,tpl,y]=pick([['Eine Methode IstAktiv bekommt einen int namens port und liefert wahr oder falsch.',['static bool IstAktiv(int port)'],'return port > 0;','Rückgabetyp bool, ein Parameter vom Typ int.'],['Eine Methode Melde bekommt einen string namens text und liefert nichts zurück.',['static void Melde(string text)'],'','Nichts zurückgeben heißt void.'],['Eine Methode Groesser bekommt zwei int namens a und b und liefert einen int.',['static int Groesser(int a, int b)'],'return a;','Rückgabetyp int, zwei Parameter, getrennt durch ein Komma.']]);return code(t,'Schreibe den Methodenkopf, also die Zeile vor der öffnenden Klammer.','static, Rückgabetyp, Name, Parameter.',a,y,`@@\n{\n    ${tpl}\n}`)});
 
-/* ===== Stufe 1: Was ist Programmieren? ===== */
+/* ===== Stufe 1: Was ist ein Programm? ===== */
 const W_BEGRIFF=[
  ['Eine Kollegin beschreibt Schritt für Schritt, wie man einen neuen Drucker einrichtet: Treiber laden, installieren, anschließen, Testseite drucken.','Wie nennt man eine solche genaue Schrittfolge zur Lösung einer Aufgabe?','Wie heißt ein sehr genaues Rezept in der Informatik?','Algorithmus',['Compiler','Datentyp','Kommentar'],'Ein Algorithmus ist eine eindeutige, endliche Folge von Schritten, die eine Aufgabe löst. Er kann auf Papier stehen, bevor es irgendeinen Code gibt.'],
  ['Du tippst in VS Code die Datei Program.cs voller C#-Anweisungen.','Wie heißt der Text, den du gerade schreibst?','Wie nennt man den für Menschen lesbaren Programmtext?','Quelltext',['Maschinencode','Laufzeitumgebung','Betriebssystem'],'Quelltext (auch Quellcode) ist der lesbare Text in einer Programmiersprache. Erst nach dem Übersetzen kann die CPU damit etwas anfangen.'],
@@ -293,7 +348,7 @@ S('rechnen','o_vergl','set',()=>{const a=rint(1,9),b=rint(1,9);const ex=shuffle(
 S('rechnen','o_zuw','write',()=>{const [o,n]=pick([['+',rint(2,9)],['-',rint(2,9)],['*',rint(2,4)]]);return code('Ein Kollege schreibt alles gern zweimal.',`Schreibe die Zeile kürzer mit einem Zuweisungsoperator: z = z ${o} ${n};`,`Es gibt eine Kurzform für „z = z ${o} …“.`,[`z${o}=${n};`],`z = z ${o} ${n} lässt sich als z ${o}= ${n} schreiben. Gleiche Wirkung, weniger Tipparbeit.`,'int z = 10;\n@@\nConsole.WriteLine(z);',{show:`int z = 10;\nz = z ${o} ${n};`})});
 const GERADE=[['true liefern, wenn zahl gerade ist',['zahl%2==0','0==zahl%2']],['true liefern, wenn zahl ungerade ist',['zahl%2!=0','zahl%2==1','0!=zahl%2','1==zahl%2']],['true liefern, wenn zahl durch 3 teilbar ist',['zahl%3==0','0==zahl%3']],['true liefern, wenn zahl zwischen 1 und 100 liegt, beide eingeschlossen',['zahl>=1&&zahl<=100','zahl<=100&&zahl>=1','1<=zahl&&zahl<=100','zahl>0&&zahl<101']]];
 S('rechnen','o_gerade','write',()=>{const [d,acc]=pick(GERADE);return code(`Der Ausdruck soll ${d}.`,'Schreibe nur den Ausdruck, der in die Lücke gehört.','Modulo liefert den Rest. Mehrere Bedingungen verbindest du mit &&.',acc,`Eine Lösung: <code>${acc[0].replace(/(==|!=|>=|<=|&&|%)/g,' $1 ')}</code>. Modulo % liefert den Rest der Division.`,'int zahl = 7;\nbool ok = @@;\nConsole.WriteLine(ok);',{show:'bool ok = ____;',fmt:'Nur den Ausdruck eingeben, ohne Semikolon. Leerzeichen sind egal.'})});
-const OPS=[['liefert den Rest einer ganzzahligen Division','%',['%','modulo']],['vergleicht zwei Werte auf Gleichheit','==',['==']],['prüft, ob zwei Werte verschieden sind','!=',['!=']],['ist nur wahr, wenn beide Seiten wahr sind','&&',['&&']],['ist wahr, wenn mindestens eine Seite wahr ist','||',['||']],['dreht einen bool-Wert um','!',['!']],['erhöht eine Variable um genau 1','++',['++']]];
+const OPS=[['den Rest einer ganzzahligen Division liefert','%',['%','modulo']],['zwei Werte auf Gleichheit vergleicht','==',['==']],['bei zwei verschiedenen Werten true liefert','!=',['!=']],['nur dann true ergibt, wenn beide Seiten true sind','&&',['&&']],['true ergibt, sobald mindestens eine Seite true ist','||',['||']],['einen bool-Wert umdreht','!',['!']],['eine Variable um genau 1 erhöht','++',['++']]];
 S('rechnen','o_operator','word',()=>{const [d,a,acc]=pick(OPS);return word(`Gesucht ist der Operator, der ${d}.`,'Wie lautet der Operator in C#?','Nur das Zeichen oder die Zeichen eingeben.',a,acc,`Der Operator ist <code>${esc(a)}</code>.`)});
 const KLAMMER=[['int a = 4;\nint b = 8;\n','int schnitt = a + b / 2;','Der Durchschnitt von a und b soll berechnet werden.',['int schnitt=(a+b)/2;'],'Punkt vor Strich: Ohne Klammern wird nur b halbiert.'],['int preis = 50;\nint nachlass = 10;\nint menge = 3;\n','int summe = preis - nachlass * menge;','Jedes Stück kostet preis minus nachlass. Gekauft werden menge Stück.',['int summe=(preis-nachlass)*menge;','int summe=menge*(preis-nachlass);'],'Ohne Klammern wird nur der Nachlass mal Menge genommen.']];
 S('rechnen','o_klammer','fix',()=>{const [d,l,t,a,y]=pick(KLAMMER);return code(t,'Schreibe die korrigierte Zeile mit Klammern.','Was wird ohne Klammern zuerst gerechnet?',a,y+' Klammern legen fest, was zuerst passiert.',d+'@@\nConsole.WriteLine(0);',{show:d+l})});
@@ -303,7 +358,7 @@ S('rechnen','o_fehler','mc',()=>{const [a,b]=pick([[10,4],[7,2],[9,4],[5,2]]);co
 const BED=[['last >= 80 && last < 95',0,100,'Warnung erscheint ab 80 bis unter 95.'],['last < 20 || last > 90',0,100,'Warnung erscheint unter 20 oder über 90.'],['!(last <= 50)',0,100,'Warnung erscheint, wenn last nicht kleiner gleich 50 ist, also über 50.'],['last % 10 == 0 && last != 0',0,100,'Warnung bei vollen Zehnern außer 0.']];
 S('wenn','i_werte','set',()=>{const [c,lo,hi,y]=pick(BED);const f=Function('last','return '+c.replace(/==/g,'===').replace(/!=/g,'!==').replace(/====/g,'==='));let vals;do{vals=shuffle([0,10,19,20,50,51,79,80,85,90,94,95,99,100]).slice(0,5)}while(vals.every(v=>f(v))||vals.every(v=>!f(v)));const prog=`if (${c})\n{\n    Console.WriteLine("Warnung");\n}`;return setTask('Ein Monitoring-Skript prüft die Auslastung in Prozent.'+cs('int last = WERT;\n'+prog)+'Mögliche Werte für last:',vals.map(v=>['last = '+v,!!f(v),(f(v)?'Bedingung wahr.':'Bedingung falsch.')]),'Bei welchen Werten erscheint „Warnung“?','Setze jeden Wert ein und prüfe die ganze Bedingung.',y,{plainList:true,checks:[{code:vals.map(v=>`{ int last = ${v};\nif (${c}) Console.WriteLine("W"); else Console.WriteLine("-"); }`).join('\n'),out:vals.map(v=>f(v)?'W':'-').join(' ')}]})});
 S('wenn','i_order','order',()=>{const g=pick([10,15,20]),v=rint(1,30);return order(`Bei weniger als ${g} % freiem Speicher soll „Voll“ erscheinen, sonst „OK“.`,[`int frei = ${v};`,`if (frei < ${g})`,'    Console.WriteLine("Voll");','else','    Console.WriteLine("OK");'],'In welcher Reihenfolge ergibt das ein korrektes Programm?','Erst die Variable, dann die Bedingung, dann die beiden Zweige.','Die Variable muss vor der Prüfung existieren. Nach if folgt der Zweig für true, nach else der für false.')});
-const I_WORT=[['leitet den Zweig ein, der läuft, wenn die if-Bedingung falsch ist','else',['else']],['fängt im switch alle Werte auf, für die es keinen case gibt','default',['default','default:']],['beendet einen Fall im switch','break',['break','break;']],['prüft nach einem if eine weitere Bedingung','else if',['else if','elseif']],['ist der Wert, den ein Vergleich wie 3 > 5 liefert','false',['false']]];
+const I_WORT=[['den Zweig einleitet, der läuft, wenn die if-Bedingung falsch ist','else',['else']],['im switch alle Werte auffängt, für die es keinen case gibt','default',['default','default:']],['einen Fall im switch beendet','break',['break','break;']],['nach einem if eine weitere Bedingung prüft','else if',['else if','elseif']],['als Ergebnis von 3 > 5 herauskommt','false',['false']]];
 S('wenn','i_wort','word',()=>{const [d,a,acc]=pick(I_WORT);return word(`Gesucht ist das Schlüsselwort, das ${d}.`,'Wie lautet es in C#?','Kleinbuchstaben, wie im Code.',a,acc,`Es heißt <code>${a}</code>.`)});
 
 /* ===== Stufe 9: neu ===== */

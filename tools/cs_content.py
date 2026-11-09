@@ -5,7 +5,7 @@ from cs_lessons_new import L_WELT, L_UEBERSETZEN, L_GRUND, L_TYPEN, L_DATEN, L_U
 
 _OLD = [
 {
- 'title': 'Operatoren und Berechnungen', 'cat': 'rechnen', 'goal': 'Ausdrücke so auswerten, wie C# sie auswertet.',
+ 'title': 'Operatoren und Berechnungen', 'cat': 'rechnen', 'goal': 'Du rechnest Ausdrücke so aus, wie C# sie ausrechnet.',
  'intro': '<p>Ein Backup hat 10 GB, drei Festplatten sollen es sich teilen. <code>10 / 3</code> ergibt in C# <strong>3</strong>. Kein Bug: Zwei <code>int</code>-Werte ergeben eine <strong>Integerdivision</strong>, und der Nachkommateil wird abgeschnitten. Niemand hat dich gefragt, ob du den Rest noch brauchst.</p>',
  'visual': '<div class="calc">+  −  *  /   Rechnen\n%            Rest der Division (Modulo)\n== != &lt; &gt; &lt;= &gt;=   Vergleichen, Ergebnis ist bool\n&amp;&amp;  ||  !     und, oder, nicht\n=  +=  -=  ++  --   Zuweisen und Ändern</div>',
  'memo': 'Sind beide Werte <code>int</code>, ist das Ergebnis <code>int</code>. Ist einer <code>double</code>, gibt es Nachkommastellen. Punkt vor Strich gilt auch hier, Klammern gehen vor.',
@@ -43,7 +43,7 @@ _OLD = [
  'types': [['o_int', 'Integerdivision'], ['o_mod', 'Modulo'], ['o_double', 'Division mit double'], ['o_rang', 'Rangfolge'], ['o_inkr', 'Inkrement'], ['o_vergl', 'Wahre Vergleiche finden'], ['o_logik', 'Logische Operatoren'], ['o_zuw', 'Zuweisung abkürzen'], ['o_gerade', 'Ausdruck schreiben'], ['o_operator', 'Operator nennen'], ['o_klammer', 'Klammern setzen'], ['o_fehler', 'Warum kommt 2 heraus?']],
 },
 {
- 'title': 'Verzweigungen', 'cat': 'wenn', 'goal': 'Vorhersagen, welcher Zweig eines Programms läuft.',
+ 'title': 'Verzweigungen', 'cat': 'wenn', 'goal': 'Du sagst vorher, welcher Zweig eines Programms läuft.',
  'intro': '<p>Freier Plattenplatz unter 10 %? Dann Warnung. Sonst alles gut. Genau das macht <code>if</code>: Es prüft einen Ausdruck, der <code>true</code> oder <code>false</code> ergibt, und entscheidet, welcher Block läuft.</p>',
  'visual': '<div class="calc">if (Bedingung) → true → erster Block\n               → false → else-Block\nDanach läuft das Programm normal weiter.</div>',
  'memo': 'Die Bedingung steht in runden Klammern und muss ein <code>bool</code> ergeben. Vergleichen heißt <code>==</code>, nicht <code>=</code>. Bei <code>else if</code> läuft nur der erste passende Zweig.',
@@ -132,7 +132,7 @@ _OLD = [
  'types': [['i_zweig', 'if und else verfolgen'], ['i_elseif', 'else if verfolgen'], ['i_switch', 'switch verfolgen'], ['i_op', 'Bedingung ergänzen'], ['i_gleich', '= statt =='], ['i_nest', 'Verschachtelung'], ['i_logik', 'Verknüpfte Bedingung'], ['i_text', 'Text exakt vergleichen'], ['i_werte', 'Bei welchen Werten?'], ['i_order', 'Verzweigung bauen'], ['i_wort', 'Schlüsselwort nennen']],
 },
 {
- 'title': 'Schleifen', 'cat': 'schleife', 'goal': 'Genau sagen, wie oft eine Schleife läuft und warum.',
+ 'title': 'Schleifen', 'cat': 'schleife', 'goal': 'Du sagst genau, wie oft eine Schleife läuft und warum.',
  'intro': '<p>Zehn Geräte anpingen, zehnmal dieselbe Zeile schreiben? Spätestens bei 500 Geräten kündigst du. Eine <strong>Schleife</strong> wiederholt einen Block, solange eine Bedingung gilt.</p>',
  'visual': '<div class="calc">for (Start; Bedingung; Schritt)\n1. Start läuft einmal\n2. Bedingung true? Sonst Ende\n3. Block läuft\n4. Schritt läuft, weiter bei 2</div>',
  'memo': 'Durchläufe zählst du, indem du die Werte der Zählvariablen aufschreibst. Bei <code>i &lt; 10</code> mit Start 0 sind es zehn, bei <code>i &lt;= 10</code> elf.',

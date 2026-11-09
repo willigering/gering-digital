@@ -135,7 +135,7 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 ## 09.11.2026 – CS1 „Compiler sagt nein“ und Regel zur Aufgabenvielfalt
 
 - Anlass: Willi bemängelte im alten C#-Modul Lernpfade mit immer gleichen Fragen und anderen Werten. Messung vorher: Stufe 3 bestand zu 100 % aus „Was gibt der Code aus?“, Stufen 4–6 zu 73–79 %.
-- CS1 neu als Einstieg: Was ist Programmieren, Compiler/Interpreter/.NET, Programmaufbau, Datentypen, Variablen deklarieren/initialisieren/zuweisen, Typumwandlung und Ein-/Ausgabe, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden. Methoden vertieft, OOP, Fehlerbehandlung und Projekt sind als CS2 geparkt.
+- CS1 neu als Einstieg: Was ist ein Programm, Compiler/Interpreter/.NET, Programmaufbau, Datentypen, Variablen deklarieren/initialisieren/zuweisen, Typumwandlung und Ein-/Ausgabe, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden. Methoden vertieft, OOP, Fehlerbehandlung und Projekt sind als CS2 geparkt.
 - 95 Aufgabentypen in 9 Formen, Multiple Choice 16 %. Messung je Stufe (400 Lernpfad-Aufgaben): direkte Wiederholung von Typ und Form 0 %, 7–9 Typen und 4–6 Formen je 10 Aufgaben, häufigste Form höchstens 42 %.
 - Humor: neue Texte nach Workflow geschrieben, Pointen situationsbezogen (Compiler, Semikolon, Überlauf, HTML-Lebenslauf). Inhaltliche Humorprüfung durch Willi steht aus.
 - Neue Regel „Aufgabenvielfalt im Lernpfad“ in der Projektanleitung; ältere Module sind danach noch nachzuziehen.

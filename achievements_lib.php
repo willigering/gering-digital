@@ -77,7 +77,7 @@ function ach_modules(): array {
         ]],
         // CS1 „Compiler sagt nein“ (ab 09.11.2026): Einstieg in die Programmierung. Eigener Präfix, damit alte C#-Lernstände unberührt bleiben.
         'cs1'=>['prefix'=>'cs1-start','subject'=>'Programmieren mit C#','title'=>'Compiler sagt nein','motif'=>'csharp','slugs'=>['cs1-csharp'],'stages'=>10,'list'=>[
-            ['cs1.hallo','bronze','Hallo, Programmierwelt','Stufe 1 „Was ist Programmieren?“ gemeistert.',['stage',0]],
+            ['cs1.hallo','bronze','Hallo, Programmierwelt','Stufe 1 „Was ist ein Programm?“ gemeistert.',['stage',0]],
             ['cs1.semikolon','bronze','Semikolon gesetzt','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
             ['cs1.schublade','silber','Deklariert und initialisiert','Stufe 5 „Variablen deklarieren und initialisieren“ gemeistert.',['stage',4]],
             ['cs1.typsicher','silber','Typsicher unterwegs','„Gültige Werte erkennen“ und „Falschen Typ reparieren“ je 10 × in Folge richtig.',['clean',['t_literal','v_fix']]],

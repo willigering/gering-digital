@@ -2,7 +2,7 @@
 from cs_content_base import C, B, T
 
 L_WELT = {
- 'title': 'Was ist Programmieren?', 'cat': 'welt', 'goal': 'Erklären, was ein Programm ist und wie aus einer Idee Anweisungen werden.',
+ 'title': 'Was ist ein Programm?', 'cat': 'welt', 'goal': 'Du weißt, was ein Programm ist und wie aus einer Idee Schritt für Schritt Anweisungen werden.',
  'intro': '<p>Ein Computer ist unfassbar schnell und unfassbar dumm. Er macht exakt, was dasteht. Nicht das, was du gemeint hast. <strong>Programmieren</strong> heißt deshalb: eine Aufgabe so genau in Schritte zerlegen, dass selbst eine Maschine ohne Fantasie sie richtig erledigt.</p><p>Diese Schritte schreibst du als <strong>Quelltext</strong> in einer <strong>Programmiersprache</strong> auf, zum Beispiel C#. Der Quelltext ist für Menschen lesbar. Daraus entsteht später ein <strong>Programm</strong>, das der Computer ausführt.</p><p>Eine genaue Schrittfolge zur Lösung einer Aufgabe heißt <strong>Algorithmus</strong>. Das Wort klingt nach Mathe-Olymp. Gemeint ist aber nur ein sehr gründliches Rezept.</p>',
  'visual': '<div class="calc">Idee → Algorithmus (Schritte) → Quelltext (C#) → Programm → Ausführung\n\nEVA-Prinzip:\nEingabe      → Verarbeitung  → Ausgabe\nTastatur,      Rechnen,         Bildschirm,\nDatei, Sensor  Prüfen, Sortieren Datei, Drucker</div>',
  'memo': 'Fast jedes Programm folgt dem <strong>EVA-Prinzip</strong>: Eingabe, Verarbeitung, Ausgabe. Die CPU versteht nur <strong>Maschinensprache</strong> (Nullen und Einsen). Menschen schreiben in einer <strong>Hochsprache</strong> wie C#.',
@@ -27,7 +27,7 @@ L_WELT = {
 }
 
 L_UEBERSETZEN = {
- 'title': 'Compiler, Interpreter und .NET', 'cat': 'uebersetzen', 'goal': 'Compiler und Interpreter unterscheiden und den Weg eines C#-Programms erklären.',
+ 'title': 'Compiler, Interpreter und .NET', 'cat': 'uebersetzen', 'goal': 'Du kannst Compiler und Interpreter unterscheiden und kennst den Weg deines C#-Programms bis zur CPU.',
  'intro': '<p>Die CPU versteht nur Maschinensprache. Dein Quelltext muss also übersetzt werden. Dafür gibt es zwei Grundideen.</p><p>Ein <strong>Compiler</strong> übersetzt das <em>ganze</em> Programm, <em>bevor</em> es startet. Findet er einen Fehler, startet gar nichts. Er ist der Kollege, der den kompletten Bericht liest, bevor er unterschreibt.</p><p>Ein <strong>Interpreter</strong> liest das Programm <em>während</em> der Ausführung Anweisung für Anweisung und führt sie sofort aus. Ein Fehler in Zeile 50 fällt erst auf, wenn Zeile 50 dran ist. Bis dahin lief alles prima. Vielleicht sogar beim Kunden.</p>',
  'visual': '<div class="table-wrap"><table class="t"><thead><tr><th></th><th>Compiler</th><th>Interpreter</th></tr></thead><tbody><tr><td>Wann wird übersetzt?</td><td>vorher, alles auf einmal</td><td>während der Ausführung, Schritt für Schritt</td></tr><tr><td>Syntaxfehler</td><td>vor dem Start, nichts läuft</td><td>erst, wenn die Zeile dran ist</td></tr><tr><td>Ergebnis</td><td>ausführbare Datei</td><td>keine eigene Datei, Quelltext + Interpreter nötig</td></tr><tr><td>Tempo beim Ausführen</td><td>meist schneller</td><td>meist langsamer</td></tr><tr><td>Typische Sprachen</td><td>C, C++, Go, Rust</td><td>Python, PowerShell, Bash, JavaScript (klassisch)</td></tr></tbody></table></div>',
  'memo': '<strong>Compiler:</strong> erst alles übersetzen, dann starten. <strong>Interpreter:</strong> Zeile lesen, ausführen, nächste Zeile. <strong>C#</strong> nutzt beides nacheinander: Der C#-Compiler erzeugt Zwischencode (<strong>IL</strong>), und beim Start übersetzt der <strong>JIT-Compiler</strong> der .NET-Laufzeit ihn in Maschinencode.',
@@ -50,7 +50,7 @@ L_UEBERSETZEN = {
 }
 
 L_GRUND = {
- 'title': 'Aufbau eines C#-Programms', 'cat': 'grund', 'goal': 'Ein kleines Programm lesen und jedes Zeichen darin erklären.',
+ 'title': 'Aufbau eines C#-Programms', 'cat': 'grund', 'goal': 'Du liest ein kleines Programm und weißt, wofür jedes Zeichen darin steht.',
  'intro': '<p>Jetzt wird es konkret. Ein C#-Programm besteht aus <strong>Anweisungen</strong>. Jede Anweisung ist ein Befehl, zum Beispiel „schreibe diese Zeile“. Am Ende jeder Anweisung steht ein <strong>Semikolon</strong>. Es ist der Punkt am Satzende. Fehlt er, hat der Compiler Redebedarf.</p><p>Mehrere Anweisungen kannst du in geschweiften Klammern <code>{ }</code> zu einem <strong>Block</strong> zusammenfassen. Alles hinter <code>//</code> ist ein <strong>Kommentar</strong>: Der Compiler ignoriert ihn, dein Kollege in sechs Monaten zum Glück nicht.</p>',
  'visual': '<div class="calc">Console.WriteLine("Hallo Welt!");\n   │    │     │       │        └ Semikolon: Anweisung zu Ende\n   │    │     │       └ Text in doppelten Anführungszeichen\n   │    │     └ Methode: „schreibe eine Zeile“\n   │    └ Punkt: greift auf etwas zu, das zu Console gehört\n   └ Klasse aus .NET für das Konsolenfenster</div>',
  'memo': 'Jede Anweisung endet mit <code>;</code>. Text steht in doppelten Anführungszeichen. Groß- und Kleinschreibung zählt: <code>console</code> ist nicht <code>Console</code>.',
@@ -86,7 +86,7 @@ L_GRUND = {
 }
 
 L_TYPEN = {
- 'title': 'Datentypen', 'cat': 'typen', 'goal': 'Für jeden Wert den passenden Datentyp wählen und seine Grenzen kennen.',
+ 'title': 'Datentypen', 'cat': 'typen', 'goal': 'Du wählst für jeden Wert den passenden Datentyp und kennst seine Grenzen.',
  'intro': '<p>Im Speicher liegt alles als Nullen und Einsen. Das Bitmuster <code>01000001</code> kann die Zahl 65 sein oder der Buchstabe A. Woher weiß das Programm, was gemeint ist? Durch den <strong>Datentyp</strong>.</p><p>Der Datentyp legt drei Dinge fest: <strong>welche Werte</strong> erlaubt sind, <strong>wie viel Speicher</strong> dafür reserviert wird und <strong>was man damit tun kann</strong>. Mit Zahlen rechnest du, Texte hängst du aneinander. Andersherum wird es lustig, aber selten richtig.</p><p>C# ist <strong>streng typisiert</strong>: Jeder Wert hat einen festen Typ, und der Compiler prüft das. Text in eine Zahl stopfen? Compiler sagt nein.</p>',
  'visual': '<div class="table-wrap"><table class="t"><thead><tr><th>Typ</th><th>Inhalt</th><th>Größe</th><th>Beispiel</th></tr></thead><tbody><tr><td><code>int</code></td><td>ganze Zahl, ca. ±2,1 Milliarden</td><td>32 Bit</td><td><code>24</code></td></tr><tr><td><code>long</code></td><td>große ganze Zahl</td><td>64 Bit</td><td><code>8000000000L</code></td></tr><tr><td><code>double</code></td><td>Kommazahl, nicht immer exakt</td><td>64 Bit</td><td><code>3.5</code></td></tr><tr><td><code>decimal</code></td><td>exakte Dezimalzahl, etwa für Geld</td><td>128 Bit</td><td><code>19.99m</code></td></tr><tr><td><code>bool</code></td><td>wahr oder falsch</td><td>1 Byte</td><td><code>true</code></td></tr><tr><td><code>char</code></td><td>genau ein Zeichen</td><td>16 Bit</td><td><code>\'A\'</code></td></tr><tr><td><code>string</code></td><td>Text, beliebig lang</td><td>je nach Länge</td><td><code>"Router"</code></td></tr></tbody></table></div>',
  'memo': 'Ganze Zahl → <code>int</code>. Geld → <code>decimal</code> mit <code>m</code>. Messwert mit Komma → <code>double</code>. Ja/Nein → <code>bool</code>. Ein Zeichen in <code>\'…\'</code> → <code>char</code>. Text in <code>"…"</code> → <code>string</code>. Im Code steht das Komma als Punkt: <code>3.5</code>.',
@@ -131,7 +131,7 @@ L_TYPEN = {
 }
 
 L_DATEN = {
- 'title': 'Variablen deklarieren und initialisieren', 'cat': 'daten', 'goal': 'Deklaration, Initialisierung und Zuweisung sicher unterscheiden und schreiben.',
+ 'title': 'Variablen deklarieren und initialisieren', 'cat': 'daten', 'goal': 'Du unterscheidest Deklaration, Initialisierung und Zuweisung sicher und schreibst sie selbst.',
  'intro': '<p>Eine <strong>Variable</strong> ist eine beschriftete Schublade im Speicher. Der Datentyp sagt, was hineinpasst, der Name steht auf dem Etikett. Mit Variablen passieren drei verschiedene Dinge, und die Prüfung fragt gern genau danach:</p><ol class="steps-list"><li><strong>Deklarieren:</strong> Die Schublade wird angelegt. <code>int ports;</code> Typ und Name, sonst nichts.</li><li><strong>Initialisieren:</strong> Die Schublade bekommt ihren <em>ersten</em> Wert. <code>ports = 24;</code></li><li><strong>Zuweisen:</strong> Später kommt ein neuer Wert hinein, der alte fliegt raus. <code>ports = 48;</code></li></ol><p>Meist erledigst du die ersten beiden in einer Zeile: <code>int ports = 24;</code> Deklaration mit Initialisierung.</p>',
  'visual': '<div class="calc">int ports;          Deklaration          Schublade „ports“ für int, noch leer\nports = 24;         Initialisierung      erster Wert: 24\nports = 48;         Zuweisung            neuer Wert, 24 ist weg\nint vlan = 10;      Deklaration + Initialisierung in einer Zeile</div>',
  'memo': 'Steht ein <strong>Typ vorne</strong>, wird deklariert. Steht nur <strong>Name = Wert</strong>, wird zugewiesen. Lesen darfst du eine Variable erst, wenn sie einen Wert hat. Jeder Name darf im selben Bereich nur einmal deklariert werden.',
@@ -181,7 +181,7 @@ L_DATEN = {
 }
 
 L_UMWANDELN = {
- 'title': 'Typumwandlung, Ein- und Ausgabe', 'cat': 'umwandeln', 'goal': 'Eingaben in den richtigen Typ bringen und Werte sauber ausgeben.',
+ 'title': 'Typumwandlung, Ein- und Ausgabe', 'cat': 'umwandeln', 'goal': 'Du bringst Eingaben in den richtigen Typ und gibst Werte sauber aus.',
  'intro': '<p>Die Tastatur liefert immer Text. Tippt jemand <code>42</code>, bekommst du den <code>string</code> „42“, nicht die Zahl 42. Rechnen willst du aber mit Zahlen. Also musst du <strong>umwandeln</strong>.</p><p>Manche Umwandlungen macht C# von selbst, weil dabei nichts verloren geht: <strong>implizit</strong>. Eine kleine Zahl passt immer in eine große Schublade. Bei anderen könnte etwas verloren gehen. Die musst du <strong>explizit</strong> verlangen, damit klar ist: Du weißt, was du tust. Zumindest offiziell.</p>',
  'visual': '<div class="calc">implizit (automatisch, sicher)    int → long → double     int → decimal\nexplizit (Cast, kann abschneiden)  (int)3.9  → 3\nText → Zahl                        int.Parse("42")   double.Parse("3.5")\nText → Zahl, ohne Absturz          int.TryParse(text, out int zahl)\nZahl → Text                        zahl.ToString()   oder  $"{zahl}"</div>',
  'memo': '<code>Console.ReadLine()</code> liefert <code>string</code>. Mit <code>int.Parse</code> wird Text zur Zahl. <code>(int)</code> vor einem <code>double</code> schneidet ab, statt zu runden. <code>$"…{wert}…"</code> setzt Werte in Text ein.',
@@ -245,7 +245,7 @@ L_UMWANDELN = {
 }
 
 L_LISTE = {
- 'title': 'Arrays und erste Methoden', 'cat': 'liste', 'goal': 'Auf Elemente eines Arrays zugreifen und kleine Methoden aufrufen.',
+ 'title': 'Arrays und erste Methoden', 'cat': 'liste', 'goal': 'Du greifst auf Elemente eines Arrays zu und rufst kleine Methoden auf.',
  'intro': '<p>Für 200 Geräte willst du keine 200 Variablen. Ein <strong>Array</strong> hält mehrere Werte gleichen Typs mit fester Größe. Eine <strong>Liste</strong> kann wachsen und schrumpfen. Beide nummerieren ihre Elemente mit einem <strong>Index</strong>, und der beginnt bei 0. Nicht bei 1. Nie. Auch nicht montags.</p><p>Und wenn du dieselbe Berechnung an fünf Stellen brauchst, schreibst du sie einmal als <strong>Methode</strong>: ein benannter Codeblock, den du beliebig oft aufrufst. Einmal reparieren, überall behoben. Damit hast du alle Bausteine für ein erstes kleines Tool.</p>',
  'visual': '<div class="calc">namen   "Router"  "Switch"  "Firewall"\nIndex      0         1          2\nLength = 3, letzter gültiger Index = 2\n\nstatic int  Doppelt (int x)\n  │     │      │        └ Parameter: was hineinkommt\n  │     │      └ Name\n  │     └ Rückgabetyp: was herauskommt\n  └ gehört zum Programm, nicht zu einem Objekt</div>',
  'memo': 'Letzter Index = Anzahl − 1. Arrays nennen die Anzahl <code>Length</code>, Listen <code>Count</code>. Eine Methode mit Rückgabetyp braucht <code>return</code>. <code>void</code> heißt: gibt nichts zurück.',
