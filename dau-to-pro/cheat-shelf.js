@@ -11,7 +11,7 @@
   let rows=[],stage=null,shown=null,rowH=0,raf=0,on=false;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height"))||80;
   // Der Titel bleibt knapp unter der Navigation; die Karten sind Bestandteil desselben Frames.
-  const pinY=()=>Math.max(navH()+16,Math.round(innerHeight*.5-rowH*.5));
+  const pinY=()=>navH()+16;
   const active=()=>Math.round(shown??progress());
   function teardown(){
     if(!on)return;
@@ -35,13 +35,13 @@
     const stageHeight=peek+rowH+GAP+rowH*TAIL;
     stage.style.height=stageHeight+"px";
     grid.style.height=stageHeight+"px";
-    stage.style.top=pinY()+"px";
-    grid.style.height=(stageHeight+(rows.length-1)*rowH*STEP)+"px";
+    section.style.setProperty("--cheat-pin-top",pinY()+"px");
+    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+rowH*.20)+"px");
     paint();
   }
   function progress(){
-    const top=grid.getBoundingClientRect().top-pinY();
-    return Math.max(0,Math.min(rows.length-1,-top/Math.max(1,rowH*STEP)));
+    const naturalTop=section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0);
+    return Math.max(0,Math.min(rows.length-1,(pinY()-naturalTop)/Math.max(1,rowH*STEP)));
   }
   function paint(){
     raf=0;if(!on)return;
@@ -65,11 +65,11 @@
     });
   }
   function go(k){
-    scrollTo({top:Math.max(0,scrollY+grid.getBoundingClientRect().top-pinY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
+    scrollTo({top:Math.max(0,scrollY+(section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0))-pinY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
   }
   function build(){
     teardown();if(!wide.matches||calm.matches||all.length<=5)return;
-    on=true;grid.classList.add("is-stacked");
+    on=true;section.classList.add("has-stacked-shelf");grid.classList.add("is-stacked");
     stage=document.createElement("div");stage.className="cheat-stack-stage";grid.append(stage);
     for(let i=0;i<all.length;i+=5){
       const row=document.createElement("div");row.className="cheat-stack-row";row.dataset.row=String(rows.length);
