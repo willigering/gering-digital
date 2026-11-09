@@ -6,7 +6,7 @@ if(!app)return;
 const $=id=>document.getElementById(id);
 const esc=v=>String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const API="bewerbungen-mail.php";
-let cfg=null, hasSmtp=false, hasCv=false, selected="",pdfUrl="",approved="",log=[];
+let cfg=null, hasSmtp=false, hasCv=false, selected="",pdfUrl="",approved="",approvedHash="",log=[];
 const row=id=>app.rows().find(r=>String(r.id)===String(id));
 const now=()=>new Intl.DateTimeFormat("de-DE",{timeZone:"Europe/Berlin"}).format(new Date());
 function mapTokens(s,c){
@@ -176,7 +176,7 @@ function fields(){
     mailBody:$("gdm-message").value.trim(),attachCv:$("gdm-attach-cv").checked};
 }
 function invalidate(){
-  approved="";$("gdm-send").disabled=true;
+  approved="";approvedHash="";$("gdm-send").disabled=true;
   $("gdm-pdf-frame").hidden=true;$("gdm-pdf-frame").src="about:blank";
   $("gdm-pdf-download").hidden=true;$("gdm-pdf-placeholder").hidden=false;
   if(pdfUrl){URL.revokeObjectURL(pdfUrl);pdfUrl=""}
@@ -213,24 +213,28 @@ function close(){
 async function preview(){
   if(!$("gdm-compose-form").reportValidity())return;
   const payload=Object.assign({csrf:app.csrf()},fields());
+  const initialSignature=signature();
   $("gdm-preview").disabled=true;$("gdm-composer-state").textContent="PDF wird erstellt …";
   try{
     const resp=await fetch(API+"?action=preview",{method:"POST",credentials:"same-origin",
       cache:"no-store",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
     if(!resp.ok){const error=await resp.json().catch(()=>({}));throw new Error(error.error||"PDF konnte nicht erzeugt werden.")}
     if(!(resp.headers.get("content-type")||"").includes("application/pdf"))throw new Error("Der Server hat keine PDF-Datei gesendet.");
+    const serverHash=resp.headers.get("X-Document-SHA256")||"";
     const blob=await resp.blob();if(blob.size<100||blob.size>3*1024*1024)throw new Error("PDF ungültig.");
+    if(!/^[a-f0-9]{64}$/.test(serverHash))throw new Error("Prüfsumme für das PDF fehlt.");
+    if(signature()!==initialSignature)throw new Error("Die Auswahl wurde während der PDF-Erzeugung geändert. Vorschau erneut starten.");
     invalidate();pdfUrl=URL.createObjectURL(blob);$("gdm-pdf-frame").src=pdfUrl;
     $("gdm-pdf-frame").hidden=false;$("gdm-pdf-placeholder").hidden=true;
     $("gdm-pdf-download").href=pdfUrl;$("gdm-pdf-download").hidden=false;
-    approved=signature();$("gdm-send").disabled=false;
+    approved=initialSignature;approvedHash=serverHash;$("gdm-send").disabled=false;
     $("gdm-composer-state").textContent="PDF fertig. Bitte Anschrift, Anrede und Anschreiben prüfen.";
   }catch(err){invalidate();$("gdm-composer-state").textContent=err.message;alert(err.message)}
   finally{$("gdm-preview").disabled=false}
 }
 async function send(){
   if(!$("gdm-compose-form").reportValidity())return;
-  if(!approved||approved!==signature()){invalidate();$("gdm-composer-state").textContent="Die Vorschau wurde geändert. Bitte neu erstellen.";return}
+  if(!approved||!approvedHash||approved!==signature()){invalidate();$("gdm-composer-state").textContent="Die Vorschau wurde geändert. Bitte neu erstellen.";return}
   const c=row(selected);if(!c)return;
   const f=fields();
   const count=$("gdm-other-pdfs").files.length;
@@ -246,7 +250,7 @@ async function send(){
     "send"+Date.now().toString(36)+Math.random().toString(36).slice(2);
   const files=Array.from($("gdm-other-pdfs").files).map(file=>["extra[]",file]);
   try{
-    const r=await post("send",Object.assign({sendId:identifier},f),files);
+    const r=await post("send",Object.assign({sendId:identifier,expectedPdfHash:approvedHash},f),files);
     if(!r.sent)throw new Error("SMTP-Annahme nicht bestätigt.");
     $("gdm-composer-state").textContent="✓ SMTP hat die Bewerbung angenommen.";
     await app.reload();await refreshMail();
