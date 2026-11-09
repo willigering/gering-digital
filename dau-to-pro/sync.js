@@ -248,6 +248,7 @@
       'button:hover{background:rgba(255,255,255,.08);color:#fff}',
       '.pill{position:relative}.min{padding:7px}.min .label,.min a{display:none}',
       '.min button{position:absolute;inset:0;width:auto;height:auto;border-radius:999px;font-size:0}',
+      '@media (pointer:coarse){.pill:not(.min) button{width:32px;height:32px;font-size:18px}a{padding:7px 12px}}',
       '@media print{.pill{display:none}}'
     ].join('');
     box = document.createElement('div');

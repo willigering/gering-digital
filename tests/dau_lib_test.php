@@ -35,7 +35,7 @@ check(dtp_page_content()===$defaults,'Zurücksetzen stellt alle Standardtexte he
 check(dtp_inline('<b>x</b> **fett** & "q"')==='&lt;b&gt;x&lt;/b&gt; <strong>fett</strong> &amp; &quot;q&quot;','Nur **fett** wird formatiert, HTML wird escaped');
 check(dtp_subtitle_parts('Verstehen · Üben | Anwenden, ')===['Verstehen','Üben','Anwenden'],'Untertitel wird in Begriffe zerlegt');
 $tables=db()->query("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")->fetchAll(PDO::FETCH_COLUMN);
-check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_daily','learner_practice','learner_progress','learner_showcase','learner_stats','learner_tokens','learner_xp_events','learner_xp_state','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
+check($tables===['apps','html_pages','inquiries','learner_achievements','learner_attempts','learner_daily','learner_practice','learner_prefs','learner_progress','learner_showcase','learner_stats','learner_tokens','learner_xp_events','learner_xp_state','learners','settings','users'],'Seiteneditor legt keine eigenen Tabellen an (nur die bekannten, inkl. Lernkonten und Achievements)');
 
 // --- Vorschaubilder ---
 check(str_contains(dtp_module_description(['slug'=>'osi-sprint','title'=>'OSI-Schichten','description'=>'Easy OSI']),'Sieben Schichten'),'Alter OSI-Platzhalter wird durch verständliches Lernziel ersetzt');
@@ -112,37 +112,31 @@ check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','prev
 // --- Hero ---
 $hero=dtp_hero();
 $scene=dtp_hero_scene($hero,'Originalgrafik');
-check(str_contains($scene,'hero-canvas--clean-people') && substr_count($scene,'src="../assets/dau-to-pro-people-clean-1448.webp"')===2,'Beide Figuren nutzen die neue transparente Quelle');
-foreach([768,1448] as $width){
-    $clean=__DIR__.'/../assets/dau-to-pro-people-clean-'.$width.'.webp';
-    $size=getimagesize($clean);
-    check($size!==false && $size[0]===$width && $size['mime']==='image/webp','Neue Figurenquelle hat richtige Maße und Bildformat');
-    $cutout=imagecreatefromwebp($clean);
-    check(((imagecolorat($cutout,0,0)>>24)&0x7F)===127,'Neue Figurenquelle hat echte transparente Außenpixel');
-    imagedestroy($cutout);
+check(str_contains($scene,'<picture>') && str_contains($scene,'class="hero-logo"') && str_contains($scene,'alt="Originalgrafik"') && !str_contains($scene,'hero-plane'),'Standard-Hero ist ein einzelnes Bild ohne Ebenen');
+check(str_contains($scene,'dau-to-pro-hero-v2-885.webp 885w') && str_contains($scene,'dau-to-pro-hero-v2-1770.webp 1770w'),'Hero liefert zwei Auflösungen');
+foreach([885=>444,1770=>889] as $width=>$height){
+    $file=__DIR__.'/../assets/dau-to-pro-hero-v2-'.$width.'.webp';
+    $size=getimagesize($file);
+    check($size!==false && $size[0]===$width && $size[1]===$height && $size['mime']==='image/webp','Hero-Quelle hat richtige Maße und Bildformat');
 }
-check(substr_count($scene,'class="hero-plane hero-plane--')===5 && !str_contains($scene,'data-hero-depth='),'Originalgrafik hat fünf feste Ebenen ohne Parallax');
-check(str_contains($scene,'hero-learning-growth') && str_contains($scene,'aria-label="Dein Lernfortschritt: vom DAU zum PRO"') && !str_contains($scene,'DEIN LERNFORTSCHRITT'),'Fortschrittsgrafik behält ihren zugänglichen Namen ohne sichtbare Beschriftung');
-check(str_contains($scene,'data-mushroom-anchor'),'Der Pilz besitzt einen eigenen mitbewegten Anker');
-check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true]),'Eigener Hero'),'hero-plane'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');
-check($hero['src']==='assets/dau-to-pro-hero-freigestellt.png' && !$hero['custom'],'Standard-Hero ist die freigestellte Originalgrafik');
+check(!str_contains(dtp_hero_scene(array_replace($hero,['custom'=>true,'src'=>'assets/uploads/dtp-hero-'.str_repeat('a',32).'.png']),'Eigener Hero'),'srcset'),'Eigene Hero-Uploads werden unverändert ohne Ausschnitte ausgegeben');
+check($hero['src']==='assets/dau-to-pro-hero-v2-1770.webp' && !$hero['custom'] && $hero['width']===1770 && $hero['height']===889,'Standard-Hero ist die neue Hero-Grafik');
 check(is_file(__DIR__.'/../'.$hero['src']),'Original-Hero-Datei existiert');
 $size=getimagesize(__DIR__.'/../'.$hero['src']);
 check($size[0]===$hero['width'] && $size[1]===$hero['height'],'Hero-Maße stimmen mit der Datei überein');
-$trim=dtp_hero_measure_trim(__DIR__.'/../'.$hero['src'],IMAGETYPE_PNG);
+$trim=dtp_hero_measure_trim(__DIR__.'/../'.$hero['src'],IMAGETYPE_WEBP);
 foreach(dtp_hero_default_trim() as $side=>$value) check($trim[$side]<=$value+0.002,"Gemessener Rand ($side) überlappt keine sichtbaren Pixel");
-check(preg_match('/--hero-trim-top:0\.0\d+;--hero-trim-bottom:0\.0\d+/',dtp_hero_style($hero))===1,'Hero-Stil enthält Randwerte');
+check(preg_match('/--hero-trim-top:0\.0+;--hero-trim-bottom:0\.0+/',dtp_hero_style($hero))===1,'Die deckende Hero-Grafik hat keine überlappenden Ränder');
 $tmp=tempnam(sys_get_temp_dir(),'hero').'.png';
 $im=imagecreatetruecolor(400,300);imagesavealpha($im,true);imagealphablending($im,false);
 imagefill($im,0,0,imagecolorallocatealpha($im,0,0,0,127));
 imagefilledrectangle($im,100,60,299,239,imagecolorallocatealpha($im,255,200,0,0));imagepng($im,$tmp);
 $t=dtp_hero_measure_trim($tmp,IMAGETYPE_PNG);
 check($t['left']>0.2 && $t['left']<=0.25 && $t['top']>0.15 && $t['top']<=0.2 && $t['bottom']>0.15 && $t['right']>0.2,'Transparente Ränder einer eigenen Grafik werden korrekt erkannt');
-check(!dtp_hero_is_upload('assets/dau-to-pro-hero-freigestellt.png') && !dtp_hero_is_upload('../lib.php'),'Original und fremde Pfade werden nie gelöscht');
-$scene=dtp_hero_scene(['custom'=>false,'src'=>'assets/dau-to-pro-hero-1448.webp','width'=>1448,'height'=>1086],'DAU TO PRO');
-check(str_contains($scene,'class="hero-brand"') && str_contains($scene,'class="hero-pixelpilz"') && !str_contains($scene,'hero-plane--brand" data-hero-depth="0.18"><div class="hero-slice'),'Schriftzug und Pilz als saubere Vektorgrafik statt Rasterausschnitt');
+check(!dtp_hero_is_upload('assets/dau-to-pro-hero-v2-1770.webp') && !dtp_hero_is_upload('../lib.php'),'Original und fremde Pfade werden nie gelöscht');
 $fx=dtp_hero_fx_attrs(['custom'=>false]);
 check(str_contains($fx,'data-fx="../assets/dau-to-pro-pixelpilz.svg?v=') && str_contains($fx,'data-fx-video="../assets/dau-to-pro-easteregg.mp4?v='),'Hero-Effekt: Bild und Video werden übergeben');
+check(str_contains($fx,'data-fx-art="1770x889"') && str_contains($fx,'data-fx-box="1353,473,181,171"'),'Hero-Effekt kennt die Pilz-Position in der Grafik');
 check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original-Hero-Grafik');
 @unlink($tmp);@unlink($db);
 echo $failures?"$failures von $count Prüfungen fehlgeschlagen\n":"DAU-Bibliothek: $count Prüfungen bestanden\n";

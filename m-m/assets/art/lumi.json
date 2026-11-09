@@ -1,0 +1,63 @@
+{
+  "frameWidth": 206,
+  "frameHeight": 146,
+  "originX": 107.0,
+  "originY": 138.0,
+  "scale": 1,
+  "clips": {
+    "idle": {
+      "frames": 12,
+      "fps": 8,
+      "loop": true,
+      "label": "Steht und atmet"
+    },
+    "walk": {
+      "frames": 16,
+      "fps": 14,
+      "loop": true,
+      "label": "Gemütlicher Katzengang"
+    },
+    "run": {
+      "frames": 16,
+      "fps": 16,
+      "loop": true,
+      "label": "Schneller Lauf"
+    },
+    "jump": {
+      "frames": 14,
+      "fps": 12,
+      "loop": false,
+      "label": "Kleiner Sprung"
+    },
+    "groom": {
+      "frames": 30,
+      "fps": 12,
+      "loop": false,
+      "label": "Putzt die Pfote"
+    },
+    "sit": {
+      "frames": 12,
+      "fps": 10,
+      "loop": false,
+      "label": "Setzt sich hin"
+    },
+    "sit_idle": {
+      "frames": 10,
+      "fps": 8,
+      "loop": true,
+      "label": "Sitzt und atmet"
+    },
+    "lie": {
+      "frames": 12,
+      "fps": 10,
+      "loop": false,
+      "label": "Legt sich hin"
+    },
+    "sleep": {
+      "frames": 10,
+      "fps": 8,
+      "loop": true,
+      "label": "Ruht und atmet"
+    }
+  }
+}

@@ -23,7 +23,9 @@ main,.dtp-footer{position:relative;z-index:1}
 /* Drei Tiefen: Platine, Leiterbahnen und die durchgehenden goldenen Lichtlinien. */
 .dtp-world-texture{position:fixed;top:0;left:0;width:100%;height:128vh;z-index:-1;pointer-events:none;background-image:linear-gradient(180deg,#090e11b8,#090e11ed 60%,#090e11f5),var(--dtp-bg,none);background-size:100% 100%,cover;background-position:center,center top;background-repeat:no-repeat;background-color:var(--base)}
 .dtp-parallax-clip{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.dtp-world-traces,.dtp-eternal-rays{position:absolute;inset:-300px 0 -60px;pointer-events:none;overflow:hidden;mix-blend-mode:screen}
+/* Ohne mix-blend-mode: Der Mischmodus zwang den Browser, die großen Parallax-Ebenen bei jedem Scrollbild neu zu
+   verrechnen (Ruckeln). Auf dem dunklen Grund sieht normale Überblendung gleich aus (max. 3/255 Abweichung). */
+.dtp-world-traces,.dtp-eternal-rays{position:absolute;inset:-300px 0 -60px;pointer-events:none;overflow:hidden}
 .dtp-world-traces{opacity:.22}
 .dtp-eternal-rays{opacity:.30}
 .dtp-world-traces svg,.dtp-eternal-rays svg{display:block;width:100%;height:100%}
@@ -87,6 +89,20 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse,#4ccddc12,transparent 65%);pointer-events:none}
 .hero-art-wrap{position:relative;display:flow-root;width:100%;margin:0;pointer-events:none}
 .hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain}
+/* Standard-Hero: fertige Grafik, die Ränder laufen weich in den Seitenhintergrund aus. */
+.hero-art-wrap[data-scene=flat] .hero-logo{user-select:none;-webkit-user-drag:none;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);mask-composite:intersect}
+@media(min-width:861px){
+  .hero-visual{align-self:stretch;align-content:center}
+  /* Die Grafik ragt nach links und rechts in den Seitenrand, bleibt aber immer im Fenster (--hero-pad = Randbreite). */
+  .hero-art-wrap[data-scene=flat]{--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
+  .hero-copy .hero-lead{max-width:min(100%,390px);text-wrap:pretty;hyphens:auto}
+}
+@media(min-width:861px) and (max-width:1060px){
+  .hero-art-wrap[data-scene=flat]{width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
+  .hero-copy .hero-lead{max-width:min(100%,340px)}
+}
 .eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}
 /* Der Katalog passt seine Spalten an tatsächlich sichtbare Module an. */
 .catalog-section{padding:52px 0 60px}
@@ -114,6 +130,11 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-number{display:inline-grid;place-items:center;min-width:2.2em;aspect-ratio:1;border:1px solid currentColor;border-radius:50%;flex:none;font-size:11px;line-height:1}
 .module-body h2{color:var(--cream);font-size:24px;line-height:1.25;letter-spacing:-.03em;margin:12px 0}
 .module-body p{color:var(--muted);font-size:14px;line-height:1.75;margin:0 0 22px;flex:1}
+/* NERD FM: Song auf dieser Karte freischaltbar bzw. freigeschaltet */
+.module-body p.module-song{flex:none;display:flex;align-items:baseline;gap:7px;margin:-8px 0 18px;padding:7px 11px;border:1px solid #ffb22a40;border-radius:10px;background:#ffb22a0f;color:#f2c46b;font-size:12px;line-height:1.45;font-weight:650}
+.module-body p.module-song>span{color:#ffb22a;font-size:14px}
+.module-body p.module-song.is-unlocked{border-color:#22dcf555;background:#22dcf510;color:#9cf3ff}
+.module-body p.module-song.is-unlocked>span{color:#22dcf5}
 .module-footer{border-top:1px solid var(--stroke);padding-top:15px;margin-top:auto;display:flex;align-items:center;justify-content:space-between;color:var(--cream);font-size:12px;font-weight:650}
 .module-footer b{font-size:21px;color:var(--mod);font-weight:500}
 .search-empty,.empty-state{color:var(--muted);background:#111b22;border:1px dashed #ffffff30;border-radius:var(--radius);padding:32px;text-align:center}
@@ -153,6 +174,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .footer-brand small,.dtp-footer small{display:block;color:#91a3ac;font-size:10px;margin-top:4px}
 .footer-links{display:flex;gap:18px;flex-wrap:wrap;font-size:11px;color:var(--muted)}
 .footer-links a:hover{color:var(--goldlite)}
+@media (pointer:coarse){.footer-links{row-gap:4px}.footer-links a{display:inline-block;padding:10px 0}}
 /* Der bestehende ruhige Kartenfokus: getrennt von Parallax und Einblendungen. */
 .dtp-focus-overlay{position:fixed;inset:0;pointer-events:none;z-index:9999;visibility:hidden;contain:layout style}
 .dtp-focus-overlay.is-rendering{visibility:visible}
@@ -234,8 +256,82 @@ main,.dtp-footer{position:relative;z-index:1}
 .dtp-landing .module-number,.dtp-landing .step-no{font-family:ui-monospace,"JetBrains Mono","Cascadia Mono",Consolas,monospace;font-weight:800}
 
 
-/* Personal achievement showcase in the compact top-five preview. */
-.hs-showcase{display:flex;gap:6px;align-items:center;margin:6px 0}.hs-showcase .showcase-icon,.hs-showcase-empty{display:grid;place-items:center;width:34px;height:34px;position:relative;background:#ffffff06;border:1px solid #ffffff20;border-radius:6px;color:inherit}.hs-showcase img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}.hs-showcase-empty{opacity:.25}.hs-showcase [role=tooltip]{display:none;pointer-events:none;position:absolute;bottom:100%;left:0;z-index:3;width:max-content;max-width:180px;padding:8px;background:#10171b;border:1px solid #eab448;font-size:12px}.hs-showcase button:hover [role=tooltip],.hs-showcase button:focus [role=tooltip]{display:block}.hs-showcase button:focus-visible{outline:2px solid #eab448}
+/* Die Vitrine bleibt INNERHALB der urspruenglichen Highscore-Balken.
+   Nur die Abzeichen werden groesser und ueber die freie Breite verteilt.
+   Die Geometrie von .hs-board und .hs-row wird nicht veraendert. */
+.hs-showcase {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: clamp(4px, 1vw, 14px);
+  width: 100%;
+  min-width: 0;
+  margin: 7px 0;
+}
+.hs-showcase .showcase-icon, .hs-showcase-empty {
+  --showcase-color: #eab448;
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  box-sizing: border-box;
+  width: clamp(62px, 7.5vw, 92px);
+  height: clamp(62px, 7.5vw, 92px);
+  max-width: 100%;
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid color-mix(in srgb, var(--showcase-color) 55%, #ffffff20);
+  border-radius: 10px;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--showcase-color) 13%, #131d22), #0a1116);
+  color: var(--cream);
+  font-size: 34px;
+}
+.hs-showcase .tier-bronze { --showcase-color: #d08b55; }
+.hs-showcase .tier-silber { --showcase-color: #c8d0d6; }
+.hs-showcase .tier-gold { --showcase-color: #eab448; }
+.hs-showcase .tier-platin { --showcase-color: #7fe0e6; }
+.hs-showcase .tier-witzig { --showcase-color: #c4a8ff; }
+.hs-showcase .tier-versteckt { --showcase-color: #ff7f8f; }
+.hs-showcase img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.hs-showcase-empty { opacity: .3; }
+.hs-showcase [role=tooltip] {
+  display: none;
+  pointer-events: none;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: max-content;
+  max-width: min(220px, 70vw);
+  padding: 9px 12px;
+  border: 1px solid #eab448;
+  border-radius: 6px;
+  background: #10171b;
+  color: #fff;
+  font-size: 12px;
+  white-space: normal;
+}
+.hs-showcase button:hover [role=tooltip], .hs-showcase button:focus [role=tooltip] { display: block; }
+.hs-showcase [role=tooltip] strong { display: block; color: #eab448; }
+.hs-showcase [role=tooltip] small { display: block; margin-top: 4px; font-size: 12px; line-height: 1.4; color: #d7dde2; }
+.hs-showcase button:focus-visible { outline: 2px solid #eab448; outline-offset: 2px; }
+@media(max-width:640px){
+  .hs-showcase { gap: 4px; margin: 6px 0; }
+  .hs-showcase .showcase-icon, .hs-showcase-empty {
+    width: clamp(30px, 11vw, 52px);
+    height: clamp(30px, 11vw, 52px);
+    padding: 2px;
+    border-radius: 7px;
+    font-size: 24px;
+  }
+}
 .filter-btn{min-height:44px;padding:10px 15px;border:1px solid var(--stroke);border-radius:8px;background:#111b21;color:var(--muted);font:inherit;font-size:13px;cursor:pointer}.filter-btn:hover{color:var(--cream);border-color:#76d8df70}.filter-btn.active{background:var(--cream);color:#111b21}.filter-btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
 
 
@@ -307,3 +403,15 @@ main,.dtp-footer{position:relative;z-index:1}
     15%, 35% { color: #fff4ce; text-shadow: 0 0 12px #ffbd52; }
   }
 }
+
+/* Modulstapel (siehe site.js). Das Raster bleibt die Grundlage. */
+.module-grid.is-stacked{display:block;position:relative}
+.module-grid.is-stacked .stack-stage{position:sticky;overflow:visible}
+.module-grid.is-stacked .stack-row{position:absolute;left:0;right:0;top:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:stretch;transform-origin:50% 0;will-change:transform,opacity;transition:filter .3s}
+/* Einzelne Karte in der Reihe steht mittig, zwei Karten bleiben links. */
+.module-grid.is-stacked .stack-row>.module-card:only-child{grid-column:2}
+.module-grid.is-stacked .stack-row .module-card{height:100%;background:#111b22;box-shadow:0 18px 40px #0007}
+.module-grid.is-stacked .stack-row.is-front .module-card{box-shadow:0 22px 50px #000a,0 0 0 1px color-mix(in srgb,var(--mod) 30%,transparent)}
+.module-grid.is-stacked .stack-row.is-behind{filter:brightness(.55) saturate(.7);cursor:pointer}
+.module-grid.is-stacked .stack-row.is-behind .module-card:hover{transform:none}
+

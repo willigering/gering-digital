@@ -1,0 +1,50 @@
+/* Eigenständige DAU-TO-PRO-Themen-Spickzettel; nicht Teil des Modulstapels. */
+.cheat-collection{position:relative;isolation:isolate;margin:48px 0 12px;padding:30px 0 16px;border-top:1px solid #70e5d439}
+.cheat-collection:before{content:"";position:absolute;pointer-events:none;inset:0 0 auto;height:250px;background:radial-gradient(ellipse at 30% 0%,#63d8bc0d,transparent 75%);z-index:-1}
+.cheat-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:48px}
+.cheat-kicker{display:inline-block;color:#86e3d1;font-size:10px;letter-spacing:.12em;font-weight:900}
+.cheat-head h3{margin:8px 0 6px;font-size:clamp(24px,3vw,37px);font-weight:950;line-height:1.05;letter-spacing:-.055em;text-transform:uppercase}
+.cheat-head h3 em{font-style:normal;color:#edba68}
+.cheat-head p{margin:0;color:#bdced2;font-size:13px;line-height:1.65;max-width:680px}
+.cheat-head-count{flex:none;border:1px solid #70e5d43d;border-radius:8px;padding:12px 15px;background:#70e5d40b;text-align:right;color:#b3c8c9;font:800 10px ui-monospace,Consolas,monospace;white-space:nowrap}
+.cheat-head-count b{display:block;color:#87e6d4;font-size:23px;line-height:1.2}
+.cheat-mini-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;position:relative;padding-bottom:26px;scroll-margin-top:108px}
+.cheat-mini{--cheat:#83e3d0;min-width:0;min-height:238px;position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;text-decoration:none;color:#edf5ef;border:1px solid color-mix(in srgb,var(--cheat) 38%,#31434c);border-radius:11px;padding:14px;background:linear-gradient(155deg,color-mix(in srgb,var(--cheat) 12%,#18212c),#101820 45%,#0b131b);box-shadow:0 14px 32px #0008;transition:transform .25s,border-color .25s,box-shadow .25s}
+.cheat-mini:before{content:"";position:absolute;inset:-75px -65px auto auto;width:190px;height:190px;border-radius:50%;border:1px solid color-mix(in srgb,var(--cheat) 30%,transparent);box-shadow:0 0 0 25px color-mix(in srgb,var(--cheat) 5%,transparent),inset 0 0 38px color-mix(in srgb,var(--cheat) 7%,transparent);z-index:-1}
+.cheat-mini:after{content:"";position:absolute;inset:0 auto auto 14px;height:2px;width:70px;background:var(--cheat);box-shadow:0 0 18px var(--cheat)}
+.cheat-mini:hover{transform:translateY(-4px);border-color:var(--cheat);box-shadow:0 19px 41px #000b,0 0 19px color-mix(in srgb,var(--cheat) 18%,transparent)}
+.cheat-mini-bar{display:flex;justify-content:space-between;align-items:center;gap:7px;color:#afc1c5;font:800 9px ui-monospace,Consolas,monospace;letter-spacing:.075em}
+.cheat-mini-bar b{font-size:12px;color:var(--cheat)}
+.cheat-mini-icon{display:grid;place-items:center;align-self:flex-end;min-width:52px;height:50px;color:var(--cheat);font:950 32px ui-monospace,Consolas,monospace;letter-spacing:-.09em;text-shadow:0 0 24px color-mix(in srgb,var(--cheat) 45%,transparent)}
+.cheat-mini-kind{color:var(--cheat);font:900 9px ui-monospace,Consolas,monospace;letter-spacing:.09em;margin-top:5px}
+.cheat-mini-title{display:block;margin:8px 0 8px;font-size:clamp(16px,1.5vw,20px);font-weight:950;line-height:1.12;text-transform:uppercase;letter-spacing:-.045em;overflow-wrap:anywhere}
+.cheat-mini-desc{color:#b7c8cd;font-size:11px;line-height:1.5;margin-bottom:13px;overflow-wrap:anywhere}
+.cheat-mini-foot{margin-top:auto;display:flex;justify-content:space-between;gap:6px;align-items:center;padding-top:10px;border-top:1px solid color-mix(in srgb,var(--cheat) 30%,transparent);font:850 9px ui-monospace,Consolas,monospace;color:#a7bdc4}
+.cheat-mini-foot strong{color:var(--cheat);white-space:nowrap}
+/* Eine gemeinsame Sticky-Ebene: die Karten bleiben direkt unter der Überschrift.
+   Scroll-Abstand wird separat reserviert, damit weder Titel noch Stapel absinken. */
+.cheat-stack-frame{position:relative}
+.cheat-stack-runway{display:none}
+.cheat-collection.has-stacked-shelf .cheat-stack-frame{position:sticky;top:var(--cheat-pin-top,96px);z-index:3}
+.cheat-collection.has-stacked-shelf .cheat-stack-runway{display:block;height:var(--cheat-runway,0px);pointer-events:none}
+.cheat-mini-grid.is-stacked{display:block;position:relative;padding-bottom:0}
+.cheat-mini-grid.is-stacked .cheat-stack-stage{position:relative;overflow:visible}
+.cheat-mini-grid.is-stacked .cheat-stack-row{position:absolute;inset:0 0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;align-items:stretch;transform-origin:50% 0;will-change:transform;transition:filter .3s}
+.cheat-mini-grid.is-stacked .cheat-stack-row .cheat-mini{height:100%}
+.cheat-mini-grid.is-stacked .cheat-stack-row>.cheat-mini:only-child{grid-column:3}
+.cheat-mini-grid.is-stacked .cheat-stack-row.is-behind{filter:brightness(.55) saturate(.75);cursor:pointer}
+.cheat-mini-grid.is-stacked .cheat-stack-row.is-behind .cheat-mini{pointer-events:none}
+.cheat-mini-grid.is-stacked .cheat-stack-row.is-behind .cheat-mini:hover{transform:none}
+.cheat-mini-grid.is-stacked .cheat-stack-row.is-front .cheat-mini{box-shadow:0 22px 46px #000a,0 0 16px color-mix(in srgb,var(--cheat) 13%,transparent)}
+.cheat-collection.has-stacked-shelf .cheat-cta-row{position:absolute;left:0;right:0;top:var(--cheat-cta-top,850px);z-index:5;margin-top:0;pointer-events:auto}
+.cheat-cta-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+.cheat-cta-row p{margin:0;color:#9ab1b6;font-size:11px;line-height:1.55}
+.cheat-all{display:inline-flex;align-items:center;gap:13px;border:1px solid #74e4d451;border-radius:7px;padding:11px 15px;background:#70e5d40b;color:#bdf5e8;font-size:11px;font-weight:900;text-decoration:none;letter-spacing:.03em}
+.cheat-all:hover{background:#70e5d422;border-color:#74e4d4}
+@media(min-width:1120px){.cheat-mini-grid:not(.is-stacked)>a:last-child:nth-child(5n + 1){grid-column:3}}
+@media(max-width:1119px){.cheat-mini-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.cheat-mini-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.cheat-head{align-items:flex-start}.cheat-head-count{padding:9px}.cheat-mini{min-height:222px}.cheat-head h3{font-size:27px}}
+@media(max-width:460px){.cheat-mini-grid{grid-template-columns:1fr}.cheat-mini{min-height:185px}.cheat-mini-icon{height:35px}.cheat-mini-title{font-size:22px}.cheat-head-count{display:none}.cheat-collection{margin-top:28px}}
+@media(prefers-reduced-motion:reduce){.cheat-mini,.cheat-stack-row{transition:none!important}.cheat-mini:hover{transform:none}}
+
+.cheat-mini-grid.is-stacked .cheat-stack-row.is-waiting{filter:brightness(.72) saturate(.82);pointer-events:none}

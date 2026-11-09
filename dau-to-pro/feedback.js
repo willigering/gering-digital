@@ -69,37 +69,69 @@
         // Keep counting on this page when browser storage is unavailable.
     }
 
+    // A rare Easter egg: decide once per visit, not on every mouse movement.
+    const escapeEnabledOnThisVisit = Math.random() < 0.05;
+
     let lastPrompt = -1;
     let nextEscape = 0;
-    let escapeAnimation;
-    let escaped = false;
+    let escapeStep = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    function returnToStart() {
+        trigger.style.translate = '';
+        offsetX = offsetY = 0;
+    }
 
     trigger.hidden = false;
     trigger.addEventListener('pointerenter', (event) => {
-        if (event.pointerType !== 'mouse' || sentCount < 3 || escaped || Date.now() < nextEscape
-            || trigger.matches(':focus-visible') || matchMedia('(prefers-reduced-motion: reduce)').matches
-            || typeof trigger.animate !== 'function') return;
+        if (event.pointerType !== 'mouse' || sentCount < 3 || !escapeEnabledOnThisVisit || escapeStep === 3 || Date.now() < nextEscape
+            || trigger.matches(':focus-visible') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        if (++escapeStep === 3) {
+            returnToStart();
+            nextEscape = Date.now() + 30000;
+            return;
+        }
 
         const rect = trigger.getBoundingClientRect();
-        const left = rect.left > innerWidth - rect.right ? -1 : 1;
-        const up = rect.top > innerHeight - rect.bottom ? -1 : 1;
-        const x = left * Math.min(100, Math.max(0, (left < 0 ? rect.left : innerWidth - rect.right) - 8));
-        const y = up * Math.min(64, Math.max(0, (up < 0 ? rect.top : innerHeight - rect.bottom) - 8));
-        const positions = [
-            {translate: '0 0'},
-            {translate: `${x}px 0`},
-            {translate: `${x / 2}px ${y}px`},
-        ];
-        if (Math.random() < .5) positions.push({translate: `${x}px ${y / 2}px`});
-        positions.push({translate: '0 0'});
-        escaped = true;
-        nextEscape = Date.now() + 30000;
-        escapeAnimation = trigger.animate(positions, {duration: (positions.length - 1) * 230, easing: 'ease-in-out'});
+        const startX = rect.left - offsetX;
+        const startY = rect.top - offsetY;
+        const viewport = document.documentElement;
+        const minX = Math.max(0, Math.min(12, (viewport.clientWidth - rect.width) / 2));
+        const verticalSpace = Math.max(0, viewport.clientHeight - rect.height);
+        const minY = Math.min(verticalSpace, Math.max(0, document.querySelector('.dtp-nav')?.getBoundingClientRect().bottom ?? 0) + 12);
+        const maxX = Math.max(minX, viewport.clientWidth - rect.width - minX);
+        const maxY = Math.max(minY, verticalSpace - 12);
+        const corners = [[minX, minY], [maxX, minY], [minX, maxY], [maxX, maxY]];
+        const awayFromStart = corners.filter(([x, y]) =>
+            Math.abs(x - startX) >= rect.width || Math.abs(y - startY) >= rect.height
+        );
+        const distance = ([x, y]) => Math.hypot(
+            Math.max(x - event.clientX, event.clientX - x - rect.width, 0),
+            Math.max(y - event.clientY, event.clientY - y - rect.height, 0)
+        );
+        const [x, y] = (awayFromStart.length ? awayFromStart : corners).sort((a, b) => distance(b) - distance(a))[0];
+        offsetX = x - startX;
+        offsetY = y - startY;
+        trigger.style.translate = `${offsetX}px ${offsetY}px`;
+    });
+    function resetOnViewportChange() {
+        if (escapeStep > 0 && escapeStep < 3) {
+            returnToStart();
+            escapeStep = 0;
+        }
+    }
+    window.addEventListener('resize', resetOnViewportChange);
+    window.addEventListener('scroll', resetOnViewportChange, {passive: true});
+    trigger.addEventListener('focus', () => {
+        if (trigger.matches(':focus-visible')) resetOnViewportChange();
     });
     trigger.addEventListener('click', () => {
-        escapeAnimation?.cancel();
-        if (escaped) {
-            escaped = false;
+        if (escapeStep > 0) {
+            returnToStart();
+            escapeStep = 0;
+            nextEscape = Date.now() + 30000;
             intro.textContent = escapePrompts[Math.floor(Math.random() * escapePrompts.length)];
             dialog.showModal();
             return;

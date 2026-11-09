@@ -506,7 +506,9 @@ body.dtp-exercise-open{overflow:hidden}
           dialog.classList.add('dtp-focus-visible');
           animateTo(1);
         });});
-        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Answer fields first: the "?" tip comes earlier in the DOM and would cover the field on phones.
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled])')
+          ||task.querySelector('button:not([disabled]),[tabindex="0"]:not(.qhelp)');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
         closing=true;cancelAnimationFrame(frame);
@@ -867,6 +869,309 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-TASCHENRECHNER END -->
+<!-- DTP-HANDY START -->
+<style>
+/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}
+</style>
+<script>
+/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
+   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
+(function () {
+  'use strict';
+  if (window.__dtpMobile) return;
+  window.__dtpMobile = true;
+  var wasOpen = null;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { wasOpen = null; return; }
+    var help = e.target.closest && e.target.closest('.qhelp');
+    wasOpen = help && document.activeElement === help ? help : null;
+  }, true);
+  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
+  document.addEventListener('focusout', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
+  });
+  document.addEventListener('click', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (!help) return;
+    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
+    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
+    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
+    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
+    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
+    var tip = help.querySelector('.qtip');
+    if (!tip) return;
+    requestAnimationFrame(function () {
+      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
+      if (r.height && over > 0) {
+        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
+      }
+    });
+  });
+})();
+</script>
+<!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
+  const newQuips = [
+  "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
+  "Oha, das ist ja richt… Oh. Doch nicht.",
+  "WOW! Eine Antwort! Und sie ist FALSCH.",
+  "Ehrlich? DAS ist deine Antwort?",
+  "Das hast du jetzt nicht gesagt!?",
+  "Das war einfach nur scheiße.",
+  "Das war Bockmist. Der nächste Versuch ist gratis.",
+  "Falsch. Hast du das gerade wirklich abgeschickt?",
+  "Falsch. Aber mutig.",
+  "Falsch. Und ich hatte so viel Hoffnung.",
+  "Falsch. Das tat beim Lesen weh.",
+  "Deine Antwort ist durchgefallen. Du noch nicht.",
+  "Falsch. Tu einfach so, als hättest du das nie abgeschickt.",
+  "Falsch. Steht in keiner Doku. Nicht mal in der schlechten.",
+  "Falsch. Sag das bitte nie im Bewerbungsgespräch.",
+  "Falsch. Und zwar richtig falsch.",
+  "Falsch. Ich hab extra noch mal nachgeschaut.",
+  "Falsch. Ich muss mich kurz setzen.",
+  "Falsch. Ich bin nicht wütend, nur enttäuscht.",
+  "Falsch. Das sagen wir jetzt einfach niemandem.",
+  "Falsch. Erklär mir bitte nicht, wie du darauf gekommen bist.",
+  "Falsch. Die Frage hat das nicht verdient.",
+  "Falsch. Aber schön, dass du da bist.",
+  "Falsch. Das war so daneben, das hat schon wieder Stil.",
+  "Falsch. Noch so eine, und ich rufe deine Mutter an.",
+  "Falsch. Das kannst du besser. Hoffe ich.",
+  "Falsch. Und du hattest so viel Zeit.",
+  "Falsch. Und das auch noch mit Absicht?",
+  "Falsch. Hoffentlich war das nur geraten.",
+  "Falsch. Das hat mir jetzt den Abend versaut.",
+  "Falsch. Und das ist noch die freundliche Formulierung.",
+  "Falsch. Ich sag's dir lieber gleich.",
+  "Falsch. Ich hab's zweimal gelesen, es wird nicht besser.",
+  "Falsch. Da kann auch ich nichts mehr retten.",
+  "Falsch. Ich hab kurz gehofft, du machst Spaß.",
+  "Falsch. Bitte sag mir, dass das ein Witz war.",
+  "Falsch. Ich brauch jetzt erst mal einen Kaffee.",
+  "Falsch. Ich hol mal kurz frische Luft.",
+  "Falsch. Das muss ich erst mal verarbeiten.",
+  "Falsch. Gib mir eine Minute.",
+  "Falsch. Ich sag jetzt lieber nichts.",
+  "Falsch. Mir fehlen die Worte. Dir leider nicht.",
+  "Falsch. Das wird auch nicht richtiger, wenn du es noch mal anschaust.",
+  "Falsch. Aber du bist ja noch jung.",
+  "Falsch. Aber du wirkst sehr überzeugt.",
+  "Falsch. Aber gut, dass wir darüber gesprochen haben.",
+  "Falsch. Aber du siehst heute gut aus.",
+  "Falsch. Aber deine Haare sitzen.",
+  "Falsch. Aber das Selbstvertrauen stimmt.",
+  "Falsch. Dafür gibt's keine Punkte. Auch keine halben.",
+  "Falsch. Dafür gibt's nicht mal Mitleidspunkte.",
+  "Falsch. Das gibt eine schöne Null.",
+  "Falsch. Das kommt nicht an den Kühlschrank.",
+  "Falsch. Das rahmen wir nicht ein.",
+  "Falsch. Das erzählst du besser nicht weiter.",
+  "Falsch. Das streichen wir aus dem Protokoll.",
+  "Falsch. Keine Sorge, das hat keiner gesehen. Außer mir.",
+  "Falsch. Schau jetzt bitte nicht so.",
+  "Falsch. Guck nicht so, das warst du selbst.",
+  "Falsch. Du weißt es. Ich weiß es.",
+  "Falsch. Das weißt du aber auch selbst.",
+  "Falsch. Wer hätte das gedacht. Ich.",
+  "Falsch. Ich hab's kommen sehen.",
+  "Falsch. Hat mich jetzt nicht überrascht.",
+  "Falsch. Schade um die schöne Frage.",
+  "Falsch. Hast du das ausgewürfelt?",
+  "Falsch. Wer hat dir das erzählt?",
+  "Falsch. Geht's dir gut?",
+  "Falsch. Möchtest du dich kurz hinlegen?",
+  "Falsch. Trink mal was.",
+  "Falsch. Hast du heute schon was gegessen?",
+  "Falsch. Wie viele Finger halte ich hoch?",
+  "Falsch. Fahr heute bitte nicht mehr selbst.",
+  "Falsch. Mach mal eine Pause. Ich brauch auch eine.",
+  "Falsch. So wird das nichts mit uns.",
+  "Falsch. Wir müssen reden.",
+  "Falsch. Ich glaub, wir sollten uns mal zusammensetzen.",
+  "Falsch. Ich lass das mal so wirken.",
+  "Falsch. Lass das mal kurz sacken.",
+  "Falsch. Lass uns das nie wieder erwähnen.",
+  "Falsch. Wir fangen einfach noch mal von vorne an. Ganz von vorne.",
+  "Falsch. Das Gute: Schlimmer wird's heute nicht. Hoffentlich.",
+  "Falsch. Beim nächsten Mal gern mit Nachdenken.",
+  "Falsch. Nachdenken wäre auch eine Option gewesen.",
+  "Falsch. Raten ist auch eine Methode. Nur keine gute."
+];
+  if (NEW_QUIPS_LIVE) quips.push(...newQuips);
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -950,7 +1255,7 @@ body.dtp-exercise-open{overflow:hidden}
     <div class="section-heading" id="trainTop" tabindex="-1" data-mark="03">
       <span class="eyebrow">03 / Trainingsraum</span>
       <h2>Üben, bis es <span>wehtut.</span> Dann noch drei.</h2>
-      <p>Fallpools und Zufallswerte bringen Abwechslung in die Aufgaben. Nach jeder Antwort siehst du den vollständige Begründung. Der Trainingsraum merkt sich, welche Aufgabentypen dir schwerfallen, und im Modus „Baustellen“ bekommst du genau die.</p>
+      <p>Fallpools und Zufallswerte bringen Abwechslung in die Aufgaben. Nach jeder Antwort siehst du die vollständige Begründung. Der Trainingsraum merkt sich, welche Aufgabentypen dir schwerfallen, und im Modus „Baustellen“ bekommst du genau die.</p>
     </div>
     <div class="mode-grid" role="group" aria-label="Trainingsmodus">
       <button type="button" class="mode-tile active" data-mode="free" aria-pressed="true"><span class="sym">◎</span><b>Freies Training</b><span>Thema wählen, in Ruhe lösen, Hinweis bei Bedarf</span></button>
@@ -1108,8 +1413,8 @@ cases('cia','c_goal','Schutzziel zum Vorfall',[
  ['Der Bestellserver fällt aus. Niemand kann Bestellungen aufrufen. Daten wurden weder gelesen noch verändert. Welches CIA-Schutzziel ist verletzt?','Die Daten sind gerade nicht nutzbar. Welches Ziel verlangt, dass sie rechtzeitig bereitstehen?','Verfügbarkeit','Der Ausfall verhindert die Nutzung. Verfügbarkeit verlangt, dass Informationen und Dienste bei Bedarf nutzbar sind.',['availability','A']]
 ]);
 cases('cia','c_measure','Schutzziel einer Maßnahme',[
- ['Eine Dateiverschlüsselung soll verhindern, dass ein Dieb die Dateien eines ausgeschalteten Laptops liest. Welches CIA-Schutzziel steht im Vordergrund?','Der Dieb soll die gespeicherten Dateien nicht lesen können. Welches Schutzziel passt?','Vertraulichkeit','Verschlüsselung schützt hier den Inhalt vor fremden Blicken. Sie verhindert allein weder Diebstahl noch Datenverlust.'],
- ['Eine USV überbrückt kurze Stromausfälle am Server. Welches CIA-Schutzziel unterstützt sie vor allem?','Eine unterbrechungsfreie Stromversorgung hält den Server bei kurzem Stromausfall in Betrieb. Welches Ziel stärkt das?','Verfügbarkeit','Der Server bleibt während kurzer Stromausfälle nutzbar. Das unterstützt die Verfügbarkeit; eine USV ersetzt kein Backup.'],
+ ['Eine Dateiverschlüsselung soll verhindern, dass ein Dieb die Dateien eines ausgeschalteten Laptops liest. Welches CIA-Schutzziel steht im Vordergrund?','Der Dieb soll die gespeicherten Dateien nicht lesen können. Welches Schutzziel passt?','Vertraulichkeit','Verschlüsselung schützt hier den Inhalt vor fremden Blicken. Sie verhindert allein weder Diebstahl noch Datenverlust. Der Laptop ist trotzdem weg.'],
+ ['Eine USV überbrückt kurze Stromausfälle am Server. Welches CIA-Schutzziel unterstützt sie vor allem?','Eine unterbrechungsfreie Stromversorgung hält den Server bei kurzem Stromausfall in Betrieb. Welches Ziel stärkt das?','Verfügbarkeit','Der Server bleibt während kurzer Stromausfälle nutzbar. Das unterstützt die Verfügbarkeit; eine USV ersetzt kein Backup. Sie rettet den Strom, nicht die gelöschte Datei.'],
  ['Ein mit geheimem Schlüssel berechneter Prüfwert erkennt unerlaubte Änderungen an Nachrichten. Welches CIA-Schutzziel wird hier geprüft?','Die Empfängerin prüft, ob eine Nachricht verändert wurde. Welches Ziel betrifft unverfälschte Daten?','Integrität','Der geschützte Prüfwert hilft, Änderungen zu erkennen. Ein ungeschützter Hash allein schützt nicht gegen Angreifer, die Datei und Hash ersetzen.']
 ]);
 cases('cia','c_auth','Authentizität erkennen',[
@@ -1126,11 +1431,11 @@ cases('cia','c_nonrep','Zusätzliche Schutzziele',[
 ]);
 cases('risk','r_term','Bedrohung und Schwachstelle',[
  ['Eine ungepatchte Sicherheitslücke im Webserver kann ausgenutzt werden. Ist die Lücke eine Bedrohung oder eine Schwachstelle?','Der Server hat eine ausnutzbare Lücke. Welcher der beiden Begriffe beschreibt die Lücke selbst?','Schwachstelle','Die Lücke ist eine ausnutzbare Schwäche. Der mögliche Angriff ist die Bedrohung. Das Risiko berücksichtigt mögliche Auswirkungen und Eintritt.',['Vulnerability']],
- ['Ein Brand könnte das Rechenzentrum zerstören. Ist der mögliche Brand eine Bedrohung oder eine Schwachstelle?','Was ist ein mögliches Schadensereignis: Bedrohung oder Schwachstelle?','Bedrohung','Feuer ist eine mögliche Schadensursache und damit eine Bedrohung. Fehlender Brandschutz wäre eine Schwachstelle.',['Threat']],
+ ['Ein Brand könnte das Rechenzentrum zerstören. Ist der mögliche Brand eine Bedrohung oder eine Schwachstelle?','Was ist ein mögliches Schadensereignis: Bedrohung oder Schwachstelle?','Bedrohung','Feuer ist eine mögliche Schadensursache und damit eine Bedrohung. Fehlender Brandschutz wäre eine Schwachstelle. Das Feuer selbst kann man schlecht abmahnen.',['Threat']],
  ['Ein unverschlossener Serverschrank erleichtert unberechtigten Zugriff. Ist die fehlende Sicherung eine Bedrohung oder eine Schwachstelle?','Die Tür ist nicht gesichert. Welcher Begriff beschreibt diese ausnutzbare Schwäche?','Schwachstelle','Die ungesicherte Tür ist die Schwachstelle. Eine Person, die unberechtigt zugreift, nutzt diese Schwäche aus.']
 ]);
 S('risk','r_score','Risikowert berechnen',1,()=>{const p=rint(1,5),d=rint(1,5);return numberTask('r_score',`Die Übung bewertet Eintritt und Schaden jeweils von 1 bis 5. Ein Risiko hat Eintritt ${p} und Schaden ${d}. Wie hoch ist der Risikowert in dieser Übung? Multipliziere Eintrittswert und Schadenswert.`,`Multipliziere die beiden Skalenwerte ${p} und ${d}. Welcher Wert kommt heraus?`,p*d,`${p} × ${d} = <b>${p*d}</b>. Das ist ein Wert in dieser festgelegten Übungsmatrix, keine universelle BSI-Formel und kein Eurobetrag.`)});
-S('risk','r_expect','Erwarteten Jahresschaden berechnen',1,()=>{const p=pick([2,5,10,20,25,40]),d=rint(2,30)*1000;return numberTask('r_expect',`Ein einzelnes Ereignis verursacht ${gi(d)} €. Seine Eintrittswahrscheinlichkeit in einem Jahr beträgt ${p} %. Welcher erwartete Jahresschaden ergibt sich im einfachen Modell?`,`Rechne ${p} % von ${gi(d)} €. Gesucht ist der durchschnittliche Modellwert für ein Jahr.`,d*p/100,`${p} % = ${p/100}. ${gi(d)} € × ${p/100} = <b>${gi(d*p/100)} € pro Jahr</b>. Ein einzelnes echtes Ereignis verursacht trotzdem ${gi(d)} €. Der Erwartungswert ist keine Schadensobergrenze.`,'€')});
+S('risk','r_expect','Erwarteten Jahresschaden berechnen',1,()=>{const p=pick([2,5,10,20,25,40]),d=rint(2,30)*1000;return numberTask('r_expect',`Ein einzelnes Ereignis verursacht ${gi(d)} €. Seine Eintrittswahrscheinlichkeit in einem Jahr beträgt ${p} %. Welcher erwartete Jahresschaden ergibt sich im einfachen Modell?`,`Rechne ${p} % von ${gi(d)} €. Gesucht ist der durchschnittliche Modellwert für ein Jahr.`,d*p/100,`${p} % = ${p/100}. ${gi(d)} € × ${p/100} = <b>${gi(d*p/100)} € pro Jahr</b>. Ein einzelnes echtes Ereignis verursacht trotzdem ${gi(d)} €. Der Erwartungswert ist keine Schadensobergrenze. Den Brand interessiert die Statistik nicht.`,'€')});
 cases('risk','r_treat','Risikobehandlung zuordnen',[
  ['Eine Firma schaltet einen unnötigen öffentlichen Dienst vollständig ab. Wie behandelt sie das Risiko dieses Dienstes: vermeiden, reduzieren, übertragen oder akzeptieren?','Die riskante Tätigkeit wird beendet. Welche der vier Behandlungen passt?','Vermeiden','Der unnötige Dienst entfällt. Damit vermeidet die Firma das mit seinem Betrieb verbundene Risiko.'],
  ['Eine Firma senkt durch zeitnahe Updates die Wahrscheinlichkeit eines Angriffs. Welche Risikobehandlung ist das? Antworte: vermeiden, reduzieren, übertragen oder akzeptieren.','Der Dienst bleibt, wird aber besser geschützt. Wie heißt diese Behandlung?','Reduzieren','Updates verringern ausnutzbare Schwachstellen. Das Risiko wird reduziert, nicht automatisch beseitigt.',['Mindern']],
@@ -1162,8 +1467,8 @@ choice('bsi','b_check','Grundschutz richtig einordnen',[
  ['Wer trägt die Gesamtverantwortung für Informationssicherheit in einer Organisation?','Wer muss Informationssicherheit insgesamt tragen und ermöglichen?','Die Leitung',['Nur die IT-Abteilung','Nur der Datenschutzbeauftragte','Nur ein externer Dienstleister'],'Die Leitung trägt die Gesamtverantwortung. Aufgaben können zugewiesen werden; dafür müssen Zuständigkeiten, Ressourcen und Kontrolle bestehen.']
 ]);
 cases('bsi','b_gap','Anforderungsstatus zuordnen',[
- ['Eine Anforderung verlangt tägliche Sicherungen und regelmäßige Rücksicherungstests. Sicherungen laufen, Tests fehlen. Welcher Status passt: erfüllt, teilweise erfüllt oder nicht erfüllt?','Ein Teil der Anforderung ist umgesetzt, der andere nicht. Welcher Status ist korrekt?','Teilweise erfüllt','Beide Bestandteile gehören zur Anforderung. Vorhandene Backups allein erfüllen sie nicht vollständig.'],
- ['Die Anforderung verlangt ein dokumentiertes Berechtigungskonzept. Es gibt keines. Welcher Status passt: erfüllt, teilweise erfüllt oder nicht erfüllt?','Das verlangte Konzept fehlt vollständig. Welchen Status trägst du ein?','Nicht erfüllt','Ohne das geforderte Konzept ist die Anforderung nicht erfüllt. Eine mündliche Vermutung ersetzt keinen Nachweis.']
+ ['Eine Anforderung verlangt tägliche Sicherungen und regelmäßige Rücksicherungstests. Sicherungen laufen, Tests fehlen. Welcher Status passt: erfüllt, teilweise erfüllt oder nicht erfüllt?','Ein Teil der Anforderung ist umgesetzt, der andere nicht. Welcher Status ist korrekt?','Teilweise erfüllt','Beide Bestandteile gehören zur Anforderung. Vorhandene Backups allein erfüllen sie nicht vollständig. „Wir haben da mal was gesichert“ ist kein Nachweis.'],
+ ['Die Anforderung verlangt ein dokumentiertes Berechtigungskonzept. Es gibt keines. Welcher Status passt: erfüllt, teilweise erfüllt oder nicht erfüllt?','Das verlangte Konzept fehlt vollständig. Welchen Status trägst du ein?','Nicht erfüllt','Ohne das geforderte Konzept ist die Anforderung nicht erfüllt. Eine mündliche Vermutung ersetzt keinen Nachweis. „Das macht der Micha immer so“ auch nicht.']
 ]);
 S('need','s_max','Maximumprinzip anwenden',1,()=>{const v=shuffle(['normal','hoch','sehr hoch']);return textTask(`Drei Anwendungen benötigen für Vertraulichkeit ${v.join(', ')}. Sie laufen auf einem Server. Kumulations- und Verteilungseffekte sind ausgeschlossen. Welchen Vertraulichkeitsbedarf erbt der Server?`,'Übernimm für dasselbe Schutzziel die höchste der drei genannten Kategorien. Welche ist das?','sehr hoch','Das Maximumprinzip übernimmt den höchsten Bedarf desselben Schutzziels. Hier ist das <b>sehr hoch</b>. Andere Schutzziele werden getrennt bewertet.',[],'Kategorie: normal, hoch oder sehr hoch.');});
 cases('need','s_cumul','Kumulation und Verteilung',[
@@ -1184,7 +1489,7 @@ choice('need','s_inherit','Schutzbedarf begründen',[
  ['Zwei virtuelle Server liegen auf demselben Host und demselben Datenspeicher. Ist das automatisch unabhängige Redundanz?','Bleibt bei Ausfall des gemeinsamen Hosts sicher einer der beiden virtuellen Server nutzbar?','Nein, gemeinsame Ausfallursachen müssen geprüft werden',['Ja, zwei VMs reichen immer','Ja, verschiedene VM-Namen reichen','Ja, wenn beide ein Passwort haben'],'Gemeinsamer Host, Speicher oder Strom bilden gemeinsame Ausfallursachen. Unabhängigkeit muss nachgewiesen werden.']
 ]);
 cases('mal','m_type','Schadsoftware am Verhalten erkennen',[
- ['Nach dem Öffnen eines Anhangs sind Dateien verschlüsselt. Eine Nachricht verlangt Lösegeld für den Schlüssel. Wie heißt diese Schadsoftware-Art?','Daten werden gesperrt und Geld wird verlangt. Welcher Fachbegriff passt?','Ransomware','Ransomware erpresst beispielsweise durch Verschlüsselung oder angedrohte Veröffentlichung. Eine Zahlung garantiert keine Wiederherstellung.',['Erpressungstrojaner']],
+ ['Nach dem Öffnen eines Anhangs sind Dateien verschlüsselt. Eine Nachricht verlangt Lösegeld für den Schlüssel. Wie heißt diese Schadsoftware-Art?','Daten werden gesperrt und Geld wird verlangt. Welcher Fachbegriff passt?','Ransomware','Ransomware erpresst beispielsweise durch Verschlüsselung oder angedrohte Veröffentlichung. Eine Zahlung garantiert keine Wiederherstellung. Erpresser haben selten eine Kulanzabteilung.',['Erpressungstrojaner']],
  ['Ein angebliches Rechnungsprogramm führt heimlich schädlichen Code aus. Gesucht ist die Art nach ihrer Tarnung als nützliches Programm. Wie heißt sie?','Die Software tut so, als wäre sie nützlich. Wie heißt diese Tarnkategorie?','Trojaner','Ein Trojaner tarnt schädliche Funktionen als scheinbar legitime Software. Ob er sich selbst verbreitet, ist damit noch nicht gesagt.',['Trojanisches Pferd','Trojan']],
  ['Ein Programm zeichnet heimlich Tastatureingaben auf. Wie heißt diese spezielle Spionagefunktion?','Die Eingaben auf der Tastatur werden mitgelesen. Welcher Begriff passt?','Keylogger','Ein Keylogger protokolliert Tastatureingaben und kann dabei Zugangsdaten erfassen. Er ist eine Form der Ausspähung.'],
  ['Schädlicher Code hängt sich an andere Dateien und wird mit ihnen ausgeführt. Welcher klassische Malware-Typ benötigt solche Wirtsdateien?','Der Code steckt in einer anderen Datei. Welcher Fachbegriff beschreibt das?','Virus','Ein klassischer Virus hängt sich an Wirtsdateien oder andere Wirtsbereiche. Ein Wurm benötigt für seine selbstständige Verbreitung keine solche Wirtsdatei.',['Computervirus']]
@@ -1195,26 +1500,26 @@ cases('mal','m_spread','Verbreitung und Steuerung',[
 ]);
 cases('mal','m_action','Erste Reaktion bei Malware',[
  ['Ein Büro-PC zeigt eine Lösegeldmeldung und verschlüsselt Dateien. Der Notfallplan ordnet sofortige Netztrennung an. Welche eine technische Sofortmaßnahme ist jetzt gefordert?','Die Verschlüsselung soll sich nicht weiter über das Netz ausbreiten. Was verlangt der genannte Plan zuerst?','Netzwerk trennen','Der vorgegebene Plan verlangt die Isolation. Danach zuständige Stelle informieren und Beweise nach Plan sichern. Nicht eigenmächtig bereinigen oder pauschal ausschalten.',['Netz trennen','isolieren','Netzwerkkabel ziehen','Netzverbindung trennen']],
- ['Ein Sicherheitswerkzeug meldet Malware. Die Unternehmensregel verlangt Meldung an den IT-Sicherheitskontakt. An wen meldest du den Verdacht?','Welche zuständige Stelle nennt die vorgegebene Regel?','IT-Sicherheitskontakt','Der festgelegte Meldeweg ermöglicht koordinierte Analyse und Eindämmung. Ein Verdacht sollte nicht eigenmächtig vertuscht werden.',['IT Sicherheit','IT-Sicherheit']]
+ ['Ein Sicherheitswerkzeug meldet Malware. Die Unternehmensregel verlangt Meldung an den IT-Sicherheitskontakt. An wen meldest du den Verdacht?','Welche zuständige Stelle nennt die vorgegebene Regel?','IT-Sicherheitskontakt','Der festgelegte Meldeweg ermöglicht koordinierte Analyse und Eindämmung. Ein Verdacht sollte nicht eigenmächtig vertuscht werden. Den Rechner heimlich neu zu starten ist kein Meldeweg.',['IT Sicherheit','IT-Sicherheit']]
 ]);
 choice('mal','m_worm','Schutz in mehreren Schichten',[
  ['Ein Virenscanner findet nichts. Welche Aussage ist fachlich richtig?','Ist ein Rechner garantiert sauber, nur weil kein Fund angezeigt wird?','Ein fehlender Fund beweist keine vollständige Sicherheit',['Der Rechner ist garantiert sauber','Updates sind nun unnötig','Backups können gelöscht werden'],'Schutzsoftware erkennt nicht jeden Angriff. Updates, minimale Rechte, Überwachung und getestete Backups ergänzen sich.'],
- ['Welches Backup ist gegen Verschlüsselung vom befallenen PC aus besonders geschützt?','Welche Sicherung kann der kompromittierte PC selbst nicht überschreiben?','Eine getrennte, getestete und vom PC aus nicht änderbare Sicherung',['Eine beschreibbare Freigabe am selben PC','Eine weitere Datei im gleichen Ordner','Ein dauerhaft angemeldetes Cloud-Laufwerk ohne Versionsschutz'],'Eine unabhängige oder unveränderbare Sicherung begrenzt den Zugriff des Angreifers. Die Wiederherstellbarkeit muss trotzdem getestet sein.']
+ ['Welches Backup ist gegen Verschlüsselung vom befallenen PC aus besonders geschützt?','Welche Sicherung kann der kompromittierte PC selbst nicht überschreiben?','Eine getrennte, getestete und vom PC aus nicht änderbare Sicherung',['Eine beschreibbare Freigabe am selben PC','Eine weitere Datei im gleichen Ordner','Ein dauerhaft angemeldetes Cloud-Laufwerk ohne Versionsschutz'],'Eine unabhängige oder unveränderbare Sicherung begrenzt den Zugriff des Angreifers. Die Wiederherstellbarkeit muss trotzdem getestet sein. Ein Backup, das nie zurückgespielt wurde, ist ein Gerücht.']
 ]);
 cases('mal','m_park','USB-Stick vom Parkplatz',[
- ['Auf dem Parkplatz liegt ein unbekannter USB-Stick mit „Gehaltsliste“. Laut Firmenregel gehen Funddatenträger ungeöffnet an die IT. Wohin gibst du ihn?','Neugier ist kein Prüfverfahren. Welche Stelle übernimmt den Fund laut Regel?','IT','Unbekannte USB-Geräte können Schadcode oder manipulierte Hardware enthalten. Nicht am Arbeits-PC oder privaten PC ausprobieren, sondern nach Regel abgeben.',['IT-Abteilung','zuständige IT']],
+ ['Auf dem Parkplatz liegt ein unbekannter USB-Stick mit „Gehaltsliste“. Laut Firmenregel gehen Funddatenträger ungeöffnet an die IT. Wohin gibst du ihn?','Neugier ist kein Prüfverfahren. Welche Stelle übernimmt den Fund laut Regel?','IT','Unbekannte USB-Geräte können Schadcode oder manipulierte Hardware enthalten. Nicht am Arbeits-PC oder privaten PC ausprobieren, sondern nach Regel abgeben. Die Neugier auf die Gehaltsliste ist genau der Plan.',['IT-Abteilung','zuständige IT']],
  ['Ein Kollege will einen unbekannten Fund-USB-Stick „nur kurz“ am Firmen-PC öffnen. Soll er ihn anschließen? Antworte ja oder nein.','Ist das schnelle Ausprobieren eines fremden USB-Sticks am Arbeitsrechner sicher genug?','Nein','Schon das Anschließen kann riskant sein. Ein Dateiscan allein deckt nicht jede manipulierte USB-Hardware ab.']
 ]);
 cases('attack','a_attack','Angriffsart am Fall erkennen',[
  ['Ein Angreifer probiert sehr viele Passwörter für ein einziges Konto. Wie heißt dieser Rateangriff?','Viele mögliche Kennwörter werden gegen ein Konto getestet. Welcher Begriff passt?','Brute Force','Brute Force probiert viele Kandidaten. Sperr- und Verzögerungsregeln senken Online-Versuchsraten; offline gelten andere Bedingungen.',['Bruteforce','Brute-Force-Angriff']],
  ['Ein Angreifer probiert dasselbe häufige Passwort bei vielen Konten. Wie heißt diese Vorgehensweise?','Ein häufiges Kennwort wird auf viele Personen verteilt getestet. Welcher Fachbegriff passt?','Password Spraying','Password Spraying verteilt wenige häufige Kennwörter auf viele Konten. Das unterscheidet sich von vielen Versuchen für nur ein Konto.',['Passwort Spraying']],
- ['Ein Angreifer testet gestohlene Benutzername-Passwort-Paare aus einem Shop bei einem Maildienst. Wie heißt der Angriff?','Bereits bekannte Zugangspaare werden bei einem anderen Dienst erneut benutzt. Wie heißt das?','Credential Stuffing','Credential Stuffing nutzt gestohlene Zugangspaare und die Wiederverwendung von Passwörtern. Einzigartige Kennwörter verringern diesen Weg.'],
+ ['Ein Angreifer testet gestohlene Benutzername-Passwort-Paare aus einem Shop bei einem Maildienst. Wie heißt der Angriff?','Bereits bekannte Zugangspaare werden bei einem anderen Dienst erneut benutzt. Wie heißt das?','Credential Stuffing','Credential Stuffing nutzt gestohlene Zugangspaare und die Wiederverwendung von Passwörtern. Einzigartige Kennwörter verringern diesen Weg. Das Passwort aus dem Forum von 2009 sollte also nicht auch die Firma schützen.'],
  ['Ein Angreifer schleust SQL-Code in eine ungeschützte Suchabfrage ein. Wie heißt die Angriffsart?','Eingaben werden fälschlich als Datenbankbefehl ausgeführt. Welcher Begriff passt?','SQL-Injection','Die Anwendung verwechselt Daten mit Befehlen. Parametrisierte Abfragen trennen beides; bloßes Verstecken des Suchfelds schützt nicht.',['SQL Injection']]
 ]);
 cases('attack','a_detect','Angriffsmuster unterscheiden',[
  ['Ein Angreifer sitzt zwischen zwei Kommunikationspartnern und liest oder verändert deren Verkehr. Wie heißt diese Angriffsposition?','Ein Dritter schaltet sich unbemerkt zwischen die Partner. Welcher Begriff passt?','Man-in-the-Middle','Beim Man-in-the-Middle-Angriff vermittelt der Angreifer zwischen den Partnern. Geprüfte verschlüsselte Verbindungen helfen gegen das unbemerkte Einschleusen.',['MITM','On-path Angriff']],
  ['Ein fremdes Gerät gibt sich im lokalen Netz als Standardgateway aus und verbreitet falsche ARP-Zuordnungen. Wie heißt dieser konkrete Angriff?','Falsche IP-zu-MAC-Zuordnungen lenken den lokalen Verkehr um. Wie nennt man das?','ARP-Spoofing','ARP-Spoofing fälscht Zuordnungen im lokalen Netz und kann einen Man-in-the-Middle ermöglichen. Es ist nicht dasselbe wie DNS-Manipulation.',['ARP Poisoning']],
- ['Ein manipuliertes WLAN kopiert Namen und Erscheinungsbild des Firmen-WLANs, um Nutzer anzulocken. Wie heißt diese WLAN-Falle?','Ein falscher Zugangspunkt sieht aus wie der echte. Welcher Fachbegriff passt?','Evil Twin','Ein Evil Twin imitiert einen legitimen WLAN-Zugangspunkt. Der gleiche WLAN-Name beweist nicht die Echtheit.',['Evil-Twin-Angriff']]
+ ['Ein manipuliertes WLAN kopiert Namen und Erscheinungsbild des Firmen-WLANs, um Nutzer anzulocken. Wie heißt diese WLAN-Falle?','Ein falscher Zugangspunkt sieht aus wie der echte. Welcher Fachbegriff passt?','Evil Twin','Ein Evil Twin imitiert einen legitimen WLAN-Zugangspunkt. Der gleiche WLAN-Name beweist nicht die Echtheit. Sein WLAN „Firma-Gast“ nennen kann auch der Typ im Lieferwagen.',['Evil-Twin-Angriff']]
 ]);
 S('attack','a_brute','Online-Versuche berechnen',1,()=>{const n=rint(2,9),m=rint(2,20);return numberTask('a_brute',`Ein Testsystem erlaubt höchstens ${n} Versuche pro Minute. Betrachte genau ${m} volle Minuten ohne anfängliche Zusatzversuche. Wie viele Versuche sind höchstens möglich?`,`In jeder der ${m} Minuten sind ${n} Versuche möglich. Wie viele sind das zusammen?`,n*m,`${n} Versuche/Minute × ${m} Minuten = <b>${n*m} Versuche</b>. Das ist ein vorgegebenes Testmodell, kein Angriff auf ein echtes System.`)});
 choice('attack','a_ddos','DoS und DDoS unterscheiden',[
@@ -1227,20 +1532,20 @@ cases('attack','a_prevent','Passende Schutzmaßnahme nennen',[
 ]);
 cases('social','e_channel','Phishing-Kanal benennen',[
  ['Eine SMS lockt mit einer angeblichen Paketgebühr auf eine falsche Loginseite. Wie heißt Phishing per SMS?','Die Betrugsnachricht kommt als SMS. Welcher Fachbegriff beschreibt diesen Kanal?','Smishing','Smishing bezeichnet Phishing per SMS. Nicht auf den Link vertrauen; den Dienst über einen bekannten Weg prüfen.'],
- ['Ein Anrufer gibt sich als Support aus und fordert das Kennwort. Wie heißt Phishing per Sprache beziehungsweise Telefon?','Die Täuschung erfolgt am Telefon. Welcher Begriff passt?','Vishing','Vishing bezeichnet sprachbasiertes Phishing. Angeblicher Support erhält weder Kennwort noch Einmalcode.'],
+ ['Ein Anrufer gibt sich als Support aus und fordert das Kennwort. Wie heißt Phishing per Sprache beziehungsweise Telefon?','Die Täuschung erfolgt am Telefon. Welcher Begriff passt?','Vishing','Vishing bezeichnet sprachbasiertes Phishing. Angeblicher Support erhält weder Kennwort noch Einmalcode. Echter übrigens auch nicht.'],
  ['Eine gezielt auf die Buchhalterin zugeschnittene E-Mail erwähnt ihren Chef und ein echtes Projekt. Wie heißt zielgerichtetes Phishing?','Die Nachricht ist persönlich vorbereitet. Welcher Begriff bezeichnet diese gezielte Form?','Spear-Phishing','Spear-Phishing nutzt gezielte Informationen, um glaubwürdig zu wirken. Persönliche Details sind kein Echtheitsnachweis.',['Spear Phishing']]
 ]);
 cases('social','e_trigger','Psychologischen Hebel erkennen',[
- ['„Sofort überweisen! In fünf Minuten ist das Konto gesperrt.“ Welchen psychologischen Hebel nutzt der Absender vor allem?','Die Nachricht lässt absichtlich kaum Zeit zum Nachdenken. Nenne den Hebel.','Zeitdruck','Zeitdruck soll Prüfung und Rückfragen verhindern. Vertraute Melde- und Freigabewege gelten trotzdem.',['Dringlichkeit']],
+ ['„Sofort überweisen! In fünf Minuten ist das Konto gesperrt.“ Welchen psychologischen Hebel nutzt der Absender vor allem?','Die Nachricht lässt absichtlich kaum Zeit zum Nachdenken. Nenne den Hebel.','Zeitdruck','Zeitdruck soll Prüfung und Rückfragen verhindern. „Dringend“ ist das Lieblingswort von Betrügern. Vertraute Melde- und Freigabewege gelten trotzdem.',['Dringlichkeit']],
  ['„Ich bin der Geschäftsführer, Regeln gelten diesmal nicht.“ Welchen Hebel nutzt die angebliche Rolle?','Der Absender versucht, über eine hohe Position Gehorsam auszulösen. Welcher Hebel ist das?','Autorität','Angebliche Autorität ersetzt keine verifizierte Identität oder Freigabe. Für ungewöhnliche Aufträge gelten bekannte Rückfragewege.'],
  ['Auf einem fremden USB-Stick steht „Gehaltsliste Vorstand“. Welches Gefühl soll hauptsächlich zum Öffnen verleiten?','Die Aufschrift soll dich zum Nachsehen bringen. Welcher Hebel steckt dahinter?','Neugier','Neugier kann Sicherheitsregeln aushebeln. Funddatenträger werden nach Firmenregel abgegeben und nicht ausprobiert.']
 ]);
 cases('social','e_action','Sichere Reaktion auf Täuschung',[
  ['Ein angeblicher Supporter bittet um deinen aktuellen Einmalcode. Darfst du ihn weitergeben? Antworte ja oder nein.','Ein fremder Kontakt will den zweiten Anmeldefaktor. Gibst du ihn heraus?','Nein','Einmalcodes gehören zur Anmeldung und werden nicht an Anrufer weitergegeben. Anfrage über bekannte Wege prüfen und melden.'],
- ['Du erhältst wiederholt MFA-Freigabeanfragen, obwohl du dich nicht anmeldest. Sollst du sie bestätigen? Antworte ja oder nein.','Du hast keinen Login gestartet. Darfst du eine fremde Anfrage abnicken, damit Ruhe ist?','Nein','Unerwartete Anfragen ablehnen und über den Meldeweg melden. Wiederholtes Drängen heißt MFA Fatigue; Bestätigen kann einen fremden Login freigeben.']
+ ['Du erhältst wiederholt MFA-Freigabeanfragen, obwohl du dich nicht anmeldest. Sollst du sie bestätigen? Antworte ja oder nein.','Du hast keinen Login gestartet. Darfst du eine fremde Anfrage abnicken, damit Ruhe ist?','Nein','Unerwartete Anfragen ablehnen und über den Meldeweg melden. Wiederholtes Drängen heißt MFA Fatigue; Bestätigen kann einen fremden Login freigeben. Entnervt „Ja“ zu drücken ist keine Sicherheitsmaßnahme.']
 ]);
 cases('social','e_prince','Der Prinz aus Nigeria',[
- ['Ein angeblicher Erbe verspricht Millionen. Vorher sollst du eine Bearbeitungsgebühr zahlen. Wie heißt das Betrugsmuster mit Zahlung vor der versprochenen Auszahlung?','Du sollst erst Geld zahlen, um später viel mehr zu erhalten. Nenne die Betrugsart.','Vorschussbetrug','Beim Vorschussbetrug wird eine hohe Belohnung vorgeschoben, um zuerst Geld zu erhalten. Nicht zahlen, Anfrage nach Regel melden.',['Vorkassebetrug','Advance Fee Fraud']],
+ ['Ein angeblicher Erbe verspricht Millionen. Vorher sollst du eine Bearbeitungsgebühr zahlen. Wie heißt das Betrugsmuster mit Zahlung vor der versprochenen Auszahlung?','Du sollst erst Geld zahlen, um später viel mehr zu erhalten. Nenne die Betrugsart.','Vorschussbetrug','Beim Vorschussbetrug wird eine hohe Belohnung vorgeschoben, um zuerst Geld zu erhalten. Nicht zahlen, Anfrage nach Regel melden. Der Prinz kommt auch ohne dein Geld zurecht.',['Vorkassebetrug','Advance Fee Fraud']],
  ['Eine angebliche Lotterie verlangt erst eine Gebühr, bevor sie einen nie bestellten Gewinn auszahlt. Wie heißt dieses Muster?','Ein Gewinn dient als Köder für eine vorherige Zahlung. Welcher Begriff passt?','Vorschussbetrug','Der vorgeschobene Gewinn soll die Vorabzahlung auslösen. Eine versprochene Auszahlung beweist keinen echten Anspruch.',['Vorkassebetrug']]
 ]);
 choice('social','e_verify','Auftrag unabhängig prüfen',[
@@ -1267,7 +1572,7 @@ choice('pass','p_mfa','Unabhängige Faktoren wählen',[
 cases('net','n_control','Firewall, IDS und IPS',[
  ['Ein Werkzeug erkennt verdächtigen Netzverkehr und meldet ihn, greift aber nicht aktiv ein. Wie heißt dieses Erkennungssystem?','Das System sieht einen möglichen Angriff und alarmiert nur. Nenne IDS oder IPS.','IDS','IDS = Intrusion Detection System. Es erkennt und meldet. Eine Meldung bedeutet noch nicht, dass Verkehr blockiert wurde.'],
  ['Ein Werkzeug erkennt verdächtigen Verkehr und kann ihn im Datenpfad direkt blockieren. Wie heißt dieses Präventionssystem?','Das System kann einen erkannten Angriff aktiv stoppen. Nenne IDS oder IPS.','IPS','IPS = Intrusion Prevention System. Es kann aktiv eingreifen. Die Wirksamkeit hängt unter anderem von Regeln und Einblick in den Verkehr ab.'],
- ['Ein System erlaubt oder verwirft Verbindungen nach festgelegten Regeln zu Quelle, Ziel und Dienst. Wie heißt die grundlegende Schutzkomponente?','Die Komponente filtert, welche Verbindungen passieren dürfen. Welcher Begriff passt?','Firewall','Eine Firewall erzwingt Verkehrsregeln. Sie beweist nicht, dass erlaubte Nutzdaten immer harmlos sind.']
+ ['Ein System erlaubt oder verwirft Verbindungen nach festgelegten Regeln zu Quelle, Ziel und Dienst. Wie heißt die grundlegende Schutzkomponente?','Die Komponente filtert, welche Verbindungen passieren dürfen. Welcher Begriff passt?','Firewall','Eine Firewall erzwingt Verkehrsregeln. Sie beweist nicht, dass erlaubte Nutzdaten immer harmlos sind. Der Türsteher liest nicht jeden Brief.']
 ]);
 cases('net','n_firewall','Firewall-Grundregel zuordnen',[
  ['Eine Firewall verwirft alles, was nicht ausdrücklich erlaubt ist. Wie heißt dieses Regelprinzip?','Nur ausdrücklich genehmigte Verbindungen passieren. Nenne den englischen Begriff oder die deutsche Bezeichnung.','Default Deny','Default Deny blockiert ohne passende Erlaubnis. Benötigte Dienste müssen gezielt und möglichst eng freigegeben werden.',['Standardmäßig verweigern','Alles verbieten außer Erlaubtem']],
@@ -1295,7 +1600,7 @@ cases('emergency','f_plan','Notfallbegriffe zuordnen',[
  ['Für einen Ausfall sind Kontakte, Meldewege, Rollen und konkrete Schritte schriftlich festgelegt. Wie heißt dieses operative Dokument?','Welches Dokument sagt im Ernstfall, wer was wann tut?','Notfallplan','Ein Notfallplan bündelt konkrete Anweisungen und Verantwortlichkeiten. Er muss erreichbar, aktuell und geübt sein.']
 ]);
 choice('emergency','f_restore','Wiederherstellung und Menschen',[
- ['Im Serverraum riecht es nach Rauch. Was hat Vorrang?','Was ist bei möglicher Brandgefahr wichtiger als Datenrettung?','Personenschutz und betriebliche Alarmierungsregeln',['Noch schnell das Backup kopieren','Im Raum nach dem Fehler suchen','Die Tür verriegeln und weiterarbeiten'],'Menschen gehen vor Sachwerten. Gefahrenbereich nach Vorgabe verlassen und alarmieren; keine riskante Eigenrettung von Geräten.'],
+ ['Im Serverraum riecht es nach Rauch. Was hat Vorrang?','Was ist bei möglicher Brandgefahr wichtiger als Datenrettung?','Personenschutz und betriebliche Alarmierungsregeln',['Noch schnell das Backup kopieren','Im Raum nach dem Fehler suchen','Die Tür verriegeln und weiterarbeiten'],'Menschen gehen vor Sachwerten. Der Server wird dir das verzeihen. Gefahrenbereich nach Vorgabe verlassen und alarmieren; keine riskante Eigenrettung von Geräten.'],
  ['Die Sicherungssoftware meldet jede Nacht Erfolg. Was belegt die Wiederherstellbarkeit am besten?','Wie prüfst du, ob die gesicherten Daten tatsächlich wieder nutzbar werden?','Regelmäßige dokumentierte Rücksicherungstests',['Nur das grüne Sicherungssymbol','Die Anzahl der Sicherungsdateien','Die Farbe der Backup-Festplatte'],'Erst eine geprüfte Rücksicherung zeigt, ob Daten, benötigte Schlüssel und Verfahren im Ernstfall zusammenspielen.'],
  ['Ein verschlüsselter Backupbestand ist vorhanden, sein Entschlüsselungsschlüssel aber verloren. Ist eine erfolgreiche Rücksicherung allein durch die Dateien gesichert?','Reichen verschlüsselte Sicherungen aus, wenn der nötige Schlüssel fehlt?','Nein, Schlüssel und Wiederherstellungsweg müssen verfügbar sein',['Ja, jede Backupsoftware umgeht die Verschlüsselung','Ja, der Dateiname genügt','Ja, ein Neustart ersetzt den Schlüssel'],'Schlüssel und weitere Wiederherstellungsvoraussetzungen gehören zur Notfallvorsorge. Verschlüsselte Dateien ohne nutzbaren Schlüssel sind nicht automatisch wiederherstellbar.']
 ]);
@@ -1305,11 +1610,11 @@ const STAGES=[
  {title:'Risiko: Bauchgefühl mit Rechenweg',cat:'risk',ch:'ch2',goal:'Bedrohung, Schwachstelle und Risiko trennen und ein vorgegebenes Modell rechnen.',intro:'<p>Eine ungepatchte Lücke ist eine Schwachstelle. Ein möglicher Angriff darauf ist eine Bedrohung. Für das Risiko schaust du auf Eintritt und Folgen. „Wird schon gutgehen“ ist bisher keine Maßeinheit.</p><p>Ein Firmenserver hat eine ungepatchte Lücke. Diese Lücke ist eine <b>Schwachstelle</b>. Dass ein Angreifer sie ausnutzen könnte, ist eine <b>Bedrohung</b>. Das <b>Risiko</b> berücksichtigt die möglichen Folgen und deren Eintritt. Ein Schaden kann finanziell sein, Menschen gefährden oder den Betrieb und Ruf treffen.</p><p>Eine einfache Übungsmatrix multipliziert Eintritt und Schaden auf festgelegten Skalen. Das ist ein Lernmodell, keine universelle BSI-Rechenvorschrift. Bei echten Bewertungen werden Kriterien, Unsicherheit und Zuständigkeit festgelegt.</p>',visual:'<div class="security-flow"><b>Schwachstelle</b><b>+ Bedrohung</b><b>→ mögliches Risiko</b></div>',memo:'Schwachstelle = Lücke. Bedrohung = Schadensursache. Risiko = Bewertung unter Unsicherheit.',example:'Die Übung nutzt Eintritt 1–5 und Schaden 1–5. Ein Risiko hat Eintritt 3 und Schaden 4. Wie groß ist der Matrixwert?',steps:['Gegeben sind zwei Skalenwerte, keine Prozent- oder Euroangaben.','Die Aufgabe legt fest: Wert = Eintritt × Schaden.','3 × 4 = 12.','Ergebnis: <b>12</b> innerhalb dieser Matrix. Ein Grenzwert zur Maßnahmenpflicht müsste zusätzlich festgelegt sein.'],detail:'<h4>Vier Behandlungen</h4><p><b>Vermeiden:</b> die riskante Tätigkeit beenden. <b>Reduzieren:</b> Wahrscheinlichkeit oder Folgen senken. <b>Übertragen:</b> bestimmte Folgen vertraglich weitergeben, zum Beispiel versichern. <b>Akzeptieren:</b> den geprüften Rest bewusst durch Zuständige übernehmen lassen.</p><h4>Erwartungswert</h4><p>Bei einem möglichen Ereignis mit 10 % Jahreswahrscheinlichkeit und 20.000 € Schaden ist der erwartete Jahreswert 0,10 × 20.000 = 2.000 €. Dieser Durchschnitt bedeutet weder eine jährliche Rechnung über 2.000 € noch eine Schadensobergrenze. Nach Maßnahmen bleibt oft ein <b>Restrisiko</b>, das erneut beurteilt wird.</p>',trap:'Hoher möglicher Schaden ist nicht automatisch hohe Eintrittswahrscheinlichkeit. Eine Versicherung überträgt bestimmte Kostenfolgen, aber nicht jede Verantwortung.'},
  {title:'BSI: Sicherheit mit System',cat:'bsi',ch:'ch3',goal:'Standards und Arbeitsschritte der klassischen IT-Grundschutz-Methodik zuordnen.',intro:'<p>Bevor die Firma das nächste Sicherheitsprodukt bestellt, zeichnet sie auf, wovon ihre Warenwirtschaft abhängt. Ein Karton mit Firewall-Aufdruck beantwortet nämlich nicht, wer für den Betrieb zuständig ist.</p><p>Eine Firma weiß nicht genau, welche Systeme ihre Warenwirtschaft benötigt. Vor dem Einkauf von Schutzprodukten braucht sie Übersicht und Zuständige. Das <b>Bundesamt für Sicherheit in der Informationstechnik (BSI)</b> beschreibt dafür unter anderem die klassische IT-Grundschutz-Methodik der Reihe 200-x.</p><p>Ein <b>ISMS</b> ist ein Informationssicherheitsmanagementsystem. Es legt fest, wie Sicherheit geplant, umgesetzt, kontrolliert und verbessert wird. <b>200-1</b> behandelt das ISMS. <b>200-2</b> beschreibt die Methodik. <b>200-3</b> die Risikoanalyse. <b>200-4</b> behandelt die Geschäftsfortführung bei Notfällen (Business Continuity Management).</p>',visual:'<div class="security-flow"><b>200-1 Management</b><b>200-2 Methodik</b><b>200-3 Risiko · 200-4 BCM</b></div>',memo:'Erfassen → Bedarf bestimmen → passende Bausteine zuordnen → Soll und Ist prüfen → offene Punkte behandeln.',example:'Die IT erstellt eine Übersicht aller Anwendungen, Systeme, Räume und Verbindungen. Wie heißt dieser Schritt?',steps:['Tatsache: Es wird aufgenommen, was im betrachteten Bereich vorhanden ist.','Regel: Diese Bestands- und Abhängigkeitsaufnahme heißt Strukturanalyse.','Sie liefert die Grundlage für Schutzbedarf und passende Sicherheitsbausteine.','Ergebnis: <b>Strukturanalyse</b>. Noch wird nicht der Umsetzungsgrad aller Anforderungen bewertet.'],detail:'<h4>Begriffe im Arbeitsalltag</h4><p>Der <b>Informationsverbund</b> ist der abgegrenzte Bereich mit Menschen, Prozessen, Informationen und Technik. Die <b>Modellierung</b> ordnet passende Bausteine aus dem IT-Grundschutz-Kompendium zu. Der <b>IT-Grundschutz-Check</b> prüft, welche Anforderungen erfüllt, teilweise erfüllt oder nicht erfüllt sind.</p><p>Bei erhöhtem Bedarf und besonderen Bedingungen wird zusätzlicher Analysebedarf geprüft. Die Leitung trägt die Gesamtverantwortung; eine IT-Abteilung kann operative Aufgaben übernehmen. Sicherheit ist ein laufender Verbesserungsprozess, kein einmaliger Produktkauf. Dieses Kapitel behandelt ausdrücklich die klassische 200-x-Methodik, keine Behauptung über neue Grundschutz++-Verfahrensstände.</p>',trap:'Ein Virenscanner ist kein ISMS. Eine Liste abgehakter Maßnahmen ist kein automatischer Beleg für angemessene Sicherheit.'},
  {title:'Schutzbedarf: Das Maximum zählt',cat:'need',ch:'ch4',goal:'Schutzbedarf je Schutzziel ableiten und Sondereffekte begründen.',intro:'<p>Eine kritische Anwendung und zwei harmlose Tools laufen auf demselben Server. Der niedrigere Schutzbedarf der Tools drückt den höheren Bedarf der Anwendung nicht weg. So funktioniert der Durchschnitt hier nicht.</p><p>Auf einem Server laufen drei Anwendungen. Eine enthält sehr vertrauliche Forschungsdaten. Die anderen brauchen wenig Geheimhaltung. Ohne besondere Gegengründe muss der Server den höchsten Vertraulichkeitsbedarf tragen. Das ist das <b>Maximumprinzip</b>.</p><p>Die klassische IT-Grundschutz-Methodik verwendet <b>normal</b> für begrenzte und überschaubare Folgen, <b>hoch</b> für beträchtliche Folgen und <b>sehr hoch</b> für existenzbedrohende oder katastrophale Folgen. Eine Organisation konkretisiert die Kategorien für ihren Bereich. Vertraulichkeit, Integrität und Verfügbarkeit werden getrennt bewertet.</p>',visual:'<div class="security-flow"><b>normal</b><b>hoch</b><b>sehr hoch ← Maximum</b></div>',memo:'Höchster Bedarf je Ziel. Nicht den Mittelwert bilden und nicht blind zwischen Schutzzielen übertragen.',example:'Zwei Anwendungen haben Integritätsbedarf normal und hoch. Beide laufen auf einem Host. Sondereffekte sind ausgeschlossen. Welcher Integritätsbedarf gilt für den Host?',steps:['Gefragt ist nur Integrität, also der Schutz unverfälschter Daten.','Die Anwendungen brauchen normal beziehungsweise hoch.','Ohne Sondereffekte wird das höhere Niveau geerbt.','Ergebnis: <b>hoch</b>. Vertraulichkeit und Verfügbarkeit müssen separat betrachtet werden.'],detail:'<h4>Wenn das Maximum nicht allein reicht</h4><p>Beim <b>Kumulationseffekt</b> kommen viele einzelne Folgen zusammen. Ein Hostausfall kann alle Kassen gleichzeitig treffen und mehr Schaden anrichten als jeder Einzelausfall. Der Bedarf kann dadurch steigen.</p><p>Beim <b>Verteilungseffekt</b> kann nachgewiesene Verteilung oder unabhängige Redundanz den Bedarf einer einzelnen Komponente mindern. Zwei virtuelle Maschinen auf demselben Host sind nicht automatisch unabhängig. Gemeinsamer Speicher, Strom oder Standort können beide treffen.</p><p>Jede Abweichung wird begründet. Der Kaufpreis eines Geräts ersetzt keine Bewertung der Geschäftsfolgen. Auch Systeme mit normalem Bedarf brauchen angemessene Schutzmaßnahmen.</p>',trap:'Kategorien sind keine Zahlen zum Mitteln. Vertraulichkeit normal und Verfügbarkeit sehr hoch ergeben nicht automatisch für beide sehr hoch.'},
- {title:'Malware: Besuch ohne Einladung',cat:'mal',ch:'ch5',goal:'Schadsoftware am beschriebenen Verhalten erkennen und nach Vorgabe reagieren.',intro:'<p>Eine angebliche Rechnung verschlüsselt beim Öffnen deine Dateien. Für die Einordnung zählt das Verhalten. Das Dateisymbol hat seinen Teil der Bewerbung offenbar nur erfunden.</p><p>Ein Anhang sieht wie eine Rechnung aus. Nach dem Öffnen werden Dateien verschlüsselt. <b>Malware</b> bedeutet Schadsoftware. Kategorien beschreiben unterschiedliche Eigenschaften und können sich überschneiden: Ein getarnter Trojaner kann zum Beispiel Ransomware installieren.</p><p><b>Ransomware</b> erpresst durch Verschlüsselung oder andere Druckmittel. Ein <b>Trojaner</b> tarnt schädliche Funktionen als nützliche Software. Ein klassischer <b>Virus</b> hängt an Wirtsdateien oder Wirtsbereichen. Ein <b>Wurm</b> verbreitet sich selbstständig. Ein <b>Keylogger</b> zeichnet Eingaben auf. Ein <b>Botnetz</b> verbindet fremdgesteuerte befallene Geräte.</p>',visual:'<div class="security-flow"><b>Erkennen</b><b>Nach Plan eindämmen</b><b>Zuständige informieren</b></div>',memo:'Verhalten lesen. Nicht jede Schadsoftware ist ein Virus, und ein fehlender Fund ist kein Reinheitszertifikat.',example:'Ein Rechner verschlüsselt Dateien. Der Firmenplan verlangt sofortige Netztrennung. Welche technische Maßnahme führst du zuerst aus?',steps:['Tatsache: Aktive Verschlüsselung kann weitere erreichbare Bestände gefährden.','Die vorgegebene Maßnahme ist Isolation vom Netz.','Netzverbindungen nach Plan trennen und die zuständige Stelle informieren.','Ergebnis: <b>Netzwerk trennen</b>. Nicht eigenmächtig löschen, neu installieren oder ohne Vorgabe ausschalten.'],detail:'<h4>Schichten statt Wunderwaffe</h4><p>Updates beseitigen bekannte Schwachstellen. Minimale Rechte begrenzen Folgen. Netzsegmentierung erschwert Ausbreitung. Erkennungssysteme und geschulte Menschen helfen bei der Entdeckung. Getrennte, getestete Sicherungen ermöglichen Wiederherstellung.</p><p>Ein unbekannter USB-Stick darf nicht aus Neugier an einen Firmen- oder Privat-PC. Auch manipulierte Hardware kann gefährlich sein. Fundgeräte gehen nach Regel an die zuständige IT. Bei einem Vorfall gelten der Notfallplan, die Meldewege und die Beweissicherung. Unüberlegte Bereinigung kann Spuren vernichten.</p>',trap:'Ein beschreibbares Backup im gleichen erreichbaren Netz kann mitverschlüsselt werden. Auch ein Cloud-Laufwerk ist nicht automatisch eine unabhängige Sicherung.'},
+ {title:'Malware: Besuch ohne Einladung',cat:'mal',ch:'ch5',goal:'Schadsoftware am beschriebenen Verhalten erkennen und nach Vorgabe reagieren.',intro:'<p>Eine angebliche Rechnung verschlüsselt beim Öffnen deine Dateien. Für die Einordnung zählt das Verhalten. Das Dateisymbol sagt Rechnung, das Verhalten sagt Erpressung.</p><p>Ein Anhang sieht wie eine Rechnung aus. Nach dem Öffnen werden Dateien verschlüsselt. <b>Malware</b> bedeutet Schadsoftware. Kategorien beschreiben unterschiedliche Eigenschaften und können sich überschneiden: Ein getarnter Trojaner kann zum Beispiel Ransomware installieren.</p><p><b>Ransomware</b> erpresst durch Verschlüsselung oder andere Druckmittel. Ein <b>Trojaner</b> tarnt schädliche Funktionen als nützliche Software. Ein klassischer <b>Virus</b> hängt an Wirtsdateien oder Wirtsbereichen. Ein <b>Wurm</b> verbreitet sich selbstständig. Ein <b>Keylogger</b> zeichnet Eingaben auf. Ein <b>Botnetz</b> verbindet fremdgesteuerte befallene Geräte.</p>',visual:'<div class="security-flow"><b>Erkennen</b><b>Nach Plan eindämmen</b><b>Zuständige informieren</b></div>',memo:'Verhalten lesen. Nicht jede Schadsoftware ist ein Virus, und ein fehlender Fund ist kein Reinheitszertifikat.',example:'Ein Rechner verschlüsselt Dateien. Der Firmenplan verlangt sofortige Netztrennung. Welche technische Maßnahme führst du zuerst aus?',steps:['Tatsache: Aktive Verschlüsselung kann weitere erreichbare Bestände gefährden.','Die vorgegebene Maßnahme ist Isolation vom Netz.','Netzverbindungen nach Plan trennen und die zuständige Stelle informieren.','Ergebnis: <b>Netzwerk trennen</b>. Nicht eigenmächtig löschen, neu installieren oder ohne Vorgabe ausschalten.'],detail:'<h4>Schichten statt Wunderwaffe</h4><p>Updates beseitigen bekannte Schwachstellen. Minimale Rechte begrenzen Folgen. Netzsegmentierung erschwert Ausbreitung. Erkennungssysteme und geschulte Menschen helfen bei der Entdeckung. Getrennte, getestete Sicherungen ermöglichen Wiederherstellung.</p><p>Ein unbekannter USB-Stick darf nicht aus Neugier an einen Firmen- oder Privat-PC. Auch manipulierte Hardware kann gefährlich sein. Fundgeräte gehen nach Regel an die zuständige IT. Bei einem Vorfall gelten der Notfallplan, die Meldewege und die Beweissicherung. Unüberlegte Bereinigung kann Spuren vernichten.</p>',trap:'Ein beschreibbares Backup im gleichen erreichbaren Netz kann mitverschlüsselt werden. Auch ein Cloud-Laufwerk ist nicht automatisch eine unabhängige Sicherung.'},
  {title:'Angriffe: Muster statt Panik',cat:'attack',ch:'ch6',goal:'Angriffsmuster unterscheiden und einen passenden Schutzansatz nennen.',intro:'<p>Viele Anfragen kommen in kurzer Zeit an. Ob du einen Angriff erkennst, hängt von Ziel und Muster ab. Viele Anfragen allein können auch der ganz gewöhnliche Montagmorgen sein.</p><p>Der Maildienst sieht viele fehlgeschlagene Logins. Doch nicht jeder Rateangriff läuft gleich. <b>Brute Force</b> probiert viele Kandidaten für ein Ziel. <b>Password Spraying</b> verteilt wenige häufige Passwörter auf viele Konten. <b>Credential Stuffing</b> testet schon gestohlene Zugangspaare bei anderen Diensten.</p><p><b>DoS</b> bedeutet Denial of Service: Ein Dienst wird unbenutzbar gemacht. <b>DDoS</b> ist die verteilte Form mit vielen Angriffsquellen. Bei einer <b>SQL-Injection</b> gelangen Daten als Befehle in eine Datenbankabfrage. Parametrisierte Abfragen trennen Werte von Code.</p>',visual:'<div class="security-flow"><b>Viele Kandidaten → Brute Force</b><b>Viele Konten → Spraying</b><b>Bekannte Paare → Stuffing</b></div>',memo:'Beschreibe Quelle, Ziel und Vorgehen. Ein Name hilft erst, wenn du das Muster verstanden hast.',example:'Gestohlene Shop-Zugangspaare werden beim Mailanbieter getestet. Welche Angriffsart ist das?',steps:['Die Kandidaten sind bereits bekannte Paare aus Benutzername und Passwort.','Der Angreifer nutzt die mögliche Wiederverwendung bei einem anderen Dienst.','Dieses Vorgehen heißt Credential Stuffing.','Ergebnis: <b>Credential Stuffing</b>. Einzigartige Passwörter und geeignete MFA begrenzen dieses Risiko.'],detail:'<h4>Verkehr umlenken</h4><p>Ein <b>Man-in-the-Middle</b> sitzt zwischen Kommunikationspartnern. <b>ARP-Spoofing</b> fälscht Zuordnungen zwischen IP- und MAC-Adressen im lokalen Netz. Ein <b>Evil Twin</b> imitiert einen echten WLAN-Zugangspunkt. Gleiche Namen beweisen keine Identität.</p><h4>Modellrechnung</h4><p>Erlaubt ein Testsystem 5 Versuche pro Minute, ergeben genau 12 volle Minuten höchstens 5 × 12 = 60 Versuche. Das ist ein klar definiertes Modell. Bei echten Diensten können Verzögerungen, Sperren, Parallelität und andere Begrenzungen gelten. Offline-Tests gegen entwendete Prüfwerte folgen nicht denselben Online-Limits.</p>',trap:'HTTPS schützt den Transport bei korrekter Prüfung. Auch eine Betrugsseite kann ein gültiges Zertifikat für ihre eigene Adresse besitzen.'},
  {title:'Social Engineering: Chef sagt nein',cat:'social',ch:'ch7',goal:'Täuschungsmerkmale und sichere unabhängige Rückfragen erkennen.',intro:'<p>Der angebliche Chef schreibt von einer fremden Nummer. Die Überweisung soll sofort raus. Wenn ein Anruf über die bekannte Nummer alles klären kann, ist „bloß nicht anrufen“ ein ziemlich interessanter Zusatz.</p><p>Eine Mail vom angeblichen Chef verlangt sofort eine geheime Überweisung. Die technische Schwachstelle soll diesmal der Mensch sein. <b>Social Engineering</b> manipuliert Menschen, damit sie Informationen preisgeben oder Sicherheitsregeln umgehen.</p><p><b>Phishing</b> ködert Zugangsdaten oder Handlungen über gefälschte Nachrichten und Seiten. <b>Spear-Phishing</b> ist gezielt auf die Person vorbereitet. <b>Smishing</b> kommt per SMS, <b>Vishing</b> per Sprache oder Telefon. Häufige Hebel sind Zeitdruck, Angst, Neugier und angebliche Autorität.</p>',visual:'<div class="security-flow"><b>STOPP</b><b>Bekannten Kanal nutzen</b><b>Prüfen und melden</b></div>',memo:'Ein bekanntes Logo ist kopierbar. Ein bekannter, unabhängig gewählter Rückfrageweg ist wertvoller.',example:'Eine Chef-Mail enthält eine neue Telefonnummer und fordert eine sofortige Überweisung. Wie prüfst du den Auftrag?',steps:['Die Mail selbst ist die verdächtige Quelle. Ihre neue Telefonnummer ist daher kein unabhängiger Nachweis.','Verwende einen bereits bekannten Kontaktweg aus dem Firmenverzeichnis.','Prüfe den Auftrag zusätzlich nach den internen Freigaberegeln.','Ergebnis: Über die <b>bekannte Nummer</b> rückfragen, statt die mitgeschickte Nummer zu übernehmen.'],detail:'<h4>Die beliebten Köder</h4><p>Beim <b>Vorschussbetrug</b> soll eine Vorabgebühr den Weg zu einem angeblichen großen Gewinn oder Erbe öffnen. Beim <b>Tailgating</b> schleicht sich jemand hinter einer berechtigten Person durch eine gesicherte Tür. Ein erfundener plausibler Vorwand heißt <b>Pretexting</b>.</p><p>Einmalcodes, Passwörter und Freigaben bleiben bei der berechtigten Person. Viele unerwartete MFA-Anfragen können <b>MFA Fatigue</b> sein: Der Angreifer will Zustimmung durch Ermüdung. Nicht bestätigen, wenn kein eigener Login dahintersteht; nach Regel melden. Wer schon etwas eingegeben hat, meldet das rasch. Frühe Meldungen helfen mehr als Vertuschen.</p>',trap:'Nicht über den verdächtigen Link „zur Sicherheit anmelden“. Öffne den Dienst über einen bereits bekannten Weg.'},
  {title:'Passwörter: Zufall schlägt Fantasie',cat:'pass',ch:'ch8',goal:'Faktoren unterscheiden und ein klar definiertes Zufallsmodell berechnen.',intro:'<p>Passwort123! sieht mit Ausrufezeichen sehr entschlossen aus. Ein vorhersehbares Muster bleibt trotzdem vorhersehbar. In den Rechenaufgaben steht deshalb ausdrücklich, wann die Zeichen wirklich zufällig gewählt werden.</p><p>„Passwort123!“ hat Großbuchstaben, Ziffern und ein Sonderzeichen. Trotzdem ist es ein bekanntes Muster. Einzigartige, ausreichend lange zufällige Kennwörter aus einem Passwortmanager vermeiden solche einfachen Wiederverwendungen. Passwortwechsel erfolgen bei Anlass wie Preisgabe; das Modul legt keine pauschale Zeichenlänge für jeden Dienst fest.</p><p><b>MFA</b> bedeutet Multi-Faktor-Authentisierung. Sie kombiniert unterschiedliche Kategorien: <b>Wissen</b> (Passwort), <b>Besitz</b> (Hardware-Schlüssel) und <b>Biometrie</b> (körperliches Merkmal). Passwort und zusätzliche PIN sind beides Wissen. FIDO2/WebAuthn kann die Anmeldung kryptografisch an den echten Dienst binden.</p>',visual:'<div class="security-flow"><b>Wissen</b><b>Besitz</b><b>Biometrie</b></div>',memo:'H = L × log₂(N) gilt nur bei unabhängiger, gleichverteilter Zufallsauswahl. Ein langes Muster ist keine Zufallsquelle.',example:'Ein Generator wählt 12 Zeichen unabhängig aus 64 gleich wahrscheinlichen Zeichen. Wie groß ist die Modell-Entropie?',steps:['Jede Position hat N = 64 Möglichkeiten. log₂(64) = 6, weil 2⁶ = 64.','Es gibt L = 12 unabhängig gewählte Positionen.','H = 12 × 6 = 72 Bit.','Ergebnis: <b>72 Bit im Zufallsmodell</b>. Für ein selbst erdachtes 12-Zeichen-Muster folgt diese Stärke nicht.'],detail:'<h4>Suchraum und Zeit</h4><p>Bei L unabhängigen Stellen aus N Zeichen mit erlaubter Wiederholung gibt es Nᴸ Möglichkeiten. Zehn mögliche Zeichen und vier Stellen ergeben 10⁴ = 10.000 Codes. Prüft ein hypothetischer Test 100 Kandidaten pro Sekunde ohne Wiederholung, dauert der vollständige Raum 100 Sekunden. Der Durchschnitt liegt bei gleichverteiltem Geheimnis ungefähr bei der Hälfte.</p><p>Reale Offline-Raten hängen von Hashverfahren und Hardware ab. Online bremsen zusätzliche Maßnahmen. Gewöhnliche Einmalcodes sind abphishbar; MFA ist nicht gleich MFA. Wiederherstellungscodes und Kontorücksetzung brauchen ebenfalls Schutz. Einen echten persönlichen Zugang oder ein echtes Passwort gibst du in diesen Laboren niemals ein.</p>',trap:'Zwei Kennwörter sind zwei Nachweise derselben Kategorie. Und ein Einmalcode ist nicht dafür da, einem vermeintlichen Supporter diktiert zu werden.'},
- {title:'Netzschutz: Türsteher mit Regelwerk',cat:'net',ch:'ch9',goal:'Filter, Erkennung und Netztrennung gezielt unterscheiden.',intro:'<p>Die Firewall-Regel prüfst du an einer konkreten Verbindung. Wer sendet wohin, über welchen Dienst und welche Regel trifft zuerst zu? Die Regel „alles verbieten“ am Ende ist keine Zeitmaschine.</p><p>Ein öffentlicher Webserver braucht Verbindungen aus dem Internet, aber keinen freien Zugriff auf Personalakten. Eine <b>Firewall</b> erlaubt oder blockiert Verkehr nach Regeln. <b>Default Deny</b> bedeutet: Ohne passende Erlaubnis wird verworfen. Die Aufgaben geben an, ob die erste passende Regel entscheidet.</p><p>Eine <b>DMZ</b> (demilitarisierte Zone) trennt öffentliche Dienste vom internen Netz. <b>Segmentierung</b> teilt Netze in kontrollierte Bereiche. Ein <b>IDS</b> (Intrusion Detection System) erkennt und meldet. Ein <b>IPS</b> (Intrusion Prevention System) kann aktiv eingreifen.</p>',visual:'<div class="security-flow"><b>Internet</b><b>Firewall · DMZ</b><b>Kontrollierter LAN-Zugriff</b></div>',memo:'Nur benötigte Wege öffnen. Ein Alarm ist keine Blockade und ein erlaubter Port kein Gütesiegel.',example:'R1 erlaubt eine bestimmte HTTPS-Verbindung. R2 verbietet dieselbe Verbindung. Die Firewall verwendet „erste passende Regel“. Welche entscheidet?',steps:['Prüfe die Regeln von oben nach unten.','R1 passt bereits zu Quelle, Ziel und Dienst.','Nach der vorgegebenen Logik stoppt die Prüfung dort.','Ergebnis: <b>Regel 1</b> entscheidet. Die widersprechende Regel darunter kommt nicht mehr zum Zug.'],detail:'<h4>Grenzen kennen</h4><p><b>Stateful Inspection</b> berücksichtigt den Zustand einer Verbindung und ordnet Antwortpakete zu. Ein einfacher zustandsloser Paketfilter beurteilt einzelne Pakete ohne diesen Kontext. Regeln brauchen enge Quellen, Ziele und Dienste, dokumentierte Gründe und regelmäßige Überprüfung.</p><p>Ein Webzugriff über HTTPS kann trotzdem Schadcode transportieren. Verschlüsselung schützt den Transport; sie macht Inhalte nicht automatisch gutartig. IDS- und IPS-Systeme haben Erkennungsgrenzen und können Fehlalarme auslösen. VLANs schaffen ohne kontrollierte Übergänge keine vollständige Sicherheitsgrenze. Logging und Alarmreaktion müssen zur Organisation passen.</p>',trap:'Eine DMZ ist kein Freifahrtschein vom öffentlichen Webserver ins gesamte interne Netz. Gerade dieser Zugriff wird beschränkt.'},
+ {title:'Netzschutz: Türsteher mit Regelwerk',cat:'net',ch:'ch9',goal:'Filter, Erkennung und Netztrennung gezielt unterscheiden.',intro:'<p>Die Firewall-Regel prüfst du an einer konkreten Verbindung. Wer sendet wohin, über welchen Dienst und welche Regel trifft zuerst zu? Steht „alles verbieten“ ganz oben, kann die Regel darunter noch so nett sein.</p><p>Ein öffentlicher Webserver braucht Verbindungen aus dem Internet, aber keinen freien Zugriff auf Personalakten. Eine <b>Firewall</b> erlaubt oder blockiert Verkehr nach Regeln. <b>Default Deny</b> bedeutet: Ohne passende Erlaubnis wird verworfen. Die Aufgaben geben an, ob die erste passende Regel entscheidet.</p><p>Eine <b>DMZ</b> (demilitarisierte Zone) trennt öffentliche Dienste vom internen Netz. <b>Segmentierung</b> teilt Netze in kontrollierte Bereiche. Ein <b>IDS</b> (Intrusion Detection System) erkennt und meldet. Ein <b>IPS</b> (Intrusion Prevention System) kann aktiv eingreifen.</p>',visual:'<div class="security-flow"><b>Internet</b><b>Firewall · DMZ</b><b>Kontrollierter LAN-Zugriff</b></div>',memo:'Nur benötigte Wege öffnen. Ein Alarm ist keine Blockade und ein erlaubter Port kein Gütesiegel.',example:'R1 erlaubt eine bestimmte HTTPS-Verbindung. R2 verbietet dieselbe Verbindung. Die Firewall verwendet „erste passende Regel“. Welche entscheidet?',steps:['Prüfe die Regeln von oben nach unten.','R1 passt bereits zu Quelle, Ziel und Dienst.','Nach der vorgegebenen Logik stoppt die Prüfung dort.','Ergebnis: <b>Regel 1</b> entscheidet. Die widersprechende Regel darunter kommt nicht mehr zum Zug.'],detail:'<h4>Grenzen kennen</h4><p><b>Stateful Inspection</b> berücksichtigt den Zustand einer Verbindung und ordnet Antwortpakete zu. Ein einfacher zustandsloser Paketfilter beurteilt einzelne Pakete ohne diesen Kontext. Regeln brauchen enge Quellen, Ziele und Dienste, dokumentierte Gründe und regelmäßige Überprüfung.</p><p>Ein Webzugriff über HTTPS kann trotzdem Schadcode transportieren. Verschlüsselung schützt den Transport; sie macht Inhalte nicht automatisch gutartig. IDS- und IPS-Systeme haben Erkennungsgrenzen und können Fehlalarme auslösen. VLANs schaffen ohne kontrollierte Übergänge keine vollständige Sicherheitsgrenze. Logging und Alarmreaktion müssen zur Organisation passen.</p>',trap:'Eine DMZ ist kein Freifahrtschein vom öffentlichen Webserver ins gesamte interne Netz. Gerade dieser Zugriff wird beschränkt.'},
  {title:'Notfall: Plan schlägt hektisch',cat:'emergency',ch:'ch10',goal:'Reaktion, Wiederherstellung und zeitliche Ziele sicher einordnen.',intro:'<p>Der Dienst ist ausgefallen. Wie schnell soll er wieder da sein, und wie viele Änderungen dürfen fehlen? Zwei verschiedene Fragen. Das frisch gefundene Backup beantwortet erst mal nur, dass irgendwo ein Backup liegt.</p><p>Die Bestellannahme steht. Was muss zuerst wieder laufen, wer entscheidet und wie wird gearbeitet, bis die Technik zurück ist? <b>Business Continuity Management (BCM)</b> plant die Fortführung zeitkritischer Geschäftsprozesse. Die <b>Business Impact Analyse (BIA)</b> untersucht Unterbrechungsfolgen und Zeitbedarf.</p><p><b>RTO</b> (Recovery Time Objective) ist das angestrebte Zeitlimit bis zur Wiederherstellung. <b>RPO</b> (Recovery Point Objective) ist die maximal tolerierte Datenverlust-Zeitspanne. Der <b>Notfallplan</b> nennt Rollen, Meldewege und Schritte. Personenschutz hat bei Gefahr Vorrang.</p>',visual:'<div class="security-flow"><b>Eindämmen</b><b>Bereinigen</b><b>Geprüft wiederherstellen</b></div>',memo:'RTO fragt: Wie schnell wieder nutzbar? RPO fragt: Wie weit dürfen Daten zurückliegen?',example:'Ausfall um 10:40 Uhr. Der jüngste nutzbare Datenstand ist von 10:00 Uhr. Wie groß ist die mögliche Datenlücke?',steps:['Vergleiche Datenstand und Ausfallzeit, nicht die Dauer der Rücksicherung.','Von 10:00 Uhr bis 10:40 Uhr liegen 40 Minuten.','Änderungen aus dieser Zeit können fehlen.','Ergebnis: <b>40 Minuten</b>. Eine festgelegte RPO von 30 Minuten wäre damit nicht eingehalten.'],detail:'<h4>Koordiniert handeln</h4><p>Menschen schützen, nach Plan melden, den Schaden eindämmen, Ursache und Spuren untersuchen, bereinigen und kontrolliert wiederherstellen. Die genaue Reihenfolge und parallele Aufgaben hängen vom Vorfallplan ab. Pauschales Abschalten jedes Geräts kann Spuren vernichten; der Plan und die zuständige Einsatzleitung geben das Vorgehen vor.</p><p>Sicherungen müssen erreichbar, ausreichend getrennt und zurückspielbar sein. Schlüssel, Zugangsdaten, benötigte Software und Abhängigkeiten gehören dazu. Regelmäßige Rücksicherungstests prüfen Daten und Verfahren. Nach dem Vorfall folgen <b>Lessons Learned</b>: Erkenntnisse in konkrete Verbesserungen mit Zuständigen und Terminen überführen.</p>',trap:'Ein grünes Backupsymbol ist kein Wiederherstellungstest. RTO ist keine Datenverlustspanne, und RPO sagt nicht, wie lange die Reparatur dauert.'}
 ];
 
@@ -1322,10 +1627,9 @@ function genTask(cat,lv,recent,subId){
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;if(!t.key)t.key=sub.id+'-'+t.prompt;return finP(t);
 }
 /* ================= Sprüche ================= */
-const Q_OK=["Stimmt. Damit kann man arbeiten, auch ohne Alarmton.", "Sauber entschieden. Die Begründung hält im nächsten Meeting.", "Passt. Erst der Befund, dann der große rote Knopf."];
-const Q_BAD=["Noch nicht. Welche Beobachtung im Fall grenzt die Lösung ein?", "Schau in den Lösungsweg. Beim nächsten Fall prüfst du genau diesen Unterschied.", "Der Befund passt noch nicht. Gut, dass hier die Übung einen Wiederanlaufplan hat."];
+const Q_OK=["Stimmt. Damit kann man arbeiten, auch ohne Alarmton.", "Sauber entschieden. Die Begründung hält im nächsten Meeting.", "Passt. Erst der Befund, dann der große rote Knopf.", "Richtig. Das Audit kann kommen.", "Stimmt. Damit bleibt das Postfach heute ungehackt."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat eine Sicherheitslücke geschlossen.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const norm=s=>String(s).normalize('NFKC').toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').replace(/[^a-z0-9]/g,'');
@@ -1392,7 +1696,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.opt').forEach(b=>{b.disabled=true;const v=Number(b.dataset.v);if(v===t.answer)b.classList.add('is-right');else if(v===given)b.classList.add('is-wrong')});
   const inp=host.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(o.short?'':'<div class="why">'+t.why+'</div>');
+  res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(o.short?'':'<div class="why">'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);
@@ -1581,7 +1885,7 @@ mountChapters();
 const MATCH_TERMS=[['Unerlaubtes Lesen verhindern','Vertraulichkeit'],['Unbemerkte Änderung verhindern','Integrität'],['Bei Bedarf nutzbar sein','Verfügbarkeit'],['Echtheit der Gegenstelle','Authentizität'],['Selbstständige Malware-Verbreitung','Wurm'],['Eingaben heimlich mitschreiben','Keylogger'],['Viele Kandidaten gegen ein Konto','Brute Force'],['Wenige Passwörter gegen viele Konten','Password Spraying'],['Gestohlene Paare wiederverwenden','Credential Stuffing'],['Verdächtigen Verkehr nur melden','IDS'],['Verdächtigen Verkehr aktiv blockieren','IPS'],['Öffentliche Dienste getrennt betreiben','DMZ'],['Zielzeit bis zur Wiederherstellung','RTO'],['Tolerierter Datenverlust als Zeitspanne','RPO']];
 let match=[],matchRound=0;
 function matchNew(){matchRound++;match=shuffle(MATCH_TERMS).slice(0,5);const opts=shuffle([...new Set(MATCH_TERMS.map(x=>x[1]))]);$('trainNo').textContent='RUNDE '+matchRound;$('matchList').innerHTML=match.map((r,i)=>'<div class="match-row"><span>'+esc(r[0])+'</span><select id="ms'+i+'" aria-label="Begriff für '+esc(r[0])+'"><option value="">– wählen –</option>'+opts.map(v=>'<option>'+esc(v)+'</option>').join('')+'</select><button type="button" class="btn ghost" data-match="'+i+'">Prüfen</button></div><div class="result" id="mr'+i+'" role="status"></div>').join('');$('matchResult').innerHTML=''}
-$('matchList').addEventListener('click',e=>{const b=e.target.closest('[data-match]');if(!b)return;const i=Number(b.dataset.match),select=$('ms'+i);if(!select.value){$('mr'+i).textContent='Bitte zuerst einen Begriff wählen. Noch keine Wertung.';return}const ok=select.value===match[i][1];count(ok,'match');select.disabled=true;b.disabled=true;$('mr'+i).className='result'+(ok?'':' bad');$('mr'+i).textContent=(ok?'✓ Richtig. ':'✗ Richtig ist: '+match[i][1]+'. ')+match[i][0]+' → '+match[i][1]+'.'});
+$('matchList').addEventListener('click',e=>{const b=e.target.closest('[data-match]');if(!b)return;const i=Number(b.dataset.match),select=$('ms'+i);if(!select.value){$('mr'+i).textContent='Bitte zuerst einen Begriff wählen. Noch keine Wertung.';return}const ok=select.value===match[i][1];count(ok,'match');select.disabled=true;b.disabled=true;$('mr'+i).className='result'+(ok?'':' bad');$('mr'+i).textContent=(ok?'✓ Richtig. ':'✗ Richtig ist: '+match[i][1]+'. ')+match[i][0]+' → '+match[i][1]+'.';const quip=document.createElement('span');quip.className='quip';quip.textContent=ok?qOk():qBad();$('mr'+i).append(quip)});
 $('matchNext').addEventListener('click',matchNew);
 /* ================= Prüfungsmodus ================= */
 const EXAM_PLAN=CATS.map(c=>[c[0],2,5]);
@@ -1595,7 +1899,7 @@ function buildExam(k){
 }
 function gradeOf(pct){return pct>=92?1:pct>=81?2:pct>=67?3:pct>=50?4:pct>=30?5:6}
 const GRADE_TXT={1:'sehr gut',2:'gut',3:'befriedigend',4:'ausreichend',5:'mangelhaft',6:'ungenügend'};
-const GRADE_QUIP={1:'Sehr gut! Du bist offiziell kein DAU mehr. Höchstens noch ein DAU mit Root-Rechten.',2:'Gut! Ein paar Bits wackeln noch, aber das Fundament steht.',3:'Befriedigend. Bestanden, aber dein Prüfungs-Ich hätte gern mehr Puffer.',4:'Ausreichend. Knapp drüber ist auch drüber. Trotzdem: ab in den Baustellen-Modus.',5:'Mangelhaft. Kein Weltuntergang, aber der Lernpfad ruft. Laut.',6:'Ungenügend. Der Rechner sagt: Neustart erforderlich. Fang beim Lernpfad an, das wird.'};
+const GRADE_QUIP={1:'Sehr gut! Du bist offiziell kein DAU mehr. Höchstens noch ein DAU mit Root-Rechten.',2:'Gut! Ein paar Lücken sind noch offen, aber die Firewall steht.',3:'Befriedigend. Bestanden, aber dein Prüfungs-Ich hätte gern mehr Puffer.',4:'Ausreichend. Knapp drüber ist auch drüber. Trotzdem: ab in den Baustellen-Modus.',5:'Mangelhaft. Kein Weltuntergang, aber der Lernpfad ruft. Laut.',6:'Ungenügend. Der Vorfall ist gemeldet. Fang beim Lernpfad an, das wird.'};
 function renderHistory(){const h=load(EXAM_STORE);if(!Array.isArray(h)||!h.length){$('examHistory').textContent='Noch keine Probeprüfung abgelegt.';return}
  $('examHistory').innerHTML='<div class="table-wrap"><table class="t"><thead><tr><th>Datum</th><th>Dauer</th><th>Punkte</th><th>Note</th><th>Abgabe</th></tr></thead><tbody>'+h.slice().reverse().map(r=>'<tr><td>'+esc(r.d)+'</td><td>'+(r.m||30)+' min</td><td class="m">'+r.p+' / 100</td><td>'+r.g+' ('+GRADE_TXT[r.g]+')</td><td>'+esc(r.r)+'</td></tr>').join('')+'</tbody></table></div>'}
 function startExam(){
@@ -1648,7 +1952,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Themenpunkte: erreicht / maximal</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary>'+(r.t.context?'<div class="task-context"><small>AUSGANGSLAGE</small><p>'+r.t.context+'</p></div>':'')+'<p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary>'+(r.t.context?'<div class="task-context"><small>AUSGANGSLAGE</small><p>'+r.t.context+'</p></div>':'')+'<p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+'<span class="quip">'+(r.ok?qOk():qBad())+'</span>'+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

@@ -63,7 +63,7 @@
       "file": "b5-netzwerkdienste.html",
       "subject": "Netzwerkdienste & Protokolle",
       "title": "Port 80, bitte kommen",
-      "description": "TCP/UDP, Ports, DHCP, DNS, NAT/PAT, ARP, ICMP, HTTP/HTTPS, Mail und Fernzugriff – zehn Lernstufen mit Laboren, Training und Prüfung."
+      "description": "Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss."
     },
     {
       "slug": "f2-kalkulation",
@@ -72,6 +72,29 @@
       "subject": "Kalkulation & Beschaffung",
       "title": "Rechnet sich das?",
       "description": "Angebotsvergleich, Bezugskalkulation, Verkaufskalkulation, Nutzwertanalyse, Kauf/Miete/Leasing, lineare Abschreibung, Amortisation, Break-even, Stundensatz und Make or Buy – mit zehn Lernstufen, 50 Aufgabentypen und Prüfungsmodus."
+    },
+    {
+      "slug": "klausurvorbereitung-061126",
+      "preview": "klausurvorbereitung",
+      "file": "klausurvorbereitung-061126.html",
+      "subject": "Netzwerkgrundlagen",
+      "title": "Sieben Schichten OSI. Aber gelernt wird fünf vor zwölf.",
+      "description": "Lernen auf den letzten Drücker? So kennt man dich. Querbeet durchs Netz: MAC, OSI, Ports, IPv4, WLAN und IPv6. Der Lernplan ist spät. Die Fragen sind schon da.",
+      "areas": [
+        "mix",
+        "category",
+        "reference",
+        "exam"
+      ],
+      "entry": "mix"
+    },
+    {
+      "slug": "cs1-csharp",
+      "preview": "csharp",
+      "file": "cs1-csharp.html",
+      "subject": "Programmieren mit C#",
+      "title": "Der Compiler hat immer recht",
+      "description": "Von der ersten Zeile über Schleifen, Methoden und Klassen bis zum eigenen Gerätemanager. Du lernst, Code zu lesen und Fehler zu finden, bevor der Compiler es dir unter die Nase reibt."
     }
   ]
 }

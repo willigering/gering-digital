@@ -631,7 +631,9 @@ body.dtp-exercise-open{overflow:hidden}
           dialog.classList.add('dtp-focus-visible');
           animateTo(1);
         });});
-        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Answer fields first: the "?" tip comes earlier in the DOM and would cover the field on phones.
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled])')
+          ||task.querySelector('button:not([disabled]),[tabindex="0"]:not(.qhelp)');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
         closing=true;cancelAnimationFrame(frame);
@@ -992,6 +994,309 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-TASCHENRECHNER END -->
+<!-- DTP-HANDY START -->
+<style>
+/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}
+</style>
+<script>
+/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
+   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
+(function () {
+  'use strict';
+  if (window.__dtpMobile) return;
+  window.__dtpMobile = true;
+  var wasOpen = null;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { wasOpen = null; return; }
+    var help = e.target.closest && e.target.closest('.qhelp');
+    wasOpen = help && document.activeElement === help ? help : null;
+  }, true);
+  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
+  document.addEventListener('focusout', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
+  });
+  document.addEventListener('click', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (!help) return;
+    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
+    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
+    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
+    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
+    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
+    var tip = help.querySelector('.qtip');
+    if (!tip) return;
+    requestAnimationFrame(function () {
+      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
+      if (r.height && over > 0) {
+        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
+      }
+    });
+  });
+})();
+</script>
+<!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
+  const newQuips = [
+  "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
+  "Oha, das ist ja richt… Oh. Doch nicht.",
+  "WOW! Eine Antwort! Und sie ist FALSCH.",
+  "Ehrlich? DAS ist deine Antwort?",
+  "Das hast du jetzt nicht gesagt!?",
+  "Das war einfach nur scheiße.",
+  "Das war Bockmist. Der nächste Versuch ist gratis.",
+  "Falsch. Hast du das gerade wirklich abgeschickt?",
+  "Falsch. Aber mutig.",
+  "Falsch. Und ich hatte so viel Hoffnung.",
+  "Falsch. Das tat beim Lesen weh.",
+  "Deine Antwort ist durchgefallen. Du noch nicht.",
+  "Falsch. Tu einfach so, als hättest du das nie abgeschickt.",
+  "Falsch. Steht in keiner Doku. Nicht mal in der schlechten.",
+  "Falsch. Sag das bitte nie im Bewerbungsgespräch.",
+  "Falsch. Und zwar richtig falsch.",
+  "Falsch. Ich hab extra noch mal nachgeschaut.",
+  "Falsch. Ich muss mich kurz setzen.",
+  "Falsch. Ich bin nicht wütend, nur enttäuscht.",
+  "Falsch. Das sagen wir jetzt einfach niemandem.",
+  "Falsch. Erklär mir bitte nicht, wie du darauf gekommen bist.",
+  "Falsch. Die Frage hat das nicht verdient.",
+  "Falsch. Aber schön, dass du da bist.",
+  "Falsch. Das war so daneben, das hat schon wieder Stil.",
+  "Falsch. Noch so eine, und ich rufe deine Mutter an.",
+  "Falsch. Das kannst du besser. Hoffe ich.",
+  "Falsch. Und du hattest so viel Zeit.",
+  "Falsch. Und das auch noch mit Absicht?",
+  "Falsch. Hoffentlich war das nur geraten.",
+  "Falsch. Das hat mir jetzt den Abend versaut.",
+  "Falsch. Und das ist noch die freundliche Formulierung.",
+  "Falsch. Ich sag's dir lieber gleich.",
+  "Falsch. Ich hab's zweimal gelesen, es wird nicht besser.",
+  "Falsch. Da kann auch ich nichts mehr retten.",
+  "Falsch. Ich hab kurz gehofft, du machst Spaß.",
+  "Falsch. Bitte sag mir, dass das ein Witz war.",
+  "Falsch. Ich brauch jetzt erst mal einen Kaffee.",
+  "Falsch. Ich hol mal kurz frische Luft.",
+  "Falsch. Das muss ich erst mal verarbeiten.",
+  "Falsch. Gib mir eine Minute.",
+  "Falsch. Ich sag jetzt lieber nichts.",
+  "Falsch. Mir fehlen die Worte. Dir leider nicht.",
+  "Falsch. Das wird auch nicht richtiger, wenn du es noch mal anschaust.",
+  "Falsch. Aber du bist ja noch jung.",
+  "Falsch. Aber du wirkst sehr überzeugt.",
+  "Falsch. Aber gut, dass wir darüber gesprochen haben.",
+  "Falsch. Aber du siehst heute gut aus.",
+  "Falsch. Aber deine Haare sitzen.",
+  "Falsch. Aber das Selbstvertrauen stimmt.",
+  "Falsch. Dafür gibt's keine Punkte. Auch keine halben.",
+  "Falsch. Dafür gibt's nicht mal Mitleidspunkte.",
+  "Falsch. Das gibt eine schöne Null.",
+  "Falsch. Das kommt nicht an den Kühlschrank.",
+  "Falsch. Das rahmen wir nicht ein.",
+  "Falsch. Das erzählst du besser nicht weiter.",
+  "Falsch. Das streichen wir aus dem Protokoll.",
+  "Falsch. Keine Sorge, das hat keiner gesehen. Außer mir.",
+  "Falsch. Schau jetzt bitte nicht so.",
+  "Falsch. Guck nicht so, das warst du selbst.",
+  "Falsch. Du weißt es. Ich weiß es.",
+  "Falsch. Das weißt du aber auch selbst.",
+  "Falsch. Wer hätte das gedacht. Ich.",
+  "Falsch. Ich hab's kommen sehen.",
+  "Falsch. Hat mich jetzt nicht überrascht.",
+  "Falsch. Schade um die schöne Frage.",
+  "Falsch. Hast du das ausgewürfelt?",
+  "Falsch. Wer hat dir das erzählt?",
+  "Falsch. Geht's dir gut?",
+  "Falsch. Möchtest du dich kurz hinlegen?",
+  "Falsch. Trink mal was.",
+  "Falsch. Hast du heute schon was gegessen?",
+  "Falsch. Wie viele Finger halte ich hoch?",
+  "Falsch. Fahr heute bitte nicht mehr selbst.",
+  "Falsch. Mach mal eine Pause. Ich brauch auch eine.",
+  "Falsch. So wird das nichts mit uns.",
+  "Falsch. Wir müssen reden.",
+  "Falsch. Ich glaub, wir sollten uns mal zusammensetzen.",
+  "Falsch. Ich lass das mal so wirken.",
+  "Falsch. Lass das mal kurz sacken.",
+  "Falsch. Lass uns das nie wieder erwähnen.",
+  "Falsch. Wir fangen einfach noch mal von vorne an. Ganz von vorne.",
+  "Falsch. Das Gute: Schlimmer wird's heute nicht. Hoffentlich.",
+  "Falsch. Beim nächsten Mal gern mit Nachdenken.",
+  "Falsch. Nachdenken wäre auch eine Option gewesen.",
+  "Falsch. Raten ist auch eine Methode. Nur keine gute."
+];
+  if (NEW_QUIPS_LIVE) quips.push(...newQuips);
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1081,7 +1386,7 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Netzwerke: Was, wozu und wie groß?</h3><p>Definition, Nutzen, Paketvermittlung, PAN bis GAN, Peer-to-Peer und Client-Server.</p></div></div><p>Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, nur der Schreibtisch ist kein Kontinent. Reichweite und Aufbau helfen beim Einordnen.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Netzwerke: Was, wozu und wie groß?</h3><p>Definition, Nutzen, Paketvermittlung, PAN bis GAN, Peer-to-Peer und Client-Server.</p></div></div><p>Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, aber nur eines davon braucht eine Dienstreise. Reichweite und Aufbau helfen beim Einordnen.</p>
 <details class="lesson" open><summary><span class="lid">1.1</span> Was ist ein Netzwerk?</summary><div class="lesson-body"><p>Ein <b>Rechnernetz</b> ist ein Verbund aus mindestens zwei kommunikationsfähigen Geräten, die über ein Übertragungsmedium Daten austauschen. Geräte können PCs, Smartphones, Server, Drucker oder Sensoren sein.</p><p>Man braucht <b>Teilnehmer</b> (Endgeräte), <b>Übertragungswege</b> (Kupfer, Glasfaser, Funk), <b>Adressierung</b> (z. B. MAC/IP) und <b>Regeln</b> (Protokolle). Ein gemeinsamer Internetanschluss ist keine Voraussetzung für ein lokales Netzwerk.</p><div class="callout">Beispiel: Zwei Rechner, die per Ethernet verbunden sind und passend konfigurierte IP-Adressen haben, bilden bereits ein Netzwerk – auch ohne Internet.</div></div></details>
 <details class="lesson"><summary><span class="lid">1.2</span> Ziele und Nutzen von Netzwerken</summary><div class="lesson-body"><p>Die Kerngedanken sind <b>Kommunikation</b>, <b>gemeinsame Ressourcennutzung</b> und <b>zentrale Verwaltung</b>: Dateien gemeinsam bearbeiten, Drucker teilen, Software und Sicherheitsvorgaben zentral bereitstellen, Backups an einem Ort sichern.</p><p>Weitere Vorteile sind Skalierbarkeit, flexibles Arbeiten und Zusammenarbeit. Aber: Es entstehen Kosten, Verwaltungsaufwand und Sicherheitsrisiken. Ein zentraler Server kann außerdem zum <b>Single Point of Failure</b> werden, wenn keine Redundanz vorhanden ist.</p><div class="callout">Unterscheide beim Erklären zwischen <b>Ziel</b> („gemeinsam drucken“) und <b>technischer Umsetzung</b> („Druckserver“).</div></div></details>
 <details class="lesson"><summary><span class="lid">1.3</span> Datenübertragung und Paketvermittlung</summary><div class="lesson-body"><p>Bei der <b>Paketvermittlung</b> werden größere Datenmengen in kleinere Einheiten zerlegt und über das Netz transportiert. Auf dem Weg tragen sie je nach Schicht Header mit z. B. Quell- und Zieladressen. Am Ziel werden sie verarbeitet und bei Bedarf wieder zusammengesetzt.</p><p>Wichtige Begriffe: <b>Bandbreite/Datenrate</b> (übertragbare Menge pro Zeit), <b>Latenz</b> (Verzögerung), <b>Jitter</b> (Schwankungen der Laufzeit), <b>Paketverlust</b> (nicht zugestellte Einheiten). Bandbreite und Latenz sind nicht dasselbe.</p><div class="flow"><span>Anwendung</span><span>Segmente/Datagramme</span><span>IP-Pakete</span><span>Ethernet-Frames</span><span>Bits</span></div><div class="callout">Beim Surfen können mehrere Verbindungen und Zwischenrouter beteiligt sein. Die konkrete Übertragung hängt von den verwendeten Protokollen ab.</div></div></details>
@@ -1396,7 +1701,7 @@ const KENN=[['Jitter','Die Laufzeit der Pakete schwankt ständig zwischen 20 und
 const KENNWHY={Datenrate:'Datenrate/Bandbreite = übertragbare Menge pro Zeit.',Latenz:'Latenz = Verzögerung bzw. Laufzeit.',Jitter:'Jitter = Schwankung der Laufzeit – stört besonders Echtzeit wie Telefonie.',Paketverlust:'Paketverlust = Einheiten, die nie zugestellt werden.'};
 const ARCH=[['Peer-to-Peer','Drei Laptops geben sich gegenseitig Ordner frei – einen zentralen Server gibt es nicht.'],['Client-Server','Alle Mitarbeitenden melden sich an einem zentralen Anmeldeserver an und speichern auf dem Dateiserver.'],['Hybrid','Anmeldung und Dateiablage laufen über zentrale Server, zusätzlich tauschen Arbeitsstationen Dateien direkt untereinander aus.'],['Client-Server','Ein Browser ruft eine Webseite von einem Webserver ab.'],['Peer-to-Peer','Zwei PCs sind direkt verbunden und kopieren Dateien über gegenseitige Freigaben.']];
 const ARCHWHY={'Peer-to-Peer':'Gleichberechtigte Geräte stellen einander Dienste bereit – dezentral.','Client-Server':'Ein Server stellt den Dienst bereit, Clients greifen darauf zu – zentral verwaltet.','Hybrid':'Beide Ansätze nebeneinander.'};
-const BASICTF=[['Ein lokales Netzwerk benötigt zwingend einen Internetanschluss.',false,'Zwei kommunizierende Geräte bilden bereits ein Netzwerk – auch ohne Internet.'],['WLAN ist eine Netzwerkart nach Reichweite wie LAN oder WAN.',false,'WLAN beschreibt die Funktechnik (IEEE 802.11), nicht die geografische Ausdehnung.'],['Bandbreite und Latenz sind dasselbe.',false,'Datenrate = Menge pro Zeit, Latenz = Verzögerung. Ein Anschluss kann schnell und trotzdem träge sein.'],['Ein Server ist zwingend ein eigener, besonders großer Computer.',false,'„Server“ ist eine Rolle bzw. ein Dienst – das kann auch ein gewöhnlicher PC oder eine VM sein.'],['Ein Access Point ist automatisch auch ein Router.',false,'Ein AP bietet Funkzugang zum LAN (Layer 2). Routing zwischen IP-Netzen ist eine eigene Funktion – Heimgeräte vereinen oft beides.'],['Ein zentraler Server ohne Redundanz kann zum Single Point of Failure werden.',true,'Fällt er aus, ist der Dienst für alle weg.'],['Mehr Vernetzung bedeutet automatisch mehr Sicherheit.',false,'Mehr Vernetzung vergrößert die Angriffsfläche; Berechtigungen, Segmentierung und Updates sind nötig.'],['Bei der Paketvermittlung werden größere Datenmengen in kleinere Einheiten zerlegt.',true,'Die Einheiten tragen Header mit Adressen und werden am Ziel verarbeitet bzw. wieder zusammengesetzt.']];
+const BASICTF=[['Ein lokales Netzwerk benötigt zwingend einen Internetanschluss.',false,'Zwei kommunizierende Geräte bilden bereits ein Netzwerk – auch ohne Internet.'],['WLAN ist eine Netzwerkart nach Reichweite wie LAN oder WAN.',false,'WLAN beschreibt die Funktechnik (IEEE 802.11), nicht die geografische Ausdehnung.'],['Bandbreite und Latenz sind dasselbe.',false,'Datenrate = Menge pro Zeit, Latenz = Verzögerung. Ein Anschluss kann schnell und trotzdem träge sein. Wie der Kollege, der viel schafft, aber erst nach dem zweiten Kaffee.'],['Ein Server ist zwingend ein eigener, besonders großer Computer.',false,'„Server“ ist eine Rolle bzw. ein Dienst – das kann auch ein gewöhnlicher PC oder eine VM sein.'],['Ein Access Point ist automatisch auch ein Router.',false,'Ein AP bietet Funkzugang zum LAN (Layer 2). Routing zwischen IP-Netzen ist eine eigene Funktion – Heimgeräte vereinen oft beides.'],['Ein zentraler Server ohne Redundanz kann zum Single Point of Failure werden.',true,'Fällt er aus, ist der Dienst für alle weg.'],['Mehr Vernetzung bedeutet automatisch mehr Sicherheit.',false,'Mehr Vernetzung vergrößert die Angriffsfläche; Berechtigungen, Segmentierung und Updates sind nötig.'],['Bei der Paketvermittlung werden größere Datenmengen in kleinere Einheiten zerlegt.',true,'Die Einheiten tragen Header mit Adressen und werden am Ziel verarbeitet bzw. wieder zusammengesetzt.']];
 const TOPOS=[['Stern','Jedes Endgerät hat ein eigenes Kabel zu einem zentralen Switch.'],['Bus','Alle Teilnehmer hängen an einer gemeinsamen Stammleitung, die an beiden Enden terminiert ist.'],['Ring','Jeder Knoten ist mit genau zwei Nachbarn verbunden, zusammen ergibt sich ein geschlossener Kreis.'],['Baum','Etagen-Switches hängen an einem Gebäude-Switch, an jedem Etagen-Switch hängen die PCs.'],['Vermascht','Jeder Router hat eine direkte Leitung zu jedem anderen Router.'],['Stern','Fällt die Zentrale aus, sind alle betroffen – ein defektes Endgerätekabel trifft aber nur einen Teilnehmer.'],['Bus','Ein einziger Schaden an der gemeinsamen Hauptleitung kann die Kommunikation aller Teilnehmer stören.'],['Baum','Fällt ein oberer Verteiler aus, sind alle darunterliegenden Zweige betroffen.'],['Vermascht','Sehr hohe Ausfallsicherheit durch alternative Wege, aber großer Leitungs- und Kostenaufwand.'],['Ring','Ohne Schutzmechanismen kann schon eine einzige Unterbrechung im Kreis die Kommunikation stören.']];
 const TOPOWHY={Bus:'Bus: alle teilen einen gemeinsamen Leitungsstrang.',Ring:'Ring: jeder Knoten hat zwei Nachbarn im Kreis.',Stern:'Stern: alle Endgeräte einzeln an einer Zentrale.',Baum:'Baum: hierarchisch verbundene Sterne/Verteiler.',Vermascht:'Mesh: Knoten mehrfach bzw. vollständig verbunden.'};
 const AKTPAS=[['aktiv','Switch'],['aktiv','Router'],['aktiv','Access Point'],['aktiv','Repeater'],['aktiv','Netzwerkkarte'],['aktiv','Firewall-Appliance'],['aktiv','Medienkonverter (Kupfer auf Glasfaser)'],['aktiv','klassischer Ethernet-Hub'],['passiv','Patchpanel'],['passiv','Netzwerkdose'],['passiv','Patchkabel'],['passiv','fest verlegtes Installationskabel'],['passiv','RJ45-Stecker'],['passiv','passiver Glasfaser-Splitter']];
@@ -1679,7 +1984,7 @@ S('proto','p_portr','Port → Dienst',1,lv=>{
 });
 S('proto','p_tcpudp','TCP oder UDP',1,lv=>{
  const x=pick(TU);
- return mcf(P('Trifft die folgende Eigenschaft auf TCP oder auf UDP zu? '+Q(cap(x[1])),'Gehört das zu TCP (zuverlässig, mit Verbindung) oder zu UDP (schnell, ohne Verbindung)? '+Q(cap(x[1]))),['TCP','UDP'],x[0]==='TCP'?0:1,x[0]==='TCP'?'TCP ist verbindungsorientiert und zuverlässig (Reihenfolge, Wiederholung, Flusskontrolle).':'UDP ist verbindungslos und bietet selbst keine Zustellgarantie.',{key:'tu'+x[1]});
+ return mcf(P('Trifft die folgende Eigenschaft auf TCP oder auf UDP zu? '+Q(cap(x[1])),'Gehört das zu TCP (zuverlässig, mit Verbindung) oder zu UDP (schnell, ohne Verbindung)? '+Q(cap(x[1]))),['TCP','UDP'],x[0]==='TCP'?0:1,x[0]==='TCP'?'TCP ist verbindungsorientiert und zuverlässig (Reihenfolge, Wiederholung, Flusskontrolle).':'UDP ist verbindungslos und bietet selbst keine Zustellgarantie. Abschicken und hoffen.',{key:'tu'+x[1]});
 });
 S('proto','p_dora','DHCP: DORA',1,lv=>{
  const st=['Discover','Offer','Request','Acknowledge'];const i=rnd(3);
@@ -1694,7 +1999,7 @@ S('proto','p_hs','TCP-Handshake',1,lv=>{
  return mc(P(q[i][0],q[i][1]+' '+SM('Drei Schritte: anfragen, bestätigen und zurückfragen, bestätigen.')),s[i],['SYN','SYN/ACK','ACK','FIN'],'Drei-Wege-Handshake: SYN → SYN/ACK → ACK. FIN gehört zum Verbindungsabbau.',{key:'hs'+i});
 });
 S('proto','p_which','Welches Protokoll ist zuständig?',1,lv=>{
- const W2={ARP:'ARP ordnet in IPv4-LANs einer IPv4-Adresse die MAC-Adresse des nächsten Hops zu (Request meist Broadcast, Reply meist Unicast).','NDP (über ICMPv6)':'IPv6 hat kein ARP. Neighbor Discovery (Neighbor Solicitation/Advertisement) übernimmt das.',ICMP:'ICMP dient Fehler- und Statusmeldungen und der Diagnose. ping nutzt Echo Request/Reply.',DHCP:'DHCP verteilt die Netzkonfiguration (DORA, UDP 67/68).',DNS:'DNS löst Namen in Records wie A/AAAA auf.'};
+ const W2={ARP:'ARP ordnet in IPv4-LANs einer IPv4-Adresse die MAC-Adresse des nächsten Hops zu (Request meist Broadcast, Reply meist Unicast).','NDP (über ICMPv6)':'IPv6 hat kein ARP. Neighbor Discovery (Neighbor Solicitation/Advertisement) übernimmt das.',ICMP:'ICMP dient Fehler- und Statusmeldungen und der Diagnose. ping nutzt Echo Request/Reply. Also „Hallo?“ und „Ja, hier.“',DHCP:'DHCP verteilt die Netzkonfiguration (DORA, UDP 67/68).',DNS:'DNS löst Namen in Records wie A/AAAA auf.'};
  const d=pick([['ARP','Ein PC kennt die IPv4-Adresse seines Gateways und benötigt dessen MAC-Adresse.'],['NDP (über ICMPv6)','Ein IPv6-Host sucht die MAC-Adresse seines Nachbarn im selben Link.'],['ICMP','ping prüft per Echo Request/Reply, ob ein Ziel antwortet.'],['DHCP','Ein neuer Laptop soll automatisch IP-Adresse, Maske, Gateway und DNS-Server erhalten.'],['DNS','Der Browser benötigt zur Domain www.example.org die IP-Adresse.'],['ICMP','Ein Router meldet dem Absender „Destination unreachable“.']]);
  return mc(P('Welches Protokoll ist im folgenden Fall zuständig? '+sc(d[1]),'Welches Protokoll erledigt das? '+sc(d[1])),d[0],['ARP','NDP (über ICMPv6)','ICMP','DHCP','DNS'],W2[d[0]],{key:'pw'+d[1]});
 });
@@ -1730,7 +2035,7 @@ S('wifi','w_mode','WLAN-Betriebsarten',1,lv=>{
  return mc(P('Welche WLAN-Betriebsart ist beschrieben? '+sc(x[1]),'Wie arbeitet dieses WLAN? '+sc(x[1])),x[0],['Infrastrukturmodus','Ad-hoc','Mesh-WLAN'],'Infrastruktur = über AP · Ad-hoc = direkt · Mesh = APs per Funk-Backhaul verbunden (Kabel-Backhaul ist oft leistungsfähiger).',{key:'wm'+x[0]});
 });
 S('wifi','w_tf','WLAN: Aussagen prüfen',1,lv=>{
- const x=pick([['Eine versteckte SSID ist ein wirksamer Ersatz für WPA2/WPA3.',false,'Die SSID ist über Management- und Verbindungsverkehr erkennbar. Verstecken schützt nicht, nötig ist WPA2/WPA3 mit starken Zugangsdaten.'],['MAC-Filter ersetzen eine sichere WLAN-Verschlüsselung.',false,'MAC-Adressen lassen sich mitlesen und fälschen, also kein verlässlicher Schutz.'],['Die SSID ist dasselbe wie das WLAN-Passwort.',false,'Die SSID ist nur der Name des Funknetzes.'],['Ein Gäste-WLAN kann über ein eigenes VLAN logisch vom Firmennetz getrennt werden.',true,'Eigene VLANs bzw. Netze trennen den Gastverkehr vom internen Netz.'],['Ein kabelgebundener Backhaul belegt keine zusätzliche WLAN-Airtime.',true,'Der AP-zu-AP-Verkehr läuft dann über das Kabel statt über die Funkkanäle.'],['Ein Access Point ist automatisch auch ein Router.',false,'Ein AP bietet Funkzugang zum LAN (Layer 2). Routing ist eine eigene Funktion, Heimgeräte vereinen nur oft beides.']]);
+ const x=pick([['Eine versteckte SSID ist ein wirksamer Ersatz für WPA2/WPA3.',false,'Die SSID ist über Management- und Verbindungsverkehr erkennbar. Verstecken schützt nicht, nötig ist WPA2/WPA3 mit starken Zugangsdaten. Das WLAN hinterm Vorhang wird trotzdem gefunden.'],['MAC-Filter ersetzen eine sichere WLAN-Verschlüsselung.',false,'MAC-Adressen lassen sich mitlesen und fälschen, also kein verlässlicher Schutz.'],['Die SSID ist dasselbe wie das WLAN-Passwort.',false,'Die SSID ist nur der Name des Funknetzes.'],['Ein Gäste-WLAN kann über ein eigenes VLAN logisch vom Firmennetz getrennt werden.',true,'Eigene VLANs bzw. Netze trennen den Gastverkehr vom internen Netz.'],['Ein kabelgebundener Backhaul belegt keine zusätzliche WLAN-Airtime.',true,'Der AP-zu-AP-Verkehr läuft dann über das Kabel statt über die Funkkanäle.'],['Ein Access Point ist automatisch auch ein Router.',false,'Ein AP bietet Funkzugang zum LAN (Layer 2). Routing ist eine eigene Funktion, Heimgeräte vereinen nur oft beides.']]);
  return tf('wt'+x[0],x[0],x[1],x[2]);
 });
 
@@ -1845,7 +2150,9 @@ function genTask(cat,lv,recent,subId){
  let pool=SUBS.filter(s=>(subId?s.id===subId:s.cat===cat)&&(subId||s.min<=Math.max(lv,1)));
  if(!pool.length)pool=SUBS.filter(s=>s.cat===cat);
  let t,sub;
- for(let i=0;i<30;i++){sub=pick(pool);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ const hist=genTask.hist||(genTask.hist=[]);const keep=Math.min(pool.length-1,3),fresh=keep?pool.filter(s=>!hist.slice(-keep).includes(s.id)):pool;const cand=fresh.length?fresh:pool;
+ for(let i=0;i<30;i++){sub=pick(cand);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ if(!subId){hist.push(sub.id);if(hist.length>12)hist.shift()}
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;
  finP(t);
  return t;
@@ -1857,7 +2164,7 @@ const tbl=(head,rows)=>'<div class="table-wrap"><table class="t"><thead><tr>'+he
 const STAGES=[
  {title:'Netzwerkarten & Architektur',cat:'basics',ch:'c1',goal:'Netze nach Reichweite und Architektur einordnen und Kenngrößen wie Latenz und Jitter unterscheiden.',
   vis:()=>tbl(['Kürzel','Bedeutung','Typisches Beispiel'],[['PAN','Personal Area Network – unmittelbare Umgebung','Smartphone + Bluetooth-Kopfhörer'],['LAN','Local Area Network – Raum/Gebäude/Campus','Schul- oder Firmennetz'],['MAN','Metropolitan Area Network – Stadt/Region','Standortnetz einer Stadt'],['WAN','Wide Area Network – große Entfernungen','Standorte über Provider verbinden'],['GAN','Global Area Network – weltumspannend','Globale Vernetzung, z. B. Internet']]),
-  intro:'Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, nur der Schreibtisch ist kein Kontinent. Reichweite und Aufbau helfen beim Einordnen. Ein Netzwerk beginnt bei zwei Geräten, die über ein Medium nach gemeinsamen Regeln (Protokollen) Daten austauschen. Um Netze zu beschreiben, ordnest du sie nach Reichweite (PAN bis GAN), nach Architektur (Peer-to-Peer, Client-Server, Hybrid) und nach Kenngrößen wie Datenrate, Latenz und Jitter.',
+  intro:'Deine Kopfhörer verbinden sich mit dem Handy, der Drucker hängt im Büro und die Filiale ist in einer anderen Stadt. Alles Netzwerke, aber nur eines davon braucht eine Dienstreise. Reichweite und Aufbau helfen beim Einordnen. Ein Netzwerk beginnt bei zwei Geräten, die über ein Medium nach gemeinsamen Regeln (Protokollen) Daten austauschen. Um Netze zu beschreiben, ordnest du sie nach Reichweite (PAN bis GAN), nach Architektur (Peer-to-Peer, Client-Server, Hybrid) und nach Kenngrößen wie Datenrate, Latenz und Jitter.',
   example:'Ein Unternehmen hat ein Büro in Köln und eines in Berlin. In jedem Büro stehen zehn PCs, alle melden sich an einem zentralen Anmeldeserver an. Wie beschreibst du dieses Netz?',
   steps:['<strong>Innerhalb eines Büros:</strong> PCs, Drucker und Server im selben Gebäude bilden je ein <strong>LAN</strong>.','<strong>Zwischen Köln und Berlin:</strong> Die Verbindung über einen Provider überbrückt große Entfernungen → <strong>WAN</strong>.','<strong>Architektur:</strong> Ein zentraler Server stellt die Anmeldung bereit, die PCs nutzen ihn → <strong>Client-Server</strong>.','<strong>Risiko:</strong> Gibt es nur einen Anmeldeserver und keine Redundanz, ist er ein <strong>Single Point of Failure</strong>.'],
   memo:'<strong>WLAN</strong> ist eine Funktechnik, keine Reichweitenklasse. <strong>Latenz</strong> = Verzögerung · <strong>Jitter</strong> = Schwankung der Verzögerung · <strong>Datenrate</strong> = Menge pro Zeit · <strong>Paketverlust</strong> = kommt nie an.'},
@@ -1881,7 +2188,7 @@ const STAGES=[
   memo:'<strong>Quelle lernen → Ziel nachschlagen.</strong> Bekannte Ziel-MAC: gezielt an einen Port. Unbekannte Ziel-MAC oder Broadcast: an alle anderen Ports derselben Broadcastdomäne (VLAN).'},
  {title:'OSI & TCP/IP',cat:'layers',ch:'c4',goal:'Die OSI-Schichten benennen, Begriffe zuordnen, PDUs kennen und OSI auf TCP/IP abbilden.',
   vis:()=>tbl(['OSI','Schicht','TCP/IP','PDU / Beispiel'],[['7','Anwendung','Anwendung','HTTP, DNS, DHCP'],['6','Darstellung','Anwendung','Kodierung, Format'],['5','Sitzung','Anwendung','Sitzungssteuerung'],['4','Transport','Transport','Segment / Datagramm · TCP, UDP'],['3','Vermittlung','Internet','IP-Paket · IP, ICMP'],['2','Sicherung','Netzzugang','Frame · Ethernet, MAC'],['1','Bitübertragung','Netzzugang','Bits · Kabel, Funk']]),
-  intro:'Die Seite lädt nicht. Ein loses Kabel, eine falsche IP und ein abgestürzter Webdienst können im Browser ähnlich aussehen. Mit den Schichten stellst du drei verschiedene Fragen an denselben Fehler. Das OSI-Modell ist ein Referenzmodell mit sieben Schichten zum Verstehen und Diagnostizieren. Das TCP/IP-Modell (für diese LK/EK: 4 Schichten) orientiert sich an der tatsächlich genutzten Internetprotokollfamilie und fasst Schichten zusammen.',
+  intro:'Die Seite lädt nicht. Ein loses Kabel, eine falsche IP und ein abgestürzter Webdienst können im Browser ähnlich aussehen. Mit den Schichten stellst du drei verschiedene Fragen an denselben Fehler. Das OSI-Modell ist ein Referenzmodell mit sieben Schichten zum Verstehen und Diagnostizieren. Das TCP/IP-Modell (hier mit 4 Schichten) orientiert sich an der tatsächlich genutzten Internetprotokollfamilie und fasst Schichten zusammen.',
   example:'Wie entsteht aus einer HTTP-Anfrage ein Ethernet-Frame?',
   steps:['<strong>Anwendung:</strong> Der Browser erzeugt die HTTP-Daten.','<strong>Transport (4):</strong> TCP setzt seinen Header mit Ports davor → <strong>Segment</strong>.','<strong>Vermittlung (3):</strong> IP setzt den Header mit Quell- und Ziel-IP davor → <strong>IP-Paket</strong>.','<strong>Sicherung (2):</strong> Ethernet setzt den Header mit MAC-Adressen davor und hängt die <strong>FCS</strong> an → <strong>Frame</strong>.','<strong>Bitübertragung (1):</strong> Die Netzwerkkarte sendet Bits als Signale. Beim Empfänger wird in umgekehrter Reihenfolge entkapselt.'],
   memo:'<strong>Merksatz von 7 nach 1:</strong> Alle Deutschen Studenten Trinken Verschiedene Sorten Bier. <strong>TCP/IP:</strong> Anwendung = OSI 5–7 · Transport = 4 · Internet = 3 · Netzzugang = 1–2.'},
@@ -1921,10 +2228,9 @@ const CHMAP={c1:'ch1',c2:'ch2',c3:'ch3',c4:'ch5',proto:'ch6',wifi:'ch7',ipv6:'ch
 STAGES.forEach(s=>{s.visual=s.vis();s.intro='<p>'+s.intro+'</p>';s.ch=s.cat==='switch'?'ch4':s.cat==='trouble'?'ch9':s.cat==='scen'?'ch10':CHMAP[s.ch]});
 
 /* ================= Sprüche ================= */
-const Q_OK=["Passt. Das Kabel bleibt eingesteckt.", "Richtig. Der Router darf heute einfach weiterarbeiten.", "Stimmt. Die Erklärung wäre ein brauchbarer Eintrag im Ticket."];
-const Q_BAD=["Noch nicht. Prüfe, was der Fall wirklich über den Aufbau sagt.", "Schau in den Lösungsweg. Ein Neustart hilft dieser Antwort auch nicht.", "Lies nach, welcher Teil des Netzes hier überhaupt betroffen ist."];
+const Q_OK=["Passt. Das Kabel bleibt eingesteckt.", "Richtig. Der Router darf heute einfach weiterarbeiten.", "Stimmt. Die Erklärung wäre ein brauchbarer Eintrag im Ticket.", "Passt. Niemand musste am Stecker wackeln."];
 const Q_MASTER=['Stufe gemeistert! Link up, nächste Tür auf.','Gemeistert. Deine MAC-Tabelle hat einen neuen Eintrag: „kann ich“.','Stufe geschafft! 8 von 10, das ist kein Glück mehr, das ist Routing.','Level up. Du bist jetzt offiziell routbar.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 /* ================= Antwort prüfen ================= */
 const FMT={txt:'Antwort eintippen',dec:'Ganze Zahl, z. B. 62 oder 4.094',bin:'Nur 0 und 1, höchstens 8 Stellen, Leerzeichen sind erlaubt',ip:'IPv4-Adresse aus vier Zahlen von 0 bis 255 mit Punkten, z. B. 192.168.1.64',pre:'Präfix mit oder ohne Schrägstrich, z. B. /26 oder 26'};
 const PH={txt:'Antwort',dec:'z. B. 62',bin:'z. B. 1100 0000',ip:'z. B. 192.168.1.64',pre:'z. B. /26'};
@@ -1986,7 +2292,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.opt').forEach(b=>{b.disabled=true;const v=Number(b.dataset.v);if(v===t.answer)b.classList.add('is-right');else if(v===given)b.classList.add('is-wrong')});
   const inp=host.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(ok?'':diagOf(t,parsed))+(o.short?'':'<div class="why"><div class="why-h">LÖSUNGSWEG</div>'+t.why+'</div>');
+  res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(ok?'':diagOf(t,parsed))+(o.short?'':'<div class="why"><div class="why-h">LÖSUNGSWEG</div>'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);
@@ -2400,7 +2706,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':diagOf(r.t,r.p))+'<div class="why"><div class="why-h">LÖSUNGSWEG</div>'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+(r.ok?'':diagOf(r.t,r.p))+''+'<span class="quip">'+(r.ok?qOk():qBad())+'</span>'+'<div class="why"><div class="why-h">LÖSUNGSWEG</div>'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;$('kiBox').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

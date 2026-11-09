@@ -3,6 +3,7 @@
 // Uses the same renderer (dtp_module_card) and the same stylesheet as /dau-to-pro/.
 require __DIR__.'/../lib.php';
 require_once __DIR__.'/../dau_lib.php';
+require_once __DIR__.'/../nerd_fm_lib.php';
 require_login();
 
 $text=static fn(string $key,int $max): string => mb_substr(trim((string)($_GET[$key]??'')),0,$max,'UTF-8');
@@ -43,7 +44,7 @@ body:before{display:none}
 .preview-shell .module-card{pointer-events:none}
 </style>
 </head><body>
-<div class="preview-shell"><div class="module-grid"><?=dtp_module_card($module,'../',false)?></div></div>
+<div class="preview-shell"><div class="module-grid"><?=dtp_module_card($module,'../',false,note:nfm_card_note((string)($module['slug']??''),[]))?></div></div>
 <script>
 // Called by the editor for live changes that need no server round trip (local file, position, fit).
 window.dtpCardUpdate=function(state){

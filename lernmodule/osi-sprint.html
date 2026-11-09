@@ -585,7 +585,9 @@ body.dtp-exercise-open{overflow:hidden}
           dialog.classList.add('dtp-focus-visible');
           animateTo(1);
         });});
-        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Answer fields first: the "?" tip comes earlier in the DOM and would cover the field on phones.
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled])')
+          ||task.querySelector('button:not([disabled]),[tabindex="0"]:not(.qhelp)');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
         closing=true;cancelAnimationFrame(frame);
@@ -946,6 +948,309 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-TASCHENRECHNER END -->
+<!-- DTP-HANDY START -->
+<style>
+/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}
+</style>
+<script>
+/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
+   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
+(function () {
+  'use strict';
+  if (window.__dtpMobile) return;
+  window.__dtpMobile = true;
+  var wasOpen = null;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { wasOpen = null; return; }
+    var help = e.target.closest && e.target.closest('.qhelp');
+    wasOpen = help && document.activeElement === help ? help : null;
+  }, true);
+  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
+  document.addEventListener('focusout', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
+  });
+  document.addEventListener('click', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (!help) return;
+    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
+    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
+    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
+    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
+    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
+    var tip = help.querySelector('.qtip');
+    if (!tip) return;
+    requestAnimationFrame(function () {
+      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
+      if (r.height && over > 0) {
+        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
+      }
+    });
+  });
+})();
+</script>
+<!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
+  const newQuips = [
+  "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
+  "Oha, das ist ja richt… Oh. Doch nicht.",
+  "WOW! Eine Antwort! Und sie ist FALSCH.",
+  "Ehrlich? DAS ist deine Antwort?",
+  "Das hast du jetzt nicht gesagt!?",
+  "Das war einfach nur scheiße.",
+  "Das war Bockmist. Der nächste Versuch ist gratis.",
+  "Falsch. Hast du das gerade wirklich abgeschickt?",
+  "Falsch. Aber mutig.",
+  "Falsch. Und ich hatte so viel Hoffnung.",
+  "Falsch. Das tat beim Lesen weh.",
+  "Deine Antwort ist durchgefallen. Du noch nicht.",
+  "Falsch. Tu einfach so, als hättest du das nie abgeschickt.",
+  "Falsch. Steht in keiner Doku. Nicht mal in der schlechten.",
+  "Falsch. Sag das bitte nie im Bewerbungsgespräch.",
+  "Falsch. Und zwar richtig falsch.",
+  "Falsch. Ich hab extra noch mal nachgeschaut.",
+  "Falsch. Ich muss mich kurz setzen.",
+  "Falsch. Ich bin nicht wütend, nur enttäuscht.",
+  "Falsch. Das sagen wir jetzt einfach niemandem.",
+  "Falsch. Erklär mir bitte nicht, wie du darauf gekommen bist.",
+  "Falsch. Die Frage hat das nicht verdient.",
+  "Falsch. Aber schön, dass du da bist.",
+  "Falsch. Das war so daneben, das hat schon wieder Stil.",
+  "Falsch. Noch so eine, und ich rufe deine Mutter an.",
+  "Falsch. Das kannst du besser. Hoffe ich.",
+  "Falsch. Und du hattest so viel Zeit.",
+  "Falsch. Und das auch noch mit Absicht?",
+  "Falsch. Hoffentlich war das nur geraten.",
+  "Falsch. Das hat mir jetzt den Abend versaut.",
+  "Falsch. Und das ist noch die freundliche Formulierung.",
+  "Falsch. Ich sag's dir lieber gleich.",
+  "Falsch. Ich hab's zweimal gelesen, es wird nicht besser.",
+  "Falsch. Da kann auch ich nichts mehr retten.",
+  "Falsch. Ich hab kurz gehofft, du machst Spaß.",
+  "Falsch. Bitte sag mir, dass das ein Witz war.",
+  "Falsch. Ich brauch jetzt erst mal einen Kaffee.",
+  "Falsch. Ich hol mal kurz frische Luft.",
+  "Falsch. Das muss ich erst mal verarbeiten.",
+  "Falsch. Gib mir eine Minute.",
+  "Falsch. Ich sag jetzt lieber nichts.",
+  "Falsch. Mir fehlen die Worte. Dir leider nicht.",
+  "Falsch. Das wird auch nicht richtiger, wenn du es noch mal anschaust.",
+  "Falsch. Aber du bist ja noch jung.",
+  "Falsch. Aber du wirkst sehr überzeugt.",
+  "Falsch. Aber gut, dass wir darüber gesprochen haben.",
+  "Falsch. Aber du siehst heute gut aus.",
+  "Falsch. Aber deine Haare sitzen.",
+  "Falsch. Aber das Selbstvertrauen stimmt.",
+  "Falsch. Dafür gibt's keine Punkte. Auch keine halben.",
+  "Falsch. Dafür gibt's nicht mal Mitleidspunkte.",
+  "Falsch. Das gibt eine schöne Null.",
+  "Falsch. Das kommt nicht an den Kühlschrank.",
+  "Falsch. Das rahmen wir nicht ein.",
+  "Falsch. Das erzählst du besser nicht weiter.",
+  "Falsch. Das streichen wir aus dem Protokoll.",
+  "Falsch. Keine Sorge, das hat keiner gesehen. Außer mir.",
+  "Falsch. Schau jetzt bitte nicht so.",
+  "Falsch. Guck nicht so, das warst du selbst.",
+  "Falsch. Du weißt es. Ich weiß es.",
+  "Falsch. Das weißt du aber auch selbst.",
+  "Falsch. Wer hätte das gedacht. Ich.",
+  "Falsch. Ich hab's kommen sehen.",
+  "Falsch. Hat mich jetzt nicht überrascht.",
+  "Falsch. Schade um die schöne Frage.",
+  "Falsch. Hast du das ausgewürfelt?",
+  "Falsch. Wer hat dir das erzählt?",
+  "Falsch. Geht's dir gut?",
+  "Falsch. Möchtest du dich kurz hinlegen?",
+  "Falsch. Trink mal was.",
+  "Falsch. Hast du heute schon was gegessen?",
+  "Falsch. Wie viele Finger halte ich hoch?",
+  "Falsch. Fahr heute bitte nicht mehr selbst.",
+  "Falsch. Mach mal eine Pause. Ich brauch auch eine.",
+  "Falsch. So wird das nichts mit uns.",
+  "Falsch. Wir müssen reden.",
+  "Falsch. Ich glaub, wir sollten uns mal zusammensetzen.",
+  "Falsch. Ich lass das mal so wirken.",
+  "Falsch. Lass das mal kurz sacken.",
+  "Falsch. Lass uns das nie wieder erwähnen.",
+  "Falsch. Wir fangen einfach noch mal von vorne an. Ganz von vorne.",
+  "Falsch. Das Gute: Schlimmer wird's heute nicht. Hoffentlich.",
+  "Falsch. Beim nächsten Mal gern mit Nachdenken.",
+  "Falsch. Nachdenken wäre auch eine Option gewesen.",
+  "Falsch. Raten ist auch eine Methode. Nur keine gute."
+];
+  if (NEW_QUIPS_LIVE) quips.push(...newQuips);
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -1037,10 +1342,10 @@ body.dtp-exercise-open{overflow:hidden}
       <div class="chapter-head"><span class="ch-no">01</span><div><h3>Warum überhaupt Schichten?</h3><p>Vom Signal bis zur Website erledigt jede Schicht einen Teil der Arbeit.</p></div></div><p>Wenn du eine Website öffnest, reisen Daten durch mehrere Stationen. OSI trennt ihre Aufgaben, damit du zum Beispiel ein kaputtes Kabel von einem ausgefallenen Webdienst unterscheiden kannst.</p>
       <p>Damit ein Browser auf einem Windows-Laptop mit einem Webserver unter Linux sprechen kann, müssen sehr viele Dinge zusammenpassen: Stecker und Signale, lokale Zustellung, Wegewahl durchs Internet, Zuverlässigkeit, Zeichenformate und schließlich das Anwendungsprotokoll. Das <strong>OSI-Referenzmodell</strong> (Open Systems Interconnection) ordnet diese Aufgaben in <strong>sieben Schichten</strong>. Es wurde von der ISO als <strong>ISO 7498</strong> (1984, überarbeitet als <strong>ISO/IEC 7498-1:1994</strong>) und textgleich von der ITU-T als <strong>Empfehlung X.200</strong> veröffentlicht <a href="#src1" class="ref-link">[1]</a> <a href="#src2" class="ref-link">[2]</a>.</p>
       <div class="two">
-        <div class="box"><h4>Die Grundregeln</h4><ul><li>Jede Schicht <strong>bietet der Schicht darüber einen Dienst</strong> an und <strong>nutzt den Dienst der Schicht darunter</strong>.</li><li>Gleiche Schichten auf zwei Rechnern sprechen über ein <strong>Protokoll</strong> miteinander (horizontal). Tatsächlich übertragen wird aber nur auf Schicht 1.</li><li>Die Schnittstellen zwischen den Schichten heißen <strong>Dienstzugangspunkte</strong> (SAP).</li></ul></div>
+        <div class="box"><h4>Die Grundregeln</h4><ul><li>Jede Schicht <strong>bietet der Schicht darüber einen Dienst</strong> an und <strong>nutzt den Dienst der Schicht darunter</strong>.</li><li>Gleiche Schichten auf zwei Rechnern sprechen über ein <strong>Protokoll</strong> miteinander (horizontal). Tatsächlich übertragen wird aber nur auf Schicht 1. Der Rest ist Verwaltung, wie im echten Leben.</li><li>Die Schnittstellen zwischen den Schichten heißen <strong>Dienstzugangspunkte</strong> (SAP).</li></ul></div>
         <div class="box"><h4>Was du davon hast</h4><ul><li><strong>Austauschbarkeit:</strong> WLAN statt Kabel? Nur Schicht 1 und 2 ändern sich, der Browser merkt nichts.</li><li><strong>Gemeinsame Sprache:</strong> „Das ist ein Layer-2-Problem“ versteht jede Admin.</li><li><strong>Fehlersuche:</strong> Man prüft Schicht für Schicht und grenzt systematisch ein.</li></ul></div>
       </div>
-      <div class="callout"><strong>Referenzmodell, kein Bauplan:</strong> Das Internet läuft auf der TCP/IP-Protokollfamilie, nicht auf den alten OSI-Protokollen. Das OSI-Modell hat sich trotzdem als <strong>Denk- und Beschreibungsmodell</strong> durchgesetzt: in Ausbildung, Prüfungen, Herstellerdokumentation und im Alltag („Layer-3-Switch“, „L7-Firewall“). Die Zuordnung realer Protokolle ist deshalb manchmal eine Konvention und nicht immer eindeutig (siehe Kapitel 09).</div>
+      <div class="callout"><strong>Referenzmodell, kein Bauplan:</strong> Das Internet läuft auf der TCP/IP-Protokollfamilie, nicht auf den alten OSI-Protokollen. OSI hat den Kampf also verloren und trotzdem den Lehrauftrag bekommen. Das OSI-Modell hat sich trotzdem als <strong>Denk- und Beschreibungsmodell</strong> durchgesetzt: in Ausbildung, Prüfungen, Herstellerdokumentation und im Alltag („Layer-3-Switch“, „L7-Firewall“). Die Zuordnung realer Protokolle ist deshalb manchmal eine Konvention und nicht immer eindeutig (siehe Kapitel 09).</div>
       <div class="two">
         <div class="box"><h4>Schichten 5 bis 7 · anwendungsorientiert</h4><p>Sie kümmern sich um die Inhalte: Dialoge, Formate, Dienste. In der Praxis übernimmt meist die Anwendung selbst alle drei Aufgaben.</p></div>
         <div class="box"><h4>Schichten 1 bis 4 · transportorientiert</h4><p>Hier geht es um den Transport zwischen Prozessen. Bei TCP gehören unter anderem Reihenfolge und Wiederholung dazu. UDP liefert diesen Mechanismus nicht mit.</p></div>
@@ -1136,7 +1441,7 @@ Rahmen auf dem Kabel = 1.500 + 14 + 4 = 1.518 Byte</div></div>
         <tr><td>Proxy, Application-Gateway</td><td><span class="lnum" style="--lc:var(--l7)">7</span></td><td>Anwendungsdaten</td><td>versteht das Anwendungsprotokoll (z. B. HTTP) und vermittelt stellvertretend</td></tr>
       </tbody></table></div>
       <div class="two">
-        <div class="box"><h4>Kollisionsdomäne</h4><p>Bereich, in dem sich gleichzeitig sendende Geräte stören können (Halbduplex, CSMA/CD). Ein <strong>Hub</strong> bildet mit allen Ports <strong>eine</strong> Kollisionsdomäne. Ein <strong>Switch</strong> macht <strong>jeden Port zu einer eigenen</strong>, auch den Port zum Router. Im heutigen Vollduplex-Ethernet gibt es praktisch keine Kollisionen mehr, in Prüfungen wird das Konzept trotzdem gern abgefragt.</p></div>
+        <div class="box"><h4>Kollisionsdomäne</h4><p>Bereich, in dem sich gleichzeitig sendende Geräte stören können (Halbduplex, CSMA/CD). Ein <strong>Hub</strong> bildet mit allen Ports <strong>eine</strong> Kollisionsdomäne, das Großraumbüro unter den Netzwerkgeräten. Ein <strong>Switch</strong> macht <strong>jeden Port zu einer eigenen</strong>, auch den Port zum Router. Im heutigen Vollduplex-Ethernet gibt es praktisch keine Kollisionen mehr, in Prüfungen wird das Konzept trotzdem gern abgefragt. Das Thema ist quasi ausgestorben, nur der Prüfung hat es noch keiner gesagt.</p></div>
         <div class="box"><h4>Broadcastdomäne</h4><p>Bereich, den ein Broadcast (z. B. ARP-Anfrage an <span class="val">FF:FF:FF:FF:FF:FF</span>) erreicht. Ein Switch verteilt den Broadcast an die übrigen Ports im selben VLAN. Der Eingangsport bekommt ihn nicht gleich wieder zurück. Erst ein <strong>Router</strong> (oder ein <strong>VLAN</strong>) trennt Broadcastdomänen. Jede Router-Schnittstelle bildet eine eigene.</p></div>
       </div>
       <div class="lab"><div class="lab-head"><strong>DOMÄNEN-LABOR</strong><span class="tag">Wechsle das Gerät und zähle die Domänen neu.</span></div>
@@ -1206,7 +1511,7 @@ Client → Server: ACK      Seq=1001  ACK=5001</div><p>Die <strong>ACK-Nummer</s
         <tr><td><span class="lnum" style="--lc:var(--l7)">5–7</span></td><td>Namensauflösung, Zertifikat, Protokollantwort</td><td class="m">nslookup, Resolve-DnsName</td><td class="m">dig, curl -v, openssl s_client</td></tr>
       </tbody></table></div>
       <div class="callout"><strong>Die wichtigste Faustregel:</strong> Ein erfolgreicher <span class="val">ping</span> auf ein Ziel bedeutet, dass die Schichten <strong>1 bis 3</strong> auf dem ganzen Weg funktionieren. Liegt trotzdem ein Problem vor, suchst du ab Schicht 4 aufwärts (Port, Firewall, Dienst, DNS). Achtung: Manche Firewalls blockieren ICMP. Ein fehlgeschlagener ping beweist also nicht immer einen Schicht-3-Fehler.</div>
-      <div class="trap"><strong>Typischer Prüfungsklassiker:</strong> ipconfig zeigt <span class="val">169.254.x.x</span>? Das ist eine <strong>APIPA-Adresse</strong>: Der PC hat keinen DHCP-Server erreicht und sich selbst eine Adresse gegeben. Prüfe Kabel, VLAN und den DHCP-Dienst.</div>
+      <div class="trap"><strong>Typischer Prüfungsklassiker:</strong> ipconfig zeigt <span class="val">169.254.x.x</span>? Das ist eine <strong>APIPA-Adresse</strong>: Der PC hat keinen DHCP-Server erreicht und sich selbst eine Adresse gegeben. Kreativ, aber ins Internet kommt er damit nicht. Prüfe Kabel, VLAN und den DHCP-Dienst.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">Fehlerbild einordnen</span></div><div class="mini-check" data-cat="trouble"></div></div>
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
@@ -1216,14 +1521,14 @@ Client → Server: ACK      Seq=1001  ACK=5001</div><p>Die <strong>ACK-Nummer</s
       <div class="table-wrap"><table class="t"><thead><tr><th>Nr.</th><th>Schicht</th><th>PDU</th><th>Adresse</th><th>Protokolle / Standards</th><th>Geräte</th><th>Leitfrage</th></tr></thead><tbody id="cheatTable"></tbody></table></div>
       <h4>Fallen und Grenzfälle</h4>
       <div class="two">
-        <div class="box"><h4>ARP</h4><p>Arbeitet zwischen Schicht 2 und 3: Es ermittelt zu einer IP-Adresse (3) die MAC-Adresse (2) und wird direkt in einem Ethernet-Rahmen transportiert. Viele Lehrbücher ordnen es Schicht 2 zu, manche Schicht 3. In Prüfungen meist „2,5“ oder 2.</p></div>
+        <div class="box"><h4>ARP</h4><p>Arbeitet zwischen Schicht 2 und 3: Es ermittelt zu einer IP-Adresse (3) die MAC-Adresse (2) und wird direkt in einem Ethernet-Rahmen transportiert. Viele Lehrbücher ordnen es Schicht 2 zu, manche Schicht 3. In Prüfungen meist „2,5“ oder 2. Schicht 2,5 steht in keiner Norm, gefragt wird sie trotzdem.</p></div>
         <div class="box"><h4>DHCP &amp; DNS</h4><p>Sind Anwendungsprotokolle (Schicht 7), obwohl sie IP-Adressen verteilen bzw. Namen in IP-Adressen übersetzen. Sie laufen über UDP (DHCP: Ports 67/68, DNS: Port 53, für große Antworten auch TCP).</p></div>
         <div class="box"><h4>TLS/SSL</h4><p>Wird im OSI-Modell meist der Darstellungsschicht (6) zugeordnet, weil es verschlüsselt. Technisch sitzt es zwischen TCP und dem Anwendungsprotokoll. Manche Quellen nennen deshalb Schicht 5 oder „zwischen 4 und 7“.</p></div>
         <div class="box"><h4>ICMP</h4><p>(z. B. ping) wird in einem IP-Paket transportiert, gehört aber als Steuerprotokoll von IP zur Schicht 3. ICMP hat keine Ports.</p></div>
         <div class="box"><h4>Ethernet</h4><p>Umfasst Schicht 1 <em>und</em> 2: Kabel- und Signalnormen wie 1000BASE-T sind Schicht 1, Rahmen und MAC-Adressen Schicht 2.</p></div>
-        <div class="box"><h4>Layer-3-Switch</h4><p>Ein Switch, der zusätzlich routen kann (meist zwischen VLANs). Er gehört deshalb zu Schicht 3, nicht zu Schicht 2.</p></div>
+        <div class="box"><h4>Layer-3-Switch</h4><p>Ein Switch, der zusätzlich routen kann (meist zwischen VLANs), also ein Switch mit Zweitjob. Er gehört deshalb zu Schicht 3, nicht zu Schicht 2.</p></div>
         <div class="box"><h4>Firewalls</h4><p>Gibt es auf mehreren Schichten: Paketfilter (3/4: IP und Port), Stateful Inspection (4), Application-Level-Gateway bzw. Next-Generation-Firewall (bis 7).</p></div>
-        <div class="box"><h4>Schicht 5 und 6</h4><p>Sind in TCP/IP nicht als eigene Protokolle sichtbar. Ihre Aufgaben (Sitzung, Kodierung, Kompression) übernehmen Anwendungen und Bibliotheken.</p></div>
+        <div class="box"><h4>Schicht 5 und 6</h4><p>Sind in TCP/IP nicht als eigene Protokolle sichtbar. Ihre Aufgaben (Sitzung, Kodierung, Kompression) übernehmen Anwendungen und Bibliotheken. Im Alltag sieht man die beiden selten, in der Prüfung dafür umso lieber.</p></div>
       </div>
       <h4>Die zehn beliebtesten Fehler</h4>
       <ol>
@@ -1473,7 +1778,7 @@ S('func','f_lead','Leitfrage → Schicht',1,()=>{const n=1+rnd(7);return LY('fl'
 S('func','f_not','Welche Aufgabe passt nicht?',2,()=>{const n=1+rnd(7);const own=shuffle(FUNCS.filter(f=>f[0]===n)).slice(0,3).map(f=>f[1]);const other=pick(FUNCS.filter(f=>f[0]!==n));const t=mc(P('Welche der folgenden Aufgaben gehört '+K('nicht')+' zur '+L[n].de+'?','Drei Aufgaben gehören zur '+L[n].de+', eine nicht. Welche passt '+K('nicht')+'?'),other[1],own,'„'+other[1]+'“ ist Aufgabe der '+L[other[0]].de+' (Schicht '+other[0]+'). Die anderen drei erledigt die '+L[n].de+'.',{key:'fn'+n+other[1]});return t});
 S('func','f_concept','Grundbegriffe',1,()=>pick([
  ()=>mc(P('Wie nennt man die Regeln, nach denen '+K('gleiche Schichten')+' zweier Systeme miteinander kommunizieren?','Schicht 4 auf Rechner A spricht mit Schicht 4 auf Rechner B. Wie heißen die vereinbarten Regeln dafür?'),'Protokoll',['Dienst','Schnittstelle','Topologie'],'Gleiche Schichten sprechen über ein <strong>Protokoll</strong> (horizontal). Übereinander liegende Schichten nutzen <strong>Dienste</strong> (vertikal).',{key:'fc1'}),
- ()=>mc(P('Wie heißt die Stelle, an der eine Schicht der darüberliegenden Schicht ihren Dienst anbietet?','Zwischen zwei übereinander liegenden Schichten gibt es eine Übergabestelle. Wie heißt sie?'),'Dienstzugangspunkt (SAP)',['Protokolldateneinheit (PDU)','Standardgateway','Prüfsumme (FCS)'],'Ein Service Access Point (SAP) ist die Schnittstelle zwischen zwei benachbarten Schichten.',{key:'fc2'}),
+ ()=>mc(P('Wie heißt die Stelle, an der eine Schicht der darüberliegenden Schicht ihren Dienst anbietet?','Zwischen zwei übereinander liegenden Schichten gibt es eine Übergabestelle. Wie heißt sie?'),'Dienstzugangspunkt (SAP)',['Protokolldateneinheit (PDU)','Standardgateway','Prüfsumme (FCS)'],'Ein Service Access Point (SAP) ist die Schnittstelle zwischen zwei benachbarten Schichten. Nein, nicht die Firma.',{key:'fc2'}),
  ()=>mc(P('Auf welcher Schicht findet die tatsächliche '+K('physische Übertragung')+' der Daten statt?','Alle Schichten „reden“ miteinander, aber nur eine schickt wirklich Signale über das Kabel. Welche?'),'Nur auf Schicht 1',['Auf jeder Schicht','Auf Schicht 2','Auf Schicht 7'],'Die Schichten 2 bis 7 kommunizieren nur logisch. Wirklich übertragen werden Bits erst auf Schicht 1.',{key:'fc3'}),
  ()=>mc(P('Was bringt es, Netzwerkaufgaben auf mehrere Schichten zu verteilen?','Warum teilt man Netzwerkkommunikation überhaupt in Schichten auf? Was bringt das?'),'Eine Schicht kann ausgetauscht werden, ohne dass sich die anderen ändern',['Die Datenübertragung wird dadurch automatisch verschlüsselt','Es werden weniger Kabel benötigt','Jede Schicht braucht ein eigenes Gerät'],'Beispiel: WLAN statt Kabel ändert nur Schicht 1 und 2. Der Browser merkt davon nichts.',{key:'fc4'}),
  ()=>mc(P('Was erhält eine Schicht beim Senden von der Schicht direkt darüber?','Beim Senden reicht jede Schicht etwas nach unten weiter. Was bekommt die nächste Schicht?'),'Nutzdaten (SDU), die sie mit einem eigenen Header versieht',['Nur die Zieladresse','Ein fertiges elektrisches Signal','Nichts, jede Schicht erzeugt eigene Daten'],'Die Daten von oben sind für die Schicht darunter Nutzlast (SDU). Sie setzt ihren Header davor, so entsteht ihre PDU.',{key:'fc5'})
@@ -1532,7 +1837,7 @@ S('dev','d_count','Domänen zählen (ein Gerät)',1,()=>{const k=rint(4,24),x=pi
 S('dev','d_topo','Domänen zählen (Topologie)',2,()=>{const m=rint(2,4);const segs=[];for(let i=0;i<m;i++){const t=pick(['sw','sw','hub','pc','sw']);segs.push({t,k:t==='pc'?1:rint(2,9)})}
  const cd=segs.reduce((a,s)=>a+(s.t==='sw'?s.k+1:1),0),bd=m;const askC=rnd(2)===0;
  const desc='<span class="netbox">'+segs.map((s,i)=>'<span><b>Router-Schnittstelle '+(i+1)+'</b> '+(s.t==='sw'?'Switch mit '+s.k+' PCs':s.t==='hub'?'Hub mit '+s.k+' PCs':'ein einzelner PC direkt angeschlossen')+'</span>').join('')+'</span>';
- const why=askC?'Zählen pro Schnittstelle: '+segs.map((s,i)=>s.t==='sw'?'Switch: '+s.k+' PC-Ports + 1 Port zum Router = '+(s.k+1):s.t==='hub'?'Hub: alle Ports teilen sich 1':'direkter PC: 1').join(' · ')+'. Summe: <strong>'+cd+'</strong> Kollisionsdomänen.':'Jede Router-Schnittstelle bildet eine eigene Broadcastdomäne, Switches und Hubs trennen keine. Also <strong>'+bd+'</strong>.';
+ const why=askC?'Zählen pro Schnittstelle: '+segs.map((s,i)=>s.t==='sw'?'Switch: '+s.k+' PC-Ports + 1 Port zum Router = '+(s.k+1):s.t==='hub'?'Hub: alle Ports teilen sich 1':'direkter PC: 1').join(' · ')+'. Summe: <strong>'+cd+'</strong> Kollisionsdomänen.':'Jede Router-Schnittstelle bildet eine eigene Broadcastdomäne, Switches und Hubs trennen keine. Am Router endet das Rufen durchs Büro. Also <strong>'+bd+'</strong>.';
  return DEC('dt'+segs.map(s=>s.t+s.k).join('-')+askC,P('Gegeben ist folgendes Netz. Ermitteln Sie die Anzahl der '+K(askC?'Kollisionsdomänen':'Broadcastdomänen')+'.'+(askC?' (Auch jede Leitung zwischen Router und Switch zählt.)':'')+desc,'Ein Router verbindet mehrere Teilnetze. Wie viele '+K(askC?'Kollisionsdomänen':'Broadcastdomänen')+' hat das ganze Netz?'+(askC?' (Auch die Leitung zwischen Router und Switch zählt.)':'')+desc),askC?cd:bd,why,'Ganze Zahl')});
 S('dev','d_switch','Was macht der Switch?',2,()=>{const ports=uniq(3,()=>rint(1,8)),macs=uniq(4,macR);const tab=ports.map((p,i)=>[macs[i],p]);let inP;do{inP=rint(1,8)}while(ports.includes(inP));const c=rnd(4);
  let dst,right;const A=x=>x;const fw=p=>'Er leitet den Rahmen nur an Port '+p+' weiter',fl='Er sendet den Rahmen an alle Ports außer Port '+inP+' (Flooding)',fi='Er verwirft den Rahmen (Filtern), weil das Ziel am selben Port hängt',all='Er sendet den Rahmen an alle Ports einschließlich Port '+inP;
@@ -1595,7 +1900,7 @@ const TU=[['Sprachdaten bei Internettelefonie (VoIP, RTP)','UDP','Bei Sprache st
 S('ports','o_tu','TCP oder UDP?',1,()=>{const x=pick(TU);return mc(P('Welches Transportprotokoll wird für '+K(x[0])+' typischerweise verwendet?','TCP kann fehlende Daten nachliefern. UDP verspricht von sich aus weder Zustellung noch Reihenfolge. Was wird für '+K(x[0])+' normalerweise genutzt?'),x[1],[x[1]==='TCP'?'UDP':'TCP'],x[1]+': '+x[2],{key:'otu'+x[0]})});
 S('ports','o_range','Portbereiche',2,()=>{const c=rnd(3);const p=c===0?rint(1,1023):c===1?rint(1024,49151):rint(49152,65535);const opts=['Well-known Ports (0 bis 1023)','Registered Ports (1024 bis 49151)','Dynamic/Private Ports (49152 bis 65535)'];return mc(P('Zu welchem Bereich gehört die Portnummer '+V(gi(p))+'?','Portnummern sind in drei Bereiche eingeteilt. In welchen fällt '+V(gi(p))+'?'),opts[c],opts.concat(['Reserved Ports (über 65535)']),'0 bis 1023: well-known (Standarddienste) · 1024 bis 49151: registered · 49152 bis 65535: dynamisch, die nimmt sich z. B. ein Client als Quellport.',{key:'org'+p})});
 S('ports','o_seq','Handshake-Nummern',2,()=>{const x=rint(100,9000),y=rint(100,9000),v=rnd(3);
- if(v===0)return DEC('os0'+x,P('Ein Client sendet ein '+K('SYN')+' mit der Sequenznummer '+V(gi(x))+'. Welche '+K('Bestätigungsnummer')+' trägt der Server in sein SYN/ACK ein?','TCP-Verbindungsaufbau: Der Client schickt SYN mit Nummer '+V(gi(x))+'. Der Server bestätigt das. Welche Nummer schreibt er als Bestätigung (ACK) zurück?'),x+1,'Das SYN zählt wie ein Byte. Bestätigt wird die <em>nächste erwartete</em> Nummer: '+gi(x)+' + 1 = <strong>'+gi(x+1)+'</strong>.','Ganze Zahl');
+ if(v===0)return DEC('os0'+x,P('Ein Client sendet ein '+K('SYN')+' mit der Sequenznummer '+V(gi(x))+'. Welche '+K('Bestätigungsnummer')+' trägt der Server in sein SYN/ACK ein?','TCP-Verbindungsaufbau: Der Client schickt SYN mit Nummer '+V(gi(x))+'. Der Server bestätigt das. Welche Nummer schreibt er als Bestätigung (ACK) zurück?'),x+1,'Das SYN zählt wie ein Byte. Obwohl gar keine Daten drin sind. Bestätigt wird die <em>nächste erwartete</em> Nummer: '+gi(x)+' + 1 = <strong>'+gi(x+1)+'</strong>.','Ganze Zahl');
  if(v===1)return DEC('os1'+x+'-'+y,P('Handshake: Client-SYN mit Seq '+V(gi(x))+', Server antwortet mit SYN/ACK (Seq '+V(gi(y))+', ACK '+V(gi(x+1))+'). Welche '+K('ACK-Nummer')+' sendet der Client im dritten Schritt?','Dritter Schritt des Verbindungsaufbaus: Der Client bestätigt das SYN/ACK des Servers (Server-Seq '+V(gi(y))+'). Welche Bestätigungsnummer schickt der Client?'),y+1,'Der Client bestätigt das SYN des Servers: '+gi(y)+' + 1 = <strong>'+gi(y+1)+'</strong>. Damit ist der Drei-Wege-Handshake (SYN, SYN/ACK, ACK) komplett.','Ganze Zahl');
  const b=pick([100,200,500,536,1000,1460]);return DEC('os2'+x+'-'+b,P('Ein Client sendet ein Segment mit der Sequenznummer '+V(gi(x))+' und '+V(gi(b)+' Byte')+' Nutzdaten. Welche '+K('ACK-Nummer')+' sendet der Empfänger zurück, wenn alles ankam?','Ein TCP-Segment beginnt bei Byte-Nummer '+V(gi(x))+' und enthält '+V(gi(b)+' Byte')+'. Der Empfänger bestätigt mit der Nummer des nächsten Bytes, das er erwartet. Welche ist das?'),x+b,'TCP zählt Bytes. Die ACK-Nummer ist das nächste erwartete Byte: '+gi(x)+' + '+gi(b)+' = <strong>'+gi(x+b)+'</strong>.','Ganze Zahl')});
 S('ports','o_reply','Ports in der Antwort',2,()=>{const p=pick(PORTS.filter(x=>x[2]==='TCP')),cp=rint(49152,65000),c='192.168.'+rint(0,50)+'.'+rint(2,250),s=pick(['93.184.215.14','203.0.113.'+rint(2,250),'198.51.100.'+rint(2,250)]);const ask=rnd(2);
@@ -1607,7 +1912,7 @@ S('ports','o_fact','TCP & UDP verstehen',1,()=>pick([
  ()=>mc(P('Mit welchem Flag wird eine TCP-Verbindung '+K('regulär beendet')+'?','Mit welcher Markierung sagt eine Seite „Ich bin fertig, Verbindung schließen“?'),'FIN',['SYN','PSH','URG'],'FIN beendet geordnet (jede Seite schickt FIN und bestätigt das FIN der anderen). RST bricht hart ab.',{key:'of4'}),
  ()=>mc(P('Welchen Port nutzt ein Client typischerweise als '+K('Quellport')+'?','Wenn dein Browser einen Webserver anspricht, von welchem Port aus schickt er die Anfrage?'),'Einen zufälligen dynamischen Port (ab 49152)',['Immer Port 80','Immer denselben Port wie der Server','Port 0'],'Der Client nimmt sich einen freien, kurzlebigen Port (ephemeral port). Der Zielport ist der des Dienstes, z. B. 443.',{key:'of5'})
 ])());
-S('ports','o_listen','Lauschende Dienste',2,()=>{const p=pick(PORTS.filter(x=>['SSH','RDP','HTTPS','HTTP','SMTP','DNS','IMAPS','SMB','LDAP'].includes(x[0])));const tool=pick(['netstat -ano zeigt','ss -tulpn zeigt']);return mc(P(tool+' auf einem Server: '+V(p[2]+'  0.0.0.0:'+p[1]+'  LISTEN')+'. Welcher Dienst ist damit vermutlich erreichbar?',tool.replace(' zeigt','')+' listet Ports, auf denen Programme warten. Hier wartet etwas auf '+V(p[2]+'-Port '+p[1])+'. Welcher Dienst ist das wahrscheinlich?'),p[0],PORTS.filter(x=>x[0]!==p[0]).map(x=>x[0]).slice(0,12),'Port '+p[1]+'/'+p[2]+' ist der Standardport von <strong>'+p[0]+'</strong>. 0.0.0.0 heißt: lauscht auf allen Netzwerkkarten.',{key:'ol'+p[1]})});
+S('ports','o_listen','Lauschende Dienste',2,()=>{const p=pick(PORTS.filter(x=>['SSH','RDP','HTTPS','HTTP','SMTP','DNS','IMAPS','SMB','LDAP'].includes(x[0])));const tool=pick(['netstat -ano zeigt','ss -tulpn zeigt']);return mc(P(tool+' auf einem Server: '+V(p[2]+'  0.0.0.0:'+p[1]+'  LISTEN')+'. Welcher Dienst ist damit vermutlich erreichbar?',tool.replace(' zeigt','')+' listet Ports, auf denen Programme warten. Hier wartet etwas auf '+V(p[2]+'-Port '+p[1])+'. Welcher Dienst ist das wahrscheinlich?'),p[0],PORTS.filter(x=>x[0]!==p[0]).map(x=>x[0]).slice(0,12),'Port '+p[1]+'/'+p[2]+' ist der Standardport von <strong>'+p[0]+'</strong>. 0.0.0.0 heißt: lauscht auf allen Netzwerkkarten. Neugierig ist er also.',{key:'ol'+p[1]})});
 
 /* ---------- trouble: Fehleranalyse ---------- */
 S('trouble','t_layer','Fehlerbild → Schicht',1,()=>{const t=pick(TROUBLE);return LY('tr'+t[1],P('Fehlerbild: '+K(t[1])+' Auf welcher OSI-Schicht liegt die Ursache?','Hier ist eine Störung beschrieben: '+K(t[1])+' In welcher Schicht steckt der Fehler?'),t[0],'Ursache auf der '+L[t[0]].de+' (Schicht '+t[0]+'). Leitfrage: '+L[t[0]].q)});
@@ -1641,7 +1946,7 @@ const HINT={
  dev:'Ein Gerät gehört zur höchsten Schicht, deren Informationen es auswertet. Switchport = eigene Kollisionsdomäne, Router-Schnittstelle = eigene Broadcastdomäne, Hub trennt gar nichts.',
  encap:'Senden: von oben nach unten, jede Schicht setzt ihren Header davor, Schicht 2 hängt die FCS an. Router: neue MACs, gleiche IPs, TTL minus 1. Die MTU zählt ab dem IP-Header.',
  tcpip:'TCP/IP-Modell: Anwendung = OSI 5 bis 7 · Transport = 4 · Internet = 3 · Netzzugang = 1 und 2.',
- ports:'TCP = zuverlässig mit Handshake (SYN, SYN/ACK, ACK), UDP = schnell ohne Garantie. ACK-Nummer = nächstes erwartetes Byte. In der Antwort sind Quell- und Zielport vertauscht.',
+ ports:'TCP = zuverlässig mit Handshake (SYN, SYN/ACK, ACK), UDP = ohne Handshake und ohne Garantie. ACK-Nummer = nächstes erwartetes Byte. In der Antwort sind Quell- und Zielport vertauscht.',
  trouble:'Von unten prüfen: Link/Kabel (1) → VLAN/MAC (2) → IP, Maske, Gateway, Route (3) → Port/Firewall (4) → … → Dienst, DNS, Anmeldung (7). Ein erfolgreicher Ping bestätigt die IP-Erreichbarkeit für diesen Test. Port und Dienst prüfst du separat.'
 };
 function genTask(cat,lv,recent,subId){
@@ -1649,7 +1954,9 @@ function genTask(cat,lv,recent,subId){
  let pool=SUBS.filter(s=>(subId?s.id===subId:s.cat===cat)&&(subId||s.min<=Math.max(lv,1)));
  if(!pool.length)pool=SUBS.filter(s=>s.cat===cat);
  let t,sub;
- for(let i=0;i<30;i++){sub=pick(pool);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ const hist=genTask.hist||(genTask.hist=[]);const keep=Math.min(pool.length-1,3),fresh=keep?pool.filter(s=>!hist.slice(-keep).includes(s.id)):pool;const cand=fresh.length?fresh:pool;
+ for(let i=0;i<30;i++){sub=pick(cand);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ if(!subId){hist.push(sub.id);if(hist.length>12)hist.shift()}
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;
  finP(t);
  return t;
@@ -1730,7 +2037,7 @@ const STAGES=[
  {title:'Ports, TCP & UDP',cat:'ports',ch:'ch7',goal:'Standardports kennen, TCP und UDP begründet wählen und mit Sequenz- und Bestätigungsnummern rechnen.',vis:'ports',
   intro:'Web und SSH können unter derselben IP laufen. Der Zielport hilft dem Rechner, die Daten dem passenden Dienst zuzuordnen. TCP und UDP sind dabei zwei verschiedene Transportprotokolle. Die IP bringt dich zum Haus, aber für die richtige Tür brauchst du noch eine Nummer.',
   example:'Ein Client schickt ein SYN mit der Sequenznummer 1000, der Server antwortet mit SYN/ACK und eigener Sequenznummer 5000. Welche Nummern stehen in den Bestätigungen?',
-  steps:['Ein SYN zählt wie ein Byte. Der Server bestätigt die <strong>nächste erwartete</strong> Nummer: ACK = 1000 + 1 = <strong>1001</strong>.','Im dritten Schritt bestätigt der Client das SYN des Servers: ACK = 5000 + 1 = <strong>5001</strong>.','Schickt der Client danach 500 Byte ab Seq 1001, antwortet der Server mit ACK = 1001 + 500 = <strong>1501</strong>.','UDP kennt nichts davon: kein Handshake, keine Bestätigung, keine Nummern. Dafür schneller.'],
+  steps:['Ein SYN zählt wie ein Byte. Der Server bestätigt die <strong>nächste erwartete</strong> Nummer: ACK = 1000 + 1 = <strong>1001</strong>.','Im dritten Schritt bestätigt der Client das SYN des Servers: ACK = 5000 + 1 = <strong>5001</strong>.','Schickt der Client danach 500 Byte ab Seq 1001, antwortet der Server mit ACK = 1001 + 500 = <strong>1501</strong>.','UDP kennt nichts davon: kein Handshake, keine Bestätigung, keine Nummern. Abschicken und hoffen.'],
   memo:'<strong>ACK = nächstes erwartetes Byte.</strong> Wichtige Ports: 20/21 FTP · 22 SSH · 23 Telnet · 25 SMTP · 53 DNS · 67/68 DHCP · 80 HTTP · 110 POP3 · 123 NTP · 143 IMAP · 161 SNMP · 443 HTTPS · 3389 RDP.'},
  {title:'Endgegner: alles gemischt',cat:'mix',ch:'ch9',goal:'Alle Themen durcheinander und auf Prüfungsniveau. Wer hier 8 von 10 schafft, ist bereit für den Prüfungsmodus.',vis:'mix',
   intro:'Im gemischten Fall bekommst du Symptome und Messwerte. Lies zuerst, welche Information gefragt ist: MAC oder IP, Quellport oder Zielport, Kollision oder Broadcast. Wenn du die falsche Frage löst, kann die Rechnung noch so schön sein.',
@@ -1740,10 +2047,9 @@ const STAGES=[
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=["Stimmt. Das Ticket ist auf der richtigen Etage.", "Passt. Den Fall kannst du so weitergeben.", "Richtig. Die Aufgabe ist bei der passenden Schicht gelandet."];
-const Q_BAD=["Schau unten nach, welche Aufgabe die richtige Schicht übernimmt.", "Noch nicht. Geh den Fall vom Kabel bis zur Anwendung durch.", "Die Erklärung zeigt, an welcher Stelle sich die Zuständigkeit ändert."];
+const Q_OK=["Stimmt. Das Ticket ist auf der richtigen Etage.", "Passt. Den Fall kannst du so weitergeben.", "Richtig. Die Aufgabe ist bei der passenden Schicht gelandet.", "Passt. Das Ticket-Pingpong fällt heute aus.", "Stimmt. Schicht für Schicht, ganz ohne Neustart."];
 const Q_MASTER=['Stufe gemeistert! Nächste Schicht freigeschaltet.','Stufe gemeistert. Die nächste steht schon im Ticketsystem.','Stufe geschafft. Der Lernpfad hat den Eingang bestätigt.','Stufe geschafft. Die nächste ist ab jetzt erreichbar.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const FMT={dec:'Ganze Zahl',txt:'Begriff oder Abkürzung, Groß- und Kleinschreibung egal'};
@@ -1790,7 +2096,7 @@ function renderTask(host,t,o){
   host.querySelectorAll('.opt,.chip').forEach(b=>{b.disabled=true;if(b.classList.contains('bare')){const n=Number(b.dataset.v);b.classList.remove('bare');b.style.setProperty('--lc',LC(n));b.insertAdjacentHTML('beforeend','<small>'+L[n].k+'</small>')}const v=Number(b.dataset.v);if(v===t.answer)b.classList.add('is-right');else if(v===given)b.classList.add('is-wrong')});
   const inp=host.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+((t.kind==='dec'||t.kind==='txt')&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(o.short?'':'<div class="why">'+t.why+'</div>');
+  res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+((t.kind==='dec'||t.kind==='txt')&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(o.short?'':'<div class="why">'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);
@@ -2034,7 +2340,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Erklärung</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Erklärung</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+'<span class="quip">'+(r.ok?qOk():qBad())+'</span>'+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});
@@ -2068,7 +2374,7 @@ let sortOrder=[];
 function sortShuffle(){do{sortOrder=shuffle([7,6,5,4,3,2,1])}while(sortOrder.join()==='7,6,5,4,3,2,1');renderSort();$('sortResult').innerHTML='';$('sortResult').className='result'}
 function renderSort(marks){$('sortList').innerHTML=sortOrder.map((n,i)=>'<li class="sort-item'+(marks?(n===7-i?' ok':' no'):'')+'"><span class="pos">'+(7-i)+'</span><span class="name">'+L[n].de+'</span><button type="button" data-mv="'+i+'" data-d="-1" aria-label="'+L[n].de+' nach oben"'+(i===0?' disabled':'')+'>↑</button><button type="button" data-mv="'+i+'" data-d="1" aria-label="'+L[n].de+' nach unten"'+(i===6?' disabled':'')+'>↓</button></li>').join('')}
 $('sortList').addEventListener('click',e=>{const b=e.target.closest('[data-mv]');if(!b)return;const i=Number(b.dataset.mv),j=i+Number(b.dataset.d);[sortOrder[i],sortOrder[j]]=[sortOrder[j],sortOrder[i]];renderSort();$('sortResult').innerHTML='';const nb=$('sortList').querySelector('[data-mv="'+j+'"][data-d="'+b.dataset.d+'"]:not(:disabled)')||$('sortList').querySelector('[data-mv="'+j+'"]:not(:disabled)');if(nb)nb.focus()});
-$('sortCheck').addEventListener('click',()=>{const ok=sortOrder.filter((n,i)=>n===7-i).length;renderSort(true);const r=$('sortResult');r.className='result'+(ok===7?'':' bad');r.innerHTML=ok===7?'✓ <strong>Perfekt!</strong> Alle sieben Schichten stehen richtig.<span class="quip">'+qOk()+'</span>':'<strong>'+ok+' von 7</strong> stehen richtig (grün). Tipp: Alle Deutschen Studenten Trinken Verschiedene Sorten Bier, von oben nach unten.'});
+$('sortCheck').addEventListener('click',()=>{const ok=sortOrder.filter((n,i)=>n===7-i).length;renderSort(true);const r=$('sortResult');r.className='result'+(ok===7?'':' bad');r.innerHTML=ok===7?'✓ <strong>Perfekt!</strong> Alle sieben Schichten stehen richtig.<span class="quip">'+qOk()+'</span>':'<strong>'+ok+' von 7</strong> stehen richtig (grün). Tipp: Alle Deutschen Studenten Trinken Verschiedene Sorten Bier, von oben nach unten.<span class="quip">'+qBad()+'</span>'});
 $('sortShuffle').addEventListener('click',sortShuffle);sortShuffle();
 // Kapselungs-Labor
 const ENC=[

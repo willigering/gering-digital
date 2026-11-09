@@ -437,7 +437,30 @@ function kalkulation(id) {
   <text x="640" y="640" text-anchor="middle" font-family="${SANS}" font-size="38" font-weight="900" fill="${GOLD_LITE}">RECHNET SICH DAS?</text>`;
 }
 
+function csharp(id) {
+  return `
+  <text x="640" y="104" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">PROGRAMMIEREN MIT C#</text>
+  <g transform="translate(190 150)">
+    <path d="M0 0H900V400H0Z" fill="#11101c" stroke="${CYAN}" stroke-width="3"/>
+    <path d="M0 0H900V46H0Z" fill="#1c1830"/>
+    <circle cx="28" cy="23" r="8" fill="#ff7b8a"/><circle cx="54" cy="23" r="8" fill="${GOLD}"/><circle cx="80" cy="23" r="8" fill="#9be58f"/>
+    <text x="120" y="31" font-family="${MONO}" font-size="20" fill="${MUTED}">Program.cs</text>
+    <g font-family="${MONO}" font-size="30" font-weight="700">
+      <text x="34" y="105" fill="${MUTED}">1</text><text x="84" y="105"><tspan fill="${CYAN}">for</tspan><tspan fill="${CREAM}"> (</tspan><tspan fill="${CYAN}">int</tspan><tspan fill="${CREAM}"> i = </tspan><tspan fill="${GOLD_LITE}">0</tspan><tspan fill="${CREAM}">; i &lt; </tspan><tspan fill="${GOLD_LITE}">3</tspan><tspan fill="${CREAM}">; i++)</tspan></text>
+      <text x="34" y="155" fill="${MUTED}">2</text><text x="84" y="155" fill="${CREAM}">{</text>
+      <text x="34" y="205" fill="${MUTED}">3</text><text x="134" y="205"><tspan fill="#7fd6ff">Console</tspan><tspan fill="${CREAM}">.WriteLine(</tspan><tspan fill="#9be58f">"Läuft"</tspan><tspan fill="${CREAM}">)</tspan></text>
+      <text x="34" y="255" fill="${MUTED}">4</text><text x="84" y="255" fill="${CREAM}">}</text>
+    </g>
+    <path d="M612 215q10 10 20 0t20 0t20 0" fill="none" stroke="#ff7b8a" stroke-width="5"/>
+    <path d="M0 290H900V400H0Z" fill="#0a0912"/>
+    <text x="34" y="338" font-family="${MONO}" font-size="24" font-weight="700" fill="#ff7b8a">CS1002: ; erwartet</text>
+    <text x="34" y="376" font-family="${MONO}" font-size="20" fill="${MUTED}">Build fehlgeschlagen. Der Compiler hat recht.</text>
+  </g>
+  <text x="640" y="630" text-anchor="middle" font-family="${SANS}" font-size="38" font-weight="900" fill="${GOLD_LITE}">DER COMPILER HAT IMMER RECHT</text>`;
+}
+
 export const motifs = [
+  { id: 'csharp', accent: '#b794ff', label: 'Programmieren mit C#', draw: csharp, seed: 37, glowX: 640, glowY: 360 },
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
   { id:'ipv6', accent:'#4fd1c5', label:'IPv6 · Doppelpunkt, Doppelpunkt, Durchblick', draw:ipv6, seed:31, glowX:640, glowY:360 },

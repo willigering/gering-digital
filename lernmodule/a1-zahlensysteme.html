@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-game-id="a1">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -496,7 +496,9 @@ body.dtp-exercise-open{overflow:hidden}
           dialog.classList.add('dtp-focus-visible');
           animateTo(1);
         });});
-        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Answer fields first: the "?" tip comes earlier in the DOM and would cover the field on phones.
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled])')
+          ||task.querySelector('button:not([disabled]),[tabindex="0"]:not(.qhelp)');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
         closing=true;cancelAnimationFrame(frame);
@@ -857,6 +859,402 @@ body.dtp-exercise-open{overflow:hidden}
 })();
 </script>
 <!-- DTP-TASCHENRECHNER END -->
+<!-- DTP-HANDY START -->
+<style>
+/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}
+</style>
+<script>
+/* DTP-HANDY: Einfach-erklärt-Tipps (?) per Fingertipp öffnen und wieder schließen.
+   Desktop-Hover bleibt unverändert. Keine Bewertung, kein Speichern. */
+(function () {
+  'use strict';
+  if (window.__dtpMobile) return;
+  window.__dtpMobile = true;
+  var wasOpen = null;
+  document.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') { wasOpen = null; return; }
+    var help = e.target.closest && e.target.closest('.qhelp');
+    wasOpen = help && document.activeElement === help ? help : null;
+  }, true);
+  // Tipp schließen, sobald der Fokus woanders hingeht (z. B. Antippen des Antwortfelds).
+  document.addEventListener('focusout', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (help && !help.contains(e.relatedTarget)) help.classList.remove('tip-open');
+  });
+  document.addEventListener('click', function (e) {
+    var help = e.target.closest && e.target.closest('.qhelp');
+    if (!help) return;
+    // Zweiter Tipp auf dasselbe ? schließt den Tipp wieder.
+    // Nach den Modul-eigenen Klick-Handlern, die den Tipp teils selbst umschalten.
+    if (wasOpen === help) { wasOpen = null; setTimeout(function () { help.classList.remove('tip-open'); help.blur(); }, 0); return; }
+    if (document.activeElement !== help && help.tabIndex >= 0) help.focus({preventScroll: true});
+    // Tipp ganz zeigen, wenn er unten aus dem Bildschirm ragt.
+    var tip = help.querySelector('.qtip');
+    if (!tip) return;
+    requestAnimationFrame(function () {
+      var r = tip.getBoundingClientRect(), over = r.bottom - (window.innerHeight - 12);
+      if (r.height && over > 0) {
+        var box = help.closest('.dtp-practice-dialog, [role="dialog"]');
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        (box && box.scrollHeight > box.clientHeight ? box : window).scrollBy({top: over, behavior: reduce ? 'auto' : 'smooth'});
+      }
+    });
+  });
+})();
+</script>
+<!-- DTP-HANDY END -->
+<!-- DTP-FEHLERSPRUECHE START -->
+<script>
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
+  const newQuips = [
+  "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
+  "Oha, das ist ja richt… Oh. Doch nicht.",
+  "WOW! Eine Antwort! Und sie ist FALSCH.",
+  "Ehrlich? DAS ist deine Antwort?",
+  "Das hast du jetzt nicht gesagt!?",
+  "Das war einfach nur scheiße.",
+  "Das war Bockmist. Der nächste Versuch ist gratis.",
+  "Falsch. Hast du das gerade wirklich abgeschickt?",
+  "Falsch. Aber mutig.",
+  "Falsch. Und ich hatte so viel Hoffnung.",
+  "Falsch. Das tat beim Lesen weh.",
+  "Deine Antwort ist durchgefallen. Du noch nicht.",
+  "Falsch. Tu einfach so, als hättest du das nie abgeschickt.",
+  "Falsch. Steht in keiner Doku. Nicht mal in der schlechten.",
+  "Falsch. Sag das bitte nie im Bewerbungsgespräch.",
+  "Falsch. Und zwar richtig falsch.",
+  "Falsch. Ich hab extra noch mal nachgeschaut.",
+  "Falsch. Ich muss mich kurz setzen.",
+  "Falsch. Ich bin nicht wütend, nur enttäuscht.",
+  "Falsch. Das sagen wir jetzt einfach niemandem.",
+  "Falsch. Erklär mir bitte nicht, wie du darauf gekommen bist.",
+  "Falsch. Die Frage hat das nicht verdient.",
+  "Falsch. Aber schön, dass du da bist.",
+  "Falsch. Das war so daneben, das hat schon wieder Stil.",
+  "Falsch. Noch so eine, und ich rufe deine Mutter an.",
+  "Falsch. Das kannst du besser. Hoffe ich.",
+  "Falsch. Und du hattest so viel Zeit.",
+  "Falsch. Und das auch noch mit Absicht?",
+  "Falsch. Hoffentlich war das nur geraten.",
+  "Falsch. Das hat mir jetzt den Abend versaut.",
+  "Falsch. Und das ist noch die freundliche Formulierung.",
+  "Falsch. Ich sag's dir lieber gleich.",
+  "Falsch. Ich hab's zweimal gelesen, es wird nicht besser.",
+  "Falsch. Da kann auch ich nichts mehr retten.",
+  "Falsch. Ich hab kurz gehofft, du machst Spaß.",
+  "Falsch. Bitte sag mir, dass das ein Witz war.",
+  "Falsch. Ich brauch jetzt erst mal einen Kaffee.",
+  "Falsch. Ich hol mal kurz frische Luft.",
+  "Falsch. Das muss ich erst mal verarbeiten.",
+  "Falsch. Gib mir eine Minute.",
+  "Falsch. Ich sag jetzt lieber nichts.",
+  "Falsch. Mir fehlen die Worte. Dir leider nicht.",
+  "Falsch. Das wird auch nicht richtiger, wenn du es noch mal anschaust.",
+  "Falsch. Aber du bist ja noch jung.",
+  "Falsch. Aber du wirkst sehr überzeugt.",
+  "Falsch. Aber gut, dass wir darüber gesprochen haben.",
+  "Falsch. Aber du siehst heute gut aus.",
+  "Falsch. Aber deine Haare sitzen.",
+  "Falsch. Aber das Selbstvertrauen stimmt.",
+  "Falsch. Dafür gibt's keine Punkte. Auch keine halben.",
+  "Falsch. Dafür gibt's nicht mal Mitleidspunkte.",
+  "Falsch. Das gibt eine schöne Null.",
+  "Falsch. Das kommt nicht an den Kühlschrank.",
+  "Falsch. Das rahmen wir nicht ein.",
+  "Falsch. Das erzählst du besser nicht weiter.",
+  "Falsch. Das streichen wir aus dem Protokoll.",
+  "Falsch. Keine Sorge, das hat keiner gesehen. Außer mir.",
+  "Falsch. Schau jetzt bitte nicht so.",
+  "Falsch. Guck nicht so, das warst du selbst.",
+  "Falsch. Du weißt es. Ich weiß es.",
+  "Falsch. Das weißt du aber auch selbst.",
+  "Falsch. Wer hätte das gedacht. Ich.",
+  "Falsch. Ich hab's kommen sehen.",
+  "Falsch. Hat mich jetzt nicht überrascht.",
+  "Falsch. Schade um die schöne Frage.",
+  "Falsch. Hast du das ausgewürfelt?",
+  "Falsch. Wer hat dir das erzählt?",
+  "Falsch. Geht's dir gut?",
+  "Falsch. Möchtest du dich kurz hinlegen?",
+  "Falsch. Trink mal was.",
+  "Falsch. Hast du heute schon was gegessen?",
+  "Falsch. Wie viele Finger halte ich hoch?",
+  "Falsch. Fahr heute bitte nicht mehr selbst.",
+  "Falsch. Mach mal eine Pause. Ich brauch auch eine.",
+  "Falsch. So wird das nichts mit uns.",
+  "Falsch. Wir müssen reden.",
+  "Falsch. Ich glaub, wir sollten uns mal zusammensetzen.",
+  "Falsch. Ich lass das mal so wirken.",
+  "Falsch. Lass das mal kurz sacken.",
+  "Falsch. Lass uns das nie wieder erwähnen.",
+  "Falsch. Wir fangen einfach noch mal von vorne an. Ganz von vorne.",
+  "Falsch. Das Gute: Schlimmer wird's heute nicht. Hoffentlich.",
+  "Falsch. Beim nächsten Mal gern mit Nachdenken.",
+  "Falsch. Nachdenken wäre auch eine Option gewesen.",
+  "Falsch. Raten ist auch eine Methode. Nur keine gute."
+];
+  if (NEW_QUIPS_LIVE) quips.push(...newQuips);
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
+})();
+</script>
+<!-- DTP-FEHLERSPRUECHE END -->
+<!-- DTP-SPIEL START -->
+<style>
+/* DAU TO PRO Spielmodus: Leuchten und Pulsieren. Lösungen und Lernstände bleiben unberührt. */
+.btn,.btn.primary,.btn.secondary,.btn.ghost{outline:0!important;border:1.5px solid var(--game,#a6f05a)!important;box-shadow:0 0 0 1px rgba(166,240,90,.14),0 0 16px rgba(166,240,90,.28),inset 0 0 12px rgba(166,240,90,.08);transition:transform .14s,box-shadow .18s,filter .18s}
+.btn:hover:not(:disabled){transform:none;box-shadow:0 0 0 1px rgba(166,240,90,.4),0 0 28px rgba(166,240,90,.58),inset 0 0 16px rgba(166,240,90,.16);filter:brightness(1.1)}
+.btn:active:not(:disabled){transform:scale(.96)}
+.opt{border:1.5px solid rgba(110,231,140,.42)!important;box-shadow:0 0 12px rgba(110,231,140,.13);transition:transform .14s,box-shadow .18s,border-color .18s,background .18s}
+.opt:hover:not(:disabled){border-color:#a6f05a!important;box-shadow:0 0 24px rgba(166,240,90,.45)}
+.opt .key{background:#a6f05a;box-shadow:0 0 10px rgba(166,240,90,.6)}
+.opt.is-right{border-color:#4ee69b!important;box-shadow:0 0 28px rgba(78,230,155,.65);animation:dtpPop .42s ease-out}
+.opt.is-wrong{border-color:#ff6b6b!important;box-shadow:0 0 24px rgba(255,107,107,.55);animation:dtpShake .4s}
+.ans-row input{border:1.5px solid rgba(110,231,140,.5)!important;box-shadow:0 0 14px rgba(110,231,140,.18)}
+.ans-row input:focus{border-color:#a6f05a!important;box-shadow:0 0 24px rgba(166,240,90,.5);outline:0}
+.ans-row input.correct{border-color:#4ee69b!important;box-shadow:0 0 28px rgba(78,230,155,.65);animation:dtpPop .42s}
+.ans-row input.wrong{border-color:#ff6b6b!important;box-shadow:0 0 24px rgba(255,107,107,.55);animation:dtpShake .4s}
+.task-scene{display:block;margin:0 0 8px;color:#ffe4a1;font-size:15.5px;font-weight:650;line-height:1.5}
+.qmark{box-shadow:0 0 12px rgba(110,231,140,.55)}
+.qtip{box-shadow:0 0 26px rgba(110,231,140,.3);font-size:14px;line-height:1.55}
+.qtip .qex{display:block;margin-top:8px;color:#ffe4a1}
+.hint{box-shadow:0 0 16px rgba(110,231,140,.2)}
+.result:not(:empty){box-shadow:0 0 22px rgba(78,230,155,.26);animation:dtpPop .34s ease-out}
+.result.bad:not(:empty){box-shadow:0 0 22px rgba(255,107,107,.26)}
+.stage-tile{box-shadow:0 0 12px rgba(110,231,140,.14);transition:transform .18s,box-shadow .18s}
+.stage-tile:hover:not([aria-disabled="true"]){transform:none;box-shadow:0 0 28px rgba(166,240,90,.45)}
+.stage-tile.done{box-shadow:0 0 18px rgba(78,230,155,.42)}
+.stage-tile.cur{}
+.stage-tile[aria-disabled="true"]{filter:saturate(.4) brightness(.72)}
+.stage-tile .bar{overflow:hidden}.stage-tile .bar i{box-shadow:0 0 12px #a6f05a}
+.area-tabs>*{transition:transform .16s,box-shadow .18s}
+.area-tabs>*:hover{transform:none;box-shadow:0 0 24px rgba(166,240,90,.4)}
+.area-tabs>[aria-selected="true"],.area-tabs>.active{box-shadow:0 0 26px rgba(234,180,72,.55)}
+.mode-tile{transition:transform .16s,box-shadow .18s}.mode-tile:hover{transform:none;box-shadow:0 0 22px rgba(166,240,90,.4)}.mode-tile.active{box-shadow:0 0 26px rgba(166,240,90,.55)}
+.bitwall span.on{}
+.bits button,.bits .bit{transition:transform .12s,box-shadow .16s}
+.bits button:hover{transform:none;box-shadow:0 0 18px rgba(166,240,90,.55)}
+.metric{box-shadow:0 0 12px rgba(110,231,140,.14)}
+.metric strong{text-shadow:0 0 12px rgba(166,240,90,.55)}
+.panel{box-shadow:0 0 22px rgba(110,231,140,.07)}
+.timer{text-shadow:0 0 14px currentColor;animation:dtpSoft 1s ease-in-out infinite}
+input[type=range]{-webkit-appearance:none;appearance:none;height:10px;border-radius:9px;background:linear-gradient(90deg,#6ee78c,#a6f05a);box-shadow:0 0 14px rgba(166,240,90,.5)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:#ffe4a1;border:3px solid #a6f05a;box-shadow:0 0 18px #a6f05a}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#ffe4a1;border:3px solid #a6f05a;box-shadow:0 0 18px #a6f05a}
+.filter-btn{border:1.5px solid rgba(110,231,140,.42)!important;box-shadow:0 0 10px rgba(110,231,140,.14);transition:transform .14s,box-shadow .18s}.filter-btn:hover{transform:none;box-shadow:0 0 20px rgba(166,240,90,.5)}.filter-btn.active{box-shadow:0 0 22px rgba(166,240,90,.7)}
+#dtpHud{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;gap:10px;align-items:center;padding:9px 14px;border:1.5px solid #a6f05a;border-radius:999px;background:#07110bf2;color:#f5f0df;font:800 13px/1 ui-monospace,Consolas,monospace;box-shadow:0 0 22px rgba(166,240,90,.45);pointer-events:none}
+#dtpHud b{color:#a6f05a;font-size:17px;text-shadow:0 0 10px #a6f05a}#dtpHud.hot{border-color:#ffb547;box-shadow:0 0 30px rgba(255,181,71,.8);animation:dtpSoft .8s ease-in-out infinite}#dtpHud.hot b{color:#ffb547;text-shadow:0 0 12px #ffb547}#dtpHud small{color:#aebabc;font-size:11px}
+#dtpFlash{position:fixed;inset:0;z-index:58;pointer-events:none;opacity:0}#dtpFlash.ok{box-shadow:inset 0 0 90px rgba(78,230,155,.75);animation:dtpFlash .55s ease-out}#dtpFlash.no{box-shadow:inset 0 0 90px rgba(255,107,107,.72);animation:dtpFlash .5s ease-out}
+.dtp-spark{position:fixed;z-index:61;width:8px;height:8px;border-radius:50%;pointer-events:none;background:#a6f05a;box-shadow:0 0 12px #a6f05a;animation:dtpSpark .75s ease-out forwards}
+#dtpBanner{position:fixed;left:50%;top:22%;z-index:62;transform:translateX(-50%);width:max-content;max-width:calc(100vw - 32px);padding:16px 26px;text-align:center;border:2px solid #ffb547;border-radius:18px;background:#07110bf5;color:#fff;font-weight:900;font-size:clamp(22px,5vw,38px);line-height:1.15;box-shadow:0 0 44px rgba(255,181,71,.75);pointer-events:none;animation:dtpBanner 1.8s ease-out forwards}#dtpBanner small{display:block;margin-top:7px;color:#ffe4a1;font-size:15px;font-weight:650}
+@keyframes dtpBtnPulse{50%{box-shadow:0 0 0 2px rgba(166,240,90,.35),0 0 32px rgba(166,240,90,.7)}}
+@keyframes dtpSoft{50%{filter:brightness(1.3)}}
+@keyframes dtpCur{50%{box-shadow:0 0 34px rgba(234,180,72,.85)}}
+@keyframes dtpBit{50%{box-shadow:0 0 28px rgba(166,240,90,.85)}}
+@keyframes dtpPop{0%{transform:scale(.97)}55%{transform:scale(1.025)}100%{transform:scale(1)}}
+@keyframes dtpShake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@keyframes dtpFlash{0%{opacity:1}100%{opacity:0}}
+@keyframes dtpSpark{to{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
+@keyframes dtpBanner{0%{opacity:0;transform:translateX(-50%) scale(.6)}14%{opacity:1;transform:translateX(-50%) scale(1.06)}24%{transform:translateX(-50%) scale(1)}78%{opacity:1}100%{opacity:0;transform:translateX(-50%) translateY(-16px)}}
+@media(max-width:640px){#dtpHud{right:10px;bottom:10px;padding:7px 11px}}
+@media(prefers-reduced-motion:reduce){.btn,.opt,.stage-tile,.area-tabs>*,.qmark,.timer,.bitwall span.on,input[type=range]::-webkit-slider-thumb,#dtpHud,#dtpFlash,#dtpBanner,.result:not(:empty),.ans-row input{animation:none!important}.dtp-spark{display:none}#dtpBanner{opacity:1}}
+</style>
+<script>
+/* DAU TO PRO Spielmodus: Serie, Rekord und Effekte. Speichert nur den eigenen Rekord, nie Lernstände. */
+(function () {
+  if (window.dtpGame) return;
+  var KEY = 'dtp-game-best-' + (document.documentElement.dataset.gameId || location.pathname);
+  var MILESTONES = {3: ['3 am Stück!', 'Das war also kein Zufall.'], 5: ['5ER-SERIE!', 'Wer sitzt da an deinem Platz?'], 10: ['10ER-SERIE!', 'Jetzt wird es unheimlich.'], 15: ['15ER-SERIE!', 'Die Prüfung hat gerade kurz geschluckt.'], 20: ['20ER-SERIE!', 'Ab hier ist es Angeberei. Weiter so.'], 30: ['30ER-SERIE!', 'Bitte einmal melden, wir brauchen dich im Support.']};
+  var combo = 0, best = 0, hud, flash, banner;
+  try { best = Number(localStorage.getItem(KEY)) || 0; } catch (e) {}
+  function ready(fn) { if (document.body) fn(); else document.addEventListener('DOMContentLoaded', fn); }
+  function draw() { if (!hud) return; hud.innerHTML = 'SERIE <b>' + combo + '</b> <small>Rekord ' + best + '</small>'; hud.classList.toggle('hot', combo >= 5); }
+  function build() { hud = document.createElement('div'); hud.id = 'dtpHud'; hud.setAttribute('aria-hidden', 'true'); flash = document.createElement('div'); flash.id = 'dtpFlash'; document.body.append(hud, flash); draw(); }
+  function pulse(cls) { flash.className = ''; void flash.offsetWidth; flash.className = cls; }
+  function sparks(host, n) {
+    if (matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    var r = host.getBoundingClientRect(), x = Math.min(innerWidth - 20, Math.max(20, r.left + r.width / 2)), y = Math.min(innerHeight - 20, Math.max(20, r.top + 30));
+    for (var i = 0; i < n; i++) { var s = document.createElement('i'), a = i / n * 6.283, d = 60 + (i % 4) * 28; s.className = 'dtp-spark'; s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px'); document.body.append(s); setTimeout(s.remove.bind(s), 800); }
+  }
+  function show(title, line) { if (banner) banner.remove(); banner = document.createElement('div'); banner.id = 'dtpBanner'; banner.setAttribute('role', 'status'); banner.textContent = title; var s = document.createElement('small'); s.textContent = line; banner.append(s); document.body.append(banner); setTimeout(function (b) { b.remove(); }.bind(null, banner), 1900); }
+  window.dtpGame = Object.freeze({answer: function (ok, host) {
+    if (!hud) return;
+    if (ok) {
+      combo++; pulse('ok'); sparks(host, Math.min(8 + combo * 2, 24));
+      var record = combo > best && combo >= 3;
+      if (combo > best) { best = combo; try { localStorage.setItem(KEY, String(best)); } catch (e) {} }
+      if (MILESTONES[combo]) show(MILESTONES[combo][0], MILESTONES[combo][1]);
+      else if (record) show('NEUER REKORD: ' + combo, 'Den alten brauchst du nicht mehr.');
+    } else { if (combo >= 3) show('Serie weg: ' + combo, 'Rekord bleibt ' + best + '. Hol ihn dir zurück.'); combo = 0; pulse('no'); }
+    draw();
+  }});
+  ready(build);
+})();
+</script>
+<!-- DTP-SPIEL END -->
 </head>
 <body>
 <span id="oben"></span>
@@ -946,7 +1344,7 @@ body.dtp-exercise-open{overflow:hidden}
     </nav>
 
     <section id="ch1" class="panel cy">
-      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Stellenwertsysteme und Bits</h3><p>Warum 473 eigentlich eine Rechenaufgabe ist und was das mit Computern zu tun hat.</p></div></div><p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p>
+      <div class="chapter-head"><span class="ch-no">01</span><div><h3>Stellenwertsysteme und Bits</h3><p>Warum 473 eigentlich eine Rechenaufgabe ist und was das mit Computern zu tun hat.</p></div></div><p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Wie beim Firmenparkplatz: derselbe Golf, aber auf dem Chefplatz ist er plötzlich ein Problem. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p>
       <p>Im Dezimalsystem hat jede Stelle einen Wert, der eine Zehnerpotenz ist. <span class="val">473</span> bedeutet 4 · 100 + 7 · 10 + 3 · 1. Die <strong>Basis</strong> ist 10, deshalb gibt es die Ziffern 0 bis 9. Jedes Stellenwertsystem funktioniert nach demselben Prinzip, nur mit einer anderen Basis:</p>
       <div class="calc">Wert = Ziffer · Basis^Stelle + … (die Stelle ganz rechts hat die Nummer 0)</div>
       <div class="table-wrap"><table class="t"><thead><tr><th>System</th><th>Basis</th><th>Ziffern</th><th>Stellenwerte (rechts → links)</th><th>Schreibweisen</th></tr></thead><tbody>
@@ -970,7 +1368,7 @@ body.dtp-exercise-open{overflow:hidden}
         <tr><td class="m">2³⁰</td><td class="m">1.073.741.824</td><td>1 GiB in Byte</td></tr>
         <tr><td class="m">2³²</td><td class="m">4.294.967.296</td><td>Anzahl IPv4-Adressen</td></tr>
       </tbody></table></div>
-      <div class="trap"><strong>Falle:</strong> „Größte Zahl mit 8 Bit“ ist <strong>255</strong>, nicht 256. Es gibt 256 Werte, aber einer davon ist die 0.</div>
+      <div class="trap"><strong>Falle:</strong> „Größte Zahl mit 8 Bit“ ist <strong>255</strong>, nicht 256. Es gibt 256 Werte, aber einer davon ist die 0. Die Null zählt mit, wie der Kollege, der nie was macht und trotzdem auf jeder Liste steht.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="basis"></div></div>
       <a class="backtop" href="#learnTop">↑ Zur Kapitelübersicht</a>
     </section>
@@ -1052,7 +1450,7 @@ Ergebnis: 1011 0110</div>
   ───────────
     1001 0001  (145)</div>
       <h4>Überlauf</h4>
-      <p>Ein Register hat eine feste Breite. Ein 8-Bit-Register kann ohne Vorzeichen nur 0 bis 255 speichern. Ist die Summe größer, fällt das neunte Bit weg (die CPU setzt dabei das Carry-Flag). Im Register steht dann die Summe minus 256: <span class="val">200 + 100 = 300 → 300 − 256 = 44</span>.</p>
+      <p>Ein Register hat eine feste Breite. Ein 8-Bit-Register kann ohne Vorzeichen nur 0 bis 255 speichern. Ist die Summe größer, fällt das neunte Bit weg (die CPU setzt dabei das Carry-Flag). Im Register steht dann die Summe minus 256: <span class="val">200 + 100 = 300 → 300 − 256 = 44</span>. 300 rein, 44 raus. Beschwerden nimmt das Register nicht an.</p>
       <h4>Logische Verknüpfungen, Bit für Bit</h4>
       <div class="table-wrap"><table class="t"><thead><tr><th class="m">A</th><th class="m">B</th><th>AND</th><th>OR</th><th>XOR</th><th>NOT A</th></tr></thead><tbody>
         <tr><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">0</td><td class="m">1</td></tr>
@@ -1095,7 +1493,7 @@ Ergebnis: 1011 0110</div>
    1110 0000   → −128 + 64 + 32 = −32  ✓</div>
       <div class="two">
         <div class="box"><h4>Wertebereich mit n Bit</h4><p><strong>−2ⁿ⁻¹ bis 2ⁿ⁻¹ − 1</strong></p><p class="mono">8 Bit:  −128 … 127<br>16 Bit: −32.768 … 32.767<br>32 Bit: −2.147.483.648 … 2.147.483.647</p><p class="subtle">Die negative Seite hat eine Zahl mehr, weil die 0 bei den positiven mitzählt.</p></div>
-        <div class="box"><h4>Ausblick: Kommazahlen</h4><p>Gleitkommazahlen speichert der Rechner nach <strong>IEEE 754</strong> als Vorzeichen, Exponent und Mantisse (32 Bit: 1 + 8 + 23 Bit). Darum ist 0,1 + 0,2 in vielen Programmiersprachen nicht exakt 0,3. Für die Abschlussprüfung reicht meist, das Prinzip zu kennen.</p></div>
+        <div class="box"><h4>Ausblick: Kommazahlen</h4><p>Gleitkommazahlen speichert der Rechner nach <strong>IEEE 754</strong> als Vorzeichen, Exponent und Mantisse (32 Bit: 1 + 8 + 23 Bit). Darum ist 0,1 + 0,2 in vielen Programmiersprachen nicht exakt 0,3. Die Buchhaltung findet das weniger lustig. Für die Abschlussprüfung reicht meist, das Prinzip zu kennen.</p></div>
       </div>
       <div class="trap"><strong>Falle:</strong> Das Zweierkomplement gilt immer für eine <strong>feste Bitbreite</strong>. 1101 0011 ist mit 8 Bit −45, als 16-Bit-Zahl 0000 0000 1101 0011 aber +211.</div>
       <div class="lab"><div class="lab-head"><strong>KURZ-CHECK</strong><span class="tag">zufällige Aufgabe</span></div><div class="mini-check" data-cat="neg"></div></div>
@@ -1112,9 +1510,9 @@ Ergebnis: 1011 0110</div>
         <tr><td class="m">TB (Terabyte)</td><td class="m">10¹²</td><td class="m">TiB (Tebibyte)</td><td class="m">2⁴⁰ = 1.099.511.627.776</td><td class="m">10,0 %</td></tr>
       </tbody></table></div>
       <div class="two">
-        <div class="box"><h4>Wer rechnet wie?</h4><ul><li><strong>Festplatten- und SSD-Hersteller</strong>: SI. 1 TB = 10¹² Byte.</li><li><strong>Datenraten</strong> (Mbit/s, Gbit/s): immer SI.</li><li><strong>Arbeitsspeicher</strong>: binär. „16 GB RAM“ sind eigentlich 16 GiB.</li><li><strong>Windows-Explorer</strong>: rechnet binär, beschriftet aber mit „GB“ und „TB“.</li><li><strong>macOS</strong> (seit 10.6) zeigt Dezimalwerte an.</li></ul></div>
+        <div class="box"><h4>Wer rechnet wie?</h4><ul><li><strong>Festplatten- und SSD-Hersteller</strong>: SI. 1 TB = 10¹² Byte.</li><li><strong>Datenraten</strong> (Mbit/s, Gbit/s): immer SI.</li><li><strong>Arbeitsspeicher</strong>: binär. „16 GB RAM“ sind eigentlich 16 GiB.</li><li><strong>Windows-Explorer</strong>: rechnet binär, beschriftet aber mit „GB“ und „TB“. Das ist der ganze Skandal.</li><li><strong>macOS</strong> (seit 10.6) zeigt Dezimalwerte an.</li></ul></div>
         <div class="box"><h4>Der Festplatten-Schwund</h4><p>Eine 2-TB-Platte hat 2 · 10¹² Byte.</p><div class="calc">2.000.000.000.000 B : 1.099.511.627.776
-= 1,82 TiB</div><p>Windows zeigt das als etwa „1,81 TB“ an. Es fehlt nichts, es wird nur anders gezählt.</p></div>
+= 1,82 TiB</div><p>Windows zeigt das als etwa „1,81 TB“ an. Es fehlt nichts, es wird nur anders gezählt. Der wütende Anruf beim Händler kann also entfallen.</p></div>
       </div>
       <h4>So rechnest du sicher um</h4>
       <ol><li>Prüfe, ob beide Einheiten zur <strong>selben Familie</strong> gehören. Dann ist es nur ein Faktor 1.000 oder 1.024 pro Stufe.</li><li>Bei <strong>gemischten Familien</strong> erst in Byte umrechnen, dann in die Zieleinheit.</li><li>Bei <strong>Bit ↔ Byte</strong> mit 8 multiplizieren oder durch 8 teilen.</li></ol>
@@ -1186,7 +1584,7 @@ Audio-CD: 44.100 × 16 × 2 = 1.411.200 bit/s
       <h4>Video (unkomprimiert)</h4>
       <div class="calc">Speicher [bit] = Breite × Höhe × Farbtiefe × Bilder pro Sekunde × Dauer [s]
 Full HD, 24 bit, 25 fps: 49.766.400 × 25 = 1.244.160.000 bit/s ≈ 1,24 Gbit/s</div>
-      <p>Darum wird Video praktisch immer komprimiert (H.264, H.265, AV1). <strong>Verlustfrei</strong> komprimieren ZIP, PNG oder FLAC, <strong>verlustbehaftet</strong> JPEG, MP3 oder H.264. Prüfungsaufgaben rechnen meist unkomprimiert, außer ein Kompressionsfaktor ist angegeben.</p>
+      <p>Über eine Gigabit-Leitung passt das schon nicht mehr. Darum wird Video praktisch immer komprimiert (H.264, H.265, AV1). <strong>Verlustfrei</strong> komprimieren ZIP, PNG oder FLAC, <strong>verlustbehaftet</strong> JPEG, MP3 oder H.264. Prüfungsaufgaben rechnen meist unkomprimiert, außer ein Kompressionsfaktor ist angegeben.</p>
       <div class="trap"><strong>Falle:</strong> Bei „Wie viele Fotos passen auf die Karte?“ wird <strong>abgerundet</strong>. Ein halbes Foto speichert niemand.</div>
       <div class="lab"><div class="lab-head"><strong>SPEICHER-RECHNER</strong><span class="subtle">Bild oder Audio durchrechnen.</span></div>
         <div class="field-row"><label for="sKind" class="sr-only">Art</label><select id="sKind" class="sel"><option value="img">Bild</option><option value="aud">Audio</option></select><input id="sA" type="text" inputmode="numeric" value="1920" aria-label="Breite"><input id="sB" type="text" inputmode="numeric" value="1080" aria-label="Höhe"><input id="sC" type="text" inputmode="numeric" value="24" aria-label="Farbtiefe"><input id="sD" type="text" inputmode="numeric" value="1" aria-label="Anzahl" hidden></div>
@@ -1198,7 +1596,7 @@ Full HD, 24 bit, 25 fps: 49.766.400 × 25 = 1.244.160.000 bit/s ≈ 1,24 Gbit/s<
     </section>
 
     <section id="ch9" class="panel go">
-      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Spickzettel und typische Fallen</h3><p>Die eine Seite, die du vor der Prüfung noch mal anschaust.</p></div></div>
+      <div class="chapter-head"><span class="ch-no">09</span><div><h3>Spickzettel und typische Fallen</h3><p>Die eine Seite, die du vor der Prüfung noch mal anschaust. Also die einzige, wenn wir ehrlich sind.</p></div></div>
       <div class="table-wrap"><table class="t"><thead><tr><th>Thema</th><th>Merke</th></tr></thead><tbody>
         <tr><td>n Bit</td><td>2ⁿ Werte, 0 bis 2ⁿ − 1. Für N Zustände: kleinstes n mit 2ⁿ ≥ N</td></tr>
         <tr><td>Binär → Dez</td><td>Stellenwerte 128 64 32 16 8 4 2 1, Einsen addieren</td></tr>
@@ -1397,7 +1795,10 @@ function mc(prompt,right,wrongs,why,extra){const opts=shuffle([right,...shuffle(
 const SYS={2:'Binärsystem',8:'Oktalsystem',10:'Dezimalsystem',16:'Hexadezimalsystem'};
 const ORD=['erste','zweite','dritte','vierte','fünfte','sechste','siebte','achte','neunte','zehnte'];
 const SUBS=[];
-function S(cat,id,label,min,f){SUBS.push({cat,id,label,min,f})}
+const SCENES={"b_values": ["Die Chefin fragt, ob das Feld groß genug ist. Du sagst „klar“ und rechnest lieber vorher nach.", "Stell dir jedes Bit als Lichtschalter vor. Jeder neue Schalter verdoppelt das Chaos."], "b_max": ["Die Null will auch einen Platz. Das vergisst jeder mindestens einmal.", "Kai behauptet, die Antwort sei die Anzahl der Werte. Kai irrt öfter."], "b_need": ["Das Nummernsystem soll reichen, ohne dass nächstes Jahr alle neue Nummern bekommen.", "Zu wenig Bit, und zwei Dinge haben denselben Code. Das gibt Ärger."], "b_place": ["Jede Stelle hat ihren Preis, und je weiter links, desto teurer.", "Stellenwerte sind wie Parkplätze: Entscheidend ist, wo du stehst."], "b_digits": ["Eine Frage für zwischendurch. Die kommt gern, wenn du gerade entspannt bist.", "Kurz Grundwissen, dann darfst du wieder rechnen."], "b_compare": ["Vier Zahlen, vier Verkleidungen. Wer ist wirklich der Größte?", "Die Zahlen machen auf wichtig. Schau, was dahintersteckt."], "d_plain": ["Der Rechner hat gesprochen, und keiner versteht ihn. Du übersetzt.", "Einsen zählen, Nullen dürfen zuschauen."], "d_octet": ["Die Konfiguration steht nur binär da, und der Kollege will die normale Zahl. Menschen halt.", "Acht Bit, ein Block. Den musst du irgendwann im Schlaf können."], "d_error": ["Kai hat wieder gerechnet. Jetzt bist du dran, ihn zu retten.", "Kai ist sich sehr sicher. Das ist meist das erste Warnzeichen."], "d_pattern": ["Diese Zahl sieht nach Arbeit aus. Ist sie aber nicht, wenn du das Muster siehst.", "Hier gewinnt, wer faul genug ist, das Muster zu erkennen."], "e_plain": ["Jetzt andersrum: Du sprichst mit dem Rechner.", "Die Zahl soll in den Rechner. Der nimmt nur Nullen und Einsen."], "e_ones": ["Keine große Rechnung, nur Einsen zählen. Wenn du sie erst mal hast.", "Binär schreiben, Einsen zählen, fertig. Klingt harmlos, oder?"], "e_msb": ["Wer ist der größte Brocken, der noch reinpasst?", "Erst der dicke Brocken, dann der Rest. Wie beim Umzug."], "e_mask": ["Subnetzmasken sind einfach gestrickt: erst Einsen, dann Nullen, keine Überraschungen.", "Das kommt in Subnetting wieder. Versprochen. Oder Drohung."], "h_b2h": ["So viele Nullen und Einsen liest kein Mensch freiwillig. Mach es kürzer.", "Vierergruppen bilden, übersetzen, fertig. Hex ist die Kurzschrift der Admins."], "h_h2b": ["Jetzt packst du die Kurzschrift wieder aus.", "Jede Hex-Ziffer wird zu vier Bit. Kein Rabatt, keine Ausnahme."], "h_h2d": ["Der Kollege versteht kein Hex und fragt nach der normalen Zahl.", "A bis F sind Zahlen in Verkleidung. Aufdecken, bitte."], "h_d2h": ["Das Tool will den Wert in Hex. Diskutieren bringt nichts.", "Die Zahl muss ins Hex. Der Taschenrechner darf zuschauen."], "h_color": ["Das Marketing will wissen, wie viel von dieser Farbe drinsteckt. Natürlich sofort.", "Hinter jeder Webfarbe steckt Hex. Auch hinter dem hässlichen Firmenblau."], "h_net": ["Hex begegnet dir im Netzwerk ständig. Spätestens beim nächsten ipconfig.", "Hier wird Hex plötzlich praktisch. Keine Sorge, das geht vorbei."], "h_oct": ["Oktal ist selten, aber wenn es kommt, dann gern in der Prüfung.", "Basis 8. Wer hat das bestellt? Linux, unter anderem."], "h_chmod": ["Eine Datei, drei Parteien, und jede will was anderes. Linux regelt das mit Zahlen.", "Einmal falsch gesetzt, und alle dürfen alles. Oder keiner. Also genau hinschauen."], "c_add": ["Wie in der Grundschule, nur dass du schon bei 1 + 1 einen Übertrag hast.", "Schriftlich addieren, nur mit sehr wenig Ziffern."], "c_over": ["Der Platz im Register ist begrenzt. Was nicht passt, fliegt raus, ohne Entschuldigung.", "Das Register hat nur 8 Bit. Die Rechnung weiß das noch nicht."], "c_and": ["AND ist der strenge Türsteher: Rein kommt nur, wer zwei Einsen hat.", "Genau damit rechnet dein Router den ganzen Tag. Nur schneller und ohne Kaffee."], "c_orx": ["OR ist großzügig, XOR ist wählerisch. Gleich brauchst du einen von beiden.", "Zwei Bitmuster treffen sich, und die Logik entscheidet, was übrig bleibt."], "c_not": ["Alles, was an war, geht aus. Und umgekehrt. Der Kollege, der immer dagegen ist.", "Die einfachste Logik der Welt. Trotzdem klappt sie nicht immer beim ersten Mal."], "c_shift": ["Alle Bits rutschen weiter. Wie in der Schlange, wenn vorne einer geht.", "Schieben ist Rechnen für Faule. Die CPU liebt das."], "c_net": ["Das macht dein Router bei jedem Paket. Jetzt machst du es einmal von Hand.", "Aus Adresse und Maske wird die Netzadresse. Der Rest darf gehen."], "n_to": ["Der Rechner hat kein Minuszeichen. Wir tricksen.", "Schulden in Binär: Das geht, nur anders als gedacht."], "n_from": ["Die linke Stelle entscheidet: Ist das hier Guthaben oder Schulden?", "Erst mal schauen, ob die Zahl überhaupt im Minus ist."], "n_range": ["Das Minus kostet Platz, und die Null sitzt auf der Plusseite. Darum ist es ungleich verteilt.", "Wie weit geht es nach unten, wie weit nach oben? Beide Seiten sind nicht gleich lang."], "n_sub": ["Die CPU rechnet Minus, indem sie das Negative addiert und so tut, als wäre nichts.", "Minus rechnen, ohne Minus zu rechnen. Klingt nach Betrug, ist Zweierkomplement."], "n_method": ["Drei Verfahren, ein Bitmuster. Wer war es?", "Detektivarbeit: Das Muster hat eine Handschrift."], "n_overflow": ["Zwei Zahlen rein, etwas Seltsames raus. Was ist da passiert?", "Das Ergebnis sieht falsch aus. Die CPU sieht das anders."], "u_same": ["Das Angebot nennt eine Einheit, deine Liste eine andere. Natürlich.", "Nur die Einheit wechselt, die Menge bleibt. Trotzdem geht es gern schief."], "u_cross": ["Hersteller zählen in Tausendern, Betriebssysteme gern in 1.024ern. Du darfst vermitteln.", "Zwei Einheiten-Familien, die nicht miteinander reden. Du übersetzt."], "u_bits": ["Ganz nach unten in die kleinste Einheit. Es werden viele.", "Das Kleinste, was der Rechner zählen kann, und davon ziemlich viele."], "u_disk": ["Die Platte ist neu, die Anzeige kleiner, der Kunde sauer. Du erklärst das.", "Gleich viele Byte, andere Zahl. Der Anruf beim Händler kann warten."], "u_know": ["Der Kunde ruft an und sagt, man habe ihn betrogen. Was sagst du?", "Diese Frage kommt garantiert irgendwann im Support."], "r_time": ["Die Kollegin steht neben dir und fragt, wie lange das noch dauert. Sag jetzt nicht „gleich“.", "Bit und Byte sind hier die beliebteste Falle."], "r_time_iec": ["Gemischte Einheiten. Die Prüfung liebt das.", "Erst die Einheit sauber machen, sonst rechnest du präzise falsch."], "r_need": ["Der Chef will es rechtzeitig fertig haben. Reicht die Leitung?", "Erst rechnen, dann Leitung bestellen. Die Reihenfolge spart Geld."], "r_amount": ["Wie viel ist durch die Leitung gegangen? Der Provider wüsste es auch gern.", "Rate mal Zeit. Das Schwierige sind mal wieder die Einheiten."], "r_mbps": ["Der Provider verspricht viel, der Download zeigt wenig. Betrug? Nein, Bit und Byte.", "Das steht so groß in der Werbung und so klein im Browser."], "r_overhead": ["Nicht alles auf der Leitung sind deine Daten. Ein Teil ist Verwaltung, wie im echten Leben.", "Die Verpackung will auch mit. Die zahlst du in Bandbreite."], "s_img": ["Bilder belegen Platz, und ohne Kompression reichlich.", "Erst die Pixel, dann die Bit, dann die Einheit. In der Reihenfolge tut es weniger weh."], "s_colors": ["Jede Farbe braucht ihren eigenen Code. Wie viele Bit braucht der Maler?", "Mehr Farben, mehr Bit. Aber wie viele wirklich?"], "s_audio": ["Unkomprimiert klingt gut und frisst Speicher.", "Jede Sekunde Ton sind viele kleine Messwerte. Du zählst sie zusammen."], "s_bitrate": ["Wie viel muss pro Sekunde durch die Leitung, damit niemand abgehackt klingt?", "Ganz ohne Kompression: Das Beispiel, bei dem MP3 plötzlich sympathisch wird."], "s_video": ["Ohne Kompression ist Video ein Speicherfresser. Gleich siehst du, wie schlimm.", "Die Zahl wird groß. Nicht erschrecken."], "s_text": ["Buchstaben sind nicht gleich groß. Umlaute nehmen sich mehr Platz.", "Für den Computer ist „ä“ teurer als „a“."], "s_fit": ["Vor dem Urlaub die entscheidende Frage: Reicht die Karte?", "Halbe Fotos speichert niemand. Denk daran beim Ergebnis."], "s_scan": ["Der alte Aktenordner soll ins Digitale. Wie groß wird das?", "Scannen kostet mehr Platz, als man denkt."]};
+const EXAMPLES={"b_values": "Mit 3 Bit gibt es 2 × 2 × 2 = 8 Werte.", "b_max": "Mit 3 Bit gibt es 8 Werte. Die Null zählt mit, also geht es von 0 bis 7.", "b_need": "Für 20 Dinge: 4 Bit ergeben nur 16 Codes, 5 Bit ergeben 32. Also 5 Bit.", "b_place": "Von rechts binär: 1, 2, 4, 8. Oktal: 1, 8, 64. Hex: 1, 16, 256.", "b_digits": "Basis 5 hätte die Ziffern 0 bis 4. Außerdem: Nibble = 4 Bit, Byte = 8 Bit, 0x heißt Hex.", "b_compare": "0x10, 10000₂ und 20₈ sind alle 16. Erst alles in Dezimal umrechnen, dann vergleichen.", "d_plain": "1011: Von rechts stehen 1, 2, 4, 8 darüber. Einsen bei 1, 2 und 8, also 11.", "d_octet": "1100 0000: Einsen bei 128 und 64, also 192.", "d_error": "1101 ist richtig 13. Von links gezählt käme 11 heraus, nur die Nullen addiert käme 2 heraus.", "d_pattern": "1111 ist 16 − 1 = 15. 10000 ist genau 16.", "e_plain": "Bei 13: 8 passt, Rest 5. 4 passt, Rest 1. 2 passt nicht. 1 passt. Also 1101.", "e_ones": "13 ist 1101, darin stehen 3 Einsen.", "e_msb": "Bei 100: 64 passt noch, 128 ist zu groß. Antwort 64.", "e_mask": "Drei Einsen: 128 + 64 + 32 = 224. Umgekehrt: 224 hat drei Einsen.", "h_b2h": "1010 0011: 1010 ist A, 0011 ist 3, also 0xA3.", "h_h2b": "0x2F: 2 ist 0010, F ist 1111, also 0010 1111.", "h_h2d": "0x2F = 2 × 16 + 15 = 47.", "h_d2h": "200 : 16 = 12 Rest 8. 12 ist C, also 0xC8.", "h_color": "#FF8000: Rot FF = 255, Grün 80 = 128, Blau 00 = 0.", "h_net": "Eine Hex-Ziffer sind 4 Bit, ein Byte sind 2 Hex-Ziffern. 2 Byte sind also 16 Bit oder 4 Hex-Ziffern.", "h_oct": "17₈ = 1 × 8 + 7 = 15.", "h_chmod": "chmod 640: 6 = 4 + 2 = rw-, 4 = r--, 0 = ---.", "c_add": "0011 + 0001: Rechts 1 + 1 = 0, 1 im Sinn. Dann 1 + 0 + 1 = 0, wieder 1 im Sinn. Ergebnis 0100.", "c_over": "250 + 10 = 260 passt nicht in 8 Bit: 260 − 256 = 4.", "c_and": "1100 AND 1010 = 1000: Nur wo beide eine 1 haben, bleibt eine 1.", "c_orx": "1100 OR 1010 = 1110. 1100 XOR 1010 = 0110.", "c_not": "NOT 1100 0011 = 0011 1100: Jedes Bit dreht sich um.", "c_shift": "0000 0101 (5) eine Stelle nach links ist 0000 1010 (10). Nach rechts wird halbiert.", "c_net": "IP 200, Maske 224: 1100 1000 AND 1110 0000 = 1100 0000, also 192.", "n_to": "−5: 5 ist 0000 0101, umdrehen 1111 1010, plus 1 ergibt 1111 1011.", "n_from": "1111 1011: Links steht eine 1, also negativ: −128 + 123 = −5. Steht links eine 0, liest du die Zahl normal.", "n_range": "4 Bit: −8 bis 7. 8 Bit: −128 bis 127.", "n_sub": "5 − 3 = 5 + (−3): 0000 0101 + 1111 1101 = 0000 0010. Den Übertrag vorn lässt du fallen.", "n_method": "−5 als Betrag mit Vorzeichen: 1000 0101. Einerkomplement: 1111 1010. Zweierkomplement: 1111 1011.", "n_overflow": "100 + 50 = 150, aber 8 Bit mit Vorzeichen reichen nur bis 127. Darum erscheint −106.", "u_same": "3 GB sind 3.000 MB: Jede Stufe ist Faktor 1.000, bei MiB und GiB 1.024.", "u_cross": "1 GB in MiB: 1.000.000.000 Byte : 1.048.576 = 953,67 MiB.", "u_bits": "1 KiB = 1.024 Byte = 8.192 Bit.", "u_disk": "500 GB = 500.000.000.000 Byte, geteilt durch 1.073.741.824 sind das 465,66 GiB.", "u_know": "Hersteller zählen mit 1.000, Windows mit 1.024. Bei gleich vielen Byte zeigt Windows eine kleinere Zahl.", "r_time": "100 MB sind 800 Mbit. Bei 100 Mbit/s dauert das 8 Sekunden.", "r_time_iec": "1 MiB sind 8.388.608 Bit. Bei 10 Mbit/s dauert das 0,84 Sekunden.", "r_need": "1 GB in 100 Sekunden: 8.000 Mbit : 100 s = 80 Mbit/s.", "r_amount": "100 Mbit/s für 10 Sekunden: 1.000 Mbit = 125 MB = 0,125 GB.", "r_mbps": "100 Mbit/s : 8 = 12,5 MB/s.", "r_overhead": "100 Mbit/s bei 90 % sind 90 Mbit/s. 1 GB = 8.000 Mbit, also 88,89 s = 1,48 Minuten.", "s_img": "1.000 × 1.000 Pixel mit 8 Bit: 8.000.000 Bit : 8 = 1.000.000 Byte = 1 MB.", "s_colors": "64 Farben: 2⁶ = 64, also 6 Bit.", "s_audio": "44.100 Hz × 16 Bit × 2 Kanäle × 60 s = 84.672.000 Bit = 10,58 MB.", "s_bitrate": "44.100 Hz × 16 Bit × 2 Kanäle = 1.411.200 bit/s = 1.411,2 kbit/s.", "s_video": "1.000 × 1.000 × 24 Bit × 25 Bilder/s × 10 s = 6.000.000.000 Bit = 0,75 GB.", "s_text": "„Bär“: B = 1 Byte, ä = 2 Byte, r = 1 Byte, also 4 Byte.", "s_fit": "64 GB und Fotos mit 5 MB: 64.000 MB : 5 = 12.800 Fotos. Immer abrunden.", "s_scan": "4 × 5 Zoll bei 100 dpi: 400 × 500 = 200.000 Pixel. Mal 24 Bit = 4.800.000 Bit = 0,6 MB."};
+let sceneN=0;
+function S(cat,id,label,min,f){SUBS.push({cat,id,label,min,f:lv=>{const t=f(lv);const c=SCENES[id];t.scene=c[(sceneN++)%c.length];return t}})}
 
 /* ---- Stellenwerte & Bits ---- */
 S('basis','b_values','Werte mit n Bit',1,lv=>{
@@ -1422,12 +1823,12 @@ S('basis','b_place','Stellenwerte',1,lv=>{
 });
 S('basis','b_digits','Ziffernvorrat & Begriffe',1,lv=>{
  const Q=[
-  ()=>{const b=pick([2,8,16]);const r={2:'0 und 1',8:'0 bis 7',16:'0 bis 9 und A bis F'}[b];return mc('Welche Ziffern verwendet das '+SYS[b]+'?',r,['0 und 1','0 bis 7','0 bis 9','0 bis 9 und A bis F','1 bis 8','0 bis 9 und A bis G'].filter(x=>x!==r),'Ein System mit Basis b hat genau b Ziffern, von 0 bis b − 1. Basis '+b+': <b>'+r+'</b>.',{key:'bd'+b})},
-  ()=>mc('Wie viele Bit hat ein <strong>Nibble</strong>?','4 Bit',['2 Bit','8 Bit','16 Bit'],'Ein Nibble ist ein Halbbyte: <b>4 Bit</b>. Das ist genau eine Hex-Ziffer.',{key:'bdn'}),
-  ()=>mc('Was bezeichnet das <strong>MSB</strong>?','Das höchstwertige Bit, ganz links',['Das niederwertigste Bit, ganz rechts','Das Vorzeichen einer Hexadezimalzahl','Die Anzahl der gesetzten Bits'],'MSB = Most Significant Bit, das Bit mit dem größten Stellenwert, ganz links. Ganz rechts sitzt das LSB.',{key:'bdm'}),
-  ()=>mc('Welche Aussage über ein <strong>Byte</strong> stimmt?','Es besteht aus 8 Bit und kann 256 verschiedene Werte annehmen',['Es besteht aus 8 Bit und sein größter Wert ist 256','Es besteht aus 10 Bit, weil Kilo 1.000 bedeutet','Es besteht aus vier Nibbles'],'8 Bit ergeben 2⁸ = 256 Werte, nämlich 0 bis 255. Der größte Wert ist also 255. Ein Byte hat zwei Nibbles.',{key:'bdb'}),
-  ()=>mc('Warum arbeiten Computer intern binär?','Zwei Zustände (z. B. Spannung an oder aus) lassen sich elektronisch sehr sicher unterscheiden',['Weil Binärzahlen kürzer sind als Dezimalzahlen','Weil das Dezimalsystem für Computer nicht genormt ist','Weil Hexadezimal zu wenige Ziffern hat'],'Zwei Zustände sind robust gegen Störungen und mit Transistoren einfach umzusetzen. Binärzahlen sind übrigens <em>länger</em> als Dezimalzahlen, nicht kürzer.',{key:'bdw'}),
-  ()=>mc('Was bedeutet die Schreibweise <span class="val">0x1F</span>?','Die Hexadezimalzahl 1F, also 31',['Die Binärzahl 1F','Die Oktalzahl 1F','1 mal F, also 15'],'Das Präfix 0x kennzeichnet Hexadezimal: 1 · 16 + 15 = <b>31</b>. Präfix 0b steht für binär, 0o für oktal.',{key:'bdx'})
+  ()=>{const b=pick([2,8,16]);const r={2:'0 und 1',8:'0 bis 7',16:'0 bis 9 und A bis F'}[b];return mc('Welche Ziffern verwendet das '+SYS[b]+'?',r,['0 und 1','0 bis 7','0 bis 9','0 bis 9 und A bis F','1 bis 8','0 bis 9 und A bis G'].filter(x=>x!==r),'Ein System mit Basis b hat genau b Ziffern, von 0 bis b − 1. Basis '+b+': <b>'+r+'</b>.',{key:'bd'+b,plain:'Welche Ziffern darfst du in einem Zahlensystem mit Basis '+b+' benutzen?'})},
+  ()=>mc('Wie viele Bit hat ein <strong>Nibble</strong>?','4 Bit',['2 Bit','8 Bit','16 Bit'],'Ein Nibble ist ein Halbbyte: <b>4 Bit</b>. Das ist genau eine Hex-Ziffer.',{key:'bdn',plain:'Ein Byte hat 8 Bit. Wie viele Bit hat ein halbes Byte, also ein Nibble?'}),
+  ()=>mc('Was bezeichnet das <strong>MSB</strong>?','Das höchstwertige Bit, ganz links',['Das niederwertigste Bit, ganz rechts','Das Vorzeichen einer Hexadezimalzahl','Die Anzahl der gesetzten Bits'],'MSB = Most Significant Bit, das Bit mit dem größten Stellenwert, ganz links. Ganz rechts sitzt das LSB.',{key:'bdm',plain:'MSB ist die Abkürzung für Most Significant Bit. Welches Bit einer Binärzahl ist damit gemeint?'}),
+  ()=>mc('Welche Aussage über ein <strong>Byte</strong> stimmt?','Es besteht aus 8 Bit und kann 256 verschiedene Werte annehmen',['Es besteht aus 8 Bit und sein größter Wert ist 256','Es besteht aus 10 Bit, weil Kilo 1.000 bedeutet','Es besteht aus vier Nibbles'],'8 Bit ergeben 2⁸ = 256 Werte, nämlich 0 bis 255. Der größte Wert ist also 255. Ein Byte hat zwei Nibbles.',{key:'bdb',plain:'Welche Aussage zur Anzahl der Bits und der möglichen Werte eines Bytes ist richtig?'}),
+  ()=>mc('Warum arbeiten Computer intern binär?','Zwei Zustände (z. B. Spannung an oder aus) lassen sich elektronisch sehr sicher unterscheiden',['Weil Binärzahlen kürzer sind als Dezimalzahlen','Weil das Dezimalsystem für Computer nicht genormt ist','Weil Hexadezimal zu wenige Ziffern hat'],'Zwei Zustände sind robust gegen Störungen und mit Transistoren einfach umzusetzen. Binärzahlen sind übrigens <em>länger</em> als Dezimalzahlen, nicht kürzer.',{key:'bdw',plain:'Warum verwenden Computer zwei Zustände für ihre Daten?'}),
+  ()=>mc('Was bedeutet die Schreibweise <span class="val">0x1F</span>?','Die Hexadezimalzahl 1F, also 31',['Die Binärzahl 1F','Die Oktalzahl 1F','1 mal F, also 15'],'Das Präfix 0x kennzeichnet Hexadezimal: 1 · 16 + 15 = <b>31</b>. Präfix 0b steht für binär, 0o für oktal.',{key:'bdx',plain:'Für welches Zahlensystem steht das Präfix 0x, und welchen Dezimalwert hat 1F?'})
  ];
  return pick(Q)();
 });
@@ -1492,7 +1893,7 @@ S('hex','h_b2h','Binär → Hex',1,lv=>{
 });
 S('hex','h_h2b','Hex → Binär',1,lv=>{
  const d=lv===1?2:lv===2?pick([2,3]):pick([3,4]);const n=rint(pow2(4*(d-1)),pow2(4*d)-1);
- return {kind:'bin',key:'hh'+n,prompt:P('Wandle '+VH(n)+' in eine <strong>Binärzahl</strong> um.','Schreibe die Hexadezimalzahl '+VH(n)+' als <strong>Binärzahl</strong>. <span class="subtle">(Das 0x vorne zeigt nur an, dass es eine Hex-Zahl ist.)</span>'),answer:n,show:bin(n,d*4),why:'Jede Hex-Ziffer wird zu genau vier Bit:'+'<div class="calc">'+hx(n,d).split('').map(c=>c.padStart(2).padEnd(4)).join(' │ ')+'\n'+hx(n,d).split('').map(c=>binRaw(parseInt(c,16),4)).join(' │ ')+'</div>Ergebnis: <b>'+bin(n,d*4)+'</b>. Führende Nullen darfst du weglassen.'};
+ return {kind:'bin',key:'hh'+n,prompt:P('Wandle '+VH(n)+' in eine <strong>Binärzahl</strong> um.','Schreibe die Hexadezimalzahl '+VH(n)+' als <strong>Binärzahl</strong>. <span class="subtle">(Das 0x vorne zeigt nur an, dass es eine Hex-Zahl ist.)</span>'),answer:n,show:bin(n,d*4),why:'Jede Hex-Ziffer wird zu genau vier Bit:'+'<div class="calc">'+hx(n,d).split('').map(c=>c.padStart(2).padEnd(4)).join(' │ ')+'\n'+hx(n,d).split('').map(c=>binRaw(parseInt(c,16),4)).join(' │ ')+'</div>Ergebnis: <b>'+bin(n,d*4)+'</b>. Führende Nullen darfst du weglassen. Die haben eh nichts zu sagen.'};
 });
 S('hex','h_h2d','Hex → Dezimal',1,lv=>{
  const d=lv===1?2:lv===2?pick([2,3]):pick([3,4]);const n=rint(pow2(4*(d-1)),pow2(4*d)-1);
@@ -1511,7 +1912,7 @@ S('hex','h_net','Hex im Netzwerk',2,lv=>{
  const Q=[
   ()=>({kind:'dec',key:'hn1',prompt:P('Wie viele <strong>Bit</strong> hat eine MAC-Adresse wie 3C:52:82:1F:A0:07?','Eine MAC-Adresse wie 3C:52:82:1F:A0:07 besteht aus 6 Byte. Wie viele <strong>Bit</strong> sind das?'),answer:48,why:'6 Byte à 8 Bit = <b>48 Bit</b>, geschrieben als 12 Hex-Ziffern.'}),
   ()=>({kind:'dec',key:'hn2',prompt:P('Wie viele <strong>Hex-Ziffern</strong> hat eine vollständig ausgeschriebene IPv6-Adresse?','Eine IPv6-Adresse ist 128 Bit lang. Wie viele <strong>Hex-Ziffern</strong> hat sie, wenn man sie komplett ohne Abkürzungen ausschreibt?'),answer:32,why:'128 Bit : 4 Bit pro Hex-Ziffer = <b>32 Hex-Ziffern</b>, verteilt auf 8 Blöcke à 4.'}),
-  ()=>({kind:'dec',key:'hn3',prompt:P('Ein Block einer IPv6-Adresse besteht aus 4 Hex-Ziffern. Wie viele <strong>Bit</strong> sind das?','Ein Block einer IPv6-Adresse besteht aus 4 Hex-Ziffern. Wie viele <strong>Bit</strong> hat dieser Block?'),answer:16,why:'4 Hex-Ziffern × 4 Bit = <b>16 Bit</b>. Acht solcher Blöcke ergeben 128 Bit.'}),
+  ()=>({kind:'dec',key:'hn3',prompt:P('Ein Block einer IPv6-Adresse besteht aus 4 Hex-Ziffern. Wie viele <strong>Bit</strong> sind das?','Ein Block einer IPv6-Adresse besteht aus 4 Hex-Ziffern. Wie viele <strong>Bit</strong> hat dieser Block?'),answer:16,why:'4 Hex-Ziffern × 4 Bit = <b>16 Bit</b>. Acht solcher Blöcke ergeben 128 Bit. Willkommen bei IPv6.'}),
   ()=>{const b=rint(16,255);const mac=[b,rint(0,255),rint(0,255),rint(0,255),rint(0,255),rint(0,255)].map(x=>hx(x,2)).join(':');return {kind:'bin',key:'hn4'+b,prompt:P('Die MAC-Adresse lautet '+V(mac)+'. Wie lautet das <strong>erste Byte</strong> binär?','Eine MAC-Adresse besteht aus 6 Byte, jedes als zwei Hex-Ziffern geschrieben. Sie lautet '+V(mac)+'. Schreibe das <strong>erste Byte</strong> ('+hx(b,2)+') als Binärzahl.'),answer:b,show:bin(b,8),why:'Erstes Byte = '+hx(b,2)+'. Jede Hex-Ziffer wird zu vier Bit: '+hx(b,2)[0]+' = '+binRaw(parseInt(hx(b,2)[0],16),4)+', '+hx(b,2)[1]+' = '+binRaw(parseInt(hx(b,2)[1],16),4)+' → <b>'+bin(b,8)+'</b>.'}},
   ()=>{const v=rint(1,65535);return {kind:'dec',key:'hn5'+v,prompt:P('In einer IPv6-Adresse steht der Block '+V(hx(v,4).toLowerCase())+'. Welchen Dezimalwert hat er?','In einer IPv6-Adresse steht der Block '+V(hx(v,4).toLowerCase())+'. Das ist eine Hex-Zahl. Welche <strong>Dezimalzahl</strong> ist das?'),answer:v,why:h2dCalc(v)}}
  ];
@@ -1548,11 +1949,11 @@ S('calc','c_and','AND verknüpfen',1,lv=>{
 });
 S('calc','c_orx','OR und XOR',1,lv=>{
  const a=rint(1,255),b=rint(1,255);const x=rnd(2);const r=x?a^b:a|b;
- return {kind:'bin',key:'cx'+a+(x?'^':'|')+b,prompt:P('Verknüpfe '+VB(a,8)+' und '+VB(b,8)+' mit <strong>'+(x?'XOR':'OR')+'</strong>. Ergebnis binär?','Verknüpfe '+VB(a,8)+' und '+VB(b,8)+' mit <strong>'+(x?'XOR':'OR')+'</strong>. <span class="subtle">('+(x?'XOR: Eine 1 kommt heraus, wenn die beiden Bits verschieden sind.':'OR: Eine 1 kommt heraus, wenn mindestens eins der beiden Bits 1 ist.')+')</span> Wie lautet das Ergebnis als <strong>Binärzahl</strong>?'),answer:r,show:bin(r,8),why:(x?'XOR ergibt 1, wenn die beiden Bits <em>verschieden</em> sind.':'OR ergibt 1, sobald <em>mindestens ein</em> Bit 1 ist.')+opCalc(a,b,r,x?'XOR':'OR')+(x?'XOR steckt zum Beispiel in der RAID-5-Parität.':'')};
+ return {kind:'bin',key:'cx'+a+(x?'^':'|')+b,prompt:P('Verknüpfe '+VB(a,8)+' und '+VB(b,8)+' mit <strong>'+(x?'XOR':'OR')+'</strong>. Ergebnis binär?','Verknüpfe '+VB(a,8)+' und '+VB(b,8)+' mit <strong>'+(x?'XOR':'OR')+'</strong>. <span class="subtle">('+(x?'XOR: Eine 1 kommt heraus, wenn die beiden Bits verschieden sind.':'OR: Eine 1 kommt heraus, wenn mindestens eins der beiden Bits 1 ist.')+')</span> Wie lautet das Ergebnis als <strong>Binärzahl</strong>?'),answer:r,show:bin(r,8),why:(x?'XOR ergibt 1, wenn die beiden Bits <em>verschieden</em> sind.':'OR ergibt 1, sobald <em>mindestens ein</em> Bit 1 ist.')+opCalc(a,b,r,x?'XOR':'OR')+(x?'XOR steckt zum Beispiel in der RAID-5-Parität. Der stille Retter, an den keiner denkt, bis die Platte stirbt.':'')};
 });
 S('calc','c_not','NOT und Wildcard',1,lv=>{
  if(rnd(2)){const m=pick([0,128,192,224,240,248,252,254,255]);return {kind:'dec',key:'cw'+m,prompt:P('Ein Oktett der Subnetzmaske ist '+V(m)+'. Wie lautet das passende Oktett der <strong>Wildcard-Maske</strong> (NOT der Maske) dezimal?','Die Wildcard-Maske ist das Gegenteil der Subnetzmaske: Jede 1 wird zur 0 und jede 0 zur 1. Ein Block der Subnetzmaske ist '+V(m)+'. Welche <strong>Dezimalzahl</strong> hat der passende Block der Wildcard-Maske?'),answer:255-m,why:'NOT dreht jedes Bit um: '+bin(m,8)+' → '+bin(255-m,8)+'. Schneller: 255 − '+m+' = <b>'+(255-m)+'</b>.'}}
- const a=rint(1,254);return {kind:'bin',key:'cnt'+a,prompt:P('Bilde <strong>NOT</strong> von '+VB(a,8)+' (8 Bit).','Drehe alle Bits von '+VB(a,8)+' um: Aus 0 wird 1, aus 1 wird 0. Das nennt man <strong>NOT</strong>. Wie lautet das Ergebnis als <strong>Binärzahl</strong> (8 Bit)?'),answer:255-a,show:bin(255-a,8),why:'NOT dreht jedes einzelne Bit um: aus 0 wird 1 und aus 1 wird 0.<div class="calc">    '+bin(a,8)+'  ('+a+')\nNOT '+bin(255-a,8)+'  ('+(255-a)+')</div>Kontrolle: Zahl + NOT(Zahl) = 255 bei 8 Bit.'};
+ const a=rint(1,254);return {kind:'bin',key:'cnt'+a,prompt:P('Bilde <strong>NOT</strong> von '+VB(a,8)+' (8 Bit).','Drehe alle Bits von '+VB(a,8)+' um: Aus 0 wird 1, aus 1 wird 0. Das nennt man <strong>NOT</strong>. Wie lautet das Ergebnis als <strong>Binärzahl</strong> (8 Bit)?'),answer:255-a,show:bin(255-a,8),why:'NOT dreht jedes einzelne Bit um: aus 0 wird 1 und aus 1 wird 0. Der Kollege, der immer dagegen ist.<div class="calc">    '+bin(a,8)+'  ('+a+')\nNOT '+bin(255-a,8)+'  ('+(255-a)+')</div>Kontrolle: Zahl + NOT(Zahl) = 255 bei 8 Bit.'};
 });
 S('calc','c_shift','Bits schieben',1,lv=>{
  const left=rnd(2);const k=rint(1,lv===1?2:3);let a;
@@ -1594,7 +1995,7 @@ S('neg','n_method','Verfahren erkennen',2,lv=>{
 S('neg','n_overflow','Überlauf mit Vorzeichen',3,lv=>{
  let a,b;do{a=rint(50,120);b=rint(40,120)}while(a+b<128||a+b>250);
  const r=(a+b)&255;
- return mc(P('Eine CPU rechnet im 8-Bit-Zweierkomplement '+V(a+' + '+b)+' und erhält '+VB(r,8)+'. Was ist passiert?','Ein Prozessor rechnet mit 8 Bit im Zweierkomplement, kann also Zahlen von −128 bis 127 speichern. Er rechnet '+V(a+' + '+b)+' und erhält das Bitmuster '+VB(r,8)+'. Was ist passiert?'),'Überlauf: '+(a+b)+' liegt außerhalb von −128 bis 127, das Muster wird als '+sval(r)+' gelesen',['Alles korrekt, das Muster steht für '+(a+b),'Die CPU hat das Einerkomplement statt des Zweierkomplements gebildet','Das Ergebnis wurde auf 127 begrenzt'],'Mit 8 Bit und Vorzeichen ist bei 127 Schluss. '+a+' + '+b+' = '+(a+b)+' passt nicht. Das Bitmuster '+bin(r,8)+' hat MSB 1 und wird darum als '+sval(r)+' gelesen. Die CPU meldet das über das Overflow-Flag.',{key:'nov'+a+'+'+b});
+ return mc(P('Eine CPU rechnet im 8-Bit-Zweierkomplement '+V(a+' + '+b)+' und erhält '+VB(r,8)+'. Was ist passiert?','Ein Prozessor rechnet mit 8 Bit im Zweierkomplement, kann also Zahlen von −128 bis 127 speichern. Er rechnet '+V(a+' + '+b)+' und erhält das Bitmuster '+VB(r,8)+'. Was ist passiert?'),'Überlauf: '+(a+b)+' liegt außerhalb von −128 bis 127, das Muster wird als '+sval(r)+' gelesen',['Alles korrekt, das Muster steht für '+(a+b),'Die CPU hat das Einerkomplement statt des Zweierkomplements gebildet','Das Ergebnis wurde auf 127 begrenzt'],'Mit 8 Bit und Vorzeichen ist bei 127 Schluss. '+a+' + '+b+' = '+(a+b)+' passt nicht. Das Bitmuster '+bin(r,8)+' hat MSB 1 und wird darum als '+sval(r)+' gelesen. Die CPU meldet das über das Overflow-Flag. Aus Plus wird Minus, und das ganz ohne Buchhaltung.',{key:'nov'+a+'+'+b});
 });
 
 /* ---- Einheiten ---- */
@@ -1630,7 +2031,7 @@ S('units','u_know','Präfixe & Schreibweisen',1,lv=>{
   ()=>mc('Wie werden <strong>Datenraten</strong> wie Mbit/s üblicherweise gerechnet?','Dezimal: 1 Mbit/s = 1.000.000 bit/s',['Binär: 1 Mbit/s = 1.048.576 bit/s','In Byte: 1 Mbit/s = 1.000.000 Byte/s','Je nach Hersteller unterschiedlich, es gibt keine Regel'],'In der Nachrichtentechnik werden Datenraten immer mit SI-Präfixen angegeben: <b>1 Mbit/s = 10⁶ bit/s</b>.',{key:'uk3'}),
   ()=>mc('Warum zeigt Windows bei einer neuen 1-TB-Festplatte nur rund 931 GB an?','Windows rechnet in Zweierpotenzen (GiB), beschriftet aber mit „GB“',['Ein Teil der Platte ist für das Dateisystem reserviert','Der Hersteller hat zu viel versprochen','Die Partitionstabelle belegt 69 GB'],'10¹² Byte : 2³⁰ = 931,32. Windows rechnet in GiB, schreibt aber „GB“. Es fehlt nichts.',{key:'uk4'}),
   ()=>mc('Welche Angabe ist die <strong>größte</strong>?','1 TiB',['1 TB','1.000 GiB','1.000.000 MB'],'Alles in Byte: 1 TiB = 1.099.511.627.776; 1.000 GiB = 1.073.741.824.000; 1 TB = 1.000.000 MB = 1.000.000.000.000. Am größten: <b>1 TiB</b>.',{key:'uk5'}),
-  ()=>mc('Wofür steht das kleine <strong>b</strong> in „Mb/s“?','Bit',['Byte','Binär','Basis'],'Kleines b = <b>Bit</b>, großes B = Byte. Verwechslung kostet Faktor 8.',{key:'uk6'})
+  ()=>mc('Wofür steht das kleine <strong>b</strong> in „Mb/s“?','Bit',['Byte','Binär','Basis'],'Kleines b = <b>Bit</b>, großes B = Byte. Verwechslung kostet Faktor 8. Und meistens noch die Erklärung beim Kunden.',{key:'uk6'})
  ];return pick(Q)();
 });
 
@@ -1659,7 +2060,7 @@ S('rate','r_amount','Datenmenge aus Rate & Zeit',2,lv=>{
 });
 S('rate','r_mbps','MB/s ↔ Mbit/s',1,lv=>{
  if(rnd(2)){const v=pick([2.5,5,11.2,12.5,20,37.5,62.5,110,125]);return {kind:'num',d:2,unit:'Mbit/s',key:'rm1'+v,prompt:P('Der Browser zeigt beim Download '+V(fd(v,v%1?1:0)+' MB/s')+'. Wie viele <strong>Mbit/s</strong> sind das?','Der Browser zeigt beim Download '+V(fd(v,v%1?1:0)+' MB/s')+' (Megabyte pro Sekunde). Wie viele <strong>Mbit/s</strong> (Megabit pro Sekunde) sind das?'),answer:round(v*8,2),why:'Byte mal 8 ergibt Bit: '+fd(v,v%1?1:0)+' · 8 = <b>'+fd(v*8,v*8%1?1:0)+' Mbit/s</b>.'}}
- const v=pick([16,50,100,250,300,500,1000]);return {kind:'num',d:2,unit:'MB/s',key:'rm2'+v,prompt:P('Der Provider verspricht '+V(gi(v)+' Mbit/s')+'. Wie viele <strong>MB/s</strong> kann der Download höchstens anzeigen?','Dein Internetanbieter verspricht '+V(gi(v)+' Mbit/s')+' (Megabit pro Sekunde). Download-Programme zeigen meist <strong>MB/s</strong> (Megabyte pro Sekunde). Wie viele MB/s sind das höchstens?'),answer:round(v/8,2),why:'Bit durch 8 ergibt Byte: '+gi(v)+' : 8 = <b>'+fd(v/8,2)+' MB/s</b>. Wegen Overhead ist es in der Praxis etwas weniger.'};
+ const v=pick([16,50,100,250,300,500,1000]);return {kind:'num',d:2,unit:'MB/s',key:'rm2'+v,prompt:P('Der Provider verspricht '+V(gi(v)+' Mbit/s')+'. Wie viele <strong>MB/s</strong> kann der Download höchstens anzeigen?','Dein Internetanbieter verspricht '+V(gi(v)+' Mbit/s')+' (Megabit pro Sekunde). Download-Programme zeigen meist <strong>MB/s</strong> (Megabyte pro Sekunde). Wie viele MB/s sind das höchstens?'),answer:round(v/8,2),why:'Bit durch 8 ergibt Byte: '+gi(v)+' : 8 = <b>'+fd(v/8,2)+' MB/s</b>. Wegen Overhead ist es in der Praxis etwas weniger. Das steht nur selten in der Werbung.'};
 });
 S('rate','r_overhead','Mit Overhead',3,lv=>{
  const g=pick([1,2,4,5,10]);const r=pick([50,100,250,1000]);const p=pick([80,85,90,95]);
@@ -1692,7 +2093,7 @@ S('store','s_bitrate','Audio-Datenrate',2,lv=>{
 S('store','s_video','Video unkomprimiert',3,lv=>{
  const r=pick([[1280,720],[1920,1080],[3840,2160]]);const fps=pick([24,25,30,50,60]);const sec=pick([1,5,10,30,60]);
  const bits=r[0]*r[1]*24*fps*sec;const ans=round(bits/8/1e9,2);
- return {kind:'num',d:2,unit:'GB',key:'sv'+r.join('x')+fps+sec,prompt:P('Ein unkomprimiertes Video: '+V(gi(r[0])+' × '+gi(r[1]))+', 24 Bit Farbtiefe, '+V(fps+' Bilder/s')+', Länge '+V(sec+' s')+'. Wie viele <strong>GB</strong> (dezimal)? <span class="subtle">(2 Nachkommastellen)</span>','Ein Video ohne Komprimierung: Jedes Bild hat '+V(gi(r[0])+' × '+gi(r[1]))+' Pixel mit je 24 Bit, es laufen '+V(fps+' Bilder/s')+', Länge '+V(sec+' s')+'. Wie viele <strong>GB</strong> ist es groß? <span class="subtle">(1 GB = 1.000.000.000 Byte, 2 Nachkommastellen)</span>'),answer:ans,why:'<div class="calc">Ein Bild: '+gi(r[0])+' × '+gi(r[1])+' × 24 = '+gi(r[0]*r[1]*24)+' bit\n× '+fps+' fps × '+sec+' s = '+gi(bits)+' bit\n: 8 = '+gi(bits/8)+' B = '+fd(bits/8/1e9,4)+' GB</div>Ergebnis: <b>'+fd(ans,2)+' GB</b>. Darum wird Video komprimiert.'};
+ return {kind:'num',d:2,unit:'GB',key:'sv'+r.join('x')+fps+sec,prompt:P('Ein unkomprimiertes Video: '+V(gi(r[0])+' × '+gi(r[1]))+', 24 Bit Farbtiefe, '+V(fps+' Bilder/s')+', Länge '+V(sec+' s')+'. Wie viele <strong>GB</strong> (dezimal)? <span class="subtle">(2 Nachkommastellen)</span>','Ein Video ohne Komprimierung: Jedes Bild hat '+V(gi(r[0])+' × '+gi(r[1]))+' Pixel mit je 24 Bit, es laufen '+V(fps+' Bilder/s')+', Länge '+V(sec+' s')+'. Wie viele <strong>GB</strong> ist es groß? <span class="subtle">(1 GB = 1.000.000.000 Byte, 2 Nachkommastellen)</span>'),answer:ans,why:'<div class="calc">Ein Bild: '+gi(r[0])+' × '+gi(r[1])+' × 24 = '+gi(r[0]*r[1]*24)+' bit\n× '+fps+' fps × '+sec+' s = '+gi(bits)+' bit\n: 8 = '+gi(bits/8)+' B = '+fd(bits/8/1e9,4)+' GB</div>Ergebnis: <b>'+fd(ans,2)+' GB</b>. Darum wird Video komprimiert. Sonst wäre die Platte nach dem ersten Urlaubsvideo voll.'};
 });
 const WORDS=['Größe','Müller','Straße','Bär','Öl','Löwenzahn','Käsebrötchen','Prüfung','Überstunden','Ähnlichkeit','Fußgänger','Grüße','Schlüssel','Zuverlässigkeit','10 € Rabatt','Preis: 5 €','Café','Tschüss','Übergröße','Gemüse'];
 const ASCIIW=['Hallo Welt','IT-Umschulung 2026','ping 8.8.8.8','Subnetting','DAU to Pro','Router','chmod 755','Admin123!','127.0.0.1','Bits & Bytes'];
@@ -1733,7 +2134,9 @@ function genTask(cat,lv,recent,subId){
  let pool=SUBS.filter(s=>(subId?s.id===subId:s.cat===cat)&&(subId||s.min<=Math.max(lv,1)));
  if(!pool.length)pool=SUBS.filter(s=>s.cat===cat);
  let t,sub;
- for(let i=0;i<30;i++){sub=pick(pool);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ const hist=genTask.hist||(genTask.hist=[]);const keep=Math.min(pool.length-1,3),fresh=keep?pool.filter(s=>!hist.slice(-keep).includes(s.id)):pool;const cand=fresh.length?fresh:pool;
+ for(let i=0;i<30;i++){sub=pick(cand);t=sub.f(lv);if(!recent||!recent.includes(t.key))break}
+ if(!subId){hist.push(sub.id);if(hist.length>12)hist.shift()}
  t.cat=sub.cat;t.sub=sub.id;t.subLabel=sub.label;
  finP(t);
  return t;
@@ -1742,11 +2145,11 @@ function genTask(cat,lv,recent,subId){
 /* ================= Lernpfad-Stufen ================= */
 const STAGES=[
  {title:'Stellenwerte & Bits',cat:'basis',ch:'ch1',goal:'Zweierpotenzen sicher nutzen: Wie viele Werte passen in n Bit, und wie viele Bit braucht man für N Dinge?',
-  intro:'<p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p><p>Jedes Zahlensystem funktioniert gleich: Jede Stelle ist eine Potenz der Basis wert. Im Binärsystem ist die Basis 2, jede Stelle ist also doppelt so viel wert wie die rechts daneben. Ein Bit hat zwei Zustände, zwei Bit haben vier, drei Bit acht. <strong>Jedes weitere Bit verdoppelt die Möglichkeiten.</strong></p>',
+  intro:'<p>Die 4 in 473 steht für 400. Dieselbe 4 in 347 ist nur 40 wert. Es kommt also darauf an, wo die Ziffer sitzt. Wie beim Firmenparkplatz: derselbe Golf, aber auf dem Chefplatz ist er plötzlich ein Problem. Bei Bits gilt dieselbe Idee, nur verdoppelt sich der Stellenwert.</p><p>Jedes Zahlensystem funktioniert gleich: Jede Stelle ist eine Potenz der Basis wert. Im Binärsystem ist die Basis 2, jede Stelle ist also doppelt so viel wert wie die rechts daneben. Ein Bit hat zwei Zustände, zwei Bit haben vier, drei Bit acht. <strong>Jedes weitere Bit verdoppelt die Möglichkeiten.</strong></p>',
   visual:'<div class="calc">Bit:     1   2   3    4    5    6     7     8      9     10\nWerte:   2   4   8   16   32   64   128   256    512  1.024</div>',
   memo:'<strong>n Bit → 2ⁿ Werte</strong>, von 0 bis 2ⁿ − 1. Für N Zustände suchst du das kleinste n mit 2ⁿ ≥ N.',
   example:'Eine Firma hat 300 Beschäftigte und will jeder Person eine eigene Binärnummer geben. Wie viele Bit braucht sie mindestens?',
-  steps:['Gesucht ist das kleinste n, für das 2ⁿ mindestens 300 ist.','2⁸ = 256. Das reicht nicht, 44 Leute hätten keine Nummer.','2⁹ = 512. Das reicht, sogar mit Platz für 212 Neueinstellungen.','Ergebnis: <strong>9 Bit</strong>. Die größte darstellbare Nummer ist 2⁹ − 1 = 511.']},
+  steps:['Gesucht ist das kleinste n, für das 2ⁿ mindestens 300 ist.','2⁸ = 256. Das reicht nicht, 44 Leute hätten keine Nummer. Die erfahren das dann per Aushang.','2⁹ = 512. Das reicht, sogar mit Platz für 212 Neueinstellungen.','Ergebnis: <strong>9 Bit</strong>. Die größte darstellbare Nummer ist 2⁹ − 1 = 511.']},
  {title:'Binär → Dezimal',cat:'b2d',ch:'ch2',goal:'Jede Binärzahl bis 8 Bit (und darüber) sicher ins Dezimalsystem übersetzen.',
   intro:'<p>Im Mitschnitt steht 1011 und du brauchst eine Zahl, mit der du weiterrechnen kannst. Schreib 8, 4, 2 und 1 darüber. Die Null hat hier endlich mal die dankbare Aufgabe, nichts beizutragen.</p><p>Eine Binärzahl liest du wie eine Dezimalzahl, nur mit anderen Stellenwerten. Von rechts: 1, 2, 4, 8, 16, 32, 64, 128. Steht an einer Stelle eine 1, zählt ihr Stellenwert. Steht dort eine 0, zählt er nicht.</p>',
   visual:'<div class="calc">128  64  32  16 │  8   4   2   1\n  1   1   0   0 │  1   0   1   0</div>',
@@ -1804,10 +2207,9 @@ const STAGES=[
 ];
 
 /* ================= Sprüche ================= */
-const Q_OK=["Stimmt. Die Stellenwerte sind an ihrem Platz.", "Richtig gerechnet. Die Null durfte heute einfach Null sein.", "Passt. Die Rechnung hält auch ohne führende Nullen."];
-const Q_BAD=["Noch nicht. Prüfe die Stellenwerte oder die Einheiten im Rechenweg.", "Schau dir die Rechnung unten an. Meist sitzt der Fehler in einem einzigen Schritt.", "Die Zahl passt noch nicht. Rechne den ersten Schritt mit dem Lösungsweg nach."];
+const Q_OK=["Stimmt. Die Stellenwerte sind an ihrem Platz.", "Richtig gerechnet. Die Null durfte heute einfach Null sein.", "Passt. Die Rechnung hält auch ohne führende Nullen.", "Stimmt. Bei der Rechnung wurde keine Null verletzt.", "Richtig. Der Taschenrechner darf heute früher gehen.", "Passt. Acht Bit, null Drama."];
 const Q_MASTER=['Stufe gemeistert! Die nächste Tür ist offen. Ganz ohne Cheatcode.','Gemeistert. Du hast gerade ein Level-up bekommen, das nicht mal Steam verkauft.','Stufe geschafft! Dein Gehirn hat ein neues Bit gesetzt.','8 von 10. Das ist kein Glück mehr, das ist Können.'];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();
 
 /* ================= Antwort prüfen ================= */
 const FMT={dec:'Ganze Zahl, z. B. 255 oder −45',num:'Zahl, Komma oder Punkt als Dezimaltrenner. Kleine Rundungsabweichungen sind okay.',bin:'Nur 0 und 1, Leerzeichen sind erlaubt, führende Nullen auch',hex:'Hex-Ziffern 0 bis F, gern mit 0x davor',oct:'Oktal, Ziffern 0 bis 7'};
@@ -1861,8 +2263,8 @@ function andWork(t){
 }
 function renderTask(host,t,o){
  o=o||{};lastTask=t;const id='in'+(++uid);
- let h='<p class="task-prompt">'+t.prompt+(t.plain?' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'tip"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'tip"><strong>Einfach gesagt:</strong> '+t.plain+'</span></span>':'')+'</p>';
- h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+'</div>';
+ let h=(t.scene&&!o.short?'<p class="task-scene">'+t.scene+'</p>':'')+'<p class="task-prompt">'+t.prompt+(t.plain?' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'tip"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'tip"><strong>Einfach gesagt:</strong> '+t.plain+(EXAMPLES[t.sub]?'<span class="qex"><strong>Beispiel:</strong> '+EXAMPLES[t.sub]+'</span>':'')+'</span></span>':'')+'</p>';
+ h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+(EXAMPLES[t.sub]?' <strong>Beispiel:</strong> '+EXAMPLES[t.sub]:'')+'</div>';
  if(t.kind==='mc')h+='<div class="options" role="group" aria-label="Antwort wählen">'+t.options.map((x,i)=>'<button type="button" class="opt" data-v="'+i+'"><span class="key">'+'ABCD'[i]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div>';
  else h+=andWork(t)+'<div class="ans-row" data-r="form"><label class="'+(t.andOperands?'':'sr-only')+'" for="'+id+'">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+(t.kind==='hex'?'text':t.kind==='num'?'decimal':'numeric')+'" placeholder="'+PH[t.kind]+'">'+(t.unit?'<span class="ans-unit">'+esc(t.unit)+'</span>':'')+'<button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+(t.fmt||FMT[t.kind])+'</p>';
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
@@ -1879,7 +2281,8 @@ function renderTask(host,t,o){
   host.querySelectorAll('.and-work input').forEach(input=>{input.disabled=true});
   const inp=q('form')?.querySelector('input');if(inp){inp.disabled=true;inp.classList.add(ok?'correct':'wrong')}
   const res=q('res');res.className='result'+(ok?'':' bad');
-  res.innerHTML=(ok?'✓ <strong>Richtig!</strong>':'✗ <strong>Noch nicht.</strong> Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+'<span class="quip">'+(ok?qOk():qBad())+'</span>'+(o.short?'':'<div class="why">'+t.why+'</div>');
+  window.dtpGame?.answer(ok,host);
+  res.innerHTML=(ok?'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qOk()+'</span>':'<span class="quip" style="display:block;margin:0 0 6px;font-size:16px;font-weight:800;font-style:normal">'+qBad()+'</span>Richtig ist: <strong>'+showAnswer(t)+'</strong>.'+(t.kind!=='mc'&&given!=null?' <span class="subtle">Deine Antwort: '+esc(given)+'</span>':''))+(o.short?'':'<div class="why">'+t.why+'</div>');
   if(next){next.hidden=false;if(!o.noFocus)next.focus({preventScroll:true})}
   if(tip)tip.hidden=true;
   o.onAnswer&&o.onAnswer(ok,usedHint,t);
@@ -2085,7 +2488,7 @@ function renderExamNav(){$('examNav').innerHTML=ex.tasks.map((t,i)=>'<button typ
 function renderExamQ(){
  const i=ex.cur,t=ex.tasks[i];$('examConfirm').hidden=true;
  $('examPos').textContent='AUFGABE '+String(i+1).padStart(2,'0')+' / '+ex.tasks.length;$('examPts').textContent=CATNAME[t.cat].toUpperCase()+' · '+t.pts+' PUNKTE';
- let h='<p class="task-prompt">'+t.prompt+'</p>';
+ let h=(t.scene?'<p class="task-scene">'+t.scene+'</p>':'')+'<p class="task-prompt">'+t.prompt+'</p>';
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
  else h+=andWork(t)+'<div class="ans-row"><label class="'+(t.andOperands?'':'sr-only')+'" for="exIn">'+(t.andOperands?'Ergebnis als Dezimalzahl':'Deine Antwort')+'</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+(t.kind==='hex'?'text':t.kind==='num'?'decimal':'numeric')+'" placeholder="'+PH[t.kind]+'" value="'+esc(ex.ans[i]||'')+'">'+(t.unit?'<span class="ans-unit">'+esc(t.unit)+'</span>':'')+'</div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
@@ -2126,7 +2529,7 @@ function submitExam(reason){
  '<div class="grade" style="margin-top:14px"><div class="grade-big">'+g+'</div><div><h3 style="margin:0">'+pct+' von 100 Punkten · '+GRADE_TXT[g]+'</h3><p class="subtle" style="margin:4px 0 0">'+rows.filter(r=>r.ok).length+' von '+rows.length+' Aufgaben richtig · Bearbeitungszeit '+Math.floor(used/60)+':'+String(used%60).padStart(2,'0')+' min</p><p style="margin:8px 0 0;font-style:italic;color:#e9dfc2">'+GRADE_QUIP[g]+'</p></div></div>'+
  '<h4>Ergebnis pro Thema</h4><div class="catbars">'+EXAM_PLAN.map(([c])=>{const x=per[c]||{g:0,t:1};const p=Math.round(x.g/x.t*100);return '<div class="catbar"><span>'+esc(CATNAME[c])+'</span><span class="b"><i class="'+(p<50?'lo':'')+'" style="width:'+p+'%"></i></span><span class="mono">'+x.g+'/'+x.t+'</span></div>'}).join('')+'</div>'+
  '<p class="subtle">Notenschlüssel der IHK: ab 92 Punkten 1, ab 81 Punkten 2, ab 67 Punkten 3, ab 50 Punkten 4, ab 30 Punkten 5. Bestanden ist ab 50 Punkten.</p>'+
- '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p><div class="why">'+r.t.why+'</div></details>').join('')+
+ '<h4>Alle Aufgaben mit Lösungsweg</h4>'+rows.map(r=>'<details class="review '+(r.ok?'ok':'no')+'"><summary><strong>'+(r.ok?'✓':'✗')+' Aufgabe '+(r.i+1)+'</strong> · '+esc(CATNAME[r.t.cat])+' · '+(r.ok?r.t.pts:0)+'/'+r.t.pts+' Punkte</summary><p class="task-prompt" style="font-size:15.5px;margin-top:10px">'+r.t.prompt+'</p><p style="font-size:14px">Deine Antwort: <strong>'+r.given+'</strong><br>Richtig: <strong>'+showAnswer(r.t)+'</strong></p>'+'<span class="quip">'+(r.ok?qOk():qBad())+'</span>'+'<div class="why">'+r.t.why+'</div></details>').join('')+
  '<div class="actions"><button type="button" class="btn primary" id="examAgain">Neue Probeprüfung ▶</button><button type="button" class="btn secondary" data-tab="train">Baustellen trainieren →</button></div>';
  $('examAgain').addEventListener('click',()=>{R.hidden=true;$('examIntro').hidden=false;renderHistory()});
  renderHistory();R.scrollIntoView({block:'start'});

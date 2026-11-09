@@ -19,7 +19,7 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
   assert.equal(await page.locator('[name="slots[0]"]').inputValue(),'g.easteregg');
   await page.goto(base+'/dau-to-pro/highscore.php');assert.equal(await page.locator('.showcase-inline img').count(),3);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`highscore no overflow ${width}`);
-  await page.locator('.showcase-inline button').first().focus();assert.equal(await page.locator('.showcase-inline [role=tooltip]').first().isVisible(),true);
+  await page.locator('.showcase-inline button').first().focus();assert.equal(await page.locator('.showcase-inline [role=tooltip]').first().isVisible(),true);assert.equal(await page.locator('.showcase-inline button[title]').count(),0);assert.ok(await page.locator('.showcase-inline [role=tooltip] small').first().textContent());
   await page.locator('[data-profile]').click();await page.getByRole('dialog').waitFor();await page.locator('#profile-content .ach-grid .ach-item').first().waitFor();
   assert.equal(await page.locator('#profile-content .ach-item').count(),23);assert.ok(await page.locator('#profile-content .ach-item:not(.is-on)').count()>0);
   for(const value of ['module','rarity','recent'])await page.locator('#profile-content select').selectOption(value);

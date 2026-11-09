@@ -3,17 +3,18 @@
   'use strict';
   const init=()=>{
     if(document.querySelector('.dtp-practice-dialog'))return;
-    const panel=document.getElementById('practicePanel');
-    const task=document.getElementById('practiceTask');
-    const back=document.getElementById('backToLesson');
-    const view=document.getElementById('pathView');
+    const special=document.querySelector('[data-dtp-focus="training"]');
+    const panel=document.getElementById(special?'focusPanel':'practicePanel');
+    const task=document.getElementById(special?'focusTask':'practiceTask');
+    const back=document.getElementById(special?'focusBack':'backToLesson');
+    const view=special||document.getElementById('pathView');
     if(!panel||!task||!back||!view||typeof HTMLDialogElement==='undefined')return;
     const slot=document.createComment('Exercise panel home');panel.before(slot);
     const backSlot=document.createComment('Lesson button home');back.before(backSlot);
     const dialog=document.createElement('dialog');dialog.className='dtp-practice-dialog';
     dialog.setAttribute('aria-labelledby','practiceKicker');
     const toolbar=document.createElement('div');toolbar.className='dtp-focus-toolbar';
-    const note=document.createElement('small');note.textContent='Zurück zur Lektion: Die offene Aufgabe wird nicht gewertet. Auch mit Esc.';
+    const note=document.createElement('small');note.textContent=special?'Zur Fragenübersicht zurückkehren: Ohne Prüfen gibt es keine Bewertung. Auch mit Esc.':'Zurück zur Lektion: Die offene Aufgabe wird nicht gewertet. Auch mit Esc.';
     note.id='dtp-focus-note';dialog.setAttribute('aria-describedby',note.id);
     toolbar.append(note);dialog.append(toolbar);document.body.append(dialog);
 
@@ -59,14 +60,14 @@
       clearTimeout(timer);cancelAnimationFrame(frame);cancelAnimationFrame(animationFrame);closing=false;
       dialog.classList.remove('dtp-focus-visible');paint(0);
       if(dialog.open)dialog.close();
-      slot.after(panel);backSlot.after(back);document.body.classList.remove('dtp-exercise-open');
+      slot.after(panel);backSlot.after(back);document.body.classList.remove('dtp-exercise-open');if(special)document.dispatchEvent(new CustomEvent('dtp:focus-closed'));
     };
     const sync=()=>{
       const active=!task.hidden&&!view.hidden&&task.childElementCount>0;
       if(active){
         if(dialog.open&&!closing)return;
         clearTimeout(timer);closing=false;
-        toolbar.prepend(back);dialog.append(panel);
+        back.hidden=false;toolbar.prepend(back);dialog.append(panel);
         document.body.classList.add('dtp-exercise-open');
         if(!dialog.open)dialog.showModal();
         dialog.scrollTop=0;
@@ -76,7 +77,9 @@
           dialog.classList.add('dtp-focus-visible');
           animateTo(1);
         });});
-        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled]),button:not([disabled]),[tabindex="0"]');
+        // Answer fields first: the "?" tip comes earlier in the DOM and would cover the field on phones.
+        const input=task.querySelector('input:not([disabled]):not([readonly]):not([hidden]),textarea:not([disabled]):not([readonly]),select:not([disabled])')
+          ||task.querySelector('button:not([disabled]):not(.qmark),[tabindex="0"]:not(.qhelp)');
         if(input)input.focus({preventScroll:true});
       }else if(dialog.open&&!closing){
         closing=true;cancelAnimationFrame(frame);
@@ -100,3 +103,4 @@
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
+

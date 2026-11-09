@@ -8,6 +8,16 @@
     const reduced=matchMedia('(prefers-reduced-motion: reduce)');
     const cards=[...document.querySelectorAll('.module-card:not(.is-coming-soon)')];
     if(!cards.length||!canHover.matches||reduced.matches)return;
+    // Willi 06.11.2026: vorerst ohne Weichzeichnen und Abdunkeln. Die Karte hebt sich nur selbst hervor.
+    // Auf true setzen, um den Fokus-Effekt wieder einzuschalten.
+    const FOCUS_BLUR=false;
+    if(!FOCUS_BLUR){
+      cards.forEach(card=>{
+        card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')card.classList.add('is-focus-target')});
+        card.addEventListener('pointerleave',()=>card.classList.remove('is-focus-target'));
+      });
+      return;
+    }
     const overlay=document.createElement('div');
     overlay.className='dtp-focus-overlay';
     overlay.setAttribute('aria-hidden','true');
@@ -27,9 +37,13 @@
     const layout=()=>{
       if(!current)return;
       if(current.hidden){hide(current);return;}
-      const b=current.getBoundingClientRect(),pad=9;
+      const b=current.getBoundingClientRect(),pad=current.closest('.stack-row')?2:9;
       const y=Math.max(0,Math.round(b.top-pad));
-      const bottom=Math.min(innerHeight,Math.round(b.bottom+pad));
+      let cut=b.bottom+pad;
+      // Im Modulstapel endet das scharfe Fenster dort, wo eine vordere Reihe die Karte überdeckt.
+      const row=current.closest('.stack-row');
+      if(row)for(let next=row.nextElementSibling;next;next=next.nextElementSibling)for(const other of next.children){const o=other.getBoundingClientRect();if(o.right>b.left+1&&o.left<b.right-1&&o.top<cut)cut=Math.max(b.top,o.top);}
+      const bottom=Math.min(innerHeight,Math.round(cut));
       const x=Math.max(0,Math.round(b.left-pad));
       const right=Math.min(innerWidth,Math.round(b.right+pad));
       overlay.style.setProperty('--focus-y',y+'px');
@@ -77,10 +91,11 @@
       current=null;cancelAnimationFrame(frame);paint(0);
     };
     cards.forEach(card=>{
-      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(card)});
+      card.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse'&&!card.closest('.stack-row.is-behind'))show(card)});
       card.addEventListener('pointerleave',()=>hide(card));
     });
     addEventListener('scroll',layout,{passive:true});
+    globalThis.dtpFocusLayout=()=>{if(current&&current.closest('.stack-row.is-behind'))hide(current);else layout()};
     addEventListener('resize',layout,{passive:true});
     document.getElementById("module-grid")?.addEventListener("toggle",layout,true);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
@@ -199,7 +214,7 @@
   })();
   // Themen-Tabs bleiben unabhängig vom entfernten Prüfungsfinder bedienbar.
   const buttons=[...document.querySelectorAll('[data-filter]')];
-  const cards=[...document.querySelectorAll('.module-card')];
+  const cards=[...document.querySelectorAll('#module-grid .module-card')];
   const empty=document.getElementById('search-empty');
   const grid=document.getElementById('module-grid');
   function setFilter(topic){
@@ -210,6 +225,7 @@
       if(visible)shown++;
     });
     if(grid)grid.dataset.count=String(shown);
+    globalThis.dtpModuleStack?.rebuild();
     if(empty)empty.hidden=shown!==0;
     buttons.forEach(button=>{
       const active=button.dataset.filter===topic;
@@ -271,4 +287,87 @@
   openNotice();addEventListener('hashchange',openNotice);
 })();
 
+/* Modulstapel: Ab drei Spalten schieben sich die Dreierreihen beim Scrollen übereinander.
+   Jede Reihe braucht nur einen Teil ihrer Höhe als Scrollstrecke, ältere Reihen bleiben als
+   schmale Kante sichtbar und holen sich beim Anklicken nach vorn. Ohne JavaScript, auf schmalen
+   Bildschirmen und bei reduzierter Bewegung bleibt das normale Raster. */
+(()=>{
+  const grid=document.getElementById('module-grid');
+  if(!grid)return;
+  const wide=matchMedia('(min-width:900px)'),calm=matchMedia('(prefers-reduced-motion:reduce)');
+  const all=[...grid.querySelectorAll(':scope > .module-card')];
+  const PEEK=26,STEP=0.42,NEXT=0.30;
+  let rows=[],stage=null,rowH=0,gap=24,frame=0,on=false,shown=null;
+  const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height'))||80;
+  function teardown(){
+    if(!on)return;on=false;
+    all.forEach(c=>grid.append(c));
+    grid.querySelectorAll('.stack-row,.stack-stage').forEach(n=>n.remove());
+    grid.classList.remove('is-stacked');grid.style.height='';rows=[];stage=null;shown=null;cancelAnimationFrame(frame);frame=0;
+  }
+  function build(){
+    teardown();
+    const visible=all.filter(c=>!c.hidden);
+    if(!wide.matches||calm.matches||visible.length<=3)return;
+    on=true;grid.classList.add('is-stacked');
+    stage=document.createElement('div');stage.className='stack-stage';grid.append(stage);
+    for(let i=0;i<visible.length;i+=3){
+      const row=document.createElement('div');row.className='stack-row';row.dataset.row=String(rows.length);
+      visible.slice(i,i+3).forEach(c=>row.append(c));
+      row.addEventListener('click',e=>{const k=Number(row.dataset.row);if(k!==active()){e.preventDefault();e.stopPropagation();go(k)}},true);
+      stage.append(row);rows.push(row);
+    }
+    all.filter(c=>c.hidden).forEach(c=>grid.append(c));
+    measure();
+  }
+  function measure(){
+    if(!on)return;
+    rows.forEach(r=>{r.style.transform='';r.style.position='static'});
+    rowH=Math.max(...rows.map(r=>r.getBoundingClientRect().height));
+    gap=parseFloat(getComputedStyle(grid).rowGap)||24;
+    rows.forEach(r=>{r.style.position='';r.style.height=rowH+'px'});
+    const peeks=Math.min(rows.length-1,3)*PEEK;
+    const stageH=peeks+rowH+gap+rowH*NEXT;
+    stage.style.height=stageH+'px';stage.style.top=(navH()+16)+'px';
+    grid.style.height=(stageH+(rows.length-1)*rowH*STEP)+'px';
+    paint();
+  }
+  const stepPx=()=>rowH*STEP;
+  function progress(){
+    const top=grid.getBoundingClientRect().top-(navH()+16);
+    return Math.max(0,Math.min(rows.length-1,-top/stepPx()));
+  }
+  const active=()=>Math.round(shown===null?progress():shown);
+  function paint(){
+    frame=0;if(!on)return;
+    // Weich nachlaufen statt hart stoppen: die Anzeige folgt dem Scrollstand mit Abklingen.
+    const goal=progress();if(shown===null)shown=goal;
+    shown+=(goal-shown)*0.16;if(Math.abs(goal-shown)<0.002)shown=goal;else frame=requestAnimationFrame(paint);
+    const p=shown,peeks=Math.min(rows.length-1,3)*PEEK;
+    rows.forEach((r,k)=>{
+      const d=p-k;let y,s=1;
+      if(d>=0){const back=Math.min(d,3);y=peeks-back*PEEK;s=1-back*0.035;}
+      else y=peeks+(-d)*(rowH+gap);
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+s.toFixed(3)+')';
+      r.style.zIndex=String(k+1);
+      r.classList.toggle('is-front',Math.abs(d)<0.5);
+      r.classList.toggle('is-behind',d>=0.5);
+      r.inert=d<-1.2;
+    });
+    globalThis.dtpFocusLayout?.();
+  }
+  function go(k){
+    const target=scrollY+grid.getBoundingClientRect().top-(navH()+16)+k*stepPx();
+    scrollTo({top:Math.max(0,target),behavior:calm.matches?'auto':'smooth'});
+  }
+  const queue=()=>{if(on&&!frame)frame=requestAnimationFrame(paint)};
+  addEventListener('scroll',queue,{passive:true});
+  addEventListener('resize',()=>{if(wide.matches!==on||on)build()},{passive:true});
+  wide.addEventListener('change',build);calm.addEventListener('change',build);
+  grid.addEventListener('toggle',measure,true);
+  addEventListener('load',measure);
+  grid.addEventListener('focusin',e=>{const r=e.target.closest('.stack-row');if(r&&Number(r.dataset.row)!==active())go(Number(r.dataset.row))});
+  globalThis.dtpModuleStack={rebuild:build};
+  build();
+})();
 

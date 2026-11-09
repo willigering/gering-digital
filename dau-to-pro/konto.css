@@ -248,6 +248,9 @@
   box-shadow:0 8px 24px #0008;
 }
 .konto-page:has(.konto-modules-link){padding-bottom:70px}
+.konto-modules-cell{grid-column:-2/-1;display:flex;justify-content:flex-end;align-items:center;min-width:0;list-style:none}
+.konto-modules-inline{white-space:nowrap}
+.konto-recent>.konto-modules-inline{display:inline-flex;margin-top:16px}
 
 /* Highscore profile: spacious achievement gallery instead of tiny medal-like badges. */
 .highscore-page .profile-showcase-title{margin:22px 0 12px;font-size:16px;letter-spacing:.07em;text-transform:uppercase;color:var(--goldlite)}
@@ -262,3 +265,4 @@
 .highscore-page .profile-dialog .ach-item .ach-icon{width:60px;height:60px;font-size:29px}
 .highscore-page .profile-dialog .ach-item .ach-icon img{width:54px;height:54px;object-fit:contain;image-rendering:pixelated}
 @media(max-width:540px){.highscore-page .profile-showcase{gap:8px}.highscore-page .profile-showcase-card{padding:12px 7px;min-height:130px}.highscore-page .profile-showcase-card .ach-icon{width:58px;height:58px;font-size:32px}.highscore-page .profile-showcase-card .ach-icon img{width:56px;height:56px}.highscore-page .profile-showcase-card strong{font-size:11px}}
+.showcase-icon [role=tooltip] strong{display:block;color:#eab448;font-weight:700}.showcase-icon [role=tooltip] small{display:block;margin-top:4px;font:400 12px/1.4 Inter,system-ui;color:#d7dde2}.showcase-icon [role=tooltip]{max-width:220px}

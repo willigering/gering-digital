@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "master": {
+    "id": "forest-master-03",
+    "path": "art/source/forest/approved-master.webp",
+    "sha256": "857e0efda042eba1509a263fe2eac5741d89e94ca6704b5e9ed8e562087d235c",
+    "width": 1672,
+    "height": 941,
+    "status": "approved-composition-not-layered",
+    "notes": [
+      "One light source upper left",
+      "No visible earth cross-section",
+      "Low grass/flowers/ferns foreground",
+      "Original pixels preserved; not 4K"
+    ]
+  },
+  "sources": {
+    "legacyProbe": "public/assets/forest-probe/landscape.webp",
+    "runtimeManifest": "public/assets/art/manifest.json"
+  },
+  "reuse": {
+    "characters": [
+      "idle",
+      "walk",
+      "jump",
+      "fall",
+      "crouch",
+      "ivy_climb"
+    ],
+    "dressing": [
+      "fern",
+      "flowers_varied",
+      "groundcover",
+      "tree_single",
+      "tree_distant"
+    ],
+    "mechanics": [
+      "Character",
+      "JumpWindow",
+      "VineClimb",
+      "CoopSequence",
+      "SmallPassage"
+    ]
+  },
+  "layers": [
+    {
+      "id": "sky-ridges",
+      "factor": 0.1,
+      "status": "needs-extraction-and-hidden-area-repair"
+    },
+    {
+      "id": "far-forest",
+      "factor": 0.3,
+      "status": "needs-extraction-and-hidden-area-repair"
+    },
+    {
+      "id": "near-forest",
+      "factor": 0.6,
+      "status": "needs-extraction-and-hidden-area-repair"
+    },
+    {
+      "id": "terrain",
+      "factor": 1,
+      "status": "needs-extraction"
+    },
+    {
+      "id": "foreground-plants",
+      "factor": 1.12,
+      "status": "needs-transparent-extraction"
+    }
+  ],
+  "rules": {
+    "directionalLight": "upper-left",
+    "footAnchor": "bottom-center-of-feet",
+    "terrainUnits": 64,
+    "joinOverlapSourcePixels": 256,
+    "joins": "Unverified until assembled and scrolled at all camera zooms",
+    "edgePolicy": "Finish shared overlap pixels before exporting neighboring chunks",
+    "camera": "Freeze scale and horizon before serial generation",
+    "sourcePolicy": "Keep approved originals; derivatives never overwrite sources"
+  },
+  "missing": [
+    {
+      "id": "root-passage",
+      "kind": "static-prop",
+      "anchors": [
+        "left",
+        "right",
+        "floorY",
+        "clearance",
+        "leverX"
+      ],
+      "reference": "src/modules/SmallPassage.ts",
+      "status": "mechanic-only-no-approved-art"
+    },
+    {
+      "id": "crawl-cycle",
+      "kind": "animation",
+      "status": "deferred-existing-crouch-pose-used-in-bench"
+    }
+  ]
+}

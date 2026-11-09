@@ -13,7 +13,9 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+        run: node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+      - name: Test rare feedback Easter egg
+        run: node tests/feedback_easter_egg_test.cjs
       - name: Test topic tab filters (without exam finder)
         run: node tests/dau_exam_finder.js
       - name: Test hover focus timing and module switching
@@ -30,6 +32,8 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Check NERD FM song unlocks and protected song delivery
+        run: php tests/nerd_fm_test.php
       - name: Test D2 module integration and achievement rules
         run: php tests/d2_integration_test.php
       - name: Test D1 registration, achievements and stored exam reviews
@@ -42,6 +46,8 @@ jobs:
         run: node tests/learner_sync.js
       - name: Test private OpenAI bridge without paid API calls
         run: php tests/ai_bridge_test.php
+      - name: Test shared wrong-answer quips in every module
+        run: node tests/module_wrong_answer_test.cjs
       - name: Test fresh module entry, scroll reset and retained progress
         run: node tests/module_entry_test.cjs
       - name: Test B4 IPv6 domain and platform integration
@@ -57,11 +63,19 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Check wrong-answer feedback in all modules on desktop and mobile
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/module_wrong_answer_browser.cjs
       - name: Check F2 calculations, learning flow and account integration
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/f2
         run: node tests/f2_browser.cjs && node tests/f2_platform.cjs
+      - name: Check C# module flow and account integration
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/cs_browser.cjs && node tests/cs_platform.cjs
       - name: Check B4 IPv6 offline and platform in real browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -72,6 +86,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/dau_landing_browser.js
+      - name: Check NERD RADIO controls, real audio data and placement beside the module stack
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
+        run: node tests/nerd_radio_browser.cjs
       - name: Check achievements in the real learning modules
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -113,7 +132,7 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-design-screenshots
-        run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs && node tests/module_entry_browser.cjs
+        run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs && node tests/module_entry_browser.cjs && node tests/module_mobile_browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

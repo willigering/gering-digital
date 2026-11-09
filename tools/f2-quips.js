@@ -50,48 +50,6 @@ const Q_OK=[
 'Dieses Ergebnis darf in die Chefetage.',
 'Korrekt. Der Taschenrechner möchte eine Gehaltserhöhung.'
 ];
-const Q_BAD=[
-'Noch nicht. Der Rechenweg rettet mehr als der Werbeprospekt.',
-'Prozent wovon? Genau da liegt meist der Haken.',
-'Erst die Bezugsgröße, dann die Taste.',
-'Der Taschenrechner war nur ausführendes Organ.',
-'Noch kein Gewinn. Aber eine brauchbare Erkenntnis.',
-'Der günstigste Monatsbetrag ist nicht die ganze Geschichte.',
-'Die Fracht ist nicht per Telepathie kostenlos geworden.',
-'Der Rabatt wird durch Hoffen leider nicht größer.',
-'Das war eher ein Kostenvoranschlag für die nächste Übung.',
-'Die Nachkommastelle hat eigenmächtig gehandelt.',
-'Der Einkauf würde gern noch einmal nachrechnen.',
-'Zwei Nachlässe sind selten einfach ihre Summe.',
-'Eine Formel ist kein Wunschkonzert.',
-'Brutto und netto haben wieder die Jacken getauscht.',
-'Der Gewinn ist leider nicht alles, was auf der Rechnung steht.',
-'Der Fixkostenblock hat deine Antwort zur Kenntnis genommen.',
-'Mit mehr Umsatz kann man sich auch mehr Verlust leisten.',
-'Die Monatsrate hat dich freundlich abgelenkt.',
-'Bei der Bezugsgröße bitte nicht würfeln.',
-'Das war knapp am richtigen Unternehmen vorbei.',
-'Die Buchhaltung stellt eine kleine Rückfrage.',
-'Ein Cent ist klein. Viele falsche Cents sind ein Projekt.',
-'Die Abschreibung wurde nicht wirklich überwiesen.',
-'Der Restwert gehört nicht automatisch dem Leasingnehmer.',
-'Der Rabatt braucht noch eine passende Ausgangszahl.',
-'Es fehlen vermutlich keine Rechenkünste, sondern ein Zwischenschritt.',
-'Die Kosten sind noch da. Auch wenn man sie übersieht.',
-'Ein halber Auftrag bezahlt selten die ganze Miete.',
-'Die Gewinnschwelle wurde aus Versehen untergraben.',
-'Das Ergebnis sieht selbstbewusst aus. Prüfen wir den Ansatz.',
-'Der Support bekommt keine Extrapunkte fürs nette Logo.',
-'Gewichte addieren sich nicht nach Stimmung.',
-'Ein niedriger Preis ist noch kein erfülltes Pflichtkriterium.',
-'Bitte noch einmal durch den richtigen Nenner teilen.',
-'Der Stundensatz kennt auch unbezahlbare Besprechungen.',
-'Einmalige Kosten möchten genau einmal vorkommen.',
-'Die Laufzeit endet nicht nach der ersten Rate.',
-'Das Prospekt hat gewonnen. Die Revanche steht unten.',
-'Der Fehler ist jetzt bekannt. Das ist bereits sein größter Nachteil.',
-'Noch nicht richtig. Der nächste Versuch hat keine Bearbeitungsgebühr.'
-];
 const Q_MASTER=[
 'Stufe gemeistert! Die nächste Rechnung wartet.',
 'Das Controlling fragt nach deinem Lebenslauf.',
@@ -104,4 +62,4 @@ const Q_MASTER=[
 'Diese Stufe ist bezahlt. Mit Hirnschmalz.',
 'Gemeistert. Das war eine lohnende Investition in dich.'
 ];
-const qOk=()=>pick(Q_OK),qBad=()=>pick(Q_BAD);
+const qOk=()=>window.DTPRightAnswer.next(Q_OK),qBad=()=>window.DTPWrongAnswer.next();

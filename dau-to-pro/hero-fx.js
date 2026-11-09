@@ -4,12 +4,10 @@
   const wrap = document.querySelector('.hero-art-wrap[data-fx]');
   const img = wrap && wrap.querySelector('.hero-logo');
   if (!wrap || !img) return;
-  // The layered scene owns a real anchor that moves with the mushroom plane.
-  // Uploaded artwork keeps the original coordinate-based fallback.
-  const anchor = wrap.querySelector('[data-mushroom-anchor]');
-
-  // Position of the pixel mushroom inside the original hero artwork (1448 × 1086 px).
-  const ART = { w: 1448, h: 1086 }, BOX = { x: 1214, y: 522, w: 191, h: 174 };
+  // Position des Pixelpilzes in der Hero-Grafik (Pixel der Originaldatei), vom Server übergeben.
+  const [artW, artH] = (wrap.dataset.fxArt || '1448x1086').split('x').map(Number);
+  const [boxX, boxY, boxW, boxH] = (wrap.dataset.fxBox || '1214,522,191,174').split(',').map(Number);
+  const ART = { w: artW, h: artH }, BOX = { x: boxX, y: boxY, w: boxW, h: boxH };
   const CLICKS = 5, WINDOW_MS = 6000;
   const HUES = [0, 115, 205, 280, 40];          // rot → grün → blau → lila → gold
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
@@ -20,7 +18,7 @@
     '....###...', '...###....', '..###.....', '..##......', '.##.......', '.#........', '#.........']
     .map((row, y) => [...row].map((c, x) => c === '#' ? `M${x} ${y}h1v1h-1z` : '').join('')).join('');
   const el = (tag, cls, parent) => { const n = document.createElement(tag); if (cls) n.className = cls; if (parent) parent.appendChild(n); return n; };
-  const layer = el('div', 'fx-layer', anchor || wrap);
+  const layer = el('div', 'fx-layer', wrap);
   const body = el('div', 'fx-shroom', layer);
   const pic = el('img', 'fx-shroom-img', body);
   pic.src = wrap.dataset.fx; pic.alt = ''; pic.decoding = 'async'; pic.draggable = false;
@@ -35,10 +33,6 @@
   let count = 0, firstAt = 0, resetTimer = 0, busy = false, video = null, lastFocus = null;
 
   function place() {
-    if (anchor) {
-      Object.assign(layer.style, { left: '0', top: '0', width: '100%', height: '100%' });
-      return;
-    }
     const r = img.getBoundingClientRect(), w = wrap.getBoundingClientRect();
     if (!r.width) return;
     const sx = r.width / ART.w, sy = r.height / ART.h;

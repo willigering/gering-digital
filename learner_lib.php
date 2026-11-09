@@ -401,7 +401,17 @@ function learner_export(array $learner): array {
     $entries=[];
     foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row) $entries[]=['modul'=>$row['module_slug'],'schluessel'=>$row['storage_key'],'wert'=>$row['value'],'geaendert_utc'=>$row['updated_at']];
     return ['format'=>'dau-to-pro-lernkonto/1','exportiert_utc'=>learner_now(),'benutzername'=>$learner['username'],
-        'konto_erstellt_utc'=>$learner['created_at'],'letzte_anmeldung_utc'=>$learner['last_login_at'],'fortschritt'=>$entries];
+        'konto_erstellt_utc'=>$learner['created_at'],'letzte_anmeldung_utc'=>$learner['last_login_at'],'fortschritt'=>$entries,
+        'einstellungen'=>learner_prefs_export((int)$learner['id'])];
+}
+
+/** Persönliche Einstellungen für den Datenexport (Schlüssel => Wert). */
+function learner_prefs_export(int $learnerId): array {
+    $q=db()->prepare('SELECT pref_key,value FROM learner_prefs WHERE learner_id=? ORDER BY pref_key');
+    $q->execute([$learnerId]);
+    $out=[];
+    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $row) $out[$row['pref_key']]=json_decode($row['value'],true)??$row['value'];
+    return $out;
 }
 
 // ---------------------------------------------------------------- Einbindung in Lernmodule
@@ -426,6 +436,28 @@ function learner_update_revision(string $version): string {
 }
 /** Injects the progress sync right at the start of <head>, before any module script runs. */
 function learner_inject_sync(string $html,string $slug,string $file,?string $version=null): string {
+    if ($slug==='klausurvorbereitung-061126') {
+        // Offline demos must never compete with authenticated platform services.
+        $html=preg_replace('~<!-- KV-REVIEW-FEEDBACK START -->.*?<!-- KV-REVIEW-FEEDBACK END -->~s','',$html) ?? $html;
+        $html=preg_replace('~<div class="review-only review-extras">.*?</div>~s','',$html) ?? $html;
+        $html=str_replace('window.__KV_PLATFORM__=false;window.__DTP_UPDATE__={slug:"klausurvorbereitung-061126",preview:true};','',$html);
+        $html=str_replace('· Begutachtungsfassung','',$html);
+        $html=preg_replace('~</head>~i','<script>window.__KV_PLATFORM__=true;</script></head>',$html,1) ?? $html;
+    }
+
+    // Share Klausur quips with bundled and older imported learning modules.
+    if (str_contains($html, 'class="area-tabs"') && is_file(__DIR__.'/tools/module-wrong-answer.js')) {
+        $html=preg_replace('~<!-- DTP-FEHLERSPRUECHE START -->.*?<!-- DTP-FEHLERSPRUECHE END -->\n?~s','',$html) ?? $html;
+        $html=str_replace('qBad=()=>pick(Q_BAD)','qBad=()=>window.DTPWrongAnswer.next()',$html);
+        $html=str_replace('qOk=()=>pick(Q_OK)','qOk=()=>window.DTPRightAnswer.next(Q_OK)',$html);
+        $html=str_replace('ok?quips[Math.floor(Math.random()*quips.length)]:','ok?window.DTPRightAnswer.next(quips):',$html);
+        $html=preg_replace('~function nextWrongQuip\(\)\{[^\r\n]*\}~','function nextWrongQuip(){return window.DTPWrongAnswer.next();}',$html) ?? $html;
+        $block="<!-- DTP-FEHLERSPRUECHE START -->\n<script>\n"
+            .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-wrong-answer.js'))
+            ."\n</script>\n<!-- DTP-FEHLERSPRUECHE END -->\n";
+        $html=preg_replace_callback('~</head\s*>~i',static fn(array $m): string => $block.$m[0],$html,1) ?? $html;
+    }
+
     // Replace the embedded calculator in already published modules without reimporting them.
     $calc=__DIR__.'/dau-to-pro/module-calculator';
     if (is_file($calc.'.css') && is_file($calc.'.js')) {
@@ -449,10 +481,22 @@ function learner_inject_sync(string $html,string $slug,string $file,?string $ver
         }
     }
     // Imported versions receive the same exercise focus as standalone modules.
-    if (str_contains($html, 'class="area-tabs"') && !str_contains($html, '<!-- DTP-UEBUNGSFOKUS START -->')
+    // Already embedded blocks are refreshed in place, so fixes reach published versions without reimport.
+    if (str_contains($html, 'class="area-tabs"')
         && is_file(__DIR__.'/tools/module-focus.css') && is_file(__DIR__.'/tools/module-focus.js')) {
         $block="<!-- DTP-UEBUNGSFOKUS START -->\n<style>\n".file_get_contents(__DIR__.'/tools/module-focus.css')."\n</style>\n<script>\n"
             .str_ireplace('</script','<\\/script',(string)file_get_contents(__DIR__.'/tools/module-focus.js'))."\n</script>\n<!-- DTP-UEBUNGSFOKUS END -->\n";
+        if (str_contains($html, '<!-- DTP-UEBUNGSFOKUS START -->')) {
+            $html=preg_replace_callback('~<!-- DTP-UEBUNGSFOKUS START -->.*?<!-- DTP-UEBUNGSFOKUS END -->\n?~s', static fn(): string => $block, $html, 1) ?? $html;
+        } else {
+            $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
+        }
+    }
+    // Gemeinsame Handy-Optimierung: immer die aktuelle Fassung, auch für ältere importierte Versionen.
+    if (str_contains($html, 'class="area-tabs"') && is_file(__DIR__.'/tools/module-mobile.css') && is_file(__DIR__.'/tools/module-mobile.js')) {
+        $html=preg_replace('~<!-- DTP-HANDY START -->.*?<!-- DTP-HANDY END -->\n?~s', '', $html) ?? $html;
+        $block="<!-- DTP-HANDY START -->\n<style>\n".rtrim((string)file_get_contents(__DIR__.'/tools/module-mobile.css'))."\n</style>\n<script>\n"
+            .str_ireplace('</script','<\\/script',rtrim((string)file_get_contents(__DIR__.'/tools/module-mobile.js')))."\n</script>\n<!-- DTP-HANDY END -->\n";
         $html=preg_replace_callback('~</head\\s*>~i', static fn(array $m): string => $block.$m[0], $html, 1) ?? $html;
     }
     $html=str_replace('Offline · ohne Login', 'Lernen · Üben · Verstehen', $html);
@@ -519,12 +563,7 @@ document.addEventListener('DOMContentLoaded', () => {
 }, {once: true});
 </script>
 HTML;
-    require_once __DIR__.'/dau-to-pro/feedback-form.php';
-    if (DTP_FEEDBACK_ENABLED) {
-        $tag.=dtp_feedback_assets();
-        $feedback='<div class="dtp-feedback-dock">'.dtp_feedback_button().'</div>'.dtp_feedback_dialog($slug);
-        $html=preg_replace_callback('~</body\\s*>~i', static fn(array $m): string => $feedback.$m[0], $html, 1) ?? $html;
-    }
+    // Feedback is only shown on the DAU TO PRO landing page.
     if (preg_match('/<head\b[^>]*>/i',$html,$m,PREG_OFFSET_CAPTURE)) {
         $at=$m[0][1]+strlen($m[0][0]);
         return substr($html,0,$at)."\n".$tag.substr($html,$at);
@@ -587,6 +626,7 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
+
 
 
 

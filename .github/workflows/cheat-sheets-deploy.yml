@@ -1,0 +1,103 @@
+name: Cheat Sheets verify and deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dau-to-pro/cheat-sheet*'
+      - 'dau-to-pro/cheat-shelf*'
+      - 'dau-to-pro/index.php'
+      - '.github/workflows/cheat-sheets-deploy.yml'
+  pull_request:
+    paths:
+      - 'dau-to-pro/cheat-sheet*'
+      - 'dau-to-pro/cheat-shelf*'
+      - 'dau-to-pro/index.php'
+      - '.github/workflows/cheat-sheets-deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate twelve complete topic cheat sheets
+        run: |
+          node --check dau-to-pro/cheat-sheet-data.js
+          node --check dau-to-pro/cheat-sheet-questions.js
+          node --check dau-to-pro/cheat-sheet-enrichment.js
+          node --check dau-to-pro/cheat-sheet-support.js
+          node --check dau-to-pro/cheat-sheet.js
+          node --check dau-to-pro/cheat-shelf.js
+          node <<'JS'
+          const fs=require('node:fs');
+          const vm=require('node:vm');
+          const assert=require('node:assert/strict');
+          const code=fs.readFileSync('dau-to-pro/cheat-sheet-data.js','utf8');
+          const scope={};vm.runInNewContext(code,scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-questions.js","utf8"),scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-enrichment.js","utf8"),scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-support.js","utf8"),scope);
+          const groups=scope.DTP_CHEAT_GROUPS;
+          assert.equal(groups.length,12,'Expected twelve complete topic sheets');
+          assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),96,'Expected 96 original sections within twelve sheets');
+          const extras=scope.DTP_CHEAT_EXTRAS;
+          const deep=scope.DTP_CHEAT_ENRICHMENT;
+          assert.equal(Object.keys(deep).length,12,'All twelve sheets need extended coverage');
+          assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('Datenschutzbeauftragter')),'DSB section missing');
+          assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('ISB')),'ISB section missing');
+          assert.equal(Object.keys(extras).length,12,"One question bank per topic");
+          const seen=new Set();
+          for(const g of groups){
+            assert.equal(g.sections.length,8,'Expected eight sections in '+g.name);
+            const questions=g.sections.map(c=>[c[3],c[4]]);
+            const supplemental=extras[g.id].split(/\r?\n/).filter(Boolean).map(s=>s.split("¦"));
+            questions.push(...supplemental);
+            assert.equal(questions.length,40,"Expected 40 original exam-style questions for "+g.name);
+            assert.ok(deep[g.id].sections.length>=3,'Missing deep-dive chapters for '+g.name);
+            assert.equal(deep[g.id].questions.length,8,'Expected eight advanced Q&A for '+g.name);
+            questions.push(...deep[g.id].questions);
+            assert.equal(questions.length,48,'Expected 48 questions for '+g.name);
+            assert.ok(questions.every(q=>q.length===2&&q[0].trim()&&q[1].trim()),"Malformed question/answer pair in "+g.name);
+            const unique=new Set(questions.map(q=>q[0].toLocaleLowerCase("de")));
+            assert.equal(unique.size,48,"Duplicate question in "+g.name);
+            for(const c of g.sections){
+              assert.ok(c.length===6||c.length===7,'Malformed section in '+g.name);
+              assert.ok(c.every(x=>typeof x==='string'&&x.trim().length>0),'Empty topic section');
+              assert.ok(c[2].split('|').length>=3,'Section needs at least 3 facts: '+c[0]);
+              const key=g.id+':'+c[0];
+              assert.ok(!seen.has(key),'Duplicate section '+key);
+              seen.add(key);
+            }
+          }
+          const html=fs.readFileSync('dau-to-pro/cheat-sheet.html','utf8');
+          const css=fs.readFileSync('dau-to-pro/cheat-sheet.css','utf8');
+          const shelf=fs.readFileSync('dau-to-pro/cheat-shelf.css','utf8');
+          const index=fs.readFileSync('dau-to-pro/index.php','utf8');
+          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js')&&html.includes('cheat-sheet-support.js'));
+          assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
+          assert.ok(index.includes('id="cheat-sheets"')&&index.includes('cheat-sheet.html?thema='));
+          assert.ok(index.includes('id="cheat-mini-grid"')&&shelf.includes('repeat(5,minmax(0,1fr))'));
+          assert.ok(html.includes('id="sheet-detail"')&&html.includes('12 THEMEN'));
+          assert.ok(html.includes('cheat-sheet-questions.js'),'Question bank script not loaded');
+          assert.ok(html.includes('cheat-sheet-enrichment.js'),'Deep-dive content script not loaded');
+          assert.ok(!/IHK/i.test(html),'No unwanted IHK reference in sheet page');
+          assert.ok(!/IHK-POCKET/i.test(index),'No IHK label in cheat section');
+          const sheetJs=fs.readFileSync('dau-to-pro/cheat-sheet.js','utf8');
+          assert.ok(sheetJs.includes('assets/dau-backgrounds'),'Must reuse real thematic textures');
+          assert.equal([...index.matchAll(/\['(?:zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix|support)',/g)].length,12,'Landing needs twelve topic entries');
+          console.log('Verified: 12 complete sheets, 576 Q&A (48 each), IT-Support, DSB/ISB, and 5-column layout.');
+          JS
+      - name: Check landing PHP syntax
+        run: php -l dau-to-pro/index.php
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: verify
+    uses: ./.github/workflows/deploy-strato.yml
+    secrets: inherit
