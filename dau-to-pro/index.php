@@ -267,12 +267,12 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <div class="module-body">
             <span class="module-category">UNTERRICHTSMATERIAL · IT VI</span>
             <h2>Vom Ticket zum Durchblick.</h2>
-            <p>Der komplette Supportfall: Annahme, SLA, Diagnose, Fernwartung, Dokumentation und Servicequalität. Erklärungen, echte Fallbeispiele und Musterantworten.</p>
+            <p>Der komplette Supportfall: Annahme, SLA, Diagnose, Fernwartung, Dokumentation und Servicequalität. Erklärungen, realistische Praxisfälle und Musterantworten.</p>
             <div class="module-footer"><span>6 THEMEN · 24 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
       </div>
-      <p class="unterricht-account-hint">Im Lernkonto angemeldet? Antworten und Notizen werden automatisch deinem Konto zugeordnet. Ohne Anmeldung bleiben sie lokal im Browser.</p>
+      <p class="unterricht-account-hint">Beim interaktiven Material werden Antworten und Notizen im Lernkonto gespeichert. Der neue Support-Guide ist zum Lesen und Nachschlagen – ohne Abhaken und ohne Speichern.</p>
     </div>
   </details>
 </section>
