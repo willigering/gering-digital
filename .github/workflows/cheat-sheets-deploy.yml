@@ -112,7 +112,7 @@ jobs:
           assert.ok(html.includes('window.__ITVI_ACCOUNT__'),'Account autosave integration missing');
           assert.ok(html.includes('Als PDF speichern'),'PDF export should remain');
           assert.ok(php.includes("unterricht:it-vi-01:state-v1"),'Isolated account data key missing');
-          assert.ok(php.includes('X-DTP-CSRF'),'CSRF guard missing');
+          assert.ok(php.includes('HTTP_X_DTP_CSRF'),'CSRF guard missing');
           const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
           assert.ok(scripts.length>=2);
           scripts.forEach((js,i)=>new vm.Script(js,{filename:'unterricht-inline-'+i+'.js'}));
