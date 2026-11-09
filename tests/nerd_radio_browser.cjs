@@ -319,10 +319,14 @@ let server, browser;
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
-  await ownPage.mouse.click(seekBox.x + seekBox.width * 0.5, seekBox.y + seekBox.height / 2);
-  await pause(250);
+  // Die Reglerfläche liegt auf einer 3D-transformierten Gerätefront. Playwright
+  // berechnet beim Element-Klick die richtige lokale Position auf dieser Fläche.
+  await seek.click();
+  await pause(300);
   o = await ownState();
-  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte');
+  const seekValue = await seek.inputValue();
+  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13,
+    `Klick spult etwa zur Titelmitte (Zeit=${o.time}, Slider=${seekValue})`);
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
