@@ -30,7 +30,7 @@
     section.classList.remove("has-stacked-shelf");
     section.style.removeProperty("--cheat-pin-top");
     section.style.removeProperty("--cheat-runway");
-    frame.style.removeProperty("--cheat-cta-top");
+    frame.style.removeProperty("--cheat-cta-shift");
     grid.classList.remove("is-stacked");
     grid.style.height="";
     cancelAnimationFrame(raf);raf=0;
@@ -60,7 +60,7 @@
     // Die Abschlusszeile folgt der letzten Kartenreihe und bleibt darunter.
     const last=rows.length-1;
     const lastY=(last-Math.min(p,last))*(rowH+GAP);
-    frame.style.setProperty("--cheat-cta-top",(grid.offsetTop+lastY+rowH+24).toFixed(1)+"px");
+    frame.style.setProperty("--cheat-cta-shift",lastY.toFixed(1)+"px");
     rows.forEach((row,k)=>{
       // Alle Reihen sind anfangs vollständig zu sehen. Mit dem Scrollfortschritt
       // zieht jede untere Reihe auf die Position der ersten Reihe hoch.
