@@ -30,27 +30,50 @@ header .btn{border-radius:8px!important;background:#14202a!important;border:1px 
 header .btn.primary{background:var(--gold)!important;color:#121619!important;border-color:var(--gold)!important}
 header .btn:hover{border-color:#8be7d5a8!important}
 main.shell{max-width:1370px!important;position:relative;z-index:2}
-/* Grafische Titelkarte: BG-Motiv nur innerhalb des Moduls, kein globales Tapetenbild. */
+/* Die Motive liegen ausschließlich HINTER allen Lernkarten, nicht mehr auf Karten oder Hero. */
+.itvi-backdrop{
+  --itvi-wallpaper:url("../../assets/dau-backgrounds/network-ports-1536.webp");
+  position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;
+  background:#08121b;
+}
+.itvi-backdrop::before{
+  content:"";position:absolute;inset:-14vh -9vw;
+  background-image:linear-gradient(90deg,#08141c83,#07121b57),var(--itvi-wallpaper);
+  background-size:cover,cover;background-position:center,center;background-repeat:no-repeat;
+  opacity:.58;
+  transform:translate3d(0,var(--itvi-wall-shift,0px),0) scale(1.06);
+  will-change:transform;
+}
+.itvi-backdrop::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,#080e17cc 0%,#09131db2 45%,#08121bdb 100%),
+    radial-gradient(ellipse at 75% 25%,#70e3d511,transparent 58%);
+}
+body[data-active-topic="support"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/network-ports-1536.webp")}
+body[data-active-topic="sla"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/circuit-signal-1536.webp")}
+body[data-active-topic="services"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/server-1536.webp")}
+body[data-active-topic="itsm"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/circuit-copper-1536.webp")}
+body[data-active-topic="quiz"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/hardware-connectors-1536.webp")}
+body[data-active-topic="practice"] .itvi-backdrop{--itvi-wallpaper:url("../../assets/dau-backgrounds/cables-patch-1536.webp")}
+body>header,body>main,body>footer{z-index:2}
+body>main{position:relative}
 .hero{
   isolation:isolate!important;
   overflow:hidden!important;
   padding:clamp(54px,6vw,82px) clamp(25px,6vw,86px)!important;
   min-height:440px;
   margin:28px 0 32px!important;
-  background:linear-gradient(142deg,#111e28,#0b141b)!important;
+  background:linear-gradient(142deg,#111e28ed,#0b141bf2)!important;
   border:1px solid #8fe4d849!important;
   border-radius:22px!important;
   box-shadow:0 32px 90px #000b,0 0 58px #55d7d50c,inset 0 1px #ffffff12!important;
 }
 .hero::before{display:none!important}
 .hero::after{
-  content:"";display:block!important;position:absolute;inset:-18% -7%;
+  content:"";display:block!important;position:absolute;inset:0;
   pointer-events:none;z-index:0;
-  background-image:linear-gradient(90deg,#08121af4 0%,#08131ad9 51%,#07142091 100%),url("../../assets/dau-backgrounds/network-ports-1536.webp");
-  background-size:cover,cover;background-position:center,center;
-  transform:translate3d(0,var(--itvi-hero-shift,0px),0) scale(1.06);
-  will-change:transform;
-  opacity:1!important;
+  background:radial-gradient(ellipse at 94% 15%,#64e7d11c,transparent 54%);
+  transform:none!important;
 }
 .hero>*{position:relative;z-index:1}
 .hero .hero-shape{display:none!important}
@@ -96,26 +119,27 @@ main.shell{max-width:1370px!important;position:relative;z-index:2}
 .lf6-topic-link.is-current .lf6-topic-link-num{border-color:var(--gold)!important;color:var(--gold)!important}
 /* Kapitel bleiben im bestehenden Sticky-/Überstapelungs-System. Nur das Styling ändert sich. */
 #lf6-flow>.lf6-full-chapter{
-  --itvi-bg:url("../../assets/dau-backgrounds/network-ports-1536.webp");
-  --itvi-shift:0px;
   isolation:isolate;
-  background-color:#101b23!important;
-  background-image:
-    linear-gradient(145deg,#0b1822ef 0%,#101b26ea 61%,#0c1923e9 100%),
-    var(--itvi-bg)!important;
-  background-size:cover,cover!important;
-  background-position:center,center calc(50% + var(--itvi-shift))!important;
-  background-repeat:no-repeat!important;
+  /* Die Kapitel behalten ihre ruhigen, undurchsichtigen Leseflächen. */
+  background:#101b23!important;
+  background-image:linear-gradient(145deg,#101c26f7,#0d1923f9)!important;
+  background-size:auto!important;
+  background-position:center!important;
   border:1px solid #8ad8cf58!important;
   border-radius:22px!important;
   box-shadow:0 24px 75px #000c,0 0 42px #69e3cc09,inset 0 1px #ffffff14!important;
 }
-#lf6-flow>.lf6-full-chapter[data-topic-group="support"]{--itvi-bg:url("../../assets/dau-backgrounds/network-ports-1536.webp")}
-#lf6-flow>.lf6-full-chapter[data-topic-group="sla"]{--itvi-bg:url("../../assets/dau-backgrounds/circuit-signal-1536.webp")}
-#lf6-flow>.lf6-full-chapter[data-topic-group="services"]{--itvi-bg:url("../../assets/dau-backgrounds/server-1536.webp")}
-#lf6-flow>.lf6-full-chapter[data-topic-group="itsm"]{--itvi-bg:url("../../assets/dau-backgrounds/circuit-copper-1536.webp")}
-#lf6-flow>.lf6-full-chapter[data-topic-group="quiz"]{--itvi-bg:url("../../assets/dau-backgrounds/hardware-connectors-1536.webp")}
-#lf6-flow>.lf6-full-chapter[data-topic-group="practice"]{--itvi-bg:url("../../assets/dau-backgrounds/cables-patch-1536.webp")}
+/* Gleicher Stapel für ALLE Reiter, besonders 02 / Priorität, SLA & Fälle. */
+@media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  #lf6-flow>.lf6-full-chapter:not(.lf6-topic-hidden){
+    position:sticky!important;
+    top:var(--fold-top,94px)!important;
+    z-index:var(--stack-z,10)!important;
+    transform:scale(var(--fold-scale,1));
+    transform-origin:50% 100%;
+    margin-bottom:clamp(85px,13vh,145px)!important;
+  }
+}
 #lf6-flow>.lf6-full-chapter::before{
   content:"";display:block;height:3px!important;z-index:2!important;
   background:linear-gradient(90deg,var(--gold),#65e6d1 55%,transparent 91%)!important;
@@ -185,23 +209,23 @@ textarea:focus{outline:2px solid #78e7d9a0!important;outline-offset:2px}
 .footer{color:#829aa5!important}
 @media(max-width:900px){
   .hero{min-height:0}
-  #lf6-flow>.lf6-full-chapter{background-size:cover,auto 110%!important}
+  #lf6-flow>.lf6-full-chapter{background-size:auto!important}
 }
 @media(max-width:650px){
   .hero{padding:42px 24px!important;margin-top:15px!important}
   .hero h1{font-size:clamp(47px,11vw,75px)!important}
-  .hero::after{background-position:center,59% center}
+  .hero::after{background-position:center}
   #lf6-flow>.lf6-full-chapter{border-radius:14px!important}
   .lf6-topic-chapter-head{padding:14px!important}
 }
 @media(prefers-reduced-motion:reduce){
- .hero::after{transform:none!important;will-change:auto}
- #lf6-flow>.lf6-full-chapter{background-position:center,center!important}
+ .itvi-backdrop::before{transform:none!important;will-change:auto}
+ #lf6-flow>.lf6-full-chapter{background-position:center!important}
  .info-tile,.flow>div,.question,.free{transition:none!important}
 }
 @media print{
  body{background:#fff!important;color:#111!important}
- .hero::after,#lf6-flow>.lf6-full-chapter::after{display:none!important}
+ .itvi-backdrop,.hero::after,#lf6-flow>.lf6-full-chapter::after{display:none!important}
  #lf6-flow>.lf6-full-chapter{
   background:#fff!important;background-image:none!important;
   border:1px solid #aaa!important;box-shadow:none!important;color:#111!important
