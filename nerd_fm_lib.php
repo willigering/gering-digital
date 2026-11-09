@@ -23,10 +23,10 @@ function nfm_songs(): array {
         // Versteckter Song: Freischaltung über das Pilz-Easter-Egg, bewusst ohne Vermerk auf einer Karte.
         'dau-to-pro'=>['file'=>'dau-to-pro.mp3','title'=>'DAU to PRO','unlock'=>'g.easteregg','module'=>null],
     ];
-    // Öffentlich ohne Lernkonto/Achievement: erst anzeigen, wenn die echte MP3 hochgeladen ist.
-    // Bis dahin bleibt die bestehende Playlist unverändert (kein toter Eintrag).
-    if (is_file(nfm_dir().'/kein-break.mp3')) {
-        $songs['kein-break']=['file'=>'kein-break.mp3','title'=>'KEIN BREAK','unlock'=>null,'module'=>null];
+    // Öffentlich ohne Konto oder Achievement. Der Eintrag erscheint erst mit der echten MP3,
+    // damit für Besucher keine nicht abspielbaren Titel angezeigt werden.
+    if (is_file(nfm_dir().'/deja-vu.mp3')) {
+        $songs['deja-vu']=['file'=>'deja-vu.mp3','title'=>'Diggy Thal – Déjà-vu','unlock'=>null,'module'=>null];
     }
     return $songs;
 }
