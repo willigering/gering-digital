@@ -297,10 +297,6 @@ let server, browser;
   const own = await browser.newContext({ viewport: { width: 1440, height: 900 } });
   const ownPage = await own.newPage();
   ownPage.on('pageerror', e => errors.push(`datei: ${e.message}`));
-  const seekNetwork = [];
-  ownPage.on('request', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'request',range:q.headers().range||'',url:q.url().split('?')[0]}); });
-  ownPage.on('response', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'response',status:q.status(),range:q.headers()['content-range']||'',mime:q.headers()['content-type']||''}); });
-  ownPage.on('requestfailed', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'failed',failure:q.failure()}); });
   await ownPage.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
   const ownState = () => ownPage.evaluate(() => {
     const r = document.querySelector('[data-nerd-radio]').nerdRadio;
@@ -320,27 +316,12 @@ let server, browser;
   assert.ok(o.level > 0, 'Analyser liefert Daten der Datei');
   assert.equal(o.time, '00:01', 'Zeit läuft mit der Datei');
   const seek = ownPage.locator('[data-radio-seek]');
-  await ownPage.evaluate(() => {
-    const el = document.querySelector('[data-radio-seek]');
-    window.__seekDebug = [];
-    for (const type of ['pointerdown','pointerup','input','change','click']) {
-      el.addEventListener(type, ev => window.__seekDebug.push({type, value:el.value, detail:ev.detail, pos:ev.clientX, at:document.querySelector('[data-radio-elapsed]').textContent}));
-    }
-    document.addEventListener('click', ev => window.__seekDebug.push({type:'document-click', target:ev.target.tagName, cls:String(ev.target.className||'').slice(0,70), x:ev.clientX, y:ev.clientY}),true);
-  });
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
   await ownPage.mouse.click(seekBox.x + seekBox.width * 0.5, seekBox.y + seekBox.height / 2);
   await pause(250);
   o = await ownState();
-  const seekDiagnostics = await ownPage.evaluate(() => {
-    const el=document.querySelector('[data-radio-seek]');
-    const box=el.getBoundingClientRect();
-    const target=document.elementFromPoint(box.left + box.width/2, box.top + box.height/2);
-    return {value:el.value, disabled:el.disabled, rect:{x:box.x,y:box.y,w:box.width,h:box.height}, hit:target?target.outerHTML.slice(0,280):null, events:window.__seekDebug, time:document.querySelector('[data-radio-elapsed]').textContent};
-  });
-  console.log('SEEK_DIAGNOSTICS',JSON.stringify(seekDiagnostics),'state:',JSON.stringify(o),'network:',JSON.stringify(seekNetwork));
   assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte');
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
