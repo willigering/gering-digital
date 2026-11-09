@@ -62,7 +62,20 @@ function database(): PDO
     $db->exec('PRAGMA busy_timeout = 8000');
     $db->exec('CREATE TABLE IF NOT EXISTS account (id INTEGER PRIMARY KEY CHECK(id = 1), password_hash TEXT NOT NULL, created_at TEXT NOT NULL)');
     $db->exec('CREATE TABLE IF NOT EXISTS entries (id TEXT PRIMARY KEY NOT NULL, payload TEXT NOT NULL, updated_at TEXT NOT NULL)');
+    $db->exec("CREATE TABLE IF NOT EXISTS mail_meta (id INTEGER PRIMARY KEY CHECK(id=1), salt TEXT NOT NULL, config TEXT NOT NULL DEFAULT '{}', smtp_secret TEXT NOT NULL DEFAULT '')");
     return $db;
+}
+function setMailSessionKey(PDO $db, string $password): void
+{
+    $salt = $db->query('SELECT salt FROM mail_meta WHERE id=1')->fetchColumn();
+    if (!$salt) {
+        $salt = bin2hex(random_bytes(16));
+        $stmt = $db->prepare("INSERT OR IGNORE INTO mail_meta (id, salt) VALUES (1, ?)");
+        $stmt->execute([$salt]);
+        $salt = $db->query('SELECT salt FROM mail_meta WHERE id=1')->fetchColumn();
+    }
+    $key = hash_pbkdf2('sha256', $password, hex2bin((string)$salt), 180000, 32, true);
+    $_SESSION['bewerbungen_mail_key'] = bin2hex($key);
 }
 function hasAccount(PDO $db): bool
 {
@@ -188,6 +201,7 @@ try {
         }
         session_regenerate_id(true);
         $_SESSION['bewerbungen_authenticated'] = true;
+        setMailSessionKey($db, $password);
         ready($db);
     }
 
@@ -209,12 +223,13 @@ try {
         }
         session_regenerate_id(true);
         $_SESSION['bewerbungen_authenticated'] = true;
+        setMailSessionKey($db, $password);
         unset($_SESSION['bewerbungen_failures'], $_SESSION['bewerbungen_lock_until']);
         ready($db);
     }
 
     if ($action === 'logout') {
-        unset($_SESSION['bewerbungen_authenticated']);
+        unset($_SESSION['bewerbungen_authenticated'], $_SESSION['bewerbungen_mail_key']);
         session_regenerate_id(true);
         respond(['mode' => 'login']);
     }
