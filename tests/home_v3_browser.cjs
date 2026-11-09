@@ -45,12 +45,12 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     assert.equal(await page.locator('.hero-stage .phone.phone-locked').count(),1,'Original interactive phone missing');
     assert.equal(await page.locator('#phone-digital-clock').count(),1,'Original phone clock missing');
     assert.equal(await page.locator('.phone-spin-control').count(),1,'Original phone drag control missing');
-    assert.equal(await page.locator('.gdv3-featured-card').isVisible(),true,'DAU TO PRO should be visible on initial load');
+    assert.equal(await page.locator('.dtp-portal-card').isVisible(),true,'DAU TO PRO should be visible on initial load');
     assert.ok(await page.locator('#apps .app-card:visible').count()>=2,'Default project view must show all projects');
     assert.equal(await page.locator('.catalog-filter.is-active').getAttribute('data-category'),'alle');
     const details=await page.evaluate(()=>{
       const grid=document.querySelector('.gdv3-project-grid');
-      const featured=document.querySelector('.gdv3-featured-card');
+      const featured=document.querySelector('.dtp-portal-card');
       const other=document.querySelector('#apps .app-card:not(.dtp-portal-card)');
       const heading=document.querySelector('.gdv3-hero-title');
       return {
@@ -73,9 +73,9 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       assert.equal(details.gridCols,1,'One-column readable cards on narrow mobile');
     }
     await page.locator('.catalog-filter[data-category="apps"]').click();
-    assert.equal(await page.locator('.gdv3-featured-card').isVisible(),false,'Category filter should still work');
+    assert.equal(await page.locator('.dtp-portal-card').isVisible(),false,'Category filter should still work');
     await page.locator('.catalog-filter[data-category="alle"]').click();
-    assert.equal(await page.locator('.gdv3-featured-card').isVisible(),true,'All filter restores featured project');
+    assert.equal(await page.locator('.dtp-portal-card').isVisible(),true,'All filter restores featured project');
     if(width>=1101){
       await page.locator('.phone-spin-control').click();
       await pause(100);
