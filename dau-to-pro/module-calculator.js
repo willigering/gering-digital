@@ -148,7 +148,7 @@
       || module === 'zahlen' && /^(d_plain|d_octet|d_pattern|e_plain|e_ones|e_msb|e_mask|h_b2h|h_h2b|n_to|n_from|c_net)$/.test(task.sub)
       || module === 'subnet' && /^(o_b2d|o_d2b|o_maskval|o_bin2ip|m_bin)$/.test(task.sub);
     const arithmetic = calculationTypes[module]?.test(task.sub)
-      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || /^(f2|w4|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
       || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
       || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
       || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);

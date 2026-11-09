@@ -95,6 +95,14 @@
       "subject": "Programmieren mit C#",
       "title": "Compiler sagt nein",
       "description": "Was ist ein Programm, was macht ein Compiler anders als ein Interpreter, und warum passt \"24\" nicht in einen int? Dein Einstieg in C#: Datentypen, Variablen deklarieren und initialisieren, Verzweigungen, Schleifen, Arrays und erste Methoden."
+    },
+    {
+      "slug": "w4-unternehmen",
+      "preview": "unternehmen",
+      "file": "w4-unternehmen.html",
+      "subject": "Unternehmensformen & Märkte",
+      "title": "Garage, Gewinn, Gerichtsvollzieher",
+      "description": "Wer zahlt, wenn's kracht? Von Einzelunternehmen bis AG: Haftung, Gründung, Register und Prokura. Dazu Sektoren, Märkte und Marktformen. Damit du in der Prüfung weißt, wann der Gerichtsvollzieher auch privat klingeln darf."
     }
   ]
 }

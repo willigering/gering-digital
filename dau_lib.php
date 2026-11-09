@@ -17,6 +17,7 @@ function dtp_topic(array $p): array {
     if (($p['slug']??'')==='cs1-csharp') return ['sonstiges','IT-Grundlagen','05'];
     if (($p['slug']??'')==='netzwerke-sprint') return ['netzwerk','Netzwerktechnik','02'];
     $t=dtp_lower(($p['subject']??'').' '.($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
+    if (($p['slug']??'')==='w4-unternehmen') return ['wirtschaft','Wirtschaft & Projekte','06'];
     if(preg_match('/kalkulation|beschaffung|f2-kalkulation/',$t))return ['wirtschaft','Wirtschaft & Projekte','06'];
     if(preg_match('/subnet|ipv4|ipv6|cidr|wildcard|bits|binär|binaer|hexadezimal|ip-adress/',$t))return ['subnet','IP & Subnetting','01'];
     if(preg_match('/osi|switch|router|wlan|netzwerk|topolog|routing|dhcp|dns|vlan/',$t))return ['netzwerk','Netzwerktechnik','02'];
@@ -157,6 +158,7 @@ function dtp_module_description(array $module): string {
         'b5-netzwerkdienste'=>'Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss.',
         'cs1-csharp'=>'Du willst programmieren, der Compiler will Semikolons. Hier lernst du von Null, was ein Programm ist, wie man eine Variable deklariert und initialisiert und warum "24" kein int ist. Danach sagt er öfter ja.',
         'f2-kalkulation'=>'Rabatt, Skonto, Leasing oder Kauf? Rechne Angebote durch, bevor der Chef begeistert Geld verbrennt und du es erklären musst.',
+        'w4-unternehmen'=>'GmbH, OHG oder doch nur Garage? Lerne, wer bei welcher Rechtsform haftet, wer unterschreiben darf und warum der Gerichtsvollzieher beim Einzelunternehmer auch aufs Sofa schaut.',
     ];
     if(isset($humor[$slug])) return $humor[$slug];
     $description=trim((string)($module['description']??''));
@@ -179,6 +181,9 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
     if (($module['slug']??'')==='f2-kalkulation') {
         $category='Kalkulation & Beschaffung';
         $subject='Angebotsvergleich';
+    } elseif (($module['slug']??'')==='w4-unternehmen') {
+        $category='Unternehmen & Märkte';
+        $subject='Rechtsformen';
     } elseif (in_array($module['slug']??'',['a1-zahlensysteme','cs1-csharp'],true)) {
         $category='Grundlagen';
     }

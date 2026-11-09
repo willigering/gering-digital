@@ -67,6 +67,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="cheat-shelf.css?v=<?=filemtime(__DIR__.'/cheat-shelf.css')?>">
+  <link rel="stylesheet" href="unterricht.css?v=<?=filemtime(__DIR__.'/unterricht.css')?>">
   <script src="cheat-shelf.js?v=<?=filemtime(__DIR__.'/cheat-shelf.js')?>" defer></script>
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
@@ -200,7 +201,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   ['datenschutz','Datenschutz','DSGVO, Betroffenenrechte und TOM','DSGVO','#79c8b0'],
   ['rechnung','Kalkulation','Rabatt, Skonto, TCO und Gewinn','€','#f7c36e'],
   ['csharp','C#-Grundlagen','Datentypen, if, Schleifen und Methoden','C#','#8eb7ff'],
-  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4']
+  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4'],
+  ['support','IT-Support','Tickets, SLA, Supportlevel und ITSM','HELP','#66dbe4']
 ]; ?>
 <section class="cheat-collection" id="cheat-sheets" aria-labelledby="cheat-title">
   <!-- Überschrift und Karten teilen sich beim Stapeln denselben Sticky-Anker. -->
@@ -222,12 +224,57 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     </a>
     <?php endforeach; ?>
   </div>
-  </div><!-- /.cheat-stack-frame -->
-  <div class="cheat-stack-runway" aria-hidden="true"></div>
   <div class="cheat-cta-row">
     <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
-    <a class="cheat-all" href="cheat-sheet.html">ALLE ELF SPICKZETTEL ↗</a>
+    <a class="cheat-all" href="cheat-sheet.html">ALLE ZWÖLF SPICKZETTEL ↗</a>
   </div>
+  </div><!-- /.cheat-stack-frame -->
+  <div class="cheat-stack-runway" aria-hidden="true"></div>
+</section>
+
+<section class="unterricht-collection" aria-labelledby="unterricht-title">
+  <details id="unterrichtsmaterial" class="unterricht-accordion">
+    <summary>
+      <span class="unterricht-summary-copy">
+        <span class="unterricht-kicker">EIGENER BEREICH · DEINE LERNUNTERLAGEN</span>
+        <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
+        <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
+      </span>
+      <span class="unterricht-count">02 <small>MATERIALIEN</small></span>
+      <span class="unterricht-arrow" aria-hidden="true">⌄</span>
+    </summary>
+    <div class="unterricht-content">
+      <div class="unterricht-grid">
+        <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">IT<span>//</span>VI</span>
+            <span class="unterricht-art-label">SERVICE DESK <b>01</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · IT VI.01</span>
+            <h2>Kein Ticket ohne Plan.</h2>
+            <p>IT-Support, Tickets, Priorisierung, SLA und ITSM. Lernkapitel, Rechenwege, Fragen und Praxisfälle.</p>
+            <div class="module-footer"><span>12 KAPITEL · 34 AUFGABEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#6de3ce" href="support-serviceanfragen.html" aria-label="IT VI Supportpraxis – Lernmaterial öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">S<span>//</span>D</span>
+            <span class="unterricht-art-label">SUPPORT PRAXIS <b>02</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · IT VI</span>
+            <h2>Vom Ticket zum Durchblick.</h2>
+            <p>Der komplette Supportfall: Annahme, SLA, Diagnose, Fernwartung, Dokumentation und Servicequalität. Erklärungen, realistische Praxisfälle und Musterantworten.</p>
+            <div class="module-footer"><span>6 THEMEN · 24 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+      </div>
+      <p class="unterricht-account-hint">Beim interaktiven Material werden Antworten und Notizen im Lernkonto gespeichert. Der neue Support-Guide ist zum Lesen und Nachschlagen – ohne Abhaken und ohne Speichern.</p>
+    </div>
+  </details>
 </section>
               </div>
     </div>

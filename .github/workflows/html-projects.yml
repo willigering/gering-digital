@@ -72,6 +72,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/f2
         run: node tests/f2_browser.cjs && node tests/f2_platform.cjs
+      - name: Check W4 legal rules, learning flow and account integration
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/w4
+        run: node tests/w4_browser.cjs && node tests/w4_platform.cjs
       - name: Check C# module flow and account integration
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
