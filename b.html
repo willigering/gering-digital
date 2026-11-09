@@ -6,6 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="theme-color" content="#080d15">
 <title>Bewerbungskompass · FISI-Praktikum 2027/28</title>
+<link rel="stylesheet" href="bewerbungen-mail.css">
 <meta name="description" content="Private Bewerbungsverwaltung für das FISI-Praktikum.">
 <style>
 :root{color-scheme:dark;--bg:#090e16;--panel:#101924;--panel2:#141f2c;--ink:#f1f3f1;--muted:#8e9bad;--line:#ffffff16;--gold:#e4b75d;--goldsoft:#e4b75d1b;--teal:#78d9c5;--radius:18px}
@@ -162,7 +163,7 @@ var upcoming=state.rows.filter(function(r){return r.followUpAt&&r.status!=="absa
 var nearest=state.rows.filter(function(r){return r.status==="nicht_beworben"}).sort(function(a,b){return (a.distanceKm==null?999999:a.distanceKm)-(b.distanceKm==null?999999:b.distanceKm)})[0];
 if(upcoming){$("nextTitle").textContent="Nachfassen: "+fmtDate(upcoming.followUpAt);$("nextBody").textContent=upcoming.company+" · "+(upcoming.city||"Kontakt")}else if(nearest){$("nextTitle").textContent="Nächster möglicher Kontakt";$("nextBody").textContent=nearest.company+" · "+nearest.city+" · "+numKm(nearest.distanceKm)}else{$("nextTitle").textContent="Alles im Blick";$("nextBody").textContent="Lege einen Betrieb oder einen Wiedervorlagetermin an."}
 $("syncText").textContent=state.mode==="ready"?"Auf dem Server gespeichert":state.mode==="local"?"Nur in diesem Browser":"Geschützter Zugang";$("syncDot").style.background=state.mode==="ready"?"var(--teal)":"var(--gold)";$("storageInfo").textContent=state.mode==="ready"?"Geschützte Speicherung auf deinem STRATO-Webserver. Änderungen werden nach dem Speichern auf anderen Geräten verfügbar.":state.mode==="local"?"Dieser Browser nutzt lokalen Speicher. Es findet keine Synchronisation statt.":"Melde dich an, um Daten abzurufen.";$("localWarning").style.display=state.mode==="local"?"block":"none";$("logoutBtn").style.display=state.mode==="ready"?"inline-flex":"none";
-$("listHeading").textContent=state.view==="sent"?"Versendete Bewerbungen":state.view==="all"?"Alle Unternehmen":"Bewerbungsübersicht";renderFilters();var r=sorted();$("resultCount").textContent=r.length+" von "+state.rows.length+" Unternehmen";$("footerCount").textContent=r.length+" Einträge";$("tableBody").innerHTML=r.map(rowHtml).join("");$("mobileCards").innerHTML=r.map(cardHtml).join("");var empty=r.length===0;$("emptyBox").classList.toggle("hidden",!empty);if(empty){$("emptyTitle").textContent=state.rows.length?"Keine Treffer":"Hier beginnt deine Liste";$("emptyText").textContent=state.rows.length?"Versuche eine andere Suche oder einen anderen Status.":"Importiere deine bisherigen 30 Betriebe aus der vorbereiteten JSON-Datei oder lege einen neuen Kontakt an.";$("emptyAction").style.display=state.rows.length?"none":"inline-flex"}}
+$("listHeading").textContent=state.view==="sent"?"Versendete Bewerbungen":state.view==="all"?"Alle Unternehmen":"Bewerbungsübersicht";renderFilters();var r=sorted();$("resultCount").textContent=r.length+" von "+state.rows.length+" Unternehmen";$("footerCount").textContent=r.length+" Einträge";$("tableBody").innerHTML=r.map(rowHtml).join("");$("mobileCards").innerHTML=r.map(cardHtml).join("");var empty=r.length===0;$("emptyBox").classList.toggle("hidden",!empty);if(empty){$("emptyTitle").textContent=state.rows.length?"Keine Treffer":"Hier beginnt deine Liste";$("emptyText").textContent=state.rows.length?"Versuche eine andere Suche oder einen anderen Status.":"Importiere deine bisherigen 30 Betriebe aus der vorbereiteten JSON-Datei oder lege einen neuen Kontakt an.";$("emptyAction").style.display=state.rows.length?"none":"inline-flex"}document.dispatchEvent(new Event("bewerbungen:render"))}
 $("filters").addEventListener("click",function(ev){var b=ev.target.closest("[data-filter]");if(!b)return;state.filter=b.dataset.filter;render()});
 $("searchInput").addEventListener("input",function(ev){state.search=ev.target.value;render()});
 $("sortSelect").addEventListener("change",function(ev){state.sort=ev.target.value;render()});
@@ -182,8 +183,24 @@ $("exportQuick").addEventListener("click",exportCsv);$("exportJson").addEventLis
 $("importBtn").addEventListener("click",function(){$("importFile").click()});$("emptyAction").addEventListener("click",function(){setView("settings");$("importFile").click()});
 $("importFile").addEventListener("change",async function(){var file=this.files[0];this.value="";if(!file)return;try{var parsed=JSON.parse(await file.text());var arr=Array.isArray(parsed)?parsed:parsed.items;if(!Array.isArray(arr))throw new Error("Die Datei enthält keine gültige Bewerbungs-Liste.");if(arr.length>1000)throw new Error("Maximal 1000 Einträge pro Import.");if(!confirm(arr.length+" Einträge importieren? Bestehende Einträge mit derselben ID werden aktualisiert."))return;if(state.mode==="ready"){var r=await request("import",{items:arr});state.rows=r.items||[]}else{var m=new Map(state.rows.map(function(v){return [String(v.id),v]}));arr.forEach(function(v,i){if(v&&typeof v==="object"&&v.company){var id=String(v.id||"import-"+i+"-"+Date.now());m.set(id,Object.assign({},v,{id:id}))}});state.rows=Array.from(m.values());saveLocal()}state.filter="all";state.search="";$("searchInput").value="";setView("overview");toast(arr.length+" Datensätze importiert.")}catch(err){toast("Import fehlgeschlagen: "+err.message,true)}});
 $("logoutBtn").addEventListener("click",async function(){if(state.mode!=="ready")return;try{var r=await request("logout",{});state.rows=[];showAuth("login");render();toast("Abgemeldet.")}catch(err){toast(err.message,true)}});
+window.Bewerbungskompass={
+  rows:function(){return state.rows.slice()},
+  mode:function(){return state.mode},
+  csrf:function(){return state.csrf},
+  reload:async function(){
+    if(state.mode!=="ready")return;
+    var res=await fetch(API+"?action=state",{credentials:"same-origin",cache:"no-store"});
+    if(!res.ok)throw new Error("Bewerbungsdaten konnten nicht aktualisiert werden.");
+    var data=await res.json();
+    if(data.mode!=="ready")throw new Error("Sitzung abgelaufen.");
+    state.rows=Array.isArray(data.items)?data.items:[];
+    if(data.csrf)state.csrf=data.csrf;
+    render();
+  }
+};
 boot();
 })();
 </script>
+<script src="bewerbungen-mail-ui.js" defer></script>
 </body>
 </html>
