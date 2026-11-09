@@ -68,6 +68,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/unterricht
         run: node tests/unterricht_stack_browser.cjs
+      - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/geringdigital-v3
+        run: node tests/home_v3_browser.cjs
       - name: Check wrong-answer feedback in all modules on desktop and mobile
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -91,11 +96,6 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/b4
         run: node tests/b4_ipv6_browser.js
-      - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
-        env:
-          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
-          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/geringdigital-v3
-        run: node tests/home_v3_browser.cjs
       - name: Check landing page in desktop and mobile browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
