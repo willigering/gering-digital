@@ -319,9 +319,9 @@ let server, browser;
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
-  // Die Reglerfläche liegt auf einer 3D-transformierten Gerätefront. Playwright
-  // berechnet beim Element-Klick die richtige lokale Position auf dieser Fläche.
-  await seek.click();
+  // Die Schiene erhält einen eigenen Pointer-Handler: Die native Range würde
+  // wegen der 3D-Perspektive Klicks in der Mitte am falschen Ende interpretieren.
+  await ownPage.locator('.nr-display__bar').click();
   await pause(300);
   o = await ownState();
   const seekValue = await seek.inputValue();
