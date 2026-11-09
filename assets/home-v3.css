@@ -131,6 +131,8 @@ body{
   transition:transform .2s,border-color .2s,box-shadow .2s;
   display:flex;flex-direction:column;min-height:320px;
 }
+/* Preserve native [hidden] for category filters despite high-specificity card display rules. */
+#apps .gdv3-project-grid .app-card[hidden]{display:none!important}
 #apps .gdv3-project-grid .app-card:hover{
   --lift:-5px;
   border-color:#e3bb6b94!important;
