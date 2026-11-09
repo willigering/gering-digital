@@ -200,7 +200,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   ['datenschutz','Datenschutz','DSGVO, Betroffenenrechte und TOM','DSGVO','#79c8b0'],
   ['rechnung','Kalkulation','Rabatt, Skonto, TCO und Gewinn','€','#f7c36e'],
   ['csharp','C#-Grundlagen','Datentypen, if, Schleifen und Methoden','C#','#8eb7ff'],
-  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4']
+  ['mix','Prüfungs-Mix','RAID, Hardware, SQL und Projekte','IT','#d6a3f4'],
+  ['support','IT-Support','Tickets, SLA, Supportlevel und ITSM','HELP','#66dbe4']
 ]; ?>
 <section class="cheat-collection" id="cheat-sheets" aria-labelledby="cheat-title">
   <!-- Überschrift und Karten teilen sich beim Stapeln denselben Sticky-Anker. -->
@@ -224,7 +225,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </div>
   <div class="cheat-cta-row">
     <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
-    <a class="cheat-all" href="cheat-sheet.html">ALLE ELF SPICKZETTEL ↗</a>
+    <a class="cheat-all" href="cheat-sheet.html">ALLE ZWÖLF SPICKZETTEL ↗</a>
   </div>
   </div><!-- /.cheat-stack-frame -->
   <div class="cheat-stack-runway" aria-hidden="true"></div>
