@@ -322,7 +322,19 @@ let server, browser;
   await ownPage.mouse.click(seekBox.x + seekBox.width * 0.5, seekBox.y + seekBox.height / 2);
   await pause(250);
   o = await ownState();
-  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte');
+  const seekProbe=await ownPage.evaluate(()=>{
+    const seek=document.querySelector('[data-radio-seek]');
+    const r=document.querySelector('[data-nerd-radio]').nerdRadio;
+    const audio=document.querySelector('audio');
+    return {display:document.querySelector('[data-radio-elapsed]')?.textContent,
+      rangeValue:seek.value,rangeDisabled:seek.disabled,track:r.track,state:r.state,
+      seekBox:seek.getBoundingClientRect().toJSON(),
+      audio:audio?{currentTime:audio.currentTime,duration:audio.duration,readyState:audio.readyState,
+        networkState:audio.networkState,seeking:audio.seeking,
+        seekable:audio.seekable.length? [audio.seekable.start(0),audio.seekable.end(0)]:[]}:null};
+  });
+  console.log('RADIO SEEK PROBE '+JSON.stringify(seekProbe));
+  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte: '+JSON.stringify(seekProbe));
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
