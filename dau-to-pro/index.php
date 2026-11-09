@@ -73,6 +73,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
   <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
   <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
+  <link rel="stylesheet" href="module-shell.css?v=<?=filemtime(__DIR__.'/module-shell.css')?>">
+  <script src="module-shell.js?v=<?=filemtime(__DIR__.'/module-shell.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
@@ -342,6 +344,20 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="../index.php">Zurück zu Gering Digital</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php">Datenschutz</a><a href="#hinweis">Wichtiger Hinweis</a></div><small>© 2026 Willi Gering</small></div></footer>
 
 <?=dtp_feedback_dialog('startseite')?>
+<!-- Lernansicht bleibt im selben Tab; der Radio-AudioContext bleibt auf der Startseite aktiv. -->
+<section class="dtp-module-shell" data-module-shell hidden aria-label="Lernmodul">
+  <header class="dtp-module-bar">
+    <button type="button" class="dtp-module-back" data-module-back>← Zur Modulauswahl</button>
+    <div class="dtp-module-player" role="group" aria-label="NERD FM – Musiksteuerung">
+      <span class="dtp-module-track"><strong data-module-radio-title>NERD FM</strong><small data-module-radio-time>00:00 / --:--</small></span>
+      <button type="button" data-module-radio-prev aria-label="Vorheriger Titel">⏮</button>
+      <button type="button" data-module-radio-play aria-label="Musik abspielen">▶</button>
+      <button type="button" data-module-radio-next aria-label="Nächster Titel">⏭</button>
+      <input type="range" min="0" max="100" step="1" value="35" data-module-radio-volume aria-label="Musiklautstärke">
+    </div>
+  </header>
+  <iframe class="dtp-module-frame" data-module-frame src="about:blank" title="Lernmodul"></iframe>
+</section>
 </body></html>
 
 
