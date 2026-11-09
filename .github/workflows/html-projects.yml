@@ -16,6 +16,8 @@ jobs:
         run: node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Validate private Bewerbungskompass frontend and privacy contract
         run: node tests/bewerbungen_smoke.cjs
+      - name: Test application-mail PDF generation and private SMTP settings
+        run: php tests/bewerbungen_mail_test.php && node --check bewerbungen-mail-ui.js
       - name: Test rare feedback Easter egg
         run: node tests/feedback_easter_egg_test.cjs
       - name: Test topic tab filters (without exam finder)
