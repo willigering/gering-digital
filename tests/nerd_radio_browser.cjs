@@ -349,6 +349,7 @@ let server, browser;
   await pause(600);
   assert.equal((await ownState()).time, pausedModule, 'Kein Songfortschritt in der Pause');
   await ownPage.locator('[data-module-radio-play]').click();
+  await ownPage.waitForFunction(() => document.querySelector('[data-nerd-radio]').nerdRadio.state === 'playing');
   assert.equal((await ownState()).state, 'playing', 'Modulsteuerung setzt denselben Song fort');
   await ownPage.frameLocator('[data-module-frame]').locator('#next-module').click();
   await ownPage.waitForFunction(() => new URL(location.href).searchParams.get('modul') === 'subnetsprint');
