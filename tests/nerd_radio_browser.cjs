@@ -81,7 +81,7 @@ let server, browser;
       stageWidth: document.querySelector('.nr-rail').offsetWidth
     };
   });
-  for (const [width, height, mobile] of [[2560, 1440], [1920, 1080], [1600, 900], [1440, 900], [1024, 768], [390, 844, true], [320, 568, true]]) {
+  for (const [width, height, mobile] of (process.env.DTP_RADIO_SMOKE === '1' ? [] : [[2560, 1440], [1920, 1080], [1600, 900], [1440, 900], [1024, 768], [390, 844, true], [320, 568, true]])) {
     const context = await browser.newContext({ viewport: { width, height }, isMobile: !!mobile, hasTouch: !!mobile });
     const page = await context.newPage();
     page.on('pageerror', e => errors.push(`${width}: ${e.message}`));
@@ -315,31 +315,48 @@ let server, browser;
   assert.equal(o.length, '00:20', 'Echte Dateilänge statt Loop-Anzeige');
   assert.ok(o.level > 0, 'Analyser liefert Daten der Datei');
   assert.equal(o.time, '00:01', 'Zeit läuft mit der Datei');
+  /* ---------- Module wechseln, ohne AudioContext oder Song zu verlieren ---------- */
+  await pause(650);
+  const beforeModule = await ownState();
+  const seconds = t => { const [m, s] = t.split(':').map(Number); return m * 60 + s; };
+  await ownPage.locator('#module-grid a.module-card[href="../osi/"]').click();
+  await ownPage.locator('[data-module-shell]').waitFor({ state: 'visible' });
+  await ownPage.frameLocator('[data-module-frame]').locator('h1').getByText('Testmodul').waitFor();
+  assert.equal(new URL(ownPage.url()).searchParams.get('modul'), 'osi', 'Module werden über die persistente Lernansicht geöffnet');
+  await pause(1500);
+  let duringModule = await ownState();
+  assert.equal(duringModule.state, 'playing', 'Musik läuft im Modul ohne Pause weiter');
+  assert.ok(seconds(duringModule.time) >= seconds(beforeModule.time) + 1, 'Die Datei läuft im geöffneten Modul weiter');
+  assert.equal(await ownPage.evaluate(() => document.querySelector('[data-nerd-radio]').nerdRadio.contexts), 1, 'AudioContext wurde nicht neu erstellt');
+  await ownPage.locator('[data-module-radio-play]').click();
+  assert.equal((await ownState()).state, 'paused', 'Modulsteuerung pausiert den ursprünglichen Player');
+  await pause(550);
+  const pausedModule = (await ownState()).time;
+  await pause(600);
+  assert.equal((await ownState()).time, pausedModule, 'Kein Songfortschritt in der Pause');
+  await ownPage.locator('[data-module-radio-play]').click();
+  await ownPage.waitForFunction(() => document.querySelector('[data-nerd-radio]').nerdRadio.state === 'playing');
+  assert.equal((await ownState()).state, 'playing', 'Modulsteuerung setzt denselben Song fort');
+  await ownPage.frameLocator('[data-module-frame]').locator('#next-module').click();
+  await ownPage.waitForFunction(() => new URL(location.href).searchParams.get('modul') === 'subnetsprint');
+  assert.equal((await ownState()).state, 'playing', 'Auch der Wechsel zwischen zwei Modulen stoppt die Musik nicht');
+  await ownPage.frameLocator('[data-module-frame]').locator('dtp-back #back-module').click();
+  await ownPage.locator('[data-module-shell]').waitFor({ state: 'hidden' });
+  assert.equal(new URL(ownPage.url()).searchParams.has('modul'), false, 'Zurück aus dem Modul ohne Seitenreload');
+  assert.equal((await ownState()).state, 'playing', 'Musik spielt nach Rückkehr zur Modulauswahl weiter');
   const seek = ownPage.locator('[data-radio-seek]');
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
-  const preSeekProbe=await ownPage.evaluate(([x,y])=>{
-    const t=document.elementFromPoint(x,y),seek=document.querySelector('[data-radio-seek]');
-    window.__nerdSeekEvents=[];
-    for(const type of ['pointerdown','pointerup','mousedown','mouseup','click','input','change']){
-      document.addEventListener(type,event=>{
-        if(window.__nerdSeekEvents.length<30)window.__nerdSeekEvents.push({
-          type,target:event.target?.outerHTML?.slice(0,140),val:seek.value,
-          x:event.clientX,y:event.clientY
-        });
-      },{capture:true,once:false});
-    }
-    return {point:[x,y],hit:t?.outerHTML?.slice(0,400),closestSeek:t===seek,
-      hitStyle:t?{pointer:getComputedStyle(t).pointerEvents,z:getComputedStyle(t).zIndex}:null,
-      seekValue:seek.value,radioState:document.querySelector('[data-nerd-radio]')?.nerdRadio?.state};
-  },[seekBox.x+seekBox.width*0.5,seekBox.y+seekBox.height/2]);
-  console.log('RADIO SEEK HIT BEFORE '+JSON.stringify(preSeekProbe));
-  await ownPage.mouse.click(seekBox.x + seekBox.width * 0.5, seekBox.y + seekBox.height / 2);
-  await pause(250);
-  console.log('RADIO SEEK EVENT TRACE '+JSON.stringify(await ownPage.evaluate(()=>window.__nerdSeekEvents)));
+  // Die Testaudioantwort liefert nun HTTP 206 und kann wirklich seeken.
+  const bar = ownPage.locator('.nr-display__bar');
+  const box = await bar.boundingBox();
+  assert.ok(box && box.width > 10, 'Die Schiene hat eine sichtbare Fläche');
+  await ownPage.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await pause(350);
   o = await ownState();
-  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte');
+  assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13,
+    `Klick spult zur Titelmitte (Zeit=${o.time}, Regler=${await seek.inputValue()})`);
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
