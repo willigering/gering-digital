@@ -4,7 +4,7 @@
   "motifs": [
     {
       "id": "unternehmen",
-      "accent": "#d4b8ff",
+      "accent": "#ff9a3c",
       "label": "Unternehmensformen & Märkte",
       "slugs": [
         "w4-unternehmen"
@@ -41,7 +41,7 @@
       "keywords": [
         "c#",
         "csharp",
-        "compiler hat immer recht"
+        "compiler sagt nein"
       ],
       "module": "CS1"
     },

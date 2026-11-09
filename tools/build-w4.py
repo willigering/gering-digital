@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 shell=(ROOT/'lernmodule/a1-zahlensysteme.html').read_text()
 content=json.loads((ROOT/'tools/w4-content.json').read_text())
 js=(ROOT/'tools/w4-generators.js').read_text().replace('__CONTENT__',json.dumps(content,ensure_ascii=False))
-ACCENT='#d4b8ff'; ACCENT_RGB='212,184,255'
+ACCENT='#ff9a3c'; ACCENT_RGB='255,154,60'
 
 def replace_between(s,start,end,value):
  a=s.index(start); b=s.index(end,a); return s[:a]+value+s[b:]
@@ -15,11 +15,11 @@ def must(s,old,new):
  return s.replace(old,new)
 
 shell=re.sub(r'<title>.*?</title>','<title>Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · DAU TO PRO</title>',shell)
-shell=re.sub(r'<meta name="description"[^>]+>','<meta name="description" content="W4: Wirtschaftssektoren, Märkte, Marktformen, Einzelunternehmen, GbR, OHG, KG, GmbH, UG, AG, eG, Handelsregister, Prokura und Rechtsformwahl verständlich trainieren.">',shell)
+shell=re.sub(r'<meta name="description"[^>]+>','<meta name="description" content="Wirtschaftssektoren, Märkte, Marktformen, Einzelunternehmen, GbR, OHG, KG, GmbH, UG, AG, eG, Handelsregister, Prokura und Rechtsformwahl verständlich trainieren.">',shell)
 shell=shell.replace('data-game-id="a1"','data-game-id="w4"')
 bg=base64.b64encode((ROOT/'assets/dau-backgrounds/circuit-768.webp').read_bytes()).decode()
 shell=re.sub(r'<script>\(function\(\)\{var B=.*?</script>','<script>/* DTP-HINTERGRUND: circuit */\n(function(){var B=["data:image/webp;base64,'+bg+'"];document.documentElement.style.setProperty("--bg-tex",\'url("\'+B[0]+\'")\')})();</script>',shell,flags=re.S)
-shell=must(shell,'GRUNDLAGEN <b>//</b> ZAHLENSYSTEME <b>//</b> MODUL A1','WIRTSCHAFT &amp; PROJEKTE <b>//</b> UNTERNEHMEN &amp; MÄRKTE <b>//</b> MODUL W4')
+shell=must(shell,'GRUNDLAGEN <b>//</b> ZAHLENSYSTEME <b>//</b> MODUL A1','WIRTSCHAFT &amp; PROJEKTE <b>//</b> UNTERNEHMEN &amp; MÄRKTE')
 shell=must(shell,'Bits zum <span>bitteren Ende.</span>','Garage, Gewinn, <span>Gerichts&shy;vollzieher</span>')
 shell=re.sub(r'<p class="hero-lead">.*?</p>','<p class="hero-lead">Jede Firma fängt irgendwo an. Manchmal in der Garage. Dann kommt der Gewinn, und manchmal kommt der Gerichtsvollzieher. Hier lernst du, wer bei welcher Rechtsform haftet, wer mitreden darf, wie Märkte funktionieren und warum „e.V.“ noch lange nicht „gemeinnützig“ heißt.</p>',shell,count=1,flags=re.S)
 shell=must(shell,'Von Null Plan <span>zu Null und Eins.</span>','Von der Garage <span>zur Holding.</span>')
@@ -30,18 +30,18 @@ shell=must(shell,'Welche Darstellung gehört zusammen?','Welcher Begriff gehört
 shell=must(shell,'Wähle für jede Zeile die passende Zahl. Zwei Antworten im Auswahlmenü sind Lockvögel.','Jede Zeile wird einzeln bewertet. Im Auswahlmenü stehen mehr Begriffe als nötig.')
 shell=must(shell,'Umrechnen auf Zeit.','Einordnen auf Zeit.')
 shell=must(shell,'Wer die Bits versteht, versteht auch Subnetting, IPv6 und jede Downloadzeit.','Wer die Haftung versteht, liest jeden Gesellschaftsvertrag mit anderen Augen.')
-shell=must(shell,'Modul A1 · Zahlensysteme · Bits zum bitteren Ende · Version 2.4','Modul W4 · Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · v1.0')
+shell=must(shell,'Modul A1 · Zahlensysteme · Bits zum bitteren Ende · Version 2.4','Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · v1.1')
 shell=re.sub(r"(window\.dtpMountCalculator\?\.\([^;]*),'zahlen'\);", r"\1,'w4');", shell)
 shell=shell.replace('a1-bits','w4-unternehmen').replace('window.A1_TEST','window.W4UNTERNEHMEN_TEST')
 # Module accent everywhere, including translucent variants and the A1 game block.
 for old in ['#6ee78c','#a6f05a']: shell=shell.replace(old,ACCENT)
 for old in ['110,231,140','166,240,90','0,202,216','0,220,232']: shell=shell.replace(old,ACCENT_RGB)
-for old,new in {'#080e0b':'#0d0b12','#111b15':'#1a1624','#0d1912':'#15121d','#192920':'#251f33','#090f0c':'#0e0c13','#0e1b13':'#17131f','#0b1810':'#141120','#08120c':'#0f0d16','#09110c':'#0f0d16','#101a14':'#17121a','#121c16':'#1a1524','rgba(8,14,11,':'rgba(13,11,18,','rgba(12,19,15,':'rgba(19,16,26,','rgba(11,18,14,':'rgba(17,14,23,','#07110bf2':'#0d0b12f2','#07110bf5':'#0d0b12f5'}.items():shell=shell.replace(old,new)
+for old,new in {'#080e0b':'#120d09','#111b15':'#211710','#0d1912':'#1b130d','#192920':'#2e2117','#090f0c':'#130e0a','#0e1b13':'#1d150f','#0b1810':'#1a120c','#08120c':'#140e0a','#09110c':'#140e0a','#101a14':'#1d140d','#121c16':'#221811','rgba(8,14,11,':'rgba(18,13,9,','rgba(12,19,15,':'rgba(26,19,13,','rgba(11,18,14,':'rgba(23,17,11,','#07110bf2':'#120d09f2','#07110bf5':'#120d09f5'}.items():shell=shell.replace(old,new)
 extra='''<style>
-/* W4: lilac accent and clear scenario/question separation. */
-.scenario{border-left:3px solid var(--cyan);padding:10px 14px;margin:0 0 12px;background:#18141f;overflow-wrap:anywhere}.scenario strong{display:block;color:var(--cyan);font-size:11px;letter-spacing:.15em}.scenario ol{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.35}.scenario ol li{margin:2px 0}.task-prompt{overflow-wrap:anywhere}.bitwall{grid-template-columns:1fr;gap:12px}.bitwall .cash{font:900 38px var(--mono);color:var(--gold)}.bitwall p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.match-row .val{white-space:normal;font-family:inherit;overflow-wrap:anywhere}.table-wrap{max-width:100%;overflow-x:auto}.catbar{grid-template-columns:minmax(90px,180px) 1fr 100px}.qtip{overflow-wrap:anywhere}.lab input{max-width:100%}.review .task-prompt{margin-top:12px}body:after{background-image:linear-gradient(#0d0b12bb,#0d0b12df),var(--bg-tex,none)}
-.panel td,.panel th{overflow-wrap:normal}\n.hero h1{font-size:clamp(36px,5.4vw,70px);hyphens:manual}
-@media(max-width:610px){.catbar{grid-template-columns:95px 1fr 85px}.hero{padding-top:28px}.match-row{grid-template-columns:1fr;gap:6px}.qnav{gap:5px}.hero h1{font-size:44px}.grade{grid-template-columns:1fr}.bitwall .cash{font-size:30px}}
+/* W4: orange accent and clear scenario/question separation. */
+.scenario{border-left:3px solid var(--cyan);padding:10px 14px;margin:0 0 12px;background:#1e150e;overflow-wrap:anywhere}.scenario strong{display:block;color:var(--cyan);font-size:11px;letter-spacing:.15em}.scenario ol{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.35}.scenario ol li{margin:2px 0}.task-prompt{overflow-wrap:anywhere}.bitwall{grid-template-columns:1fr;gap:12px}.bitwall .cash{font:900 38px var(--mono);color:var(--gold)}.bitwall p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.match-row .val{white-space:normal;font-family:inherit;overflow-wrap:anywhere}.table-wrap{max-width:100%;overflow-x:auto}.catbar{grid-template-columns:minmax(90px,180px) 1fr 100px}.qtip{overflow-wrap:anywhere}.lab input{max-width:100%}.review .task-prompt{margin-top:12px}body:after{background-image:linear-gradient(#120d09bb,#120d09df),var(--bg-tex,none)}
+.panel td,.panel th{overflow-wrap:normal}\n.hero h1{hyphens:manual}
+@media(max-width:610px){.catbar{grid-template-columns:95px 1fr 85px}.hero{padding-top:28px}.match-row{grid-template-columns:1fr;gap:6px}.qnav{gap:5px}.grade{grid-template-columns:1fr}.bitwall .cash{font-size:30px}}
 </style>'''
 shell=shell.replace('</head>',extra+'</head>')
 chapters='<nav class="chapter-grid" aria-label="Kapitel">'+''.join(f'<a class="ch-tile" href="#ch{i+1}"><span>{i+1:02}</span><strong>{c["title"]}</strong><small>{c["goal"]}</small></a>' for i,c in enumerate(content))+'</nav>'
@@ -89,10 +89,10 @@ shell=must(shell,"Ein paar Bits wackeln noch, aber das Fundament steht.","Ein pa
 shell=must(shell,"Sehr gut! Du bist offiziell kein DAU mehr. Höchstens noch ein DAU mit Root-Rechten.","Sehr gut! Du könntest jetzt eine Firma gründen. Und wüsstest sogar, wer am Ende zahlt.")
 for leftover in ['a1-bits','A1_TEST','Zahlensysteme · Bits']:
  if leftover in shell: raise SystemExit('Leftover from A1: '+leftover)
-# Remaining dark green surfaces of the A1 template become dark lilac (only #rrggbb colours; base64 never contains '#').
+# Remaining dark green surfaces of the A1 template become dark warm brown (only #rrggbb colours; base64 never contains '#').
 def lilac(m):
  h=m.group(1);r,g,b=int(h[0:2],16),int(h[2:4],16),int(h[4:6],16)
- if max(r,g,b)<0x40 and g>r+6 and g>=b-2:return '#%02x%02x%02x'%((r+g)//2,r,min(255,round(g*1.15)))
+ if max(r,g,b)<0x40 and g>r+6 and g>=b-2:return '#%02x%02x%02x'%(min(255,round(g*1.15)),(r+g)//2,r)
  return m.group(0)
 shell=re.sub(r'#([0-9a-fA-F]{6})\b',lilac,shell)
 (ROOT/'lernmodule/w4-unternehmen.html').write_text(apply_theme(shell))

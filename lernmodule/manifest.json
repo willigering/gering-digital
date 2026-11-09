@@ -93,8 +93,8 @@
       "preview": "csharp",
       "file": "cs1-csharp.html",
       "subject": "Programmieren mit C#",
-      "title": "Der Compiler hat immer recht",
-      "description": "Von der ersten Zeile über Schleifen, Methoden und Klassen bis zum eigenen Gerätemanager. Du lernst, Code zu lesen und Fehler zu finden, bevor der Compiler es dir unter die Nase reibt."
+      "title": "Compiler sagt nein",
+      "description": "Was ist ein Programm, was macht ein Compiler anders als ein Interpreter, und warum passt \"24\" nicht in einen int? Dein Einstieg in C#: Datentypen, Variablen deklarieren und initialisieren, Verzweigungen, Schleifen, Arrays und erste Methoden."
     },
     {
       "slug": "w4-unternehmen",

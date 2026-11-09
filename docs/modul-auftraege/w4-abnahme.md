@@ -1,4 +1,4 @@
-# W4 – Garage, Gewinn, Gerichtsvollzieher · Abnahme v1.0
+# W4 – Garage, Gewinn, Gerichtsvollzieher · Abnahme v1.1
 
 ## Umfang
 
@@ -23,8 +23,8 @@ Abweichung vom Steckbrief W4: Aufbau- und Ablauforganisation sind **nicht** enth
 
 ## Geprüft (lokal, 09.11.2026)
 
-- [x] Eine HTML-Datei, offline lauffähig, eingebetteter Hintergrund `circuit`, Akzent `#d4b8ff`, Footer v1.0, keine Konsolenfehler.
-- [x] Hero-Kicker „WIRTSCHAFT & PROJEKTE // UNTERNEHMEN & MÄRKTE // MODUL W4“, vier Bereichskacheln, keine Warnstreifen.
+- [x] Eine HTML-Datei, offline lauffähig, eingebetteter Hintergrund `circuit`, Akzent `#ff9a3c` (Orange; ursprünglich geplantes Lila war zu nah an C# und Klausurvorbereitung), Footer v1.1, keine Konsolenfehler.
+- [x] Hero-Kicker „WIRTSCHAFT & PROJEKTE // UNTERNEHMEN & MÄRKTE“ ohne sichtbares Modulkürzel (Willis Vorgabe vom 09.11.2026), Hauptüberschrift in derselben Größe wie die übrigen Module, vier Bereichskacheln, keine Warnstreifen.
 - [x] Alle 55 Generatoren je 1.000-mal mit wechselnden Stufen: 55.000 Aufgaben mit Ausgangslage, Frage, eigener einfacher Tooltip-Fassung und Erklärung. Richtige Antworten und alle akzeptierten Schreibweisen werden angenommen, falsche abgelehnt.
 - [x] 21 Rechenaufgaben und 11 Begriffsaufgaben mit unabhängig festgelegten Ergebnissen; Rechtsregeln (GmbH-Mindesteinzahlung, Resthaftung Kommanditist) 300-mal zufällig gegengeprüft.
 - [x] Sich ausschließende Begriffe (primär/sekundär/tertiär, GbR/OHG, Komplementär/Kommanditist, Personen-/Kapitalgesellschaft, ja/nein) ergeben je Aufgabe genau eine gültige Antwort.

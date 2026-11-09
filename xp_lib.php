@@ -99,11 +99,11 @@ function xp_dashboard(int $id,?int $now=null): array {
 }
 function xp_recent(int $id,int $limit=5): array {
     $q=db()->prepare('SELECT code,unlocked_at FROM learner_achievements WHERE learner_id=? ORDER BY unlocked_at DESC,rowid DESC');$q->execute([$id]);$out=[];
-    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $r)if(isset(ach_catalog()[$r['code']])){$out[]=ach_item(ach_catalog()[$r['code']],[$r['code']=>$r['unlocked_at']]);if(count($out)>=$limit)break;}return $out;
+    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $r)if(ach_visible($r['code'])){$out[]=ach_item(ach_catalog()[$r['code']],[$r['code']=>$r['unlocked_at']]);if(count($out)>=$limit)break;}return $out;
 }
 function xp_showcase(int $id): array {
     $q=db()->prepare('SELECT s.slot,s.code,a.unlocked_at FROM learner_showcase s JOIN learner_achievements a ON a.learner_id=s.learner_id AND a.code=s.code WHERE s.learner_id=? ORDER BY slot');$q->execute([$id]);$out=[];
-    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $r)if(isset(ach_catalog()[$r['code']]))$out[(int)$r['slot']]=ach_item(ach_catalog()[$r['code']],[$r['code']=>$r['unlocked_at']]);return $out;
+    foreach($q->fetchAll(PDO::FETCH_ASSOC) as $r)if(ach_visible($r['code']))$out[(int)$r['slot']]=ach_item(ach_catalog()[$r['code']],[$r['code']=>$r['unlocked_at']]);return $out;
 }
 function xp_set_showcase(int $id,array $slots): void {
     if(count($slots)>3)throw new LearnerError('Höchstens drei Erfolge passen in die Vitrine.');

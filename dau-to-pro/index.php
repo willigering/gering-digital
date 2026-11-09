@@ -138,7 +138,10 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
                 <p class="nr-display__track"><span class="nr-display__icon" aria-hidden="true"></span><span class="nr-display__titlebox"><span class="nr-marquee" data-radio-title>01 – Stack Overflow FM</span></span></p>
                 <div class="nr-display__meta">
                   <span class="nr-display__time" data-radio-elapsed>00:00</span>
-                  <span class="nr-display__bar" title="Position im Loop" aria-hidden="true"><i data-radio-position></i></span>
+                  <span class="nr-display__bar" title="Wiedergabeposition">
+                    <i data-radio-position aria-hidden="true"></i>
+                    <input type="range" min="0" max="1000" step="1" value="0" data-radio-seek aria-label="Wiedergabeposition" disabled>
+                  </span>
                   <span class="nr-display__time" data-radio-length>∞ LOOP</span>
                   <svg class="nr-display__ind" data-radio-shuffle-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h3.5c4.5 0 6.5 10 11 10H20M3 17h3.5c1.8 0 3-1.6 4-3.4M13.5 9.4c1-1.6 2.2-2.4 4-2.4H20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M18 3.5l4 3.5-4 3.5zM18 13.5l4 3.5-4 3.5z"/></svg>
                   <svg class="nr-display__ind nr-display__ind--loop" data-radio-loop-ind viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13V11a5 5 0 0 1 5-5h9M20 11v2a5 5 0 0 1-5 5H6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path d="M16 2.5L20 6l-4 3.5zM8 14.5L4 18l4 3.5z"/></svg>

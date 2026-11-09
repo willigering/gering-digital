@@ -11,7 +11,11 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 
 // ---------------------------------------------------------------- Katalog und Freischaltung
 $songs=nfm_songs();
-check(array_keys($songs)===['apipa','sieben-schichten','klopf-klopf','dau-to-pro'],'Vier Songs in fester Reihenfolge');
+$hasDejaVu=is_file(nfm_dir().'/deja-vu.mp3');
+$expectedIds=['apipa','sieben-schichten','klopf-klopf','dau-to-pro'];
+if ($hasDejaVu) $expectedIds[]='deja-vu';
+check(array_keys($songs)===$expectedIds,'Feste Playlist-Reihenfolge, neuer Song erst mit echter MP3');
+if ($hasDejaVu) check($songs['deja-vu']['unlock']===null && $songs['deja-vu']['module']===null,'Diggy Thal – Déjà-vu ist ohne Konto oder Achievement verfügbar');
 check($songs['apipa']['unlock']===null,'APIPA ist sofort verfügbar');
 check($songs['sieben-schichten']['unlock']==='osi.lernpfad' && $songs['sieben-schichten']['module']==='osi-sprint','7 Schichten: Lernpfad Easy OSI for FISI');
 check($songs['klopf-klopf']['unlock']==='b5.lernpfad' && $songs['klopf-klopf']['module']==='b5-netzwerkdienste','Klopf, Klopf: Lernpfad Port 80, bitte kommen');
@@ -23,31 +27,35 @@ foreach ($songs as $id=>$s) {
 check(trim((string)file_get_contents(nfm_dir().'/.htaccess'))==='Deny from all','Songordner ist für direkte Abrufe gesperrt');
 
 $guest=nfm_tracks(null);
-check(count($guest)===1 && $guest[0]['title']==='Diggy Thal – APIPA','Gäste hören nur APIPA');
+$guestTitles=['Diggy Thal – APIPA'];
+if ($hasDejaVu) $guestTitles[]='Diggy Thal – Déjà-vu';
+check(array_column($guest,'title')===$guestTitles,'Gäste hören APIPA und (wenn vorhanden) Diggy Thal – Déjà-vu');
 check(!str_contains(json_encode($guest),'.mp3'),'Playlist verrät keine Dateinamen');
 
 db()->prepare('INSERT INTO learners(username,password_hash) VALUES(?,?)')->execute(['hoerer','x']);
 $lid=(int)db()->lastInsertId();
 $learner=learner_by_id($lid);
-check(count(nfm_tracks($learner))===1,'Neues Konto: nur APIPA');
+check(count(nfm_tracks($learner))===count($guestTitles),'Neues Konto: dieselben öffentlichen Songs wie Gäste');
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'b5.lernpfad','2026-11-07 12:00:00']);
 $titles=array_column(nfm_tracks($learner),'title');
-check($titles===['Diggy Thal – APIPA','Diggy Thal – Klopf, Klopf'],'Lernpfad B5 schaltet „Klopf, Klopf“ frei');
+$expectedB5=['Diggy Thal – APIPA','Diggy Thal – Klopf, Klopf'];
+if ($hasDejaVu) $expectedB5[]='Diggy Thal – Déjà-vu';
+check($titles===$expectedB5,'Lernpfad B5 schaltet „Klopf, Klopf“ frei, öffentlicher Song bleibt verfügbar');
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
 check(in_array('DAU to PRO',array_column(nfm_tracks($learner),'title'),true),'Easter Egg schaltet „DAU to PRO“ frei');
 
 // ---------------------------------------------------------------- Playlist-Editor: abgewählte Titel im Konto
-check(array_column(nfm_tracks($learner),'on')===[true,true,true],'Standard: alle freigeschalteten Titel sind aktiv');
+check(array_column(nfm_tracks($learner),'on')===array_fill(0,3+($hasDejaVu?1:0),true),'Standard: alle freigeschalteten Titel sind aktiv');
 check(nfm_save_off($learner,['klopf-klopf'])===['klopf-klopf'] && nfm_off_ids($learner)===['klopf-klopf'],'Abgewählter Titel wird im Konto gespeichert');
 $on=array_column(nfm_tracks($learner),'on','id');
 check($on['klopf-klopf']===false && $on['apipa']===true && $on['dau-to-pro']===true,'Playlist liefert den gespeicherten Stand (aus für „Klopf, Klopf“)');
 check(nfm_save_off($learner,['apipa','unbekannt','../x',42,'sieben-schichten'])===['apipa'],'Unbekannte, nicht freigeschaltete und ungültige IDs werden ignoriert');
 check(nfm_off_ids($learner)===['apipa'],'Gespeichert wird nur, was dem Konto zur Verfügung steht');
-try { nfm_save_off($learner,['apipa','klopf-klopf','dau-to-pro']); check(false,'Alle Titel abwählen wird abgelehnt'); }
+try { nfm_save_off($learner,array_merge(['apipa','klopf-klopf','dau-to-pro'],$hasDejaVu?['deja-vu']:[])); check(false,'Alle Titel abwählen wird abgelehnt'); }
 catch (LearnerError $e) { check(str_contains($e->getMessage(),'Mindestens ein Titel'),'Alle Titel abwählen wird abgelehnt'); }
 check(nfm_off_ids($learner)===['apipa'],'Abgelehnte Änderung lässt den Stand unverändert');
 nfm_save_off($learner,[]);
-check(array_column(nfm_tracks($learner),'on')===[true,true,true] && nfm_off_ids($learner)===[],'Alle wieder aktivieren');
+check(array_column(nfm_tracks($learner),'on')===array_fill(0,3+($hasDejaVu?1:0),true) && nfm_off_ids($learner)===[],'Alle wieder aktivieren');
 nfm_save_off($learner,['dau-to-pro']);
 check(nfm_off_ids(null)===[] && !in_array(false,array_column(nfm_tracks(null),'on'),true),'Gäste haben keine Konto-Einstellung');
 $export=learner_export($learner);
@@ -99,7 +107,7 @@ try {
     check($cookie!=='','Sitzung wird angelegt');
     preg_match('/data-tracks="([^"]*)"/',$html,$m);
     $tracks=json_decode(html_entity_decode($m[1]??'[]',ENT_QUOTES),true)?:[];
-    check(count($tracks)===1 && $tracks[0]['title']==='Diggy Thal – APIPA','Gast-Playlist nur mit APIPA');
+    check(array_column($tracks,'title')===$guestTitles,'Gast-Playlist mit allen verfügbaren öffentlichen Songs');
     check(!str_contains($html,'nerd-fm/') && !str_contains($html,'.mp3'),'Seite enthält keinen Dateipfad');
     $src=$base.($tracks[0]['src']??'');
     $audio=['Cookie: '.$cookie,'Sec-Fetch-Site: same-origin','Sec-Fetch-Dest: audio'];

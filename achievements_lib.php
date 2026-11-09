@@ -75,7 +75,22 @@ function ach_modules(): array {
             ['b5.telnet','witzig','Klartext war gestern','3 × hintereinander falsch bei „Telnet im Jahr 2026“.',['fails','s_telnet'],'Das Passwort steht im Mitschnitt. Eine andere Portnummer ist dafür leider kein Radiergummi.'],
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 steht da. Der Internetzugang fehlt. Nicht jede Adresse ist eine Erfolgsmeldung.'],
         ]],
-        'cs'=>['prefix'=>'cs-code','subject'=>'Programmieren mit C#','title'=>'Der Compiler hat immer recht','motif'=>'csharp','slugs'=>['cs1-csharp'],'stages'=>10,'list'=>[
+        // CS1 „Compiler sagt nein“ (ab 09.11.2026): Einstieg in die Programmierung. Eigener Präfix, damit alte C#-Lernstände unberührt bleiben.
+        'cs1'=>['prefix'=>'cs1-start','subject'=>'Programmieren mit C#','title'=>'Compiler sagt nein','motif'=>'csharp','slugs'=>['cs1-csharp'],'stages'=>10,'list'=>[
+            ['cs1.hallo','bronze','Hallo, Programmierwelt','Stufe 1 „Was ist ein Programm?“ gemeistert.',['stage',0]],
+            ['cs1.semikolon','bronze','Semikolon gesetzt','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
+            ['cs1.schublade','silber','Deklariert und initialisiert','Stufe 5 „Variablen deklarieren und initialisieren“ gemeistert.',['stage',4]],
+            ['cs1.typsicher','silber','Typsicher unterwegs','„Gültige Werte erkennen“ und „Falschen Typ reparieren“ je 10 × in Folge richtig.',['clean',['t_literal','v_fix']]],
+            ['cs1.uebersetzer','gold','Simultanübersetzer','„Compiler oder Interpreter“ und „Wann fällt es auf?“ je 10 × in Folge richtig.',['clean',['u_wer','u_fehlerart']]],
+            ['cs1.lernpfad','gold','Compiler sagt ja','Alle 10 Stufen gemeistert.',['path']],
+            ['cs1.marathon','platin','Null Fehler, null Warnungen','90-Minuten-Prüfung mit mindestens 90 %.',['exam',90,90]],
+            ['cs1.html','witzig','HTML-Entwickler (m/w/d)','3 × in Folge falsch bei „HTML ist keine Programmiersprache“.',['fails','w_html'],'Überschrift, Absatz, Bild. Und wo genau ist jetzt die Schleife?'],
+            ['cs1.nein','witzig','Nein heißt nein','3 × in Folge falsch bei „Compiler sagt nein“.',['fails','u_nein'],'Ein fehlendes Zeichen, null Zeilen Ausgabe. Er liest wirklich alles, bevor er loslegt.'],
+            ['cs1.ueberlauf','witzig','Zwei Milliarden und eins','3 × in Folge falsch bei „Überlauf: aus Plus wird Minus“.',['fails','t_ueberlauf'],'Ganz oben geht es nicht weiter. Es geht ganz unten weiter.'],
+        ]],
+        // Geparkt als CS2 „C# für Fortgeschrittene“: bisheriges C#-Modul bis 09.11.2026, nicht veröffentlicht.
+        // Bleibt im Katalog, damit freigeschaltete Achievements, XP und Lernstände (Präfix cs-code) erhalten bleiben.
+        'cs'=>['prefix'=>'cs-code','subject'=>'C# für Fortgeschrittene','title'=>'Der Compiler hat immer recht','motif'=>'csharp-fortgeschritten','slugs'=>['cs2-csharp'],'stages'=>10,'hidden'=>true,'list'=>[
             ['cs.hello','bronze','Hello, World!','Stufe 1 „Willkommen in C#“ gemeistert.',['stage',0]],
             ['cs.survivor','bronze','Semicolon Survivor','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
             ['cs.schleife','silber','Schleifenkönig','Stufe 5 „Schleifen“ gemeistert.',['stage',4]],
@@ -445,6 +460,7 @@ function ach_overview(int $learnerId): array {
     $groups=[];
     foreach(ach_modules() as $mid=>$m) {
         $has=array_filter($m['list'],fn($a)=>isset($unlocked[$a[0]]));
+        if (!empty($m['hidden'])) continue;   // ausgeblendete Module (CS2) erscheinen nirgends, auch nicht ausgegraut
         if (!in_array($mid,$live,true) && !$has) continue;   // nicht veröffentlichte Module nur zeigen, wenn schon etwas freigeschaltet ist
         $groups[]=['id'=>$mid,'subject'=>$m['subject'],'title'=>$m['title'],'items'=>array_map(fn($a)=>ach_item($catalog[$a[0]],$unlocked),$m['list'])];
     }
@@ -452,6 +468,11 @@ function ach_overview(int $learnerId): array {
     $total=0;$done=0;
     foreach($groups as $g) foreach($g['items'] as $i) {$total++;if($i['unlocked'])$done++;}
     return ['groups'=>$groups,'total'=>$total,'done'=>$done];
+}
+/** Achievements eines ausgeblendeten Moduls (CS2) bleiben samt XP gespeichert, werden aber nicht angezeigt. */
+function ach_visible(string $code): bool {
+    $a=ach_catalog()[$code]??null;
+    return $a!==null && ($a['module']==='' || empty(ach_modules()[$a['module']]['hidden']));
 }
 function ach_item(array $a,array $unlocked): array {
     $on=isset($unlocked[$a['code']]);
@@ -494,7 +515,7 @@ function ach_highscore(int $limit=100): array {
     foreach($rows as $i=>&$r) {
         $r['rank']=$i+1;$r['level']=ach_level((int)$r['xp']);$r['title']=ach_level_title((int)$r['level']);$r['showcase']=xp_showcase((int)$r['id']);
         $codes->execute([$r['id']]);
-        $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>isset($catalog[$c])));
+        $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>ach_visible($c)));
         usort($own,fn($a,$b)=>[$rarity[$a]??0,-$catalog[$a]['xp']]<=>[$rarity[$b]??0,-$catalog[$b]['xp']]);
         $r['unlocked']=array_map(fn($c)=>ach_public($catalog[$c]),$own);
         $r['rare']=array_slice($r['unlocked'],0,3);

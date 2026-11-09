@@ -14,7 +14,7 @@ $uid=(int)$learner['id'];$dash=xp_dashboard($uid);$recent=xp_recent($uid);$showc
   <h2 id="showcase-title">Meine Vitrine</h2><p class="konto-hint">Drei Plätze für deine besten Geschichten. Die Reihenfolge bestimmst du hier. Sichtbar werden sie, wenn du den Highscore einschaltest.</p>
   <div class="showcase-preview" aria-label="Aktuelle Vitrine"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($showcase[$slot])?xp_icon_html($showcase[$slot],true):'<span class="showcase-empty" aria-label="Leerer Platz">◇</span>'?><?php endfor; ?></div>
   <form method="post"><?=$hidden('showcase')?>
-    <div class="showcase-slots"><?php for($slot=0;$slot<3;$slot++): ?><label>Platz <?=$slot+1?><select name="slots[<?=$slot?>]"><option value="">Leer lassen</option><?php foreach($own as $code=>$at): if(!isset(ach_catalog()[$code]))continue;$item=ach_catalog()[$code]; ?><option value="<?=e($code)?>"<?=($showcase[$slot]['code']??'')===$code?' selected':''?>><?=e($item['name'])?></option><?php endforeach; ?></select></label><?php endfor; ?></div>
+    <div class="showcase-slots"><?php for($slot=0;$slot<3;$slot++): ?><label>Platz <?=$slot+1?><select name="slots[<?=$slot?>]"><option value="">Leer lassen</option><?php foreach($own as $code=>$at): if(!ach_visible($code))continue;$item=ach_catalog()[$code]; ?><option value="<?=e($code)?>"<?=($showcase[$slot]['code']??'')===$code?' selected':''?>><?=e($item['name'])?></option><?php endforeach; ?></select></label><?php endfor; ?></div>
     <button class="secondary-action" type="submit">Vitrine speichern</button>
   </form>
 </section>

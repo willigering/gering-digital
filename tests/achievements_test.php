@@ -199,9 +199,8 @@ $n=learner('nora');
 check(count(ach_overview($n)['groups'])===3,'Nicht veröffentlichte Module erscheinen nicht in der Übersicht');
 
 @unlink($db);
+// --- CS2 (geparkt) ist vollständig ausgeblendet, CS1 sichtbar ---
+check(!empty(ach_modules()['cs']['hidden']) && empty(ach_modules()['cs1']['hidden']),'CS2 ausgeblendet, CS1 sichtbar');
+check(!ach_visible('cs.hello') && ach_visible('cs1.hallo') && ach_visible('g.easteregg'),'Sichtbarkeit nach Modul');
 echo $failures===0?"Achievements: $count Prüfungen bestanden\n":"Achievements: $failures von $count Prüfungen fehlgeschlagen\n";
 exit($failures===0?0:1);
-
-
-
-

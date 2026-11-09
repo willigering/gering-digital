@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
   <defs>
     <radialGradient id="unternehmen-glow" cx="0.5" cy="0.5277777777777778" r=".55">
-      <stop offset="0" stop-color="#d4b8ff" stop-opacity=".16"/>
-      <stop offset=".55" stop-color="#d4b8ff" stop-opacity=".035"/>
-      <stop offset="1" stop-color="#d4b8ff" stop-opacity="0"/>
+      <stop offset="0" stop-color="#ff9a3c" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#ff9a3c" stop-opacity=".035"/>
+      <stop offset="1" stop-color="#ff9a3c" stop-opacity="0"/>
     </radialGradient>
     <radialGradient id="unternehmen-warm" cx=".78" cy=".8" r=".6">
       <stop offset="0" stop-color="#f39a2b" stop-opacity=".12"/>
@@ -37,7 +37,7 @@
   <rect width="1280" height="720" fill="url(#unternehmen-grid)"/>
   <rect width="1280" height="720" fill="url(#unternehmen-glow)"/>
   <rect width="1280" height="720" fill="url(#unternehmen-warm)"/>
-  <g><path d="M-20 216.6 H130.4 L170.8 176.2 H234.6" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="234.6" cy="176.2" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 579.4 H1174.1 L1142 547.3 H1054.4" stroke="#d4b8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="1054.4" cy="547.3" r="4" fill="#d4b8ff" fill-opacity=".35"/><path d="M-20 428.9 H238.3 L290.5 481.2 H376.9" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="376.9" cy="481.2" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 199.4 H1048 L988.3 139.7 H908.5" stroke="#d4b8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="908.5" cy="139.7" r="4" fill="#d4b8ff" fill-opacity=".35"/><path d="M-20 105.1 H144.8 L198.6 159 H283.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="283.5" cy="159" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 423.8 H1062.3 L1014.2 471.9 H947.2" stroke="#d4b8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="947.2" cy="471.9" r="4" fill="#d4b8ff" fill-opacity=".35"/><path d="M-20 326.5 H188.1 L252.7 391.1 H377.8" stroke="#d4b8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="377.8" cy="391.1" r="4" fill="#d4b8ff" fill-opacity=".35"/></g>
+  <g><path d="M-20 216.6 H130.4 L170.8 176.2 H234.6" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="234.6" cy="176.2" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 579.4 H1174.1 L1142 547.3 H1054.4" stroke="#ff9a3c" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="1054.4" cy="547.3" r="4" fill="#ff9a3c" fill-opacity=".35"/><path d="M-20 428.9 H238.3 L290.5 481.2 H376.9" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="376.9" cy="481.2" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 199.4 H1048 L988.3 139.7 H908.5" stroke="#ff9a3c" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="908.5" cy="139.7" r="4" fill="#ff9a3c" fill-opacity=".35"/><path d="M-20 105.1 H144.8 L198.6 159 H283.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="283.5" cy="159" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 423.8 H1062.3 L1014.2 471.9 H947.2" stroke="#ff9a3c" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="947.2" cy="471.9" r="4" fill="#ff9a3c" fill-opacity=".35"/><path d="M-20 326.5 H188.1 L252.7 391.1 H377.8" stroke="#ff9a3c" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="377.8" cy="391.1" r="4" fill="#ff9a3c" fill-opacity=".35"/></g>
   
     <g stroke-linecap="round" fill="none">
       <path d="M-140 780 L704 -140" stroke="#f39a2b" stroke-width="16" stroke-opacity=".08" filter="url(#unternehmen-soft)"/>
@@ -45,18 +45,18 @@
       <path d="M704 860 L1420 86.39999999999999" stroke="url(#unternehmen-ray)" stroke-width="1.6" stroke-opacity=".32"/>
     </g>
   
-  <text x="640" y="104" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="34" font-weight="900" letter-spacing="4" fill="#d4b8ff">UNTERNEHMEN &amp; MÄRKTE</text>
+  <text x="640" y="104" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="34" font-weight="900" letter-spacing="4" fill="#ff9a3c">UNTERNEHMEN &amp; MÄRKTE</text>
   <g transform="translate(150 250)" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-weight="800">
-    <path d="M0 70L110 0L220 70V250H0Z" fill="#14111c" stroke="#d4b8ff" stroke-width="3"/>
+    <path d="M0 70L110 0L220 70V250H0Z" fill="#14111c" stroke="#ff9a3c" stroke-width="3"/>
     <g stroke="#8fa3a8" stroke-width="2"><path d="M30 110H190M30 145H190M30 180H190M30 215H190"/></g>
-    <path d="M30 95H190V250H30Z" fill="none" stroke="#d4b8ff" stroke-width="3"/>
+    <path d="M30 95H190V250H30Z" fill="none" stroke="#ff9a3c" stroke-width="3"/>
     <text x="110" y="290" text-anchor="middle" font-size="26" fill="#f5f0df">GARAGE</text>
     <text x="110" y="62" text-anchor="middle" font-size="22" fill="#ffd98a">e.K.</text>
   </g>
   <path d="M400 410H470" stroke="#eab448" stroke-width="6"/><path d="M462 396L486 410L462 424Z" fill="#eab448"/>
   <g transform="translate(510 190)" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-weight="800">
-    <path d="M0 0H210V310H0Z" fill="#14111c" stroke="#d4b8ff" stroke-width="3"/>
-    <g fill="#d4b8ff" opacity=".55"><rect x="28" y="30" width="38" height="36"/><rect x="86" y="30" width="38" height="36"/><rect x="144" y="30" width="38" height="36"/><rect x="28" y="92" width="38" height="36"/><rect x="86" y="92" width="38" height="36"/><rect x="144" y="92" width="38" height="36"/><rect x="28" y="154" width="38" height="36"/><rect x="86" y="154" width="38" height="36"/><rect x="144" y="154" width="38" height="36"/><rect x="28" y="216" width="38" height="36"/><rect x="86" y="216" width="38" height="36"/><rect x="144" y="216" width="38" height="36"/></g>
+    <path d="M0 0H210V310H0Z" fill="#14111c" stroke="#ff9a3c" stroke-width="3"/>
+    <g fill="#ff9a3c" opacity=".55"><rect x="28" y="30" width="38" height="36"/><rect x="86" y="30" width="38" height="36"/><rect x="144" y="30" width="38" height="36"/><rect x="28" y="92" width="38" height="36"/><rect x="86" y="92" width="38" height="36"/><rect x="144" y="92" width="38" height="36"/><rect x="28" y="154" width="38" height="36"/><rect x="86" y="154" width="38" height="36"/><rect x="144" y="154" width="38" height="36"/><rect x="28" y="216" width="38" height="36"/><rect x="86" y="216" width="38" height="36"/><rect x="144" y="216" width="38" height="36"/></g>
     <text x="105" y="350" text-anchor="middle" font-size="26" fill="#f5f0df">GMBH</text>
   </g>
   <path d="M750 410H820" stroke="#eab448" stroke-width="6"/><path d="M812 396L836 410L812 424Z" fill="#eab448"/>
