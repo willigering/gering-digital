@@ -54,6 +54,9 @@ body>.content{overflow:visible!important;isolation:isolate}
   scroll-margin-top:145px;transition:filter .24s ease,transform .24s ease
 }
 .support-flow>.chapter[hidden]{display:none!important}
+/* Deterministische Stapelreihenfolge unabhängig von ResizeObserver und Script-Timing. */
+#annehmen,#diagnose,#abschluss{z-index:10!important}
+#sla,#beheben,#qualitaet{z-index:11!important}
 .support-flow>.chapter::before{
   content:"";position:absolute;inset:0 0 auto;height:3px;
   background:linear-gradient(90deg,#e8b84a,#75e4d0 58%,transparent);z-index:1
