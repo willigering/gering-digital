@@ -1,0 +1,218 @@
+/* IT VI.01 · Modul-Look mit lokalem Parallax aus dem vorhandenen BG-Ordner.
+   Ausschließlich innerhalb der Unterrichtsseite; keine Änderung am Lernmodul-Stapel. */
+:root{
+  --gold:#e8b84a;
+  --goldlite:#ffe4a1;
+  --cyan:#78e7d9;
+  --cream:#f7f2e7;
+  --muted:#b4c5ca;
+  --stroke:#f2be5d3b;
+  --itvi-edge:#72e6d34d;
+}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(ellipse at 50% -8%,#193040 0%,transparent 38%),#080e14!important;
+  color:var(--cream)!important;
+  font-family:Inter,ui-sans-serif,system-ui,'Segoe UI',Arial,sans-serif!important;
+}
+body::before,body::after,.parallax-layer,.lf6-scene{display:none!important}
+header{
+  background:#0b141df4!important;
+  border-bottom:1px solid #79e4d22a!important;
+  box-shadow:0 12px 34px #0008!important;
+  backdrop-filter:blur(22px);
+}
+header .brand{letter-spacing:.14em!important;font-size:13px!important}
+header .brand em{color:var(--gold)!important}
+#search{background:#0e202a!important;border:1px solid #6bc9c645!important;border-radius:10px!important}
+#search:focus-visible{border-color:var(--cyan)!important;box-shadow:0 0 0 3px #6ce4d52b}
+header .btn{border-radius:8px!important;background:#14202a!important;border:1px solid #ffffff21!important}
+header .btn.primary{background:var(--gold)!important;color:#121619!important;border-color:var(--gold)!important}
+header .btn:hover{border-color:#8be7d5a8!important}
+main.shell{max-width:1370px!important;position:relative;z-index:2}
+/* Grafische Titelkarte: BG-Motiv nur innerhalb des Moduls, kein globales Tapetenbild. */
+.hero{
+  isolation:isolate!important;
+  overflow:hidden!important;
+  padding:clamp(54px,6vw,82px) clamp(25px,6vw,86px)!important;
+  min-height:440px;
+  margin:28px 0 32px!important;
+  background:linear-gradient(142deg,#111e28,#0b141b)!important;
+  border:1px solid #8fe4d849!important;
+  border-radius:22px!important;
+  box-shadow:0 32px 90px #000b,0 0 58px #55d7d50c,inset 0 1px #ffffff12!important;
+}
+.hero::before{display:none!important}
+.hero::after{
+  content:"";display:block!important;position:absolute;inset:-18% -7%;
+  pointer-events:none;z-index:0;
+  background-image:linear-gradient(90deg,#08121af4 0%,#08131ad9 51%,#07142091 100%),url("../../assets/dau-backgrounds/network-ports-1536.webp");
+  background-size:cover,cover;background-position:center,center;
+  transform:translate3d(0,var(--itvi-hero-shift,0px),0) scale(1.06);
+  will-change:transform;
+  opacity:1!important;
+}
+.hero>*{position:relative;z-index:1}
+.hero .hero-shape{display:none!important}
+.hero .badge{border-radius:7px!important;clip-path:none!important;background:#73d9ca0e!important;border:1px solid #70e4d25c!important;color:#9beddf!important;letter-spacing:.19em!important;box-shadow:inset 0 1px #ffffff11}
+.hero .eyebrow{color:#e1c684!important;letter-spacing:.15em!important}
+.hero h1{
+  font-size:clamp(56px,7.7vw,110px)!important;
+  letter-spacing:-.065em!important;line-height:.95!important;
+  max-width:930px!important;color:#fbf6e9!important;
+  text-shadow:0 15px 46px #000b!important;
+}
+.hero h1 span{color:var(--gold)!important;text-shadow:0 0 39px #e8b84a2a!important}
+.hero p{color:#cfdee0!important;font-size:16px!important;max-width:66ch!important;line-height:1.72!important}
+.hero .progress{background:#ffffff1c!important;height:4px!important}
+.hero .progress>div{background:linear-gradient(90deg,var(--cyan),var(--gold))!important;box-shadow:0 0 15px #7de6d369}
+#pct{color:#a3c7c9!important}
+.lf6-hero-start{
+  border:1px solid #ecc86f!important;background:linear-gradient(130deg,#eabd60,#e8a94e)!important;
+  color:#172128!important;border-radius:9px!important;box-shadow:0 12px 34px #d69d392e!important;
+  letter-spacing:.08em;transition:transform .2s ease,box-shadow .2s ease;
+}
+.lf6-hero-start:hover{transform:translateY(-3px);box-shadow:0 17px 37px #d69d394b!important}
+/* Themen-Navigation: feste Orientierung wie die Modulkategorien. */
+.learning-dock{background:linear-gradient(134deg,#12222cf0,#0d1823f3)!important;border:1px solid #77e6d436!important;border-radius:18px!important;box-shadow:0 20px 50px #0007!important}
+.lf6-path-head strong{color:#f6ead5!important;font-size:clamp(17px,2vw,23px)!important}
+.dock-kicker{color:var(--cyan)!important}
+.lf6-dock-hint{color:#bdcdd0!important}
+.lf6-topic-navigation{
+  background:#101d27f6!important;border:1px solid #79e5d23e!important;
+  box-shadow:0 18px 48px #000b!important;border-radius:14px!important;
+  backdrop-filter:blur(23px)!important;
+}
+.lf6-topic-link{
+  background:#17252de9!important;border-color:#ffffff22!important;border-radius:8px!important;
+  color:#d4e6e5!important;transition:background .2s,border-color .2s,box-shadow .2s!important
+}
+.lf6-topic-link:hover{background:#213740fa!important;border-color:#70e1d19a!important;transform:none!important}
+.lf6-topic-link.is-current,.lf6-topic-link[aria-selected="true"]{
+  background:linear-gradient(118deg,#1c403f,#172f37)!important;
+  border:1px solid #82e2d49d!important;box-shadow:inset 0 -3px var(--gold),0 0 22px #6ae5d016!important
+}
+.lf6-topic-link-num{border-color:#7ce9d25a!important;background:#58dfc311!important;color:#a8f1e8!important}
+.lf6-topic-link.is-current .lf6-topic-link-num{border-color:var(--gold)!important;color:var(--gold)!important}
+/* Kapitel bleiben im bestehenden Sticky-/Überstapelungs-System. Nur das Styling ändert sich. */
+#lf6-flow>.lf6-full-chapter{
+  --itvi-bg:url("../../assets/dau-backgrounds/network-ports-1536.webp");
+  --itvi-shift:0px;
+  isolation:isolate;
+  background-color:#101b23!important;
+  background-image:
+    linear-gradient(145deg,#0b1822ef 0%,#101b26ea 61%,#0c1923e9 100%),
+    var(--itvi-bg)!important;
+  background-size:cover,cover!important;
+  background-position:center,center calc(50% + var(--itvi-shift))!important;
+  background-repeat:no-repeat!important;
+  border:1px solid #8ad8cf58!important;
+  border-radius:22px!important;
+  box-shadow:0 24px 75px #000c,0 0 42px #69e3cc09,inset 0 1px #ffffff14!important;
+}
+#lf6-flow>.lf6-full-chapter[data-topic-group="support"]{--itvi-bg:url("../../assets/dau-backgrounds/network-ports-1536.webp")}
+#lf6-flow>.lf6-full-chapter[data-topic-group="sla"]{--itvi-bg:url("../../assets/dau-backgrounds/circuit-signal-1536.webp")}
+#lf6-flow>.lf6-full-chapter[data-topic-group="services"]{--itvi-bg:url("../../assets/dau-backgrounds/server-1536.webp")}
+#lf6-flow>.lf6-full-chapter[data-topic-group="itsm"]{--itvi-bg:url("../../assets/dau-backgrounds/circuit-copper-1536.webp")}
+#lf6-flow>.lf6-full-chapter[data-topic-group="quiz"]{--itvi-bg:url("../../assets/dau-backgrounds/hardware-connectors-1536.webp")}
+#lf6-flow>.lf6-full-chapter[data-topic-group="practice"]{--itvi-bg:url("../../assets/dau-backgrounds/cables-patch-1536.webp")}
+#lf6-flow>.lf6-full-chapter::before{
+  content:"";display:block;height:3px!important;z-index:2!important;
+  background:linear-gradient(90deg,var(--gold),#65e6d1 55%,transparent 91%)!important;
+  border-radius:20px 20px 0 0;
+}
+#lf6-flow>.lf6-full-chapter::after{
+  content:"";position:absolute;top:2px;right:0;width:40%;height:220px;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse at 75% 0%,#63e7d124,transparent 68%);
+}
+#lf6-flow>.lf6-full-chapter>.chapter-top,
+#lf6-flow>.lf6-full-chapter>.chapter-body,
+#lf6-flow>.lf6-full-chapter>.lf6-topic-chapter-head,
+#lf6-flow>.lf6-full-chapter>.lf6-return-area,
+#lf6-flow>.lf6-full-chapter>.lf6-continue{position:relative;z-index:1}
+#lf6-flow>.lf6-full-chapter .chapter-top{
+  border-bottom:1px solid #8fe6d42d!important;
+  padding-bottom:26px!important;margin-bottom:28px!important;
+}
+#lf6-flow>.lf6-full-chapter .chapter-index{
+  color:var(--gold)!important;opacity:1!important;
+  text-shadow:0 0 30px #c9983b25!important;
+}
+#lf6-flow>.lf6-full-chapter h2{color:#f8f4e9!important;letter-spacing:-.047em!important}
+#lf6-flow>.lf6-full-chapter .chapter-lead{color:#c4d4d8!important}
+#lf6-flow>.lf6-full-chapter .mini-label{color:var(--cyan)!important;letter-spacing:.15em!important}
+.lf6-topic-chapter-head{
+  border:1px solid #7ce0d23a!important;
+  background:linear-gradient(122deg,#15313bdc,#14232ed9)!important;
+  border-radius:12px!important;padding:19px 24px!important;margin-bottom:32px!important;
+}
+.lf6-topic-cap,.lf6-topic-chapter-head .lf6-topic-title{color:#e4c77c!important}
+.lf6-topic-explainer{color:#c4d5d7!important}
+/* Unterelemente wie eigene Module, mit konsistenten Hintergründen und Hover-Verhalten. */
+.info-tile,.flow>div,.lf6-visual-lesson,.lf6-formula-card,.lf6-step,.lf6-keyfact,
+.question,.free,.lf6-question-group,.callout{
+  border-radius:14px!important;border-color:#80e0d238!important;
+  background:linear-gradient(145deg,#172831eb,#101b27f3)!important;
+  box-shadow:inset 0 1px #ffffff0a,0 12px 27px #0004;
+}
+.info-tile,.flow>div,.question,.free{transition:border-color .2s ease,box-shadow .2s ease,transform .2s ease}
+.info-tile:hover,.flow>div:hover,.question:hover,.free:hover{
+  border-color:#82e7d477!important;box-shadow:inset 0 1px #ffffff18,0 17px 32px #0007
+}
+.info-tile h3,.flow b,.lf6-visual-lesson h3{color:#f4e6c5!important}
+.info-tile p,.flow span,.lf6-visual-lesson>p{color:#c8d8d9!important}
+.callout{border-left:3px solid var(--gold)!important;background:#1c2930f0!important}
+.callout strong{color:var(--gold)!important}
+.lf6-question-group{border-left:3px solid var(--gold)!important}
+.lf6-question-group strong{color:#f3ebd8!important}
+.lf6-question-group small{color:#b5cbd0!important}
+.lf6-continue{border-color:#85e5d435!important;color:var(--gold)!important}
+.study-chapter table{background:#0c1921d4!important}
+.study-chapter th{background:#1a353a!important;color:#f6eccd!important;border-color:#7bdccb40!important}
+.study-chapter td{border-color:#86bfc32d!important;color:#d5e2e2!important}
+.study-chapter tr:nth-child(even) td{background:#ffffff05!important}
+.choice{background:#112631c7!important;border:1px solid #aed5d62e!important;border-radius:9px!important;color:#dce8e6!important}
+.choice:hover{background:#1a3944d9!important;border-color:#7be8d59a!important}
+.choice.correct{border-color:#4ee69b!important}
+.choice.wrong{border-color:#ff7f82!important}
+.choice.selected{border-color:var(--gold)!important}
+.lf6-explain-button,.lf6-return-button{border-radius:9px!important;background:#192d36!important;border:1px solid #73dcca5c!important;color:#d0f5eb!important}
+.lf6-explain-button:hover,.lf6-return-button:hover{background:#24454a!important}
+textarea{border:1px solid #80c7c554!important;background:#0d1b23e8!important;color:#f1f5f2!important;border-radius:10px!important}
+textarea:focus{outline:2px solid #78e7d9a0!important;outline-offset:2px}
+.lf6-notes{background:#10212cdd!important;border:1px solid #72e0d44a!important;border-radius:18px!important}
+.lf6-notes h2{color:#f3e9cf!important}
+.footer{color:#829aa5!important}
+@media(max-width:900px){
+  .hero{min-height:0}
+  #lf6-flow>.lf6-full-chapter{background-size:cover,auto 110%!important}
+}
+@media(max-width:650px){
+  .hero{padding:42px 24px!important;margin-top:15px!important}
+  .hero h1{font-size:clamp(47px,11vw,75px)!important}
+  .hero::after{background-position:center,59% center}
+  #lf6-flow>.lf6-full-chapter{border-radius:14px!important}
+  .lf6-topic-chapter-head{padding:14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .hero::after{transform:none!important;will-change:auto}
+ #lf6-flow>.lf6-full-chapter{background-position:center,center!important}
+ .info-tile,.flow>div,.question,.free{transition:none!important}
+}
+@media print{
+ body{background:#fff!important;color:#111!important}
+ .hero::after,#lf6-flow>.lf6-full-chapter::after{display:none!important}
+ #lf6-flow>.lf6-full-chapter{
+  background:#fff!important;background-image:none!important;
+  border:1px solid #aaa!important;box-shadow:none!important;color:#111!important
+ }
+ #lf6-flow>.lf6-full-chapter .chapter-index,
+ #lf6-flow>.lf6-full-chapter h2,
+ #lf6-flow>.lf6-full-chapter .mini-label,
+ #lf6-flow>.lf6-full-chapter .chapter-lead{color:#111!important}
+ .info-tile,.flow>div,.lf6-visual-lesson,.lf6-formula-card,.lf6-step,.lf6-keyfact,
+ .question,.free,.lf6-question-group,.callout{background:#fff!important;box-shadow:none!important;color:#111!important;border-color:#999!important}
+ .study-chapter th,.study-chapter td{background:#fff!important;color:#111!important}
+ .info-tile h3,.flow b,.lf6-visual-lesson h3,.lf6-question-group strong,
+ .info-tile p,.flow span,.lf6-visual-lesson>p{color:#111!important}
+}
