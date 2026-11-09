@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+        run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Test rare feedback Easter egg
         run: node tests/feedback_easter_egg_test.cjs
       - name: Test topic tab filters (without exam finder)
@@ -91,6 +91,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/b4
         run: node tests/b4_ipv6_browser.js
+      - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/geringdigital-v3
+        run: node tests/home_v3_browser.cjs
       - name: Check landing page in desktop and mobile browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
