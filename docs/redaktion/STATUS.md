@@ -130,3 +130,9 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - A1, OSI, Subnetting, Netzwerke: Ein Unterthema kommt erst wieder, wenn bis zu drei andere dran waren. Gemessen in Stufen: direkte Wiederholung des Unterthemas vorher 26 bis 36 %, danach 0 % (Netzwerke 10 %, wo Stufen nur wenige Unterthemen haben).
 - Offen: inhaltliche Prüfung aller Fragen auf Sinngleichheit, Kompetenzmix, verratene Antworten und schwache Distraktoren; dieselbe Auswahl-Logik in D1, D2, B4, B5, F2 und C#, die eigene Generatoren haben.
 
+
+## 09.11.2026 – Spickzettel IT-Support (PR-Entwurf)
+
+- Ein neues Themenblatt `support` ergänzt den DAU-to-PRO-Spickzettelbereich: 8 Grundabschnitte, 6 Vertiefungen und 48 Fragen mit Musterantworten. Basis sind die bereitgestellten Arbeitsblätter zu Service- und Supportanfragen sowie IT-Dienstleistungen/ITSM; die zusätzlichen Fragen sind eigenständige Übungsfragen.
+- Inhaltliche Schwerpunkte: Supportlevel, SPOC, Ticket-Workflow, Incidents/Requests/Problems/Changes, Impact/Urgency, SLA und Rechenwege, Eskalation, Cloudmodelle, Service-Lebenszyklus, ITIL 4 und PDCA.
+- Eingebunden in Landing-Kachel und Pocket-Guide-Ansicht; Verifikationsworkflow auf zwölf Themen und 576 Fragen angepasst. Die Ergebnisse von PR-Checks, Merge, STRATO-Deploy und Liveprüfung werden gesondert festgestellt; dieser Stand behauptet noch keine Live-Auslieferung.
