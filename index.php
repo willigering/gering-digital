@@ -30,6 +30,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <link rel="stylesheet" href="assets/personal.css?v=<?=filemtime(__DIR__.'/assets/personal.css')?>">
 <link rel="stylesheet" href="assets/dtp-entry.css?v=<?=filemtime(__DIR__.'/assets/dtp-entry.css')?>">
+<link rel="stylesheet" href="assets/home-v3.css?v=<?=filemtime(__DIR__.'/assets/home-v3.css')?>">
 <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64.png">
 <link rel="preload" as="image" type="image/webp" href="assets/gering-digital-logo-icon-312.webp" media="(max-width:800px)">
 
@@ -40,6 +41,8 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <div class="ambient ambient-2" data-parallax="-0.06"></div>
 <div class="ambient ambient-3" data-parallax="0.16"></div>
 <div class="grain"></div>
+<div class="gdv3-world" aria-hidden="true"></div>
+<div class="gdv3-scroll-progress" aria-hidden="true"></div>
 
 <header class="nav glass-nav">
   <div class="wrap navin">
@@ -68,14 +71,12 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <section class="hero parallax-section" id="home">
   <div class="hero-lines"></div>
   <div class="hero-grid wrap">
-    <div class="hero-copy" data-parallax="0.05">
-      <p class="eyebrow">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
-      <h1 class="pd-hero-title">Aus einer Idee wurde eine App.<br><span>Dann noch eine.</span><br>Und irgendwie hört das nicht auf.</h1>
-      <div class="pd-hero-text">
-        <p class="lead">Ich entwickle Apps, weil mich Dinge nerven, die eigentlich einfacher gehen müssten. Was als kleines Experiment begann, hat sich inzwischen zu einer ziemlich ausgewachsenen Leidenschaft entwickelt.</p>
-        <p class="lead">Hier stelle ich meine Apps, Programme und digitalen Experimente vor. Manche lösen echte Alltagsprobleme, andere sind einfach aus Neugier entstanden.</p>
-        <p class="lead">Und falls jemand anderes damit auch etwas anfangen kann: umso besser!</p>
-      </div>
+    <div class="hero-copy gdv3-hero-copy" data-parallax="0.05">
+      <p class="eyebrow gdv3-kicker">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
+      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER.<br><span>AUS IDEEN.</span><br><span class="gdv3-outline">AUS CODE.</span></h1>
+      <p class="gdv3-hero-description">Mich nerven Dinge, die einfacher gehen müssten. Also entwickle ich Lösungen dafür. Apps, Lernprogramme und digitale Experimente – manchmal nützlich, manchmal einfach, weil ich wissen will, ob es geht.</p>
+      <div class="gdv3-hero-actions"><a class="btn" href="#apps">Projekte entdecken <b aria-hidden="true">↗</b></a><a class="gdv3-subtle-link" href="#ueber-mich">Die Geschichte dahinter <span aria-hidden="true">↓</span></a></div>
+      <p class="gdv3-hero-meta"><span class="gdv3-light-dot" aria-hidden="true"></span> UNABHÄNGIG ENTWICKELT <span aria-hidden="true">✦</span> MIT NEUGIER GEBAUT</p>
     </div>
 
     <div class="hero-stage">
@@ -120,24 +121,20 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 
 <section class="section apps-section">
   <div class="wrap">
-    <div id="apps" class="glass-panel apps-panel pd-card" data-parallax="0.025">
-      <div class="pd-apps-intro">
-        <div class="pd-head"><p class="eyebrow">MEINE PROJEKTE</p><h2>Aus dem Alltag. Für den Alltag. <span>Und manchmal einfach so.</span></h2></div>
-        <div class="pd-flow">
-          <p>Die meisten meiner Projekte beginnen mit einem ziemlich unspektakulären Gedanken:</p>
-          <p class="pd-quote">„Das müsste doch auch einfacher gehen.“</p>
-          <p>Also versuche ich, eine Lösung zu entwickeln.</p>
-          <p>Mal ist es eine praktische Anwendung, mal ein Werkzeug, das ich selbst vermisst habe. Und manchmal entsteht etwas, weil ich einfach wissen wollte, ob ich es hinbekomme.</p>
-          <p class="pd-punch">Nicht alles ist perfekt. Aber alles hat einen Grund, warum es entstanden ist.</p>
-        </div>
+    <div id="apps" class="apps-panel gdv3-projects" data-parallax="0.025">
+      <div class="gdv3-section-heading" data-gdv3-reveal>
+        <div><span class="gdv3-section-index">01 / DAS PORTFOLIO</span><h2>Hier wird gebaut.<br><em>Nicht nur geredet.</em></h2></div>
+        <p>Apps, Lernprogramme und Werkzeuge – entstanden aus eigenen Ideen und echten Alltagsproblemen.</p>
       </div>
+      <div class="gdv3-gold-rule" aria-hidden="true"></div>
       <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
+        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle Projekte <span><?=count($apps)+1?></span></button>
         <?php foreach($categories as $key=>$label): ?>
-        <button type="button" class="catalog-filter<?=$key===array_key_first($categories)?' is-active':''?>" data-category="<?=e($key)?>" aria-pressed="<?=$key===array_key_first($categories)?'true':'false'?>"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
+        <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
         <?php endforeach; ?>
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
-      <div class="cards">
+      <div class="cards gdv3-project-grid">
         <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
           <div class="dtp-portal-art"><img src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
@@ -176,63 +173,55 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
   </div>
 </section>
 
-<section id="ueber-mich" class="section pd-section">
-  <div class="wrap">
-      <div class="pd-wrap pd-single">
-        <div class="pd-head"><p class="eyebrow">ÜBER MICH</p><h2>Hallo, ich bin Willi!</h2></div>
-        <div class="pd-flow">
-          <p>Knapp 20 Jahre habe ich in der Produktion gearbeitet. Eine ziemlich lange Zeit, in der ich viel erlebt, einiges gelernt und jede Menge Menschen kennengelernt habe.</p>
-          <p>Und nein, ich bereue diese Zeit nicht.</p>
-          <p>Im Gegenteil. Ich habe dort unglaublich viel fürs Leben mitgenommen. Vor allem, dass man Probleme am besten anpackt, statt lange darüber zu reden.</p>
-          <p>Dass nicht immer alles nach Plan läuft. Und dass gute Kollegen manchmal mehr wert sind als jede noch so ausgefeilte Technik.</p>
-          <p>Gerade die Menschen werde ich sicherlich vermissen.</p>
-          <p>Aber irgendwann kam der Punkt, an dem ich mir dachte: War’s das jetzt schon? Oder geht da noch was?</p>
-          <p>Offenbar geht da noch was!</p>
-          <p>Also habe ich nach fast zwei Jahrzehnten den Sprung gewagt und eine Umschulung zum Fachinformatiker für Systemintegration begonnen.</p>
-          <p>Ein kompletter Neuanfang!</p>
-          <p>Noch mal die Schulbank drücken, Netzwerke verstehen, Server konfigurieren und sich freiwillig mit Dingen beschäftigen, bei denen andere schon beim Lesen der Fehlermeldung aufgeben.</p>
-          <p class="pd-punch">Und wisst ihr was? Ich freue mich drauf!</p>
-        </div>
-      </div>
+<section id="ueber-mich" class="section gdv3-about-section">
+  <div class="wrap gdv3-about-grid">
+    <div class="gdv3-about-copy" data-gdv3-reveal>
+      <span class="gdv3-section-index">02 / DER MENSCH DAHINTER</span>
+      <h2>20 Jahre<br>Produktion.<br><em>Jetzt Bits<br>und Bytes.</em></h2>
+      <p>Nach fast zwei Jahrzehnten in der Produktion habe ich einen Neustart gewagt: die Umschulung zum Fachinformatiker für Systemintegration. <strong>Ich habe nicht bei null angefangen – nur bei einem völlig anderen Thema.</strong></p>
+      <div class="gdv3-about-facts"><div><b>20</b><span>Jahre Produktion</span></div><div><b>∞</b><span>Neue Ideen</span></div></div>
+    </div>
+    <div class="gdv3-timeline" data-gdv3-reveal>
+      <div class="gdv3-time-item"><small>KAPITEL 01</small><h3>Erst mal anpacken.</h3><p>Fast 20 Jahre Produktion haben mich geprägt: anpacken, umdenken und gute Kollegen schätzen.</p></div>
+      <div class="gdv3-time-item"><small>KAPITEL 02</small><h3>Einfach mal anfangen.</h3><p>Aus einem Experiment wurde meine erste App. Die nächste ließ nicht lange auf sich warten.</p></div>
+      <div class="gdv3-time-item"><small>KAPITEL 03 · HEUTE</small><h3>Noch mal was Neues.</h3><p>Heute lerne ich Netzwerke, Server und Systemintegration – und entwickle weiter eigene Projekte.</p></div>
+      <div class="gdv3-terminal"><span aria-hidden="true">● ● ●</span><code>&gt; status: neugierig<br>&gt; modus: lernen + bauen<br>&gt; motivation: immer noch vorhanden_</code></div>
+    </div>
   </div>
 </section>
 
-<section id="leistungen" class="section feature-section parallax-section pd-section">
+<section id="leistungen" class="section gdv3-process-section">
   <div class="feature-orbit orbit-a" data-parallax="0.13"></div>
   <div class="feature-orbit orbit-b" data-parallax="-0.08"></div>
   <div class="wrap">
-      <div class="pd-wrap pd-single">
-        <div class="pd-head"><p class="eyebrow">WIE ICH ENTWICKLE</p><h2>Ich habe die Ideen. Die KI hilft beim Code.</h2></div>
-        <div class="pd-flow">
-          <p>Ich mache kein Geheimnis daraus, dass ich künstliche Intelligenz zur Softwareentwicklung einsetze.</p>
-          <p>Die Ideen, Anforderungen, Entscheidungen und Überprüfung liegen bei mir.</p>
-          <p>Die KI hilft bei der technischen Umsetzung.</p>
-          <p>Mit KI zu entwickeln ist manchmal wie Teamarbeit mit einem extrem schnellen Kollegen, der gelegentlich die Aufgabenstellung überliest.</p>
-          <p>Ich gebe die Richtung vor, prüfe die Ergebnisse und lerne dabei ständig dazu.</p>
-          <p class="pd-punch">Die KI ist mein Werkzeug, nicht mein Autopilot. Auch wenn sie gelegentlich versucht, das Steuer zu übernehmen.</p>
-        </div>
-      </div>
+    <div class="gdv3-section-heading" data-gdv3-reveal>
+      <div><span class="gdv3-section-index">03 / WIE ICH ENTWICKLE</span><h2>Meine Idee.<br><em>KI als Werkzeug.</em></h2></div>
+      <p>Die Ideen und Entscheidungen kommen von mir. KI hilft beim Code. Prüfen, verstehen und verbessern übernehme ich selbst.</p>
+    </div>
+    <div class="gdv3-process-grid">
+      <article class="gdv3-step" data-gdv3-reveal><span>01</span><h3>Problem finden.</h3><p>Etwas nervt oder fehlt. Ich überlege, wie es besser gehen könnte.</p><small>DENKEN / KONZIPIEREN</small></article>
+      <article class="gdv3-step" data-gdv3-reveal><span>02</span><h3>Lösung bauen.</h3><p>Mit KI-Unterstützung wird aus der Idee ein funktionierender Prototyp.</p><small>BAUEN / AUSPROBIEREN</small></article>
+      <article class="gdv3-step" data-gdv3-reveal><span>03</span><h3>Nachbessern.</h3><p>Testen, Fehler finden, nachbessern. Bis die Anwendung tut, was sie soll.</p><small>PRÜFEN / VERBESSERN</small></article>
+    </div>
+    <div class="gdv3-process-caption" data-gdv3-reveal><strong>„Mein Werkzeug. <em>Nicht mein Autopilot.</em>“</strong><span>Auch wenn die KI manchmal die Aufgabenstellung überliest.</span></div>
   </div>
 </section>
 
-<section id="warum" class="section pd-section">
+<section id="warum" class="section gdv3-end-section">
   <div class="wrap">
-      <div class="pd-wrap pd-single">
-        <div class="pd-head"><p class="eyebrow">WARUM ICH MEINE APPS TEILE</p><h2>Gute Ideen müssen nicht in der eigenen <span>Schublade verstauben.</span></h2></div>
-        <div class="pd-flow">
-          <p>Meine Anwendungen entstehen zunächst aus eigenen Bedürfnissen. Wenn sie mir helfen, könnten sie vielleicht auch anderen nützlich sein.</p>
-          <p>Deshalb möchte ich meine Projekte vorstellen und nach Möglichkeit zum Download anbieten. Einige Apps sind bereits veröffentlicht, andere befinden sich noch in Entwicklung.</p>
-          <p class="pd-punch">An Ideen mangelt es jedenfalls nicht. Nur der Tag weigert sich hartnäckig, mehr als 24 Stunden zu haben.</p>
-        </div>
-      </div>
+    <div class="gdv3-end-content" data-gdv3-reveal>
+      <span class="gdv3-section-index">WARUM ICH MEINE PROJEKTE TEILE</span>
+      <h2>Gute Ideen gehören nicht<br><em>in die Schublade.</em></h2>
+      <p>Wenn eine App mir hilft, kann sie vielleicht auch anderen nützen. Deshalb teile ich meine Projekte – fertige und unfertige.</p>
+      <div class="gdv3-end-actions"><a class="btn" href="#apps">Projekte ansehen <b>↗</b></a><a class="gdv3-subtle-link" href="dau-to-pro/">DAU TO PRO entdecken <span>↗</span></a></div>
+    </div>
   </div>
 </section>
-
-
 
 </main>
 
 <footer><div class="wrap footer"><a class="brand" href="#top"><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
 
 <script src="assets/site.js?v=<?=filemtime(__DIR__.'/assets/site.js')?>" defer></script>
+<script src="assets/home-v3.js?v=<?=filemtime(__DIR__.'/assets/home-v3.js')?>" defer></script>
 </body></html>

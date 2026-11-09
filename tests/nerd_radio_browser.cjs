@@ -319,8 +319,25 @@ let server, browser;
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
+  const preSeekProbe=await ownPage.evaluate(([x,y])=>{
+    const t=document.elementFromPoint(x,y),seek=document.querySelector('[data-radio-seek]');
+    window.__nerdSeekEvents=[];
+    for(const type of ['pointerdown','pointerup','mousedown','mouseup','click','input','change']){
+      document.addEventListener(type,event=>{
+        if(window.__nerdSeekEvents.length<30)window.__nerdSeekEvents.push({
+          type,target:event.target?.outerHTML?.slice(0,140),val:seek.value,
+          x:event.clientX,y:event.clientY
+        });
+      },{capture:true,once:false});
+    }
+    return {point:[x,y],hit:t?.outerHTML?.slice(0,400),closestSeek:t===seek,
+      hitStyle:t?{pointer:getComputedStyle(t).pointerEvents,z:getComputedStyle(t).zIndex}:null,
+      seekValue:seek.value,radioState:document.querySelector('[data-nerd-radio]')?.nerdRadio?.state};
+  },[seekBox.x+seekBox.width*0.5,seekBox.y+seekBox.height/2]);
+  console.log('RADIO SEEK HIT BEFORE '+JSON.stringify(preSeekProbe));
   await ownPage.mouse.click(seekBox.x + seekBox.width * 0.5, seekBox.y + seekBox.height / 2);
   await pause(250);
+  console.log('RADIO SEEK EVENT TRACE '+JSON.stringify(await ownPage.evaluate(()=>window.__nerdSeekEvents)));
   o = await ownState();
   assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13, 'Klick spult etwa zur Titelmitte');
   await ownPage.locator('[data-radio-pause]').click();
