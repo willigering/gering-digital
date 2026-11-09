@@ -72,6 +72,11 @@ body>.content{overflow:visible!important;isolation:isolate}
 .chapter-body .sample{border-color:#75cfb44b}
 .chapter-body .qa{border-color:#6dbbad45}
 .end{position:relative;z-index:40;background:linear-gradient(140deg,#10262bf5,#101d28f8);border-color:#e8b84a50}
+/* Suchtreffer erscheinen nicht übereinander, auch wenn sie aus verschiedenen Reitern stammen. */
+body[data-active-topic="search"] .support-flow>.chapter{
+  position:relative!important;top:auto!important;transform:none!important;
+  filter:none!important;margin-bottom:26px!important
+}
 @media(min-width:901px) and (prefers-reduced-motion:no-preference){
   .support-flow>.chapter:not([hidden]){
     position:sticky!important;top:var(--support-fold-top,145px)!important;
