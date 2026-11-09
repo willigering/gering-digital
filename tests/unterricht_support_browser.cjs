@@ -23,7 +23,7 @@ assert.equal(index.match(/id="highscore"/g)?.length,1,'Highscore darf nicht dopp
    ['abschluss',['abschluss','qualitaet'],'circuit-signal-1536']
   ]) {
    await page.locator('.jump[data-topic="'+topic+'"]').click();
-   await page.waitForTimeout(110);
+   await page.waitForTimeout(650);
    const state=await page.evaluate(()=>{
     const cards=[...document.querySelectorAll('.support-flow>.chapter:not([hidden])')];
     return {
