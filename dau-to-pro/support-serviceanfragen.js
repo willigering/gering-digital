@@ -26,6 +26,7 @@
       const top = Math.min(offset(), innerHeight - ch.offsetHeight - 28);
       ch.style.setProperty("--support-fold-top", top + "px");
       ch.style.setProperty("--support-stack-z", String(i + 10));
+      ch.style.zIndex = String(i + 10);
     });
     paint();
   }
