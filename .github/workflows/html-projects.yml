@@ -67,6 +67,10 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/bewerbungen_browser.cjs
       - name: Test IT VI.01 second topic tab overlap and external background
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
