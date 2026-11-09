@@ -749,15 +749,15 @@
     // ein normaler Klick muss unabhängig davon bereits spulen.
     try { seekTrack.setPointerCapture(e.pointerId); } catch (_) { /* Klick funktioniert dennoch */ }
     ui.seek.focus({ preventScroll: true });
-  });
+  }, { capture: true });
   seekTrack.addEventListener('pointermove', e => {
     if (e.pointerId === seekingPointer) seekFromPointer(e.clientX);
-  });
+  }, { capture: true });
   seekTrack.addEventListener('pointerup', e => {
     if (e.pointerId !== seekingPointer) return;
     seekFromPointer(e.clientX);
     finishScrub();
-  });
+  }, { capture: true });
   seekTrack.addEventListener('pointercancel', finishScrub);
   seekTrack.addEventListener('lostpointercapture', finishScrub);
   ui.seek.addEventListener('input', seekToPosition);
