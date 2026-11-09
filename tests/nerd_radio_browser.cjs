@@ -298,9 +298,9 @@ let server, browser;
   const ownPage = await own.newPage();
   ownPage.on('pageerror', e => errors.push(`datei: ${e.message}`));
   const seekNetwork = [];
-  ownPage.on('request', q => { if(q.url().includes('song.php'))seekNetwork.push({type:'request',range:q.headers().range||'',url:q.url().split('?')[0]}); });
-  ownPage.on('response', q => { if(q.url().includes('song.php'))seekNetwork.push({type:'response',status:q.status(),range:q.headers()['content-range']||'',mime:q.headers()['content-type']||''}); });
-  ownPage.on('requestfailed', q => { if(q.url().includes('song.php'))seekNetwork.push({type:'failed',failure:q.failure()}); });
+  ownPage.on('request', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'request',range:q.headers().range||'',url:q.url().split('?')[0]}); });
+  ownPage.on('response', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'response',status:q.status(),range:q.headers()['content-range']||'',mime:q.headers()['content-type']||''}); });
+  ownPage.on('requestfailed', q => { if(q.url().includes('nerd-radio-test'))seekNetwork.push({type:'failed',failure:q.failure()}); });
   await ownPage.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
   const ownState = () => ownPage.evaluate(() => {
     const r = document.querySelector('[data-nerd-radio]').nerdRadio;
