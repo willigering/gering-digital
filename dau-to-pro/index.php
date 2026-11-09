@@ -222,12 +222,12 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     </a>
     <?php endforeach; ?>
   </div>
-  </div><!-- /.cheat-stack-frame -->
-  <div class="cheat-stack-runway" aria-hidden="true"></div>
   <div class="cheat-cta-row">
     <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
     <a class="cheat-all" href="cheat-sheet.html">ALLE ELF SPICKZETTEL ↗</a>
   </div>
+  </div><!-- /.cheat-stack-frame -->
+  <div class="cheat-stack-runway" aria-hidden="true"></div>
 </section>
               </div>
     </div>
