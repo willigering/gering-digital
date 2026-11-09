@@ -135,7 +135,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards gdv3-project-grid">
-        <article class="card glass-card app-card dtp-portal-card gdv3-featured-card" data-category="sonstiges">
+        <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
           <div class="dtp-portal-art"><img src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
