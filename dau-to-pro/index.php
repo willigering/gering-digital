@@ -60,6 +60,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <html lang="de">
 <head>
   <meta charset="utf-8">
+  <!-- Keep relative audio and API URLs stable when History API shows a module URL. -->
+  <base href="/dau-to-pro/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#090c0e">
   <meta name="description" content="<?=e($c['meta_description'])?>">
@@ -73,6 +75,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <link rel="stylesheet" href="nerd-radio.css?v=<?=filemtime(__DIR__.'/nerd-radio.css')?>">
   <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
   <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
+  <link rel="stylesheet" href="radio-navigation.css?v=<?=filemtime(__DIR__.'/radio-navigation.css')?>">
+  <script src="radio-navigation.js?v=<?=filemtime(__DIR__.'/radio-navigation.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>
   <script src="hero-fx.js?v=<?=filemtime(__DIR__.'/hero-fx.js')?>" defer></script>
