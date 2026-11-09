@@ -7,12 +7,16 @@ on:
       - 'dau-to-pro/cheat-sheet*'
       - 'dau-to-pro/cheat-shelf*'
       - 'dau-to-pro/index.php'
+      - 'dau-to-pro/unterricht/**'
+      - 'dau-to-pro/unterricht.css'
       - '.github/workflows/cheat-sheets-deploy.yml'
   pull_request:
     paths:
       - 'dau-to-pro/cheat-sheet*'
       - 'dau-to-pro/cheat-shelf*'
       - 'dau-to-pro/index.php'
+      - 'dau-to-pro/unterricht/**'
+      - 'dau-to-pro/unterricht.css'
       - '.github/workflows/cheat-sheets-deploy.yml'
 
 permissions:
@@ -98,11 +102,23 @@ jobs:
       - name: Validate Unterrichtsmaterial and learner account endpoint
         run: |
           php -l dau-to-pro/unterricht/it-vi-01.php
+          node --check dau-to-pro/unterricht/it-vi-01-parallax.js
           node <<'JS'
           const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
           const main=fs.readFileSync('dau-to-pro/index.php','utf8');
           const html=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.html','utf8');
           const php=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.php','utf8');
+          const theme=fs.readFileSync('dau-to-pro/unterricht/it-vi-01-theme.css','utf8');
+          const fx=fs.readFileSync('dau-to-pro/unterricht/it-vi-01-parallax.js','utf8');
+          assert.match(html,/it-vi-01-theme\.css/,'Theme CSS must be loaded by the lesson');
+          assert.match(html,/it-vi-01-parallax\.js/,'Parallax must be loaded by the lesson');
+          assert.ok(!/Wollenberg|Autoren?:|Erstellt von|©/i.test(html),'Author attributions must not appear on the lesson');
+          assert.ok(theme.includes('--itvi-shift')&&fx.includes('requestAnimationFrame'),'Backgrounds must move independently of the card stacking');
+          assert.match(theme,/prefers-reduced-motion/,'Respect reduced motion');
+          assert.match(theme,/@media print/,'Print view must stay readable');
+          const used=[...theme.matchAll(/assets\/dau-backgrounds\/([a-z0-9-]+\.webp)/g)].map(x=>x[1]);
+          assert.ok(used.length>=5,'Need real thematic background textures');
+          used.forEach(file=>assert.ok(fs.existsSync('assets/dau-backgrounds/'+file),'Missing BG asset '+file));
           assert.match(main,/id="unterrichtsmaterial"/);
           assert.match(main,/href="unterricht\/it-vi-01\.php"/);
           assert.match(main,/<details id="unterrichtsmaterial"/);
