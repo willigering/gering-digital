@@ -82,7 +82,7 @@ pre.cs.bad{border-color:#ff7b8a88}pre.cs:focus-visible{outline:2px solid var(--c
 .task-prompt{overflow-wrap:anywhere}.result .why,.review{overflow-wrap:anywhere}.opt span:last-child{overflow-wrap:anywhere}
 @media(max-width:610px){.trace-side{grid-template-columns:1fr}pre.cs{font-size:12.5px;padding:10px}}
 </style>'''
-extra = extra.replace('</style>', '''.set-list{white-space:pre-wrap;overflow-wrap:anywhere}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
+extra = extra.replace('</style>', '''.set-list{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:610px){.set-list{font-size:12.5px;line-height:1.4;margin:6px 0}.scenario{font-size:15px;line-height:1.45;padding:8px 12px}}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
 </style>''', 1)
 shell = shell.replace('</head>', extra + '</head>', 1)
 
