@@ -15,11 +15,11 @@ def must(s,old,new):
  return s.replace(old,new)
 
 shell=re.sub(r'<title>.*?</title>','<title>Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · DAU TO PRO</title>',shell)
-shell=re.sub(r'<meta name="description"[^>]+>','<meta name="description" content="W4: Wirtschaftssektoren, Märkte, Marktformen, Einzelunternehmen, GbR, OHG, KG, GmbH, UG, AG, eG, Handelsregister, Prokura und Rechtsformwahl verständlich trainieren.">',shell)
+shell=re.sub(r'<meta name="description"[^>]+>','<meta name="description" content="Wirtschaftssektoren, Märkte, Marktformen, Einzelunternehmen, GbR, OHG, KG, GmbH, UG, AG, eG, Handelsregister, Prokura und Rechtsformwahl verständlich trainieren.">',shell)
 shell=shell.replace('data-game-id="a1"','data-game-id="w4"')
 bg=base64.b64encode((ROOT/'assets/dau-backgrounds/circuit-768.webp').read_bytes()).decode()
 shell=re.sub(r'<script>\(function\(\)\{var B=.*?</script>','<script>/* DTP-HINTERGRUND: circuit */\n(function(){var B=["data:image/webp;base64,'+bg+'"];document.documentElement.style.setProperty("--bg-tex",\'url("\'+B[0]+\'")\')})();</script>',shell,flags=re.S)
-shell=must(shell,'GRUNDLAGEN <b>//</b> ZAHLENSYSTEME <b>//</b> MODUL A1','WIRTSCHAFT &amp; PROJEKTE <b>//</b> UNTERNEHMEN &amp; MÄRKTE <b>//</b> MODUL W4')
+shell=must(shell,'GRUNDLAGEN <b>//</b> ZAHLENSYSTEME <b>//</b> MODUL A1','WIRTSCHAFT &amp; PROJEKTE <b>//</b> UNTERNEHMEN &amp; MÄRKTE')
 shell=must(shell,'Bits zum <span>bitteren Ende.</span>','Garage, Gewinn, <span>Gerichts&shy;vollzieher</span>')
 shell=re.sub(r'<p class="hero-lead">.*?</p>','<p class="hero-lead">Jede Firma fängt irgendwo an. Manchmal in der Garage. Dann kommt der Gewinn, und manchmal kommt der Gerichtsvollzieher. Hier lernst du, wer bei welcher Rechtsform haftet, wer mitreden darf, wie Märkte funktionieren und warum „e.V.“ noch lange nicht „gemeinnützig“ heißt.</p>',shell,count=1,flags=re.S)
 shell=must(shell,'Von Null Plan <span>zu Null und Eins.</span>','Von der Garage <span>zur Holding.</span>')
@@ -30,7 +30,7 @@ shell=must(shell,'Welche Darstellung gehört zusammen?','Welcher Begriff gehört
 shell=must(shell,'Wähle für jede Zeile die passende Zahl. Zwei Antworten im Auswahlmenü sind Lockvögel.','Jede Zeile wird einzeln bewertet. Im Auswahlmenü stehen mehr Begriffe als nötig.')
 shell=must(shell,'Umrechnen auf Zeit.','Einordnen auf Zeit.')
 shell=must(shell,'Wer die Bits versteht, versteht auch Subnetting, IPv6 und jede Downloadzeit.','Wer die Haftung versteht, liest jeden Gesellschaftsvertrag mit anderen Augen.')
-shell=must(shell,'Modul A1 · Zahlensysteme · Bits zum bitteren Ende · Version 2.4','Modul W4 · Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · v1.0')
+shell=must(shell,'Modul A1 · Zahlensysteme · Bits zum bitteren Ende · Version 2.4','Unternehmensformen &amp; Märkte · Garage, Gewinn, Gerichtsvollzieher · v1.1')
 shell=re.sub(r"(window\.dtpMountCalculator\?\.\([^;]*),'zahlen'\);", r"\1,'w4');", shell)
 shell=shell.replace('a1-bits','w4-unternehmen').replace('window.A1_TEST','window.W4UNTERNEHMEN_TEST')
 # Module accent everywhere, including translucent variants and the A1 game block.
@@ -40,8 +40,8 @@ for old,new in {'#080e0b':'#120d09','#111b15':'#211710','#0d1912':'#1b130d','#19
 extra='''<style>
 /* W4: orange accent and clear scenario/question separation. */
 .scenario{border-left:3px solid var(--cyan);padding:10px 14px;margin:0 0 12px;background:#1e150e;overflow-wrap:anywhere}.scenario strong{display:block;color:var(--cyan);font-size:11px;letter-spacing:.15em}.scenario ol{margin:6px 0 0;padding-left:18px;font-size:14px;line-height:1.35}.scenario ol li{margin:2px 0}.task-prompt{overflow-wrap:anywhere}.bitwall{grid-template-columns:1fr;gap:12px}.bitwall .cash{font:900 38px var(--mono);color:var(--gold)}.bitwall p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.match-row .val{white-space:normal;font-family:inherit;overflow-wrap:anywhere}.table-wrap{max-width:100%;overflow-x:auto}.catbar{grid-template-columns:minmax(90px,180px) 1fr 100px}.qtip{overflow-wrap:anywhere}.lab input{max-width:100%}.review .task-prompt{margin-top:12px}body:after{background-image:linear-gradient(#120d09bb,#120d09df),var(--bg-tex,none)}
-.panel td,.panel th{overflow-wrap:normal}\n.hero h1{font-size:clamp(36px,5.4vw,70px);hyphens:manual}
-@media(max-width:610px){.catbar{grid-template-columns:95px 1fr 85px}.hero{padding-top:28px}.match-row{grid-template-columns:1fr;gap:6px}.qnav{gap:5px}.hero h1{font-size:44px}.grade{grid-template-columns:1fr}.bitwall .cash{font-size:30px}}
+.panel td,.panel th{overflow-wrap:normal}\n.hero h1{hyphens:manual}
+@media(max-width:610px){.catbar{grid-template-columns:95px 1fr 85px}.hero{padding-top:28px}.match-row{grid-template-columns:1fr;gap:6px}.qnav{gap:5px}.grade{grid-template-columns:1fr}.bitwall .cash{font-size:30px}}
 </style>'''
 shell=shell.replace('</head>',extra+'</head>')
 chapters='<nav class="chapter-grid" aria-label="Kapitel">'+''.join(f'<a class="ch-tile" href="#ch{i+1}"><span>{i+1:02}</span><strong>{c["title"]}</strong><small>{c["goal"]}</small></a>' for i,c in enumerate(content))+'</nav>'

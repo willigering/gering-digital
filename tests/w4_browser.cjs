@@ -7,7 +7,8 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
  const browser=await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{});
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url);assert.equal(await page.locator('.area-tab').count(),4);
- assert.match(await page.locator('.kicker').first().innerText(),/WIRTSCHAFT & PROJEKTE\s*\/\/\s*UNTERNEHMEN & MÄRKTE\s*\/\/\s*MODUL W4/);
+ assert.match(await page.locator('.kicker').first().innerText(),/WIRTSCHAFT & PROJEKTE\s*\/\/\s*UNTERNEHMEN & MÄRKTE\s*$/);
+ assert.equal(await page.evaluate(()=>/\bW4\b|MODUL W4/.test(document.body.innerText)),false,'No module code visible');
  assert.match((await page.locator('h1').first().textContent()).replace(/\u00ad/g,''),/Garage, Gewinn, Gerichtsvollzieher/);
  const generated=await page.evaluate(()=>{
   const t=W4UNTERNEHMEN_TEST;let n=0;
