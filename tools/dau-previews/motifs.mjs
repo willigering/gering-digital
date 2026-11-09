@@ -437,6 +437,38 @@ function kalkulation(id) {
   <text x="640" y="640" text-anchor="middle" font-family="${SANS}" font-size="38" font-weight="900" fill="${GOLD_LITE}">RECHNET SICH DAS?</text>`;
 }
 
+function unternehmen(id) {
+  return `
+  <text x="640" y="104" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">UNTERNEHMEN &amp; MÄRKTE</text>
+  <g transform="translate(150 250)" font-family="${MONO}" font-weight="800">
+    <path d="M0 70L110 0L220 70V250H0Z" fill="#14111c" stroke="${CYAN}" stroke-width="3"/>
+    <g stroke="${MUTED}" stroke-width="2"><path d="M30 110H190M30 145H190M30 180H190M30 215H190"/></g>
+    <path d="M30 95H190V250H30Z" fill="none" stroke="${CYAN}" stroke-width="3"/>
+    <text x="110" y="290" text-anchor="middle" font-size="26" fill="${CREAM}">GARAGE</text>
+    <text x="110" y="62" text-anchor="middle" font-size="22" fill="${GOLD_LITE}">e.K.</text>
+  </g>
+  <path d="M400 410H470" stroke="${GOLD}" stroke-width="6"/><path d="M462 396L486 410L462 424Z" fill="${GOLD}"/>
+  <g transform="translate(510 190)" font-family="${MONO}" font-weight="800">
+    <path d="M0 0H210V310H0Z" fill="#14111c" stroke="${CYAN}" stroke-width="3"/>
+    <g fill="${CYAN}" opacity=".55">${[0,1,2,3].map(r=>[0,1,2].map(c=>`<rect x="${28+c*58}" y="${30+r*62}" width="38" height="36"/>`).join('')).join('')}</g>
+    <text x="105" y="350" text-anchor="middle" font-size="26" fill="${CREAM}">GMBH</text>
+  </g>
+  <path d="M750 410H820" stroke="${GOLD}" stroke-width="6"/><path d="M812 396L836 410L812 424Z" fill="${GOLD}"/>
+  <g transform="translate(860 140)" font-family="${MONO}" font-weight="800">
+    <path d="M0 0H170V360H0Z" fill="#14111c" stroke="${GOLD}" stroke-width="3"/>
+    <path d="M85 -40V0" stroke="${GOLD}" stroke-width="4"/>
+    <g fill="${GOLD_LITE}" opacity=".55">${[0,1,2,3,4,5].map(r=>[0,1].map(c=>`<rect x="${32+c*66}" y="${24+r*54}" width="40" height="30"/>`).join('')).join('')}</g>
+    <text x="85" y="400" text-anchor="middle" font-size="26" fill="${CREAM}">AG</text>
+  </g>
+  <g transform="translate(352 425) rotate(-14)">
+    <circle r="62" fill="#2a0f16" stroke="#ff6b7d" stroke-width="5"/>
+    <circle r="48" fill="none" stroke="#ff6b7d" stroke-width="2" stroke-dasharray="6 5"/>
+    <text y="-6" text-anchor="middle" font-family="${SANS}" font-size="17" font-weight="900" fill="#ffb3bd">GEPFÄNDET</text>
+    <text y="18" text-anchor="middle" font-family="${MONO}" font-size="15" font-weight="800" fill="#ffb3bd">SOFA</text>
+  </g>
+  <text x="640" y="655" text-anchor="middle" font-family="${SANS}" font-size="36" font-weight="900" fill="${GOLD_LITE}">GARAGE, GEWINN, GERICHTSVOLLZIEHER</text>`;
+}
+
 function csharp(id) {
   return `
   <text x="640" y="104" text-anchor="middle" font-family="${SANS}" font-size="34" font-weight="900" letter-spacing="4" fill="${CYAN}">PROGRAMMIEREN MIT C#</text>
@@ -460,6 +492,7 @@ function csharp(id) {
 }
 
 export const motifs = [
+  { id: 'unternehmen', accent: '#d4b8ff', label: 'Unternehmensformen & Märkte', draw: unternehmen, seed: 43, glowX: 640, glowY: 380 },
   { id: 'csharp', accent: '#b794ff', label: 'Programmieren mit C#', draw: csharp, seed: 37, glowX: 640, glowY: 360 },
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },
