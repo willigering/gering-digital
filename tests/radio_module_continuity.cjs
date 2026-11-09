@@ -62,6 +62,14 @@ let server,browser;
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
+  const radioStart = await page.evaluate(() => ({
+    hasRadio: !!document.querySelector('[data-nerd-radio]'),
+    hasInstance: !!document.querySelector('[data-nerd-radio]')?.nerdRadio,
+    tracks: document.querySelectorAll('.nr-playlist__play').length,
+    dataset: document.querySelector('[data-nerd-radio]')?.dataset.tracks?.slice(0,240)
+  }));
+  assert.ok(radioStart.hasInstance && radioStart.tracks > 0,
+    'NERD FM initialization failed: '+JSON.stringify({radioStart, errors}));
   const state=()=>page.evaluate(()=>{
     const radio=document.querySelector('[data-nerd-radio]');
     const r=radio.nerdRadio;
