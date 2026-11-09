@@ -12,4 +12,6 @@ if (in_array($path,['/osi/','/subnetsprint/'],true)) {
     echo '</body></html>';
     exit;
 }
-require __DIR__.'/router.php';
+// Die PHP-Built-in-Server-Router müssen 'false' zurückgeben, damit statische
+// Dateien (JS, CSS, WAV) vom Server selbst ausgeliefert werden.
+return require __DIR__.'/router.php';
