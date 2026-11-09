@@ -11,7 +11,7 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 
 // ---------------------------------------------------------------- Katalog und Freischaltung
 $songs=nfm_songs();
-$hasDejaVu=is_file(nfm_dir().'/kein-break.mp3');
+$hasDejaVu=is_file(nfm_dir().'/deja-vu.mp3');
 $expectedIds=['apipa','sieben-schichten','klopf-klopf','dau-to-pro'];
 if ($hasDejaVu) $expectedIds[]='deja-vu';
 check(array_keys($songs)===$expectedIds,'Feste Playlist-Reihenfolge, neuer Song erst mit echter MP3');
