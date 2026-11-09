@@ -172,3 +172,11 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Themenbilder aus dem bestehenden BG-Ordner sind **nicht mehr auf Text-/Kapitelkarten**, sondern auf einer separaten fixierten Parallax-Ebene hinter der gesamten Unterrichtsseite. Kapitelkarten und Hero bleiben lesbare dunkle Panels. Themenbildwechsel über den aktiven Reiter; Reduced-Motion und Druckansicht berücksichtigt.
 - Automatisierter Playwright-Browsertest für tatsächliche Überlagerung der Kapitel 01–02 und 05–06 sowie BG-Lage und Mobilansicht ergänzt; Kontospeicherformat, Fragen und Lernstände unverändert.
 - GitHub/Browser-Checks, Merge, STRATO-Deploy und Liveabnahme werden getrennt kontrolliert.
+
+## 09.11.2026 – Homepage V3 sicher vom aktuellen Hauptbranch veröffentlicht
+
+- Die bisher nur als Designvorschau vorhandene hochwertige Homepage wurde in die echte `index.php` integriert. Enthalten sind kurzer Hero-Text, markante Gold-/Türkis-Typografie, Projektkacheln nebeneinander mit großer DAU-TO-PRO-Karte und Filter „Alle Projekte“, eine verkürzte „Über mich“-Zeitleiste, kompakte Entwicklungs-Prozesskarten sowie dezenter unabhängiger Parallax.
+- Originales interaktives Smartphone inklusive Dreh- und Zeitanzeige im HTML unverändert. Bestehende Styles und das vorhandene `assets/site.js` sind unangetastet; neue Stile/Skripte sind isoliert in `assets/home-v3.css` und `assets/home-v3.js`.
+- Ein Playwright/PHP-Test stellt Desktop- und Mobilansichten (1440, 820, 390, 320 px), Filter, 3D-Smartphone, Original-Quellsegment und JS-Fehlerfreiheit sicher.
+- Die parallele Radio-Vorspuländerung aus dem aktuellen Hauptbranch wurde erhalten und das Seek-Verhalten in Chromium abgesichert.
+- Erst erfolgreich geprüfter GitHub-Merge und abgeschlossener STRATO-Upload bestätigen die Live-Auslieferung.
