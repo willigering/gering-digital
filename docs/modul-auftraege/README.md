@@ -172,7 +172,7 @@ Reihenfolge = Bau-Reihenfolge. Titel sind Vorschläge, du darfst witzigere finde
 | 7 | W1 | Ausbildung & Arbeitsrecht | Probezeit ist keine Spielzeit | w1-arbeitsrecht.html | w1-arbeit | #c3e88d | server |
 | 8 | W2 | Sozialversicherung, Steuern & Entgelt | Brutto ist nicht Netto | w2-sozialversicherung.html | w2-sozial | #9ece6a | hardware-memory |
 | 9 | W3 | Mitbestimmung & Tarif | Betriebsrat statt Bauchgefühl | w3-mitbestimmung.html | w3-tarif | #b4f9f8 | cables |
-| 10 | W4 | Unternehmen & Organisation | GmbH, AG oder Garage? | w4-unternehmen.html | w4-unternehmen | #d4b8ff | circuit |
+| 10 | W4 | Unternehmen & Organisation | GmbH, AG oder Garage? | w4-unternehmen.html | w4-unternehmen | #ff9a3c | circuit |
 | 11 | W5 | Wirtschaft, Markt & Verträge | Angebot, Nachfrage, Panik | w5-wirtschaft.html | w5-markt | #ffd580 | hardware-connectors |
 | 12 | A2 | Hardware & Energie | RAID, aber bitte mit Sinn | a2-hardware.html | a2-hw | #6fe3c1 | hardware-memory |
 | 13 | A3 | Betriebssysteme & Terminal | sudo mach mal | a3-betriebssysteme.html | a3-os | #8bd5ca | circuit-micro |
