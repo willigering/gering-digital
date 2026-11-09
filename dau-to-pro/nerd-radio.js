@@ -730,6 +730,17 @@
   ui.seek.addEventListener('pointercancel', finishScrub);
   ui.seek.addEventListener('blur', finishScrub);
   ui.seek.addEventListener('input', seekToPosition);
+  // Mouse click / touch tap also seeks using the pointer coordinates. Some browsers
+  // fire the range "change" after pointerup; updateClock() may have reset its
+  // native value in between. Computing from the click fixes that race.
+  ui.seek.addEventListener('click', event => {
+    if (!event.detail || !fileDuration()) return; // keyboard stays with input/change
+    const rect = ui.seek.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const fraction = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+    ui.seek.value = String(Math.round(fraction * 1000));
+    seekToPosition();
+  });
   ui.seek.addEventListener('change', () => { seekToPosition(); finishScrub(); });
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
