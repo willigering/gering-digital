@@ -1857,9 +1857,9 @@ S('gmbh','h_privat',lv=>{const [x]=two(),a=rint(2,10)*2500,e=rint(1,a/2500)*2500
 
 /* ================= 8 AG, KGaA & eG ================= */
 S('ag','a_aktien',lv=>{const nb=pick([1,1,2,5,10,50]),gk=rint(5,lv>=2?500:50)*10000,n=gk/nb;
- return task(`Die BrummBrumm AG hat ein Grundkapital von ${euro(gk)}. Es ist vollständig in Nennbetragsaktien zu je ${euro(nb)} eingeteilt.`,'Wie viele Aktien gibt es?','Teile das Grundkapital durch den Wert einer Aktie.',n,`${euro(gk)} ÷ ${euro(nb)} = <b>${fd(n,0)} Aktien</b>.`,'Aktien',0);});
+ return task(`Die BrummBrumm AG hat ein Grundkapital von ${euro(gk)}. Es ist vollständig in Nennbetragsaktien zu je ${euro(nb)} eingeteilt.`,'Wie viele Aktien gibt es?','Teile das Grundkapital durch den Wert einer Aktie.',n,`Anzahl Aktien = Grundkapital ÷ Nennbetrag: ${euro(gk)} ÷ ${euro(nb)} = <b>${fd(n,0)} Aktien</b>.`,'Aktien',0);});
 S('ag','a_dividende',lv=>{const a=rint(1,lv>=2?200:20)*100,d=pick([0.1,0.2,0.25,0.4,0.5,0.75,1,1.2,2.5]),[x]=two();
- return task(`${x} besitzt ${fd(a,0)} Aktien der BrummBrumm AG. Die Hauptversammlung beschließt eine Dividende von ${euro(d)} je Aktie. Steuern bleiben unberücksichtigt.`,`Wie viel Euro Dividende erhält ${x}?`,'Multipliziere die Zahl der Aktien mit der Dividende pro Aktie.',a*d,`${fd(a,0)} × ${euro(d)} = <b>${euro(round(a*d,2))}</b>.`);});
+ return task(`${x} besitzt ${fd(a,0)} Aktien der BrummBrumm AG. Die Hauptversammlung beschließt eine Dividende von ${euro(d)} je Aktie. Steuern bleiben unberücksichtigt.`,`Wie viel Euro Dividende erhält ${x}?`,'Multipliziere die Zahl der Aktien mit der Dividende pro Aktie.',a*d,`Dividende = Anzahl Aktien × Dividende je Aktie: ${fd(a,0)} × ${euro(d)} = <b>${euro(round(a*d,2))}</b>.`);});
 S('ag','a_quote',lv=>{const total=pick([50000,100000,200000,400000,1000000]),p=pick([1,2,4,5,8,10,12.5,20,25,30,40]),own=total*p/100,[x]=two();
  return task(`Die BrummBrumm AG hat ${fd(total,0)} Nennbetragsaktien zu je 1 €, alle mit Stimmrecht. ${x} besitzt ${fd(own,0)} Aktien.`,`Wie viel Prozent der Stimmen hat ${x} in der Hauptversammlung?`,'Eigene Aktien geteilt durch alle Aktien, mal 100.',p,`Stimmrecht nach Aktiennennbeträgen (§ 134 AktG): ${fd(own,0)} ÷ ${fd(total,0)} × 100 = <b>${pct(p)}</b>.`,'%');});
 const ORG=[
