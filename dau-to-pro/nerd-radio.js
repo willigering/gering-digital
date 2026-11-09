@@ -741,6 +741,17 @@
   ui.seek.addEventListener('blur', finishScrub);
   ui.seek.addEventListener('input', seekToPosition);
   ui.seek.addEventListener('change', () => { seekToPosition(); finishScrub(); });
+  // Der transparente native Range-Regler kann durch die 3D-Radio-Transformation
+  // beim Klick eine abweichende Thumb-Position berechnen. Nach dem nativen
+  // Click-Event ist der Pointer-Ort maßgeblich; Tastatur und Ziehen bleiben nativ.
+  ui.seek.addEventListener('click', event => {
+    if (ui.seek.disabled || !event.detail) return;
+    const bounds = ui.seek.getBoundingClientRect();
+    if (bounds.width <= 0) return;
+    const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+    ui.seek.value = String(Math.round(fraction * 1000));
+    seekToPosition();
+  });
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
