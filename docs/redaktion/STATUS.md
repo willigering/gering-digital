@@ -156,3 +156,19 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Konto-Speicherung: angemeldete Lernende erhalten eigene Antwort-/Notizstände über `learner_progress` mit eigenem Speicherschlüssel; POST mit CSRF, Origin-Prüfung, Ratenbegrenzung und Datenlimits. Gäste speichern weiterhin nur im lokalen Browser.
 - Spickzettel-Karten und bestehende Module/XP-Daten bleiben unangetastet.
 - Browser/Live-Prüfung und erfolgreicher STRATO-Deploy werden erst nach dem Merge separat bestätigt.
+
+## 09.11.2026 – IT VI.01: Modul-Design und Themen-Parallax
+
+- Das bestehende Unterrichtsmaterial „Kein Ticket ohne Plan“ bleibt in Themenreitern, Kapiteln, Fragen, Praxisfällen und Lernkonto-Speicherung strukturell unverändert.
+- Neue separate CSS- und JS-Dateien für deutlich hochwertigere, modulartige Gestaltung: Gold-/Türkis-Akzente, dunkle Panels, Halation, thematische Kapitelbilder (vorhandene BG-Ordner-Dateien), sanfter Hintergrund-Parallax via requestAnimationFrame. Keine globale Tapeten-Hintergrundgrafik; der Sticky-Überstapelungseffekt bleibt unberührt.
+- Sichtbare PDF-/Originalmaterial-Herkunftsformulierungen sowie Footer-Attribution entfernt; der aktuelle HTML-Stand enthielt bereits keine namentlichen Autoren wie Wollenberg.
+- Themenbilder aus `assets/dau-backgrounds/` werden nicht kopiert: tatsächliche Referenzen auf bestehende WebP-Assets; reduzierte Bewegung und Druckansicht berücksichtigt.
+- Einstiegs-Karte unter „Unterrichtsmaterial“ gestalterisch ebenfalls aufgewertet, Sektion bleibt initial eingeklappt.
+- Checks für die Stylesheet-/Skriptintegration, vorhandene Assets, Autorenfreiheit und Druckansicht in den GitHub-Workflow ergänzt; Merge, STRATO-Deployment und Liveabnahme müssen separat bestätigt werden.
+
+## 09.11.2026 – IT VI.01: korrigierter zweiter Reiter und Hintergrund
+
+- Zweiter Themenreiter „Priorität, SLA & Fälle“ mit Kapiteln 05–08 nutzt denselben vollständigen Sticky-/Überlappungsscroll wie „Support & Tickets“. Die Messung erfolgt bei jedem Reiterwechsel erneut, auch in den anschließenden Browser-Frames.
+- Themenbilder aus dem bestehenden BG-Ordner sind **nicht mehr auf Text-/Kapitelkarten**, sondern auf einer separaten fixierten Parallax-Ebene hinter der gesamten Unterrichtsseite. Kapitelkarten und Hero bleiben lesbare dunkle Panels. Themenbildwechsel über den aktiven Reiter; Reduced-Motion und Druckansicht berücksichtigt.
+- Automatisierter Playwright-Browsertest für tatsächliche Überlagerung der Kapitel 01–02 und 05–06 sowie BG-Lage und Mobilansicht ergänzt; Kontospeicherformat, Fragen und Lernstände unverändert.
+- GitHub/Browser-Checks, Merge, STRATO-Deploy und Liveabnahme werden getrennt kontrolliert.

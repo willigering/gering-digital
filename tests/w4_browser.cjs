@@ -7,7 +7,8 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
  const browser=await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH?{executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH}:{});
  const page=await browser.newPage({viewport:{width:1280,height:900}}),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(url);assert.equal(await page.locator('.area-tab').count(),4);
- assert.match(await page.locator('.kicker').first().innerText(),/WIRTSCHAFT & PROJEKTE\s*\/\/\s*UNTERNEHMEN & MÄRKTE\s*\/\/\s*MODUL W4/);
+ assert.match(await page.locator('.kicker').first().innerText(),/WIRTSCHAFT & PROJEKTE\s*\/\/\s*UNTERNEHMEN & MÄRKTE\s*$/);
+ assert.equal(await page.evaluate(()=>/\bW4\b|MODUL W4/.test(document.body.innerText)),false,'No module code visible');
  assert.match((await page.locator('h1').first().textContent()).replace(/\u00ad/g,''),/Garage, Gewinn, Gerichtsvollzieher/);
  const generated=await page.evaluate(()=>{
   const t=W4UNTERNEHMEN_TEST;let n=0;
@@ -27,6 +28,7 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
    const q=t.genTask(s.id,1+i%3);
    if(q.sub!==s.id||!q.scenario||!q.prompt||!q.plain||q.plain===q.prompt||!q.why)throw Error('Incomplete '+s.id);
    if(/undefined|NaN|\[object/.test(q.scenario+q.prompt+q.why+(q.options||[]).join('')))throw Error('Broken text '+s.id+' '+q.scenario);
+   if(q.why.replace(/<[^>]+>/g,'').trim().length<=20)throw Error('Explanation too short '+s.id+': '+q.why);
    if(q.kind==='mc'){if(q.options.length!==4||q.options.length!==new Set(q.options).size||!q.options[q.answer])throw Error('Ambiguous MC '+s.id);}
    else if(q.kind==='text'){const r=t.parseAnswer(q,q.answer);if(!r.valid||!r.ok)throw Error('Correct text rejected '+s.id+' '+q.answer);if(t.parseAnswer(q,'Quatsch mit Soße').ok)throw Error('Wrong text accepted '+s.id);for(const a of q.accept)if(!t.parseAnswer(q,a).ok)throw Error('Accept variant '+s.id+' '+a);}
    else{const raw=String(q.answer).replace('.',',')+' '+q.unit;const r=t.parseAnswer(q,raw);if(!r.valid||!r.ok)throw Error('Correct rejected '+s.id+' '+JSON.stringify({q,r}));
