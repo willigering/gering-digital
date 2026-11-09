@@ -352,11 +352,30 @@ let server, browser;
   const bar = ownPage.locator('.nr-display__bar');
   const box = await bar.boundingBox();
   assert.ok(box && box.width > 10, 'Die Schiene hat eine sichtbare Fläche');
+  await seek.evaluate(el => { el.value = '500'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await pause(500);
+  const programmaticSeekTime = (await ownState()).time;
+  await seek.focus();
+  await ownPage.keyboard.press('Home');
+  await pause(200);
+  await bar.evaluate(el => {
+    window.__radioSeekEvents = [];
+    ['pointerdown', 'pointerup', 'click'].forEach(type => el.addEventListener(type, e => {
+      const input = el.querySelector('input');
+      window.__radioSeekEvents.push({ type, x: e.clientX, ratio: (e.clientX - el.getBoundingClientRect().left) / el.getBoundingClientRect().width, val: input.value, disabled: input.disabled, target: e.target?.className });
+      queueMicrotask(() => window.__radioSeekEvents.push({ phase: 'after-' + type, val: input.value }));
+    }, { capture: true }));
+  });
+  const hitBefore = await ownPage.evaluate(([x,y]) => {
+    const e = document.elementFromPoint(x,y);
+    return { tag: e?.tagName, cls: e?.className, bar: !!e?.closest('.nr-display__bar') };
+  }, [box.x + box.width / 2, box.y + box.height / 2]);
   await ownPage.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
-  await pause(350);
+  await pause(550);
   o = await ownState();
+  const seekDiagnostics = await ownPage.evaluate(() => window.__radioSeekEvents);
   assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13,
-    `Klick spult zur Titelmitte (Zeit=${o.time}, Regler=${await seek.inputValue()})`);
+    `Klick spult zur Titelmitte (Zeit=${o.time}, Regler=${await seek.inputValue()}, programmatic=${programmaticSeekTime}, hit=${JSON.stringify(hitBefore)}, events=${JSON.stringify(seekDiagnostics)})`);
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
