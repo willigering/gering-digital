@@ -90,7 +90,7 @@ function ach_modules(): array {
         ]],
         // Geparkt als CS2 „C# für Fortgeschrittene“: bisheriges C#-Modul bis 09.11.2026, nicht veröffentlicht.
         // Bleibt im Katalog, damit freigeschaltete Achievements, XP und Lernstände (Präfix cs-code) erhalten bleiben.
-        'cs'=>['prefix'=>'cs-code','subject'=>'C# für Fortgeschrittene','title'=>'Der Compiler hat immer recht','motif'=>'csharp-fortgeschritten','slugs'=>['cs2-csharp'],'stages'=>10,'list'=>[
+        'cs'=>['prefix'=>'cs-code','subject'=>'C# für Fortgeschrittene','title'=>'Der Compiler hat immer recht','motif'=>'csharp-fortgeschritten','slugs'=>['cs2-csharp'],'stages'=>10,'hidden'=>true,'list'=>[
             ['cs.hello','bronze','Hello, World!','Stufe 1 „Willkommen in C#“ gemeistert.',['stage',0]],
             ['cs.survivor','bronze','Semicolon Survivor','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
             ['cs.schleife','silber','Schleifenkönig','Stufe 5 „Schleifen“ gemeistert.',['stage',4]],
@@ -448,6 +448,7 @@ function ach_overview(int $learnerId): array {
     $groups=[];
     foreach(ach_modules() as $mid=>$m) {
         $has=array_filter($m['list'],fn($a)=>isset($unlocked[$a[0]]));
+        if (!empty($m['hidden'])) continue;   // ausgeblendete Module (CS2) erscheinen nirgends, auch nicht ausgegraut
         if (!in_array($mid,$live,true) && !$has) continue;   // nicht veröffentlichte Module nur zeigen, wenn schon etwas freigeschaltet ist
         $groups[]=['id'=>$mid,'subject'=>$m['subject'],'title'=>$m['title'],'items'=>array_map(fn($a)=>ach_item($catalog[$a[0]],$unlocked),$m['list'])];
     }
@@ -455,6 +456,11 @@ function ach_overview(int $learnerId): array {
     $total=0;$done=0;
     foreach($groups as $g) foreach($g['items'] as $i) {$total++;if($i['unlocked'])$done++;}
     return ['groups'=>$groups,'total'=>$total,'done'=>$done];
+}
+/** Achievements eines ausgeblendeten Moduls (CS2) bleiben samt XP gespeichert, werden aber nicht angezeigt. */
+function ach_visible(string $code): bool {
+    $a=ach_catalog()[$code]??null;
+    return $a!==null && ($a['module']==='' || empty(ach_modules()[$a['module']]['hidden']));
 }
 function ach_item(array $a,array $unlocked): array {
     $on=isset($unlocked[$a['code']]);
@@ -497,7 +503,7 @@ function ach_highscore(int $limit=100): array {
     foreach($rows as $i=>&$r) {
         $r['rank']=$i+1;$r['level']=ach_level((int)$r['xp']);$r['title']=ach_level_title((int)$r['level']);$r['showcase']=xp_showcase((int)$r['id']);
         $codes->execute([$r['id']]);
-        $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>isset($catalog[$c])));
+        $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>ach_visible($c)));
         usort($own,fn($a,$b)=>[$rarity[$a]??0,-$catalog[$a]['xp']]<=>[$rarity[$b]??0,-$catalog[$b]['xp']]);
         $r['unlocked']=array_map(fn($c)=>ach_public($catalog[$c]),$own);
         $r['rare']=array_slice($r['unlocked'],0,3);

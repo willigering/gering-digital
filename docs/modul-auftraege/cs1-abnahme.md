@@ -24,9 +24,14 @@ Vollständige Liste: `cs1-aufgabentypen.md` (wird vom Build erzeugt). Neue Forme
 ## Speicher, Achievements, XP
 
 - Neuer Präfix `cs1-start`, Testhaken `CS1START_TEST`. Alte C#-Lernstände (`cs-code-*`) bleiben unverändert und gehören zum geparkten CS2.
-- Zehn neue Achievements `cs1.*` (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige zu `w_html`, `u_nein`, `t_ueberlauf`). Die alten `cs.*` bleiben im Katalog unter „C# für Fortgeschrittene“, damit freigeschaltete Achievements und XP erhalten bleiben. Sie werden nur angezeigt, wenn schon etwas davon freigeschaltet ist.
+- Zehn neue Achievements `cs1.*` (2 Bronze, 2 Silber, 2 Gold, 1 Platin, 3 witzige zu `w_html`, `u_nein`, `t_ueberlauf`).
+- CS2 ist auf Willis Wunsch vom 09.11.2026 **vollständig ausgeblendet** (`'hidden'=>true` im Katalog): keine Kachel, keine Gruppe in der Achievement-Übersicht, nicht in Vitrine, Vitrinen-Auswahl, Rangliste oder „zuletzt freigeschaltet“. Freigeschaltete `cs.*`-Achievements und ihre XP bleiben gespeichert und zählen weiter.
 - XP über die bestehende Logik (Aufgaben, Stufen, Prüfungsbestwerte). Die Balance-Referenz bleibt unverändert (`tools/xp-balance.php`).
 - Spielmodus wie in A1 (Serie, Rekord, Leuchten) in Modulfarbe. Eigener Rekord unter `dtp-game-best-cs1`, wie in A1.
+
+## Veröffentlichung
+
+Die Adresse `cs1-csharp` bleibt. Beim Deploy übernimmt `module_release_sync` einmalig Titel, Fach und Beschreibung aus dem Manifest und veröffentlicht das Modul, aber nur, solange in der Datenbank noch der alte Standardtitel „Der Compiler hat immer recht“ steht (`MODULE_RELEASE_REPLACED`). Ein eigener Admin-Titel und dessen Offline-Status bleiben unangetastet (`tests/cs1_release_test.php`).
 
 ## Geprüft (lokal, 09.11.2026)
 

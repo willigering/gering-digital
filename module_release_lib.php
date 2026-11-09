@@ -25,6 +25,9 @@ function module_release_matches_legacy(string $slug, string $path): bool {
 }
 
 /** Activate only complete releases uploaded by the deployment workflow. No public write endpoint. */
+/** Module, deren Inhalt durch ein neues Modul unter derselben Adresse ersetzt wurde: Adresse => alte Standardtitel. */
+const MODULE_RELEASE_REPLACED=['cs1-csharp'=>['Der Compiler hat immer recht']];
+
 function module_release_sync(PDO $db, ?string $root=null): void {
     $root??=__DIR__;
     $receipt=@file_get_contents($root.'/lernmodule/release.json');
@@ -73,6 +76,10 @@ function module_release_sync(PDO $db, ?string $root=null): void {
                 // Preserve publication, metadata, previews and independent admin drafts.
                 $draft=$page['draft_version']===$page['live_version']?$version:$page['draft_version'];
                 $db->prepare('UPDATE html_pages SET live_version=?,draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,$draft,$page['id']]);
+                // Ersetzte Module: Steht noch der alte Standardtitel, kommen Titel, Fach und Beschreibung einmalig aus dem Manifest,
+                // und das neue Modul wird veröffentlicht. Eigene Admin-Titel bleiben unangetastet.
+                if (in_array((string)$page['title'],MODULE_RELEASE_REPLACED[$target]??[],true))
+                    $db->prepare('UPDATE html_pages SET title=?,subject=?,description=?,published=1 WHERE id=?')->execute([$m['title']??$target,$m['subject']??'',$m['description']??'',$page['id']]);
             } else {
                 $preview=(string)($m['preview']??'');
                 $preview=preg_match('~^[a-z0-9-]{2,60}$~D',$preview)&&is_file($root.'/assets/dau-previews/'.$preview.'.webp')?'assets/dau-previews/'.$preview.'.webp':'';

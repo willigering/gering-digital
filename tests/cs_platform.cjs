@@ -38,6 +38,10 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
   localStorage.setItem('cs1-start-exam-v1',JSON.stringify([{d:'03.11.26, 08:00',m:90,p:90,g:2,r:'Abgegeben'}]));
  });await pause(1600);
  const awards=JSON.parse(run(`echo json_encode(array_keys(ach_unlocked(${id})));`));assert.equal(awards.filter(s=>s.startsWith('cs1.')).length,10);assert.equal(awards.filter(s=>s.startsWith('cs.')).length,0,'Altes C# (CS2) darf durch CS1 nichts freischalten');
+ // Ein früher freigeschaltetes CS2-Achievement bleibt gespeichert, erscheint aber nirgends.
+ run(`db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([${id},'cs.hello','2026-11-01 08:00:00']);`);
+ const view=JSON.parse(run(`echo json_encode(['groups'=>array_column(ach_overview(${id})['groups'],'id'),'recent'=>array_column(xp_recent(${id},50),'code'),'rank'=>ach_unlocked(${id})]);`));
+ assert.ok(view.groups.includes('cs1')&&!view.groups.includes('cs'),'CS2-Gruppe ausgeblendet: '+view.groups.join());assert.ok(!view.recent.includes('cs.hello'),'CS2 nicht unter „zuletzt freigeschaltet“');assert.ok('cs.hello' in view.rank,'CS2-Achievement bleibt gespeichert');
  const before=JSON.parse(run(`echo json_encode(ach_stats(${id})['level']);`));
  const twice=JSON.parse(run(`echo json_encode(ach_evaluate(${id}));`));assert.equal(twice.new.length,0);const after=JSON.parse(run(`echo json_encode(ach_stats(${id})['level']);`));assert.equal(after.xp,before.xp);
  assert.ok(replies.length>0&&replies.every(r=>r.ok===true));assert.equal(await page.locator('dtp-achievement').count(),1);

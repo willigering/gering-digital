@@ -13,7 +13,7 @@ Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admi
 | D2 IT-Sicherheit | `d2-it-sicherheit.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Bedrohungs-/Schutzbegriffe sauber unterscheiden |
 | B4 IPv6 | `b4-ipv6.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Regeln und Sonderfälle erhalten |
 | CS1 C# | `cs1-csharp.html` | Am 09.11.2026 neu aufgebaut als „Compiler sagt nein“ (Einstieg in die Programmierung). Neue Kapitel 1–6 und 10 vom Autor geschrieben, Kapitel 7–9 aus dem Vorgänger übernommen. Code und alle Behauptungen über Compilerfehler und Ausnahmen mit dem C#-Compiler geprüft. Willis Humor-Abnahme offen | Vorstellung bei Willi, danach Merge und Live-Prüfung |
-| CS2 C# (geparkt) | `tools/build-cs2.py` | Bisheriges C#-Modul bis 09.11.2026, nicht veröffentlicht | Überarbeitung als „C# für Fortgeschrittene“ nach Vielfaltsregel |
+| CS2 C# (geparkt) | `tools/build-cs2.py` | Bisheriges C#-Modul bis 09.11.2026, nicht veröffentlicht, auf der Plattform vollständig ausgeblendet | Überarbeitung als „C# für Fortgeschrittene“ nach Vielfaltsregel |
 | F2 Kalkulation | `f2-kalkulation.html` | Workflow gilt; vollständiger Durchlauf offen | Alle Textbereiche; Zahlen, Einheiten und Kalkulationsreihenfolge erhalten |
 
 Weitere Module beim Anlegen oder beim nächsten Bestandsabgleich ergänzen. Diese Tabelle ist eine Arbeitsliste, kein Beleg für den Live-Veröffentlichungsstatus.
@@ -139,4 +139,4 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - 95 Aufgabentypen in 9 Formen, Multiple Choice 16 %. Messung je Stufe (400 Lernpfad-Aufgaben): direkte Wiederholung von Typ und Form 0 %, 7–9 Typen und 4–6 Formen je 10 Aufgaben, häufigste Form höchstens 42 %.
 - Humor: neue Texte nach Workflow geschrieben, Pointen situationsbezogen (Compiler, Semikolon, Überlauf, HTML-Lebenslauf). Inhaltliche Humorprüfung durch Willi steht aus.
 - Neue Regel „Aufgabenvielfalt im Lernpfad“ in der Projektanleitung; ältere Module sind danach noch nachzuziehen.
-- Nicht live. Merge erst nach Willis Freigabe.
+- Willi hat die Veröffentlichung am 09.11.2026 freigegeben und CS2 vollständig ausblenden lassen.
