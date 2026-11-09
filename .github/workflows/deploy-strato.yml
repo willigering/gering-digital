@@ -27,6 +27,31 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Restore NERD FM audio from verified binary parts
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib
+
+          parts_dir = Path('dau-to-pro/audio/nerd-fm/.deja-vu')
+          parts = [parts_dir / f'{n:02d}.part' for n in range(1, 13)]
+          if not all(part.is_file() for part in parts):
+              raise SystemExit('NERD FM: one or more original audio parts are missing')
+          destination = Path('dau-to-pro/audio/nerd-fm/deja-vu.mp3')
+          digest = hashlib.sha256()
+          with destination.open('wb') as audio:
+              for part in parts:
+                  with part.open('rb') as source:
+                      while chunk := source.read(65536):
+                          audio.write(chunk)
+                          digest.update(chunk)
+          if digest.hexdigest() != 'd0237879a192fd409c60c066a2b264f3e87eb6b524ecc2449d7c30a90b01dd80':
+              destination.unlink(missing_ok=True)
+              raise SystemExit('NERD FM: source audio integrity verification failed')
+          print('Restored original Diggy Thal - Déjà-vu MP3:', destination.stat().st_size, 'bytes')
+          PY
+
       - name: Install SFTP client
         run: python -m pip install --disable-pip-version-check 'paramiko>=3.4,<5'
 
@@ -87,6 +112,12 @@ jobs:
               if not path.is_file() or path.is_symlink():
                   continue
               deploy_files.append((path, relative.as_posix()))
+
+          # The NERD FM MP3 is losslessly assembled above from tracked parts; deploy it
+          # alongside the tracked files while keeping the parts off the public server.
+          assembled_audio = pathlib.Path('dau-to-pro/audio/nerd-fm/deja-vu.mp3')
+          if assembled_audio.is_file() and not any(relative == assembled_audio.as_posix() for _, relative in deploy_files):
+              deploy_files.append((assembled_audio, assembled_audio.as_posix()))
 
           # Install additive XP dependencies before PHP entry points can reference them.
           # The compatibility guard in xp_lib.php lets old/new achievement code coexist during upload.
