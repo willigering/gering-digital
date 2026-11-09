@@ -744,8 +744,10 @@
     e.preventDefault();
     seekingPointer = e.pointerId;
     scrubbing = true;
-    seekTrack.setPointerCapture(e.pointerId);
     seekFromPointer(e.clientX);
+    // Browser dürfen Pointer-Capture in transformierten Elementen ablehnen;
+    // ein normaler Klick muss unabhängig davon bereits spulen.
+    try { seekTrack.setPointerCapture(e.pointerId); } catch (_) { /* Klick funktioniert dennoch */ }
     ui.seek.focus({ preventScroll: true });
   });
   seekTrack.addEventListener('pointermove', e => {
