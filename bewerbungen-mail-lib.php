@@ -119,6 +119,7 @@ function gdm_prepare_document(array $body, array $company, array $cfg): array {
     $to=trim((string)($body['to']??''));
     if (!filter_var($to,FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/',$to)) throw new InvalidArgumentException('Bitte eine gültige Empfänger-E-Mail eintragen.');
     if (!$subject || !$salutation || !$letter || !$mailBody) throw new InvalidArgumentException('Betreff, Anrede, Anschreiben und E-Mail-Text dürfen nicht leer sein.');
+    if (preg_match('/[\r\n]/',$subject)) throw new InvalidArgumentException('Der Betreff darf keine Zeilenumbrüche enthalten.');
     $pdf=gdm_make_pdf($company,$cfg,$subject,$salutation,$letter);
     return compact('subject','salutation','letter','mailBody','to','pdf');
 }
@@ -217,7 +218,7 @@ function gdm_make_pdf(array $company,array $cfg,string $subject,string $salutati
         (string)($company['company']??''),
         trim($recipient),
         (string)($company['street']??''),
-        trim((string)($company['postal']??'').' '.(string)($company['postCity']?:($company['city']??'')))
+        trim((string)($company['postal']??'').' '.(string)(($company['postCity']??'')?:($company['city']??'')))
     ];
     $y=172;
     foreach($address as $line){if(trim($line)!==''){$pdf->text(72,$y,trim($line),10.5);$y+=16;}}
@@ -338,7 +339,8 @@ function gdm_smtp(string $pass,string $recipient,string $subject,string $body,ar
             if($wrote===false||$wrote===0)throw new RuntimeException('SMTP: Datenübertragung unterbrochen. Versandstatus prüfen.');
             $offset+=$wrote;
         }
-        gdm_smtp_response($sock,[250]); // Delivered to SMTP server (not a recipient read receipt).
-        gdm_smtp_cmd($sock,'QUIT',[221]);
+        gdm_smtp_response($sock,[250]); // SMTP has accepted the message.
+        // A failed QUIT after 250 must never reclassify the email as unsent.
+        try { gdm_smtp_cmd($sock,'QUIT',[221]); } catch (Throwable $ignored) {}
     } finally {fclose($sock);}
 }
