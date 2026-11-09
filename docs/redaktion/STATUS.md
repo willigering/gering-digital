@@ -172,3 +172,12 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Themenbilder aus dem bestehenden BG-Ordner sind **nicht mehr auf Text-/Kapitelkarten**, sondern auf einer separaten fixierten Parallax-Ebene hinter der gesamten Unterrichtsseite. Kapitelkarten und Hero bleiben lesbare dunkle Panels. Themenbildwechsel über den aktiven Reiter; Reduced-Motion und Druckansicht berücksichtigt.
 - Automatisierter Playwright-Browsertest für tatsächliche Überlagerung der Kapitel 01–02 und 05–06 sowie BG-Lage und Mobilansicht ergänzt; Kontospeicherformat, Fragen und Lernstände unverändert.
 - GitHub/Browser-Checks, Merge, STRATO-Deploy und Liveabnahme werden getrennt kontrolliert.
+
+## 09.11.2026 – Gering Digital Startseite / Designversion 3
+
+- Die bisherige `index.php`-Homepage erhält das abgestimmte „Digital Workshop“-Portfolio-Design: Hero „Aus Neugier. Aus Ideen. Aus Code.“ mit dem vereinbarten kurzen Text, ein großformatiges DAU-TO-PRO-Showcase sowie dynamische Apps/HTML-Projekte in hochwertigen nebeneinanderstehenden Kacheln. Projektfilter starten bei „Alle Projekte“, damit die DAU-TO-PRO-Karte beim ersten Aufruf sichtbar ist.
+- „Über mich“ ist eine kurze, visuell aufgebaute Zeitleiste unter dem Titel „20 Jahre Produktion. Jetzt Bits und Bytes.“; „Wie ich entwickle“ enthält drei kompakte Prozesskarten statt langer Textblöcke. Dezente Hintergrund-/Scroll-Parallax auf einer eigenen Ebene, keine DAU-TO-PRO-Überstapelung auf der Homepage.
+- **Das originale Smartphone inklusive sämtlicher Buttons, Logo-Grafik, 3D-/Drehstruktur, Parallax-Attribute und Funktion bleibt im HTML bytegenau unverändert; die bestehenden Dateien `style.css`, `assets/personal.css` und `assets/site.js` werden nicht verändert.** V3-Änderungen sind in separaten Dateien `assets/home-v3.css` und `assets/home-v3.js` gekapselt.
+- Datenbankgenerierte Projektkarten, externe/store-Verlinkungen, Smartphone-Kontakte und Rechtstexte bleiben erhalten; keine Datenbankänderungen.
+- Automatisierter PHP-/Playwright-Test prüft Original-Smartphone per unveränderter Quellsegment-Prüfsumme, Desktop- und Mobilansicht (1440, 820, 390, 320 px), responsive App-Kacheln, Standardansicht und Umschalten der Kategorie-Filter, JS-Fehler und Smartphone-Bedienknopf.
+- Bis zum Nachweis erfolgreicher Pull-Request-Prüfungen, Merge und STRATO-Upload ist dies ein **Implementierungsstand, noch keine bestätigte Live-Veröffentlichung**.
