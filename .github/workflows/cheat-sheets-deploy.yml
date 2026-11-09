@@ -95,6 +95,32 @@ jobs:
           JS
       - name: Check landing PHP syntax
         run: php -l dau-to-pro/index.php
+      - name: Validate Unterrichtsmaterial and learner account endpoint
+        run: |
+          php -l dau-to-pro/unterricht/it-vi-01.php
+          node <<'JS'
+          const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+          const main=fs.readFileSync('dau-to-pro/index.php','utf8');
+          const html=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.html','utf8');
+          const php=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.php','utf8');
+          assert.match(main,/id="unterrichtsmaterial"/);
+          assert.match(main,/href="unterricht\/it-vi-01\.php"/);
+          assert.match(main,/<details id="unterrichtsmaterial"/);
+          assert.ok(main.indexOf('id="unterrichtsmaterial"')>main.indexOf('id="cheat-sheets"'));
+          assert.match(main,/unterricht\.css/);
+          assert.ok(!/onclick="saveFile\(\)"|onclick="exportProgress\(\)"|id="importFile"/.test(html),'Old file-backup buttons must be absent');
+          assert.ok(html.includes('window.__ITVI_ACCOUNT__'),'Account autosave integration missing');
+          assert.ok(html.includes('Als PDF speichern'),'PDF export should remain');
+          assert.ok(php.includes("unterricht:it-vi-01:state-v1"),'Isolated account data key missing');
+          assert.ok(php.includes('X-DTP-CSRF'),'CSRF guard missing');
+          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
+          assert.ok(scripts.length>=2);
+          scripts.forEach((js,i)=>new vm.Script(js,{filename:'unterricht-inline-'+i+'.js'}));
+          assert.equal((html.match(/id="q\d+"/g)||[]).length,24,'24 knowledge questions expected');
+          assert.equal((html.match(/id="praxis-frage-\d+"/g)||[]).length,10,'10 practice exercises expected');
+          console.log('Unterrichtsmaterial: accordion, 24+10 exercises, account saving and JS syntax verified');
+          JS
+
 
   deploy:
     if: github.event_name == 'push'
