@@ -1,0 +1,26 @@
+name: NERD FM module smoke (feature branch)
+on:
+  push:
+    branches:
+      - feature/radio-plays-through-modules-20261109
+permissions:
+  contents: read
+jobs:
+  radio-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: node --check dau-to-pro/nerd-radio.js && node --check dau-to-pro/module-shell.js && node --check tests/nerd_radio_browser.cjs && php -l tests/support/router.php
+      - name: Install Playwright
+        run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
+      - name: Install Chromium
+        run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: NERD FM functional smoke
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_RADIO_SMOKE: '1'
+        run: node tests/nerd_radio_browser.cjs
