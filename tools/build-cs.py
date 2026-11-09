@@ -28,7 +28,7 @@ bg = base64.b64encode((ROOT / 'assets/dau-backgrounds/circuit-signal-768.webp').
 shell = re.sub(r'<script>/\* DTP-HINTERGRUND:.*?</script>', lambda m: '<script>/* DTP-HINTERGRUND: circuit-signal */\n(function(){var B=["data:image/webp;base64,' + bg + '"];document.documentElement.style.setProperty("--bg-tex",\'url("\'+B[0]+\'")\')})();</script>', shell, flags=re.S)
 
 for old, new in {
- 'WIRTSCHAFT &amp; PROJEKTE <b>//</b> KALKULATION &amp; BESCHAFFUNG <b>//</b> MODUL F2': 'GRUNDLAGEN <b>//</b> PROGRAMMIEREN MIT C# <b>//</b> MODUL CS1',
+ 'WIRTSCHAFT &amp; PROJEKTE <b>//</b> KALKULATION &amp; BESCHAFFUNG <b>//</b> MODUL F2': 'GRUNDLAGEN <b>//</b> PROGRAMMIEREN MIT C#',
  'Rechnet <span>sich das?</span>': 'Compiler <span>sagt nein.</span>',
  'Rabatt, Skonto und eine kleine Rate. Das Angebot sieht gut aus, bis du den Rest der Rechnung liest. Hier rechnest du aus, was wirklich auf dem Konto landet oder davon abgeht.': 'Dein Einstieg in die Programmierwelt: was ein Programm überhaupt ist, warum Compiler und Interpreter sich nicht mögen, welcher Datentyp in welche Schublade gehört und wie man eine Variable deklariert, ohne dass jemand nein sagt. Am Ende liest du Schleifen, Arrays und erste Methoden. Der Compiler bleibt unerbittlich, aber wenigstens ehrlich.',
  'Rechenwege statt Bauchgefühl': 'Code lesen statt raten',
@@ -47,7 +47,7 @@ for old, new in {
  'Ein Taschenrechner ist erlaubt, ein Umrechner im Netz nicht. Ehrensache.': 'Ein Compiler im Nebenfenster wäre geschummelt. Ehrensache.',
  'Weniger Raten.<br><em>Mehr Rechnen.</em>': 'Weniger Raten.<br><em>Mehr Kompilieren.</em>',
  'Wer die Bezugsgröße kennt, fällt auf schöne Prozentzahlen nicht mehr herein.': 'Wer Code lesen kann, muss Fehlermeldungen nicht mehr persönlich nehmen.',
- 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0': 'Modul CS1 · Programmieren mit C# · Compiler sagt nein · v2.0',
+ 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0': 'Programmieren mit C# · Compiler sagt nein · v2.0',
  'Stufe wird geladen …': 'Stufe wird geladen …',
  'Lernpfad, Nachschlagwerk und Training sind bis zur Abgabe gesperrt.': 'Lernpfad, Nachschlagwerk und Training sind bis zur Abgabe gesperrt.',
  'Erst fertig rechnen, dann nachschlagen.': 'Erst fertig lösen, dann nachschlagen.',
@@ -82,7 +82,7 @@ pre.cs.bad{border-color:#ff7b8a88}pre.cs:focus-visible{outline:2px solid var(--c
 .task-prompt{overflow-wrap:anywhere}.result .why,.review{overflow-wrap:anywhere}.opt span:last-child{overflow-wrap:anywhere}
 @media(max-width:610px){.trace-side{grid-template-columns:1fr}pre.cs{font-size:12.5px;padding:10px}}
 </style>'''
-extra = extra.replace('</style>', '''.set-list{white-space:pre-wrap;overflow-wrap:anywhere}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
+extra = extra.replace('</style>', '''.set-list{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:610px){.set-list{font-size:12.5px;line-height:1.4;margin:6px 0}.scenario{font-size:15px;line-height:1.45;padding:8px 12px}}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
 </style>''', 1)
 shell = shell.replace('</head>', extra + '</head>', 1)
 

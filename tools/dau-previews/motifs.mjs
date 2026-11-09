@@ -492,7 +492,7 @@ function csharp(id) {
 }
 
 export const motifs = [
-  { id: 'unternehmen', accent: '#d4b8ff', label: 'Unternehmensformen & Märkte', draw: unternehmen, seed: 43, glowX: 640, glowY: 380 },
+  { id: 'unternehmen', accent: '#ff9a3c', label: 'Unternehmensformen & Märkte', draw: unternehmen, seed: 43, glowX: 640, glowY: 380 },
   { id: 'csharp', accent: '#b794ff', label: 'Programmieren mit C#', draw: csharp, seed: 37, glowX: 640, glowY: 360 },
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },
   { id: 'netzwerkdienste', accent: '#7ad0ff', label: 'Netzwerkdienste & Protokolle', draw: services, seed: 31, glowX: 640, glowY: 360 },

@@ -354,7 +354,7 @@ pre.cs.bad{border-color:#ff7b8a88}pre.cs:focus-visible{outline:2px solid var(--c
 #backToTask{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;box-shadow:0 8px 28px #000a}
 .task-prompt{overflow-wrap:anywhere}.result .why,.review{overflow-wrap:anywhere}.opt span:last-child{overflow-wrap:anywhere}
 @media(max-width:610px){.trace-side{grid-template-columns:1fr}pre.cs{font-size:12.5px;padding:10px}}
-.set-list{white-space:pre-wrap;overflow-wrap:anywhere}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
+.set-list{white-space:pre-wrap;overflow-wrap:anywhere}@media(max-width:610px){.set-list{font-size:12.5px;line-height:1.4;margin:6px 0}.scenario{font-size:15px;line-height:1.45;padding:8px 12px}}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
 </style><!-- DTP-MODULDESIGN START -->
 <style>
 /* DTP-MODULDESIGN: gemeinsame Gestaltung, inline für die Offline-Datei.
@@ -908,7 +908,7 @@ body.dtp-exercise-open{overflow:hidden}
       || module === 'zahlen' && /^(d_plain|d_octet|d_pattern|e_plain|e_ones|e_msb|e_mask|h_b2h|h_h2b|n_to|n_from|c_net)$/.test(task.sub)
       || module === 'subnet' && /^(o_b2d|o_d2b|o_maskval|o_bin2ip|m_bin)$/.test(task.sub);
     const arithmetic = calculationTypes[module]?.test(task.sub)
-      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || /^(f2|w4|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
       || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
       || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
       || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);
@@ -1438,7 +1438,7 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
   
   <div class="wrap hero-grid">
     <div>
-      <div class="kicker"><span class="live-dot"></span> GRUNDLAGEN <b>//</b> PROGRAMMIEREN MIT C# <b>//</b> MODUL CS1</div>
+      <div class="kicker"><span class="live-dot"></span> GRUNDLAGEN <b>//</b> PROGRAMMIEREN MIT C#</div>
       <h1>Compiler <span>sagt nein.</span></h1>
       <p class="hero-lead">Dein Einstieg in die Programmierwelt: was ein Programm überhaupt ist, warum Compiler und Interpreter sich nicht mögen, welcher Datentyp in welche Schublade gehört und wie man eine Variable deklariert, ohne dass jemand nein sagt. Am Ende liest du Schleifen, Arrays und erste Methoden. Der Compiler bleibt unerbittlich, aber wenigstens ehrlich.</p>
       <div class="hero-meta"><span><b>10</b> Stufen</span><span><b>10</b> Kapitel</span><span><b id="heroTypes">60+</b> Aufgabentypen</span><span>Code lesen statt raten</span></div>
@@ -1856,7 +1856,7 @@ ports[<span class="t-str">"SSH"</span>] = <span class="t-num">22</span>;
 <button type="button" class="btn primary" id="backToTask" hidden>ZURÜCK ZUR AUFGABE ↩</button>
 
 <section class="dtp-disclaimer"><div class="wrap"><p><strong>Wichtiger Hinweis:</strong> DAU TO PRO ist keine offizielle Lernplattform. Die Inhalte sind persönliche Sammlungen und Recherchen und bilden keine offiziellen Lehrpläne oder Prüfungsanforderungen verbindlich ab. Trotz sorgfältiger Erstellung können Fehler enthalten sein. Bitte prüfe wichtige Aussagen anhand deiner Unterrichtsunterlagen und verlässlicher Fachquellen.</p></div></section>
-<footer class="dtp-footer"><div class="wrap footer-inner"><div class="foot-brand"><div><strong>DAU <em>to PRO</em></strong><small>Modul CS1 · Programmieren mit C# · Compiler sagt nein · v2.0</small></div></div><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button type="button" id="resetBtn">Fortschritt zurücksetzen</button><small>© 2026 Willi Gering</small></div></div></footer>
+<footer class="dtp-footer"><div class="wrap footer-inner"><div class="foot-brand"><div><strong>DAU <em>to PRO</em></strong><small>Programmieren mit C# · Compiler sagt nein · v2.0</small></div></div><div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap"><button type="button" id="resetBtn">Fortschritt zurücksetzen</button><small>© 2026 Willi Gering</small></div></div></footer>
 <script>
 (function(){
 'use strict';

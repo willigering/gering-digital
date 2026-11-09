@@ -133,6 +133,15 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Offen: inhaltliche Prüfung aller Fragen auf Sinngleichheit, Kompetenzmix, verratene Antworten und schwache Distraktoren; dieselbe Auswahl-Logik in D1, D2, B4, B5, F2 und C#, die eigene Generatoren haben.
 
 
+## 09.11.2026 – CS1 „Compiler sagt nein“ und Regel zur Aufgabenvielfalt
+
+- Anlass: Willi bemängelte im alten C#-Modul Lernpfade mit immer gleichen Fragen und anderen Werten. Messung vorher: Stufe 3 bestand zu 100 % aus „Was gibt der Code aus?“, Stufen 4–6 zu 73–79 %.
+- CS1 neu als Einstieg: Was ist ein Programm, Compiler/Interpreter/.NET, Programmaufbau, Datentypen, Variablen deklarieren/initialisieren/zuweisen, Typumwandlung und Ein-/Ausgabe, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden. Methoden vertieft, OOP, Fehlerbehandlung und Projekt sind als CS2 geparkt.
+- 95 Aufgabentypen in 9 Formen, Multiple Choice 16 %. Messung je Stufe (400 Lernpfad-Aufgaben): direkte Wiederholung von Typ und Form 0 %, 7–9 Typen und 4–6 Formen je 10 Aufgaben, häufigste Form höchstens 42 %.
+- Humor: neue Texte nach Workflow geschrieben, Pointen situationsbezogen (Compiler, Semikolon, Überlauf, HTML-Lebenslauf). Inhaltliche Humorprüfung durch Willi steht aus.
+- Neue Regel „Aufgabenvielfalt im Lernpfad“ in der Projektanleitung; ältere Module sind danach noch nachzuziehen.
+- Willi hat die Veröffentlichung am 09.11.2026 freigegeben und CS2 vollständig ausblenden lassen.
+
 ## 09.11.2026 – Spickzettel IT-Support (PR-Entwurf)
 
 - Ein neues Themenblatt `support` ergänzt den DAU-to-PRO-Spickzettelbereich: 8 Grundabschnitte, 6 Vertiefungen und 48 Fragen mit Musterantworten. Basis sind die bereitgestellten Arbeitsblätter zu Service- und Supportanfragen sowie IT-Dienstleistungen/ITSM; die zusätzlichen Fragen sind eigenständige Übungsfragen.
@@ -164,14 +173,6 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Automatisierter Playwright-Browsertest für tatsächliche Überlagerung der Kapitel 01–02 und 05–06 sowie BG-Lage und Mobilansicht ergänzt; Kontospeicherformat, Fragen und Lernstände unverändert.
 - GitHub/Browser-Checks, Merge, STRATO-Deploy und Liveabnahme werden getrennt kontrolliert.
 
-## 09.11.2026 – CS1 „Compiler sagt nein“ und Regel zur Aufgabenvielfalt
-
-- Anlass: Willi bemängelte im alten C#-Modul Lernpfade mit immer gleichen Fragen und anderen Werten. Messung vorher: Stufe 3 bestand zu 100 % aus „Was gibt der Code aus?“, Stufen 4–6 zu 73–79 %.
-- CS1 neu als Einstieg: Was ist ein Programm, Compiler/Interpreter/.NET, Programmaufbau, Datentypen, Variablen deklarieren/initialisieren/zuweisen, Typumwandlung und Ein-/Ausgabe, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden. Methoden vertieft, OOP, Fehlerbehandlung und Projekt sind als CS2 geparkt.
-- 95 Aufgabentypen in 9 Formen, Multiple Choice 16 %. Messung je Stufe (400 Lernpfad-Aufgaben): direkte Wiederholung von Typ und Form 0 %, 7–9 Typen und 4–6 Formen je 10 Aufgaben, häufigste Form höchstens 42 %.
-- Humor: neue Texte nach Workflow geschrieben, Pointen situationsbezogen (Compiler, Semikolon, Überlauf, HTML-Lebenslauf). Inhaltliche Humorprüfung durch Willi steht aus.
-- Neue Regel „Aufgabenvielfalt im Lernpfad“ in der Projektanleitung; ältere Module sind danach noch nachzuziehen.
-- Willi hat die Veröffentlichung am 09.11.2026 freigegeben und CS2 vollständig ausblenden lassen.
 
 ## 09.11.2026 – D2 umbenannt
 
