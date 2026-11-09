@@ -724,34 +724,13 @@
     updateClock();
     wake();
   }
-  ui.seek.addEventListener('pointerdown', event => {
-    if (ui.seek.disabled) return;
-    scrubbing = true;
-    // Ein transparentes Range-Control kann beim pointer click die native
-    // Thumb-Position abhängig vom Browser anders interpretieren.
-    const bounds = ui.seek.getBoundingClientRect();
-    if (bounds.width <= 0) return;
-    ui.seek.value = String(Math.round(Math.max(0, Math.min(1,
-      (event.clientX - bounds.left) / bounds.width)) * 1000));
-    seekToPosition();
-  });
+  ui.seek.addEventListener('pointerdown', () => { scrubbing = true; });
   const finishScrub = () => { scrubbing = false; updateClock(); };
   ui.seek.addEventListener('pointerup', finishScrub);
   ui.seek.addEventListener('pointercancel', finishScrub);
   ui.seek.addEventListener('blur', finishScrub);
   ui.seek.addEventListener('input', seekToPosition);
   ui.seek.addEventListener('change', () => { seekToPosition(); finishScrub(); });
-  // Der transparente native Range-Regler kann durch die 3D-Radio-Transformation
-  // beim Klick eine abweichende Thumb-Position berechnen. Nach dem nativen
-  // Click-Event ist der Pointer-Ort maßgeblich; Tastatur und Ziehen bleiben nativ.
-  ui.seek.addEventListener('click', event => {
-    if (ui.seek.disabled || !event.detail) return;
-    const bounds = ui.seek.getBoundingClientRect();
-    if (bounds.width <= 0) return;
-    const fraction = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
-    ui.seek.value = String(Math.round(fraction * 1000));
-    seekToPosition();
-  });
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
