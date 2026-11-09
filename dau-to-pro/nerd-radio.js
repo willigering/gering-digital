@@ -724,7 +724,17 @@
     updateClock();
     wake();
   }
-  ui.seek.addEventListener('pointerdown', () => { scrubbing = true; });
+  ui.seek.addEventListener('pointerdown', event => {
+    if (ui.seek.disabled) return;
+    scrubbing = true;
+    // Ein transparentes Range-Control kann beim pointer click die native
+    // Thumb-Position abhängig vom Browser anders interpretieren.
+    const bounds = ui.seek.getBoundingClientRect();
+    if (bounds.width <= 0) return;
+    ui.seek.value = String(Math.round(Math.max(0, Math.min(1,
+      (event.clientX - bounds.left) / bounds.width)) * 1000));
+    seekToPosition();
+  });
   const finishScrub = () => { scrubbing = false; updateClock(); };
   ui.seek.addEventListener('pointerup', finishScrub);
   ui.seek.addEventListener('pointercancel', finishScrub);
