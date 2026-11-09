@@ -1,0 +1,30 @@
+name: NERD RADIO Seek diagnostics
+
+on:
+  pull_request:
+    paths:
+      - 'dau-to-pro/nerd-radio.js'
+      - 'dau-to-pro/nerd-radio.css'
+      - 'tests/nerd_radio_browser.cjs'
+      - '.github/workflows/radio-seek-test.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  radio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright
+        run: npm install --prefix "$RUNNER_TEMP/radio" --no-package-lock playwright@1.62.1
+      - name: Install Chromium
+        run: node "$RUNNER_TEMP/radio/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Test player and seeking
+        env:
+          NODE_PATH: ${{ runner.temp }}/radio/node_modules
+        run: node tests/nerd_radio_browser.cjs
