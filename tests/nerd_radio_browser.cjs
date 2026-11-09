@@ -319,6 +319,14 @@ let server, browser;
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
+  // Diagnose: CSS-Pointer-Position gegen die grundsätzliche Seekfähigkeit der
+  // Testdatei abgleichen; das prüft auch den input-Event separat.
+  await seek.evaluate(el => { el.value = '500'; el.dispatchEvent(new Event('input', { bubbles: true })); });
+  await pause(250);
+  const programmaticSeekTime = (await ownState()).time;
+  await seek.focus();
+  await ownPage.keyboard.press('Home');
+  await pause(150);
   // Bei matrix3d liegt die native Element-Mitte nicht zuverlässig in der
   // sichtbaren Bildmitte: gezielt die Mitte des projizierten Schienen-Bounds anklicken.
   const bar = ownPage.locator('.nr-display__bar');
@@ -328,7 +336,16 @@ let server, browser;
     window.__radioPointer = [];
     el.addEventListener('pointerdown', e => {
       const box = el.getBoundingClientRect();
-      window.__radioPointer.push({ x: e.clientX, left: box.left, width: box.width, ratio: (e.clientX - box.left) / box.width });
+      const seek = el.querySelector('input');
+      window.__radioPointer.push({ phase: 'down', x: e.clientX, left: box.left, width: box.width,
+        ratio: (e.clientX - box.left) / box.width, button: e.button, pointerType: e.pointerType,
+        disabled: seek.disabled, value: seek.value });
+      queueMicrotask(() => window.__radioPointer.push({ phase: 'after-down', value: seek.value }));
+    }, { capture: true });
+    el.addEventListener('pointerup', e => {
+      const seek = el.querySelector('input');
+      window.__radioPointer.push({ phase: 'up', value: seek.value });
+      queueMicrotask(() => window.__radioPointer.push({ phase: 'after-up', value: seek.value }));
     }, { capture: true });
   });
   await ownPage.mouse.click(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
@@ -337,7 +354,7 @@ let server, browser;
   const seekValue = await seek.inputValue();
   const pointerLog = await ownPage.evaluate(() => window.__radioPointer);
   assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13,
-    `Klick spult etwa zur Titelmitte (Zeit=${o.time}, Slider=${seekValue}, Pointer=${JSON.stringify(pointerLog)})`);
+    `Klick spult etwa zur Titelmitte (Zeit=${o.time}, Programmatic=${programmaticSeekTime}, Slider=${seekValue}, Pointer=${JSON.stringify(pointerLog)})`);
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
