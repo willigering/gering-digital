@@ -12,7 +12,7 @@ if (getenv('NERD_RADIO_AUDIO')==='audio/nerd-radio-test'
     header('X-Frame-Options: SAMEORIGIN');
     echo '<!doctype html><html lang="de"><head><meta charset="utf-8"><title>Testmodul</title></head><body>'
       .'<h1>Testmodul</h1><dtp-back></dtp-back><a href="/subnetsprint/" id="next-module">Anderes Modul</a>'
-      .'<script>const a=document.querySelector("dtp-back").attachShadow({mode:"open"});a.innerHTML="<a href=\\\"/dau-to-pro/#lernmodule\\\" id=\\\"back-module\\\">Zurück zur Modulauswahl</a>";</script>'
+      .'<script>const l=document.createElement("a");l.href="/dau-to-pro/#lernmodule";l.id="back-module";l.textContent="Zurück zur Modulauswahl";document.querySelector("dtp-back").attachShadow({mode:"open"}).append(l);</script>'
       .'</body></html>';
     exit;
 }
