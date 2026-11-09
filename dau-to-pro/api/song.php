@@ -48,7 +48,16 @@ if ($range!=='') {
 if ($start===0 && !nfm_rate_hit(session_id())) nfm_deny(429);
 session_write_close();   // lange Übertragung blockiert sonst andere Anfragen derselben Sitzung
 
-header('Content-Type: audio/mpeg');
+// Serve the actual format: the browser may refuse random access for a
+// WAVE test fixture labelled as MPEG (especially with nosniff enabled).
+$extension=strtolower(pathinfo($path,PATHINFO_EXTENSION));
+$mime=match($extension) {
+    'wav','wave' => 'audio/wav',
+    'ogg','oga' => 'audio/ogg',
+    'm4a' => 'audio/mp4',
+    default => 'audio/mpeg'
+};
+header('Content-Type: '.$mime);
 header('Accept-Ranges: bytes');
 header('Cache-Control: private, no-store, no-transform');
 header('Content-Disposition: inline');
