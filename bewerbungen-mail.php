@@ -111,10 +111,17 @@ try{
         $cfg=gdm_config($db);
         $doc=gdm_prepare_document($body,$company,$cfg);
         if($action==='preview'){
+            header('X-Document-SHA256: '.hash('sha256',$doc['pdf']));
             header('Content-Type: application/pdf');
             header('Content-Disposition: inline; filename="Anschreiben-Vorschau.pdf"');
             header('Content-Length: '.strlen($doc['pdf']));
             echo $doc['pdf'];exit;
+        }
+        // The bytes mailed must match exactly the company-addressed PDF the user inspected.
+        $expectedHash = (string)($body['expectedPdfHash'] ?? '');
+        if (!preg_match('/\A[a-f0-9]{64}\z/D', $expectedHash)
+            || !hash_equals($expectedHash, hash('sha256', $doc['pdf']))) {
+            throw new InvalidArgumentException('Das Anschreiben hat sich seit der PDF-Vorschau geändert. Bitte eine neue Vorschau erstellen und prüfen.');
         }
         // Never transmit an automatically addressed letter with missing mandatory addresses.
         foreach(['senderName','senderStreet','senderPostal','senderCity'] as $f) {
