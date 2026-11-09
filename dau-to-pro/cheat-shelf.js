@@ -36,7 +36,7 @@
     stage.style.height=stageHeight+"px";
     grid.style.height=stageHeight+"px";
     section.style.setProperty("--cheat-pin-top",pinY()+"px");
-    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+rowH*.20)+"px");
+    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+Math.max(rowH,innerHeight*.65))+"px");
     paint();
   }
   function progress(){
@@ -53,11 +53,11 @@
       const d=p-k,back=Math.min(Math.max(d,0),3);
       // Auch Reihe 3 ist von Beginn an durch einen Kartenrand sichtbar.
       const waiting=Math.max(0,-d),frontIndex=Math.round(p);
-      const y=d>=0?peek-back*PEEK:peek+waiting*(rowH+GAP);
+      const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
       r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.035).toFixed(3)+')';
-      r.style.zIndex=String(k+1);
+      r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
       r.style.visibility="visible";
-      r.style.opacity="1";
+      r.style.opacity=String(d<0?.65+.35*Math.max(0,1-waiting):1);
       r.classList.toggle("is-front",k===frontIndex);
       r.classList.toggle("is-behind",d>=.52);
       r.classList.toggle("is-waiting",d<-.52);
