@@ -160,6 +160,14 @@
         if (url.pathname.replace(/\/+$/, '/') === '/dau-to-pro/') {
           event.preventDefault();
           leaveModule();
+          return;
+        }
+        const destination = slugFromLink(link);
+        if (destination && destination !== activeSlug) {
+          event.preventDefault();
+          // Innerhalb der Lernansicht direkt wechseln, ohne die Hauptseite zu entladen.
+          history.replaceState({ dtpRadioShell: true, slug: destination }, '', shellUrl(destination));
+          open(destination);
         }
       }, true);
     } catch (_) { /* Bei nicht einbettbaren URLs bleibt die native Navigation bestehen. */ }
