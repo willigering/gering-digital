@@ -240,7 +240,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">01 <small>MATERIAL</small></span>
+      <span class="unterricht-count">02 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <div class="unterricht-content">
@@ -256,6 +256,19 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <h2>Kein Ticket ohne Plan.</h2>
             <p>IT-Support, Tickets, Priorisierung, SLA und ITSM. Lernkapitel, Rechenwege, Fragen und Praxisfälle.</p>
             <div class="module-footer"><span>12 KAPITEL · 34 AUFGABEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#6de3ce" href="support-serviceanfragen.html" aria-label="IT VI Supportpraxis – Lernmaterial öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">S<span>//</span>D</span>
+            <span class="unterricht-art-label">SUPPORT PRAXIS <b>02</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · IT VI</span>
+            <h2>Vom Ticket zum Durchblick.</h2>
+            <p>Der komplette Supportfall: Annahme, SLA, Diagnose, Fernwartung, Dokumentation und Servicequalität. Erklärungen, echte Fallbeispiele und Musterantworten.</p>
+            <div class="module-footer"><span>6 THEMEN · 24 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
       </div>
