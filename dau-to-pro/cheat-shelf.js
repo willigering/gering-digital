@@ -11,7 +11,15 @@
   let rows=[],stage=null,shown=null,rowH=0,raf=0,on=false;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height"))||80;
   // Der Titel bleibt knapp unter der Navigation; die Karten sind Bestandteil desselben Frames.
-  const pinY=()=>navH()+16;
+  // Die aktive Kartenreihe sitzt im Desktop-Viewport stets auf derselben
+  // Bildschirmhöhe (ca. 25,5vh). Überschrift und Karten bleiben ein Sticky-Frame.
+  const pinY=()=>{
+    const head=frame.querySelector('.cheat-head');
+    const headH=head?head.getBoundingClientRect().height+parseFloat(getComputedStyle(head).marginBottom||0):80;
+    const peek=Math.min(Math.ceil(all.length/5)-1,3)*PEEK;
+    const activeY=Math.max(navH()+100,Math.round(innerHeight*.255));
+    return Math.max(navH()+8,activeY-headH-peek);
+  };
   const active=()=>Math.round(shown??progress());
   function teardown(){
     if(!on)return;
