@@ -172,6 +172,31 @@ let server, browser;
   assert.match(r.title, /^01 – /);
   if (shots) await page.locator('.nr-pin').screenshot({ path: path.join(shots, 'player-playing.png') });
 
+  // A module opens without unloading the landing document or its AudioContext.
+  // The fixture modules need no live lesson version for this shell continuity test.
+  const beforeModule = await radio();
+  await page.locator('#module-grid a.module-card[href]').first().click();
+  await page.waitForFunction(() => {
+    const panel = document.querySelector('.nrm-shell');
+    return panel && !panel.hidden && panel.querySelector('iframe.nrm-frame');
+  });
+  assert.equal(await page.locator('[data-nerd-radio]').count(), 1, 'Nur ein Radio bleibt gemountet');
+  assert.equal((await radio()).state, 'playing', 'Radio bleibt beim Modulwechsel an');
+  await pause(1150);
+  const inModule = await radio();
+  assert.equal(inModule.contexts, 1, 'AudioContext wird beim Modulwechsel nicht neu gestartet');
+  assert.notEqual(inModule.time, beforeModule.time, 'Abspielposition läuft im Modul weiter');
+  await page.locator('[data-nrm-play]').click();
+  assert.equal((await radio()).state, 'paused', 'Mini-Player pausiert das Originalradio');
+  await page.locator('[data-nrm-play]').click();
+  await pause(300);
+  assert.equal((await radio()).state, 'playing', 'Mini-Player setzt das Originalradio fort');
+  await page.locator('[data-nrm-back]').click();
+  await page.waitForFunction(() => document.querySelector('.nrm-shell')?.hidden);
+  assert.equal((await radio()).state, 'playing', 'Zurück zu den Modulen stoppt die Musik nicht');
+  assert.equal(new URL(page.url()).pathname, '/dau-to-pro/', 'Browser-Zurück stellt die Übersicht wieder her');
+  console.log('NERD FM bleibt beim Modulwechsel im selben AudioContext aktiv');
+
   await key('play').click(); await pause(700);
   r = await radio();
   assert.equal(r.state, 'paused', 'Pause hält an');
