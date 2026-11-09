@@ -122,6 +122,7 @@
 
   const hashId = decodeURIComponent(location.hash.slice(1));
   const fromHash = groupById.get(hashId);
+  window.__SUPPORT_GUIDE_READY__ = true;
   select(fromHash || "intake");
   if (fromHash) requestAnimationFrame(() =>
     document.getElementById(hashId)?.scrollIntoView({block:"start",behavior:"instant"}));
