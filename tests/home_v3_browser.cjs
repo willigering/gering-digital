@@ -56,6 +56,11 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       return {
         overflow:document.documentElement.scrollWidth-innerWidth,
         gridCols:getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length,
+        gridTemplate:getComputedStyle(grid).gridTemplateColumns,
+        gridDisplay:getComputedStyle(grid).display,
+        gridWidth:grid.getBoundingClientRect().width,
+        cssLoaded:[...document.styleSheets].some(t=>t.href?.includes('home-v3.css')),
+        cssLink:document.querySelector('link[href*="home-v3.css"]')?.href,
         featuredX:featured.getBoundingClientRect().x,otherX:other.getBoundingClientRect().x,
         headingOverflows:heading.scrollWidth-heading.clientWidth,
         world:!!document.querySelector('.gdv3-world'),
@@ -63,6 +68,7 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
         process:document.querySelectorAll('.gdv3-step').length
       };
     });
+    console.log('V3 CSS DIAGNOSTIC '+width+': '+JSON.stringify(details));
     assert.ok(details.overflow<=2,'Horizontal overflow '+width+'px: '+JSON.stringify(details));
     assert.ok(details.headingOverflows<=2,'Hero title clipped at '+width);
     assert.equal(details.about,true);assert.equal(details.process,3);assert.equal(details.world,true);
