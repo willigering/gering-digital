@@ -4,6 +4,7 @@
   const grid=document.getElementById("cheat-mini-grid");if(!grid)return;
   const section=grid.closest(".cheat-collection");
   const frame=grid.closest(".cheat-stack-frame");
+  const cta=frame?.querySelector(".cheat-cta-row");
   if(!section||!frame)return;
   const all=[...grid.querySelectorAll(":scope > .cheat-mini")];
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
@@ -29,6 +30,7 @@
     section.classList.remove("has-stacked-shelf");
     section.style.removeProperty("--cheat-pin-top");
     section.style.removeProperty("--cheat-runway");
+    frame.style.removeProperty("--cheat-cta-top");
     grid.classList.remove("is-stacked");
     grid.style.height="";
     cancelAnimationFrame(raf);raf=0;
@@ -55,6 +57,10 @@
     shown+=(target-shown)*.16;
     if(Math.abs(target-shown)<.002)shown=target;else raf=requestAnimationFrame(paint);
     const p=shown;
+    // Die Abschlusszeile folgt der letzten Kartenreihe und bleibt darunter.
+    const last=rows.length-1;
+    const lastY=(last-Math.min(p,last))*(rowH+GAP);
+    frame.style.setProperty("--cheat-cta-top",(grid.offsetTop+lastY+rowH+24).toFixed(1)+"px");
     rows.forEach((row,k)=>{
       // Alle Reihen sind anfangs vollständig zu sehen. Mit dem Scrollfortschritt
       // zieht jede untere Reihe auf die Position der ersten Reihe hoch.
