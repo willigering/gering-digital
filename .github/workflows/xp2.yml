@@ -21,6 +21,7 @@ jobs:
           for file in xp_lib.php achievements_lib.php lib.php learner_lib.php dau-to-pro/konto.php dau-to-pro/progress-panels.php dau-to-pro/highscore.php dau-to-pro/api/profile.php; do php -l "$file"; done
           node --check dau-to-pro/profiles.js
           node --check dau-to-pro/achievement-toast.js
+          node --check dau-to-pro/support-serviceanfragen.js
       - name: Balance, awards, migration, concurrent unlocks and account regression
         run: |
           php tools/xp-balance.php
@@ -35,3 +36,5 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Desktop and smartphone profiles, showcase, privacy and accessibility
         run: node tests/xp2_browser.cjs
+      - name: Unterrichtsmaterial browser regression – tabs and responsive cards
+        run: node tests/unterricht_support_browser.cjs

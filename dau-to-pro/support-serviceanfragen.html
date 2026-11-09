@@ -25,8 +25,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.jump,.sign{transition:none}}
 @media print{.top,.actions,.map,.hero-decoration{display:none}.hero{padding:15px 0}.chapter{break-inside:avoid;border:1px solid #aaa;color:#000;background:white}.chapter-body{display:block!important}.foot{color:#333}body{background:white;color:#000}.box,.sample{background:white;color:#000}.box p,li,.sample p,.note,.lead,td{color:#222!important}}
 </style>
+<link rel="stylesheet" href="support-serviceanfragen-theme.css?v=20261109-1">
 </head>
-<body>
+<body data-active-topic="intake"><div class="support-backdrop" aria-hidden="true"></div>
 <header class="top"><div class="wrap"><a class="back" href="./">← DAU TO PRO</a><strong>UNTERRICHTSMATERIAL <span>// IT VI</span></strong></div></header>
 <section class="hero"><div class="wrap">
 <div class="kicker">IT VI · Support- und Serviceanfragen</div>
@@ -35,18 +36,16 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <div class="hero-meta"><span>6 Themenbereiche</span><span>24 Wissensfragen</span><span>Praxisfälle &amp; Musterlösungen</span><span>Kein Lernpfad</span></div>
 </div><div class="hero-decoration" aria-hidden="true"></div></section>
 <main class="wrap content" id="hauptinhalt">
-<div class="panel-intro"><div><small>SO FUNKTIONIERT'S</small><p><b>Du entscheidest die Reihenfolge.</b> Themen aufklappen, Fachwissen lesen und dein Verständnis mit Musterantworten prüfen. Keine Anmeldung, keine Leistungsbewertung.</p></div><span aria-hidden="true" style="font-size:2.6rem;color:#72ddcc">↘</span></div>
-<div class="toolbar"><h2>DEIN SUPPORT-HANDBUCH</h2><div class="actions"><input class="search" id="topic-search" type="search" placeholder="Thema oder Begriff suchen …" aria-label="Lernmaterial durchsuchen"><button id="all-open" type="button">Alles öffnen</button><button id="all-close" type="button">Alles schließen</button></div></div>
-<nav class="map" aria-label="Themenübersicht">
-<a class="jump" href="#annehmen"><span>01 // INTAKE</span><b>Anfragen annehmen</b><small>Ticket, Typen, Gespräch</small></a>
-<a class="jump" href="#sla"><span>02 // TRIAGE</span><b>Priorität &amp; SLA</b><small>Auswirkung, Fristen</small></a>
-<a class="jump" href="#diagnose"><span>03 // ANALYSE</span><b>Fehler eingrenzen</b><small>Hypothesen, Tools</small></a>
-<a class="jump" href="#beheben"><span>04 // BEHEBUNG</span><b>Lösen &amp; Fernwartung</b><small>Workaround, Sicherheit</small></a>
-<a class="jump" href="#abschluss"><span>05 // NACHWEIS</span><b>Dokumentieren</b><small>Abschluss, Wissen</small></a>
-<a class="jump" href="#qualitaet"><span>06 // VERBESSERUNG</span><b>Qualität verbessern</b><small>Kennzahlen, PDCA</small></a>
-</nav>
+<div class="panel-intro"><div><small>SO FUNKTIONIERT'S</small><p><b>Wähle oben einen Themenreiter.</b> Es erscheinen jeweils zwei vollständig lesbare Kapitel, die beim Scrollen erst am Kapitelende überlappen. Die Themenreiter bleiben jederzeit erreichbar. Wissensfragen lassen sich für Musterantworten aufklappen.</p></div><span aria-hidden="true" style="font-size:2.6rem;color:#72ddcc">↘</span></div>
+<div class="toolbar"><h2>DEIN SUPPORT-HANDBUCH</h2><div class="actions"><input class="search" id="topic-search" type="search" placeholder="Alle Kapitel durchsuchen …" aria-label="Im gesamten Unterrichtsmaterial suchen"></div></div>
+<nav class="map" role="tablist" aria-label="Themenreiter für das Support-Handbuch">
+<a class="jump is-current" href="#annehmen" role="tab" aria-selected="true" aria-controls="annehmen" data-topic="intake"><span>01 // INTAKE &amp; SLA</span><b>Annahme &amp; Priorität</b><small>Kapitel 01–02</small></a>
+<a class="jump" href="#diagnose" role="tab" aria-selected="false" aria-controls="diagnose" tabindex="-1" data-topic="diagnose"><span>02 // ANALYSE</span><b>Diagnose &amp; Behebung</b><small>Kapitel 03–04</small></a>
+<a class="jump" href="#abschluss" role="tab" aria-selected="false" aria-controls="abschluss" tabindex="-1" data-topic="abschluss"><span>03 // QUALITÄT</span><b>Abschluss &amp; Qualität</b><small>Kapitel 05–06</small></a>
+</nav><p class="support-search-status" id="support-search-status" role="status" hidden></p>
 
-<details class="chapter" id="annehmen"><summary><span class="num">01</span><span class="chapter-head"><strong>Serviceanfragen annehmen und erfassen</strong><small>Vom unklaren Anruf zum brauchbaren Ticket</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<div class="support-flow" id="support-flow" aria-label="Kapitel des gewählten Themenbereichs">
+<article class="chapter" id="annehmen" data-topic-group="intake"><div class="chapter-title"><span class="num">01</span><span class="chapter-head"><strong>Serviceanfragen annehmen und erfassen</strong><small>Vom unklaren Anruf zum brauchbaren Ticket</small></span></div><div class="chapter-body">
 <p class="lead">Ein Service Desk ist die definierte Anlaufstelle für Nutzeranfragen. Das Ticket ist kein Selbstzweck: Es sorgt dafür, dass eine Anfrage nachvollziehbar aufgenommen, zuständig zugeordnet und weiterbearbeitet werden kann.</p>
 <div class="twocol">
 <div class="box"><h3>Vier Begriffe auseinanderhalten</h3><ul>
@@ -70,9 +69,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Warum ist „geht nicht“ keine ausreichende Fehlerbeschreibung?</summary><p>Es fehlen Symptom, betroffener Service, Umfang, Zeitpunkt, geschäftliche Auswirkung und reproduzierbare Hinweise. Dadurch sind sinnvolle Priorisierung und Diagnose kaum möglich.</p></details>
 <details class="qa"><summary>Was bedeutet SPOC?</summary><p>Single Point of Contact: eine definierte zentrale Anlaufstelle, über die Kunden den Service Desk erreichen.</p></details>
 <details class="qa"><summary>Warum dokumentiert man bereits erfolglose Tests?</summary><p>Damit das nächste Supportlevel dieselben Schritte nicht unnötig wiederholt und die Fehlersuche nachvollziehbar fortsetzt.</p></details>
-</div></details>
+</div></article>
 
-<details class="chapter" id="sla"><summary><span class="num">02</span><span class="chapter-head"><strong>Kategorisieren, priorisieren, SLA verstehen</strong><small>Nicht die Lautstärke entscheidet, sondern die Auswirkung</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<article class="chapter" id="sla" data-topic-group="intake"><div class="chapter-title"><span class="num">02</span><span class="chapter-head"><strong>Kategorisieren, priorisieren, SLA verstehen</strong><small>Nicht die Lautstärke entscheidet, sondern die Auswirkung</small></span></div><div class="chapter-body">
 <p class="lead">Eine Kategorie sagt, <b>worum</b> es geht. Die Priorität bestimmt, <b>wie schnell</b> gehandelt werden muss. Beides ist nicht dasselbe.</p>
 <div class="twocol">
 <div class="box"><h3>Auswirkung × Dringlichkeit</h3><p><b>Auswirkung (Impact):</b> Wie viele Menschen oder Geschäftsprozesse sind betroffen, und wie groß wäre der Schaden?</p><p><b>Dringlichkeit (Urgency):</b> Wie schnell muss gehandelt werden, bevor schwerwiegende Folgen eintreten?</p><p>Die Kombination wird anhand einer <b>organisationsspezifischen Prioritätsmatrix</b> bewertet. Sicherheitsereignisse können gesonderte Eskalationsregeln haben.</p></div>
@@ -92,9 +91,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Warum zählt eine automatische Ticketbestätigung nicht immer als Reaktion?</summary><p>Weil ein SLA eine qualifizierte menschliche Rückmeldung fordern kann. Maßgeblich ist die vertragliche Definition der Reaktion.</p></details>
 <details class="qa"><summary>Wie unterscheidet sich eine funktionale von einer hierarchischen Eskalation?</summary><p>Funktional: Übergabe an technische Spezialisten. Hierarchisch: Einbeziehung von Führungskräften zur Entscheidung oder Steuerung.</p></details>
 <details class="qa"><summary>Ein Mitarbeiter ist sehr verärgert. Wird das automatisch P1?</summary><p>Nein. Für Priorität zählen definierte Kriterien wie Impact, Urgency und festgelegte Sonderregeln – nicht allein die Emotion des Meldenden.</p></details>
-</div></details>
+</div></article>
 
-<details class="chapter" id="diagnose"><summary><span class="num">03</span><span class="chapter-head"><strong>Problemursachen systematisch analysieren</strong><small>Erst beweisen, dann schrauben</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<article class="chapter" id="diagnose" data-topic-group="diagnose" hidden><div class="chapter-title"><span class="num">03</span><span class="chapter-head"><strong>Problemursachen systematisch analysieren</strong><small>Erst beweisen, dann schrauben</small></span></div><div class="chapter-body">
 <p class="lead">Das Symptom „Keine Verbindung“ ist noch keine Ursache. Eine gute Diagnose beginnt mit Soll/Ist, der Reichweite des Fehlers und einer überprüfbaren Hypothese – nicht mit wahllosen Neustarts.</p>
 <div class="twocol">
 <div class="box"><h3>Der Diagnosekreislauf</h3><ol><li><b>Soll und Ist</b> festhalten: Was müsste funktionieren, was geschieht tatsächlich?</li>
@@ -119,9 +118,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Warum immer möglichst nur eine Variable auf einmal verändern?</summary><p>So lassen sich Ursache, Wirkung und mögliche Nebenwirkungen einer Maßnahme nachvollziehen. Bei mehreren gleichzeitigen Änderungen fehlt die Zuordnung.</p></details>
 <details class="qa"><summary>Beweist ein fehlgeschlagener Ping, dass das Ziel offline ist?</summary><p>Nein. ICMP kann gefiltert werden oder auf dem Ziel deaktiviert sein. Zusätzliche Tests des betroffenen Dienstes sind nötig.</p></details>
 <details class="qa"><summary>Was bedeutet „Hypothese testen“?</summary><p>Eine überprüfbare Vermutung mit einem passenden Test und dokumentiertem Ergebnis stützen oder verwerfen – statt auf Verdacht Einstellungen zu ändern.</p></details>
-</div></details>
+</div></article>
 
-<details class="chapter" id="beheben"><summary><span class="num">04</span><span class="chapter-head"><strong>Fehler beheben, Remote-Support, Kommunikation</strong><small>Mit Zustimmung ändern, prüfen und verständlich informieren</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<article class="chapter" id="beheben" data-topic-group="diagnose" hidden><div class="chapter-title"><span class="num">04</span><span class="chapter-head"><strong>Fehler beheben, Remote-Support, Kommunikation</strong><small>Mit Zustimmung ändern, prüfen und verständlich informieren</small></span></div><div class="chapter-body">
 <p class="lead">Der Support soll einen Dienst sicher wiederherstellen. Ein Workaround bringt den Betrieb vorübergehend zurück; eine dauerhafte Lösung beseitigt idealerweise die Ursache.</p>
 <div class="twocol">
 <div class="box"><h3>Vor jeder Änderung</h3><ol><li>Ticket und Diagnose prüfen; bekannte Lösungen nachschlagen.</li><li>Berechtigung, Freigabe und Auswirkungen klären.</li><li>Ist-Zustand und bei Bedarf Daten bzw. Konfiguration sichern.</li><li>Rückfallplan festlegen: Wie lässt sich die Änderung zurücknehmen?</li><li>Eine kontrollierte Maßnahme durchführen.</li><li>Mit dem Nutzer die Funktion und relevante Nebenwirkungen testen.</li><li>Maßnahme, Ergebnis und weitere Schritte dokumentieren.</li></ol></div>
@@ -136,9 +135,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Wann darf Support eine fremde Sitzung fernsteuern?</summary><p>Nur mit geeignetem, freigegebenem Verfahren und ausdrücklicher Zustimmung bzw. der nötigen Rechts- und Organisationsgrundlage. Berechtigungen und interne Regeln sind einzuhalten.</p></details>
 <details class="qa"><summary>Warum gehört ein Rückfallplan zu riskanteren Änderungen?</summary><p>Damit man bei Fehlern den vorherigen Zustand kontrolliert wiederherstellen und Auswirkungen begrenzen kann.</p></details>
 <details class="qa"><summary>Was gehört in eine ehrliche Statusmeldung?</summary><p>Aktueller Sachstand, bisherige Erkenntnisse ohne Spekulation, der nächste Schritt, die Zuständigkeit und ein realistischer Rückmeldezeitpunkt.</p></details>
-</div></details>
+</div></article>
 
-<details class="chapter" id="abschluss"><summary><span class="num">05</span><span class="chapter-head"><strong>Dokumentieren, lösen und abschließen</strong><small>So gut aufschreiben, dass auch die nächste Schicht es versteht</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<article class="chapter" id="abschluss" data-topic-group="abschluss" hidden><div class="chapter-title"><span class="num">05</span><span class="chapter-head"><strong>Dokumentieren, lösen und abschließen</strong><small>So gut aufschreiben, dass auch die nächste Schicht es versteht</small></span></div><div class="chapter-body">
 <p class="lead">„Erledigt“ ist keine ausreichende Dokumentation. Eine gute Fallakte zeigt nachvollziehbar, was gemeldet, untersucht, verändert, getestet und vereinbart wurde – ohne unnötige Daten preiszugeben.</p>
 <div class="twocol">
 <div class="box"><h3>Die Abschlussdokumentation</h3><ul><li>Ticketnummer und betroffene Systeme/Services.</li><li>Symptom, Beginn und Auswirkung.</li><li>Festgestellte Ursache <em>oder</em> ausdrücklich offene Ursache.</li><li>Diagnoseschritte und relevante Testergebnisse.</li><li>Maßnahmen mit nötigen technischen Details und Zeiten.</li><li>Workaround, verbleibendes Risiko und offene Folgeaufgaben.</li><li>Nachtest/Abnahme, Kommunikation und Statuswechsel.</li><li>Verantwortliche und nachvollziehbare Bearbeitungszeit, soweit vorgesehen.</li></ul></div>
@@ -158,9 +157,9 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Warum darf man eine vermutete Ursache nicht als gesichert dokumentieren?</summary><p>Weil spätere Bearbeiter sich sonst auf eine unbelegte Annahme verlassen. Vermutung, Testbeleg und nachgewiesene Ursache müssen unterscheidbar sein.</p></details>
 <details class="qa"><summary>Was unterscheidet einen Wissensartikel von einer Ticketnotiz?</summary><p>Die Ticketnotiz beschreibt den konkreten Einzelfall; der Wissensartikel abstrahiert eine wiederverwendbare, geprüfte Vorgehensweise für ähnliche Fälle.</p></details>
 <details class="qa"><summary>Welche Angaben gehören aus Datenschutzgründen nicht in Tickets?</summary><p>Insbesondere Passwörter, geheime Token, MFA-Codes und für die Bearbeitung nicht erforderliche personenbezogene oder vertrauliche Inhalte.</p></details>
-</div></details>
+</div></article>
 
-<details class="chapter" id="qualitaet"><summary><span class="num">06</span><span class="chapter-head"><strong>Qualitätssicherung und Verbesserung</strong><small>Kennzahlen verstehen, Muster finden, Ursachen beseitigen</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<article class="chapter" id="qualitaet" data-topic-group="abschluss" hidden><div class="chapter-title"><span class="num">06</span><span class="chapter-head"><strong>Qualitätssicherung und Verbesserung</strong><small>Kennzahlen verstehen, Muster finden, Ursachen beseitigen</small></span></div><div class="chapter-body">
 <p class="lead">Guter Support bedeutet mehr als viele geschlossene Tickets. Entscheidend ist, ob Dienste zuverlässig wiederhergestellt werden, Nutzer verstehen, was passiert, und bekannte Fehler seltener zurückkehren.</p>
 <div class="twocol">
 <div class="box"><h3>Incident vs. Problem Management</h3><p><b>Incident Management:</b> Betrieb möglichst schnell wiederherstellen. <b>Problem Management:</b> zugrunde liegende Ursachen und Zusammenhänge untersuchen, Risiken und Wiederholungen reduzieren.</p><p>Beispiel: 15 WLAN-Ausfälle werden jeweils durch Neustart behoben (Incidents). Das Muster weist auf ein Problem hin, dessen Ursache – etwa instabile Firmware – gesondert analysiert wird.</p></div>
@@ -186,26 +185,14 @@ details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;paddin
 <details class="qa"><summary>Wie berechnet man eine SLA-Erfüllungsquote?</summary><p>Fristgerecht erfüllte, relevante Fälle geteilt durch alle für die Messung relevanten Fälle, multipliziert mit 100. Die Auswertungsdefinition und Sonderfälle müssen festgelegt sein.</p></details>
 <details class="qa"><summary>Was bedeutet der PDCA-Zyklus?</summary><p>Plan (planen), Do (umsetzen), Check (Wirkung prüfen), Act (verbessern bzw. standardisieren). Anschließend beginnt der nächste Verbesserungszyklus.</p></details>
 <details class="qa"><summary>Warum darf KI eine Fehlerursache nicht ungeprüft ins Ticket schreiben?</summary><p>KI-Ausgaben können erfunden oder falsch zugeordnet sein. Ohne technische Verifikation wird aus einer Vermutung eine irreführende Dokumentation; außerdem gelten Datenschutz und Freigaberegeln.</p></details>
-</div></details>
+</div></article>
 
+</div><!-- /.support-flow -->
 <section class="end" aria-labelledby="finish"><div class="kicker">DAS SOLL HÄNGEN BLEIBEN</div><h2 id="finish">Guter Support ist ein nachvollziehbarer Prozess.</h2><p>Erfassen → bewerten → eingrenzen → kontrolliert beheben → dokumentieren → verbessern. Jeder Schritt liefert Informationen für den nächsten. Du musst nicht raten, wenn du gezielt fragen, prüfen und sauber dokumentieren kannst.</p>
 <div class="taglist"><span>Incident ≠ Problem</span><span>Impact + Urgency</span><span>SLA ist vertraglich</span><span>Hypothese ≠ Nachweis</span><span>Workaround ≠ Ursache behoben</span><span>Gelöst ≠ geschlossen</span></div>
-<p style="font-size:.83rem;margin-top:18px">Fachliche Grundlage: die bereitgestellten IT.VI-Unterrichtsdateien von Christopher Wollenberg (sechs Themenbereiche). Eigenständig formulierte Zusammenfassung und zusätzliche Praxisbeispiele; kein Ersatz für Kursmaterial, interne Sicherheitsrichtlinien oder konkrete Serviceverträge.</p></section>
+<p style="font-size:.83rem;margin-top:18px">Eigenständig formulierte Lernhilfe mit Praxisbeispielen; kein Ersatz für die geltenden Serviceverträge, Sicherheitsrichtlinien oder konkreten Unterrichtsvorgaben.</p></section>
 </main>
 <footer class="foot"><div class="wrap"><span>DAU TO PRO · UNTERRICHTSMATERIAL · IT-SUPPORT</span><span>Eigenständige Lernhilfe · keine offiziellen Prüfungsfragen · Stand November 2026</span></div></footer>
-<script>
-(function(){
-"use strict";
-var chapters=Array.from(document.querySelectorAll(".chapter"));
-var jumps=Array.from(document.querySelectorAll(".jump"));
-var search=document.getElementById("topic-search");
-document.getElementById("all-open").addEventListener("click",function(){chapters.filter(function(c){return !c.classList.contains("hidden")}).forEach(function(c){c.open=true})});
-document.getElementById("all-close").addEventListener("click",function(){chapters.forEach(function(c){c.open=false})});
-jumps.forEach(function(a){a.addEventListener("click",function(){var target=document.querySelector(a.getAttribute("href"));if(target){target.classList.remove("hidden");target.open=true}})});
-function openHash(){if(!location.hash)return;var id=location.hash.slice(1);var target=document.getElementById(id);if(target && target.classList.contains("chapter")){target.classList.remove("hidden");target.open=true}}
-addEventListener("hashchange",openHash);openHash();
-search.addEventListener("input",function(){var q=search.value.trim().toLocaleLowerCase("de");chapters.forEach(function(c){var found=!q||c.textContent.toLocaleLowerCase("de").includes(q);c.classList.toggle("hidden",!found);if(q&&found)c.open=true});jumps.forEach(function(a){var target=document.querySelector(a.getAttribute("href"));a.classList.toggle("hidden",target.classList.contains("hidden"))})});
-})();
-</script>
+<script src="support-serviceanfragen.js?v=20261109-1" defer></script>
 </body>
 </html>

@@ -195,7 +195,38 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
-<?php $cheatTopics=[
+  <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
+    <div class="section-shell">
+      <div class="section-heading" data-reveal><div><span class="eyebrow">HIGHSCORE</span><h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2><p>Die besten Lernenden nach XP. In der Liste steht nur, wer die Sichtbarkeit im eigenen Konto eingeschaltet hat.</p></div><span class="section-count"><?=$hsCount?> <?=$hsCount===1?'Person':'Personen'?> sichtbar</span></div>
+<?php if (!$learnerRow): ?>
+      <div class="hs-teaser" data-reveal>
+        <div><strong>Nur mit Lernkonto</strong><p>Den Highscore sehen angemeldete Lernende. Mit Konto sammelst du XP, Level und Achievements und entscheidest selbst, ob du in der Liste auftauchst.</p></div>
+        <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
+      </div>
+<?php else: ?>
+      <div class="hs-board" data-reveal>
+<?php if (!$hsRows): ?>
+        <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
+<?php else: ?>
+        <ol class="hs-top">
+<?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
+          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
+            <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
+            <span class="hs-who"><b><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?></b><span class="hs-showcase" aria-label="Ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
+            <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
+          </li>
+<?php endforeach; ?>
+        </ol>
+<?php endif; ?>
+        <div class="hs-foot">
+          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
+          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+<?php endif; ?>
+    </div>
+  </section>
+ <?php $cheatTopics=[
   ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
   ['osi','OSI-Modell','Schichten, Protokolle und Kapselung','07','#6cdad4'],
   ['subnet','Subnetting','CIDR, Netz-ID, Hosts und VLSM','/24','#89df8a'],
@@ -282,37 +313,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </details>
 </section>
               </div>
-    </div>
-  </section>
-  <section class="hs-section" id="highscore" aria-labelledby="hs-title">
-    <div class="section-shell">
-      <div class="section-heading" data-reveal><div><span class="eyebrow">HIGHSCORE</span><h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2><p>Die besten Lernenden nach XP. In der Liste steht nur, wer die Sichtbarkeit im eigenen Konto eingeschaltet hat.</p></div><span class="section-count"><?=$hsCount?> <?=$hsCount===1?'Person':'Personen'?> sichtbar</span></div>
-<?php if (!$learnerRow): ?>
-      <div class="hs-teaser" data-reveal>
-        <div><strong>Nur mit Lernkonto</strong><p>Den Highscore sehen angemeldete Lernende. Mit Konto sammelst du XP, Level und Achievements und entscheidest selbst, ob du in der Liste auftauchst.</p></div>
-        <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
-      </div>
-<?php else: ?>
-      <div class="hs-board" data-reveal>
-<?php if (!$hsRows): ?>
-        <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
-<?php else: ?>
-        <ol class="hs-top">
-<?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
-          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
-            <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
-            <span class="hs-who"><b><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?></b><span class="hs-showcase" aria-label="Ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
-            <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
-          </li>
-<?php endforeach; ?>
-        </ol>
-<?php endif; ?>
-        <div class="hs-foot">
-          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
-          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
-        </div>
-      </div>
-<?php endif; ?>
     </div>
   </section>
   <section class="method-section" id="konzept" aria-labelledby="method-title">
