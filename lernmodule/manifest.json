@@ -95,6 +95,14 @@
       "subject": "Programmieren mit C#",
       "title": "Der Compiler hat immer recht",
       "description": "Von der ersten Zeile über Schleifen, Methoden und Klassen bis zum eigenen Gerätemanager. Du lernst, Code zu lesen und Fehler zu finden, bevor der Compiler es dir unter die Nase reibt."
+    },
+    {
+      "slug": "w4-unternehmen",
+      "preview": "unternehmen",
+      "file": "w4-unternehmen.html",
+      "subject": "Unternehmensformen & Märkte",
+      "title": "Garage, Gewinn, Gerichtsvollzieher",
+      "description": "Wer zahlt, wenn's kracht? Von Einzelunternehmen bis AG: Haftung, Gründung, Register und Prokura. Dazu Sektoren, Märkte und Marktformen. Damit du in der Prüfung weißt, wann der Gerichtsvollzieher auch privat klingeln darf."
     }
   ]
 }
