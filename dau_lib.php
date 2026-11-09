@@ -155,7 +155,7 @@ function dtp_module_description(array $module): string {
         'd2-it-sicherheit'=>'Passwort123 war gestern. Heute heißt es Passwort1234, weil die IT auf Sicherheit besteht. Lerne, was wirklich schützt, wie du Angriffe erkennst und was zu tun ist, wenn trotzdem alles brennt.',
         'b4-ipv6'=>'128 Bit und gefühlt 800 Doppelpunkte. Lerne IPv6-Adressen, Präfixe, SLAAC und DHCPv6 kennen, ohne den Überblick zu verlieren.',
         'b5-netzwerkdienste'=>'Ping geht, Website nicht? Bevor der Router wieder unschuldig neu startet: Ports, DNS, DHCP und Co. verstehen – vom ersten SYN bis zum Klartext-Passwort, das dringend wegmuss.',
-        'cs1-csharp'=>'Variablen, Schleifen, Klassen und viele rote Kringel: Lerne C# so weit, dass du weißt, warum dein Code schon wieder nicht kompiliert. Und wie du das änderst.',
+        'cs1-csharp'=>'Du willst programmieren, der Compiler will Semikolons. Hier lernst du von Null, was ein Programm ist, wie man eine Variable deklariert und initialisiert und warum "24" kein int ist. Danach sagt er öfter ja.',
         'f2-kalkulation'=>'Rabatt, Skonto, Leasing oder Kauf? Rechne Angebote durch, bevor der Chef begeistert Geld verbrennt und du es erklären musst.',
     ];
     if(isset($humor[$slug])) return $humor[$slug];

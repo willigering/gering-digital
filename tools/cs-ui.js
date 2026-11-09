@@ -1,4 +1,4 @@
-$('bitwall').innerHTML='<p>&gt; dotnet run</p><div class="cash">Hallo Welt!</div><p>Dein Programm. Dein Compiler.<br>Deine Schuld, wenn es nicht läuft.</p>';
+$('bitwall').innerHTML='<p>&gt; dotnet build</p><div class="cash">error CS1002</div><p>Ein Semikolon. Ein einziges.<br>Der Compiler sagt nein. Zu Recht.</p>';
 /* Schritt-für-Schritt-Abläufe: fest geprüfte Daten, es wird kein Code ausgeführt. */
 document.querySelectorAll('[data-trace]').forEach(el=>{
  const tr=STAGES[Number(el.dataset.trace)].trace;let i=0;

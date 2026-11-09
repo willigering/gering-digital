@@ -1,89 +1,99 @@
-# CS1 – Programmieren mit C#
+# CS1 – Compiler sagt nein
 
-| ID | Name | Teilthema | Stufe |
-| --- | --- | --- | --- |
-| `g_begriff` | C#, .NET und Compiler | Willkommen in C# | 1 |
-| `g_ausgabe` | Ausgabe vorhersagen | Willkommen in C# | 1 |
-| `g_write` | Write oder WriteLine | Willkommen in C# | 1 |
-| `g_fix` | Zeile reparieren | Willkommen in C# | 1 |
-| `g_luecke` | Methode ergänzen | Willkommen in C# | 1 |
-| `g_order` | Programm sortieren | Willkommen in C# | 1 |
-| `g_kommentar` | Kommentar erkennen | Willkommen in C# | 1 |
-| `g_semikolon` | Das Semikolon war unschuldig | Willkommen in C# | 1 |
-| `v_typ` | Datentyp wählen | Variablen und Datentypen | 2 |
-| `v_decl` | Variable anlegen | Variablen und Datentypen | 2 |
-| `v_fix` | Falschen Typ reparieren | Variablen und Datentypen | 2 |
-| `v_parse` | Eingabe umwandeln | Variablen und Datentypen | 2 |
-| `v_wert` | Neuen Wert verfolgen | Variablen und Datentypen | 2 |
-| `v_concat` | Text oder Zahl | Variablen und Datentypen | 2 |
-| `v_cast` | Kommazahl umwandeln | Variablen und Datentypen | 2 |
-| `v_konst` | var und const | Variablen und Datentypen | 2 |
-| `o_int` | Integerdivision | Operatoren und Berechnungen | 3 |
-| `o_mod` | Modulo | Operatoren und Berechnungen | 3 |
-| `o_double` | Division mit double | Operatoren und Berechnungen | 3 |
-| `o_rang` | Rangfolge | Operatoren und Berechnungen | 3 |
-| `o_inkr` | Inkrement | Operatoren und Berechnungen | 3 |
-| `o_vergl` | Vergleich | Operatoren und Berechnungen | 3 |
-| `o_logik` | Logische Operatoren | Operatoren und Berechnungen | 3 |
-| `o_zuw` | Zuweisungsoperatoren | Operatoren und Berechnungen | 3 |
-| `i_zweig` | if und else verfolgen | Bedingungen und Entscheidungen | 4 |
-| `i_elseif` | else if verfolgen | Bedingungen und Entscheidungen | 4 |
-| `i_switch` | switch verfolgen | Bedingungen und Entscheidungen | 4 |
-| `i_op` | Bedingung ergänzen | Bedingungen und Entscheidungen | 4 |
-| `i_gleich` | = statt == | Bedingungen und Entscheidungen | 4 |
-| `i_nest` | Verschachtelung | Bedingungen und Entscheidungen | 4 |
-| `i_logik` | Verknüpfte Bedingung | Bedingungen und Entscheidungen | 4 |
-| `i_text` | Text vergleichen | Bedingungen und Entscheidungen | 4 |
-| `l_anzahl` | Durchläufe zählen | Schleifen | 5 |
-| `l_summe` | Summe verfolgen | Schleifen | 5 |
-| `l_while` | while verfolgen | Schleifen | 5 |
-| `l_do` | do while | Schleifen | 5 |
-| `l_foreach` | foreach verfolgen | Schleifen | 5 |
-| `l_break` | break und continue | Schleifen | 5 |
-| `l_endlos` | Endlosschleife finden | Schleifen | 5 |
-| `l_off` | Off-by-one | Schleifen | 5 |
-| `l_kopf` | Schleifenkopf schreiben | Schleifen | 5 |
-| `a_index` | Index lesen | Arrays, Listen und Zeichenketten | 6 |
-| `a_letzt` | Letztes Element | Arrays, Listen und Zeichenketten | 6 |
-| `a_grenze` | Index außerhalb | Arrays, Listen und Zeichenketten | 6 |
-| `a_schreib` | Array-Zugriff schreiben | Arrays, Listen und Zeichenketten | 6 |
-| `a_liste` | Liste verfolgen | Arrays, Listen und Zeichenketten | 6 |
-| `a_summe` | Sammlung durchlaufen | Arrays, Listen und Zeichenketten | 6 |
-| `a_laenge` | Length oder Count | Arrays, Listen und Zeichenketten | 6 |
-| `a_interp` | String-Interpolation | Arrays, Listen und Zeichenketten | 6 |
-| `a_text` | String-Methoden | Arrays, Listen und Zeichenketten | 6 |
-| `m_aufruf` | Aufruf verfolgen | Methoden | 7 |
-| `m_param` | Parameter zuordnen | Methoden | 7 |
-| `m_return` | return ergänzen | Methoden | 7 |
-| `m_void` | void oder Rückgabe | Methoden | 7 |
-| `m_scope` | Gültigkeitsbereich | Methoden | 7 |
-| `m_kopf` | Methodenkopf schreiben | Methoden | 7 |
-| `m_kopie` | Parameter als Kopie | Methoden | 7 |
-| `m_kette` | Aufrufe verketten | Methoden | 7 |
-| `c_begriff` | Klasse, Objekt, Konstruktor | Objektorientierte Programmierung | 8 |
-| `c_objekt` | Objekte unterscheiden | Objektorientierte Programmierung | 8 |
-| `c_ctor` | Konstruktor verfolgen | Objektorientierte Programmierung | 8 |
-| `c_ref` | Zwei Variablen, ein Objekt | Objektorientierte Programmierung | 8 |
-| `c_private` | private von außen | Objektorientierte Programmierung | 8 |
-| `c_static` | static verfolgen | Objektorientierte Programmierung | 8 |
-| `c_erbe` | Vererbung verfolgen | Objektorientierte Programmierung | 8 |
-| `c_iface` | Interface | Objektorientierte Programmierung | 8 |
-| `c_new` | Objekt erzeugen schreiben | Objektorientierte Programmierung | 8 |
-| `e_art` | Fehlerart bestimmen | Fehler erkennen und behandeln | 9 |
-| `e_try` | try und catch verfolgen | Fehler erkennen und behandeln | 9 |
-| `e_finally` | finally verfolgen | Fehler erkennen und behandeln | 9 |
-| `e_tryparse` | TryParse verfolgen | Fehler erkennen und behandeln | 9 |
-| `e_null` | null prüfen | Fehler erkennen und behandeln | 9 |
-| `e_ausnahme` | Ausnahme benennen | Fehler erkennen und behandeln | 9 |
-| `e_fix` | Fehler reparieren | Fehler erkennen und behandeln | 9 |
-| `e_logik` | Logischen Fehler finden | Fehler erkennen und behandeln | 9 |
-| `e_debug` | Debugging | Fehler erkennen und behandeln | 9 |
-| `p_menue` | Menü verfolgen | Dein erstes eigenes Programm | 10 |
-| `p_klasse` | Gerät anlegen | Dein erstes eigenes Programm | 10 |
-| `p_liste` | Geräte ausgeben | Dein erstes eigenes Programm | 10 |
-| `p_pruefen` | Eingabe prüfen | Dein erstes eigenes Programm | 10 |
-| `p_order` | Programmteile sortieren | Dein erstes eigenes Programm | 10 |
-| `p_methode` | Methode aufrufen | Dein erstes eigenes Programm | 10 |
-| `p_bug` | Fehler im Manager finden | Dein erstes eigenes Programm | 10 |
-| `p_schleife` | Menüschleife | Dein erstes eigenes Programm | 10 |
-| `p_lauf` | Gesamtlauf vorhersagen | Dein erstes eigenes Programm | 10 |
+| ID | Name | Form | Teilthema | Stufe |
+| --- | --- | --- | --- | --- |
+| `w_begriff` | Grundbegriffe zuordnen | mc | Was ist Programmieren? | 1 |
+| `w_eva` | EVA erkennen | set | Was ist Programmieren? | 1 |
+| `w_algo` | Algorithmus sortieren | order | Was ist Programmieren? | 1 |
+| `w_name` | Fachbegriff nennen | word | Was ist Programmieren? | 1 |
+| `w_sprache` | Programmiersprache erkennen | set | Was ist Programmieren? | 1 |
+| `w_genau` | Der Computer denkt nicht mit | mc | Was ist Programmieren? | 1 |
+| `w_frei` | EVA erklären | free | Was ist Programmieren? | 1 |
+| `w_html` | HTML ist keine Programmiersprache | mc | Was ist Programmieren? | 1 |
+| `u_wer` | Compiler oder Interpreter | mc | Compiler, Interpreter und .NET | 2 |
+| `u_eigen` | Eigenschaften zuordnen | set | Compiler, Interpreter und .NET | 2 |
+| `u_weg` | Weg des C#-Programms | order | Compiler, Interpreter und .NET | 2 |
+| `u_begriff` | IL, CLR, JIT und SDK | word | Compiler, Interpreter und .NET | 2 |
+| `u_nein` | Compiler sagt nein | word | Compiler, Interpreter und .NET | 2 |
+| `u_sprache` | Sprache und Übersetzung | word | Compiler, Interpreter und .NET | 2 |
+| `u_frei` | Vorteil begründen | free | Compiler, Interpreter und .NET | 2 |
+| `u_fehlerart` | Wann fällt es auf? | mc | Compiler, Interpreter und .NET | 2 |
+| `g_ausgabe` | Ausgabe vorhersagen | out | Aufbau eines C#-Programms | 3 |
+| `g_write` | Write oder WriteLine | out | Aufbau eines C#-Programms | 3 |
+| `g_fix` | Zeile reparieren | fix | Aufbau eines C#-Programms | 3 |
+| `g_luecke` | Methode ergänzen | gap | Aufbau eines C#-Programms | 3 |
+| `g_order` | Programm sortieren | order | Aufbau eines C#-Programms | 3 |
+| `g_kommentar` | Kommentar erkennen | out | Aufbau eines C#-Programms | 3 |
+| `g_semikolon` | Das Semikolon war unschuldig | mc | Aufbau eines C#-Programms | 3 |
+| `g_teile` | Programmteile benennen | set | Aufbau eines C#-Programms | 3 |
+| `v_typ` | Typ zum Wert | mc | Datentypen | 4 |
+| `t_wahl` | Typ zum Fall | word | Datentypen | 4 |
+| `t_literal` | Gültige Werte erkennen | set | Datentypen | 4 |
+| `t_passt` | Passt das in einen int? | word | Datentypen | 4 |
+| `t_bits` | Speichergröße | mc | Datentypen | 4 |
+| `t_ueberlauf` | Überlauf: aus Plus wird Minus | out | Datentypen | 4 |
+| `t_double` | double gegen decimal | out | Datentypen | 4 |
+| `v_fix` | Falschen Typ reparieren | fix | Datentypen | 4 |
+| `d_erkennen` | Deklaration, Initialisierung oder Zuweisung | mc | Variablen deklarieren und initialisieren | 5 |
+| `d_markieren` | Zeilen markieren | set | Variablen deklarieren und initialisieren | 5 |
+| `v_decl` | Variable anlegen | write | Variablen deklarieren und initialisieren | 5 |
+| `d_split` | Getrennt deklarieren und initialisieren | write | Variablen deklarieren und initialisieren | 5 |
+| `v_wert` | Neuen Wert verfolgen | out | Variablen deklarieren und initialisieren | 5 |
+| `d_compiler` | Was sagt der Compiler? | mc | Variablen deklarieren und initialisieren | 5 |
+| `d_name` | Gültige Namen | set | Variablen deklarieren und initialisieren | 5 |
+| `v_konst` | var und const | mc | Variablen deklarieren und initialisieren | 5 |
+| `d_tausch` | Werte tauschen | order | Variablen deklarieren und initialisieren | 5 |
+| `v_parse` | Eingabe umwandeln | write | Typumwandlung, Ein- und Ausgabe | 6 |
+| `v_cast` | Kommazahl umwandeln | out | Typumwandlung, Ein- und Ausgabe | 6 |
+| `v_concat` | Text oder Zahl | out | Typumwandlung, Ein- und Ausgabe | 6 |
+| `a_interp` | String-Interpolation | out | Typumwandlung, Ein- und Ausgabe | 6 |
+| `k_implizit` | Implizit oder Cast nötig? | set | Typumwandlung, Ein- und Ausgabe | 6 |
+| `k_tryparse` | TryParse verfolgen | out | Typumwandlung, Ein- und Ausgabe | 6 |
+| `k_methode` | Passende Umwandlung nennen | word | Typumwandlung, Ein- und Ausgabe | 6 |
+| `k_wann` | Abbruch beim Kompilieren oder Ausführen? | word | Typumwandlung, Ein- und Ausgabe | 6 |
+| `o_int` | Integerdivision | out | Operatoren und Berechnungen | 7 |
+| `o_mod` | Modulo | out | Operatoren und Berechnungen | 7 |
+| `o_double` | Division mit double | out | Operatoren und Berechnungen | 7 |
+| `o_rang` | Rangfolge | out | Operatoren und Berechnungen | 7 |
+| `o_inkr` | Inkrement | out | Operatoren und Berechnungen | 7 |
+| `o_vergl` | Wahre Vergleiche finden | set | Operatoren und Berechnungen | 7 |
+| `o_logik` | Logische Operatoren | out | Operatoren und Berechnungen | 7 |
+| `o_zuw` | Zuweisung abkürzen | write | Operatoren und Berechnungen | 7 |
+| `o_gerade` | Ausdruck schreiben | write | Operatoren und Berechnungen | 7 |
+| `o_operator` | Operator nennen | word | Operatoren und Berechnungen | 7 |
+| `o_klammer` | Klammern setzen | fix | Operatoren und Berechnungen | 7 |
+| `o_fehler` | Warum kommt 2 heraus? | mc | Operatoren und Berechnungen | 7 |
+| `i_zweig` | if und else verfolgen | out | Verzweigungen | 8 |
+| `i_elseif` | else if verfolgen | out | Verzweigungen | 8 |
+| `i_switch` | switch verfolgen | out | Verzweigungen | 8 |
+| `i_op` | Bedingung ergänzen | gap | Verzweigungen | 8 |
+| `i_gleich` | = statt == | fix | Verzweigungen | 8 |
+| `i_nest` | Verschachtelung | out | Verzweigungen | 8 |
+| `i_logik` | Verknüpfte Bedingung | out | Verzweigungen | 8 |
+| `i_text` | Text exakt vergleichen | set | Verzweigungen | 8 |
+| `i_werte` | Bei welchen Werten? | set | Verzweigungen | 8 |
+| `i_order` | Verzweigung bauen | order | Verzweigungen | 8 |
+| `i_wort` | Schlüsselwort nennen | word | Verzweigungen | 8 |
+| `l_anzahl` | Durchläufe zählen | out | Schleifen | 9 |
+| `l_summe` | Summe verfolgen | out | Schleifen | 9 |
+| `l_while` | while verfolgen | out | Schleifen | 9 |
+| `l_do` | do while oder while | mc | Schleifen | 9 |
+| `l_foreach` | foreach verfolgen | out | Schleifen | 9 |
+| `l_break` | break und continue | out | Schleifen | 9 |
+| `l_endlos` | Endlosschleife finden | mc | Schleifen | 9 |
+| `l_off` | Off-by-one | fix | Schleifen | 9 |
+| `l_kopf` | Schleifenkopf schreiben | write | Schleifen | 9 |
+| `l_welche` | Passende Schleife wählen | word | Schleifen | 9 |
+| `l_order` | Schleife zusammensetzen | order | Schleifen | 9 |
+| `a_index` | Index lesen | out | Arrays und erste Methoden | 10 |
+| `a_letzt` | Letztes Element | out | Arrays und erste Methoden | 10 |
+| `a_grenze` | Index außerhalb | mc | Arrays und erste Methoden | 10 |
+| `a_gueltig` | Gültige Zugriffe | set | Arrays und erste Methoden | 10 |
+| `a_schreib` | Array-Zugriff schreiben | write | Arrays und erste Methoden | 10 |
+| `a_liste` | Liste verfolgen | out | Arrays und erste Methoden | 10 |
+| `a_laenge` | Length oder Count | write | Arrays und erste Methoden | 10 |
+| `m_aufruf` | Methode aufrufen | out | Arrays und erste Methoden | 10 |
+| `m_param` | Parameter zuordnen | out | Arrays und erste Methoden | 10 |
+| `m_return` | return ergänzen | fix | Arrays und erste Methoden | 10 |
+| `m_teile` | Teile einer Methode | word | Arrays und erste Methoden | 10 |
+| `m_kopf` | Methodenkopf schreiben | write | Arrays und erste Methoden | 10 |

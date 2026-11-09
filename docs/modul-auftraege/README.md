@@ -63,6 +63,16 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 - In Binäraufgaben löst sich „Binär → Dezimal“ beim Anklicken in Staub auf und zeigt eine von mehreren Rückmeldungen. Die Schaltfläche führt keine Umrechnung aus. Bei reduzierter Bewegung verschwindet sie unmittelbar.
 - Neue Module verwenden `dau-to-pro/module-calculator.js` und `dau-to-pro/module-calculator.css` über `tools/module_theme.py`. Prüfen, ob Rechner, Antwortfeld, mobiler Dialog und Prüfungsnavigation zusammen funktionieren.
 
+### Aufgabenvielfalt im Lernpfad – verbindlich (09.11.2026)
+
+Willi: Ein Lernpfad darf sich nicht anfühlen wie dieselbe Frage mit anderen Zahlen. Im alten C#-Modul bestand eine ganze Stufe nur aus „Was gibt der Code aus?“. Das ist ab jetzt ein Abnahmefehler.
+
+- **Jeder Aufgabentyp hat genau eine feste Aufgabenform**, deklariert beim Registrieren (z. B. `S(cat, id, 'set', f)`): `mc` (eine Antwort wählen), `out` (Ausgabe/Ergebnis vorhersagen), `fix` (Fehler reparieren), `gap` (Lücke füllen), `write` (selbst schreiben/rechnen), `order` (Reihenfolge), `set` (mehrere richtige Buchstaben, Reihenfolge egal), `word` (Fachbegriff/Wert nennen), `free` (Freitext mit Schlüsselwörtern). Ein Generator, der zufällig zwischen Formen wechselt, wird in getrennte Typen aufgeteilt.
+- **Jede Stufe hat mindestens 6 Aufgabentypen in mindestens 4 Formen.** Keine Form stellt mehr als die Hälfte der Typen einer Stufe.
+- **Auswahl ohne Wiederholung:** Im Lernpfad und im Training kommt ein Typ erst wieder, nachdem bis zu vier andere dran waren, und dieselbe Form folgt nie direkt auf sich selbst, solange die Stufe eine andere bietet. Muster: `genTask` in `tools/cs-generators.js` (Verlauf je Ablauf, nicht global).
+- **Messung bei jeder Abnahme** (je Stufe 400 Lernpfad-Aufgaben): direkte Wiederholung von Typ und Form 0 %, mindestens 6 verschiedene Typen und 4 Formen je 10 Aufgaben, häufigste Form höchstens 45 %. Werte in der Abnahme-Datei nennen.
+- Bestehende Module (A1, OSI, Subnetting, Netzwerke, D1, D2, B4, B5, F2) werden schrittweise nachgezogen; bis dahin gelten sie als offen, nicht als abgenommen.
+
 ### Aufgabenfokus – verbindlich für bestehende und neue Module
 
 - Beim Start einer Lernpfad-Übung steht das echte Bearbeitungsfeld zentriert in einem Dialog über der Seite. Der Hintergrund baut Blur, Abdunklung, Helligkeit und Sättigung **progressiv** auf – wie beim Hover über die Modulkacheln: linear 4,1 s hinein, sanfter Rückgang in 0,92 s. Keine sofort voll unscharfe Ebene mit lediglich animierter Deckkraft; Zwischenstände müssen sichtbar sein. Das Aufgabenfeld selbst blendet sich innerhalb von ca. 0,65 s weich ein. Bei reduzierter Bewegung ohne Animation. Schnelles Öffnen/Schließen setzt den Effekt ohne Sprung vom aktuellen Stand fort.
@@ -201,6 +211,8 @@ Reihenfolge = Bau-Reihenfolge. Titel sind Vorschläge, du darfst witzigere finde
 | 36 | W6 | WiSo-Simulation | 60 Minuten WiSo-Wahnsinn | w6-wiso-simulation.html | w6-wiso | #e5c890 | cables |
 
 Fertig sind schon: A1 Zahlensysteme, B1 OSI, B2 Netzwerke, B3 Subnetting. Die baust du nicht neu.
+
+C#: **CS1 „Compiler sagt nein“** (Präfix `cs1-start`, Farbe `#b794ff`) ist der Einstieg in die Programmierung: Was ist ein Programm, Compiler und Interpreter, Programmaufbau, Datentypen, Variablen deklarieren und initialisieren, Typumwandlung, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden. Das frühere C#-Modul ist als **CS2 „C# für Fortgeschrittene“** geparkt (Quellen `tools/*cs2*`, Präfix `cs-code`, nicht veröffentlicht) und wird später überarbeitet: Methoden vertieft, Klassen und Objekte, Fehlerbehandlung, eigenes Projekt.
 
 ## 6. Steckbriefe (die 10 Stufen und Aufgaben-Schwerpunkte)
 

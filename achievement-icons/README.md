@@ -82,3 +82,20 @@ Die zehn D1-Motive erweitern den vorhandenen Pixel-Stil. Editierbare SVG-Quellen
 ## D2 IT-Sicherheit & Schutzbedarf
 
 Zehn einzeln generierte Pixelmotive mit transparentem Hintergrund, PNG 512 px und WebP 96/192 px. Darstellungsprüfung bei 42 px; Zuordnung über die bestehenden Achievement-Codes. Schild/Schloss (`cia`), Risikorechner (`risiko`), höchster Schutzbedarf (`maximum`), Schlüssel und Smartphone (`faktoren`), Würfel (`entropie`), Checkliste (`lernpfad`), Server/Sanduhr (`marathon`), kaputtes Schloss (`passwort123`), gekrönte Phishing-Mail (`prinz`), verdächtiger USB-Stick (`usb`).
+
+## CS1 „Compiler sagt nein“
+
+Die zehn `cs1.*`-Symbole sind nicht generiert, sondern per Skript als Pixel-Art gezeichnet: `python3 tools/cs1-icons.py` (64 × 64 Raster, 8-fach vergrößert, erzeugt auch die WebP-Fassungen). Gleiche Farbwelt, schlichter im Detail. Sie können jederzeit durch generierte Symbole mit demselben Dateinamen ersetzt werden.
+
+| Datei | Motiv |
+| --- | --- |
+| `cs1.hallo.png` | Monitor mit Eingabeaufforderung „>HI“ |
+| `cs1.semikolon.png` | großes goldenes Semikolon auf Kachel |
+| `cs1.schublade.png` | Schrank mit offener Schublade, darin der Wert 24 |
+| `cs1.typsicher.png` | Schild mit Haken |
+| `cs1.uebersetzer.png` | Sprechblase mit Code, Pfeil, Sprechblase mit Bits |
+| `cs1.lernpfad.png` | Treppe aus zehn Stufen mit Fahne |
+| `cs1.marathon.png` | Stoppuhr mit 90 |
+| `cs1.html.png` | spitze Klammern </> mit Fragezeichen |
+| `cs1.nein.png` | rotes Stoppschild mit Semikolon |
+| `cs1.ueberlauf.png` | randvoller Messbalken, Pfeil springt ins Minus |

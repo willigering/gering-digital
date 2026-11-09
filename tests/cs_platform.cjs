@@ -26,23 +26,23 @@ const pause=ms=>new Promise(r=>setTimeout(r,ms));
  const replies=[];page.on('response',async r=>{if(r.url().endsWith('/api/progress.php'))replies.push(await r.json());});
  await page.goto(base+'/cs1-csharp/');await page.locator('dtp-back').waitFor();assert.equal(await page.locator('dtp-back').count(),1);
  // Solve an actual module question; the injected sync, not a hand-written request, saves it.
- await page.locator('#tab-train').click();const t=await page.evaluate(()=>CSCODE_TEST.last());if(t.kind==='mc')await page.locator('#trainTask [data-v="'+t.answer+'"]').click();else{await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();}
+ await page.locator('#tab-train').click();const t=await page.evaluate(()=>CS1START_TEST.last());if(t.kind==='mc')await page.locator('#trainTask [data-v="'+t.answer+'"]').click();else{await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();}
  await page.waitForFunction(()=>document.querySelector('dtp-back'));await pause(1500);
- assert.equal(JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`))['cs-code-stats-v1']!==undefined,true);
- const saved=JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`));assert.equal(JSON.parse(saved['cs-code-stats-v1']).correct,1);
+ assert.equal(JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`))['cs1-start-stats-v1']!==undefined,true);
+ const saved=JSON.parse(run(`echo json_encode(learner_progress_state(${id})['values']);`));assert.equal(JSON.parse(saved['cs1-start-stats-v1']).correct,1);
  // Central rules receive real module IDs and the exact contract shape.
  await page.evaluate(()=>{
   const st={};for(let i=0;i<10;i++)st[i]={hist:Array(10).fill(true),solved:13,mastered:true};
-  localStorage.setItem('cs-code-path-v1',JSON.stringify({stage:9,st}));
-  localStorage.setItem('cs-code-subs-v1',JSON.stringify({g_fix:Array(10).fill(1),e_fix:Array(10).fill(1),m_kopf:Array(10).fill(1),m_kette:Array(10).fill(1),g_semikolon:[0,0,0],i_gleich:[0,0,0],l_off:[0,0,0]}));
-  localStorage.setItem('cs-code-exam-v1',JSON.stringify([{d:'03.11.26, 08:00',m:90,p:90,g:2,r:'Abgegeben'}]));
+  localStorage.setItem('cs1-start-path-v1',JSON.stringify({stage:9,st}));
+  localStorage.setItem('cs1-start-subs-v1',JSON.stringify({g_fix:Array(10).fill(1),t_literal:Array(10).fill(1),v_fix:Array(10).fill(1),u_wer:Array(10).fill(1),u_fehlerart:Array(10).fill(1),w_html:[0,0,0],u_nein:[0,0,0],t_ueberlauf:[0,0,0]}));
+  localStorage.setItem('cs1-start-exam-v1',JSON.stringify([{d:'03.11.26, 08:00',m:90,p:90,g:2,r:'Abgegeben'}]));
  });await pause(1600);
- const awards=JSON.parse(run(`echo json_encode(array_keys(ach_unlocked(${id})));`));assert.equal(awards.filter(s=>s.startsWith('cs.')).length,10);
+ const awards=JSON.parse(run(`echo json_encode(array_keys(ach_unlocked(${id})));`));assert.equal(awards.filter(s=>s.startsWith('cs1.')).length,10);assert.equal(awards.filter(s=>s.startsWith('cs.')).length,0,'Altes C# (CS2) darf durch CS1 nichts freischalten');
  const before=JSON.parse(run(`echo json_encode(ach_stats(${id})['level']);`));
  const twice=JSON.parse(run(`echo json_encode(ach_evaluate(${id}));`));assert.equal(twice.new.length,0);const after=JSON.parse(run(`echo json_encode(ach_stats(${id})['level']);`));assert.equal(after.xp,before.xp);
  assert.ok(replies.length>0&&replies.every(r=>r.ok===true));assert.equal(await page.locator('dtp-achievement').count(),1);
  // Restore server-side data on a fresh browser device.
- const context=await browser.newContext();const other=await context.newPage();await other.goto(base+'/fixture-login');await other.goto(base+'/cs1-csharp/');assert.equal(await other.evaluate(()=>JSON.parse(localStorage.getItem('cs-code-path-v1')).st[9].mastered),true);
+ const context=await browser.newContext();const other=await context.newPage();await other.goto(base+'/fixture-login');await other.goto(base+'/cs1-csharp/');assert.equal(await other.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[9].mastered),true);
  // Actual central card renderer, with the real image and responsive source set.
  for(const width of [1280,390]){await other.setViewportSize({width,height:844});await other.goto(base+'/fixture-card');const card=other.locator('.module-card[href="/cs1-csharp/"]');await card.waitFor();assert.equal(await card.getAttribute('data-topic'),'sonstiges');assert.match(await card.locator('img').getAttribute('src'),/csharp.webp/);for(const img of await other.locator('img').all()){await img.scrollIntoViewIfNeeded();await img.evaluate(i=>i.decode());}await other.waitForFunction(()=>[...document.images].every(i=>i.complete&&i.naturalWidth>0));assert.ok(await other.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));if(process.env.DTP_SCREENSHOT_DIR){fs.mkdirSync(process.env.DTP_SCREENSHOT_DIR,{recursive:true});await card.screenshot({path:path.join(process.env.DTP_SCREENSHOT_DIR,'f2-card-'+width+'.png')});}}
  assert.deepEqual(errors,[]);console.log(JSON.stringify({sync:true,restore:true,achievements:10,idempotent:true,popup:true,cardWidths:[1280,390],errors}));

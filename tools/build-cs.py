@@ -1,4 +1,5 @@
-"""Baut das eigenständige C#-Modul aus der gemeinsamen Modul-Oberfläche und den C#-Inhalten."""
+"""Baut CS1 „Compiler sagt nein“ (Einstieg in die Programmierung mit C#) aus der gemeinsamen Modul-Oberfläche.
+Das bisherige C#-Modul ist als CS2 geparkt: tools/build-cs2.py."""
 from pathlib import Path
 import base64, json, re, sys
 sys.path.insert(0, str(Path(__file__).parent))
@@ -21,23 +22,23 @@ def sub(s, old, new):
     return s.replace(old, new)
 
 
-shell = re.sub(r'<title>.*?</title>', '<title>C# · Der Compiler hat immer recht · DAU TO PRO</title>', shell)
-shell = re.sub(r'<meta name="description"[^>]+>', '<meta name="description" content="C# für Einsteiger: Variablen, Bedingungen, Schleifen, Methoden, Klassen und Fehlersuche. Code lesen, Fehler finden und ein eigenes Konsolenprogramm bauen.">', shell)
+shell = re.sub(r'<title>.*?</title>', '<title>C# · Compiler sagt nein · DAU TO PRO</title>', shell)
+shell = re.sub(r'<meta name="description"[^>]+>', '<meta name="description" content="Einstieg in die Programmierung mit C#: Was ein Programm ist, Compiler und Interpreter, Datentypen, Variablen deklarieren und initialisieren, Umwandlung, Operatoren, Verzweigungen, Schleifen, Arrays und erste Methoden.">', shell)
 bg = base64.b64encode((ROOT / 'assets/dau-backgrounds/circuit-signal-768.webp').read_bytes()).decode()
 shell = re.sub(r'<script>/\* DTP-HINTERGRUND:.*?</script>', lambda m: '<script>/* DTP-HINTERGRUND: circuit-signal */\n(function(){var B=["data:image/webp;base64,' + bg + '"];document.documentElement.style.setProperty("--bg-tex",\'url("\'+B[0]+\'")\')})();</script>', shell, flags=re.S)
 
 for old, new in {
  'WIRTSCHAFT &amp; PROJEKTE <b>//</b> KALKULATION &amp; BESCHAFFUNG <b>//</b> MODUL F2': 'GRUNDLAGEN <b>//</b> PROGRAMMIEREN MIT C# <b>//</b> MODUL CS1',
- 'Rechnet <span>sich das?</span>': 'Der Compiler <span>hat immer recht.</span>',
- 'Rabatt, Skonto und eine kleine Rate. Das Angebot sieht gut aus, bis du den Rest der Rechnung liest. Hier rechnest du aus, was wirklich auf dem Konto landet oder davon abgeht.': 'Du lernst C# von der ersten Zeile bis zum eigenen Konsolenprogramm. Du liest Code, sagst seine Ausgabe vorher und reparierst, was kaputt ist. Der Compiler bleibt dabei unerbittlich, aber wenigstens ehrlich.',
+ 'Rechnet <span>sich das?</span>': 'Compiler <span>sagt nein.</span>',
+ 'Rabatt, Skonto und eine kleine Rate. Das Angebot sieht gut aus, bis du den Rest der Rechnung liest. Hier rechnest du aus, was wirklich auf dem Konto landet oder davon abgeht.': 'Dein Einstieg in die Programmierwelt: was ein Programm überhaupt ist, warum Compiler und Interpreter sich nicht mögen, welcher Datentyp in welche Schublade gehört und wie man eine Variable deklariert, ohne dass jemand nein sagt. Am Ende liest du Schleifen, Arrays und erste Methoden. Der Compiler bleibt unerbittlich, aber wenigstens ehrlich.',
  'Rechenwege statt Bauchgefühl': 'Code lesen statt raten',
- 'Vom Preisschild <span>zum Durchblick.</span>': 'Vom ersten Semikolon <span>zum eigenen Programm.</span>',
+ 'Vom Preisschild <span>zum Durchblick.</span>': 'Von „Was ist ein Programm?“ <span>bis zur ersten Methode.</span>',
  'Alles zum Nachrechnen. <span>Cent für Cent.</span>': 'Alles zum Nachschlagen. <span>Zeile für Zeile.</span>',
  'Erst erklärt, dann vorgerechnet, dann rechnest du.': 'Erst erklärt, dann vorgemacht, dann bist du dran.',
  '② Vorgerechnet': '② Vorgemacht', '① VERSTEHEN · ② VORGERECHNET': '① VERSTEHEN · ② VORGEMACHT',
  'WIR RECHNEN ES GEMEINSAM DURCH': 'WIR GEHEN ES GEMEINSAM DURCH',
  'Sonst rechnet die Lektion für dich, und das bringt dir in der Prüfung genau nichts.': 'Sonst liest die Lektion für dich, und das bringt dir in der Prüfung genau nichts.',
- 'Zehn Kapitel mit Erklärungen, Rechenwegen, interaktiven Laboren und einem Kurz-Check am Ende. Die Labore rechnen für dich, darum sind sie im Sprint und in der Prüfung gesperrt.': 'Zehn Kapitel mit Erklärungen, Beispielen, Abläufen in Zeitlupe und einem Kurz-Check, dazu weiterführende Themen. Der Code in diesem Modul läuft nicht im Browser, sondern wurde vorab mit dem echten C#-Compiler geprüft. Im Sprint und in der Prüfung ist das Nachschlagwerk gesperrt.',
+ 'Zehn Kapitel mit Erklärungen, Rechenwegen, interaktiven Laboren und einem Kurz-Check am Ende. Die Labore rechnen für dich, darum sind sie im Sprint und in der Prüfung gesperrt.': 'Zehn Kapitel vom ersten Algorithmus bis zur ersten Methode, mit Beispielen, Abläufen in Zeitlupe und einem Kurz-Check. Der Code in diesem Modul läuft nicht im Browser, sondern wurde vorab mit dem echten C#-Compiler geprüft. Im Sprint und in der Prüfung ist das Nachschlagwerk gesperrt.',
  'Nach jeder Antwort siehst du den vollständigen Rechenweg.': 'Nach jeder Antwort siehst du die Erklärung.',
  'Thema wählen, in Ruhe rechnen, Hinweis bei Bedarf': 'Thema wählen, in Ruhe lösen, Hinweis bei Bedarf',
  'Kalkulieren auf Zeit. Ohne Hilfe, ohne Tab-Wechsel': 'Code lesen auf Zeit. Ohne Hilfe, ohne Tab-Wechsel',
@@ -46,7 +47,7 @@ for old, new in {
  'Ein Taschenrechner ist erlaubt, ein Umrechner im Netz nicht. Ehrensache.': 'Ein Compiler im Nebenfenster wäre geschummelt. Ehrensache.',
  'Weniger Raten.<br><em>Mehr Rechnen.</em>': 'Weniger Raten.<br><em>Mehr Kompilieren.</em>',
  'Wer die Bezugsgröße kennt, fällt auf schöne Prozentzahlen nicht mehr herein.': 'Wer Code lesen kann, muss Fehlermeldungen nicht mehr persönlich nehmen.',
- 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0': 'Modul CS1 · Programmieren mit C# · Der Compiler hat immer recht · v1.0',
+ 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0': 'Modul CS1 · Programmieren mit C# · Compiler sagt nein · v2.0',
  'Stufe wird geladen …': 'Stufe wird geladen …',
  'Lernpfad, Nachschlagwerk und Training sind bis zur Abgabe gesperrt.': 'Lernpfad, Nachschlagwerk und Training sind bis zur Abgabe gesperrt.',
  'Erst fertig rechnen, dann nachschlagen.': 'Erst fertig lösen, dann nachschlagen.',
@@ -81,6 +82,8 @@ pre.cs.bad{border-color:#ff7b8a88}pre.cs:focus-visible{outline:2px solid var(--c
 .task-prompt{overflow-wrap:anywhere}.result .why,.review{overflow-wrap:anywhere}.opt span:last-child{overflow-wrap:anywhere}
 @media(max-width:610px){.trace-side{grid-template-columns:1fr}pre.cs{font-size:12.5px;padding:10px}}
 </style>'''
+extra = extra.replace('</style>', '''.set-list{white-space:pre-wrap;overflow-wrap:anywhere}.set-why{margin:10px 0 0;padding-left:18px}.set-why li{margin:3px 0;overflow-wrap:anywhere}.set-why b{color:var(--cyan)}
+</style>''', 1)
 shell = shell.replace('</head>', extra + '</head>', 1)
 
 # Nachschlagwerk
@@ -101,7 +104,7 @@ shell = between(shell, '/* Topic content only', '/* ================= Antwort pr
 shell = between(shell, 'const FMT=', 'function showAnswer(t)', (ROOT / 'tools/cs-parser.js').read_text() + '\n')
 shell = between(shell, 'let match=[],', '/* ================= Prüfungsmodus', (ROOT / 'tools/cs-match.js').read_text().replace('__MATCH__', json.dumps(cc.MATCH_BANK, ensure_ascii=False)) + '\n')
 shell = between(shell, '// Hero: a visible purchase', '/* Kurz-Checks */', (ROOT / 'tools/cs-ui.js').read_text() + '\n')
-shell = re.sub(r"const SPRINT_SUBS=\[.*?\];", "const SPRINT_SUBS=['g_write','v_wert','o_int','o_mod','o_vergl','i_zweig','l_anzahl','a_index','m_aufruf','e_finally'];", shell)
+shell = re.sub(r"const SPRINT_SUBS=\[.*?\];", "const SPRINT_SUBS=['w_name','u_begriff','g_write','t_passt','v_wert','v_concat','o_int','o_mod','i_zweig','l_anzahl','a_index','m_aufruf'];", shell)
 shell = sub(shell, 'SUBLABEL.match=\'Zuordnen (Darstellungen)\'', "SUBLABEL.match='Zuordnen (Begriffe)'")
 
 # Eingabe: immer Text. Rückweg ins Nachschlagwerk, das zählt als Hilfe.
@@ -113,10 +116,18 @@ shell = sub(shell, "const next=q('next');if(next)next.addEventListener", "const 
 shell = sub(shell, "if(tip)tip.hidden=true;\n  o.onAnswer", "if(tip)tip.hidden=true;if(ref)ref.hidden=true;\n  o.onAnswer")
 shell = sub(shell, "renderTask(el,t,{focus:f,noFocus:!f,", "renderTask(el,t,{noRef:true,focus:f,noFocus:!f,")
 shell = re.sub(r"window\.dtpMountCalculator\?\.\([^;]*\);", "", shell)
-shell = shell.replace('f2-kalk', 'cs-code').replace('window.F2KALK_TEST', 'window.CSCODE_TEST')
+shell = shell.replace('f2-kalk', 'cs1-start').replace('window.F2KALK_TEST', 'window.CS1START_TEST')
+shell = shell.replace('<html lang="de"', '<html lang="de" data-game-id="cs1"', 1)
 shell = sub(shell, "$('backToTask')" if False else "/* Start */", "/* Start */")
 
 html = apply_theme(shell)
+# Spielmodus wie in A1: Serie, Rekord, Leuchteffekte. Farbe auf den Modulakzent umgestellt.
+game_css = (ROOT / 'tools/module-game.css').read_text().replace('166,240,90', RGB).replace('#a6f05a', ACC)
+game_js = (ROOT / 'tools/module-game.js').read_text()
+html = html.replace('</head>', '<!-- DTP-SPIEL START -->\n<style>\n' + game_css.rstrip() + '\n</style>\n<script>\n' + game_js.rstrip() + '\n</script>\n<!-- DTP-SPIEL END -->\n</head>', 1)
+html = html.replace("  const res=q('res');res.className='result'+(ok?'':' bad');\n", "  const res=q('res');res.className='result'+(ok?'':' bad');\n  window.dtpGame?.answer(ok,host);\n", 1)
+if 'dtpGame?.answer' not in html:
+    raise SystemExit('Spielmodus-Haken nicht gesetzt')
 for bad in ['F2', 'Kalkul', 'Rabatt', 'Skonto']:
     hits = [m.start() for m in re.finditer(bad, re.sub(r'base64,[A-Za-z0-9+/=]+', '', html))]
     if hits:
@@ -125,8 +136,9 @@ for bad in ['F2', 'Kalkul', 'Rabatt', 'Skonto']:
 (ROOT / 'lernmodule/cs1-csharp.html').write_text(html)
 (ROOT / 'tests/support').mkdir(exist_ok=True)
 (ROOT / 'tests/support/cs-snippets.json').write_text(json.dumps(cc.SNIPPETS, ensure_ascii=False, indent=0))
-rows = ['# CS1 – Programmieren mit C#', '', '| ID | Name | Teilthema | Stufe |', '| --- | --- | --- | --- |']
+FORMS = dict(re.findall(r"^S\('\w+','(\w+)','(\w+)'", (ROOT / 'tools/cs-generators.js').read_text(), re.M))
+rows = ['# CS1 – Compiler sagt nein', '', '| ID | Name | Form | Teilthema | Stufe |', '| --- | --- | --- | --- | --- |']
 for i, c in enumerate(cc.LESSONS):
-    rows += [f'| `{a}` | {b} | {c["title"]} | {i+1} |' for a, b in c['types']]
+    rows += [f'| `{a}` | {b} | {FORMS.get(a, "")} | {c["title"]} | {i+1} |' for a, b in c['types']]
 (ROOT / 'docs/modul-auftraege/cs1-aufgabentypen.md').write_text('\n'.join(rows) + '\n')
 print('CS1 gebaut:', len(html), 'Zeichen,', len(cc.SNIPPETS), 'Codeblöcke')
