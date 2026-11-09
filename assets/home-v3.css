@@ -288,7 +288,16 @@ body{
   #apps .gdv3-project-grid .app-card .icon-wrap{height:auto;min-height:0;aspect-ratio:16/9;max-height:none!important}
 }
 @media(max-width:600px){
-  #apps .gdv3-project-grid{grid-template-columns:1fr!important}
+  #apps .gdv3-project-grid{grid-template-columns:minmax(0,1fr)!important}
+  /* Equal specificity with the desktop feature rule: no implicit second grid column. */
+  #apps .gdv3-project-grid .dtp-portal-card{
+    grid-column:1 / -1!important;display:flex!important;flex-direction:column;min-height:0
+  }
+  #apps .gdv3-project-grid .dtp-portal-card>.dtp-portal-art{
+    width:100%;min-height:0;height:auto;aspect-ratio:16/9;
+    border-right:0;border-bottom:1px solid #e9c17444
+  }
+  #apps .gdv3-project-grid .dtp-portal-card>.card-body{padding:23px!important}
   #apps .dtp-portal-card{grid-column:auto;display:flex!important;flex-direction:column;min-height:0}
   #apps .dtp-portal-card>.dtp-portal-art{width:100%;min-height:0;height:auto;aspect-ratio:16/9;border-right:0;border-bottom:1px solid #e9c17444}
   #apps .dtp-portal-card>.card-body{padding:23px!important}
@@ -300,6 +309,10 @@ body{
   .gdv3-end-section{padding:38px 0 75px!important}
   .gdv3-end-content h2{font-size:clamp(34px,10vw,49px)!important}
   .gdv3-end-content{padding:34px 23px}
+}
+@media(max-width:360px){
+  .hero .gdv3-hero-title{font-size:39px!important}
+  .gdv3-about-copy h2{font-size:43px!important}
 }
 @media(prefers-reduced-motion:reduce){
   .gdv3-world:after{transform:none!important;will-change:auto}
