@@ -350,6 +350,10 @@ let server, browser;
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
   // Die Testaudioantwort liefert nun HTTP 206 und kann wirklich seeken.
   const bar = ownPage.locator('.nr-display__bar');
+  // Nach Rückkehr aus dem Modul steht die Seite bei den Karten; das Radio
+  // erst ins Blickfeld holen, sonst landet mouse.click() außerhalb des Viewports.
+  await bar.scrollIntoViewIfNeeded();
+  await pause(150);
   const box = await bar.boundingBox();
   assert.ok(box && box.width > 10, 'Die Schiene hat eine sichtbare Fläche');
   await seek.evaluate(el => { el.value = '500'; el.dispatchEvent(new Event('input', { bubbles: true })); });
