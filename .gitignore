@@ -11,3 +11,6 @@ node_modules/
 
 # Zwischenstände des NERD-RADIO-Builds (Front-Textur, Render)
 tools/nerd-radio/.work/
+lernmodule/cs2-csharp.html
+tests/support/cs2-snippets.json
+tools/__pycache__/
