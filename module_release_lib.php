@@ -25,8 +25,9 @@ function module_release_matches_legacy(string $slug, string $path): bool {
 }
 
 /** Activate only complete releases uploaded by the deployment workflow. No public write endpoint. */
-/** Module, deren Inhalt durch ein neues Modul unter derselben Adresse ersetzt wurde: Adresse => alte Standardtitel. */
-const MODULE_RELEASE_REPLACED=['cs1-csharp'=>['Der Compiler hat immer recht']];
+/** Module mit neuem Titel oder ersetztem Inhalt unter derselben Adresse: Adresse => alte Standardtitel.
+    Steht in der Datenbank noch einer davon, übernimmt der nächste Release Titel, Fach und Beschreibung aus dem Manifest. */
+const MODULE_RELEASE_REPLACED=['cs1-csharp'=>['Der Compiler hat immer recht'],'d2-it-sicherheit'=>['Passwort123 ist kein Konzept']];
 
 function module_release_sync(PDO $db, ?string $root=null): void {
     $root??=__DIR__;

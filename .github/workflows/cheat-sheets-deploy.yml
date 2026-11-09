@@ -7,12 +7,16 @@ on:
       - 'dau-to-pro/cheat-sheet*'
       - 'dau-to-pro/cheat-shelf*'
       - 'dau-to-pro/index.php'
+      - 'dau-to-pro/unterricht/**'
+      - 'dau-to-pro/unterricht.css'
       - '.github/workflows/cheat-sheets-deploy.yml'
   pull_request:
     paths:
       - 'dau-to-pro/cheat-sheet*'
       - 'dau-to-pro/cheat-shelf*'
       - 'dau-to-pro/index.php'
+      - 'dau-to-pro/unterricht/**'
+      - 'dau-to-pro/unterricht.css'
       - '.github/workflows/cheat-sheets-deploy.yml'
 
 permissions:
@@ -26,11 +30,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate eleven complete topic cheat sheets
+      - name: Validate twelve complete topic cheat sheets
         run: |
           node --check dau-to-pro/cheat-sheet-data.js
           node --check dau-to-pro/cheat-sheet-questions.js
           node --check dau-to-pro/cheat-sheet-enrichment.js
+          node --check dau-to-pro/cheat-sheet-support.js
           node --check dau-to-pro/cheat-sheet.js
           node --check dau-to-pro/cheat-shelf.js
           node <<'JS'
@@ -41,15 +46,16 @@ jobs:
           const scope={};vm.runInNewContext(code,scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-questions.js","utf8"),scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-enrichment.js","utf8"),scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-support.js","utf8"),scope);
           const groups=scope.DTP_CHEAT_GROUPS;
-          assert.equal(groups.length,11,'Expected eleven complete topic sheets');
-          assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),88,'Expected 88 sections within eleven sheets');
+          assert.equal(groups.length,12,'Expected twelve complete topic sheets');
+          assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),96,'Expected 96 original sections within twelve sheets');
           const extras=scope.DTP_CHEAT_EXTRAS;
           const deep=scope.DTP_CHEAT_ENRICHMENT;
-          assert.equal(Object.keys(deep).length,11,'All eleven sheets need extended coverage');
+          assert.equal(Object.keys(deep).length,12,'All twelve sheets need extended coverage');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('Datenschutzbeauftragter')),'DSB section missing');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('ISB')),'ISB section missing');
-          assert.equal(Object.keys(extras).length,11,"One question bank per topic");
+          assert.equal(Object.keys(extras).length,12,"One question bank per topic");
           const seen=new Set();
           for(const g of groups){
             assert.equal(g.sections.length,8,'Expected eight sections in '+g.name);
@@ -77,22 +83,65 @@ jobs:
           const css=fs.readFileSync('dau-to-pro/cheat-sheet.css','utf8');
           const shelf=fs.readFileSync('dau-to-pro/cheat-shelf.css','utf8');
           const index=fs.readFileSync('dau-to-pro/index.php','utf8');
-          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js'));
+          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js')&&html.includes('cheat-sheet-support.js'));
           assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
           assert.ok(index.includes('id="cheat-sheets"')&&index.includes('cheat-sheet.html?thema='));
           assert.ok(index.includes('id="cheat-mini-grid"')&&shelf.includes('repeat(5,minmax(0,1fr))'));
-          assert.ok(html.includes('id="sheet-detail"')&&html.includes('11 THEMEN'));
+          assert.ok(html.includes('id="sheet-detail"')&&html.includes('12 THEMEN'));
           assert.ok(html.includes('cheat-sheet-questions.js'),'Question bank script not loaded');
           assert.ok(html.includes('cheat-sheet-enrichment.js'),'Deep-dive content script not loaded');
           assert.ok(!/IHK/i.test(html),'No unwanted IHK reference in sheet page');
           assert.ok(!/IHK-POCKET/i.test(index),'No IHK label in cheat section');
           const sheetJs=fs.readFileSync('dau-to-pro/cheat-sheet.js','utf8');
           assert.ok(sheetJs.includes('assets/dau-backgrounds'),'Must reuse real thematic textures');
-          assert.equal([...index.matchAll(/\['(?:zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix)',/g)].length,11,'Landing needs eleven topic entries');
-          console.log('Verified: 11 complete sheets, 528 Q&A (48 each), 35 deep-dive sections, DSB/ISB coverage, and 5-column layout.');
+          assert.equal([...index.matchAll(/\['(?:zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix|support)',/g)].length,12,'Landing needs twelve topic entries');
+          console.log('Verified: 12 complete sheets, 576 Q&A (48 each), IT-Support, DSB/ISB, and 5-column layout.');
           JS
       - name: Check landing PHP syntax
         run: php -l dau-to-pro/index.php
+      - name: Validate Unterrichtsmaterial and learner account endpoint
+        run: |
+          php -l dau-to-pro/unterricht/it-vi-01.php
+          node --check dau-to-pro/unterricht/it-vi-01-parallax.js
+          node <<'JS'
+          const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');
+          const main=fs.readFileSync('dau-to-pro/index.php','utf8');
+          const html=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.html','utf8');
+          const php=fs.readFileSync('dau-to-pro/unterricht/it-vi-01.php','utf8');
+          const theme=fs.readFileSync('dau-to-pro/unterricht/it-vi-01-theme.css','utf8');
+          const fx=fs.readFileSync('dau-to-pro/unterricht/it-vi-01-parallax.js','utf8');
+          assert.match(html,/it-vi-01-theme\.css/,'Theme CSS must be loaded by the lesson');
+          assert.match(html,/it-vi-01-parallax\.js/,'Parallax must be loaded by the lesson');
+          assert.ok(!/Wollenberg|Autoren?:|Erstellt von|©/i.test(html),'Author attributions must not appear on the lesson');
+          assert.ok(theme.includes('--itvi-wall-shift')&&fx.includes('requestAnimationFrame'),'Background layer must parallax independently from card stacking');
+          assert.match(html,/class="itvi-backdrop"/,'Dedicated BG layer must be present before lesson content');
+          assert.ok(theme.includes('.itvi-backdrop::before'),'BG images must render behind modules');
+          assert.ok(!/var\(--itvi-bg\)/.test(theme),'No topic images inside text cards');
+          assert.ok(html.includes('requestAnimationFrame(()=>{measure();requestAnimationFrame(measure)});'),'All tab stacks must remeasure after layout');
+          assert.ok(fs.existsSync('tests/unterricht_stack_browser.cjs'),'Missing second tab browser regression');
+          assert.match(theme,/prefers-reduced-motion/,'Respect reduced motion');
+          assert.match(theme,/@media print/,'Print view must stay readable');
+          const used=[...theme.matchAll(/assets\/dau-backgrounds\/([a-z0-9-]+\.webp)/g)].map(x=>x[1]);
+          assert.ok(used.length>=5,'Need real thematic background textures');
+          used.forEach(file=>assert.ok(fs.existsSync('assets/dau-backgrounds/'+file),'Missing BG asset '+file));
+          assert.match(main,/id="unterrichtsmaterial"/);
+          assert.match(main,/href="unterricht\/it-vi-01\.php"/);
+          assert.match(main,/<details id="unterrichtsmaterial"/);
+          assert.ok(main.indexOf('id="unterrichtsmaterial"')>main.indexOf('id="cheat-sheets"'));
+          assert.match(main,/unterricht\.css/);
+          assert.ok(!/onclick="saveFile\(\)"|onclick="exportProgress\(\)"|id="importFile"/.test(html),'Old file-backup buttons must be absent');
+          assert.ok(html.includes('window.__ITVI_ACCOUNT__'),'Account autosave integration missing');
+          assert.ok(html.includes('Als PDF speichern'),'PDF export should remain');
+          assert.ok(php.includes("unterricht:it-vi-01:state-v1"),'Isolated account data key missing');
+          assert.ok(php.includes('HTTP_X_DTP_CSRF'),'CSRF guard missing');
+          const scripts=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).filter(Boolean);
+          assert.ok(scripts.length>=2);
+          scripts.forEach((js,i)=>new vm.Script(js,{filename:'unterricht-inline-'+i+'.js'}));
+          assert.equal((html.match(/id="q\d+"/g)||[]).length,24,'24 knowledge questions expected');
+          assert.equal((html.match(/id="praxis-frage-\d+"/g)||[]).length,10,'10 practice exercises expected');
+          console.log('Unterrichtsmaterial: accordion, 24+10 exercises, account saving and JS syntax verified');
+          JS
+
 
   deploy:
     if: github.event_name == 'push'

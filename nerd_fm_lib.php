@@ -16,13 +16,19 @@ const NFM_RATE_WINDOW=3600;
  * Reihenfolge = Reihenfolge im Radio.
  */
 function nfm_songs(): array {
-    return [
+    $songs=[
         'apipa'=>['file'=>'apipa.mp3','title'=>'Diggy Thal – APIPA','unlock'=>null,'module'=>null],
         'sieben-schichten'=>['file'=>'7-schichten.mp3','title'=>'Diggy Thal – 7 Schichten','unlock'=>'osi.lernpfad','module'=>'osi-sprint'],
         'klopf-klopf'=>['file'=>'klopf-klopf.mp3','title'=>'Diggy Thal – Klopf, Klopf','unlock'=>'b5.lernpfad','module'=>'b5-netzwerkdienste'],
         // Versteckter Song: Freischaltung über das Pilz-Easter-Egg, bewusst ohne Vermerk auf einer Karte.
         'dau-to-pro'=>['file'=>'dau-to-pro.mp3','title'=>'DAU to PRO','unlock'=>'g.easteregg','module'=>null],
     ];
+    // Öffentlich ohne Lernkonto/Achievement: erst anzeigen, wenn die echte MP3 hochgeladen ist.
+    // Bis dahin bleibt die bestehende Playlist unverändert (kein toter Eintrag).
+    if (is_file(nfm_dir().'/kein-break.mp3')) {
+        $songs['kein-break']=['file'=>'kein-break.mp3','title'=>'KEIN BREAK','unlock'=>null,'module'=>null];
+    }
+    return $songs;
 }
 function nfm_dir(): string { return __DIR__.'/dau-to-pro/audio/nerd-fm'; }
 

@@ -4,10 +4,11 @@
   const grid=document.getElementById("cheat-mini-grid");if(!grid)return;
   const section=grid.closest(".cheat-collection");
   const frame=grid.closest(".cheat-stack-frame");
+  const cta=frame?.querySelector(".cheat-cta-row");
   if(!section||!frame)return;
   const all=[...grid.querySelectorAll(":scope > .cheat-mini")];
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
-  const PEEK=19,STEP=.42,TAIL=.30,GAP=14;
+  const PEEK=19,STEP=1.20,TAIL=.30,GAP=14;
   let rows=[],stage=null,shown=null,rowH=0,raf=0,on=false;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height"))||80;
   // Der Titel bleibt knapp unter der Navigation; die Karten sind Bestandteil desselben Frames.
@@ -16,9 +17,8 @@
   const pinY=()=>{
     const head=frame.querySelector('.cheat-head');
     const headH=head?head.getBoundingClientRect().height+parseFloat(getComputedStyle(head).marginBottom||0):80;
-    const peek=Math.min(Math.ceil(all.length/5)-1,3)*PEEK;
     const activeY=Math.max(navH()+100,Math.round(innerHeight*.255));
-    return Math.max(navH()+8,activeY-headH-peek);
+    return Math.max(navH()+8,activeY-headH);
   };
   const active=()=>Math.round(shown??progress());
   function teardown(){
@@ -30,6 +30,7 @@
     section.classList.remove("has-stacked-shelf");
     section.style.removeProperty("--cheat-pin-top");
     section.style.removeProperty("--cheat-runway");
+    frame.style.removeProperty("--cheat-cta-shift");
     grid.classList.remove("is-stacked");
     grid.style.height="";
     cancelAnimationFrame(raf);raf=0;
@@ -39,41 +40,44 @@
     rows.forEach(r=>{r.style.position="static";r.style.transform="";r.style.height="auto";r.style.visibility="visible"});
     rowH=Math.ceil(Math.max(...rows.map(r=>r.getBoundingClientRect().height),230));
     rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
-    const peek=Math.min(rows.length-1,3)*PEEK;
-    const stageHeight=peek+rowH+GAP+rowH*TAIL;
+    const stageHeight=rowH;
     stage.style.height=stageHeight+"px";
     grid.style.height=stageHeight+"px";
     section.style.setProperty("--cheat-pin-top",pinY()+"px");
-    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+Math.max(rowH,innerHeight*.65))+"px");
+    section.style.setProperty("--cheat-runway",((rows.length-1)*(rowH+GAP)*1.20+Math.max(24,innerHeight*.08))+"px");
     paint();
   }
   function progress(){
     const naturalTop=section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0);
-    return Math.max(0,Math.min(rows.length-1,(pinY()-naturalTop)/Math.max(1,rowH*STEP)));
+    return Math.max(0,Math.min(rows.length-1,(pinY()-naturalTop)/Math.max(1,(rowH+GAP)*STEP)));
   }
   function paint(){
     raf=0;if(!on)return;
     const target=progress();if(shown===null)shown=target;
     shown+=(target-shown)*.16;
     if(Math.abs(target-shown)<.002)shown=target;else raf=requestAnimationFrame(paint);
-    const p=shown,peek=Math.min(rows.length-1,3)*PEEK;
-    rows.forEach((r,k)=>{
-      const d=p-k,back=Math.min(Math.max(d,0),3);
-      // Auch Reihe 3 ist von Beginn an durch einen Kartenrand sichtbar.
-      const waiting=Math.max(0,-d),frontIndex=Math.round(p);
-      const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
-      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.035).toFixed(3)+')';
-      r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
-      r.style.visibility="visible";
-      r.style.opacity=String(d<0?.65+.35*Math.max(0,1-waiting):1);
-      r.classList.toggle("is-front",k===frontIndex);
-      r.classList.toggle("is-behind",d>=.52);
-      r.classList.toggle("is-waiting",d<-.52);
-      r.inert=d< -1.1;
+    const p=shown;
+    // Die Abschlusszeile folgt der letzten Kartenreihe und bleibt darunter.
+    const last=rows.length-1;
+    const lastY=(last-Math.min(p,last))*(rowH+GAP);
+    frame.style.setProperty("--cheat-cta-shift",lastY.toFixed(1)+"px");
+    rows.forEach((row,k)=>{
+      // Alle Reihen sind anfangs vollständig zu sehen. Mit dem Scrollfortschritt
+      // zieht jede untere Reihe auf die Position der ersten Reihe hoch.
+      const travel=Math.min(p,k);
+      const y=(k-travel)*(rowH+GAP);
+      row.style.transform='translate3d(0,'+y.toFixed(1)+'px,0)';
+      row.style.zIndex=String(k+1);
+      row.style.opacity='1';
+      row.style.visibility='visible';
+      row.classList.toggle('is-front',k===Math.min(rows.length-1,Math.floor(p+.5)));
+      row.classList.toggle('is-behind',k<Math.floor(p+.5));
+      row.classList.toggle('is-waiting',false);
+      row.inert=false;
     });
   }
   function go(k){
-    scrollTo({top:Math.max(0,scrollY+(section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0))-pinY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
+    scrollTo({top:Math.max(0,scrollY+(section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0))-pinY()+k*(rowH+GAP)*STEP),behavior:calm.matches?"auto":"smooth"});
   }
   function build(){
     teardown();if(!wide.matches||calm.matches||all.length<=5)return;

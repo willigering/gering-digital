@@ -44,8 +44,8 @@
       <path d="M-140 780 L704 -140" stroke="url(#d2-it-sicherheit-ray)" stroke-width="2.4" stroke-opacity=".55"/>
       <path d="M704 860 L1420 86.39999999999999" stroke="url(#d2-it-sicherheit-ray)" stroke-width="1.6" stroke-opacity=".32"/>
     </g>
-  <text x="100" y="196" fill="#f5f0df" font-family="Inter,'DejaVu Sans',sans-serif" font-size="45" font-weight="900">PASSWORT123</text>
-  <text x="100" y="246" fill="#eab448" font-family="Inter,'DejaVu Sans',sans-serif" font-size="35" font-weight="900">IST KEIN KONZEPT.</text>
+  <text x="100" y="196" fill="#f5f0df" font-family="Inter,'DejaVu Sans',sans-serif" font-size="45" font-weight="900">PASSWORT:</text>
+  <text x="100" y="250" fill="#eab448" font-family="Inter,'DejaVu Sans',sans-serif" font-size="45" font-weight="900">PASSWORT123</text>
   <g transform="translate(818 155)"><path d="M0 0 L148 55 V205 Q148 320 0 384 Q-148 320 -148 205 V55 Z" fill="#160f14" stroke="#ff6b6b" stroke-width="5"/>
   <path d="M-45 158 V115 A45 45 0 0 1 45 115 V158" fill="none" stroke="#eab448" stroke-width="19"/>
   <rect x="-76" y="151" width="152" height="125" rx="7" fill="url(#d2-it-sicherheit-gold)"/><circle cy="201" r="14" fill="#171016"/><path d="M-6 211 V239 H6 V211" fill="#171016"/></g>

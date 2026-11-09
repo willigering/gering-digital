@@ -174,7 +174,7 @@ Reihenfolge = Bau-Reihenfolge. Titel sind Vorschläge, du darfst witzigere finde
 | Nr | Kürzel | Thema | Titel-Vorschlag | Dateiname | Präfix | Farbe | Hintergrund |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | D1 | Datenschutz | Meine Daten, deine Daten, DSGVO | d1-datenschutz.html | d1-dsgvo | #ff8fa3 | server |
-| 2 | D2 | IT-Sicherheit & Schutzbedarf | Passwort123 ist kein Konzept | d2-it-sicherheit.html | d2-sec | #ff6b6b | circuit-sockets |
+| 2 | D2 | IT-Sicherheit & Schutzbedarf | Passwort: Passwort123 | d2-it-sicherheit.html | d2-sec | #ff6b6b | circuit-sockets |
 | 3 | B5 | Netzwerkdienste & Protokolle | Port 80, bitte kommen | b5-netzwerkdienste.html | b5-dienste | #7ad0ff | cables-fiber |
 | 4 | B4 | IPv6 | Doppelpunkt, Doppelpunkt, Durchblick | b4-ipv6.html | b4-ipv6 | #4fd1c5 | cables-braided |
 | 5 | F2 | Kalkulation & Beschaffung | Rechnet sich das? | f2-kalkulation.html | f2-kalk | #f6c177 | circuit-copper |

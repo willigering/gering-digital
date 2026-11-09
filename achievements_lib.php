@@ -39,7 +39,7 @@ function ach_modules(): array {
             ['kv.macarena','witzig','MACarena','6 verschiedene Aufgaben zum MAC-Aufbau richtig.',['kv_count','mac',6],'Tanze durch die sechs Byte.'],
             ['kv.dns','witzig','Es war tatsächlich DNS','5 verschiedene Aufgaben zu DNS richtig.',['kv_count','dns',5],'Fünf Spuren führen zum Namensdienst.'],
         ]],
-        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort123 ist kein Konzept','motif'=>'d2-it-sicherheit','slugs'=>['d2-it-sicherheit'],'stages'=>10,'list'=>[
+        'd2'=>['prefix'=>'d2-sec','subject'=>'IT-Sicherheit & Schutzbedarf','title'=>'Passwort: Passwort123','motif'=>'d2-it-sicherheit','slugs'=>['d2-it-sicherheit'],'stages'=>10,'list'=>[
             ['d2.cia','bronze','CIA ohne Geheimdienst','Stufe 1 „Schutzziele“ gemeistert.',['stage',0]],
             ['d2.risiko','bronze','Bauchgefühl mit Taschenrechner','„Risikowert berechnen“ 10 × in Folge richtig.',['clean',['r_score']]],
             ['d2.maximum','silber','Maximum statt Mittelmaß','Stufe 4 „Schutzbedarf“ gemeistert.',['stage',3]],
@@ -113,6 +113,18 @@ function ach_modules(): array {
             ['f2.skonto','witzig','Skonto im Urlaub','3 × in Folge falsch bei „Skonto vergessen“.',['fails','b_skonto'],'Schnell bezahlt. Trotzdem zu viel überwiesen?'],
             ['f2.leasing','witzig','Nur 99 Euro im Monat','3 × in Folge falsch bei „Leasing klingt billiger“.',['fails','k_billig'],'Die kleine Rate hat eine große Verwandtschaft.'],
             ['f2.null','witzig','Nutzwert: Luftnummer','3 × in Folge falsch bei „Nutzwert null“.',['fails','n_null'],'Null mal wichtig bleibt manchmal einfach null.'],
+        ]],
+        'w4'=>['prefix'=>'w4-unternehmen','subject'=>'Unternehmensformen & Märkte','title'=>'Garage, Gewinn, Gerichtsvollzieher','motif'=>'unternehmen','slugs'=>['w4-unternehmen'],'stages'=>10,'list'=>[
+            ['w4.sektor','bronze','Sektor-Sortierer','Stufe 1 „Sektoren & Betriebsziele“ gemeistert.',['stage',0]],
+            ['w4.marktform','bronze','Mono, Oligo, Poly','„Marktform aus Anbietern und Nachfragern“ 10 × in Folge richtig.',['clean',['f_name']]],
+            ['w4.haftsumme','silber','Haftsumme minus Einlage','„Resthaftung des Kommanditisten“ 10 × in Folge richtig.',['clean',['k_rest']]],
+            ['w4.gmbh','silber','Beschränkt, aber nicht ahnungslos','Stufe 7 „GmbH & UG“ gemeistert.',['stage',6]],
+            ['w4.vollmacht','gold','ppa. mit Plan','„Darf die Prokuristin das?“ und „Reicht die Handlungsvollmacht?“ je 10 × in Folge richtig.',['clean',['r_prokura','r_handlung']]],
+            ['w4.lernpfad','gold','Von der Garage zur Holding','Alle 10 Stufen gemeistert.',['path']],
+            ['w4.marathon','platin','Der Aufsichtsrat ist zufrieden','90-Minuten-Prüfung mit mindestens 81 %.',['exam',90,81]],
+            ['w4.sofa','witzig','Das Sofa ist weg','3 × in Folge falsch bei „Gerichtsvollzieher auf dem Sofa“.',['fails','e_sofa'],'Unbeschränkt heißt nicht unendlich. Pfändbar ist nur, was da ist.'],
+            ['w4.ein-euro','witzig','Ein Euro, keine Ahnung','3 × in Folge falsch bei „UG mit 1 €“.',['fails','h_euro'],'Ein Viertel bleibt drin. Auch wenn es nur Kleingeld ist.'],
+            ['w4.prokurist','witzig','Prokurist kauft Firma','3 × in Folge falsch bei „Prokurist verkauft die Firma“.',['fails','r_verkauf'],'ppa. heißt nicht „per Allmacht“.'],
         ]],
         'a1'=>['prefix'=>'a1-bits','subject'=>'Zahlensysteme','title'=>'Bits zum bitteren Ende','motif'=>'zahlensysteme','slugs'=>['a1-zahlensysteme','bits-zum-bitteren-ende','zahlensysteme'],'stages'=>10,'list'=>[
             ['a1.erstes-bit','bronze','Erstes Bit gekippt','Stufe 1 „Stellenwerte & Bits“ gemeistert.',['stage',0]],

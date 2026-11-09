@@ -69,7 +69,7 @@
       || module === 'subnet' && (/^o_(b2d|d2b|maskval|ones|and|bin2ip)$/.test(task.sub) || task.sub === 'm_bin')
       || module === 'ipv6' && /^(u_iid|u_flip|u_mac)$/.test(task.sub);
     const arithmetic = calculationTypes[module]?.test(task.sub)
-      || /^(f2|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
+      || /^(f2|w4|datenschutz|sicherheit)$/.test(module) && task.kind === 'num' && task.sub !== 'n_rules'
       || module === 'f2' && /^(n_sieger|o_wahl)$/.test(task.sub)
       || module === 'zahlen' && task.kind !== 'mc' && task.sub !== 's_text'
       || module === 'subnet' && !/^(o_valid|m_valid|h_special|c_private|c_special)$/.test(task.sub);

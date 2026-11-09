@@ -3,6 +3,22 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "unternehmen",
+      "accent": "#d4b8ff",
+      "label": "Unternehmensformen & Märkte",
+      "slugs": [
+        "w4-unternehmen"
+      ],
+      "keywords": [
+        "rechtsform",
+        "unternehmensform",
+        "gerichtsvollzieher",
+        "prokura",
+        "marktform"
+      ],
+      "module": "W4"
+    },
+    {
       "id": "klausurvorbereitung",
       "accent": "#d4adff",
       "label": "Klausurvorbereitung Netzwerke",
@@ -85,7 +101,8 @@
         "d2-it-sicherheit"
       ],
       "keywords": [
-        "passwort123 ist kein konzept"
+        "passwort123 ist kein konzept",
+        "passwort: passwort123"
       ]
     },
     {

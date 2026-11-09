@@ -1,0 +1,77 @@
+/* Unterrichtsmaterial direkt unter den Spickzetteln: standardmäßig eingeklappt.
+   Vorhandene Modul-Karten-Gestaltung wird genutzt, ohne Modul-/Cheat-Stapel zu beeinflussen. */
+.unterricht-collection{position:relative;isolation:isolate;margin:18px 0 44px;scroll-margin-top:calc(var(--nav-height,80px) + 22px)}
+.unterricht-accordion{border:1px solid #70e5d439;border-radius:18px;background:linear-gradient(140deg,#111b22,#0b141ae9);box-shadow:0 20px 54px #0005;overflow:hidden}
+.unterricht-accordion>summary{list-style:none;display:flex;gap:22px;align-items:center;padding:24px 30px;cursor:pointer;min-height:114px;position:relative}
+.unterricht-accordion>summary::-webkit-details-marker{display:none}
+.unterricht-accordion>summary:before{content:"";position:absolute;inset:0 0 auto;height:2px;background:linear-gradient(90deg,#70e5d4,#e9b66b,transparent 88%)}
+.unterricht-accordion>summary:hover{background:#6ed9d808}
+.unterricht-accordion>summary:focus-visible{outline:2px solid var(--cyan);outline-offset:-5px}
+.unterricht-summary-copy{display:flex;flex-direction:column;gap:6px;margin-right:auto;min-width:0}
+.unterricht-kicker{font:850 10px ui-monospace,Consolas,monospace;color:#85dccc;letter-spacing:.14em}
+.unterricht-headline{font-size:clamp(23px,3.15vw,39px);font-weight:950;letter-spacing:-.055em;line-height:1.04}
+.unterricht-headline em{font-style:normal;color:var(--gold,#edba68)}
+.unterricht-summary-desc{font-size:13px;line-height:1.5;color:#b8c9cf}
+.unterricht-count{display:flex;flex-direction:column;align-items:flex-end;gap:0;font:900 27px ui-monospace,Consolas,monospace;color:#81e8dc;border:1px solid #70e5d43d;background:#70e5d409;border-radius:10px;padding:8px 14px;white-space:nowrap}
+.unterricht-count small{font:800 9px ui-monospace,Consolas,monospace;letter-spacing:.06em;color:#9ec7c9}
+.unterricht-arrow{font-size:32px;color:#dcb77b;line-height:1;transition:transform .22s ease}
+.unterricht-accordion[open] .unterricht-arrow{transform:rotate(180deg)}
+.unterricht-content{padding:25px 30px 28px;border-top:1px solid #ffffff15;background:#07131b64}
+.unterricht-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;max-width:100%}
+.unterricht-card{text-decoration:none;max-width:100%;min-width:0;box-shadow:0 12px 32px #0007}
+.unterricht-art{position:relative;background:radial-gradient(ellipse at 30% 20%,#3b8b9659,transparent 60%),linear-gradient(145deg,#102731,#07131b);isolation:isolate}
+.unterricht-art:before{content:"";position:absolute;inset:0;opacity:.22;pointer-events:none;background:repeating-linear-gradient(90deg,transparent 0 28px,#73cdd01b 29px 30px),repeating-linear-gradient(0deg,transparent 0 28px,#73cdd012 29px 30px)}
+.unterricht-art .module-art-symbol{position:relative;z-index:1;font-size:clamp(40px,5vw,69px);letter-spacing:-.08em;font-weight:950;color:#d1fbf4;text-shadow:0 0 38px #64e3e755}
+.unterricht-art .module-art-symbol span{color:var(--gold,#edba68)}
+.unterricht-art-orbit{position:absolute;width:68%;aspect-ratio:1;border:1px solid #7fe7e84d;border-radius:50%;box-shadow:0 0 0 26px #7fe7e808,0 0 0 60px #7fe7e804;transform:rotate(-18deg)}
+.unterricht-art-label{position:absolute;bottom:15px;right:17px;font:850 9px ui-monospace,Consolas,monospace;letter-spacing:.12em;color:#7bd8d2}
+.unterricht-art-label b{color:var(--gold,#edba68)}
+.unterricht-account-hint{font-size:12px;line-height:1.55;color:#98aeb6;margin:20px 0 0}
+@media(max-width:900px){.unterricht-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:610px){.unterricht-accordion>summary{padding:20px 17px;gap:10px;min-height:100px}.unterricht-count{font-size:20px;padding:7px 8px}.unterricht-count small{font-size:7px}.unterricht-arrow{font-size:24px}.unterricht-kicker{font-size:8px}.unterricht-summary-desc{font-size:11px}.unterricht-content{padding:18px}.unterricht-grid{grid-template-columns:1fr}.unterricht-art .module-art-symbol{font-size:57px}}
+@media(prefers-reduced-motion:reduce){.unterricht-arrow{transition:none}}
+@media print{.unterricht-accordion{break-inside:avoid}.unterricht-accordion>summary{padding:15px}.unterricht-content{display:none!important}}
+
+
+/* IT VI.01: Unterrichtsmaterial-Karte optisch an die echten Lernmodul-Kacheln angelehnt.
+   Die Aufklapp-/Sticky-Logik der vorhandenen Sektion wird unverändert beibehalten. */
+.unterricht-accordion{
+  background:linear-gradient(142deg,#111e28,#0b171f)!important;
+  border-color:#75e4d341!important;
+  box-shadow:0 24px 65px #0009,inset 0 1px #ffffff10!important
+}
+.unterricht-accordion>summary:hover{background:#65decf0a}
+.unterricht-accordion>summary:before{
+  height:3px;
+  background:linear-gradient(90deg,#e8b84a,#74e8dc 55%,transparent 90%)
+}
+.unterricht-headline{letter-spacing:-.055em}
+.unterricht-headline em{color:#e8b84a;text-shadow:0 0 28px #e8b84a26}
+.unterricht-kicker{color:#8af0e3}
+.unterricht-count{color:#a6f5e9;box-shadow:inset 0 1px #ffffff13}
+.unterricht-art{
+  background-image:
+    linear-gradient(102deg,#07141acc,#10222f5d 63%,#0d25368c),
+    url("../assets/dau-backgrounds/network-ports-1536.webp")!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:cover!important;
+}
+.unterricht-art::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse at 54% 46%,#64e8de1c,transparent 57%);
+}
+.unterricht-art .module-art-symbol{font-size:clamp(43px,5vw,66px);letter-spacing:-.075em;filter:drop-shadow(0 8px 22px #000b)}
+.unterricht-card{
+  border-color:#7be6d03a!important;
+  background:linear-gradient(143deg,#13242d,#0d1821)!important;
+  border-radius:16px!important;
+  box-shadow:0 18px 49px #0008!important
+}
+.unterricht-card:hover{border-color:#7be6d0ae!important;box-shadow:0 24px 58px #000b,0 0 30px #75e8dd16!important}
+.unterricht-card .module-category{font-weight:850;letter-spacing:.13em;color:#95e7da}
+.unterricht-card .module-body h2{color:#f7efdc;font-size:clamp(23px,2vw,29px);letter-spacing:-.045em}
+.unterricht-card .module-body p{color:#aec6ca;line-height:1.7}
+.unterricht-card .module-footer{color:#d5dedc}
+.unterricht-card .module-footer b{color:#e7b85b}
+.unterricht-account-hint{color:#a8c2c6}

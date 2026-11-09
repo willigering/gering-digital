@@ -1,7 +1,7 @@
 /* Eigenständige DAU-TO-PRO-Themen-Spickzettel; nicht Teil des Modulstapels. */
 .cheat-collection{position:relative;isolation:isolate;margin:48px 0 12px;padding:30px 0 16px;border-top:1px solid #70e5d439}
 .cheat-collection:before{content:"";position:absolute;pointer-events:none;inset:0 0 auto;height:250px;background:radial-gradient(ellipse at 30% 0%,#63d8bc0d,transparent 75%);z-index:-1}
-.cheat-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:23px}
+.cheat-head{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:48px}
 .cheat-kicker{display:inline-block;color:#86e3d1;font-size:10px;letter-spacing:.12em;font-weight:900}
 .cheat-head h3{margin:8px 0 6px;font-size:clamp(24px,3vw,37px);font-weight:950;line-height:1.05;letter-spacing:-.055em;text-transform:uppercase}
 .cheat-head h3 em{font-style:normal;color:#edba68}
@@ -36,6 +36,7 @@
 .cheat-mini-grid.is-stacked .cheat-stack-row.is-behind .cheat-mini{pointer-events:none}
 .cheat-mini-grid.is-stacked .cheat-stack-row.is-behind .cheat-mini:hover{transform:none}
 .cheat-mini-grid.is-stacked .cheat-stack-row.is-front .cheat-mini{box-shadow:0 22px 46px #000a,0 0 16px color-mix(in srgb,var(--cheat) 13%,transparent)}
+.cheat-collection.has-stacked-shelf .cheat-cta-row{position:relative;z-index:5;margin-top:24px;pointer-events:auto;transform:translate3d(0,var(--cheat-cta-shift,0px),0);will-change:transform}
 .cheat-cta-row{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
 .cheat-cta-row p{margin:0;color:#9ab1b6;font-size:11px;line-height:1.55}
 .cheat-all{display:inline-flex;align-items:center;gap:13px;border:1px solid #74e4d451;border-radius:7px;padding:11px 15px;background:#70e5d40b;color:#bdf5e8;font-size:11px;font-weight:900;text-decoration:none;letter-spacing:.03em}

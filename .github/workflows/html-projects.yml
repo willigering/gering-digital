@@ -63,6 +63,11 @@ jobs:
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Test IT VI.01 second topic tab overlap and external background
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/unterricht
+        run: node tests/unterricht_stack_browser.cjs
       - name: Check wrong-answer feedback in all modules on desktop and mobile
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -72,6 +77,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/f2
         run: node tests/f2_browser.cjs && node tests/f2_platform.cjs
+      - name: Check W4 legal rules, learning flow and account integration
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/w4
+        run: node tests/w4_browser.cjs && node tests/w4_platform.cjs
       - name: Check C# module flow and account integration
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
