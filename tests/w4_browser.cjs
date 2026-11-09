@@ -28,6 +28,7 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
    const q=t.genTask(s.id,1+i%3);
    if(q.sub!==s.id||!q.scenario||!q.prompt||!q.plain||q.plain===q.prompt||!q.why)throw Error('Incomplete '+s.id);
    if(/undefined|NaN|\[object/.test(q.scenario+q.prompt+q.why+(q.options||[]).join('')))throw Error('Broken text '+s.id+' '+q.scenario);
+   if(q.why.replace(/<[^>]+>/g,'').trim().length<=20)throw Error('Explanation too short '+s.id+': '+q.why);
    if(q.kind==='mc'){if(q.options.length!==4||q.options.length!==new Set(q.options).size||!q.options[q.answer])throw Error('Ambiguous MC '+s.id);}
    else if(q.kind==='text'){const r=t.parseAnswer(q,q.answer);if(!r.valid||!r.ok)throw Error('Correct text rejected '+s.id+' '+q.answer);if(t.parseAnswer(q,'Quatsch mit Soße').ok)throw Error('Wrong text accepted '+s.id);for(const a of q.accept)if(!t.parseAnswer(q,a).ok)throw Error('Accept variant '+s.id+' '+a);}
    else{const raw=String(q.answer).replace('.',',')+' '+q.unit;const r=t.parseAnswer(q,raw);if(!r.valid||!r.ok)throw Error('Correct rejected '+s.id+' '+JSON.stringify({q,r}));
