@@ -39,7 +39,7 @@ assert.equal(index.match(/id="highscore"/g)?.length,1,'Highscore darf nicht dopp
    assert.ok(state.wall.includes(bg),'BG-Motiv fehlt im Reiter '+topic);
    assert.ok(state.cards.every(c=>c.pos==='sticky'),'Keine Sticky-Kapitel im Reiter '+topic);
    assert.ok(state.cards.every(c=>!c.bg.includes('url(')),'BG in Textkarte! '+topic);
-   assert.ok(state.cards[1].z>state.cards[0].z,'Kapitel-Z-Ebenen vertauscht');
+   assert.ok(state.cards[1].z>state.cards[0].z,'Kapitel-Z-Ebenen vertauscht: '+JSON.stringify(state.cards));
    assert.ok(state.tabVisible<130&&state.tabVisible>=0,'Reiter sind nicht mehr oben erreichbar');
   }
   await page.locator('.jump[data-topic="intake"]').click();
