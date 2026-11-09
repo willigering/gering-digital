@@ -25,10 +25,10 @@
    Scroll-Abstand wird separat reserviert, damit weder Titel noch Stapel absinken. */
 .cheat-stack-frame{position:relative}
 .cheat-stack-runway{display:none}
-.cheat-collection.has-stacked-shelf .cheat-stack-frame{position:sticky;top:var(--cheat-pin-top,136px);z-index:3}
-.cheat-collection.has-stacked-shelf .cheat-stack-runway{display:block;height:var(--cheat-runway,0px);pointer-events:none}
-.cheat-mini-grid.is-stacked{display:block;padding-bottom:0}
-.cheat-mini-grid.is-stacked .cheat-stack-stage{position:relative;overflow:visible}
+.cheat-collection.has-stacked-shelf .cheat-stack-frame{position:relative}
+.cheat-collection.has-stacked-shelf .cheat-stack-runway{display:none}
+.cheat-mini-grid.is-stacked{display:block;position:relative;padding-bottom:0}
+.cheat-mini-grid.is-stacked .cheat-stack-stage{position:sticky;overflow:visible}
 .cheat-mini-grid.is-stacked .cheat-stack-row{position:absolute;inset:0 0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;align-items:stretch;transform-origin:50% 0;will-change:transform;transition:filter .3s}
 .cheat-mini-grid.is-stacked .cheat-stack-row .cheat-mini{height:100%}
 .cheat-mini-grid.is-stacked .cheat-stack-row>.cheat-mini:only-child{grid-column:3}
