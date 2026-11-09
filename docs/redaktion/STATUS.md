@@ -2,6 +2,14 @@
 
 Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admin installiert und öffentlich ausgeliefert sind, ist hier **nicht nachgewiesen**. Keine vollständige Überarbeitung oder Live-Prüfung behaupten, bevor sie erfolgt ist.
 
+## 09.11.2026 – Startseite: Highscore vor Spickzetteln & Unterrichtsmaterial
+
+- Startseite `dau-to-pro/index.php`: Highscore-Sektion unmittelbar nach der Modulübersicht, vor den zwölf Spickzetteln und dem eingeklappten Unterrichtsmaterial; deutlichere Ranglistenfläche mit bestehendem Opt-in-/Privatsphäre-Verhalten.
+- `support-serviceanfragen.html`: sechs bestehende Kapitel in drei jederzeit erreichbare Reiter (je zwei Kapitel) überführt; Kapitel nicht länger per Haupt-Akkordeon verschachtelt. Die 24 ausklappbaren Wissensantworten und vorhandenen Praxisfälle bleiben unverändert.
+- Kapitelkarten wie bei `Kein Ticket ohne Plan` sticky überlappend; dynamischer Topversatz bei langen Inhalten; auf schmalen Bildschirmen/reduzierter Bewegung statisch. Suchfeld filtert themenübergreifend. Reiter und Zustandswechsel bleiben über Tastatur und Direktlinks erreichbar.
+- Thematische Hintergründe aus dem auf `main` vorhandenen Ordner `assets/dau-backgrounds` (`network-ports`, `server`, `circuit-signal`) ausschließlich als Parallaxebene hinter den Karten. Ein anderer explizit als Grok-Unterrichtsmaterial-Ordner gekennzeichneter Hintergrundordner war auf `main` nicht vorhanden.
+- Vorab geprüft: Dateistruktur, Abschnittsreihenfolge, sechs Kapitel, 24 Antworten, drei Reiter, relative BG-Dateipfade. Browserregression `tests/unterricht_support_browser.cjs` und JS-Syntaxprüfung in `xp2.yml` integriert; Laufstatus erst nach PR-Checks. **Live-Auslieferung noch nicht bestätigt.**
+
 | Modul | Datei | Redaktionsstand | Nächster Umfang |
 | --- | --- | --- | --- |
 | B5 Netzwerkdienste | `b5-netzwerkdienste.html` | Erneuter vollständiger Humor-Durchlauf am 05.11.2026; lokal fachlich und technisch geprüft, siehe Protokoll | Automatische Prüfungen, Merge und Live-Abnahme dieses Durchlaufs |
