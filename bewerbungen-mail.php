@@ -130,7 +130,7 @@ try{
         foreach(['company','street','postal'] as $f){
             if(trim((string)($company[$f]??''))==='')throw new InvalidArgumentException('Firmenanschrift unvollständig. Bitte Betrieb bearbeiten.');
         }
-        if(trim((string)($company['postCity']??$company['city']??''))==='')throw new InvalidArgumentException('Postort fehlt. Bitte Betrieb bearbeiten.');
+        if(trim((string)(($company['postCity']??'') ?: ($company['city']??'')))==='')throw new InvalidArgumentException('Postort fehlt. Bitte Betrieb bearbeiten.');
         if(!filter_var($doc['to'],FILTER_VALIDATE_EMAIL))throw new InvalidArgumentException('Empfänger-Adresse fehlt.');
         $pass=gdm_decrypt($db);
         if(!$pass)throw new InvalidArgumentException('Bitte das SMTP-Passwort unter E-Mail-Einstellungen hinterlegen.');
