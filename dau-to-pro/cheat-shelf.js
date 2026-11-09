@@ -7,11 +7,19 @@
   if(!section||!frame)return;
   const all=[...grid.querySelectorAll(":scope > .cheat-mini")];
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
-  const PEEK=19,STEP=.46,TAIL=.30;
+  const PEEK=19,STEP=.42,TAIL=.30,GAP=14;
   let rows=[],stage=null,shown=null,rowH=0,raf=0,on=false;
   const navH=()=>parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-height"))||80;
   // Der Titel bleibt knapp unter der Navigation; die Karten sind Bestandteil desselben Frames.
-  const pinY=()=>Math.max(navH()+14,Math.min(navH()+56,innerHeight-(rowH+180)));
+  // Die aktive Kartenreihe sitzt im Desktop-Viewport stets auf derselben
+  // Bildschirmhöhe (ca. 25,5vh). Überschrift und Karten bleiben ein Sticky-Frame.
+  const pinY=()=>{
+    const head=frame.querySelector('.cheat-head');
+    const headH=head?head.getBoundingClientRect().height+parseFloat(getComputedStyle(head).marginBottom||0):80;
+    const peek=Math.min(Math.ceil(all.length/5)-1,3)*PEEK;
+    const activeY=Math.max(navH()+100,Math.round(innerHeight*.255));
+    return Math.max(navH()+8,activeY-headH-peek);
+  };
   const active=()=>Math.round(shown??progress());
   function teardown(){
     if(!on)return;
@@ -32,18 +40,15 @@
     rowH=Math.ceil(Math.max(...rows.map(r=>r.getBoundingClientRect().height),230));
     rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
     const peek=Math.min(rows.length-1,3)*PEEK;
-    const stageHeight=peek+rowH+rowH*TAIL;
+    const stageHeight=peek+rowH+GAP+rowH*TAIL;
     stage.style.height=stageHeight+"px";
     grid.style.height=stageHeight+"px";
     section.style.setProperty("--cheat-pin-top",pinY()+"px");
-    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+rowH*.16)+"px");
+    section.style.setProperty("--cheat-runway",((rows.length-1)*rowH*STEP+Math.max(rowH,innerHeight*.65))+"px");
     paint();
   }
   function progress(){
-    // Natürliche (nicht sticky) Position des Frames: so schreitet der Stapel auch
-    // weiter, wenn der komplette Frame bereits unter der Überschrift feststeht.
-    const naturalTop=section.getBoundingClientRect().top+
-      (parseFloat(getComputedStyle(section).paddingTop)||0);
+    const naturalTop=section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0);
     return Math.max(0,Math.min(rows.length-1,(pinY()-naturalTop)/Math.max(1,rowH*STEP)));
   }
   function paint(){
@@ -57,10 +62,10 @@
       // Auch Reihe 3 ist von Beginn an durch einen Kartenrand sichtbar.
       const waiting=Math.max(0,-d),frontIndex=Math.round(p);
       const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
-      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.032-waiting*.008).toFixed(3)+')';
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.035).toFixed(3)+')';
       r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
       r.style.visibility="visible";
-      r.style.opacity=String(d<0?.63+.37*Math.max(0,1-waiting):1);
+      r.style.opacity=String(d<0?.65+.35*Math.max(0,1-waiting):1);
       r.classList.toggle("is-front",k===frontIndex);
       r.classList.toggle("is-behind",d>=.52);
       r.classList.toggle("is-waiting",d<-.52);
@@ -68,7 +73,7 @@
     });
   }
   function go(k){
-    scrollTo({top:Math.max(0,scrollY+(k-progress())*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
+    scrollTo({top:Math.max(0,scrollY+(section.getBoundingClientRect().top+(parseFloat(getComputedStyle(section).paddingTop)||0))-pinY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
   }
   function build(){
     teardown();if(!wide.matches||calm.matches||all.length<=5)return;
