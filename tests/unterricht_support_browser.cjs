@@ -17,6 +17,8 @@ assert.equal(index.match(/id="highscore"/g)?.length,1,'Highscore darf nicht dopp
   const page=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:'no-preference'});
   const errors=[];page.on('pageerror',err=>errors.push(err.message));
   await page.goto(pathToFileURL(path.join(root,'dau-to-pro/support-serviceanfragen.html')).href,{waitUntil:'load'});
+  assert.equal(await page.evaluate(()=>window.__SUPPORT_GUIDE_READY__ === true),true,
+    'Support-Navigation wurde nicht geladen: '+errors.join('; '));
   for(const [topic,ids,bg] of [
    ['intake',['annehmen','sla'],'network-ports-1536'],
    ['diagnose',['diagnose','beheben'],'server-1536'],
