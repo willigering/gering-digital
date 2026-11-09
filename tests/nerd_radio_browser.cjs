@@ -319,14 +319,25 @@ let server, browser;
   assert.equal(await seek.isEnabled(), true, 'Fortschrittsbalken ist bei einer MP3 bedienbar');
   const seekBox = await seek.boundingBox();
   assert.ok(seekBox && seekBox.width > 10, 'Regler hat eine klickbare Fläche');
-  // Die Schiene erhält einen eigenen Pointer-Handler: Die native Range würde
-  // wegen der 3D-Perspektive Klicks in der Mitte am falschen Ende interpretieren.
-  await ownPage.locator('.nr-display__bar').click();
+  // Bei matrix3d liegt die native Element-Mitte nicht zuverlässig in der
+  // sichtbaren Bildmitte: gezielt die Mitte des projizierten Schienen-Bounds anklicken.
+  const bar = ownPage.locator('.nr-display__bar');
+  const barBox = await bar.boundingBox();
+  assert.ok(barBox && barBox.width > 10, 'Fortschrittsschiene ist sichtbar');
+  await bar.evaluate(el => {
+    window.__radioPointer = [];
+    el.addEventListener('pointerdown', e => {
+      const box = el.getBoundingClientRect();
+      window.__radioPointer.push({ x: e.clientX, left: box.left, width: box.width, ratio: (e.clientX - box.left) / box.width });
+    }, { capture: true });
+  });
+  await ownPage.mouse.click(barBox.x + barBox.width / 2, barBox.y + barBox.height / 2);
   await pause(300);
   o = await ownState();
   const seekValue = await seek.inputValue();
+  const pointerLog = await ownPage.evaluate(() => window.__radioPointer);
   assert.ok(Number(o.time.slice(3)) >= 8 && Number(o.time.slice(3)) <= 13,
-    `Klick spult etwa zur Titelmitte (Zeit=${o.time}, Slider=${seekValue})`);
+    `Klick spult etwa zur Titelmitte (Zeit=${o.time}, Slider=${seekValue}, Pointer=${JSON.stringify(pointerLog)})`);
   await ownPage.locator('[data-radio-pause]').click();
   await seek.focus();
   await ownPage.keyboard.press('Home');
