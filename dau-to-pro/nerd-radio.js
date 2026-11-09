@@ -60,7 +60,7 @@
   const ui = {
     play: $('[data-radio-play]'), pause: $('[data-radio-pause]'), stop: $('[data-radio-stop]'), prev: $('[data-radio-prev]'), next: $('[data-radio-next]'),
     shuffle: $('[data-radio-shuffle]'), mode: $('[data-radio-mode]'), list: $('[data-radio-list]'), volume: $('[data-radio-volume]'),
-    title: $('[data-radio-title]'), elapsed: $('[data-radio-elapsed]'), length: $('[data-radio-length]'), position: $('[data-radio-position]'),
+    title: $('[data-radio-title]'), elapsed: $('[data-radio-elapsed]'), length: $('[data-radio-length]'), position: $('[data-radio-position]'), seek: $('[data-radio-seek]'),
     status: $('[data-radio-status]'), playlist: $('[data-radio-playlist]'), trackList: $('[data-radio-tracks]'),
     shuffleInd: $('[data-radio-shuffle-ind]'), loopInd: $('[data-radio-loop-ind]'), canvas: $('[data-radio-viz]'),
     faces: [...root.querySelectorAll('[data-radio-face]')],
@@ -72,9 +72,9 @@
   const BARS = 18, SEGMENTS = 12, LEVEL_GOLD = 0.72;
 
   let selected = 0, volume = 0.35, state = 'stopped', mode = 'spectrum', op = 0;
-  let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null;
+  let ctx = null, synthIn, bus, analyser, out, noiseBuffer, media = null, mediaTrackId = '';
   let timer = 0, step = 0, nextStepAt = 0, pending = [];
-  let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, suspending = null, shuffleFlash = 0;
+  let playedBefore = 0, playStartedAt = 0, suspendTimer = 0, suspending = null, shuffleFlash = 0, seekOnStart = false, scrubbing = false;
   let frame = 0, lastDraw = 0, bass = 0, treble = 0, faceScale = 1, faceAspect = 0, lastLight = '', waveAmp = 0, waveGain = 1, wavePeak = 0.08, lastClock = '', lastPos = '';
   const voices = new Set();
   const bars = new Float32Array(BARS), peaks = new Float32Array(BARS);
@@ -194,6 +194,9 @@
       ctx.createMediaElementSource(media).connect(bus);
       media.addEventListener('ended', () => choose(neighbor(selected, 1), true));
       media.addEventListener('loadedmetadata', render);
+      media.addEventListener('durationchange', render);
+      media.addEventListener('timeupdate', updateClock);
+      media.addEventListener('seeked', updateClock);
       media.addEventListener('error', () => {
         if (!media.getAttribute('src')) return;
         halt('stopped');
@@ -203,6 +206,7 @@
       });
     }
     const src = new URL(item.src, document.baseURI).href;
+    mediaTrackId = item.id;
     if (media.src !== src) media.src = src;
     return media;
   }
@@ -248,7 +252,8 @@
       if (state === 'stopped') { step = 0; playedBefore = 0; }
       if (isFile()) {
         const el = mediaFor(current());
-        if (state === 'stopped') el.currentTime = 0;
+        if (state === 'stopped' && !seekOnStart) el.currentTime = 0;
+        seekOnStart = false;
         await el.play();
         if (token !== op) { el.pause(); return; }
       } else {
@@ -295,7 +300,7 @@
     }
     if (media) media.pause();
     if (next === 'stopped') {
-      step = 0; playedBefore = 0;
+      step = 0; playedBefore = 0; seekOnStart = false; scrubbing = false;
       if (media && media.readyState > 0) media.currentTime = 0;
     }
     setState(next);
@@ -315,19 +320,29 @@
   /* ---------- Anzeige ---------- */
   const two = n => String(Math.floor(n)).padStart(2, '0');
   const clock = s => `${two(s / 60)}:${two(s % 60)}`;
+  // Die Dateilänge gehört immer zum aktuell ausgewählten Titel, nie zur vorherigen MP3.
+  function fileDuration() {
+    return isFile() && media && mediaTrackId === current().id && Number.isFinite(media.duration) && media.duration > 0
+      ? media.duration : 0;
+  }
   function elapsed() {
-    if (isFile()) return media && media.src ? media.currentTime || 0 : 0;
+    if (isFile()) return media && mediaTrackId === current().id ? media.currentTime || 0 : 0;
     return playedBefore + (state === 'playing' && ctx ? ctx.currentTime - playStartedAt : 0);
   }
   function updateClock() {
-    const secs = Math.max(0, elapsed());
+    const secs = Math.max(0, elapsed()), duration = fileDuration();
     const text = clock(secs);
     if (text !== lastClock) { ui.elapsed.textContent = text; lastClock = text; }
     let pos = 0;
-    if (isFile()) pos = media && media.duration > 0 && Number.isFinite(media.duration) ? secs / media.duration : 0;
+    if (isFile()) pos = duration ? Math.min(1, secs / duration) : 0;
     else { const t = current(); const loop = t.lead.length * 60 / t.bpm / 4; pos = (secs % loop) / loop; }
     const p = (pos * 100).toFixed(1) + '%';
     if (p !== lastPos) { ui.position.style.setProperty('--nr-pos', p); lastPos = p; }
+    // Endlos-Synth-Loops haben keine definierte Titellänge und bleiben nicht spulbar.
+    ui.seek.disabled = !duration;
+    if (!scrubbing) ui.seek.value = String(Math.round(Math.max(0, Math.min(1, pos)) * 1000));
+    if (duration) ui.seek.setAttribute('aria-valuetext', `${clock(secs)} von ${clock(duration)}`);
+    else ui.seek.removeAttribute('aria-valuetext');
   }
 
   function render() {
@@ -335,7 +350,7 @@
     ui.title.textContent = `${number} – ${t.title}`;
     fitTitle();
     if (isFile()) {
-      const d = media && Number.isFinite(media.duration) ? media.duration : 0;
+      const d = fileDuration();
       ui.length.textContent = d ? clock(d) : '--:--';
     } else ui.length.textContent = '∞ LOOP'; // Endlos-Loop: keine erfundene Titeldauer
     ui.loopInd.classList.toggle('is-lit', !isFile());
@@ -698,6 +713,24 @@
   }
 
   /* ---------- Bedienung ---------- */
+  // Position direkt im echten Audiotitel ändern. Während des Ziehens überschreibt
+  // die laufende Animation die Finger-/Mausposition des Reglers nicht.
+  function seekToPosition() {
+    const duration = fileDuration();
+    if (!duration || !media) return;
+    const fraction = Math.max(0, Math.min(1, Number(ui.seek.value) / 1000));
+    try { media.currentTime = fraction * duration; } catch (_) { return; }
+    if (state === 'stopped') seekOnStart = true;
+    updateClock();
+    wake();
+  }
+  ui.seek.addEventListener('pointerdown', () => { scrubbing = true; });
+  const finishScrub = () => { scrubbing = false; updateClock(); };
+  ui.seek.addEventListener('pointerup', finishScrub);
+  ui.seek.addEventListener('pointercancel', finishScrub);
+  ui.seek.addEventListener('blur', finishScrub);
+  ui.seek.addEventListener('input', seekToPosition);
+  ui.seek.addEventListener('change', () => { seekToPosition(); finishScrub(); });
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
