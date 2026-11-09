@@ -724,13 +724,42 @@
     updateClock();
     wake();
   }
-  ui.seek.addEventListener('pointerdown', () => { scrubbing = true; });
-  const finishScrub = () => { scrubbing = false; updateClock(); };
-  ui.seek.addEventListener('pointerup', finishScrub);
-  ui.seek.addEventListener('pointercancel', finishScrub);
-  ui.seek.addEventListener('blur', finishScrub);
+  // Der Ghettoblaster ist perspektivisch per matrix3d gedreht. Native <input
+  // type="range">-Klickpositionen werden dadurch falsch berechnet (z. B. Mitte
+  // als 1 %). Pointer-Koordinaten daher an der projizierten Schiene messen;
+  // die native Range bleibt für Tastatur und Screenreader erhalten.
+  const seekTrack = ui.seek.closest('.nr-display__bar');
+  let seekingPointer = null;
+  const finishScrub = () => { seekingPointer = null; scrubbing = false; updateClock(); };
+  function seekFromPointer(clientX) {
+    if (ui.seek.disabled) return;
+    const box = seekTrack.getBoundingClientRect();
+    if (box.width <= 0) return;
+    const fraction = Math.max(0, Math.min(1, (clientX - box.left) / box.width));
+    ui.seek.value = String(Math.round(fraction * 1000));
+    seekToPosition();
+  }
+  seekTrack.addEventListener('pointerdown', e => {
+    if (ui.seek.disabled || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    e.preventDefault();
+    seekingPointer = e.pointerId;
+    scrubbing = true;
+    seekTrack.setPointerCapture(e.pointerId);
+    seekFromPointer(e.clientX);
+    ui.seek.focus({ preventScroll: true });
+  });
+  seekTrack.addEventListener('pointermove', e => {
+    if (e.pointerId === seekingPointer) seekFromPointer(e.clientX);
+  });
+  seekTrack.addEventListener('pointerup', e => {
+    if (e.pointerId !== seekingPointer) return;
+    seekFromPointer(e.clientX);
+    finishScrub();
+  });
+  seekTrack.addEventListener('pointercancel', finishScrub);
+  seekTrack.addEventListener('lostpointercapture', finishScrub);
   ui.seek.addEventListener('input', seekToPosition);
-  ui.seek.addEventListener('change', () => { seekToPosition(); finishScrub(); });
+  ui.seek.addEventListener('change', () => { seekToPosition(); updateClock(); });
   ui.play.addEventListener('click', toggle);
   ui.pause.addEventListener('click', () => { if (state === 'playing') toggle(); });
   ui.stop.addEventListener('click', () => halt('stopped'));
