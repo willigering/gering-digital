@@ -81,7 +81,7 @@ let server, browser;
       stageWidth: document.querySelector('.nr-rail').offsetWidth
     };
   });
-  for (const [width, height, mobile] of [[2560, 1440], [1920, 1080], [1600, 900], [1440, 900], [1024, 768], [390, 844, true], [320, 568, true]]) {
+  for (const [width, height, mobile] of (process.env.DTP_RADIO_SMOKE === '1' ? [] : [[2560, 1440], [1920, 1080], [1600, 900], [1440, 900], [1024, 768], [390, 844, true], [320, 568, true]])) {
     const context = await browser.newContext({ viewport: { width, height }, isMobile: !!mobile, hasTouch: !!mobile });
     const page = await context.newPage();
     page.on('pageerror', e => errors.push(`${width}: ${e.message}`));
