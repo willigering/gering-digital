@@ -68,6 +68,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/unterricht
         run: node tests/unterricht_stack_browser.cjs
+      - name: Check NERD RADIO controls, real audio data and placement beside the module stack
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
+        run: node tests/nerd_radio_browser.cjs
       - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -101,11 +106,6 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/dau_landing_browser.js
-      - name: Check NERD RADIO controls, real audio data and placement beside the module stack
-        env:
-          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
-          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
-        run: node tests/nerd_radio_browser.cjs
       - name: Check achievements in the real learning modules
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
