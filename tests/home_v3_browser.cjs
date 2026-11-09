@@ -6,7 +6,7 @@ const {spawn,spawnSync}=require('node:child_process');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
 const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'gd-home-v3-'));
-const env={...process.env,GD_DB_PATH:path.join(scratch,'site.sqlite')};
+const env={...process.env,GD_ROOT:root,GD_DB_PATH:path.join(scratch,'site.sqlite')};
 const port=24000+Math.floor(Math.random()*500);
 const base='http://127.0.0.1:'+port;
 const pause=n=>new Promise(r=>setTimeout(r,n));
