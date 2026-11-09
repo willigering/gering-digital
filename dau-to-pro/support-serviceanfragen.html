@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090e15">
+<meta name="description" content="IT-Support und Serviceanfragen verständlich erklärt: Ticketannahme, SLA, Diagnose, Fernwartung, Dokumentation und Servicequalität. Mit Beispielen und Musterantworten.">
+<title>IT-Support in der Praxis · Unterrichtsmaterial · DAU TO PRO</title>
+<link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg">
+<style>
+:root{color-scheme:dark;--bg:#090d13;--card:#121a23;--muted:#a8b8c8;--ink:#edf7fc;--line:#283d4b;--mint:#6de3ce;--gold:#eab86a;--orange:#ef8f66;--deep:#0e1820;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:96px}body{margin:0;color:var(--ink);background:radial-gradient(ellipse 60% 25% at 92% 2%,#17434b75,transparent),radial-gradient(ellipse 46% 20% at 4% 50%,#3d301e3b,transparent),var(--bg);line-height:1.62}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.095;background-image:linear-gradient(#79cfce30 1px,transparent 1px),linear-gradient(90deg,#79cfce30 1px,transparent 1px);background-size:48px 48px;mask-image:linear-gradient(to bottom,#000,transparent 90%)}
+a{color:inherit}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid #fff;outline-offset:4px}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}.top{position:sticky;z-index:30;top:0;border-bottom:1px solid #78dac432;background:#081017eb;backdrop-filter:blur(16px)}.top .wrap{display:flex;align-items:center;justify-content:space-between;min-height:64px;gap:16px}.back{text-decoration:none;font-size:.78rem;font-weight:850;letter-spacing:.075em;color:var(--mint)}.top strong{letter-spacing:.18em;font-size:.8rem}.top strong span{color:#728f99}
+.hero{padding:86px 0 65px;position:relative;overflow:hidden}.kicker{color:var(--mint);font-weight:850;letter-spacing:.23em;text-transform:uppercase;font-size:.73rem}.hero h1{font-size:clamp(2.8rem,7.3vw,6.2rem);letter-spacing:-.055em;line-height:1.05;text-transform:uppercase;max-width:900px;margin:20px 0}.hero h1 em{font-style:normal;color:var(--mint)}.hero p{max-width:760px;color:#bed0da;font-size:1.15rem}.hero-meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:28px}.hero-meta span{padding:7px 13px;border:1px solid #39515b;border-radius:30px;background:#0b161db8;font-weight:750;font-size:.75rem;letter-spacing:.055em}
+.hero-decoration{position:absolute;right:-90px;bottom:-120px;border:2px solid #5bdcc320;border-radius:50%;width:390px;height:390px;box-shadow:0 0 0 35px #5bdcc30d,0 0 0 90px #5bdcc307;pointer-events:none}
+.content{padding-bottom:90px}.panel-intro{padding:23px;border:1px solid var(--line);background:linear-gradient(135deg,#142a2e,#131923);border-radius:20px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:16px}.panel-intro p{color:var(--muted);margin:3px 0 0}.panel-intro b{font-size:1rem}.panel-intro small{color:var(--mint);font-size:.7rem;letter-spacing:.12em;font-weight:900}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin-bottom:19px}.toolbar h2{font-size:1rem;letter-spacing:.17em;text-transform:uppercase;margin:0}.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.actions button{border:1px solid #36515f;background:#16232e;color:#d9f0f5;padding:10px 14px;border-radius:10px;font-size:.8rem;font-weight:800}.actions button:hover{border-color:var(--mint)}.search{width:min(100%,250px);background:#121e28;border:1px solid #36515f;color:#fff;border-radius:10px;padding:10px 12px;font-size:.85rem}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0 0 28px}.jump{display:flex;flex-direction:column;padding:17px;text-decoration:none;min-height:102px;border-radius:16px;border:1px solid #2d434e;background:linear-gradient(140deg,#172630d9,#101820);transition:transform .2s,border-color .2s}.jump:hover{border-color:var(--mint);transform:translateY(-3px)}.jump span{color:var(--mint);font-weight:900;font-size:.7rem;letter-spacing:.15em}.jump b{margin-top:5px;text-transform:uppercase;line-height:1.2;letter-spacing:.02em}.jump small{color:var(--muted)}
+.chapter{border:1px solid #34505d;border-radius:19px;overflow:hidden;background:linear-gradient(155deg,#14212b,#0f1820);margin-bottom:15px;scroll-margin-top:84px;box-shadow:0 14px 44px #02090f29}.chapter[open]{border-color:#5bbda954}.chapter>summary{list-style:none;padding:21px 25px;display:flex;align-items:center;gap:19px;cursor:pointer;position:relative}.chapter>summary::-webkit-details-marker{display:none}.num{flex:none;color:#74ead4;font-size:.78rem;font-weight:900;letter-spacing:.14em;background:#20473e6e;border-radius:9px;border:1px solid #4ba48d4f;padding:7px 10px}.chapter-head{flex:1}.chapter-head strong{font-size:clamp(1.17rem,2.6vw,1.67rem);line-height:1.3;letter-spacing:-.025em;display:block}.chapter-head small{color:#a3b7c2;display:block;margin-top:2px;font-size:.82rem}.sign{font-size:1.6rem;color:var(--mint);line-height:1;transition:transform .15s}.chapter[open] .sign{transform:rotate(45deg)}.chapter-body{border-top:1px solid #31515b;padding:26px}.lead{font-size:1.08rem;color:#def4ee;margin-top:0}.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px}.box{border:1px solid #304a57;border-radius:14px;padding:19px 20px;background:#0a151dc0}.box h3,.box h4{margin:0 0 10px;font-size:1.02rem;line-height:1.3;color:#c4ffee}.box p:last-child,.box ul:last-child{margin-bottom:0}.box p{color:#bcd0da;margin:8px 0}.box ul,.box ol{margin:10px 0;padding-left:23px;color:#cadae3}.box li{margin:6px 0}.box code,.sample code{background:#24414a;padding:2px 5px;border-radius:4px;color:#f7d2a4}.wide{grid-column:1/-1}.note{border-left:3px solid var(--gold);background:#2b251d8f;border-radius:0 12px 12px 0;padding:14px 17px;color:#f0d4ad;margin:17px 0}.note strong{color:#ffe3ad}.sample{border:1px solid #315b59;background:linear-gradient(130deg,#12302c,#11202a);padding:18px 21px;border-radius:14px;margin-top:16px}.sample .label{font-size:.72rem;letter-spacing:.18em;color:var(--mint);font-weight:900}.sample h3{margin:6px 0 10px}.sample p{margin:7px 0}.sample .answer{color:#cef3e8}
+details.qa{border:1px solid #304451;border-radius:12px;background:#0c161e;padding:0 15px;margin:8px 0}details.qa>summary{cursor:pointer;list-style:none;padding:13px 0;font-weight:760}details.qa>summary::-webkit-details-marker{display:none}details.qa>summary:before{content:"＋";color:var(--mint);margin-right:9px}details.qa[open]>summary:before{content:"−"}details.qa p{border-top:1px solid #263d49;padding:12px 0 14px;margin:0;color:#bdd4db}.smallcaps{letter-spacing:.15em;font-weight:900;font-size:.76rem;color:var(--gold);margin:26px 0 9px;text-transform:uppercase}.tablewrap{overflow-x:auto;border:1px solid #36535e;border-radius:12px;margin:14px 0}table{width:100%;border-collapse:collapse;min-width:560px;font-size:.87rem}th,td{padding:10px 12px;text-align:left;vertical-align:top;border-bottom:1px solid #283b47}th{background:#1b333d;color:#ccf9ef;font-weight:850}tr:last-child td{border:0}td{color:#bfd1dc}td:first-child{color:#f2f8ff;font-weight:770}.priority td,.priority th{text-align:center}.priority td{font-weight:900}.priority .p1{background:#953b3999}.priority .p2{background:#9361318a}.priority .p3{background:#545a3c99}.priority .p4{background:#205b5699}
+.end{border:1px solid #34505a;border-radius:17px;padding:27px;background:linear-gradient(140deg,#10262b,#161c28);margin-top:33px}.end h2{margin:0;font-size:1.5rem}.end p{color:#bdced7}.taglist{display:flex;gap:8px;flex-wrap:wrap}.taglist span{padding:5px 10px;border-radius:8px;background:#25423e;color:#c7f1e8;font-size:.8rem;font-weight:750}.foot{border-top:1px solid #243942;padding:24px 0 50px;color:#91a5af;font-size:.8rem}.foot .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.hidden{display:none!important}
+@media(max-width:760px){.hero{padding:60px 0 45px}.map{grid-template-columns:repeat(2,minmax(0,1fr))}.twocol{grid-template-columns:1fr}.wide{grid-column:auto}.panel-intro{display:block}.chapter-body{padding:18px}.chapter>summary{padding:18px 16px;gap:11px}.chapter-head small{font-size:.75rem}.wrap{padding:0 15px}.hero p{font-size:1rem}.top strong{font-size:.7rem}.search{width:100%;max-width:none}.actions{width:100%}.actions button{flex:1}}
+@media(max-width:460px){.map{grid-template-columns:1fr 1fr}.jump{padding:12px;min-height:105px}.jump b{font-size:.9rem}.jump small{font-size:.75rem}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.jump,.sign{transition:none}}
+@media print{.top,.actions,.map,.hero-decoration{display:none}.hero{padding:15px 0}.chapter{break-inside:avoid;border:1px solid #aaa;color:#000;background:white}.chapter-body{display:block!important}.foot{color:#333}body{background:white;color:#000}.box,.sample{background:white;color:#000}.box p,li,.sample p,.note,.lead,td{color:#222!important}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="back" href="./">← DAU TO PRO</a><strong>UNTERRICHTSMATERIAL <span>// IT VI</span></strong></div></header>
+<section class="hero"><div class="wrap">
+<div class="kicker">IT VI · Support- und Serviceanfragen</div>
+<h1>KEIN TICKET.<br><em>KEIN DURCHBLICK.</em></h1>
+<p>Vom ersten „Es geht nicht!“ bis zur belegbaren Lösung: ein fachlich sauberer Praxis-Guide zum IT-Support. Lesen, nachschlagen, Fälle durchdenken. Ohne XP-Zirkus und ohne Pflichtprogramm.</p>
+<div class="hero-meta"><span>6 Themenbereiche</span><span>24 Wissensfragen</span><span>Praxisfälle &amp; Musterlösungen</span><span>Kein Lernpfad</span></div>
+</div><div class="hero-decoration" aria-hidden="true"></div></section>
+<main class="wrap content" id="hauptinhalt">
+<div class="panel-intro"><div><small>SO FUNKTIONIERT'S</small><p><b>Du entscheidest die Reihenfolge.</b> Themen aufklappen, Fachwissen lesen und dein Verständnis mit Musterantworten prüfen. Keine Anmeldung, keine Leistungsbewertung.</p></div><span aria-hidden="true" style="font-size:2.6rem;color:#72ddcc">↘</span></div>
+<div class="toolbar"><h2>DEIN SUPPORT-HANDBUCH</h2><div class="actions"><input class="search" id="topic-search" type="search" placeholder="Thema oder Begriff suchen …" aria-label="Lernmaterial durchsuchen"><button id="all-open" type="button">Alles öffnen</button><button id="all-close" type="button">Alles schließen</button></div></div>
+<nav class="map" aria-label="Themenübersicht">
+<a class="jump" href="#annehmen"><span>01 // INTAKE</span><b>Anfragen annehmen</b><small>Ticket, Typen, Gespräch</small></a>
+<a class="jump" href="#sla"><span>02 // TRIAGE</span><b>Priorität &amp; SLA</b><small>Auswirkung, Fristen</small></a>
+<a class="jump" href="#diagnose"><span>03 // ANALYSE</span><b>Fehler eingrenzen</b><small>Hypothesen, Tools</small></a>
+<a class="jump" href="#beheben"><span>04 // BEHEBUNG</span><b>Lösen &amp; Fernwartung</b><small>Workaround, Sicherheit</small></a>
+<a class="jump" href="#abschluss"><span>05 // NACHWEIS</span><b>Dokumentieren</b><small>Abschluss, Wissen</small></a>
+<a class="jump" href="#qualitaet"><span>06 // VERBESSERUNG</span><b>Qualität verbessern</b><small>Kennzahlen, PDCA</small></a>
+</nav>
+
+<details class="chapter" id="annehmen"><summary><span class="num">01</span><span class="chapter-head"><strong>Serviceanfragen annehmen und erfassen</strong><small>Vom unklaren Anruf zum brauchbaren Ticket</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">Ein Service Desk ist die definierte Anlaufstelle für Nutzeranfragen. Das Ticket ist kein Selbstzweck: Es sorgt dafür, dass eine Anfrage nachvollziehbar aufgenommen, zuständig zugeordnet und weiterbearbeitet werden kann.</p>
+<div class="twocol">
+<div class="box"><h3>Vier Begriffe auseinanderhalten</h3><ul>
+<li><b>Incident:</b> Ungeplante Unterbrechung oder Qualitätsminderung eines IT-Services – etwa ein ausgefallener Netzwerkdrucker.</li>
+<li><b>Service Request:</b> Standardisierte Leistungsanforderung, etwa genehmigte Softwarebereitstellung.</li>
+<li><b>Problem:</b> Ursache eines oder mehrerer Incidents, die untersucht werden soll. Ein Problem-Record kann auch ohne vollständig bekannte Ursache bestehen.</li>
+<li><b>Change:</b> Hinzufügen, Ändern oder Entfernen von etwas, das einen Service beeinflussen kann; Umsetzung im vorgesehenen Änderungsprozess.</li>
+</ul><p>Ein Vorgang kann mehrere Prozesse berühren: Ein Incident wird kurzfristig durch einen Workaround entschärft, während die dauerhafte Ursache als Problem untersucht wird.</p></div>
+<div class="box"><h3>Was gehört in ein brauchbares Ticket?</h3><ol>
+<li><b>Wer?</b> Kontakt, Organisation, Rückrufmöglichkeit.</li><li><b>Was?</b> Präzises Symptom und Wortlaut der Fehlermeldung.</li>
+<li><b>Wo?</b> Betroffenes Gerät, Anwendung, Standort bzw. Service.</li><li><b>Seit wann?</b> Beginn, Häufigkeit, Reproduzierbarkeit.</li>
+<li><b>Wie weit?</b> Einzelperson, Team oder ganzer Standort betroffen?</li><li><b>Geschäftsfolge?</b> Welche Arbeit ist blockiert; gibt es eine Umgehung?</li>
+<li><b>Bisher geprüft?</b> Bereits ausgeführte Schritte mit Ergebnissen.</li><li><b>Bearbeitung?</b> Kategorie, Priorität, Verantwortliche, Zeitstempel, nächster Schritt.</li></ol>
+<p>Konkrete Pflichtfelder hängen vom Ticketsystem und der Organisation ab.</p></div>
+<div class="box wide"><h3>Gesprächsführung: fünf Schritte</h3><p><b>Begrüßen → zuhören → gezielt nachfragen → zusammenfassen → nächsten Schritt vereinbaren.</b> Statt „Klappt gar nichts?“ lieber: „Welche Anwendung, welche Meldung, seit wann und bei wem tritt es auf?“ Am Ende Ticketnummer und Rückmeldeweg nennen.</p></div>
+</div>
+<div class="sample"><div class="label">PRAXISFALL // BESSERES TICKET</div><h3>„Drucker kaputt!!!“</h3><p><b>Unbrauchbar:</b> „Drucker geht nicht. Dringend.“</p><p class="answer"><b>Brauchbar:</b> „Etikettendrucker PRN-07, Versandhalle: Seit 09:10 werden Druckaufträge mit Status ‚Fehler‘ angehalten. Drei Arbeitsplätze betroffen. Andere Drucker funktionieren. Testseite am Gerät nicht erfolgreich. Versandetiketten derzeit nicht druckbar; keine freigegebene Ausweichlösung bekannt. Ansprechpartner: Versand/Telefon intern 214. Nächster Schritt: Druckwarteschlange und Gerätestatus prüfen.“</p></div>
+<div class="note"><strong>Denkfalle:</strong> Ein Screenshot kann helfen, ist aber kein Ersatz für Beschreibung und Kontext. Keine unnötigen personenbezogenen Daten oder Zugangsdaten ins Ticket übernehmen.</div>
+<div class="smallcaps">WISSENSCHECK · ANTWORT ANKLICKEN</div>
+<details class="qa"><summary>Was unterscheidet Incident und Service Request?</summary><p>Der Incident behandelt eine ungeplante Störung oder Qualitätsminderung. Ein Service Request ist eine definierte Anforderung an eine Leistung, beispielsweise die Bereitstellung genehmigter Software.</p></details>
+<details class="qa"><summary>Warum ist „geht nicht“ keine ausreichende Fehlerbeschreibung?</summary><p>Es fehlen Symptom, betroffener Service, Umfang, Zeitpunkt, geschäftliche Auswirkung und reproduzierbare Hinweise. Dadurch sind sinnvolle Priorisierung und Diagnose kaum möglich.</p></details>
+<details class="qa"><summary>Was bedeutet SPOC?</summary><p>Single Point of Contact: eine definierte zentrale Anlaufstelle, über die Kunden den Service Desk erreichen.</p></details>
+<details class="qa"><summary>Warum dokumentiert man bereits erfolglose Tests?</summary><p>Damit das nächste Supportlevel dieselben Schritte nicht unnötig wiederholt und die Fehlersuche nachvollziehbar fortsetzt.</p></details>
+</div></details>
+
+<details class="chapter" id="sla"><summary><span class="num">02</span><span class="chapter-head"><strong>Kategorisieren, priorisieren, SLA verstehen</strong><small>Nicht die Lautstärke entscheidet, sondern die Auswirkung</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">Eine Kategorie sagt, <b>worum</b> es geht. Die Priorität bestimmt, <b>wie schnell</b> gehandelt werden muss. Beides ist nicht dasselbe.</p>
+<div class="twocol">
+<div class="box"><h3>Auswirkung × Dringlichkeit</h3><p><b>Auswirkung (Impact):</b> Wie viele Menschen oder Geschäftsprozesse sind betroffen, und wie groß wäre der Schaden?</p><p><b>Dringlichkeit (Urgency):</b> Wie schnell muss gehandelt werden, bevor schwerwiegende Folgen eintreten?</p><p>Die Kombination wird anhand einer <b>organisationsspezifischen Prioritätsmatrix</b> bewertet. Sicherheitsereignisse können gesonderte Eskalationsregeln haben.</p></div>
+<div class="box"><h3>Was ein SLA tatsächlich regelt</h3><p>Ein <b>Service Level Agreement</b> beschreibt vereinbarte Serviceziele, etwa Erreichbarkeit, Servicezeiten, Reaktions- und Wiederherstellungs- oder Lösungsziele.</p><p><b>Reaktionszeit ≠ Lösungszeit.</b> Eine erste qualifizierte Rückmeldung ist noch keine wiederhergestellte Arbeitsfähigkeit. Welche Reaktion zählt und wann Fristen ruhen, steht im Vertrag.</p><p><b>OLA:</b> interne Leistungsvereinbarung. <b>Underpinning Contract:</b> unterstützender Vertrag mit einem externen Lieferanten.</p></div>
+</div>
+<div class="smallcaps">BEISPIELMATRIX · NICHT ALLGEMEINGÜLTIG</div>
+<div class="tablewrap"><table class="priority"><thead><tr><th>Auswirkung ↓ / Dringlichkeit →</th><th>Hoch</th><th>Mittel</th><th>Niedrig</th></tr></thead><tbody>
+<tr><td>Hoch</td><td class="p1">P1</td><td class="p2">P2</td><td class="p3">P3</td></tr>
+<tr><td>Mittel</td><td class="p2">P2</td><td class="p3">P3</td><td class="p4">P4</td></tr>
+<tr><td>Niedrig</td><td class="p3">P3</td><td class="p4">P4</td><td class="p4">P4</td></tr>
+</tbody></table></div>
+<div class="sample"><div class="label">FRISTENRECHNUNG // BEISPIEL</div><h3>Freitag, 16:30 Uhr – 60 Minuten Reaktionszeit</h3><p>Das <b>Beispiel-SLA</b> zählt nur montags bis freitags von <b>08:00 bis 17:00 Uhr</b>, ohne Feiertage. Freitag laufen 30 Minuten. Die restlichen 30 Minuten laufen am Montag ab 08:00 Uhr. <b>Frist: Montag, 08:30 Uhr.</b></p><p>Gilt die Frist dagegen kalenderzeitlich durchgehend, wäre sie schon am Freitag um 17:30 Uhr erreicht. Es entscheidet der konkrete Vertrag, nicht ein allgemeiner ITIL-Wert.</p></div>
+<div class="twocol"><div class="box"><h3>Funktionale Eskalation</h3><p>Der Fall geht an eine Stelle mit benötigtem Spezialwissen, Zuständigkeit oder Berechtigung – beispielsweise vom 1st Level zum Netzwerkteam.</p></div><div class="box"><h3>Hierarchische Eskalation</h3><p>Die Leitung wird eingeschaltet, etwa bei drohender SLA-Verletzung, blockierten Entscheidungen oder eskalierender Beschwerde. Sie ersetzt keine fachliche Übergabe.</p></div></div>
+<div class="note"><strong>Denkfalle:</strong> „Alle wollen P1“ ist keine Prioritätslogik. Sicherheit, regulatorische Pflichten und geschäftskritische Systeme können Sonderwege vorgeben – diese müssen im Prozess definiert sein.</div>
+<div class="smallcaps">WISSENSCHECK</div>
+<details class="qa"><summary>Was ist der Unterschied zwischen Kategorie und Priorität?</summary><p>Kategorie ordnet nach Art/Betroffenheit ein (z. B. Netzwerk, Drucker, Konto); Priorität leitet die Bearbeitungsreihenfolge aus geschäftlicher Auswirkung und Dringlichkeit sowie Sonderregeln ab.</p></details>
+<details class="qa"><summary>Warum zählt eine automatische Ticketbestätigung nicht immer als Reaktion?</summary><p>Weil ein SLA eine qualifizierte menschliche Rückmeldung fordern kann. Maßgeblich ist die vertragliche Definition der Reaktion.</p></details>
+<details class="qa"><summary>Wie unterscheidet sich eine funktionale von einer hierarchischen Eskalation?</summary><p>Funktional: Übergabe an technische Spezialisten. Hierarchisch: Einbeziehung von Führungskräften zur Entscheidung oder Steuerung.</p></details>
+<details class="qa"><summary>Ein Mitarbeiter ist sehr verärgert. Wird das automatisch P1?</summary><p>Nein. Für Priorität zählen definierte Kriterien wie Impact, Urgency und festgelegte Sonderregeln – nicht allein die Emotion des Meldenden.</p></details>
+</div></details>
+
+<details class="chapter" id="diagnose"><summary><span class="num">03</span><span class="chapter-head"><strong>Problemursachen systematisch analysieren</strong><small>Erst beweisen, dann schrauben</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">Das Symptom „Keine Verbindung“ ist noch keine Ursache. Eine gute Diagnose beginnt mit Soll/Ist, der Reichweite des Fehlers und einer überprüfbaren Hypothese – nicht mit wahllosen Neustarts.</p>
+<div class="twocol">
+<div class="box"><h3>Der Diagnosekreislauf</h3><ol><li><b>Soll und Ist</b> festhalten: Was müsste funktionieren, was geschieht tatsächlich?</li>
+<li><b>Umfang</b> bestimmen: ein Gerät, mehrere Nutzer, ganzer Standort?</li>
+<li><b>Änderungen</b> abfragen: Update, Umzug, neues Passwort, neue Hardware?</li>
+<li><b>Hypothese</b> formulieren: „DNS-Auflösung funktioniert nicht.“</li>
+<li><b>Gezielten Test</b> wählen und Ergebnis dokumentieren.</li>
+<li><b>Hypothese bestätigen oder verwerfen</b>, anschließend nächsten Test planen.</li></ol></div>
+<div class="box"><h3>Typische Fehlerquellen</h3><ul><li><b>Hardware:</b> Strom, Kabel, Port, Gerät, Peripherie.</li><li><b>Software:</b> Dienst, Anwendung, Treiber, Update, Konfiguration.</li><li><b>Netzwerk:</b> Link, VLAN, IP-Adresse, Gateway, DNS, Erreichbarkeit.</li><li><b>Konto/Berechtigung:</b> Anmeldung, MFA, Gruppen, Freigaben.</li><li><b>Bedienung/Prozess:</b> falsche Eingabe, fehlende Einweisung, nicht erfüllte Voraussetzungen.</li></ul><p>Nicht vorschnell einen „Benutzerfehler“ behaupten: erst nachvollziehbar prüfen.</p></div>
+</div>
+<div class="tablewrap"><table><thead><tr><th>Windows-Bordmittel</th><th>Prüft / liefert Hinweise auf</th><th>Wichtige Grenze</th></tr></thead><tbody>
+<tr><td><code>ipconfig /all</code></td><td>IPv4/IPv6, DNS-Server, DHCP und Adapterdaten.</td><td>Zeigt Konfiguration, beweist keine Dienstverfügbarkeit.</td></tr>
+<tr><td><code>ping &lt;gateway&gt;</code></td><td>ICMP-Erreichbarkeit des Gateways.</td><td>ICMP kann blockiert sein. Fehlender Ping beweist keine generelle Störung.</td></tr>
+<tr><td><code>nslookup name</code></td><td>DNS-Namensauflösung über den angesprochenen Resolver.</td><td>Eine DNS-Antwort beweist nicht, dass die Anwendung erreichbar ist.</td></tr>
+<tr><td><code>tracert ziel</code></td><td>Indizien über den Weg zu einem Ziel.</td><td>Router können ICMP-Antworten begrenzen oder unterdrücken.</td></tr>
+<tr><td>Task-Manager / Ereignisanzeige</td><td>Prozesse, Ressourcen, protokollierte Ereignisse.</td><td>Ein einzelner Fehlerlogeintrag ist nicht automatisch die Ursache.</td></tr>
+</tbody></table></div>
+<div class="sample"><div class="label">DIAGNOSEFALL // INTERNET? ODER DNS?</div><h3>IP-Adresse erreichbar, Name nicht</h3><p>Ein Arbeitsplatz erreicht den internen Server per IP, aber <code>intranet.beispiel.test</code> lässt sich nicht auflösen. Sinnvolle nächste Tests: DNS-Server in <code>ipconfig /all</code> prüfen, mit <code>nslookup intranet.beispiel.test</code> die Namensauflösung untersuchen und mit funktionierenden PCs vergleichen.</p><p class="answer"><b>Schlussfolgerung:</b> DNS-Konfiguration oder Namensauflösung ist eine <em>plausible Hypothese</em>, noch keine bewiesene Ursache. Auch Suchsuffix, falscher Name oder Split-DNS kommen infrage.</p></div>
+<div class="note"><strong>169.254.x.x:</strong> Eine IPv4-Link-Local-Adresse weist oft auf fehlende reguläre IPv4-Adressvergabe (z. B. DHCP-Problem) hin. Daraus allein folgt weder ein bestimmter Hardwaredefekt noch ein vollständiger IPv6-Ausfall.</div>
+<div class="smallcaps">WISSENSCHECK</div>
+<details class="qa"><summary>Was ist der Unterschied zwischen Symptom und Ursache?</summary><p>Symptom: beobachtetes Problem („Programm startet nicht“). Ursache: der nachweisbare Mechanismus, der das Symptom erzeugt (z. B. fehlende Abhängigkeit, korrupte Datei).</p></details>
+<details class="qa"><summary>Warum immer möglichst nur eine Variable auf einmal verändern?</summary><p>So lassen sich Ursache, Wirkung und mögliche Nebenwirkungen einer Maßnahme nachvollziehen. Bei mehreren gleichzeitigen Änderungen fehlt die Zuordnung.</p></details>
+<details class="qa"><summary>Beweist ein fehlgeschlagener Ping, dass das Ziel offline ist?</summary><p>Nein. ICMP kann gefiltert werden oder auf dem Ziel deaktiviert sein. Zusätzliche Tests des betroffenen Dienstes sind nötig.</p></details>
+<details class="qa"><summary>Was bedeutet „Hypothese testen“?</summary><p>Eine überprüfbare Vermutung mit einem passenden Test und dokumentiertem Ergebnis stützen oder verwerfen – statt auf Verdacht Einstellungen zu ändern.</p></details>
+</div></details>
+
+<details class="chapter" id="beheben"><summary><span class="num">04</span><span class="chapter-head"><strong>Fehler beheben, Remote-Support, Kommunikation</strong><small>Mit Zustimmung ändern, prüfen und verständlich informieren</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">Der Support soll einen Dienst sicher wiederherstellen. Ein Workaround bringt den Betrieb vorübergehend zurück; eine dauerhafte Lösung beseitigt idealerweise die Ursache.</p>
+<div class="twocol">
+<div class="box"><h3>Vor jeder Änderung</h3><ol><li>Ticket und Diagnose prüfen; bekannte Lösungen nachschlagen.</li><li>Berechtigung, Freigabe und Auswirkungen klären.</li><li>Ist-Zustand und bei Bedarf Daten bzw. Konfiguration sichern.</li><li>Rückfallplan festlegen: Wie lässt sich die Änderung zurücknehmen?</li><li>Eine kontrollierte Maßnahme durchführen.</li><li>Mit dem Nutzer die Funktion und relevante Nebenwirkungen testen.</li><li>Maßnahme, Ergebnis und weitere Schritte dokumentieren.</li></ol></div>
+<div class="box"><h3>Fernwartung mit Augenmaß</h3><ul><li>Identität der Beteiligten und genehmigten Supportweg prüfen.</li><li>Aktive Einwilligung für Bildschirmfreigabe und ggf. Fernsteuerung einholen.</li><li>Nur freigegebene Werkzeuge verwenden, etwa organisationsseitig genehmigte Windows-Remotehilfe.</li><li>Privates und vertrauliches Material vor der Übertragung schließen; Datensparsamkeit beachten.</li><li>Keine Passwörter oder MFA-Codes abfragen oder in Tickets speichern.</li><li>Nur notwendige Änderungen vornehmen; Sitzungen erkennbar beenden.</li></ul></div>
+<div class="box"><h3>Workaround oder Lösung?</h3><p><b>Workaround:</b> Mitarbeiter nutzt übergangsweise einen freigegebenen anderen Drucker. Arbeitsfähigkeit ist zurück, Ursache am ursprünglichen Gerät besteht weiter.</p><p><b>Dauerhafte Behebung:</b> Defekten Druckersensor ersetzen, Funktion testen, wiederkehrenden Ausfall abstellen.</p></div>
+<div class="box"><h3>Kundenkommunikation</h3><p>Guter Status enthält <b>Ist-Stand, nächsten Schritt, Zuständigkeit und Zeitpunkt für das nächste Update</b>. Bleib sachlich und verspreche keine ungesicherte Lösungszeit.</p><p>Bei Ärger: ausreden lassen, Verständnis zeigen, Problem zusammenfassen und realistische Handlungsoptionen nennen. Keine Schuldzuweisungen.</p></div>
+</div>
+<div class="sample"><div class="label">KUNDENANTWORT // GUTER STATUS</div><h3>„Ich sitze hier seit zwei Stunden!“</h3><p class="answer">„Die Störung am Druckserver ist erfasst. Wir haben die betroffenen Arbeitsplätze eingegrenzt und das Serverteam eingeschaltet. Bis 14:30 Uhr erhalten Sie eine Rückmeldung zum nächsten Schritt – auch wenn die Behebung dann noch läuft.“</p><p>Das ist ein <b>Updateversprechen</b>, kein unbelegtes Lösungsversprechen.</p></div>
+<div class="note"><strong>Sicherheitsvorfall?</strong> Bei Verdacht auf Schadsoftware, Phishing oder Datenabfluss nicht eigenmächtig „aufräumen“. Organisationsinternen Sicherheits- und Meldeprozess auslösen; Beweise nicht unnötig verändern.</div>
+<div class="smallcaps">WISSENSCHECK</div>
+<details class="qa"><summary>Worin liegt der Unterschied zwischen Lösung und Workaround?</summary><p>Ein Workaround stellt den Dienst oder die Arbeitsfähigkeit vorübergehend wieder her, ohne zwingend die Ursache zu entfernen. Eine dauerhafte Lösung behebt idealerweise die Fehlerursache.</p></details>
+<details class="qa"><summary>Wann darf Support eine fremde Sitzung fernsteuern?</summary><p>Nur mit geeignetem, freigegebenem Verfahren und ausdrücklicher Zustimmung bzw. der nötigen Rechts- und Organisationsgrundlage. Berechtigungen und interne Regeln sind einzuhalten.</p></details>
+<details class="qa"><summary>Warum gehört ein Rückfallplan zu riskanteren Änderungen?</summary><p>Damit man bei Fehlern den vorherigen Zustand kontrolliert wiederherstellen und Auswirkungen begrenzen kann.</p></details>
+<details class="qa"><summary>Was gehört in eine ehrliche Statusmeldung?</summary><p>Aktueller Sachstand, bisherige Erkenntnisse ohne Spekulation, der nächste Schritt, die Zuständigkeit und ein realistischer Rückmeldezeitpunkt.</p></details>
+</div></details>
+
+<details class="chapter" id="abschluss"><summary><span class="num">05</span><span class="chapter-head"><strong>Dokumentieren, lösen und abschließen</strong><small>So gut aufschreiben, dass auch die nächste Schicht es versteht</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">„Erledigt“ ist keine ausreichende Dokumentation. Eine gute Fallakte zeigt nachvollziehbar, was gemeldet, untersucht, verändert, getestet und vereinbart wurde – ohne unnötige Daten preiszugeben.</p>
+<div class="twocol">
+<div class="box"><h3>Die Abschlussdokumentation</h3><ul><li>Ticketnummer und betroffene Systeme/Services.</li><li>Symptom, Beginn und Auswirkung.</li><li>Festgestellte Ursache <em>oder</em> ausdrücklich offene Ursache.</li><li>Diagnoseschritte und relevante Testergebnisse.</li><li>Maßnahmen mit nötigen technischen Details und Zeiten.</li><li>Workaround, verbleibendes Risiko und offene Folgeaufgaben.</li><li>Nachtest/Abnahme, Kommunikation und Statuswechsel.</li><li>Verantwortliche und nachvollziehbare Bearbeitungszeit, soweit vorgesehen.</li></ul></div>
+<div class="box"><h3>Gelöst ist nicht immer geschlossen</h3><p><b>Gelöst (Resolved):</b> Eine Lösung oder ein vereinbarter Workaround wurde bereitgestellt, geprüft und dokumentiert.</p><p><b>Geschlossen (Closed):</b> Der Vorgang wird nach den vereinbarten Abschlussregeln beendet; je nach Prozess nach Bestätigung, Wartezeit oder automatischer Schließung.</p><p>Eine feste Wartefrist wie „5 Arbeitstage“ ist <b>keine allgemeine ITIL-Regel</b>, sondern gegebenenfalls Bestandteil eines konkreten Prozesses.</p></div>
+</div>
+<div class="sample"><div class="label">MUSTER // KONKRETER, NACHVOLLZIEHBARER ABSCHLUSS</div><h3>Ticket SD-1042 – Druckauftrag bleibt hängen</h3>
+<p><b>Symptom:</b> Druckaufträge von Arbeitsplatz PC-18 blieben in der Warteschlange; Druck über PC-19 funktionierte.</p>
+<p><b>Prüfung:</b> Netzwerkdrucker erreichbar, Test von PC-19 erfolgreich, Druckwarteschlange auf PC-18 enthielt fehlerhaften Auftrag.</p>
+<p><b>Maßnahme:</b> Betroffenen Auftrag nach Rücksprache entfernt und Druckauftrag erneut ausgelöst. <b>Nachtest:</b> Testseite von PC-18 erfolgreich, Nutzer bestätigt Funktion. <b>Status:</b> gelöst, Kundeninformation versandt. <b>Hinweis:</b> Bei erneutem Auftreten Druckertreiber und Anwendung untersuchen.</p>
+</div>
+<div class="twocol">
+<div class="box"><h3>Wissensartikel: nutzbar statt bloß lang</h3><p><b>Titel / Geltungsbereich → Symptom → Voraussetzungen → sichere Prüfschritte → Lösung/Workaround → Verifikation → Warnhinweise → Verantwortliche / Prüfdatum.</b></p><p>Ändern sich Versionen, Rechte oder Infrastruktur, muss der Artikel überprüft werden.</p></div>
+<div class="box"><h3>Datenschutz und Qualität</h3><p>Keine Passwörter, Tokens, MFA-Codes, vollständigen unnötigen Personendaten oder vertraulichen Inhalte dokumentieren. Protokolle und Screenshots vor der Ablage prüfen, Zugriffsrechte beachten.</p><p>Schreibe beobachtbare Fakten, keine Wertungen wie „Benutzer hat mal wieder Mist gemacht“.</p></div></div>
+<div class="note"><strong>Denkfalle:</strong> Ein Ticket ist erst dann fachlich gut abgeschlossen, wenn die Wirksamkeit geprüft und der vereinbarte Abschlussprozess eingehalten wurde – nicht bloß, weil der Techniker auf „Schließen“ geklickt hat.</div>
+<div class="smallcaps">WISSENSCHECK</div>
+<details class="qa"><summary>Warum trennt man „Gelöst“ und „Geschlossen“?</summary><p>Weil die technische Wiederherstellung und die formale administrative Beendigung unterschiedliche Schritte mit eigenen Bestätigungs- und Fristenregeln sein können.</p></details>
+<details class="qa"><summary>Warum darf man eine vermutete Ursache nicht als gesichert dokumentieren?</summary><p>Weil spätere Bearbeiter sich sonst auf eine unbelegte Annahme verlassen. Vermutung, Testbeleg und nachgewiesene Ursache müssen unterscheidbar sein.</p></details>
+<details class="qa"><summary>Was unterscheidet einen Wissensartikel von einer Ticketnotiz?</summary><p>Die Ticketnotiz beschreibt den konkreten Einzelfall; der Wissensartikel abstrahiert eine wiederverwendbare, geprüfte Vorgehensweise für ähnliche Fälle.</p></details>
+<details class="qa"><summary>Welche Angaben gehören aus Datenschutzgründen nicht in Tickets?</summary><p>Insbesondere Passwörter, geheime Token, MFA-Codes und für die Bearbeitung nicht erforderliche personenbezogene oder vertrauliche Inhalte.</p></details>
+</div></details>
+
+<details class="chapter" id="qualitaet"><summary><span class="num">06</span><span class="chapter-head"><strong>Qualitätssicherung und Verbesserung</strong><small>Kennzahlen verstehen, Muster finden, Ursachen beseitigen</small></span><span class="sign" aria-hidden="true">+</span></summary><div class="chapter-body">
+<p class="lead">Guter Support bedeutet mehr als viele geschlossene Tickets. Entscheidend ist, ob Dienste zuverlässig wiederhergestellt werden, Nutzer verstehen, was passiert, und bekannte Fehler seltener zurückkehren.</p>
+<div class="twocol">
+<div class="box"><h3>Incident vs. Problem Management</h3><p><b>Incident Management:</b> Betrieb möglichst schnell wiederherstellen. <b>Problem Management:</b> zugrunde liegende Ursachen und Zusammenhänge untersuchen, Risiken und Wiederholungen reduzieren.</p><p>Beispiel: 15 WLAN-Ausfälle werden jeweils durch Neustart behoben (Incidents). Das Muster weist auf ein Problem hin, dessen Ursache – etwa instabile Firmware – gesondert analysiert wird.</p></div>
+<div class="box"><h3>KVP mit PDCA</h3><ol><li><b>Plan:</b> wiederkehrende Fehler und Ziel messen, Maßnahme entwerfen.</li><li><b>Do:</b> Änderung kontrolliert umsetzen.</li><li><b>Check:</b> nach einer definierten Zeit Wirkung anhand geeigneter Daten prüfen.</li><li><b>Act:</b> funktionierende Maßnahme standardisieren, ansonsten anpassen.</li></ol><p>Eine Maßnahme ohne Erfolgskriterium ist nur eine Idee mit Kalendertermin.</p></div>
+</div>
+<div class="tablewrap"><table><thead><tr><th>Kennzahl</th><th>Was sie aussagt</th><th>Was leicht falsch läuft</th></tr></thead><tbody>
+<tr><td>Ticketvolumen</td><td>Anzahl eingegangener oder bearbeiteter Vorgänge im festgelegten Zeitraum.</td><td>Mehr Tickets können auch bessere Meldewege bedeuten.</td></tr>
+<tr><td>Reaktionszeit</td><td>Zeit bis zur vertraglich definierten Reaktion.</td><td>Servicezeit und Pausenregeln ignoriert.</td></tr>
+<tr><td>Wiederherstellungszeit / MTTR</td><td>Mittlere Zeit bis zur Wiederherstellung, bei eindeutig definierter Messweise.</td><td>MTTR kann je nach Organisation auch andere Bedeutungen haben.</td></tr>
+<tr><td>SLA-Erfüllungsquote</td><td>Fristgerecht erfüllte, relevante Vorgänge geteilt durch alle für die Messung relevanten Vorgänge.</td><td>Falscher Nenner oder unterschiedliche SLA-Klassen zusammengeworfen.</td></tr>
+<tr><td>First Contact Resolution (FCR)</td><td>Anteil der definierten Kontakte/Tickets, die bereits beim Erstkontakt gelöst werden.</td><td>Kontakt- und Ticketdefinition vermischt.</td></tr>
+<tr><td>Reopen-Rate</td><td>Anteil wieder geöffneter Tickets.</td><td>Zu frühes Schließen kann Quote verzerren.</td></tr>
+<tr><td>Backlog</td><td>Offene Tickets zu einem Stichtag.</td><td>Ohne Alter/Priorität kaum aussagekräftig.</td></tr>
+<tr><td>CSAT</td><td>Zufriedenheit aus Kundenbewertungen nach festgelegter Skala.</td><td>Nur Teilnehmende bewerten; Rücklaufquote beachten.</td></tr>
+</tbody></table></div>
+<div class="sample"><div class="label">KENNZAHLEN // RECHENBEISPIEL</div><h3>51 von 60 Vorgängen im SLA</h3><p><b>SLA-Erfüllungsquote = (51 / 60) × 100 = 85 %.</b> Voraussetzung: Alle 60 Fälle gehören tatsächlich in denselben definierten Auswertungsnenner. Die Quote allein sagt noch nicht, warum neun Fristen gerissen wurden.</p><p><b>FCR:</b> 40 von 60 geeigneten Erstkontakten beim ersten Kontakt gelöst → 66,7 %. Eine andere Nennerdefinition führt zu einem anderen Ergebnis – deshalb Definition im Bericht nennen.</p></div>
+<div class="twocol">
+<div class="box"><h3>Wiederholungen sichtbar machen</h3><p>Tickets nach Ursache, betroffenen Systemen, Kategorie, Standort, Uhrzeit und Version gruppieren. Auch „5 × Warum“ oder ein Ursache-Wirkungs-Diagramm können helfen – Behauptungen durch Messwerte und Tests absichern.</p></div>
+<div class="box"><h3>KI im Support: Werkzeug, keine Beweismaschine</h3><p>KI kann Tickets vorsortieren, Textvorschläge erstellen und Muster markieren. Das Ergebnis ist eine <b>Hypothese</b> und braucht fachliche Kontrolle. Keine sensiblen Ticketinhalte an nicht freigegebene Dienste übermitteln; Datenschutz, Rechte und Aufbewahrung beachten.</p></div></div>
+<div class="note"><strong>Denkfalle:</strong> Eine sinkende durchschnittliche Bearbeitungszeit ist kein Qualitätsbeweis. Wenn Tickets vorschnell geschlossen und später erneut geöffnet werden, sieht die Kennzahl besser aus als der Service.</div>
+<div class="smallcaps">WISSENSCHECK</div>
+<details class="qa"><summary>Was ist der Kernunterschied zwischen Incident und Problem Management?</summary><p>Incident Management zielt auf zügige Wiederherstellung eines unterbrochenen Services; Problem Management analysiert Ursachen und verhindert oder reduziert weitere Störungen.</p></details>
+<details class="qa"><summary>Wie berechnet man eine SLA-Erfüllungsquote?</summary><p>Fristgerecht erfüllte, relevante Fälle geteilt durch alle für die Messung relevanten Fälle, multipliziert mit 100. Die Auswertungsdefinition und Sonderfälle müssen festgelegt sein.</p></details>
+<details class="qa"><summary>Was bedeutet der PDCA-Zyklus?</summary><p>Plan (planen), Do (umsetzen), Check (Wirkung prüfen), Act (verbessern bzw. standardisieren). Anschließend beginnt der nächste Verbesserungszyklus.</p></details>
+<details class="qa"><summary>Warum darf KI eine Fehlerursache nicht ungeprüft ins Ticket schreiben?</summary><p>KI-Ausgaben können erfunden oder falsch zugeordnet sein. Ohne technische Verifikation wird aus einer Vermutung eine irreführende Dokumentation; außerdem gelten Datenschutz und Freigaberegeln.</p></details>
+</div></details>
+
+<section class="end" aria-labelledby="finish"><div class="kicker">DAS SOLL HÄNGEN BLEIBEN</div><h2 id="finish">Guter Support ist ein nachvollziehbarer Prozess.</h2><p>Erfassen → bewerten → eingrenzen → kontrolliert beheben → dokumentieren → verbessern. Jeder Schritt liefert Informationen für den nächsten. Du musst nicht raten, wenn du gezielt fragen, prüfen und sauber dokumentieren kannst.</p>
+<div class="taglist"><span>Incident ≠ Problem</span><span>Impact + Urgency</span><span>SLA ist vertraglich</span><span>Hypothese ≠ Nachweis</span><span>Workaround ≠ Ursache behoben</span><span>Gelöst ≠ geschlossen</span></div>
+<p style="font-size:.83rem;margin-top:18px">Grundlage: die vom Nutzer bereitgestellten Unterrichtsdateien zu IT.VI (sechs Themenbereiche). Eigenständig formulierte Zusammenfassung und zusätzliche Praxisbeispiele; kein Ersatz für Kursmaterial, interne Sicherheitsrichtlinien oder konkrete Serviceverträge.</p></section>
+</main>
+<footer class="foot"><div class="wrap"><span>DAU TO PRO · UNTERRICHTSMATERIAL · IT-SUPPORT</span><span>Eigenständige Lernhilfe · keine offiziellen Prüfungsfragen · Stand November 2026</span></div></footer>
+<script>
+(function(){
+"use strict";
+var chapters=Array.from(document.querySelectorAll(".chapter"));
+var jumps=Array.from(document.querySelectorAll(".jump"));
+var search=document.getElementById("topic-search");
+document.getElementById("all-open").addEventListener("click",function(){chapters.filter(function(c){return !c.classList.contains("hidden")}).forEach(function(c){c.open=true})});
+document.getElementById("all-close").addEventListener("click",function(){chapters.forEach(function(c){c.open=false})});
+jumps.forEach(function(a){a.addEventListener("click",function(){var target=document.querySelector(a.getAttribute("href"));if(target){target.classList.remove("hidden");target.open=true}})});
+function openHash(){if(!location.hash)return;var id=location.hash.slice(1);var target=document.getElementById(id);if(target && target.classList.contains("chapter")){target.classList.remove("hidden");target.open=true}}
+addEventListener("hashchange",openHash);openHash();
+search.addEventListener("input",function(){var q=search.value.trim().toLocaleLowerCase("de");chapters.forEach(function(c){var found=!q||c.textContent.toLocaleLowerCase("de").includes(q);c.classList.toggle("hidden",!found);if(q&&found)c.open=true});jumps.forEach(function(a){var target=document.querySelector(a.getAttribute("href"));a.classList.toggle("hidden",target.classList.contains("hidden"))})});
+})();
+</script>
+</body>
+</html>
