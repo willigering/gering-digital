@@ -113,7 +113,12 @@ jobs:
           assert.match(html,/it-vi-01-theme\.css/,'Theme CSS must be loaded by the lesson');
           assert.match(html,/it-vi-01-parallax\.js/,'Parallax must be loaded by the lesson');
           assert.ok(!/Wollenberg|Autoren?:|Erstellt von|©/i.test(html),'Author attributions must not appear on the lesson');
-          assert.ok(theme.includes('--itvi-shift')&&fx.includes('requestAnimationFrame'),'Backgrounds must move independently of the card stacking');
+          assert.ok(theme.includes('--itvi-wall-shift')&&fx.includes('requestAnimationFrame'),'Background layer must parallax independently from card stacking');
+          assert.match(html,/class="itvi-backdrop"/,'Dedicated BG layer must be present before lesson content');
+          assert.ok(theme.includes('.itvi-backdrop::before'),'BG images must render behind modules');
+          assert.ok(!/var\(--itvi-bg\)/.test(theme),'No topic images inside text cards');
+          assert.ok(html.includes('requestAnimationFrame(()=>{measure();requestAnimationFrame(measure)});'),'All tab stacks must remeasure after layout');
+          assert.ok(fs.existsSync('tests/unterricht_stack_browser.cjs'),'Missing second tab browser regression');
           assert.match(theme,/prefers-reduced-motion/,'Respect reduced motion');
           assert.match(theme,/@media print/,'Print view must stay readable');
           const used=[...theme.matchAll(/assets\/dau-backgrounds\/([a-z0-9-]+\.webp)/g)].map(x=>x[1]);
