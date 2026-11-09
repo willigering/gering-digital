@@ -137,3 +137,12 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Ein neues Themenblatt `support` ergänzt den DAU-to-PRO-Spickzettelbereich: 8 Grundabschnitte, 6 Vertiefungen und 48 Fragen mit Musterantworten. Basis sind die bereitgestellten Arbeitsblätter zu Service- und Supportanfragen sowie IT-Dienstleistungen/ITSM; die zusätzlichen Fragen sind eigenständige Übungsfragen.
 - Inhaltliche Schwerpunkte: Supportlevel, SPOC, Ticket-Workflow, Incidents/Requests/Problems/Changes, Impact/Urgency, SLA und Rechenwege, Eskalation, Cloudmodelle, Service-Lebenszyklus, ITIL 4 und PDCA.
 - Eingebunden in Landing-Kachel und Pocket-Guide-Ansicht; Verifikationsworkflow auf zwölf Themen und 576 Fragen angepasst. Die Ergebnisse von PR-Checks, Merge, STRATO-Deploy und Liveprüfung werden gesondert festgestellt; dieser Stand behauptet noch keine Live-Auslieferung.
+
+## 09.11.2026 – Unterrichtsmaterial IT VI.01 (separat vom Spickzettel)
+
+- Neue eingeklappte Sektion „Unterrichtsmaterial“ direkt unter den Spickzetteln auf DAU-to-PRO; bestehende Modul-Kartenoptik, standardmäßig geschlossen.
+- Lehrseite „IT VI.01 – Kein Ticket ohne Plan“ mit Themenreitern, 12 Lernkapiteln, 24 Wissensfragen, 10 Praxisaufgaben, Erklärungs-/Rücksprungnavigation, Suche und PDF-Druck.
+- „HTML speichern“, „Fortschritt sichern“ und „Laden“ auf der Online-Lernseite entfernt.
+- Konto-Speicherung: angemeldete Lernende erhalten eigene Antwort-/Notizstände über `learner_progress` mit eigenem Speicherschlüssel; POST mit CSRF, Origin-Prüfung, Ratenbegrenzung und Datenlimits. Gäste speichern weiterhin nur im lokalen Browser.
+- Spickzettel-Karten und bestehende Module/XP-Daten bleiben unangetastet.
+- Browser/Live-Prüfung und erfolgreicher STRATO-Deploy werden erst nach dem Merge separat bestätigt.
