@@ -278,10 +278,11 @@ function choose(){
 async function open(company){
   if(!ready())return;
   try{await refreshMail()}catch(err){alert(err.message);return}
-  const r=app.rows().slice().sort((a,b)=>(a.distanceKm==null?9999:a.distanceKm)-(b.distanceKm==null?9999:b.distanceKm));
-  if(!r.length){alert("Bitte zuerst Betriebe importieren oder einen Betrieb hinzufügen.");return}
+  const r=app.rows().filter(x=>["nicht_beworben","vorbereitet"].includes(x.status))
+    .sort((a,b)=>(a.distanceKm==null?9999:a.distanceKm)-(b.distanceKm==null?9999:b.distanceKm));
+  if(!r.length){alert("Keine Betriebe ohne Bewerbung vorhanden. Füge einen neuen Betrieb hinzu oder prüfe die Statusangaben in deiner Kartei.");return}
   $("gdm-company").innerHTML=r.map(x=>'<option value="'+esc(x.id)+'">'+esc(x.company)+' · '+esc(x.city||"")+'</option>').join("");
-  selected=company&&row(company)?company:r[0].id;
+  selected=company&&r.some(x=>String(x.id)===String(company))?company:r[0].id;
   $("gdm-company").value=selected;choose();
   $("gdm-overlay").hidden=false;document.body.classList.add("gdm-lock");$("gdm-to").focus();
 }
