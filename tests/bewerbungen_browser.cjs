@@ -10,7 +10,7 @@ const {chromium}=require("playwright");
 
 const companies=[
  {id:"betrieb-lage",company:"Musterfirma Lage",city:"Lage",street:"Bahnhofstr. 10",postal:"32791",postCity:"Lage",recipient:"Personalabteilung",email:"lage@example.org",distanceKm:2,status:"nicht_beworben",appliedAt:""},
- {id:"betrieb-detmold",company:"Musterfirma Detmold",city:"Detmold",street:"Testweg 7",postal:"32756",postCity:"Detmold",recipient:"Frau Beispiel",email:"detmold@example.org",distanceKm:9,status:"nicht_beworben",appliedAt:""}
+ {id:"betrieb-detmold",company:"Musterfirma Detmold",city:"Detmold",street:"Testweg 7",postal:"32756",postCity:"Detmold",recipient:"Frau Beispiel",email:"detmold@example.org",distanceKm:9,status:"absage",appliedAt:""}
 ];
 const cfg={
  senderName:"Willi Gering",senderStreet:"Musterallee 1",senderPostal:"32791",senderCity:"Lage",
@@ -72,6 +72,17 @@ async function run(){
    await page.goto(address,{waitUntil:"networkidle"});
    await page.waitForSelector(".data-table tr[data-edit]");
    assert.equal(await page.locator(".data-table tr[data-edit]").count(),2,"Two stub companies displayed");
+   assert.equal((await page.locator("#overviewHeader h1").innerText()).trim(),"Praktikumsbewerbung","Only requested heading is shown");
+   await page.locator('.nav-item[data-view="all"]').click();
+   assert.equal(await page.locator('.data-table tr.row-open').count(),1,"Open company gets row tint");
+   assert.equal(await page.locator('.data-table tr.row-rejected').count(),1,"Rejected company gets row tint");
+   const desktopColors=await page.evaluate(() => ({
+     green:getComputedStyle(document.querySelector(".data-table tr.row-open td")).backgroundColor,
+     red:getComputedStyle(document.querySelector(".data-table tr.row-rejected td")).backgroundColor
+   }));
+   assert.equal(desktopColors.green,"rgba(88, 138, 108, 0.17)","Entire open table row is muted green");
+   assert.equal(desktopColors.red,"rgba(145, 86, 89, 0.19)","Entire rejected table row is muted red");
+   await page.locator('.nav-item[data-view="overview"]').click();
    await page.locator(".gdm-top-button").click();
    await page.waitForSelector("#gdm-overlay:not([hidden])");
    assert.match(await page.locator("#gdm-address").innerText(),/Bahnhofstr. 10/,"First address visible");
@@ -102,6 +113,12 @@ async function run(){
    await mobile.goto(address,{waitUntil:"networkidle"});
    await mobile.waitForSelector(".mobile-card[data-edit]");
    assert.equal(await mobile.locator(".mobile-card[data-edit]").count(),2);
+   const mobileColors=await mobile.evaluate(() => ({
+     green:getComputedStyle(document.querySelector(".mobile-card.row-open")).backgroundColor,
+     red:getComputedStyle(document.querySelector(".mobile-card.row-rejected")).backgroundColor
+   }));
+   assert.equal(mobileColors.green,"rgba(88, 138, 108, 0.17)","Whole mobile card gets muted green");
+   assert.equal(mobileColors.red,"rgba(145, 86, 89, 0.19)","Whole rejected mobile card gets muted red");
    await mobile.locator(".mobile-card[data-edit='betrieb-detmold'] [data-gdm-mail]").click();
    await mobile.waitForSelector("#gdm-overlay:not([hidden])");
    assert.match(await mobile.locator("#gdm-address").innerText(),/Testweg 7/);
