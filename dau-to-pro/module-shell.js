@@ -150,6 +150,16 @@
     try {
       const doc = frame.contentDocument;
       if (!doc || frame.contentWindow.location.origin !== location.origin) return;
+      // The module injects its own sticky "Modulauswahl" header via sync.js.
+      // Inside the persistent module shell, our outer bar already provides
+      // this navigation plus NERD FM. Suppress only the redundant inner bar;
+      // direct module URLs continue to show their normal navigation.
+      if (!doc.getElementById('dtp-shell-single-navigation')) {
+        const style = doc.createElement('style');
+        style.id = 'dtp-shell-single-navigation';
+        style.textContent = 'dtp-back{display:none!important}';
+        (doc.head || doc.documentElement).appendChild(style);
+      }
       doc.addEventListener('click', event => {
         if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey ||
             event.shiftKey || event.altKey) return;
