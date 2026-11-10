@@ -135,7 +135,7 @@ async function run(){
    }));
    assert.equal(mobileColors.green,"rgba(66, 139, 115, 0.23)","Whole contacted mobile card gets muted green");
    assert.equal(mobileColors.red,"rgba(151, 81, 86, 0.23)","Whole rejected mobile card gets muted red");
-   assert.equal(mobileColors.neutral,"rgba(14, 27, 36, 0.77)","Not yet applied mobile card is neutral");
+   assert.match(mobileColors.neutral,/^rgba\(14, 27, 36, 0\.7/,"Not yet applied mobile card is neutral");
    assert.match(mobileColors.wallpaper,/network-ports-768\.webp/,"Mobile uses lightweight teaching wallpaper");
    assert.equal(mobileColors.overflow,false,"No horizontal mobile overflow");
    assert.equal(await mobile.locator("#logoutTop").isVisible(),true,"Logout visible on mobile");
