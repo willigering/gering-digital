@@ -104,8 +104,8 @@ try{
         if(empty($_FILES[$key])||!is_array($_FILES[$key]))throw new InvalidArgumentException('Bitte eine PDF-Datei wählen.');
         if($key==='template'){
             $tmp=(string)($_FILES[$key]['tmp_name']??'');
-            if(!is_uploaded_file($tmp)||!str_contains((string)file_get_contents($tmp),'GD_Bewerbung_Seite2_Leer_V1')){
-                throw new InvalidArgumentException('Bitte nur die vorbereitete fünfseitige PDF-Vorlage hochladen, nicht das Original mit alter Firmenanschrift.');
+            if(!is_uploaded_file($tmp)||(!str_contains((string)file_get_contents($tmp),'GD_Bewerbung_Seite2_Leer_V1')&&!str_contains((string)file_get_contents($tmp),'GD_Bewerbung_Original_V2'))){
+                throw new InvalidArgumentException('Bitte eine unterstützte fünfseitige Bewerbungsvorlage hochladen.');
             }
         }
         gdm_save_asset($db,$key,$_FILES[$key],$key==='cv'?6*1024*1024:10*1024*1024);
