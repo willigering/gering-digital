@@ -7,6 +7,7 @@
 (function(){
 "use strict";
 const TEMPLATE_MARKER="GD_Bewerbung_Seite2_Leer_V1";
+const ORIGINAL_MARKER="GD_Bewerbung_Original_V2";
 const PERIOD="vom 09.08.2027 - 24.03.2028";
 const PAGE_COUNT=5;
 function clean(text){
@@ -48,12 +49,18 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   const {PDFDocument,StandardFonts,rgb}=window.PDFLib;
   const doc=await PDFDocument.load(templateBytes,{ignoreEncryption:false});
   if(doc.getPageCount()!==PAGE_COUNT)throw new Error("Die Vorlage muss genau fünf Seiten enthalten.");
-  if(!String(doc.getKeywords()||"").includes(TEMPLATE_MARKER)){
-    throw new Error("Bitte die vorbereitete Datei „Bewerbungsmappe_Editierbare_Vorlage.pdf“ hochladen. Die Original-PDF enthält noch das alte Anschreiben.");
+  const keywords=String(doc.getKeywords()||"");
+  const isOriginal=keywords.includes(ORIGINAL_MARKER);
+  if(!isOriginal&&!keywords.includes(TEMPLATE_MARKER)){
+    throw new Error("Bitte die aus deiner Originalbewerbung vorbereitete fünfseitige PDF hochladen.");
   }
   const p=doc.getPage(1);
   const width=p.getWidth(),height=p.getHeight();
   if(Math.abs(width-595.32)>3||Math.abs(height-841.92)>3)throw new Error("Die Briefseite muss A4 groß sein.");
+  // An intact original still contains the old recipient, date and letter.
+  // Cover only its editable text region; leave the original sender header and
+  // the handwritten signature at the bottom of page two untouched.
+  if(isOriginal)p.drawRectangle({x:69,y:60,width:487,height:632,color:rgb(1,1,1)});
   const font=await doc.embedFont(StandardFonts.Helvetica);
   const bold=await doc.embedFont(StandardFonts.HelveticaBold);
   const ink=rgb(.28,.28,.28);
