@@ -12,13 +12,14 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 // ---------------------------------------------------------------- Katalog und Freischaltung
 $songs=nfm_songs();
 $hasDejaVu=is_file(nfm_dir().'/deja-vu.mp3');
-$expectedIds=['apipa','sieben-schichten','klopf-klopf','dau-to-pro'];
+$expectedIds=['apipa','sieben-schichten','klopf-klopf','ping-mich-nicht-voll','dau-to-pro'];
 if ($hasDejaVu) $expectedIds[]='deja-vu';
 check(array_keys($songs)===$expectedIds,'Feste Playlist-Reihenfolge, neuer Song erst mit echter MP3');
 if ($hasDejaVu) check($songs['deja-vu']['unlock']===null && $songs['deja-vu']['module']===null,'Diggy Thal – Déjà-vu ist ohne Konto oder Achievement verfügbar');
 check($songs['apipa']['unlock']===null,'APIPA ist sofort verfügbar');
 check($songs['sieben-schichten']['unlock']==='osi.lernpfad' && $songs['sieben-schichten']['module']==='osi-sprint','7 Schichten: Lernpfad Easy OSI for FISI');
 check($songs['klopf-klopf']['unlock']==='b5.lernpfad' && $songs['klopf-klopf']['module']==='b5-netzwerkdienste','Klopf, Klopf: Lernpfad Port 80, bitte kommen');
+check($songs['ping-mich-nicht-voll']['unlock']==='netz.lernpfad' && $songs['ping-mich-nicht-voll']['module']==='netzwerke-sprint','Ping mich nicht voll: Lernpfad Jetzt ma Router bei die Switche');
 check($songs['dau-to-pro']['unlock']==='g.easteregg' && $songs['dau-to-pro']['module']===null,'DAU to PRO: Pilz-Easter-Egg, ohne Kartenvermerk');
 foreach ($songs as $id=>$s) {
     check(is_file(nfm_dir().'/'.$s['file']),"Datei für $id vorhanden");
@@ -66,6 +67,17 @@ db()->prepare('INSERT INTO learners(id,username,password_hash) VALUES(?,?,?)')->
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'b5.lernpfad','2026-11-07 12:00:00']);
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
 $learner=learner_by_id($lid);
+
+// Der neue Song nutzt vorhandene Lernpfad-Achievements, auch bei bereits abgeschlossenen Konten.
+check(!in_array('ping-mich-nicht-voll',array_column(nfm_tracks($learner),'id'),true),'Ohne Netzwerk-Lernpfad bleibt Ping mich nicht voll gesperrt');
+db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'netz.lernpfad','2026-11-10 12:00:00']);
+check(in_array('ping-mich-nicht-voll',array_column(nfm_tracks($learner),'id'),true),'Netzwerk-Lernpfad schaltet Ping mich nicht voll frei');
+foreach (['netzwerke-sprint','netzwerke','routing-switching'] as $slug) {
+    check(str_contains((string)nfm_card_note($slug,[]),'„Ping mich nicht voll“ freischaltbar'),'Songhinweis für '.$slug);
+    check(str_contains((string)nfm_card_note($slug,['netz.lernpfad'=>'x']),'freigeschaltet'),'Freigeschalteter Songhinweis für '.$slug);
+}
+check(nfm_save_off($learner,['ping-mich-nicht-voll'])===['ping-mich-nicht-voll'],'Neuer Song lässt sich in der Playlist abwählen');
+nfm_save_off($learner,[]);
 
 // ---------------------------------------------------------------- Links
 $now=1800000000;
@@ -125,6 +137,8 @@ try {
     $locked=$base.nfm_link('klopf-klopf',0,$sid);
     [$st]=http($locked,$audio);
     check($st===403,'Nicht freigeschalteter Song bleibt gesperrt, auch mit gültiger Signatur');
+    [$st]=http($base.nfm_link('ping-mich-nicht-voll',0,$sid),$audio);
+    check($st===403,'Ping mich nicht voll bleibt für Gäste auch mit gültigem Link gesperrt');
     [$st]=http($base.'api/song.php?s=../../data/x&e=1&k=0',$audio);
     check($st===404,'Unbekannte Song-ID wird abgewiesen');
     // Begrenzung der Songstarts je Sitzung

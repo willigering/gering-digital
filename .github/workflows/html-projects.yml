@@ -81,6 +81,10 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/nerd_radio_browser.cjs
+      - name: Check uninterrupted NERD FM playback and single module navigation
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/radio_module_continuity.cjs
       - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
