@@ -70,3 +70,7 @@ body::before{opacity:.09;z-index:0;mask-image:linear-gradient(180deg,#0008,trans
 }
 @media(max-width:380px){.topbar{height:auto;min-height:68px}.top-actions{flex-wrap:wrap}.top-actions #newTop,.top-actions .top-logout{flex:1}}
 @media(prefers-reduced-motion:reduce){.application-backdrop::before{transform:none!important;will-change:auto}}
+
+/* Das echte Gering-Digital-Signet statt des fehlerhaften Text-Platzhalters. */
+.brand-mark:is(img){display:block;flex:0 0 auto;object-fit:contain;object-position:center;border:0;border-radius:5px;background:transparent;box-shadow:none;padding:0}
+.auth-card .brand-mark:is(img){width:48px;height:48px;margin-bottom:25px}
