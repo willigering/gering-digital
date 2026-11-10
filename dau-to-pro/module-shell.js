@@ -23,6 +23,13 @@
   let opener = null;
   let clockTimer = 0;
 
+  // Radio-Shell nur bei bereits laufender oder bewusst pausierter Musik.
+  // Bei Stopp und vor dem ersten Play bleibt die originale Modulnavigation.
+  function needsPersistentRadio() {
+    const state = radio.nerdRadio?.state;
+    return state === 'playing' || state === 'paused';
+  }
+
   // Nur tatsächlich veröffentlichte, auf der Startseite verlinkte Lernmodule.
   grid.querySelectorAll('a.module-card, a.module-open').forEach(a => {
     const url = new URL(a.href);
@@ -119,7 +126,7 @@
         event.ctrlKey || event.shiftKey || event.altKey || event.metaKey ||
         link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
     const slug = slugFromLink(link);
-    if (!slug) return;
+    if (!slug || !needsPersistentRadio()) return;
     event.preventDefault();
     opener = link;
     openedFromHome = true;
@@ -185,8 +192,10 @@
 
   addEventListener('popstate', () => {
     const slug = new URL(location.href).searchParams.get('modul');
-    if (slug && allowed.has(slug)) open(slug);
-    else {
+    if (slug && allowed.has(slug)) {
+      if (needsPersistentRadio()) open(slug);
+      else location.replace(new URL(allowed.get(slug).path, location.origin).href);
+    } else {
       hide();
       openedFromHome = false;
     }
@@ -194,5 +203,9 @@
 
   // Direktes Öffnen eines Lesezeichens (?modul=…) funktioniert auch nach Reload.
   const initial = new URL(location.href).searchParams.get('modul');
-  if (initial && allowed.has(initial)) open(initial);
+  if (initial && allowed.has(initial)) {
+    // A reloaded module bookmark has no active radio: avoid the extra toolbar.
+    if (needsPersistentRadio()) open(initial);
+    else location.replace(new URL(allowed.get(initial).path, location.origin).href);
+  }
 })();
