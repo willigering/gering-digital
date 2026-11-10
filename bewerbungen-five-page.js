@@ -74,7 +74,10 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   const dateText=clean(date);
   const dateSize=fitLine(dateText,11,font,160);
   p.drawText(dateText,{x:554-font.widthOfTextAtSize(dateText,dateSize),y:height-283.5,size:dateSize,font,color:ink});
-  const title=clean(subject).trim();
+  // The e-mail subject may already include the period. On the original PDF it
+  // has its own fixed second line: avoid duplicating the period in the first.
+  const title=clean(subject).trim()
+    .replace(/\s+vom\s+09\.08\.2027\s*(?:-|bis)\s*24\.03\.2028\.?$/i,"").trim();
   if(!title)throw new Error("Ein Betreff fehlt.");
   const titleSize=fitLine(title,10.65,bold,maxWidth,8.6);
   p.drawText(title,{x,y:height-312,size:titleSize,font:bold,color:ink});
