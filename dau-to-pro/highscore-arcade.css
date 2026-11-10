@@ -7,9 +7,9 @@
 .arcade-champions{display:grid;grid-template-columns:1fr 1.18fr 1fr;gap:clamp(9px,1.5vw,20px);align-items:end;min-height:365px;padding:16px 4px 22px}
 .arcade-champion{--rank-glow:#cd895a;--rank-ink:#ffb98e;min-width:0;min-height:300px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:8px;padding:55px 12px 18px;isolation:isolate;clip-path:polygon(8% 0,92% 0,100% 10%,100% 94%,94% 100%,6% 100%,0 94%,0 10%);background:linear-gradient(155deg,color-mix(in srgb,var(--rank-glow) 25%,#12202b),#09151e 57%,#0b141d);filter:drop-shadow(0 12px 14px #0009);text-align:center}
 .arcade-champion:before{content:"";pointer-events:none;position:absolute;inset:0;z-index:-1;border:2px solid var(--rank-glow);clip-path:inherit;box-shadow:inset 0 0 28px color-mix(in srgb,var(--rank-glow) 21%,transparent)}
-.arcade-champion.rank-1{--rank-glow:#e7b04c;--rank-ink:#ffd37a;min-height:352px;padding-top:65px;background:radial-gradient(ellipse at 50% 0,#9a641c5b,transparent 69%),linear-gradient(165deg,#352919,#101c23 65%,#0b151c)}
-.arcade-champion.rank-2{--rank-glow:#75d5f5;--rank-ink:#a9e9ff}
-.arcade-champion.rank-3{--rank-glow:#dc8c67;--rank-ink:#f1b392}
+.arcade-champion.rank-1{order:2;--rank-glow:#e7b04c;--rank-ink:#ffd37a;min-height:352px;padding-top:65px;background:radial-gradient(ellipse at 50% 0,#9a641c5b,transparent 69%),linear-gradient(165deg,#352919,#101c23 65%,#0b151c)}
+.arcade-champion.rank-2{order:1;--rank-glow:#75d5f5;--rank-ink:#a9e9ff}
+.arcade-champion.rank-3{order:3;--rank-glow:#dc8c67;--rank-ink:#f1b392}
 .arcade-champion.is-self:after{content:"";position:absolute;inset:5px;border:1px solid #fff3;pointer-events:none;clip-path:inherit}
 .arcade-rank{position:absolute;right:12px;top:0;font-size:clamp(76px,10vw,150px);line-height:1;font-weight:1000;font-style:italic;letter-spacing:-.1em;color:color-mix(in srgb,var(--rank-glow) 27%,transparent);text-shadow:0 0 24px #0006;pointer-events:none}
 .arcade-crown{position:relative;font-size:clamp(26px,3.7vw,52px);line-height:1;color:var(--rank-ink);filter:drop-shadow(0 0 12px var(--rank-glow))}
