@@ -132,7 +132,7 @@ async function run(){
    await page.locator(".nav-item[data-view='settings']").click();
    await page.waitForSelector("#gdm-config-form");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
-   assert.equal(await page.locator("#gdm-cv-status").innerText(),"Lebenslauf.pdf gespeichert");
+   assert.equal((await page.locator("#gdm-cv-status").textContent()).trim(),"Lebenslauf.pdf gespeichert");
    assert.match(await page.locator("#gdm-map-status").innerText(),/fünfseitige Vorlage bereit/,"Five-page template ready");
    assert.equal(await page.locator("#gdm-original-status").innerText(),"Noch keine Originalbewerbung hinterlegt");
    assert.equal(await page.locator("#gdm-download-original").isVisible(),false,"Private original download hidden before upload");
