@@ -7,7 +7,6 @@
 (function(){
 "use strict";
 const TEMPLATE_MARKER="GD_Bewerbung_Seite2_Leer_V1";
-const ORIGINAL_MARKER="GD_Bewerbung_Original_V2";
 const PERIOD="vom 09.08.2027 - 24.03.2028";
 const PAGE_COUNT=5;
 function clean(text){
@@ -49,18 +48,12 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   const {PDFDocument,StandardFonts,rgb}=window.PDFLib;
   const doc=await PDFDocument.load(templateBytes,{ignoreEncryption:false});
   if(doc.getPageCount()!==PAGE_COUNT)throw new Error("Die Vorlage muss genau fünf Seiten enthalten.");
-  const keywords=String(doc.getKeywords()||"");
-  const isOriginal=keywords.includes(ORIGINAL_MARKER);
-  if(!isOriginal&&!keywords.includes(TEMPLATE_MARKER)){
-    throw new Error("Bitte die aus deiner Originalbewerbung vorbereitete fünfseitige PDF hochladen.");
+  if(!String(doc.getKeywords()||"").includes(TEMPLATE_MARKER)){
+    throw new Error("Bitte die vorbereitete Datei „Bewerbungsmappe_Editierbare_Vorlage.pdf“ hochladen. Die Original-PDF enthält noch das alte Anschreiben.");
   }
   const p=doc.getPage(1);
   const width=p.getWidth(),height=p.getHeight();
   if(Math.abs(width-595.32)>3||Math.abs(height-841.92)>3)throw new Error("Die Briefseite muss A4 groß sein.");
-  // An intact original still contains the old recipient, date and letter.
-  // Cover only its editable text region; leave the original sender header and
-  // the handwritten signature at the bottom of page two untouched.
-  if(isOriginal)p.drawRectangle({x:69,y:41,width:487,height:651,color:rgb(1,1,1)});
   const font=await doc.embedFont(StandardFonts.Helvetica);
   const bold=await doc.embedFont(StandardFonts.HelveticaBold);
   const ink=rgb(.28,.28,.28);
@@ -104,7 +97,6 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   block.lines.forEach((line,i)=>{
     if(line)p.drawText(line,{x,y:top-i*block.lineHeight,size:bodySize,font,color:ink});
   });
-  if(isOriginal)p.drawText("Mit freundlichen Grüßen",{x,y:height-792,size:10.5,font,color:ink});
   doc.setTitle("Bewerbung um ein Praktikum – "+clean(company).trim());
   doc.setSubject("Praktikum Fachinformatiker Systemintegration 09.08.2027–24.03.2028");
   const output=await doc.save({useObjectStreams:false,updateFieldAppearances:false});
