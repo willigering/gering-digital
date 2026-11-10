@@ -49,7 +49,7 @@ async function run(){
      const body=Buffer.concat(chunks).toString("utf8");
      if(a==="preview"){
        calls.preview++;
-       assert(body.includes("betrieb-detmold"),"Preview uses selected company");
+       assert(body.includes("betrieb-lemgo"),"Preview uses selected uncontacted company");
        const bytes=Buffer.from("%PDF-1.4\n"+' '.repeat(150)+"\n%%EOF");
        res.writeHead(200,{"Content-Type":"application/pdf","Cache-Control":"no-store",
          "X-Document-SHA256":"a".repeat(64)});
@@ -61,7 +61,7 @@ async function run(){
        assert(/expectedPdfHash[\s\S]{0,300}[a-f0-9]{64}/.test(body),"Exact preview PDF hash forwarded");
        assert(body.includes('"useFivePage":true'),"Five-page mode requested");
        assert(body.includes("Bewerbungsmappe.pdf"),"Whole five-page map attached");
-       assert(body.includes("detmold@example.org"),"Correct recipient forwarded");
+       assert(body.includes("lemgo@example.org"),"Correct recipient forwarded");
        send(200,{sent:true,message:"SMTP accepted"});return;
      }
      if(a==="save-settings"){send(200,{config:cfg,smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,templateStored:true,templateFilename:"Blank_Vorlage.pdf",history:[]});return;}
@@ -111,11 +111,13 @@ async function run(){
    await page.locator('.nav-item[data-view="overview"]').click();
    await page.locator(".gdm-top-button").click();
    await page.waitForSelector("#gdm-overlay:not([hidden])");
-   assert.match(await page.locator("#gdm-address").innerText(),/Bahnhofstr. 10/,"First address visible");
-   await page.locator("#gdm-company").selectOption("betrieb-detmold");
-   assert.match(await page.locator("#gdm-address").innerText(),/Testweg 7/,"Switch adjusts PDF recipient address");
-   assert.equal(await page.locator("#gdm-to").inputValue(),"detmold@example.org","Mail recipient follows company");
-   assert.equal(await page.locator("#gdm-subject").inputValue(),"Praktikum bei Musterfirma Detmold");
+   assert.equal(await page.locator("#gdm-company option").count(),1,"Only companies without a sent application are selectable");
+   assert.equal(await page.locator("#gdm-company").inputValue(),"betrieb-lemgo","Uncontacted company selected by default");
+   assert.match(await page.locator("#gdm-address").innerText(),/Kirchweg 8/,"Uncontacted company address visible");
+   
+   
+   assert.equal(await page.locator("#gdm-to").inputValue(),"lemgo@example.org","Mail recipient follows uncontacted company");
+   assert.equal(await page.locator("#gdm-subject").inputValue(),"Praktikum bei Musterfirma Lemgo");
    assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Cannot send without preview");
    await page.locator("#gdm-preview").click();
    await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
@@ -176,9 +178,9 @@ async function run(){
    assert.match(mobileColors.wallpaper,/network-ports-768\.webp/,"Mobile uses lightweight teaching wallpaper");
    assert.equal(mobileColors.overflow,false,"No horizontal mobile overflow");
    assert.equal(await mobile.locator("#logoutTop").isVisible(),true,"Logout visible on mobile");
-   await mobile.locator(".mobile-card[data-edit='betrieb-detmold'] [data-gdm-mail]").click();
+   await mobile.locator(".mobile-card[data-edit='betrieb-lemgo'] [data-gdm-mail]").click();
    await mobile.waitForSelector("#gdm-overlay:not([hidden])");
-   assert.match(await mobile.locator("#gdm-address").innerText(),/Testweg 7/);
+   assert.match(await mobile.locator("#gdm-address").innerText(),/Kirchweg 8/);
    await mobile.close();
    console.log("Bewerbungskompass e-mail composer: desktop/mobile, PDF preview gate, company address, send & settings OK.");
  } finally {
