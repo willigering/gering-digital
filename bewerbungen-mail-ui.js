@@ -36,6 +36,7 @@ async function refreshMail(){
 }
 function ready(){if(app.mode()==="ready")return true;alert("Bitte erst im geschützten Bewerbungskompass anmelden. Der SMTP-Versand ist nur online möglich.");return false}
 function status(s,bad){const n=$("gdm-settings-status");if(n){n.textContent=s;n.classList.toggle("is-error",!!bad)}}
+function uploadStatus(s,bad){const n=$("gdm-upload-status");if(n){n.textContent=s;n.classList.toggle("is-error",!!bad)}status(s,bad)}
 function createSettings(){
   if($("gdm-settings-block"))return;
   const wrapper=document.createElement("div");wrapper.id="gdm-settings-block";
@@ -75,6 +76,7 @@ function createSettings(){
     '<h3>Meine fünfseitige Bewerbungsmappe</h3>',
     '<p>Die vollständige Mappe bleibt erhalten: Deckblatt (Seite 1), <strong>editierbares Anschreiben (Seite 2)</strong>, Lebenslauf (Seite 3) und Arbeitszeugnis (Seiten 4–5). Unterschrift, Foto und Zeugnisse bleiben original.</p>',
     '<div class="gdm-file-card"><span class="gdm-file-icon">PDF</span><div><strong id="gdm-map-status">Noch keine fünfseitige Vorlage hinterlegt</strong><small>Nur die vorbereitete Datei Bewerbungsmappe_Editierbare_Vorlage.pdf, bis 10 MB</small></div></div>',
+    '<p class="gdm-state" id="gdm-upload-status" role="status" aria-live="polite"></p>',
     '<input type="file" id="gdm-map-input" accept=".pdf,application/pdf" hidden>',
     '<div class="gdm-actions"><button type="button" class="button secondary" id="gdm-upload-map">↑ Fünfseitige Vorlage hochladen</button>',
     '<a class="button secondary" id="gdm-download-map" href="bewerbungen-mail.php?action=template" hidden>↓ Vorlage</a>',
@@ -125,9 +127,10 @@ function createSettings(){
   $("gdm-map-input").addEventListener("change",async()=>{
     const file=$("gdm-map-input").files[0];$("gdm-map-input").value="";
     if(!file)return;
-    if(file.size>10*1024*1024){status("PDF-Vorlage größer als 10 MB.",true);return}
-    try{await post("upload-template",{},[["template",file]]);await refreshMail();status("✓ Fünfseitige Vorlage privat gespeichert.");}
-    catch(ex){status(ex.message,true)}
+    uploadStatus("Prüfe und lade „"+file.name+"“ hoch …");
+    if(file.size>10*1024*1024){uploadStatus("PDF-Vorlage größer als 10 MB.",true);return}
+    try{await post("upload-template",{},[["template",file]]);await refreshMail();uploadStatus("✓ Fünfseitige Vorlage privat gespeichert.");}
+    catch(ex){uploadStatus(ex.message,true)}
   });
   $("gdm-remove-map").addEventListener("click",async()=>{
     if(!confirm("Die fünfseitige Bewerbungsvorlage wirklich entfernen?"))return;
@@ -137,9 +140,10 @@ function createSettings(){
   $("gdm-upload-original").addEventListener("click",()=>$("gdm-original-input").click());
   $("gdm-original-input").addEventListener("change",async()=>{
     const file=$("gdm-original-input").files[0];$("gdm-original-input").value="";
-    if(!file)return;if(file.size>10*1024*1024){status("Original-PDF größer als 10 MB.",true);return}
-    try{await post("upload-original",{},[["original",file]]);await refreshMail();status("✓ Originalbewerbung privat gespeichert.")}
-    catch(ex){status(ex.message,true)}
+    if(!file)return;uploadStatus("Lade Original-PDF „"+file.name+"“ hoch …");
+    if(file.size>10*1024*1024){uploadStatus("Original-PDF größer als 10 MB.",true);return}
+    try{await post("upload-original",{},[["original",file]]);await refreshMail();uploadStatus("✓ Originalbewerbung privat gespeichert.")}
+    catch(ex){uploadStatus(ex.message,true)}
   });
   $("gdm-remove-original").addEventListener("click",async()=>{
     if(!confirm("Die private Originalbewerbung aus dem Bewerbungskompass entfernen?"))return;
