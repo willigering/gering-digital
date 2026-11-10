@@ -60,7 +60,7 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   // An intact original still contains the old recipient, date and letter.
   // Cover only its editable text region; leave the original sender header and
   // the handwritten signature at the bottom of page two untouched.
-  if(isOriginal)p.drawRectangle({x:69,y:60,width:487,height:632,color:rgb(1,1,1)});
+  if(isOriginal)p.drawRectangle({x:69,y:41,width:487,height:651,color:rgb(1,1,1)});
   const font=await doc.embedFont(StandardFonts.Helvetica);
   const bold=await doc.embedFont(StandardFonts.HelveticaBold);
   const ink=rgb(.28,.28,.28);
@@ -104,6 +104,7 @@ async function make(templateBytes,{company,recipient,street,postal,city,date,sub
   block.lines.forEach((line,i)=>{
     if(line)p.drawText(line,{x,y:top-i*block.lineHeight,size:bodySize,font,color:ink});
   });
+  if(isOriginal)p.drawText("Mit freundlichen Grüßen",{x,y:height-792,size:10.5,font,color:ink});
   doc.setTitle("Bewerbung um ein Praktikum – "+clean(company).trim());
   doc.setSubject("Praktikum Fachinformatiker Systemintegration 09.08.2027–24.03.2028");
   const output=await doc.save({useObjectStreams:false,updateFieldAppearances:false});
