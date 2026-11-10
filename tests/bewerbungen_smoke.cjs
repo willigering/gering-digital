@@ -8,6 +8,22 @@ const vm=require("node:vm");
 const html=fs.readFileSync("b.html","utf8");
 const theme=fs.readFileSync("bewerbungen-theme.css","utf8");
 const php=fs.readFileSync("bewerbungen-api.php","utf8");
+const mailPhp=fs.readFileSync("bewerbungen-mail.php","utf8");
+const mailLib=fs.readFileSync("bewerbungen-mail-lib.php","utf8");
+const mailUi=fs.readFileSync("bewerbungen-mail-ui.js","utf8");
+new vm.Script(mailUi,{filename:"bewerbungen-mail-ui.js"});
+for(const action of ["upload-original","remove-original","original","upload-cv","remove-cv"]){
+  assert(mailPhp.includes("'"+action+"'"),"Missing private document operation: "+action);
+}
+assert(mailPhp.includes("gdcsrf($body)"),"Private document uploads must use session CSRF token");
+assert(mailPhp.includes("empty($_SESSION['bewerbungen_authenticated'])"),"Private document downloads must require login");
+assert(mailLib.includes("is_uploaded_file($tmp)")&&mailLib.includes("gdm_save_asset("),
+  "Uploaded PDFs stored in authenticated private SQLite, never on public server paths");
+assert(mailUi.includes('gdm-template-input')&&mailUi.includes('gdm-original-input'),
+  "Original application and template import controls exist");
+assert(mailUi.includes("wird deshalb")&&mailUi.includes("niemals automatisch"),
+  "Original file with a company-specific letter may not silently be attached to others");
+
 const rootHtaccess=fs.readFileSync(".htaccess","utf8");
 const match=html.match(/<script>([\s\S]*?)<\/script>/i);
 assert(match,"Inline frontend controller exists");
