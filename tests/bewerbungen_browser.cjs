@@ -7,6 +7,7 @@ const http=require("node:http");
 const path=require("node:path");
 const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
+const {PDFDocument}=require("pdf-lib");
 
 const companies=[
  {id:"betrieb-lage",company:"Musterfirma Lage",city:"Lage",street:"Bahnhofstr. 10",postal:"32791",postCity:"Lage",recipient:"Personalabteilung",email:"lage@example.org",distanceKm:2,status:"beworben",appliedAt:"2026-11-10"},
@@ -22,7 +23,12 @@ const cfg={
 };
 let calls={preview:0,send:0,raw:""};
 let originalPresent=false;
+let pdfTemplate=null;
 async function run(){
+ const master=await PDFDocument.create();
+ for(let i=0;i<5;i++)master.addPage([595.32,841.92]);
+ master.setKeywords(["GD_Bewerbung_Seite2_Leer_V1"]);
+ pdfTemplate=Buffer.from(await master.save({useObjectStreams:false}));
  const server=http.createServer(async(req,res)=>{
    const url=new URL(req.url,"http://localhost");
    const send=(status,body,headers={})=>{
@@ -34,7 +40,11 @@ async function run(){
    }
    if(url.pathname==="/bewerbungen-mail.php"){
      const a=url.searchParams.get("action");
-     if(a==="state"){send(200,{config:cfg,senderAddress:"willi.gering@mail.de",smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,history:[]});return;}
+     if(a==="state"){send(200,{config:cfg,senderAddress:"willi.gering@mail.de",smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,templateStored:true,templateFilename:"Blank_Vorlage.pdf",history:[]});return;}
+     if(a==="template"){
+       res.writeHead(200,{"Content-Type":"application/pdf","Cache-Control":"no-store"});
+       res.end(pdfTemplate);return;
+     }
      const chunks=[];for await(const chunk of req)chunks.push(chunk);
      const body=Buffer.concat(chunks).toString("utf8");
      if(a==="preview"){
@@ -48,17 +58,21 @@ async function run(){
      if(a==="send"){
        calls.send++;calls.raw=body;
        assert(body.includes("expectedPdfHash"),"Reviewed PDF hash required");
-       assert(body.includes("a".repeat(64)),"Expected PDF hash forwarded");
+       assert(/expectedPdfHash[\s\S]{0,300}[a-f0-9]{64}/.test(body),"Exact preview PDF hash forwarded");
+       assert(body.includes('"useFivePage":true'),"Five-page mode requested");
+       assert(body.includes("Bewerbungsmappe.pdf"),"Whole five-page map attached");
        assert(body.includes("detmold@example.org"),"Correct recipient forwarded");
        send(200,{sent:true,message:"SMTP accepted"});return;
      }
-     if(a==="save-settings"){send(200,{config:cfg,smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,history:[]});return;}
+     if(a==="save-settings"){send(200,{config:cfg,smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,templateStored:true,templateFilename:"Blank_Vorlage.pdf",history:[]});return;}
      if(a==="upload-original"){originalPresent=true;send(200,{message:"Private upload OK"});return;}
      if(a==="remove-original"){originalPresent=false;send(200,{message:"Private removal OK"});return;}
      send(200,{message:"Test OK"});return;
    }
    const accepted={"/b.html":"b.html","/bewerbungen-mail-ui.js":"bewerbungen-mail-ui.js",
     "/bewerbungen-mail.css":"bewerbungen-mail.css","/bewerbungen-theme.css":"bewerbungen-theme.css",
+    "/bewerbungen-five-page.js":"bewerbungen-five-page.js",
+    "/assets/lib/pdf-lib.min.js":"assets/lib/pdf-lib.min.js",
     "/assets/dau-backgrounds/network-ports-1536.webp":"assets/dau-backgrounds/network-ports-1536.webp",
     "/assets/dau-backgrounds/network-ports-768.webp":"assets/dau-backgrounds/network-ports-768.webp"};
    const file=accepted[url.pathname];
@@ -105,19 +119,21 @@ async function run(){
    assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Cannot send without preview");
    await page.locator("#gdm-preview").click();
    await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
-   assert.equal(calls.preview,1,"Preview API called once");
+   assert.equal(calls.preview,0,"Five-page PDF preview is created locally, not as a separate one-page server PDF");
    await page.locator("#gdm-letter").fill("Geänderter Anschreibenstext.");
    assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Editing invalidates preview");
    await page.locator("#gdm-preview").click();
    await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
    await page.locator("#gdm-send").click();
    await page.waitForFunction(()=>document.querySelector("#gdm-overlay").hidden);
-   assert.equal(calls.send,1,"One explicit send request");
+   assert.equal(calls.preview,0,"No legacy single-page PDF generated");
+   assert.equal(calls.send,1,"Exactly one explicit five-page send request");
    assert.equal(errors.length,0,"No browser page exceptions: "+errors.join(", "));
    await page.locator(".nav-item[data-view='settings']").click();
    await page.waitForSelector("#gdm-config-form");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
-   assert.equal(await page.locator("#gdm-cv-status").innerText(),"Lebenslauf.pdf gespeichert");
+   assert.equal((await page.locator("#gdm-cv-status").textContent()).trim(),"Lebenslauf.pdf gespeichert");
+   assert.match(await page.locator("#gdm-map-status").innerText(),/fünfseitige Vorlage bereit/,"Five-page template ready");
    assert.equal(await page.locator("#gdm-original-status").innerText(),"Noch keine Originalbewerbung hinterlegt");
    assert.equal(await page.locator("#gdm-download-original").isVisible(),false,"Private original download hidden before upload");
    await page.locator("#gdm-original-input").setInputFiles({

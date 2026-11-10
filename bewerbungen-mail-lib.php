@@ -48,7 +48,7 @@ function gdm_uploaded_pdf(array $up,int $limit):array {
     return ['filename'=>$name,'bytes'=>$bytes];
 }
 function gdm_save_asset(PDO $db,string $id,array $up,int $limit):void {
-    if(!in_array($id,['cv','original'],true))throw new InvalidArgumentException('Unbekannter Dokumenttyp.');
+    if(!in_array($id,['cv','original','template'],true))throw new InvalidArgumentException('Unbekannter Dokumenttyp.');
     $doc=gdm_uploaded_pdf($up,$limit);
     $q=$db->prepare('INSERT INTO mail_assets(id,filename,file,uploaded_at) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET filename=excluded.filename,file=excluded.file,uploaded_at=excluded.uploaded_at');
     $q->bindValue(1,$id);$q->bindValue(2,$doc['filename']);$q->bindValue(3,$doc['bytes'],PDO::PARAM_LOB);$q->bindValue(4,gmdate('c'));$q->execute();

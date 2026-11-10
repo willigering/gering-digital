@@ -11,6 +11,24 @@ const php=fs.readFileSync("bewerbungen-api.php","utf8");
 const mailPhp=fs.readFileSync("bewerbungen-mail.php","utf8");
 const mailLib=fs.readFileSync("bewerbungen-mail-lib.php","utf8");
 const mailUi=fs.readFileSync("bewerbungen-mail-ui.js","utf8");
+const fivePage=fs.readFileSync("bewerbungen-five-page.js","utf8");
+new vm.Script(fivePage,{filename:"bewerbungen-five-page.js"});
+for(const action of ["template","upload-template","remove-template"]){
+  assert(mailPhp.includes("'"+action+"'"),"Missing five-page template action: "+action);
+}
+assert(mailPhp.includes("'Bewerbungsmappe.pdf'"),"Five-page map must be sent as one file");
+assert(mailPhp.includes("expectedPdfHash"),"Reviewed PDF SHA-256 must match uploaded five-page bytes");
+assert(mailPhp.includes("preg_match_all('~/Type"),"Five-page output page-count must be verified");
+assert(mailLib.includes("GD_Bewerbung_Seite2_Leer_V1")||mailPhp.includes("GD_Bewerbung_Seite2_Leer_V1"),
+  "Only prepared redacted five-page template accepted");
+assert(fivePage.includes("doc.getPage(1)")&&fivePage.includes("getPageCount()!==PAGE_COUNT"),
+  "Only original letter page two must be edited");
+assert(fivePage.includes("TEMPLATE_MARKER"),"Empty original template marker checked before placing new addresses");
+assert(mailUi.includes("GDMFivePage.make(")&&mailUi.includes("useFivePage:true"),
+  "Complete five-page PDF must be assembled and mailed");
+assert(html.includes("assets/lib/pdf-lib.min.js")&&html.includes("bewerbungen-five-page.js"),
+  "Self-hosted PDF editor must load before mail UI");
+
 new vm.Script(mailUi,{filename:"bewerbungen-mail-ui.js"});
 for(const action of ["upload-original","remove-original","original","upload-cv","remove-cv"]){
   assert(mailPhp.includes("'"+action+"'"),"Missing private document operation: "+action);
