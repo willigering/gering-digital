@@ -48,18 +48,25 @@ function gdsafeId(string $id):string{
     if(!preg_match('/\A[A-Za-z0-9_.-]{3,120}\z/D',$id))throw new InvalidArgumentException('Ungültige Kennung.');
     return $id;
 }
-function gdcv(PDO $db):?array{
-    $q=$db->query("SELECT filename,file,uploaded_at FROM mail_assets WHERE id='cv'");
-    $r=$q->fetch();
+function gdasset(PDO $db,string $id):?array{
+    if(!in_array($id,['cv','original'],true))throw new InvalidArgumentException('Ungültiger Dokumenttyp.');
+    $q=$db->prepare('SELECT filename,file,uploaded_at FROM mail_assets WHERE id=?');
+    $q->execute([$id]);$r=$q->fetch();
     return $r?:null;
 }
+function gdcv(PDO $db):?array{return gdasset($db,'cv');}
 function gdview(PDO $db):void{
     $cfg=gdm_config($db);
     $stored=$db->query("SELECT smtp_secret FROM mail_meta WHERE id=1")->fetchColumn();
-    $hasCv=(bool)$db->query("SELECT 1 FROM mail_assets WHERE id='cv'")->fetchColumn();
+    $assetQuery=$db->query("SELECT id,filename FROM mail_assets WHERE id IN ('cv','original')");
+    $assets=[];
+    foreach($assetQuery->fetchAll() as $a)$assets[$a['id']]=$a['filename'];
+    $hasCv=isset($assets['cv']);
     $hist=$db->query('SELECT id,entry_id,created_at,recipient,subject,status,error FROM mail_history ORDER BY created_at DESC LIMIT 100')->fetchAll();
     gmj(['config'=>$cfg,'senderAddress'=>GD_MAIL_FROM,'smtpConfigured'=>is_string($stored)&&$stored!=='',
-         'cvStored'=>$hasCv,'history'=>$hist,'smtpServer'=>GD_MAIL_HOST,'smtpPort'=>GD_MAIL_PORT]);
+         'cvStored'=>$hasCv,'cvFilename'=>$assets['cv']??null,'originalStored'=>isset($assets['original']),
+          'originalFilename'=>$assets['original']??null,
+          'history'=>$hist,'smtpServer'=>GD_MAIL_HOST,'smtpPort'=>GD_MAIL_PORT]);
 }
 $action=(string)($_GET['action']??'state');
 if(empty($_SESSION['bewerbungen_authenticated']))gmerr('Bitte zuerst im Bewerbungskompass anmelden.',401);
@@ -67,13 +74,15 @@ try{
     $db=gdm_db();
     if($_SERVER['REQUEST_METHOD']==='GET'){
         if($action==='state')gdview($db);
-        if($action==='cv'){
-            $cv=gdcv($db);
-            if(!$cv)gmerr('Kein Lebenslauf hinterlegt.',404);
+        if($action==='cv'||$action==='original'){
+            $doc=gdasset($db,$action);
+            if(!$doc)gmerr('Kein Dokument hinterlegt.',404);
+            $name=(string)$doc['filename'];
+            $name=(string)preg_replace('/[^A-Za-z0-9_.-]/','_',$name);
             header('Content-Type: application/pdf');
-            header('Content-Disposition: attachment; filename="Lebenslauf.pdf"');
-            header('Content-Length: '.strlen($cv['file']));
-            echo $cv['file'];exit;
+            header('Content-Disposition: attachment; filename="'.$name.'"');
+            header('Content-Length: '.strlen($doc['file']));
+            echo $doc['file'];exit;
         }
         gmerr('Unbekannte Aktion.',404);
     }
@@ -89,20 +98,16 @@ try{
         gdm_smtp($pass,GD_MAIL_FROM,'','',[],true);
         gmj(['message'=>'SMTP-Anmeldung erfolgreich. Es wurde keine E-Mail versendet.']);
     }
-    if($action==='upload-cv'){
-        if(empty($_FILES['cv'])||!is_array($_FILES['cv']))throw new InvalidArgumentException('Bitte eine PDF-Datei wählen.');
-        $up=$_FILES['cv'];
-        if((int)$up['error']!==UPLOAD_ERR_OK)
-            throw new InvalidArgumentException('Upload fehlgeschlagen. Serverlimit und PDF-Größe prüfen.');
-        if((int)$up['size']<100||(int)$up['size']>6*1024*1024)throw new InvalidArgumentException('Lebenslauf darf maximal 6 MB groß sein.');
-        $pdf=file_get_contents($up['tmp_name']);
-        if(!is_string($pdf)||!str_starts_with($pdf,'%PDF-'))throw new InvalidArgumentException('Bitte einen gültigen PDF-Lebenslauf verwenden.');
-        $q=$db->prepare("INSERT INTO mail_assets(id,filename,file,uploaded_at) VALUES('cv',?,?,?) ON CONFLICT(id) DO UPDATE SET filename=excluded.filename,file=excluded.file,uploaded_at=excluded.uploaded_at");
-        $q->bindValue(1,'Lebenslauf.pdf');$q->bindValue(2,$pdf,PDO::PARAM_LOB);$q->bindValue(3,gmdate('c'));$q->execute();
+    if($action==='upload-cv'||$action==='upload-original'){
+        $original=$action==='upload-original';
+        $key=$original?'original':'cv';
+        if(empty($_FILES[$key])||!is_array($_FILES[$key]))throw new InvalidArgumentException('Bitte eine PDF-Datei wählen.');
+        gdm_save_asset($db,$key,$_FILES[$key],$original?10*1024*1024:6*1024*1024);
         gdview($db);
     }
-    if($action==='remove-cv'){
-        $db->exec("DELETE FROM mail_assets WHERE id='cv'");
+    if($action==='remove-cv'||$action==='remove-original'){
+        $key=$action==='remove-original'?'original':'cv';
+        $q=$db->prepare('DELETE FROM mail_assets WHERE id=?');$q->execute([$key]);
         gdview($db);
     }
     if($action==='preview'||$action==='send'){
@@ -136,7 +141,7 @@ try{
         if(!$pass)throw new InvalidArgumentException('Bitte das SMTP-Passwort unter E-Mail-Einstellungen hinterlegen.');
         $files=[['filename'=>'Anschreiben.pdf','bytes'=>$doc['pdf']]];
         $cv=gdcv($db);
-        if($cv && !empty($body['attachCv']))$files[]=['filename'=>'Lebenslauf.pdf','bytes'=>$cv['file']];
+        if($cv && !empty($body['attachCv']))$files[]=['filename'=>(string)$cv['filename'],'bytes'=>$cv['file']];
         if(!empty($_FILES['extra']['name'])){
             $ups=$_FILES['extra'];
             if(!is_array($ups['name']))throw new InvalidArgumentException('Ungültige Anhänge.');
