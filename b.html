@@ -30,19 +30,21 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;ba
 @media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{height:66px;position:sticky;top:0;flex-direction:row;padding:9px 16px;justify-content:space-between;border-right:0;border-bottom:1px solid var(--line);width:100%}.sidebar .nav-items{flex-direction:row}.nav-item{width:45px;padding:10px}.sidebar-spacer,.side-note,.side-footer,.nav-label{display:none}.brand-mark{width:39px;height:39px}.main{padding:0 16px 50px}.topbar{height:68px}.topbar-path{font-size:11px}.top-actions{gap:7px}.top-actions .sync{display:none}.top-actions .button{min-height:38px;padding:9px 12px;font-size:12px}.hero{padding:34px 0 23px;min-height:auto}.hero h1{font-size:38px;letter-spacing:-1.7px}.hero:after{display:none}.hero .datebox{display:none}.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.stat{padding:15px;min-height:115px}.stat .num{font-size:35px;margin-top:10px}.stat .stat-sub{font-size:10px}.overview-strip{grid-template-columns:1fr;margin:14px 0 25px}.glass{padding:18px}.section-head{align-items:start}.section-head h2{font-size:22px}.toolbar{padding:14px}.search{width:100%}.right-tools{width:100%}.right-tools .select{flex:1}.filters{padding:9px 14px 13px}.data-table{display:none}.mobile-cards{display:grid;gap:0}.mobile-card{padding:18px;border-top:1px solid #ffffff14;cursor:pointer}.mobile-card-top{display:flex;justify-content:space-between;gap:9px;align-items:flex-start}.mobile-card strong{font-size:14px}.mobile-card .company-sub{margin-top:5px}.mobile-card-bottom{display:flex;justify-content:space-between;align-items:center;gap:7px;margin-top:12px}.mobile-card-bottom small{color:var(--muted)}.settings-layout{grid-template-columns:1fr}.drawer-head{padding:22px}.editor-form{padding:21px}.drawer-bottom{padding:15px 20px}.fields{gap:12px}.auth-card{padding:26px}.footnote{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
 /* Firmenstatus: ganze Zeile bzw. komplette Karte, bewusst gedeckte Farben. */
-.data-table tbody tr.row-open td{background:rgba(88,138,108,.17);border-top-color:rgba(124,169,136,.18)}
+.data-table tbody tr.row-applied td{background:rgba(88,138,108,.17);border-top-color:rgba(124,169,136,.18)}
 .data-table tbody tr.row-rejected td{background:rgba(145,86,89,.19);border-top-color:rgba(176,106,108,.2)}
-.data-table tbody tr.row-open:hover td{background:rgba(88,138,108,.26)}
+.data-table tbody tr.row-applied:hover td{background:rgba(88,138,108,.26)}
 .data-table tbody tr.row-rejected:hover td{background:rgba(145,86,89,.28)}
-.data-table tbody tr.row-open td:first-child{box-shadow:inset 4px 0 0 rgba(128,182,143,.68)}
+.data-table tbody tr.row-applied td:first-child{box-shadow:inset 4px 0 0 rgba(128,182,143,.68)}
 .data-table tbody tr.row-rejected td:first-child{box-shadow:inset 4px 0 0 rgba(190,116,119,.7)}
-.mobile-card.row-open{background:rgba(88,138,108,.17);box-shadow:inset 4px 0 0 rgba(128,182,143,.68);border-top-color:rgba(124,169,136,.18)}
+.mobile-card.row-applied{background:rgba(88,138,108,.17);box-shadow:inset 4px 0 0 rgba(128,182,143,.68);border-top-color:rgba(124,169,136,.18)}
 .mobile-card.row-rejected{background:rgba(145,86,89,.19);box-shadow:inset 4px 0 0 rgba(190,116,119,.7);border-top-color:rgba(176,106,108,.2)}
-.mobile-card.row-open:hover{background:rgba(88,138,108,.26)}
+.mobile-card.row-applied:hover{background:rgba(88,138,108,.26)}
 .mobile-card.row-rejected:hover{background:rgba(145,86,89,.28)}
 </style>
+<link rel="stylesheet" href="bewerbungen-theme.css">
 </head>
 <body>
+<div class="application-backdrop" id="applicationBackdrop" aria-hidden="true"></div>
 <div class="app">
 <aside class="sidebar">
   <div class="brand"><span class="brand-mark">G<span style="font-size:13px">/</span></span><div>GERING DIGITAL</div></div>
@@ -61,7 +63,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;ba
 <main class="main">
   <div class="topbar">
     <div class="topbar-path"><strong id="crumb">Übersicht</strong></div>
-    <div class="top-actions"><span class="sync"><i class="tiny-dot" id="syncDot"></i><span id="syncText">Verbinde …</span></span><button id="newTop" class="button">＋ Neuer Betrieb</button></div>
+    <div class="top-actions"><span class="sync"><i class="tiny-dot" id="syncDot"></i><span id="syncText">Verbinde …</span></span><button id="newTop" class="button">＋ Neuer Betrieb</button><button type="button" id="logoutTop" class="button secondary small top-logout hidden" aria-label="Abmelden"><span aria-hidden="true">⇥</span> Abmelden</button></div>
   </div>
   <section id="overviewHeader">
     <div class="hero">
@@ -165,14 +167,14 @@ document.querySelectorAll(".nav-item").forEach(function(btn){btn.addEventListene
 function matches(r){var f=state.filter;if(f==="sent"&&!["beworben","rueckmeldung","gespraech","zusage","absage"].includes(r.status))return false;if(!["all","sent"].includes(f)&&r.status!==f)return false;var needle=state.search.trim().toLocaleLowerCase("de");return !needle||[r.company,r.city,r.contact,r.email,r.notes,r.street].join(" ").toLocaleLowerCase("de").includes(needle)}
 function sorted(){return state.rows.filter(matches).sort(function(a,b){if(state.sort==="name")return String(a.company).localeCompare(String(b.company),"de");if(state.sort==="city")return String(a.city).localeCompare(String(b.city),"de");if(state.sort==="date")return String(b.appliedAt||"").localeCompare(String(a.appliedAt||""))||String(a.company).localeCompare(String(b.company),"de");var x=a.distanceKm==null?999999:Number(a.distanceKm),y=b.distanceKm==null?999999:Number(b.distanceKm);return (x-y)||String(a.company).localeCompare(String(b.company),"de")})}
 function renderFilters(){var f=[["all","Alle"],["nicht_beworben","Nicht beworben"],["beworben","Beworben"],["rueckmeldung","Rückmeldung"],["gespraech","Gespräch"],["zusage","Zusage"],["absage","Absage"]];if(state.view==="sent")f=[["sent","Versendet"],["beworben","Beworben"],["rueckmeldung","Rückmeldung"],["gespraech","Gespräch"],["zusage","Zusage"],["absage","Absage"]];$("filters").innerHTML=f.map(function(a){return '<button type="button" class="filter '+(state.filter===a[0]?"active":"")+'" data-filter="'+a[0]+'">'+e(a[1])+'</button>'}).join("")}
-function rowStateClass(status){return ["nicht_beworben","vorbereitet"].includes(status)?"row-open":status==="absage"?"row-rejected":""}
+function rowStateClass(status){return status==="absage"?"row-rejected":["beworben","rueckmeldung","gespraech","zusage"].includes(status)?"row-applied":""}
 function rowHtml(r){var link=safeUrl(r.website);return '<tr class="'+rowStateClass(r.status)+'" data-edit="'+e(r.id)+'"><td><span class="company-name">'+e(r.company)+'</span><span class="company-sub">'+e(r.contact||r.email||"Ansprechpartner ergänzen")+'</span></td><td><span class="loc">'+e(r.city||"–")+'</span></td><td><span class="dist">'+e(numKm(r.distanceKm))+'</span></td><td><span class="status '+e(r.status)+'">'+e(statusLabels[r.status]||"Nicht beworben")+'</span></td><td><span class="date">'+e(fmtDate(r.appliedAt))+'</span></td><td class="td-action">'+(link?'<a class="row-action" href="'+e(link)+'" target="_blank" rel="noopener noreferrer" title="Karriereseite öffnen" aria-label="Karriereseite öffnen">↗</a> ':'')+'<button class="row-action" type="button" data-edit="'+e(r.id)+'" aria-label="Bearbeiten">⋯</button></td></tr>'}
 function cardHtml(r){return '<div class="mobile-card '+rowStateClass(r.status)+'" data-edit="'+e(r.id)+'"><div class="mobile-card-top"><div><strong>'+e(r.company)+'</strong><span class="company-sub">'+e(r.city||"–")+' · '+e(numKm(r.distanceKm))+'</span></div><span class="row-action">↗</span></div><div class="mobile-card-bottom"><span class="status '+e(r.status)+'">'+e(statusLabels[r.status]||"Nicht beworben")+'</span><small>'+e(fmtDate(r.appliedAt))+'</small></div></div>'}
 function render(){if(state.mode==="loading")return;var c=counts();$("kpiAll").textContent=c.all;$("kpiSent").textContent=c.sent;$("kpiOpen").textContent=c.open;$("kpiYes").textContent=c.yes;var pct=c.all?Math.round(c.sent/c.all*100):0;$("progressValue").textContent=pct+" %";$("progressFill").style.width=pct+"%";$("progressHint").textContent=c.sent+" von "+c.all+" Unternehmen wurden bereits angeschrieben.";
 var upcoming=state.rows.filter(function(r){return r.followUpAt&&r.status!=="absage"&&r.status!=="archiviert"}).sort(function(a,b){return a.followUpAt.localeCompare(b.followUpAt)})[0];
 var nearest=state.rows.filter(function(r){return r.status==="nicht_beworben"}).sort(function(a,b){return (a.distanceKm==null?999999:a.distanceKm)-(b.distanceKm==null?999999:b.distanceKm)})[0];
 if(upcoming){$("nextTitle").textContent="Nachfassen: "+fmtDate(upcoming.followUpAt);$("nextBody").textContent=upcoming.company+" · "+(upcoming.city||"Kontakt")}else if(nearest){$("nextTitle").textContent="Nächster möglicher Kontakt";$("nextBody").textContent=nearest.company+" · "+nearest.city+" · "+numKm(nearest.distanceKm)}else{$("nextTitle").textContent="Alles im Blick";$("nextBody").textContent="Lege einen Betrieb oder einen Wiedervorlagetermin an."}
-$("syncText").textContent=state.mode==="ready"?"Auf dem Server gespeichert":state.mode==="local"?"Nur in diesem Browser":"Geschützter Zugang";$("syncDot").style.background=state.mode==="ready"?"var(--teal)":"var(--gold)";$("storageInfo").textContent=state.mode==="ready"?"Geschützte Speicherung auf deinem STRATO-Webserver. Änderungen werden nach dem Speichern auf anderen Geräten verfügbar.":state.mode==="local"?"Dieser Browser nutzt lokalen Speicher. Es findet keine Synchronisation statt.":"Melde dich an, um Daten abzurufen.";$("localWarning").style.display=state.mode==="local"?"block":"none";$("logoutBtn").style.display=state.mode==="ready"?"inline-flex":"none";
+$("syncText").textContent=state.mode==="ready"?"Auf dem Server gespeichert":state.mode==="local"?"Nur in diesem Browser":"Geschützter Zugang";$("syncDot").style.background=state.mode==="ready"?"var(--teal)":"var(--gold)";$("storageInfo").textContent=state.mode==="ready"?"Geschützte Speicherung auf deinem STRATO-Webserver. Änderungen werden nach dem Speichern auf anderen Geräten verfügbar.":state.mode==="local"?"Dieser Browser nutzt lokalen Speicher. Es findet keine Synchronisation statt.":"Melde dich an, um Daten abzurufen.";$("localWarning").style.display=state.mode==="local"?"block":"none";$("logoutBtn").style.display=state.mode==="ready"?"inline-flex":"none";$("logoutTop").classList.toggle("hidden",state.mode!=="ready");
 $("listHeading").textContent=state.view==="sent"?"Versendete Bewerbungen":state.view==="all"?"Alle Unternehmen":"Bewerbungsübersicht";renderFilters();var r=sorted();$("resultCount").textContent=r.length+" von "+state.rows.length+" Unternehmen";$("footerCount").textContent=r.length+" Einträge";$("tableBody").innerHTML=r.map(rowHtml).join("");$("mobileCards").innerHTML=r.map(cardHtml).join("");var empty=r.length===0;$("emptyBox").classList.toggle("hidden",!empty);if(empty){$("emptyTitle").textContent=state.rows.length?"Keine Treffer":"Hier beginnt deine Liste";$("emptyText").textContent=state.rows.length?"Versuche eine andere Suche oder einen anderen Status.":"Importiere deine bisherigen 30 Betriebe aus der vorbereiteten JSON-Datei oder lege einen neuen Kontakt an.";$("emptyAction").style.display=state.rows.length?"none":"inline-flex"}document.dispatchEvent(new Event("bewerbungen:render"))}
 $("filters").addEventListener("click",function(ev){var b=ev.target.closest("[data-filter]");if(!b)return;state.filter=b.dataset.filter;render()});
 $("searchInput").addEventListener("input",function(ev){state.search=ev.target.value;render()});
@@ -192,7 +194,9 @@ function exportCsv(){var cols=["company","city","status","appliedAt","followUpAt
 $("exportQuick").addEventListener("click",exportCsv);$("exportJson").addEventListener("click",exportJson);$("exportCsv").addEventListener("click",exportCsv);
 $("importBtn").addEventListener("click",function(){$("importFile").click()});$("emptyAction").addEventListener("click",function(){setView("settings");$("importFile").click()});
 $("importFile").addEventListener("change",async function(){var file=this.files[0];this.value="";if(!file)return;try{var parsed=JSON.parse(await file.text());var arr=Array.isArray(parsed)?parsed:parsed.items;if(!Array.isArray(arr))throw new Error("Die Datei enthält keine gültige Bewerbungs-Liste.");if(arr.length>1000)throw new Error("Maximal 1000 Einträge pro Import.");if(!confirm(arr.length+" Einträge importieren? Bestehende Einträge mit derselben ID werden aktualisiert."))return;if(state.mode==="ready"){var r=await request("import",{items:arr});state.rows=r.items||[]}else{var m=new Map(state.rows.map(function(v){return [String(v.id),v]}));arr.forEach(function(v,i){if(v&&typeof v==="object"&&v.company){var id=String(v.id||"import-"+i+"-"+Date.now());m.set(id,Object.assign({},v,{id:id}))}});state.rows=Array.from(m.values());saveLocal()}state.filter="all";state.search="";$("searchInput").value="";setView("overview");toast(arr.length+" Datensätze importiert.")}catch(err){toast("Import fehlgeschlagen: "+err.message,true)}});
-$("logoutBtn").addEventListener("click",async function(){if(state.mode!=="ready")return;try{var r=await request("logout",{});state.rows=[];showAuth("login");render();toast("Abgemeldet.")}catch(err){toast(err.message,true)}});
+async function logout(){if(state.mode!=="ready")return;try{await request("logout",{});state.rows=[];showAuth("login");render();toast("Abgemeldet.")}catch(err){toast(err.message,true)}}
+$("logoutBtn").addEventListener("click",logout);
+$("logoutTop").addEventListener("click",logout);
 window.Bewerbungskompass={
   rows:function(){return state.rows.slice()},
   mode:function(){return state.mode},
@@ -208,6 +212,17 @@ window.Bewerbungskompass={
     render();
   }
 };
+/* Hintergrund-Parallax nur auf Desktop, ohne Inhalte oder Scroll-Position zu verschieben. */
+var applicationBackdrop=$("applicationBackdrop"),wallTick=0;
+function updateApplicationBackdrop(){
+  wallTick=0;
+  var still=window.matchMedia("(prefers-reduced-motion: reduce)").matches||window.innerWidth<=760;
+  var y=still?0:-Math.min(window.scrollY*.13,110);
+  applicationBackdrop.style.setProperty("--wall-shift",y.toFixed(1)+"px");
+}
+window.addEventListener("scroll",function(){if(!wallTick)wallTick=requestAnimationFrame(updateApplicationBackdrop)},{passive:true});
+window.addEventListener("resize",updateApplicationBackdrop,{passive:true});
+updateApplicationBackdrop();
 boot();
 })();
 </script>
