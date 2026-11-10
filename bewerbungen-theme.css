@@ -22,7 +22,7 @@ body::before{opacity:.09;z-index:0;mask-image:linear-gradient(180deg,#0008,trans
 .button.danger{border-radius:7px}
 .hero{min-height:220px;padding:43px 0 34px}
 .hero::after{border-color:#e8b84a20;box-shadow:0 0 0 48px #e8b84a05,0 0 0 108px #76e0cf05}
-.hero h1{font-weight:900;text-transform:uppercase;letter-spacing:-.055em;line-height:1.02;color:#f7f0db;text-shadow:0 12px 34px #0008;margin:0;overflow-wrap:anywhere}
+.hero h1{font-weight:900;letter-spacing:-.055em;line-height:1.02;color:#f7f0db;text-shadow:0 12px 34px #0008;margin:0;overflow-wrap:anywhere}
 .datebox strong{color:#e9ddc4;letter-spacing:.02em}
 .stat{background:linear-gradient(145deg,#15252cfa,#0b1822f5);border-color:#7ce3d124;border-radius:9px;box-shadow:0 16px 34px #0005}
 .stat::before{background:linear-gradient(90deg,transparent,#e8b84aab,transparent)}
