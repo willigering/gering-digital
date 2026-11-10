@@ -205,7 +205,7 @@
       +images
       +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // SPICKZETTEL</span><span class="detail-code">'+safe(g.symbol)+'</span>'
       +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigsten Regeln, Zusammenhänge und Beispiele übersichtlich auf einem Themenblatt.</p>'
-      +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div></div>'
+      +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div>'+(g.id==='csharp'?'<p style="margin:22px 0 0"><a href="csharp-befehle.html" style="display:inline-flex;align-items:center;min-height:46px;padding:11px 19px;border-radius:12px;border:1px solid #e8b84a;color:#f6d688;background:#e8b84a16;text-decoration:none;font-weight:800">C# BEFEHLE &amp; ERKLÄRUNGEN ↗</a></p>':'')+'</div>'
       +'<div class="detail-grid">'+sections.map(sectionHTML).join("")+'</div>'
       +'<div class="detail-exam"><h3>✦ '+questions.length+' TYPISCHE PRÜFUNGSFRAGEN MIT ANTWORTEN</h3><div class="exam-grid">'+rendered+'</div></div>'
       +'<div class="detail-traps"><strong>⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></div>'
