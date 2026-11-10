@@ -70,6 +70,24 @@ let server,browser;
   }));
   assert.ok(radioStart.hasInstance && radioStart.tracks > 0,
     'NERD FM initialization failed: '+JSON.stringify({radioStart, errors}));
+  // No playback started: module links MUST use their regular page navigation,
+  // without the persistent-radio shell or a second navigation toolbar.
+  assert.equal(await page.locator('[data-nerd-radio]').getAttribute('data-state'), 'stopped');
+  await page.locator('#module-grid a.module-card[href="../osi/"]').click();
+  await page.waitForURL(base+'/osi/');
+  assert.equal(await page.locator('[data-module-shell]').count(),0,
+    'Inactive radio must not insert its module-shell toolbar');
+  assert.ok(await page.locator('dtp-back #back-module').isVisible(),
+    'Native module keeps its one standard back link');
+
+  // Deep links to the shell parameter must also resolve to a native module
+  // when the radio was not active before the new page was loaded.
+  await page.goto(base+'/dau-to-pro/?modul=osi');
+  await page.waitForURL(base+'/osi/');
+  assert.ok(await page.locator('dtp-back #back-module').isVisible());
+  await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
+  assert.equal(await page.locator('[data-nerd-radio]').getAttribute('data-state'), 'stopped');
+
   const state=()=>page.evaluate(()=>{
     const radio=document.querySelector('[data-nerd-radio]');
     const r=radio.nerdRadio;
