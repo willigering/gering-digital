@@ -9,8 +9,9 @@ const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
 
 const companies=[
- {id:"betrieb-lage",company:"Musterfirma Lage",city:"Lage",street:"Bahnhofstr. 10",postal:"32791",postCity:"Lage",recipient:"Personalabteilung",email:"lage@example.org",distanceKm:2,status:"nicht_beworben",appliedAt:""},
- {id:"betrieb-detmold",company:"Musterfirma Detmold",city:"Detmold",street:"Testweg 7",postal:"32756",postCity:"Detmold",recipient:"Frau Beispiel",email:"detmold@example.org",distanceKm:9,status:"absage",appliedAt:""}
+ {id:"betrieb-lage",company:"Musterfirma Lage",city:"Lage",street:"Bahnhofstr. 10",postal:"32791",postCity:"Lage",recipient:"Personalabteilung",email:"lage@example.org",distanceKm:2,status:"beworben",appliedAt:"2026-11-10"},
+ {id:"betrieb-detmold",company:"Musterfirma Detmold",city:"Detmold",street:"Testweg 7",postal:"32756",postCity:"Detmold",recipient:"Frau Beispiel",email:"detmold@example.org",distanceKm:9,status:"absage",appliedAt:""},
+ {id:"betrieb-lemgo",company:"Musterfirma Lemgo",city:"Lemgo",street:"Kirchweg 8",postal:"32657",postCity:"Lemgo",recipient:"Personal",email:"lemgo@example.org",distanceKm:13,status:"nicht_beworben",appliedAt:""}
 ];
 const cfg={
  senderName:"Willi Gering",senderStreet:"Musterallee 1",senderPostal:"32791",senderCity:"Lage",
@@ -54,12 +55,14 @@ async function run(){
      send(200,{message:"Test OK"});return;
    }
    const accepted={"/b.html":"b.html","/bewerbungen-mail-ui.js":"bewerbungen-mail-ui.js",
-    "/bewerbungen-mail.css":"bewerbungen-mail.css"};
+    "/bewerbungen-mail.css":"bewerbungen-mail.css","/bewerbungen-theme.css":"bewerbungen-theme.css",
+    "/assets/dau-backgrounds/network-ports-1536.webp":"assets/dau-backgrounds/network-ports-1536.webp",
+    "/assets/dau-backgrounds/network-ports-768.webp":"assets/dau-backgrounds/network-ports-768.webp"};
    const file=accepted[url.pathname];
    if(!file){res.writeHead(404);res.end();return;}
    const body=fs.readFileSync(path.join(__dirname,"..",file));
    const ext=path.extname(file);
-   res.writeHead(200,{"Content-Type":ext===".js"?"text/javascript":ext===".css"?"text/css":"text/html; charset=utf-8"});
+   res.writeHead(200,{"Content-Type":ext===".js"?"text/javascript":ext===".css"?"text/css":ext===".webp"?"image/webp":"text/html; charset=utf-8"});
    res.end(body);
  });
  await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
@@ -71,17 +74,23 @@ async function run(){
    page.on("dialog",d=>d.accept());
    await page.goto(address,{waitUntil:"networkidle"});
    await page.waitForSelector(".data-table tr[data-edit]");
-   assert.equal(await page.locator(".data-table tr[data-edit]").count(),2,"Two stub companies displayed");
+   assert.equal(await page.locator(".data-table tr[data-edit]").count(),3,"Three stub companies displayed");
    assert.equal((await page.locator("#overviewHeader h1").innerText()).trim(),"Praktikumsbewerbung","Only requested heading is shown");
    await page.locator('.nav-item[data-view="all"]').click();
-   assert.equal(await page.locator('.data-table tr.row-open').count(),1,"Open company gets row tint");
-   assert.equal(await page.locator('.data-table tr.row-rejected').count(),1,"Rejected company gets row tint");
+   assert.equal(await page.locator('.data-table tr.row-applied').count(),1,"Already applied company gets green row");
+   assert.equal(await page.locator('.data-table tr.row-rejected').count(),1,"Rejected company gets red row");
+   assert.equal(await page.locator('.data-table tr[data-edit="betrieb-lemgo"].row-applied').count(),0,"Uncontacted company stays neutral");
    const desktopColors=await page.evaluate(() => ({
-     green:getComputedStyle(document.querySelector(".data-table tr.row-open td")).backgroundColor,
-     red:getComputedStyle(document.querySelector(".data-table tr.row-rejected td")).backgroundColor
+     green:getComputedStyle(document.querySelector(".data-table tr.row-applied td")).backgroundColor,
+     red:getComputedStyle(document.querySelector(".data-table tr.row-rejected td")).backgroundColor,
+     neutral:getComputedStyle(document.querySelector('.data-table tr[data-edit="betrieb-lemgo"] td')).backgroundColor,
+     wallpaper:getComputedStyle(document.querySelector("#applicationBackdrop"),"::before").backgroundImage
    }));
-   assert.equal(desktopColors.green,"rgba(88, 138, 108, 0.17)","Entire open table row is muted green");
-   assert.equal(desktopColors.red,"rgba(145, 86, 89, 0.19)","Entire rejected table row is muted red");
+   assert.equal(desktopColors.green,"rgba(66, 139, 115, 0.23)","Entire applied table row is muted green");
+   assert.equal(desktopColors.red,"rgba(151, 81, 86, 0.23)","Entire rejected table row is muted red");
+   assert.equal(desktopColors.neutral,"rgba(0, 0, 0, 0)","Not yet applied company is neutral");
+   assert.match(desktopColors.wallpaper,/network-ports-1536\.webp/,"Uses the actual Unterrichtsmaterial background");
+   assert.equal(await page.locator("#logoutTop").isVisible(),true,"Logout always visible in the top bar");
    await page.locator('.nav-item[data-view="overview"]').click();
    await page.locator(".gdm-top-button").click();
    await page.waitForSelector("#gdm-overlay:not([hidden])");
@@ -106,19 +115,30 @@ async function run(){
    await page.waitForSelector("#gdm-config-form");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
    assert.equal(await page.locator("#gdm-cv-status").innerText(),"Lebenslauf.pdf gespeichert");
+   await page.locator("#logoutTop").click();
+   await page.waitForSelector("#authShell:not(.hidden)");
+   assert.equal(await page.locator("#logoutTop").isVisible(),false,"Logout hidden after signing out");
+   assert.equal(await page.locator("#authTitle").innerText(),"Willkommen zurück.","Password-only login restored");
    await page.close();
 
    const mobile=await browser.newPage({viewport:{width:390,height:844}});
    mobile.on("dialog",d=>d.accept());
    await mobile.goto(address,{waitUntil:"networkidle"});
    await mobile.waitForSelector(".mobile-card[data-edit]");
-   assert.equal(await mobile.locator(".mobile-card[data-edit]").count(),2);
+   assert.equal(await mobile.locator(".mobile-card[data-edit]").count(),3);
    const mobileColors=await mobile.evaluate(() => ({
-     green:getComputedStyle(document.querySelector(".mobile-card.row-open")).backgroundColor,
-     red:getComputedStyle(document.querySelector(".mobile-card.row-rejected")).backgroundColor
+     green:getComputedStyle(document.querySelector(".mobile-card.row-applied")).backgroundColor,
+     red:getComputedStyle(document.querySelector(".mobile-card.row-rejected")).backgroundColor,
+     neutral:getComputedStyle(document.querySelector('.mobile-card[data-edit="betrieb-lemgo"]')).backgroundColor,
+     wallpaper:getComputedStyle(document.querySelector("#applicationBackdrop"),"::before").backgroundImage,
+     overflow:document.documentElement.scrollWidth>document.documentElement.clientWidth
    }));
-   assert.equal(mobileColors.green,"rgba(88, 138, 108, 0.17)","Whole mobile card gets muted green");
-   assert.equal(mobileColors.red,"rgba(145, 86, 89, 0.19)","Whole rejected mobile card gets muted red");
+   assert.equal(mobileColors.green,"rgba(66, 139, 115, 0.23)","Whole contacted mobile card gets muted green");
+   assert.equal(mobileColors.red,"rgba(151, 81, 86, 0.23)","Whole rejected mobile card gets muted red");
+   assert.match(mobileColors.neutral,/^rgba\(14, 27, 36, 0\.7/,"Not yet applied mobile card is neutral");
+   assert.match(mobileColors.wallpaper,/network-ports-768\.webp/,"Mobile uses lightweight teaching wallpaper");
+   assert.equal(mobileColors.overflow,false,"No horizontal mobile overflow");
+   assert.equal(await mobile.locator("#logoutTop").isVisible(),true,"Logout visible on mobile");
    await mobile.locator(".mobile-card[data-edit='betrieb-detmold'] [data-gdm-mail]").click();
    await mobile.waitForSelector("#gdm-overlay:not([hidden])");
    assert.match(await mobile.locator("#gdm-address").innerText(),/Testweg 7/);

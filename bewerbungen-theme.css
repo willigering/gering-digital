@@ -1,0 +1,72 @@
+/* Praktikumsbewerbung · kompakter DAU-to-Pro-Look.
+ * Wiederverwendetes Unterrichts-BG: IT VI.01 / network-ports. */
+:root{--bg:#080e13;--panel:#101b23;--panel2:#15242b;--ink:#f5f4ed;--muted:#adbec5;--line:#83dace30;--gold:#e8b84a;--teal:#76e0cf;--radius:9px}
+body{background:#080e13;color:var(--ink);isolation:isolate;overflow-x:clip}
+body::before{opacity:.09;z-index:0;mask-image:linear-gradient(180deg,#0008,transparent 75%)}
+.application-backdrop{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:#08121b}
+.application-backdrop::before{content:"";position:absolute;inset:-16vh -9vw;background-image:linear-gradient(90deg,#06111788,#07151b77),url("assets/dau-backgrounds/network-ports-1536.webp");background-size:cover,cover;background-position:center;background-repeat:no-repeat;opacity:.73;transform:translate3d(0,var(--wall-shift,0px),0) scale(1.08);will-change:transform}
+.application-backdrop::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#071018ba 0%,#071018af 40%,#071018e6 100%),radial-gradient(ellipse at 70% 24%,#72e7d014,transparent 57%)}
+.app{z-index:1}
+.sidebar{background:#08131de8;border-right:1px solid #75e2d142;box-shadow:8px 0 48px #0004}
+.brand{font-weight:900;letter-spacing:.09em;color:#f5eeda}
+.brand-mark{border-radius:7px;background:linear-gradient(145deg,#e8b84a2e,#0b1820);box-shadow:0 0 24px #e8b84a12}
+.side-note{border-radius:8px;background:#0b1b22bd;border-color:#70e2d02a}
+.nav-item{border-radius:7px;font-weight:740;letter-spacing:.015em}
+.nav-item.active{border-color:#74e4d17a;background:linear-gradient(95deg,#20413fa8,#102329a8);color:#c0f8ed;box-shadow:inset 3px 0 0 #e8b84a}
+.topbar{position:sticky;top:0;z-index:8;background:#09151cf0;backdrop-filter:blur(18px);border-bottom:1px solid #76e5d149;padding-inline:14px;margin-inline:-14px}
+.topbar-path strong{font-weight:820;letter-spacing:.06em;text-transform:uppercase;color:#eae9df}
+.top-logout{white-space:nowrap;border-color:#82e3d36b!important;background:#0f272a!important;color:#d7f5ef!important;box-shadow:inset 0 0 0 1px #8adccf0b!important}
+.top-logout:hover{border-color:#e8b84a!important;color:#f7e9c8!important}
+.button{border-radius:7px;letter-spacing:.012em;box-shadow:0 9px 24px #0004}
+.button.secondary{border-color:#80dace40;background:#12242bd9}
+.button.danger{border-radius:7px}
+.hero{min-height:220px;padding:43px 0 34px}
+.hero::after{border-color:#e8b84a20;box-shadow:0 0 0 48px #e8b84a05,0 0 0 108px #76e0cf05}
+.hero h1{font-weight:900;letter-spacing:-.055em;line-height:1.02;color:#f7f0db;text-shadow:0 12px 34px #0008;margin:0;overflow-wrap:anywhere}
+.datebox strong{color:#e9ddc4;letter-spacing:.02em}
+.stat{background:linear-gradient(145deg,#15252cfa,#0b1822f5);border-color:#7ce3d124;border-radius:9px;box-shadow:0 16px 34px #0005}
+.stat::before{background:linear-gradient(90deg,transparent,#e8b84aab,transparent)}
+.stat .stat-label{font-weight:730;letter-spacing:.01em;color:#c0d0d0}
+.stat .num{font-weight:860;color:#fff3d9}
+.glass{background:linear-gradient(145deg,#11242be8,#0c1b24f5);border-color:#7ce3d129;border-radius:9px}
+.track,.track-fill{border-radius:4px}
+.track-fill{background:linear-gradient(90deg,#76e0cf,#e8b84a)}
+.section-head h2{font-size:clamp(23px,2.5vw,31px);font-weight:850;letter-spacing:-.035em}
+.panel{background:linear-gradient(165deg,#111f29f5,#0b1821f8);border:1px solid #85e6d13b;border-top:2px solid #e8b84a8c;border-radius:10px;box-shadow:0 24px 55px #0006}
+.search,.select,.filter,.row-action{border-radius:6px}
+.select,.search{background:#08151df2}
+.filter.active{border-color:#e8b84a66;background:#e8b84a20;color:#ffe1a5}
+.data-table th{font-weight:850;letter-spacing:.13em;color:#9bbebc}
+.data-table td{border-color:#d8f3ea12}
+.data-table tbody tr:hover td{background:#e8b84a0e}
+.status{border-radius:6px;text-transform:uppercase;letter-spacing:.055em;font-weight:750}
+.status.nicht_beworben{color:#adb7c0;background:#ffffff0b;border-color:#ffffff20}
+.data-table tbody tr.row-applied td{background:rgba(66,139,115,.23);border-top-color:rgba(132,199,164,.25)}
+.data-table tbody tr.row-rejected td{background:rgba(151,81,86,.23);border-top-color:rgba(201,120,122,.25)}
+.data-table tbody tr.row-applied:hover td{background:rgba(66,139,115,.32)}
+.data-table tbody tr.row-rejected:hover td{background:rgba(151,81,86,.32)}
+.data-table tbody tr.row-applied td:first-child{box-shadow:inset 4px 0 0 #82d5a59c}
+.data-table tbody tr.row-rejected td:first-child{box-shadow:inset 4px 0 0 #d8868ba3}
+.settings-box{background:#101e27ee;border-color:#83e2d12b;border-radius:9px;box-shadow:0 12px 32px #0004}
+.settings-box h3{font-weight:850}
+.drawer{background:#0d1923;border-left:2px solid #e8b84a66}
+.icon-btn,.field input,.field select,.field textarea,.notice{border-radius:7px}
+.auth-card{background:linear-gradient(160deg,#182730f8,#0b1821fc);border-color:#e8b84a59;border-radius:10px}
+.toast{border-radius:7px}
+@media(max-width:760px){
+  .application-backdrop::before{background-image:linear-gradient(90deg,#0611179e,#07151b8c),url("assets/dau-backgrounds/network-ports-768.webp");transform:none;will-change:auto;inset:0}
+  .topbar{top:66px;margin-inline:-8px;padding-inline:8px}
+  .topbar-path{display:none}
+  .top-actions{width:100%;justify-content:space-between}
+  .top-actions #newTop{font-size:11px;padding:8px 10px;min-height:40px}
+  .top-actions .top-logout{font-size:11px;padding:8px 10px;min-height:40px}
+  .hero{min-height:unset}
+  .hero h1{font-size:clamp(29px,7vw,43px);letter-spacing:-.035em}
+  .mobile-card{background:#0e1b24c4}
+  .mobile-card.row-applied{background:rgba(66,139,115,.23);box-shadow:inset 4px 0 0 #82d5a59c;border-top-color:rgba(132,199,164,.25)}
+  .mobile-card.row-rejected{background:rgba(151,81,86,.23);box-shadow:inset 4px 0 0 #d8868ba3;border-top-color:rgba(201,120,122,.25)}
+  .mobile-card.row-applied:hover{background:rgba(66,139,115,.32)}
+  .mobile-card.row-rejected:hover{background:rgba(151,81,86,.32)}
+}
+@media(max-width:380px){.topbar{height:auto;min-height:68px}.top-actions{flex-wrap:wrap}.top-actions #newTop,.top-actions .top-logout{flex:1}}
+@media(prefers-reduced-motion:reduce){.application-backdrop::before{transform:none!important;will-change:auto}}
