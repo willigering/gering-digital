@@ -28,6 +28,7 @@
     support:"Ticketarten, Service Desk, SLA, Eskalation und ITSM"
   };
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let disposeReader=()=>{};
   let cards=[],rows=[],stage=null,rowH=0,shown=null,frame=0,stacked=false,lastRow=-1;
   const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
   const PEEK=20,STEP=.47,TAIL=.32;
@@ -125,6 +126,10 @@
     measure();
   }
   function listing(){
+    disposeReader();
+    document.body.classList.remove("reading-sheet");
+    document.getElementById("sheet-jump").replaceChildren();
+    document.getElementById("swipe-count").hidden=true;
     destroyStack();
     document.title=start;
     document.querySelector(".hero").hidden=false;
@@ -145,8 +150,8 @@
       const n=f.indexOf("::");
       return '<div class="fact"><dt>'+safe(n>=0?f.slice(0,n):"Merke")+'</dt><dd>'+safe(n>=0?f.slice(n+2):f)+'</dd></div>';
     }).join("");
-    return '<section class="detail-section"><span class="section-num">'+String(i+1).padStart(2,"0")+'</span><div>'
-      +'<h3>'+safe(heading)+'</h3><p class="section-lead">'+safe(lead)+'</p><dl>'+facts+'</dl></div></section>';
+    return '<section class="detail-section sheet-panel" id="section-'+i+'" aria-labelledby="heading-'+i+'"><span class="section-num">'+String(i+1).padStart(2,"0")+'</span><div>'
+      +'<h3 id="heading-'+i+'">'+safe(heading)+'</h3><p class="section-lead">'+safe(lead)+'</p><dl>'+facts+'</dl></div></section>';
   }
   function getQuestions(g){
     const own=g.sections.map(c=>[c[3],c[4]]);
@@ -187,12 +192,15 @@
     for(const key of ["--parallax-back-x","--parallax-back-y","--parallax-front-x","--parallax-front-y"]){sheet.style.setProperty(key,"0px")}
   });
   function showTopic(id){
+    disposeReader();
+    document.body.classList.add("reading-sheet");
     const g=groups.find(item=>item.id===id);
     if(!g){history.replaceState(null,"",location.pathname);listing();return}
     destroyStack();board.hidden=true;intro.hidden=true;empty.hidden=true;detail.hidden=false;
     document.querySelector(".hero").hidden=true;
     search.closest(".search").hidden=true;
     document.title=g.name+" · Spickzettel · DAU TO PRO";
+    document.body.style.setProperty("--sheet-tone",g.color);
     const questions=getQuestions(g),sections=fullSections(g),texture=textureByTopic[g.id]||"circuit";
     const imageUrl="../assets/dau-backgrounds/"+texture+"-1536.webp";
     const images='<div class="sheet-parallax" aria-hidden="true"><div class="sheet-parallax-viewport">'
@@ -206,15 +214,81 @@
       +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // SPICKZETTEL</span><span class="detail-code">'+safe(g.symbol)+'</span>'
       +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigsten Regeln, Zusammenhänge und Beispiele übersichtlich auf einem Themenblatt.</p>'
       +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div>'+(g.id==='csharp'?'<p style="margin:22px 0 0"><a href="csharp-befehle.html" style="display:inline-flex;align-items:center;min-height:46px;padding:11px 19px;border-radius:12px;border:1px solid #e8b84a;color:#f6d688;background:#e8b84a16;text-decoration:none;font-weight:800">C# BEFEHLE &amp; ERKLÄRUNGEN ↗</a></p>':'')+'</div>'
-      +'<div class="detail-grid">'+sections.map(sectionHTML).join("")+'</div>'
-      +'<div class="detail-exam"><h3>✦ '+questions.length+' TYPISCHE PRÜFUNGSFRAGEN MIT ANTWORTEN</h3><div class="exam-grid">'+rendered+'</div></div>'
-      +'<div class="detail-traps"><strong>⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></div>'
+      +'<div class="sheet-panels" id="sheet-panels">'+sections.map(sectionHTML).join("")
+      +'<section class="detail-exam sheet-panel" id="sheet-questions" aria-labelledby="questions-heading"><h3 id="questions-heading">✦ '+questions.length+' TYPISCHE PRÜFUNGSFRAGEN MIT ANTWORTEN</h3><div class="exam-grid">'+rendered+'</div></section>'
+      +'<section class="detail-traps sheet-panel" id="sheet-traps" aria-labelledby="traps-heading"><strong id="traps-heading">⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></section></div>'
       +'<p class="detail-signoff">DAU TO PRO · Wissen anwenden, nicht bloß aufsagen.</p>'
       +'</article>';
     document.getElementById("sheet-print").addEventListener("click",()=>print());
     progress.hidden=true;
+    setupReader(sections);
     scrollTo({top:0,behavior:"auto"});
     requestParallax();
+  }
+  function setupReader(sections){
+    const track=document.getElementById("sheet-panels");
+    const panels=[...track.children];
+    const nav=document.getElementById("sheet-jump");
+    const status=document.getElementById("swipe-count");
+    const mobile=matchMedia("(max-width:900px)");
+    const labels=sections.map(s=>s[0]).concat("Prüfungsfragen","Typische Fallen");
+    nav.innerHTML=labels.map((label,i)=>'<a href="#'+panels[i].id+'" aria-controls="'+panels[i].id+'">'+safe(label)+'</a>').join("");
+    const links=[...nav.children];
+    let current=0,pending=0;
+    const fit=()=>{track.style.height=mobile.matches?Math.ceil(panels[current].getBoundingClientRect().height)+"px":""};
+    function mark(i){
+      current=i;
+      links.forEach((a,n)=>{if(n===i)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
+      panels.forEach((p,n)=>{p.inert=mobile.matches&&n!==i});
+      status.hidden=!mobile.matches;
+      status.textContent=(i+1)+" / "+panels.length+" · nach links oder rechts wischen";
+      nav.scrollTo({left:Math.max(0,links[i].offsetLeft-nav.offsetLeft-16),behavior:"auto"});
+      fit();
+    }
+    function go(i,updateHash=true){
+      i=Math.max(0,Math.min(panels.length-1,i));
+      if(updateHash)history.replaceState(null,"","#"+panels[i].id);
+      if(mobile.matches){
+        track.scrollTo({left:panels[i].offsetLeft-panels[0].offsetLeft,behavior:"auto"});
+        mark(i);
+        const top=track.getBoundingClientRect().top+scrollY-navH()-12;
+        if(scrollY>top)scrollTo({top:Math.max(0,top),behavior:"auto"});
+      }else{
+        mark(i);panels[i].scrollIntoView({behavior:calm.matches?"auto":"smooth",block:"start"});
+      }
+    }
+    links.forEach((a,i)=>{
+      a.addEventListener("click",e=>{e.preventDefault();go(i)});
+      a.addEventListener("keydown",e=>{
+        const next=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?panels.length-1:null;
+        if(next===null)return;e.preventDefault();const n=Math.max(0,Math.min(panels.length-1,next));go(n);links[n].focus({preventScroll:true});
+      });
+    });
+    function onScroll(){
+      if(!mobile.matches||pending)return;
+      pending=requestAnimationFrame(()=>{
+        pending=0;
+        const step=panels.length>1?panels[1].offsetLeft-panels[0].offsetLeft:track.clientWidth;
+        const i=Math.max(0,Math.min(panels.length-1,Math.round(track.scrollLeft/Math.max(1,step))));
+        if(i!==current){
+          mark(i);history.replaceState(null,"","#"+panels[i].id);
+          const top=track.getBoundingClientRect().top+scrollY-navH()-12;
+          if(scrollY>top)scrollTo({top:Math.max(0,top),behavior:"auto"});
+        }
+      });
+    }
+    function resize(){
+      mark(current);
+      if(mobile.matches)track.scrollLeft=panels[current].offsetLeft-panels[0].offsetLeft;
+      else track.scrollLeft=0;
+    }
+    function hashChange(){const i=panels.findIndex(p=>"#"+p.id===location.hash);if(i>=0)go(i,false)}
+    const observer=new ResizeObserver(fit);panels.forEach(p=>observer.observe(p));
+    track.addEventListener("scroll",onScroll,{passive:true});
+    addEventListener("resize",resize);addEventListener("hashchange",hashChange);
+    mobile.addEventListener("change",resize);
+    const initial=panels.findIndex(p=>"#"+p.id===location.hash);current=Math.max(0,initial);resize();
+    disposeReader=()=>{observer.disconnect();cancelAnimationFrame(pending);removeEventListener("resize",resize);removeEventListener("hashchange",hashChange);mobile.removeEventListener("change",resize)};
   }
   function route(){
     const id=new URLSearchParams(location.search).get("thema");

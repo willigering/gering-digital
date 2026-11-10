@@ -2,6 +2,12 @@
 
 Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admin installiert und öffentlich ausgeliefert sind, ist hier **nicht nachgewiesen**. Keine vollständige Überarbeitung oder Live-Prüfung behaupten, bevor sie erfolgt ist.
 
+## 10.11.2026 – Spickzettel: ursprüngliche Klausurvorlage und mobiles Wischen
+
+- Alle zwölf Themenblätter verwenden wieder die kantigen Lesekarten und die dauerhaft erreichbare Sprungleiste der früheren `cheat-sheet.html` (Stand `0a9262c`). Desktop: zweispaltige Abschnitte; Fragen als lesbarer Bereich in zwei/drei Spalten. Mobil bis 900 px: native horizontale Scroll-Snap-Seiten, aktive Navigation, Seitenzähler und passende Höhe je Abschnitt. Die Leiste selbst lässt sich ebenfalls horizontal verschieben.
+- Tabs sind anklickbar, mit Pfeiltasten/Home/End bedienbar und per Fragment direkt adressierbar. Inaktive mobile Abschnitte sind nicht fokussierbar. ResizeObserver passt die Höhe nach Textumbruch an; der Druckstil zeigt alle Abschnitte und Fragen. Thematische Parallaxtexturen, alle Inhalte und Links erhalten; keine redaktionelle oder fachliche Änderung.
+- Geprüft: JS-Syntax; beide Node-Prüfblöcke aus `cheat-sheets-deploy.yml` erfolgreich (zwölf Blätter, 576 Q&A, Unterrichtsmaterial). Browser: Desktop sowie 390-/360-px-Frames; kein horizontaler Seitenüberlauf, Tabklick, horizontales Scrollen mit synchroner aktiver Navigation, 48 Fragen im mobilen Fragen-Tab und dynamische Höhe erfolgreich. Touch-Geste auf echtem Smartphone und physischer PDF-Ausdruck nicht geprüft. CI/STRATO-Deployment zum Commit-Zeitpunkt noch ausstehend.
+
 ## 09.11.2026 – Startseite: Highscore vor Spickzetteln & Unterrichtsmaterial
 
 - Startseite `dau-to-pro/index.php`: Highscore-Sektion unmittelbar nach der Modulübersicht, vor den zwölf Spickzetteln und dem eingeklappten Unterrichtsmaterial; deutlichere Ranglistenfläche mit bestehendem Opt-in-/Privatsphäre-Verhalten.
