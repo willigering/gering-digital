@@ -21,6 +21,7 @@ const cfg={
  mailBody:"Guten Tag, anbei meine Bewerbung. Mit freundlichen Grüßen {ABSENDER}"
 };
 let calls={preview:0,send:0,raw:""};
+let originalPresent=false;
 async function run(){
  const server=http.createServer(async(req,res)=>{
    const url=new URL(req.url,"http://localhost");
@@ -33,7 +34,7 @@ async function run(){
    }
    if(url.pathname==="/bewerbungen-mail.php"){
      const a=url.searchParams.get("action");
-     if(a==="state"){send(200,{config:cfg,senderAddress:"willi.gering@mail.de",smtpConfigured:true,cvStored:true,history:[]});return;}
+     if(a==="state"){send(200,{config:cfg,senderAddress:"willi.gering@mail.de",smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,history:[]});return;}
      const chunks=[];for await(const chunk of req)chunks.push(chunk);
      const body=Buffer.concat(chunks).toString("utf8");
      if(a==="preview"){
@@ -51,7 +52,9 @@ async function run(){
        assert(body.includes("detmold@example.org"),"Correct recipient forwarded");
        send(200,{sent:true,message:"SMTP accepted"});return;
      }
-     if(a==="save-settings"){send(200,{config:cfg,smtpConfigured:true,cvStored:true,history:[]});return;}
+     if(a==="save-settings"){send(200,{config:cfg,smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,history:[]});return;}
+     if(a==="upload-original"){originalPresent=true;send(200,{message:"Private upload OK"});return;}
+     if(a==="remove-original"){originalPresent=false;send(200,{message:"Private removal OK"});return;}
      send(200,{message:"Test OK"});return;
    }
    const accepted={"/b.html":"b.html","/bewerbungen-mail-ui.js":"bewerbungen-mail-ui.js",
@@ -115,6 +118,24 @@ async function run(){
    await page.waitForSelector("#gdm-config-form");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
    assert.equal(await page.locator("#gdm-cv-status").innerText(),"Lebenslauf.pdf gespeichert");
+   assert.equal(await page.locator("#gdm-original-status").innerText(),"Noch keine Originalbewerbung hinterlegt");
+   assert.equal(await page.locator("#gdm-download-original").isVisible(),false,"Private original download hidden before upload");
+   await page.locator("#gdm-original-input").setInputFiles({
+     name:"Stadt Lage.pdf",mimeType:"application/pdf",buffer:Buffer.from("%PDF-1.4\n"+' '.repeat(130)+"\n%%EOF")
+   });
+   await page.waitForFunction(()=>document.querySelector("#gdm-original-status").textContent.includes("Stadt_Lage.pdf"));
+   assert.equal(await page.locator("#gdm-download-original").isVisible(),true,"Private archive download shown after upload");
+   const importDoc={senderName:"Test Name",senderStreet:"Musterstr. 5",senderPostal:"32791",senderCity:"Teststadt",senderPhone:"",
+      subjectTemplate:"Bewerbung bei {FIRMA}",salutation:"Sehr geehrte Damen und Herren,",
+      coverLetter:"Test: kein personenbezogener Text in GitHub.",mailBody:"Hallo, anbei die Bewerbung."};
+   await page.locator("#gdm-template-input").setInputFiles({
+     name:"private-vorlage.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(importDoc))
+   });
+   await page.waitForFunction(()=>document.querySelector("#gdm-coverLetter").value.startsWith("Test:"));
+   assert.equal(await page.locator("#gdm-senderStreet").inputValue(),"Musterstr. 5","Private JSON import pre-fills sender");
+   assert.equal(await page.locator("#gdm-coverLetter").inputValue(),importDoc.coverLetter,"Private cover letter text is applied to form");
+   assert.equal(await page.locator("#gdm-smtp-password").inputValue(),"","Private JSON import does not touch SMTP credentials");
+   assert.equal(await page.locator("#gdm-download-original").getAttribute("href"),"bewerbungen-mail.php?action=original");
    await page.locator("#logoutTop").click();
    await page.waitForSelector("#authShell:not(.hidden)");
    assert.equal(await page.locator("#logoutTop").isVisible(),false,"Logout hidden after signing out");
