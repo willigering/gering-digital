@@ -47,7 +47,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;ba
 <div class="application-backdrop" id="applicationBackdrop" aria-hidden="true"></div>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand"><span class="brand-mark">G<span style="font-size:13px">/</span></span><div>GERING DIGITAL</div></div>
+  <div class="brand"><picture class="brand-mark"><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo-image" src="assets/gering-digital-logo-icon.png" alt="" width="42" height="42"></picture><div>GERING DIGITAL</div></div>
   <div>
     <nav class="nav-items" aria-label="Hauptnavigation">
       <button class="nav-item active" data-view="overview" aria-label="Übersicht"><span>◫</span><span class="nav-text">Übersicht</span></button>
@@ -134,7 +134,7 @@ body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.16;ba
   <div class="drawer-bottom"><button id="deleteEntry" type="button" class="button danger small">Löschen</button><div class="right"><button id="cancelEdit" type="button" class="button secondary">Abbrechen</button><button id="saveEntry" type="submit" form="editorForm" class="button">Speichern ↗</button></div></div>
 </section>
 <section class="auth-shell hidden" id="authShell">
-  <div class="auth-card"><div class="brand-mark">G/</div><p class="eyebrow" id="authKicker">GESCHÜTZTER BEREICH</p><h2 id="authTitle">Willkommen zurück.</h2><p id="authDesc">Melde dich an, um deine Bewerbungen zu verwalten.</p>
+  <div class="auth-card"><picture class="brand-mark"><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo-image" src="assets/gering-digital-logo-icon.png" alt="Gering Digital" width="66" height="66"></picture><p class="eyebrow" id="authKicker">GESCHÜTZTER BEREICH</p><h2 id="authTitle">Willkommen zurück.</h2><p id="authDesc">Melde dich an, um deine Bewerbungen zu verwalten.</p>
     <form id="authForm"><div class="field hidden" id="tokenGroup"><label for="setupToken">Einmaliger Einrichtungsschlüssel</label><input id="setupToken" autocomplete="off" spellcheck="false"></div>
       <div class="field"><label for="authPassword" id="authPasswordLabel">Passwort</label><input id="authPassword" type="password" autocomplete="current-password" required minlength="12"></div>
       <div class="field hidden" id="confirmGroup"><label for="confirmPassword">Passwort bestätigen</label><input id="confirmPassword" type="password" autocomplete="new-password"></div>
