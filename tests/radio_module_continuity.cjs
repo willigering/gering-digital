@@ -89,6 +89,8 @@ let server,browser;
   await page.locator('#module-grid a.module-card[href="../osi/"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'visible'});
   await page.frameLocator('[data-module-frame]').locator('h1').waitFor();
+  assert.equal(await page.frameLocator('[data-module-frame]').locator('dtp-back').isVisible(),false,
+    'Embedded module must not show a second Modulauswahl header');
   assert.equal(new URL(page.url()).searchParams.get('modul'),'osi');
   await sleep(1600);
   const opened=await state();
@@ -117,9 +119,15 @@ let server,browser;
 
   await page.locator('#module-grid a.module-card[href="../osi/"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'visible'});
-  await page.frameLocator('[data-module-frame]').locator('dtp-back #back-module').click();
+  assert.equal(await page.frameLocator('[data-module-frame]').locator('dtp-back').isVisible(),false,
+    'Only the outer navigation remains visible in the learning view');
+  await page.locator('[data-module-back]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
-  assert.equal((await state()).state,'playing','Shadow-DOM back control retains playback');
+  assert.equal((await state()).state,'playing','Returning from the single navigation bar retains playback');
+  // A directly opened module has no shell: its original navigation must remain.
+  await page.goto(base+'/osi/',{waitUntil:'networkidle'});
+  assert.ok(await page.locator('dtp-back #back-module').isVisible(),
+    'Unframed modules keep their own Modulauswahl link');
   assert.deepEqual(errors,[],'No uncaught browser errors');
   console.log('PASS: NERD FM continues through module entry, switching, pause/resume and back navigation');
 })().catch(err=>{console.error(err);process.exitCode=1}).finally(async()=>{
