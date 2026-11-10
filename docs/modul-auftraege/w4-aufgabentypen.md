@@ -16,7 +16,7 @@
 | `f_case` | Marktform im Fall | Marktformen | 3 |
 | `f_seite` | Seite aus dem Namen ablesen | Marktformen | 3 |
 | `f_macht` | Wer hat die Marktmacht? | Marktformen | 3 |
-| `f_kai` | Kais Marktform prüfen | Marktformen | 3 |
+| `f_kai` | Milos Marktform prüfen | Marktformen | 3 |
 | `e_privat` | Haftung mit Privatvermögen | Einzelunternehmen & Kaufmann | 4 |
 | `e_sofa` | Gerichtsvollzieher auf dem Sofa | Einzelunternehmen & Kaufmann | 4 |
 | `e_zusatz` | Firmenzusatz des Kaufmanns | Einzelunternehmen & Kaufmann | 4 |
