@@ -24,6 +24,36 @@ function gdm_db(): PDO {
     $db->exec("CREATE TABLE IF NOT EXISTS mail_history (id TEXT PRIMARY KEY, entry_id TEXT NOT NULL, created_at TEXT NOT NULL, recipient TEXT NOT NULL, subject TEXT NOT NULL, status TEXT NOT NULL, pdf_sha256 TEXT NOT NULL DEFAULT '', error TEXT NOT NULL DEFAULT '')");
     return $db;
 }
+/**
+ * Original PDFs and CV/reference bundles live exclusively in the private SQLite
+ * mail_assets BLOB table. Never write uploaded documents to a public path/Git.
+ */
+function gdm_uploaded_pdf(array $up,int $limit):array {
+    if (!isset($up['error']) || (int)$up['error']!==UPLOAD_ERR_OK) {
+        throw new InvalidArgumentException('PDF-Upload fehlgeschlagen. Bitte Serverlimit und Dateigröße prüfen.');
+    }
+    $size=(int)($up['size']??0);
+    if($size<100 || $size>$limit) throw new InvalidArgumentException('Die PDF-Datei ist zu groß oder leer.');
+    $tmp=(string)($up['tmp_name']??'');
+    if($tmp==='' || !is_uploaded_file($tmp)) throw new InvalidArgumentException('Ungültiger PDF-Upload.');
+    $bytes=file_get_contents($tmp);
+    if(!is_string($bytes)||strlen($bytes)!==$size||!str_starts_with($bytes,'%PDF-')
+       ||!preg_match('/%%EOF\s*\z/D',substr($bytes,-2048))){
+        throw new InvalidArgumentException('Die Datei ist kein vollständiges PDF.');
+    }
+    $name=basename(str_replace('\\','/',(string)($up['name']??'')));
+    $name=(string)preg_replace('/[^A-Za-z0-9_.-]/','_',$name);
+    $name=substr($name,0,80);
+    if($name==='' || !preg_match('/\.pdf\z/iD',$name))$name='Dokument.pdf';
+    return ['filename'=>$name,'bytes'=>$bytes];
+}
+function gdm_save_asset(PDO $db,string $id,array $up,int $limit):void {
+    if(!in_array($id,['cv','original'],true))throw new InvalidArgumentException('Unbekannter Dokumenttyp.');
+    $doc=gdm_uploaded_pdf($up,$limit);
+    $q=$db->prepare('INSERT INTO mail_assets(id,filename,file,uploaded_at) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET filename=excluded.filename,file=excluded.file,uploaded_at=excluded.uploaded_at');
+    $q->bindValue(1,$id);$q->bindValue(2,$doc['filename']);$q->bindValue(3,$doc['bytes'],PDO::PARAM_LOB);$q->bindValue(4,gmdate('c'));$q->execute();
+}
+
 function gdm_defaults(): array {
     return [
         'senderName' => 'Willi Gering',
