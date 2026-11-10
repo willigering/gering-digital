@@ -49,7 +49,7 @@ function gdsafeId(string $id):string{
     return $id;
 }
 function gdasset(PDO $db,string $id):?array{
-    if(!in_array($id,['cv','original'],true))throw new InvalidArgumentException('Ungültiger Dokumenttyp.');
+    if(!in_array($id,['cv','original','template'],true))throw new InvalidArgumentException('Ungültiger Dokumenttyp.');
     $q=$db->prepare('SELECT filename,file,uploaded_at FROM mail_assets WHERE id=?');
     $q->execute([$id]);$r=$q->fetch();
     return $r?:null;
@@ -58,14 +58,15 @@ function gdcv(PDO $db):?array{return gdasset($db,'cv');}
 function gdview(PDO $db):void{
     $cfg=gdm_config($db);
     $stored=$db->query("SELECT smtp_secret FROM mail_meta WHERE id=1")->fetchColumn();
-    $assetQuery=$db->query("SELECT id,filename FROM mail_assets WHERE id IN ('cv','original')");
+    $assetQuery=$db->query("SELECT id,filename FROM mail_assets WHERE id IN ('cv','original','template')");
     $assets=[];
     foreach($assetQuery->fetchAll() as $a)$assets[$a['id']]=$a['filename'];
     $hasCv=isset($assets['cv']);
     $hist=$db->query('SELECT id,entry_id,created_at,recipient,subject,status,error FROM mail_history ORDER BY created_at DESC LIMIT 100')->fetchAll();
     gmj(['config'=>$cfg,'senderAddress'=>GD_MAIL_FROM,'smtpConfigured'=>is_string($stored)&&$stored!=='',
          'cvStored'=>$hasCv,'cvFilename'=>$assets['cv']??null,'originalStored'=>isset($assets['original']),
-          'originalFilename'=>$assets['original']??null,
+          'originalFilename'=>$assets['original']??null,'templateStored'=>isset($assets['template']),
+          'templateFilename'=>$assets['template']??null,
           'history'=>$hist,'smtpServer'=>GD_MAIL_HOST,'smtpPort'=>GD_MAIL_PORT]);
 }
 $action=(string)($_GET['action']??'state');
@@ -74,7 +75,7 @@ try{
     $db=gdm_db();
     if($_SERVER['REQUEST_METHOD']==='GET'){
         if($action==='state')gdview($db);
-        if($action==='cv'||$action==='original'){
+        if(in_array($action,['cv','original','template'],true)){
             $doc=gdasset($db,$action);
             if(!$doc)gmerr('Kein Dokument hinterlegt.',404);
             $name=(string)$doc['filename'];
@@ -98,15 +99,20 @@ try{
         gdm_smtp($pass,GD_MAIL_FROM,'','',[],true);
         gmj(['message'=>'SMTP-Anmeldung erfolgreich. Es wurde keine E-Mail versendet.']);
     }
-    if($action==='upload-cv'||$action==='upload-original'){
-        $original=$action==='upload-original';
-        $key=$original?'original':'cv';
+    if(in_array($action,['upload-cv','upload-original','upload-template'],true)){
+        $key=substr($action,7);
         if(empty($_FILES[$key])||!is_array($_FILES[$key]))throw new InvalidArgumentException('Bitte eine PDF-Datei wählen.');
-        gdm_save_asset($db,$key,$_FILES[$key],$original?10*1024*1024:6*1024*1024);
+        if($key==='template'){
+            $tmp=(string)($_FILES[$key]['tmp_name']??'');
+            if(!is_uploaded_file($tmp)||!str_contains((string)file_get_contents($tmp),'GD_Bewerbung_Seite2_Leer_V1')){
+                throw new InvalidArgumentException('Bitte nur die vorbereitete fünfseitige PDF-Vorlage hochladen, nicht das Original mit alter Firmenanschrift.');
+            }
+        }
+        gdm_save_asset($db,$key,$_FILES[$key],$key==='cv'?6*1024*1024:10*1024*1024);
         gdview($db);
     }
-    if($action==='remove-cv'||$action==='remove-original'){
-        $key=$action==='remove-original'?'original':'cv';
+    if(in_array($action,['remove-cv','remove-original','remove-template'],true)){
+        $key=substr($action,7);
         $q=$db->prepare('DELETE FROM mail_assets WHERE id=?');$q->execute([$key]);
         gdview($db);
     }
@@ -122,7 +128,18 @@ try{
             header('Content-Length: '.strlen($doc['pdf']));
             echo $doc['pdf'];exit;
         }
-        // The bytes mailed must match exactly the company-addressed PDF the user inspected.
+        // The previewed PDF must be the exact bytes sent. In five-page mode
+        // it was created locally from the private blank template.
+        $fullMap=!empty($body['useFivePage']);
+        if($fullMap){
+            if(!gdasset($db,'template'))throw new InvalidArgumentException('Die fünfseitige Bewerbungsvorlage fehlt.');
+            if(empty($_FILES['map'])||!is_array($_FILES['map']))throw new InvalidArgumentException('Bitte die geprüfte fünfseitige PDF mitsenden.');
+            $map=gdm_uploaded_pdf($_FILES['map'],10*1024*1024);
+            if(preg_match_all('~/Type\s*/Page\b(?!s)~',$map['bytes'])!==5){
+                throw new InvalidArgumentException('Bitte eine vollständige fünfseitige Bewerbungsmappe hochladen.');
+            }
+            $doc['pdf']=$map['bytes'];
+        }
         $expectedHash = (string)($body['expectedPdfHash'] ?? '');
         if (!preg_match('/\A[a-f0-9]{64}\z/D', $expectedHash)
             || !hash_equals($expectedHash, hash('sha256', $doc['pdf']))) {
@@ -139,9 +156,10 @@ try{
         if(!filter_var($doc['to'],FILTER_VALIDATE_EMAIL))throw new InvalidArgumentException('Empfänger-Adresse fehlt.');
         $pass=gdm_decrypt($db);
         if(!$pass)throw new InvalidArgumentException('Bitte das SMTP-Passwort unter E-Mail-Einstellungen hinterlegen.');
-        $files=[['filename'=>'Anschreiben.pdf','bytes'=>$doc['pdf']]];
+        $files=[['filename'=>$fullMap?'Bewerbungsmappe.pdf':'Anschreiben.pdf','bytes'=>$doc['pdf']]];
         $cv=gdcv($db);
-        if($cv && !empty($body['attachCv']))$files[]=['filename'=>(string)$cv['filename'],'bytes'=>$cv['file']];
+        // The five-page map already contains the original CV and both reference pages.
+        if(!$fullMap && $cv && !empty($body['attachCv']))$files[]=['filename'=>(string)$cv['filename'],'bytes'=>$cv['file']];
         if(!empty($_FILES['extra']['name'])){
             $ups=$_FILES['extra'];
             if(!is_array($ups['name']))throw new InvalidArgumentException('Ungültige Anhänge.');
