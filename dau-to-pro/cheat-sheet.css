@@ -179,3 +179,60 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 }
 
 .board.is-stacked .sheet-row.is-waiting{filter:brightness(.72) saturate(.82);pointer-events:none}
+/* Themenblätter nach dem ursprünglichen Klausur-Spickzettel: kantige
+   Lesekarten, feste Sprungleiste und native Swipe-Seiten bis 900 px. */
+.sheet-jump:empty{display:none}
+.sheet-jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 10px;overscroll-behavior-x:contain}
+.sheet-jump a{flex:none;display:flex;align-items:center;min-height:44px;text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--sheet-light);border:1px solid var(--sheet-line);background:var(--sheet-panel);padding:6px 12px}
+.sheet-jump a:hover,.sheet-jump a:focus-visible{border-color:var(--sheet-tone);color:var(--cream)}
+.sheet-jump a[aria-current=true]{background:var(--sheet-tone);border-color:var(--sheet-tone);color:#111017}
+.swipe-count{margin:0 0 8px;color:var(--sheet-light);font-size:11px;font-weight:800;letter-spacing:.06em}
+.reading-sheet{--sheet-tone:#ed973c;--sheet-light:color-mix(in srgb,var(--sheet-tone) 48%,#fff);--sheet-line:color-mix(in srgb,var(--sheet-tone) 30%,transparent);--sheet-panel:color-mix(in srgb,var(--sheet-tone) 5%,#0b1015);background:#0a080e}
+.reading-sheet .topbar{background:#0b0a10f5;border-color:var(--sheet-line)}
+.reading-sheet .toolbar{display:none}
+.reading-sheet .bar-meta{display:none}
+.reading-sheet .topbar .wrap,.reading-sheet main.wrap{max-width:1260px}
+.reading-sheet .one-sheet{max-width:none;border:0;border-radius:0;box-shadow:none;background:transparent;overflow:visible}
+.reading-sheet .detail-header{background:radial-gradient(ellipse at 80% 25%,color-mix(in srgb,var(--tone) 8%,transparent),transparent 65%);border:0;padding:30px 0 26px}
+.reading-sheet .detail-header:after{display:none}
+.reading-sheet .detail-kicker{display:inline-block;border:1px solid color-mix(in srgb,var(--tone) 30%,transparent);padding:9px 16px;background:color-mix(in srgb,var(--tone) 8%,transparent);clip-path:polygon(0 0,97% 0,100% 25%,100% 100%,3% 100%,0 75%)}
+.reading-sheet .detail-header h2{font-size:clamp(34px,5vw,60px);line-height:1.02;letter-spacing:-.05em;color:var(--tone)}
+.reading-sheet .detail-header p{font-size:clamp(15px,1.6vw,18px);line-height:1.7}
+.reading-sheet .detail-code{border-radius:0}
+.sheet-panels{columns:2;column-gap:18px;padding-bottom:18px;position:relative}
+.reading-sheet .sheet-panel{position:relative;display:block;width:100%;break-inside:avoid;margin:0 0 18px;padding:22px;border:1px solid color-mix(in srgb,var(--tone) 30%,transparent);border-radius:0;background:linear-gradient(140deg,color-mix(in srgb,var(--tone) 5%,#0b1015f5),#080c10f0);box-shadow:0 22px 60px #0005,inset 0 1px 0 #ffffff0e;clip-path:polygon(0 0,99% 0,100% 14px,100% 100%,1% 100%,0 calc(100% - 14px));scroll-margin-top:180px;overflow-wrap:anywhere}
+.reading-sheet .sheet-panel:before{content:"";position:absolute;top:0;left:0;width:150px;height:4px;background:var(--tone)}
+.reading-sheet .sheet-panel h3{font-size:22px;font-weight:950;line-height:1.1;letter-spacing:-.04em;text-transform:uppercase;color:var(--cream);margin:0 0 12px}
+.reading-sheet .section-num{display:block;margin-bottom:8px}
+.reading-sheet .section-lead{font-size:14px;line-height:1.55}
+.reading-sheet .fact{font-size:14px;line-height:1.55}
+.reading-sheet .detail-section dl{gap:9px}
+.reading-sheet .detail-traps strong{color:var(--tone);font-size:18px}
+.reading-sheet .detail-traps li{font-size:14px;line-height:1.55}
+.reading-sheet .exam-grid{grid-template-columns:1fr}
+.reading-sheet .exam-qa strong,.reading-sheet .exam-qa p{font-size:13.5px;line-height:1.45}
+.reading-sheet .detail-signoff{background:transparent}
+@media(max-width:900px){
+  .sheet-panels{columns:auto;display:flex;align-items:flex-start;gap:12px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none}
+  .sheet-panels::-webkit-scrollbar,.sheet-jump::-webkit-scrollbar{display:none}
+  .reading-sheet .sheet-panel{flex:0 0 100%;min-width:0;margin:0;scroll-snap-align:start;scroll-snap-stop:always;box-shadow:none}
+}
+@media(max-width:610px){
+  .reading-sheet .sheet-panel{padding:18px 12px}
+  .reading-sheet .detail-header{padding:22px 0}
+  .reading-sheet .detail-kicker{font-size:10px;letter-spacing:.14em}
+  .reading-sheet .detail-actions{gap:10px;flex-wrap:wrap}
+}
+@media print{
+  .sheet-panels{display:block!important;columns:2!important;height:auto!important;overflow:visible!important}
+  .reading-sheet .sheet-panel{display:block!important;width:100%!important;clip-path:none!important;break-inside:avoid;margin:0 0 5mm!important;padding:3mm!important;box-shadow:none!important}
+  .reading-sheet .sheet-panel:before{display:none}
+  .reading-sheet .sheet-panel h3{font-size:12pt}
+  .reading-sheet .fact,.reading-sheet .section-lead,.reading-sheet .detail-traps li{font-size:9pt}
+  .reading-sheet .exam-qa strong,.reading-sheet .exam-qa p{font-size:8.5pt}
+}
+@media(min-width:901px){
+  .reading-sheet .detail-exam,.reading-sheet .detail-traps{column-span:all}
+  .reading-sheet .exam-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 28px}
+}
+@media(min-width:1400px){.reading-sheet .exam-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
