@@ -52,3 +52,6 @@
 .gdm-compose-bottom .gdm-state{margin:0;color:#d9c399;max-width:50%;font-size:11px}
 @media(max-width:960px){.gdm-settings-cards{grid-template-columns:1fr}.gdm-compose-layout{grid-template-columns:1fr;overflow:auto}.gdm-compose-fields{overflow:visible}.gdm-pdf-wrap{border-left:0;border-top:1px solid #ffffff25;min-height:540px}.gdm-overlay{padding:10px}.gdm-compose{max-height:calc(100vh - 20px)}}
 @media(max-width:630px){.gdm-top-button span{display:none}.gdm-two{grid-template-columns:1fr;gap:0}.gdm-compose-head{padding:14px 17px}.gdm-compose-head h2{font-size:21px}.gdm-compose-fields{padding:12px 17px}.gdm-compose-bottom{display:block;padding:12px 17px}.gdm-compose-bottom .gdm-state{max-width:none;margin-bottom:8px}.gdm-compose-bottom .button{padding:10px;font-size:11px}.gdm-settings-card{padding:16px}}
+
+/* Download-/Löschbuttons ausschließlich bei tatsächlich gespeicherter PDF anzeigen. */
+#gdm-settings-block [hidden]{display:none!important}
