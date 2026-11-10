@@ -13,6 +13,10 @@ const match=html.match(/<script>([\s\S]*?)<\/script>/i);
 assert(match,"Inline frontend controller exists");
 new vm.Script(match[1],{filename:"b.html inline controller"});
 assert(html.includes("<h1>Praktikumsbewerbung</h1>"),"Internship application is the only dashboard hero title");
+assert.equal((html.match(/src="assets\/gering-digital-logo-icon-312\.webp"/g)||[]).length,2,"Real Gering Digital icon in sidebar and login");
+assert(!html.includes('class="brand-mark">G/'),"No placeholder logo left");
+assert(fs.existsSync("assets/gering-digital-logo-icon-312.webp"),"Logo asset is deployed");
+
 assert(html.includes("Daten &amp; Sicherung</h1>"),"Settings uses a plain functional title");
 for (const slogan of ["Der nächste Schritt.","Im Blick.","Sichern.<br>","Mitnehmen.","Dein Weg ins nächste Kapitel.","PRIVATE WORKSPACE"]) {
   assert(!html.includes(slogan),"Promotional slogan remains: "+slogan);
