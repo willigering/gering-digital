@@ -16,7 +16,7 @@ $cardProgress=[];
 try {
     $hsCount=(int)db()->query('SELECT COUNT(*) FROM learner_stats WHERE highscore_visible=1 AND highscore_blocked=0')->fetchColumn();
     if ($learnerRow) {
-        $hsRows=ach_highscore(5);
+        $hsRows=ach_highscore(100);
         $hsMe=ach_stats((int)$learnerRow['id']);
         $hsRank=ach_would_rank((int)$learnerRow['id']);
     }
@@ -66,6 +66,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
+  <link rel="stylesheet" href="highscore-arcade.css?v=<?=filemtime(__DIR__.'/highscore-arcade.css')?>">
+  <script src="highscore-arcade.js?v=<?=filemtime(__DIR__.'/highscore-arcade.js')?>" defer></script>
   <link rel="stylesheet" href="cheat-shelf.css?v=<?=filemtime(__DIR__.'/cheat-shelf.css')?>">
   <link rel="stylesheet" href="unterricht.css?v=<?=filemtime(__DIR__.'/unterricht.css')?>">
   <script src="cheat-shelf.js?v=<?=filemtime(__DIR__.'/cheat-shelf.js')?>" defer></script>
@@ -208,15 +210,38 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php if (!$hsRows): ?>
         <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
 <?php else: ?>
-        <ol class="hs-top">
-<?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
-          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
-            <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
-            <span class="hs-who"><b><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?></b><span class="hs-showcase" aria-label="Ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
-            <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
-          </li>
+        <div class="arcade-champions" aria-label="Die ersten drei Plätze">
+<?php foreach(array_slice($hsRows,0,3) as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
+          <article class="arcade-champion rank-<?=(int)$r['rank']?><?=$self?' is-self':''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
+            <span class="arcade-rank" aria-label="Platz <?=(int)$r['rank']?>"><?=(int)$r['rank']?></span>
+            <span class="arcade-crown" aria-hidden="true"><?=(int)$r['rank']===1?'♛':((int)$r['rank']===2?'✦':'◆')?></span>
+            <div class="arcade-profile">
+              <a class="arcade-name" href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <span class="arcade-you">(du)</span><?php endif; ?>
+              <span class="arcade-level">LEVEL <?=(int)$r['level']?> · <?=e($r['title'])?></span>
+            </div>
+            <div class="arcade-score"><strong><?=number_format((int)$r['xp'],0,',','.')?></strong><span>XP</span></div>
+            <div class="arcade-medals hs-showcase" aria-label="Drei ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></div>
+            <span class="arcade-ach-count"><?=(int)$r['achievements']?> ACHIEVEMENTS</span>
+          </article>
 <?php endforeach; ?>
-        </ol>
+        </div>
+<?php if(count($hsRows)>3): ?>
+        <div class="arcade-next-head"><span>WEITERE PLÄTZE</span><small>Scrollen oder ziehen, um die Rangliste zu erkunden</small></div>
+        <div class="arcade-rail-wrap" data-arcade-scroll>
+          <button class="arcade-arrow arcade-prev" type="button" aria-label="Vorherige Plätze">‹</button>
+          <ol class="arcade-rail" tabindex="0" aria-label="Plätze ab Rang vier, horizontal scrollbar">
+<?php foreach(array_slice($hsRows,3) as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
+            <li class="arcade-runner<?=$self?' is-self':''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
+              <span class="arcade-runner-rank"><?=(int)$r['rank']?></span>
+              <div class="arcade-runner-info"><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?><span>LEVEL <?=(int)$r['level']?> · <?=e($r['title'])?></span><strong><?=number_format((int)$r['xp'],0,',','.')?> <small>XP</small></strong></div>
+              <span class="arcade-runner-medals hs-showcase" aria-label="Ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span>
+            </li>
+<?php endforeach; ?>
+          </ol>
+          <button class="arcade-arrow arcade-next" type="button" aria-label="Nächste Plätze">›</button>
+          <div class="arcade-progress" role="presentation"><span></span></div>
+        </div>
+<?php endif; ?>
 <?php endif; ?>
         <div class="hs-foot">
           <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
