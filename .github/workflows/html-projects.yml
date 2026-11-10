@@ -64,9 +64,15 @@ jobs:
         with:
           node-version: '22'
       - name: Install isolated browser test dependency
-        run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
+        run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1 pdf-lib@1.17.1
       - name: Install Chromium
         run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Build same locally hosted PDF editor used by production
+        shell: bash
+        run: |
+          mkdir -p assets/lib
+          cp "$RUNNER_TEMP/dtp-browser/node_modules/pdf-lib/dist/pdf-lib.min.js" assets/lib/pdf-lib.min.js
+
       - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
