@@ -90,3 +90,13 @@
 
 /* Profil-Dialog im Highscore */
 .profile-avatar { width: 96px; margin: 0 0 12px; }
+
+.avatare-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.avatare-part:has(:disabled) {
+  cursor: default;
+  color: #aabcc5;
+}

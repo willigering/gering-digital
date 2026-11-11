@@ -1,5 +1,5 @@
 <?php
-// DAU TO PRO Avatare (avatar-01 … avatar-07): Katalog und Dateien, Bereinigung, Speichern/Laden (additiv in learner_prefs),
+// DAU TO PRO Avatare: Katalog und Dateien, Bereinigung, Speichern/Laden (additiv in learner_prefs),
 // Highscore-Einbindung (öffentlich ohne Anmeldung), Auswahlseite, Konto und Profil über PHPs eingebauten Server.
 // Aufruf: php tests/avatare_test.php
 declare(strict_types=1);
@@ -14,17 +14,17 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 
 // ---------------------------------------------------------------- Katalog und Dateien
 $catalog=dtp_avatar_catalog();
-check(array_keys($catalog)===['avatar-01','avatar-02','avatar-03','avatar-04','avatar-05','avatar-06','avatar-07'],'Genau sieben Avatare mit den IDs avatar-01 bis avatar-07');
-check(count(array_filter($catalog,fn($p)=>count($p)===3))===7,'Jeder Avatar hat genau drei eigene Zubehörteile');
+check(array_keys($catalog)===array_map(fn($n)=>sprintf('avatar-%02d',$n),range(1,17)),'Sieben kompatible Altfiguren und zehn Arcade-Figuren');
+check(count(array_filter($catalog,fn($p)=>count($p)===3))===7,'Jeder Altavatar hat drei eigene Zubehörteile');
 $order=['avatar-01'=>['carbonkragen','kapuze','atemmaske'],'avatar-02'=>['dreitagebart','techniker-cap','funk-headset'],'avatar-03'=>['bomberjacke','fliegerbrille','ohrclip'],
     'avatar-04'=>['schulterjacke','stirnband','rennvisier'],'avatar-05'=>['halsschal','kapuze','maske'],'avatar-06'=>['jacke','kopfhoerer','schlaefenklammer'],'avatar-07'=>['arbeitsjacke','kinnbart','brille']];
-check(array_map('array_keys',$catalog)===$order,'Zeichenreihenfolge der Teile (hinten → vorne) wie im Paket');
+check(array_map('array_keys',array_slice($catalog,0,7,true))===$order,'Zeichenreihenfolge der Teile (hinten → vorne) wie im Paket');
 $forbidden='/\b(willi|julian|lena|tim|sarah|marco|david|platz \d|rang|krone|lorbeer)\b/i';
 $labels=implode(' ',array_merge(array_map('dtp_avatar_label',array_keys($catalog)),...array_map('array_values',array_values($catalog))));
 check(!preg_match($forbidden,$labels),'Keine Namen und keine Rangbezeichnungen in Beschriftungen');
 $dir=$root.'/'.DTP_AVATAR_DIR;
 $bad=[];$files=0;
-foreach ($catalog as $id=>$parts) foreach (array_merge(['referenz','basis'],array_keys($parts)) as $layer) {
+foreach ($catalog as $id=>$parts) foreach (array_merge(isset($order[$id])?['referenz','basis']:['basis'],array_keys($parts)) as $layer) {
     $png="$dir/$id-$layer.png";
     $info=@getimagesize($png);
     if (!$info || $info[0]!==512 || $info[1]!==512) {$bad[]="$id-$layer.png";continue;}
@@ -36,9 +36,9 @@ foreach ($catalog as $id=>$parts) foreach (array_merge(['referenz','basis'],arra
         if (!$w || $w[0]!==$size || $w[1]!==$size) $bad[]="$id-$layer$suffix";
     }
 }
-check($files===35 && $bad===[],'35 transparente 512er-PNGs plus WebP 512 und 192'.($bad?': '.implode(', ',array_slice($bad,0,5)):''));
+check($files===65 && $bad===[],'65 transparente 512er-PNGs plus WebP 512 und 192'.($bad?': '.implode(', ',array_slice($bad,0,5)):''));
 $onDisk=array_map('basename',glob("$dir/*.png"));
-check(count($onDisk)===35 && !array_filter($onDisk,fn($f)=>!preg_match('/^avatar-0[1-7]-[a-z-]+\.png$/',$f)),'Dateinamen nur mit den IDs avatar-01 bis avatar-07');
+check(count($onDisk)===65 && !array_filter($onDisk,fn($f)=>!preg_match('/^avatar-(?:0[1-9]|1[0-7])-[a-z-]+\.png$/',$f)),'Dateinamen nur mit den IDs avatar-01 bis avatar-17');
 // Referenz-Look = Basisporträt + alle drei Teile in Katalog-Reihenfolge (gleiche Leinwand, gleiche Position).
 foreach (['avatar-01','avatar-04','avatar-07'] as $id) {
     $im=imagecreatefrompng("$dir/$id-basis.png");imagealphablending($im,true);
@@ -52,7 +52,7 @@ foreach (['avatar-01','avatar-04','avatar-07'] as $id) {
 }
 
 // ---------------------------------------------------------------- Bereinigung
-check(dtp_avatar_normalize(null)===null && dtp_avatar_normalize(['id'=>'avatar-08'])===null && dtp_avatar_normalize(['id'=>'<script>'])===null,'Unbekannte Avatare ergeben „kein Avatar“');
+check(dtp_avatar_normalize(null)===null && dtp_avatar_normalize(['id'=>'avatar-18'])===null && dtp_avatar_normalize(['id'=>'<script>'])===null,'Unbekannte Avatare ergeben „kein Avatar“');
 check(dtp_avatar_normalize(['id'=>'avatar-03','parts'=>['ohrclip','bomberjacke','kapuze','rennvisier',['x']]])===['id'=>'avatar-03','parts'=>['bomberjacke','ohrclip']],'Fremde Teile fallen weg, Reihenfolge folgt dem Katalog');
 check(dtp_avatar_normalize(['id'=>'avatar-05'])===['id'=>'avatar-05','parts'=>[]],'Ohne Teile: nur das Basisporträt');
 check(dtp_avatar_full('avatar-06')['parts']===['jacke','kopfhoerer','schlaefenklammer'],'Voller Look trägt alle drei Teile gleichzeitig');
@@ -119,7 +119,7 @@ try {
     check(substr_count($landing['body'],'class="arcade-avatar')===3 && substr_count($landing['body'],'class="arcade-avatar has-avatar')===1,'Ohne Wahl und auf freien Plätzen bleibt der bisherige Platzhalter');
     check(str_contains($landing['body'],'avatare.css'),'Startseite lädt die Avatar-Styles');
     $guest=http('GET','/dau-to-pro/avatare.php');
-    check($guest['status']===200 && str_contains($guest['body'],'Anmelden zum Speichern') && substr_count($guest['body'],'name="avatar"')===7,'Auswahlseite für Gäste: ausprobieren ja, speichern nein');
+    check($guest['status']===200 && str_contains($guest['body'],'Anmelden zum Speichern') && substr_count($guest['body'],'name="avatar"')===10,'Auswahlseite für Gäste: ausprobieren ja, speichern nein');
     check(!preg_match($forbidden,strip_tags(preg_replace('~<(script|style|header|footer)\b.*?</\1>~s','',$guest['body']))),'Auswahlseite ohne Namen und Rangbezeichnungen');
     check(http('POST','/dau-to-pro/avatare.php','avatar=avatar-02','guest',$form)['status']===303 && !str_contains(http('GET','/dau-to-pro/avatare.php','','guest')['body'],'Gespeichert.'),'Gäste können nicht speichern');
     // Anmelden über das Formular.
@@ -145,6 +145,15 @@ try {
     check(array_key_exists('avatar',$prof) && $prof['avatar']===null,'Profil ohne Avatar: null');
     $full=http('GET','/dau-to-pro/highscore.php','','anna');
     check(str_contains($full['body'],'avatar-02-funk-headset-192.webp') && str_contains($full['body'],'avatare.css'),'Ganzer Highscore zeigt den neuen Avatar');
+    check(str_contains($page['body'],'href="konto.php">Mein Konto') && str_contains($page['body'],'href="./#lernmodule">Weiter lernen'),'Charaktermenü verlinkt Konto und Lernmodule');
+    $post(['csrf'=>$csrf,'avatar'=>'avatar-17','parts'=>['avatar-17'=>['nachtjacke','ohrclip']]]);
+    check(dtp_avatar_get($anna)===['id'=>'avatar-17','parts'=>['nachtjacke','ohrclip']],'Freigeschaltete Kleidung und Zubehör werden gespeichert');
+    $blocked=false;
+    try { dtp_avatar_save($bert,['id'=>'avatar-08','parts'=>['ohrclip']]); }
+    catch (LearnerError) { $blocked=true; }
+    check($blocked && dtp_avatar_get($bert)===null,'Gesperrtes Zubehör kann auch serverseitig nicht angelegt werden');
+    check(dtp_avatar_save($bert,['id'=>'avatar-08','parts'=>['nachtjacke']])===['id'=>'avatar-08','parts'=>['nachtjacke']],'Nachtjacke ist ab Level 3 tragbar');
+    dtp_avatar_save($bert,null);
     $post(['csrf'=>$csrf,'avatar'=>'']);
     check(dtp_avatar_get($anna)===null && !str_contains(http('GET','/dau-to-pro/','','guest')['body'],'has-avatar'),'„Kein Avatar“ entfernt die Wahl, der Highscore zeigt wieder den Platzhalter');
     foreach (['/dau-to-pro/','/dau-to-pro/highscore.php','/dau-to-pro/avatare.php','/dau-to-pro/konto.php'] as $path) {

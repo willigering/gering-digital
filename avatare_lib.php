@@ -1,18 +1,14 @@
 <?php
-// DAU TO PRO: sieben auswählbare Avatare (avatar-01 … avatar-07) mit je drei eigenen Zubehörteilen.
-// Ablage je Lernkonto in learner_prefs (pref_key „avatar_pack“), additiv; andere Einstellungen bleiben unberührt.
-// Alle Figuren und Teile sind frei wählbar (keine Freischalt-Ökonomie). XP, Level und Achievements werden nie verändert.
-// Hinweis: Der frühere Schlüssel „avatar“ des zurückgenommenen Systems (PR #214) wird bewusst nicht gelesen
-// und auch nicht gelöscht.
+// DAU TO PRO: Avatar-Ebenen und Auswahl pro Lernkonto.
 declare(strict_types=1);
-require_once __DIR__.'/learner_lib.php';
+require_once __DIR__.'/achievements_lib.php';
 
 const DTP_AVATAR_PREF='avatar_pack';
 const DTP_AVATAR_DIR='assets/dau-avatare';
 
 /**
  * Katalog: ID => Zubehörteile in Zeichenreihenfolge (hinten → vorne, über dem Basisporträt).
- * Alle Ebenen teilen dieselbe 512 × 512-Leinwand; die drei Teile einer Figur sind gemeinsam tragbar.
+ * Alle Ebenen einer Figur teilen dieselbe 512 × 512-Leinwand.
  * Die Figuren haben bewusst keine Namen und keine Rangplätze.
  */
 function dtp_avatar_catalog(): array {
@@ -24,8 +20,41 @@ function dtp_avatar_catalog(): array {
         'avatar-05'=>['halsschal'=>'Halsschal','kapuze'=>'Geteilte Kapuze','maske'=>'Maske mit Lüftungsschlitzen'],
         'avatar-06'=>['jacke'=>'Gepolsterte Jacke','kopfhoerer'=>'Monitor-Kopfhörer','schlaefenklammer'=>'Schläfenklammer'],
         'avatar-07'=>['arbeitsjacke'=>'Arbeitsjacke mit Diagnoseclip','kinnbart'=>'Kinnbart','brille'=>'Brille mit Kupferfassung'],
-    ];
+    ] + dtp_avatar_arcade_catalog();
 }
+
+/** Die Arcade-Porträts teilen sich das Format, jedes Zubehör hat seine eigene Ebene pro Figur. */
+function dtp_avatar_arcade_catalog(): array {
+    static $catalog=[];
+    if ($catalog) return $catalog;
+    foreach ([
+        ['Petrol-Hoodie','Funkclip'],
+        ['Violette Einsatzjacke','Kommlink'],
+        ['Kobaltblaue Utility-Jacke','Taktikclip'],
+        ['Nachtblauer Bomber','Audio-Clip'],
+        ['Kupferroter Hoodie','Impulsclip'],
+        ['Bordeauxfarbene Techwear-Jacke','Signal-Ohrclip'],
+        ['Pflaumenfarbener Hoodie','Echo-Clip'],
+        ['Türkisfarbener Bomber','Frequenzclip'],
+        ['Olivgrüne Utility-Jacke','Radarclip'],
+        ['Indigoblaue Arcade-Jacke','Stereo-Clip'],
+    ] as $index=>[$jacket,$earpiece]) {
+        $catalog[sprintf('avatar-%02d',$index+8)]=['nachtjacke'=>$jacket,'ohrclip'=>$earpiece];
+    }
+    return $catalog;
+}
+
+function dtp_avatar_unlock_level(string $id,string $part): int {
+    if (!isset(dtp_avatar_arcade_catalog()[$id])) return 1;
+    return ['nachtjacke'=>3,'ohrclip'=>5][$part]??1;
+}
+
+function dtp_avatar_learner_level(int $learnerId): int {
+    $query=db()->prepare('SELECT xp FROM learner_stats WHERE learner_id=?');
+    $query->execute([$learnerId]);
+    return ach_level((int)$query->fetchColumn());
+}
+
 /** „avatar-03“ → „Avatar 03“ (neutrale Beschriftung, kein Name). */
 function dtp_avatar_label(string $id): string { return 'Avatar '.substr($id,-2); }
 
@@ -62,6 +91,14 @@ function dtp_avatar_save(int $learnerId,mixed $input): ?array {
     }
     $cfg=dtp_avatar_normalize($input);
     if ($cfg===null) throw new LearnerError('Unbekannter Avatar.');
+    if (isset(dtp_avatar_arcade_catalog()[$cfg['id']]) && $cfg['parts']) {
+        $level=dtp_avatar_learner_level($learnerId);
+        foreach ($cfg['parts'] as $part) {
+            if (dtp_avatar_unlock_level($cfg['id'],$part)>$level) {
+                throw new LearnerError('Dieses Zubehör ist noch gesperrt.');
+            }
+        }
+    }
     $json=json_encode(['v'=>1]+$cfg,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR);
     db()->prepare('INSERT INTO learner_prefs(learner_id,pref_key,value,updated_at) VALUES(?,?,?,CURRENT_TIMESTAMP) ON CONFLICT(learner_id,pref_key) DO UPDATE SET value=excluded.value,updated_at=CURRENT_TIMESTAMP')
         ->execute([$learnerId,DTP_AVATAR_PREF,$json]);
