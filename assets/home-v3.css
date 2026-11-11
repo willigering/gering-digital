@@ -324,3 +324,28 @@ body{
   .gdv3-enhanced [data-gdv3-reveal]{opacity:1!important;transform:none!important}
   .gdv3-step,.gdv3-end-content,.dtp-portal-card{box-shadow:none!important;break-inside:avoid}
 }
+
+
+/* Mobile navigation must sit above the page, not under transformed hero layers. */
+@media(max-width:800px){
+  header.nav.glass-nav{position:relative;z-index:1000;isolation:isolate;overflow:visible}
+  .nav .navin{position:relative;overflow:visible}
+  .nav .mobile-menu{
+    position:absolute;top:calc(100% + 8px);left:0;right:0;
+    z-index:1001;box-sizing:border-box;
+    max-height:min(70dvh,calc(100dvh - 100px));
+    overflow-y:auto;overscroll-behavior:contain;
+    padding:8px 12px;
+    background:#0c181e; /* opaque: no lettering visible behind menu */
+    border:1px solid #6b8e8b;
+    box-shadow:0 22px 54px #000e;
+    -webkit-backdrop-filter:none;backdrop-filter:none;
+  }
+  .nav .mobile-menu.open{display:grid;gap:2px}
+  .nav .mobile-menu a{
+    color:#f2f7f4;background:#152831;
+    font-size:16px;line-height:1.4;font-weight:700;
+    min-height:48px;padding:13px 15px;border-radius:8px;
+  }
+  .nav .mobile-menu a:focus-visible{outline:2px solid #e9c174;outline-offset:2px}
+}
