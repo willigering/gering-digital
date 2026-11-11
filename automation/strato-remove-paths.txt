@@ -1,0 +1,10 @@
+# Retired DAU-TO-PRO avatar system. Production deploy will delete only these
+# allowlisted paths after uploading the reverted site (the SFTP publish never
+# deletes anything else). Paths are relative to the website root.
+assets/avatars
+avatar_lib.php
+dau-to-pro/avatar.php
+dau-to-pro/avatar.css
+dau-to-pro/avatar-editor.js
+dau-to-pro/api/avatar.php
+tools/avatar-pipeline

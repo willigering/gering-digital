@@ -3,7 +3,6 @@
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
-require_once __DIR__.'/../avatar_lib.php';
 header('Cache-Control: no-store, private');
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -137,8 +136,6 @@ $title=$learner?'Mein Fortschritt':($mode==='registrieren'?'Konto erstellen':($m
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
-  <link rel="stylesheet" href="highscore-arcade.css?v=<?=filemtime(__DIR__.'/highscore-arcade.css')?>">
-  <link rel="stylesheet" href="avatar.css?v=<?=filemtime(__DIR__.'/avatar.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
 </head>
 <body class="konto-page">
@@ -194,16 +191,6 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <p class="level-meta"><?=number_format($achStats['level']['xp'],0,',','.')?> XP<?php if(!$achStats['level']['max']): ?> · noch <?=number_format($achStats['level']['to']-$achStats['level']['xp'],0,',','.')?> XP bis Level <?=$achStats['level']['level']+1?><?php else: ?> · höchstes Level erreicht<?php endif; ?></p>
       </div>
       <a class="level-link" href="#achievements"><b><?=$ach['done']?></b><small>/ <?=$ach['total']?> Achievements</small></a>
-    </section>
-
-    <?php $kontoAvatar=null;try{$kontoAvatar=avatar_get((int)$learner['id']);if($kontoAvatar)$kontoAvatar=avatar_apply_locks($kontoAvatar,avatar_progress((int)$learner['id']));}catch(Throwable $error){error_log('DAU TO PRO Avatar: '.$error->getMessage());} ?>
-    <section class="konto-avatar" aria-label="Dein Avatar">
-      <div class="konto-avatar-hex" aria-hidden="true"><?=avatar_stack_html($kontoAvatar??avatar_default())?></div>
-      <div>
-        <strong><?=$kontoAvatar?'Dein Avatar':'Noch kein eigener Avatar'?></strong>
-        <p><?=$kontoAvatar?'So erscheinst du im Highscore und in deinem Profil.':'Bau dir eine Figur für Highscore und Profil. Mit Level und Achievements schaltest du neue Teile frei.'?></p>
-        <a class="secondary-action" href="avatar.php">Avatar bearbeiten <span aria-hidden="true">→</span></a>
-      </div>
     </section>
 
   <?php require __DIR__.'/progress-panels.php'; ?>
