@@ -6,7 +6,7 @@
   font-display: swap;
 }
 
-/* Human portraits will use the same avatar frame once their art is ready. */
+/* Gewählte Avatare (avatare_lib.php) sitzen in derselben Sechseck-Fassung; siehe Ende der Datei. */
 .arcade-stage {
   --avatar-art: none;
   display: grid;
@@ -618,3 +618,8 @@
     min-height: 2.5cqw;
   }
 }
+
+/* ---------------------------------------------------------------- Avatare (avatare_lib.php, avatare.css)
+   Der gewählte Avatar liegt innerhalb der Rang-Kontur; die Rauten-Deko entfällt dann. */
+.arcade-avatar .dtp-avatar { inset: 2px; clip-path: inherit; }
+.arcade-avatar.has-avatar::after { display: none; }
