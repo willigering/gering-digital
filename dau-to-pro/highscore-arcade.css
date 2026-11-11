@@ -124,13 +124,10 @@
 }
 .arcade-champion,
 .arcade-runner {
-  --frame: polygon(8% 0, 93% 0, 100% 10%, 100% 91%, 93% 100%, 7% 100%, 0 91%, 0 10%);
   position: relative;
   isolation: isolate;
   min-width: 0;
 }
-.arcade-champion::before,
-.arcade-champion::after,
 .arcade-runner::before,
 .arcade-runner::after {
   content: "";
@@ -140,11 +137,9 @@
   clip-path: var(--frame);
   pointer-events: none;
 }
-.arcade-champion::before,
 .arcade-runner::before {
   background: linear-gradient(140deg, var(--rank-ink) 4%, var(--rank-glow) 12%, #263a44 26%, var(--rank-ink) 45%, var(--rank-glow) 78%, #fff1bd 92%, var(--rank-glow));
 }
-.arcade-champion::after,
 .arcade-runner::after {
   inset: 2px;
   background:
@@ -159,23 +154,40 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 19px 9px 14px;
+  padding: 19px 11% 16px;
   min-height: clamp(252px, 27vw, 330px);
   text-align: center;
 }
 .arcade-champion.rank-1 {
   grid-column: 2;
   grid-row: 1;
+  --podium-art: url("../assets/dau-backgrounds/podium-gold.webp");
   --rank-glow: #f4a62a;
   --rank-ink: #ffda88;
   min-height: clamp(280px, 31vw, 378px);
 }
-.arcade-champion.rank-2 { grid-column: 1; grid-row: 1; --rank-glow: #51c9fb; --rank-ink: #b9eeff; }
-.arcade-champion.rank-3 { grid-column: 3; grid-row: 1; --rank-glow: #e4885a; --rank-ink: #ffc5a8; }
+.arcade-champion.rank-2 {
+  grid-column: 1;
+  grid-row: 1;
+  --podium-art: url("../assets/dau-backgrounds/podium-silver.webp");
+  --rank-glow: #51c9fb;
+  --rank-ink: #b9eeff;
+}
+.arcade-champion.rank-3 {
+  grid-column: 3;
+  grid-row: 1;
+  --podium-art: url("../assets/dau-backgrounds/podium-bronze.webp");
+  --rank-glow: #e4885a;
+  --rank-ink: #ffc5a8;
+}
 .arcade-champions { padding-top: clamp(48px, 5.7vw, 78px); }
-.arcade-champion::after {
-  inset: 4px;
-  box-shadow: inset 0 0 0 1px #ffffff32, inset 0 2px 0 #000a, inset 0 -2px #000a;
+.arcade-champion::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--podium-art) center / 100% 100% no-repeat;
+  pointer-events: none;
 }
 .arcade-rank {
   position: absolute;
@@ -262,14 +274,6 @@
 }
 .rank-1 .arcade-rank::before,
 .rank-1 .arcade-rank::after { content: none; }
-@media (min-width: 761px) {
-  .arcade-champion {
-    transform: perspective(900px) rotateX(7deg);
-    transform-origin: center bottom;
-  }
-  .arcade-champion.rank-2 { transform: perspective(900px) rotateX(8deg) rotateY(-5deg); }
-  .arcade-champion.rank-3 { transform: perspective(900px) rotateX(8deg) rotateY(5deg); }
-}
 .arcade-champion.is-vacant { color: #cad8df; }
 .arcade-champion.is-vacant .arcade-avatar { opacity: .65; }
 .arcade-champion.is-vacant .arcade-name { font-size: clamp(12px, 1.4vw, 17px); cursor: inherit; }
@@ -393,6 +397,7 @@
   scrollbar-color: #d6a64e #15232d;
 }
 .arcade-runner {
+  --frame: polygon(8% 0, 93% 0, 100% 10%, 100% 91%, 93% 100%, 7% 100%, 0 91%, 0 10%);
   --rank-glow: #3dacc3;
   --rank-ink: #a3edf8;
   flex: 0 0 clamp(190px, 18vw, 255px);
@@ -463,7 +468,7 @@
 }
 @media (max-width: 480px) {
   .catalog-panel > .hs-featured { padding-inline: 8px; }
-  .arcade-champion { padding-inline: 4px; gap: 4px; min-height: 181px; }
+  .arcade-champion { padding-inline: 10%; gap: 4px; min-height: 181px; }
   .arcade-champion.rank-1 { min-height: 198px; }
   .arcade-rail-wrap { padding-inline: 21px; }
   .arcade-arrow { width: 21px; }
@@ -563,15 +568,14 @@
     padding-top: 0;
   }
   .arcade-stage--landing .arcade-champion {
-    --frame: polygon(10% 0, 92% 0, 100% 10%, 100% 92%, 93% 100%, 8% 100%, 0 92%, 0 10%);
     justify-content: start;
     gap: .32cqw;
     min-height: 21.6cqw;
-    padding: 1cqw .95cqw .7cqw;
+    padding: 1.35cqw 11% 1.2cqw;
   }
   .arcade-stage--landing .arcade-champion.rank-1 {
     min-height: 26cqw;
-    padding-top: .85cqw;
+    padding-top: 1.3cqw;
   }
   .arcade-stage--landing .arcade-rank {
     font-size: 3.7cqw;
