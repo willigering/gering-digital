@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>T05 – Bedingungen verknüpfen und Eingaben prüfen · Lernstoff &amp; Tagesübungen</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0e1015; --panel:#161922; --panel2:#1c202b; --panel3:#232837; --line:#2a2f3d;
+  --text:#e7e9ef; --mut:#98a1b3; --acc:#5eead4; --acc2:#818cf8;
+  --ok:#4ade80; --bad:#f87171; --warn:#fbbf24;
+  --okbg:rgba(74,222,128,.12); --badbg:rgba(248,113,113,.12); --warnbg:rgba(251,191,36,.10); --accbg:rgba(94,234,212,.09);
+  --mono:ui-monospace,"JetBrains Mono","Cascadia Code",SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none} a:hover{text-decoration:underline}
+code,kbd{font-family:var(--mono);font-size:.9em;background:var(--panel3);border:1px solid var(--line);padding:.08em .38em;border-radius:5px;color:#d7defc}
+h1,h2,h3{line-height:1.25;margin:0}
+p{margin:.6em 0}
+ul,ol{padding-left:1.3em;margin:.5em 0} li{margin:.25em 0}
+::selection{background:rgba(94,234,212,.28)}
+button,select,input,textarea{font:inherit;color:inherit}
+
+#app{display:grid;grid-template-columns:292px 1fr;min-height:100vh}
+#side{position:sticky;top:0;height:100vh;overflow:auto;background:var(--panel);border-right:1px solid var(--line);padding:18px 14px 16px;display:flex;flex-direction:column;gap:14px;scrollbar-width:thin}
+.brand{padding:2px 6px}
+.brand small{display:block;color:var(--acc);font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.brand b{display:block;font-size:15px;line-height:1.3}
+.stats{display:grid;gap:9px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--panel2)}
+.stat{font-size:12px;color:var(--mut)}
+.stat .row{display:flex;justify-content:space-between;margin-bottom:4px}
+.stat .row b{color:var(--text);font-weight:600}
+.bar{height:6px;border-radius:99px;background:var(--panel3);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc),var(--acc2));transition:width .35s}
+nav h4{margin:10px 6px 4px;font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut)}
+nav a{display:flex;gap:9px;align-items:baseline;padding:6px 8px;border-radius:8px;color:#c6ccda;font-size:14px;line-height:1.35;text-decoration:none}
+nav a:hover{background:var(--panel2);text-decoration:none}
+nav a.on{background:var(--accbg);color:var(--acc);box-shadow:inset 2px 0 0 var(--acc)}
+nav a .n{flex:none;width:1.6em;text-align:right;color:var(--mut);font:12px var(--mono)}
+nav a .tag{margin-left:auto;font:600 10px var(--mono);color:var(--warn);border:1px solid rgba(251,191,36,.4);border-radius:99px;padding:1px 6px}
+nav a.done .n::after{content:"✓";color:var(--ok);margin-left:2px}
+.tools{margin-top:auto;display:grid;gap:7px;padding-top:6px}
+.tools .btns{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.btn{cursor:pointer;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:9px;padding:7px 11px;font-size:13px;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:#3a4256;background:var(--panel3)}
+.btn.pri{background:var(--acc);color:#04201c;border-color:var(--acc);font-weight:600}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.sm{padding:4px 10px;font-size:12.5px}
+.btn.danger:hover{border-color:var(--bad);color:var(--bad)}
+.note{font-size:11.5px;color:var(--mut);line-height:1.45;padding:0 4px}
+
+#main{min-width:0;padding:34px clamp(18px,4vw,56px) 80px}
+.page{display:none;max-width:880px;margin:0 auto;animation:fade .25s}
+.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.kick{display:block;font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.ph{font-size:clamp(26px,3.4vw,36px);letter-spacing:-.01em;margin-bottom:6px}
+.ph .chip{vertical-align:middle}
+.lead{color:var(--mut);font-size:17px;margin:.2em 0 1.2em}
+.q-sec{border-left:3px solid var(--acc2);background:rgba(129,140,248,.08);padding:10px 14px;border-radius:0 10px 10px 0;margin:16px 0;color:#d5d9f5}
+h2{font-size:21px;margin:30px 0 8px}
+h3{font-size:16px;margin:22px 0 6px;color:#dfe3ee;display:flex;align-items:center;gap:8px}
+h3::before{content:"";width:6px;height:6px;border-radius:2px;background:var(--acc)}
+.chip{display:inline-block;font:600 11.5px var(--mono);padding:3px 9px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);color:var(--mut);margin-left:8px;letter-spacing:.02em}
+.chip.kuer{color:var(--warn);border-color:rgba(251,191,36,.45)}
+.chip.pts{color:var(--acc);border-color:rgba(94,234,212,.4)}
+
+.box{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 16px;margin:16px 0}
+.box>b:first-child,.box>.bt{display:block;font:600 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px}
+.box p:last-child{margin-bottom:0} .box p:first-of-type{margin-top:.2em}
+.box.merk{border-color:rgba(94,234,212,.4);background:var(--accbg)} .box.merk>b{color:var(--acc)}
+.box.hint{border-color:rgba(251,191,36,.38);background:var(--warnbg)} .box.hint>b{color:var(--warn)}
+.box.goal{border-color:rgba(129,140,248,.4);background:rgba(129,140,248,.08)} .box.goal>b{color:var(--acc2)}
+.box.task{border-color:#37405a;background:var(--panel2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.grid2{grid-template-columns:1fr}}
+
+table.tb{border-collapse:separate;border-spacing:0;width:100%;margin:12px 0;font-size:14.5px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+table.tb caption{caption-side:top;text-align:left;padding:8px 12px;font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);background:var(--panel2);border-bottom:1px solid var(--line)}
+.tb th{background:var(--panel2);text-align:left;font:600 12px var(--mono);letter-spacing:.05em;color:var(--mut);padding:8px 12px;border-bottom:1px solid var(--line)}
+.tb td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tb tr:last-child td{border-bottom:0}
+.tb td.m,.tb td code{font-family:var(--mono)}
+.tbwrap{overflow-x:auto}
+.t{color:var(--ok)} .f{color:var(--bad)}
+
+/* code */
+.codefig{margin:14px 0}
+.code{border:1px solid var(--line);border-radius:12px;background:#0b0d12;overflow:hidden}
+.code .cap{display:flex;justify-content:space-between;gap:10px;padding:6px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font:11.5px var(--mono);color:var(--mut)}
+.code .cap .lang{color:var(--acc2)}
+.code .body{padding:10px 0;overflow-x:auto;font:13.5px/1.6 var(--mono)}
+.cl{display:flex;min-width:max-content;padding:0 14px 0 0;border-left:3px solid transparent}
+.cl .no{flex:none;width:2.9em;text-align:right;padding-right:1em;color:#4b5365;user-select:none}
+.cl .tx{white-space:pre}
+.cl.hi{background:rgba(94,234,212,.1);border-left-color:var(--acc)}
+.cl.hi .no{color:var(--acc)}
+.cl.skip{opacity:.38}
+.cl.bad{background:var(--badbg);border-left-color:var(--bad)}
+.figcap{font-size:13px;color:var(--mut);margin:6px 2px 0;font-style:italic}
+.k{color:#c4a7ff}.s{color:#f9b27c}.n{color:#7dd3fc}.c{color:#6b7488;font-style:italic}.ty{color:#5eead4}.fn{color:#fcd34d}.o{color:#94a3b8}.bl{color:#fb923c}
+.console{border:1px solid var(--line);border-radius:12px;background:#07080b;overflow:hidden;margin:12px 0;max-width:640px}
+.console .cap{padding:5px 12px;background:#12151c;border-bottom:1px solid var(--line);font:11.5px var(--mono);color:var(--mut);display:flex;gap:8px;align-items:center}
+.console .cap::before{content:"●●●";letter-spacing:2px;color:#3a4152;font-size:9px}
+.console pre{margin:0;padding:10px 14px;font:13.5px/1.55 var(--mono);white-space:pre-wrap;color:#cfe8d5;min-height:2.2em}
+.console pre .in{color:var(--warn)} .console pre .er{color:var(--bad)} .console pre .mu{color:var(--mut)}
+.codeedit{width:100%;min-height:140px;resize:vertical;background:#0b0d12;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:13.5px/1.6 var(--mono);color:#dbe2f4;tab-size:4;white-space:pre;overflow:auto}
+.codeedit:focus,.notes:focus,.inp:focus,select:focus-visible{outline:2px solid rgba(94,234,212,.55);outline-offset:1px}
+
+/* forms */
+.notes{width:100%;min-height:96px;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.55}
+.notes::placeholder,.codeedit::placeholder,.inp::placeholder{color:#59627a}
+.inp{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 11px;min-width:0}
+.inp.mono{font-family:var(--mono)}
+select{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:100%;cursor:pointer}
+select option{background:#1c202b}
+td select{width:100%;font-size:13.5px}
+td select.ok,.cell-ok{border-color:var(--ok)!important;background:var(--okbg)}
+td select.bad{border-color:var(--bad)!important;background:var(--badbg)}
+.fillbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-2px 0 14px}
+.fillbar .res{font-size:13px;color:var(--mut)}
+.res.good{color:var(--ok)} .res.warn{color:var(--warn)}
+input[type=checkbox],input[type=radio]{accent-color:var(--acc);width:1.05em;height:1.05em;flex:none;margin-top:.28em}
+.todo{list-style:none;padding:0;margin:8px 0}
+.todo li{margin:6px 0}
+.todo label{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);cursor:pointer}
+.todo label:hover{border-color:#3a4256}
+.todo label:has(input:checked){border-color:rgba(74,222,128,.45);background:var(--okbg)}
+.todo em{display:block;color:var(--mut);font-style:normal;font-size:14px;margin-top:2px}
+
+details{border:1px solid var(--line);border-radius:12px;background:var(--panel);margin:12px 0}
+details>summary{cursor:pointer;padding:10px 14px;font-weight:600;list-style:none;display:flex;align-items:center;gap:9px;user-select:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸";color:var(--acc);transition:transform .15s;display:inline-block}
+details[open]>summary::before{transform:rotate(90deg)}
+details>.in{padding:2px 16px 14px}
+details.sol{border-color:rgba(129,140,248,.4)} details.sol>summary{color:#b8c0ff}
+details.help>summary{color:var(--warn)} details.help{border-color:rgba(251,191,36,.3)}
+
+/* score */
+.score{display:grid;gap:6px;margin:8px 0}
+.score label{display:flex;gap:10px;align-items:flex-start;cursor:pointer;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);font-size:14.5px}
+.score label span.p{margin-left:auto;font:600 12px var(--mono);color:var(--acc);padding-top:3px;white-space:nowrap}
+.score label:has(input:checked){border-color:rgba(74,222,128,.4);background:var(--okbg)}
+.scoretot{font:600 13px var(--mono);color:var(--acc);margin-top:4px}
+
+/* quiz */
+.q{border:1px solid var(--line);border-radius:14px;background:var(--panel);padding:14px 16px;margin:16px 0}
+.q.ok{border-color:rgba(74,222,128,.55)}
+.q .qh{display:flex;gap:8px;align-items:center;margin-bottom:4px}
+.qn{font:700 12px var(--mono);color:var(--acc)} .qk{font:600 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--mut);border:1px solid var(--line);border-radius:99px;padding:1px 8px}
+.qp{margin:.3em 0 .6em;font-weight:500}
+.opts{display:grid;gap:7px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:9px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;background:var(--panel2);transition:.12s}
+.opt:hover{border-color:#3d465d}
+.opt .ol{font:700 12.5px var(--mono);color:var(--mut);width:1.2em;padding-top:2px}
+.opt:has(input:checked){border-color:var(--acc2);background:rgba(129,140,248,.1)}
+.opt.right{border-color:var(--ok)!important;background:var(--okbg)!important}
+.opt.wrong{border-color:var(--bad)!important;background:var(--badbg)!important}
+.qa{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.fb{margin-top:10px;padding:10px 14px;border-radius:10px;font-size:14.5px;display:none}
+.fb.show{display:block}
+.fb.good{background:var(--okbg);border:1px solid rgba(74,222,128,.4)}
+.fb.nope{background:var(--badbg);border:1px solid rgba(248,113,113,.4)}
+.fb.info{background:var(--panel2);border:1px solid var(--line)}
+.fb ul{margin:.4em 0 0}
+.score-big{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding:14px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel2);margin:12px 0 4px}
+.score-big .num{font:700 34px var(--mono);color:var(--acc)}
+
+/* labs */
+.lab{border:1px solid #38405a;background:linear-gradient(180deg,#171b27,#131621);border-radius:14px;padding:14px 16px 16px;margin:20px 0}
+.lab>.lt{display:flex;align-items:center;gap:8px;font:700 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--acc2);margin-bottom:10px}
+.lab>.lt::before{content:"⚗";font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.tog{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;user-select:none;font:13.5px var(--mono)}
+.tog input{display:none}
+.tog .sw{width:34px;height:18px;border-radius:99px;background:#3a4152;position:relative;transition:.15s}
+.tog .sw::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.15s}
+.tog:has(input:checked){border-color:rgba(74,222,128,.5)} .tog:has(input:checked) .sw{background:var(--ok)} .tog:has(input:checked) .sw::after{left:18px}
+.res-big{font:700 22px var(--mono);padding:4px 14px;border-radius:10px;display:inline-block}
+.res-big.T{color:var(--ok);background:var(--okbg)} .res-big.F{color:var(--bad);background:var(--badbg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg label{padding:5px 12px;cursor:pointer;font:13px var(--mono);background:var(--panel2);border-right:1px solid var(--line)}
+.seg label:last-child{border-right:0}
+.seg input{display:none}
+.seg label:has(input:checked){background:var(--acc);color:#04201c;font-weight:700}
+.vars{display:flex;gap:10px;flex-wrap:wrap;margin:10px 0}
+.var{border:1px solid var(--line);border-radius:10px;padding:6px 12px;background:var(--panel2);min-width:110px}
+.var small{display:block;color:var(--mut);font:11px var(--mono)} .var b{font:600 16px var(--mono)}
+.var.chg{border-color:var(--warn);background:var(--warnbg)}
+.numline{width:100%;height:auto;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chipb{cursor:pointer;border:1px solid var(--line);background:var(--panel2);border-radius:99px;padding:3px 11px;font:12.5px var(--mono);color:#c6ccda}
+.chipb:hover{border-color:var(--acc);color:var(--acc)}
+.lab .exp{font-size:14px;color:var(--mut);margin-top:8px}
+.pn{display:flex;justify-content:space-between;gap:10px;margin-top:44px;padding-top:18px;border-top:1px solid var(--line)}
+.pn a{flex:1;max-width:48%;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:10px 14px;color:var(--text);text-decoration:none;display:block}
+.pn a:hover{border-color:var(--acc);text-decoration:none}
+.pn a small{display:block;color:var(--mut);font:11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.pn a.next{text-align:right;margin-left:auto}
+.srcline{font-size:12.5px;color:var(--mut);margin-top:30px;border-top:1px dashed var(--line);padding-top:10px}
+#toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--panel3);border:1px solid var(--line);padding:9px 16px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;z-index:50;font-size:14px}
+#toast.show{opacity:1;transform:translateX(-50%)}
+#menubtn{display:none}
+@media(max-width:900px){
+  #app{grid-template-columns:1fr}
+  #side{position:fixed;inset:0 auto 0 0;width:min(86vw,320px);z-index:40;transform:translateX(-102%);transition:transform .2s;box-shadow:0 0 40px #000a}
+  body.nav #side{transform:none}
+  #menubtn{display:flex;position:fixed;top:10px;right:10px;z-index:45;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer}
+  #main{padding-top:58px}
+}
+@media print{
+  :root{--bg:#fff;--panel:#fff;--panel2:#f4f5f8;--panel3:#eceef4;--line:#cfd3df;--text:#111;--mut:#555}
+  #side,#menubtn,.pn,.qa,.fillbar,.lab{display:none!important}
+  .page{display:block!important;break-after:page}
+  body{background:#fff;color:#111} .code,.console{background:#fff} .console pre{color:#111}
+}
+</style><style>
+/* DAU-to-PRO Unterrichtsmaterial – Designanpassung ohne Eingriff in Lernlogik */
+:root{--bg:#080e14;--panel:#101d26;--panel2:#142631;--panel-2:#142631;--panel3:#1a313b;--border:#34535a;--line:#34535a;--text:#edf8f6;--mut:#a2bfc2;--muted:#a2bfc2;--acc:#6fe5d6;--accent:#6fe5d6;--acc2:#e8b84a;--accent-2:#e8b84a;--accent-3:#e8b84a;--accent-4:#a3f1e7;--gold:#e8b84a;--cyan:#6fe5d6}
+html{scroll-padding-top:24px}
+body{background:radial-gradient(ellipse at 72% 0%,#1a506046,transparent 46%),radial-gradient(ellipse at 10% 55%,#9d71351c,transparent 45%),linear-gradient(145deg,#071017,#0b1520 60%,#070f15);background-attachment:fixed;color:#edf8f6}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;background-image:linear-gradient(#6fe5d609 1px,transparent 1px),linear-gradient(90deg,#6fe5d609 1px,transparent 1px);background-size:50px 50px;mask-image:linear-gradient(#0008,transparent 80%)}
+header{border-bottom:2px solid #e8b84a;background:linear-gradient(115deg,#0e2633,#08131bcc)}
+header h1,.ph,.section-title{font-weight:950;letter-spacing:-.055em;text-transform:uppercase;text-wrap:balance}
+header h1{font-size:clamp(2rem,5vw,3.5rem)}
+header p,.lead{color:#a6c5c7}
+nav,#side{background:linear-gradient(160deg,#11232d,#0b1720);border-color:#467b7e55}
+nav a{transition:color .2s,background .2s,transform .2s}
+nav a:hover{background:#6fe5d616;color:#7ef7e5}
+nav a.on{background:#6fe5d61a;color:#8df7e9}
+.card,.q,.box,.lab,.stats,.code,.console,details,.unter-menu-card{border-radius:13px;border-color:#42767966;box-shadow:0 10px 32px #0004,inset 0 1px #ffffff08}
+.card{background:linear-gradient(135deg,#11232c,#0c1823);border-left:3px solid #e8b84a;transition:border-color .2s,transform .2s,box-shadow .2s}
+.card:hover{border-color:#7ee9df77;box-shadow:0 17px 42px #0007,0 0 24px #60e5d611;transform:translateY(-2px)}
+h2,h3,.card h3{letter-spacing:-.025em}
+.section-title{border-bottom:2px solid #e8b84a55}
+.tag,.chip,.qk{border-radius:5px;letter-spacing:.075em;text-transform:uppercase}
+.btn,.inp,.notes,.codeedit,.opt,.todo label,select{border-radius:8px}
+.btn.pri{background:linear-gradient(110deg,#79e8d8,#a4f7e4);color:#071d24}
+.btn:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e8b84a;outline-offset:3px}
+code,kbd,.formula{color:#a2f7ea}
+details>summary,summary{color:#7ee9df}
+details[open]>summary{border-bottom:1px solid #70e5d42b}
+.bar i{background:linear-gradient(90deg,#e8b84a,#72e6d8)}
+.kick,.brand small,.qn{color:#e8b84a}
+#main{position:relative}
+.page.on{animation:dtp-enter .35s ease-out}
+@keyframes dtp-enter{from{opacity:.35;transform:translateY(12px)}to{opacity:1;transform:none}}
+.dtp-back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin:0 0 22px;padding:9px 14px;border:1px solid #79e4d65c;border-radius:8px;background:#0e2834dd;color:#a8fff0!important;font:800 12px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.dtp-back:hover{background:#16404a;text-decoration:none;box-shadow:0 0 20px #79e4d624}
+.dtp-eyebrow{font:850 11px ui-monospace,Consolas,monospace;letter-spacing:.18em;color:#e8b84a;text-transform:uppercase}
+@media(max-width:800px){body{background-attachment:scroll}.card:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.card,nav a,.page.on{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+<aside id="side">
+  <div class="brand"><small>DAU TO PRO // C# UNTERRICHT</small><b>T05 – Bedingungen verknüpfen und Eingaben prüfen</b></div>
+  <div class="stats">
+    <div class="stat"><div class="row"><span>Selbsttest</span><b id="st-quiz">0 / 26</b></div><div class="bar"><i id="bar-quiz"></i></div></div>
+    <div class="stat"><div class="row"><span>Kann-ich-Liste</span><b id="st-kann">0 / 7</b></div><div class="bar"><i id="bar-kann"></i></div></div>
+    <div class="stat"><div class="row"><span>Übungen · Checkpoints</span><b id="st-todo">0 / 0</b></div><div class="bar"><i id="bar-todo"></i></div></div>
+    <div class="stat"><div class="row"><span>Übungen · Punkte (Pflicht)</span><b id="st-pts">0 / 90</b></div><div class="bar"><i id="bar-pts"></i></div></div>
+  </div>
+  <nav id="nav"></nav>
+  <div class="tools">
+    <div class="btns">
+      <button class="btn" id="b-export" title="Alle Antworten als Datei sichern">⬇ Sichern</button>
+      <button class="btn" id="b-import" title="Gesicherten Stand laden">⬆ Laden</button>
+    </div>
+    <button class="btn danger" id="b-reset">Alles zurücksetzen</button>
+    <p class="note" id="storenote">Alle Eingaben werden automatisch in diesem Browser gespeichert. Mit „Sichern“ legst du eine Kopie als Datei ab.</p>
+    <input type="file" id="f-import" accept="application/json,.json" hidden>
+  </div>
+</aside>
+<button id="menubtn" aria-label="Menü">☰ Menü</button>
+<main id="main"><a class="dtp-back" href="../index.php#unterrichtsmaterial">← Zurück zum Unterrichtsmaterial</a>
+
+<!-- ============ START ============ -->
+<section class="page" id="p-start" data-n="" data-t="Start" data-g="lern">
+  <span class="kick">Grundlagen der Programmierung zur Verwaltung von Daten</span>
+  <h1 class="ph">T05 – Bedingungen verknüpfen und Eingaben prüfen</h1>
+  <p class="lead">UND, ODER, NICHT (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>), Bereichsprüfung und <code>TryParse</code> statt Absturz.</p>
+  <p><span class="chip">12 Abschnitte</span><span class="chip">Selbsttest mit 26 Fragen</span><span class="chip">6 Übungsaufgaben · ca. 42 min</span><span class="chip">Stand 11.11.2026</span></p>
+
+  <div class="box goal"><b>Danach kannst du</b>
+    <ol>
+      <li>Für eine Bedingung mit <code>&amp;&amp;</code>, <code>||</code> oder <code>!</code> (im Pseudocode UND, ODER, NICHT) den Wahrheitswert ermitteln – jede Zeile der Wahrheitstabelle stimmt mit der C#-Ausgabe überein.</li>
+      <li>Für einen Wert mit unterer und oberer Grenze die Bereichsbedingung in C# erstellen – Testwerte unter, auf und über jeder Grenze liefern das notierte Soll.</li>
+      <li>Eine Texteingabe mit <code>int.TryParse</code> und <code>if</code> prüfen, bevor das Programm damit rechnet – Buchstaben, leere Eingabe und ganze Zahl führen je zur passenden Ausgabe ohne Abbruch.</li>
+      <li>Eine Prüfkette aus Zahlprüfung, Bereichsprüfung und Entscheidung ergänzen; ungültiger Text, Wert außerhalb und gültiger Wert liefern die erwartete Ausgabe.</li>
+      <li>Einen Verknüpfungs- oder Grenzfehler in einer Bedingung (C# ohne Compilermeldung oder Pseudocode) am Soll-Ist-Vergleich korrigieren – danach stimmen alle Testwerte mit dem Soll überein.</li>
+    </ol>
+  </div>
+
+  <div class="box"><b>So arbeitest du hier</b>
+    <ul>
+      <li>Lies die Abschnitte der Reihe nach (Menü links). Am Ende steht der <a href="#quiz">Selbsttest</a> mit den Fragen zu jedem Abschnitt – beantworte sie, ohne zurückzublättern.</li>
+      <li>Pflicht ist alles ohne die Marke <span class="chip kuer" style="margin:0">freiwillig</span>. Die Kür bearbeitest du erst, wenn der Pflichtteil sitzt.</li>
+      <li>Frage erst selbst beantworten, <em>dann</em> in die Lösung schauen. Wo „Sage vorher …“ steht: Tabelle ausfüllen oder Vorhersage tippen, bevor du die Auflösung öffnest.</li>
+      <li>Alles zum Ausfüllen ist <b>bearbeitbar</b>: Tabellen, Antwortfelder, Checkboxen, Codefelder. Alles wird automatisch im Browser gespeichert. Mit „Sichern“ / „Laden“ (links unten) kannst du deinen Stand als Datei sichern oder auf ein anderes Gerät mitnehmen.</li>
+      <li>Die <span style="color:var(--acc2)">⚗ Labore</span> sind kleine Simulatoren: Ändere Werte und sieh sofort, was <code>&amp;&amp;</code>, <code>TryParse</code> &amp; Co. tun.</li>
+    </ul>
+  </div>
+
+  <div class="row" style="margin:18px 0"><label for="name" style="font-weight:600">Name:</label><input class="inp" id="name" data-save="name" placeholder="Dein Name" style="flex:1;max-width:340px"></div>
+  <p class="srcline">Lernmaterial von Adrian Jankovic · Lernstoff &amp; Tagesübungen, Teilnehmer-Fassung, Stand 11.11.2026 · © 2026 Adrian Jankovic. Interaktive Fassung zum persönlichen Üben.</p>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="page" id="p-1" data-n="1" data-t="Zwei Bedingungen, eine Entscheidung" data-g="lern">
+  <span class="kick">Abschnitt 1 · Einstieg</span>
+  <h1 class="ph">Zwei Bedingungen, eine Entscheidung: vom <code style="font-size:.8em">if</code> im <code style="font-size:.8em">if</code> zu <code style="font-size:.8em">&amp;&amp;</code></h1>
+  <div class="box goal"><b>Das kannst du am Ende</b>
+    <ul><li>Bedingungen mit <code>&amp;&amp;</code>, <code>||</code> und <code>!</code> auswerten</li><li>einen Bereich mit zwei Grenzen prüfen und testen</li><li>Text mit <code>int.TryParse</code> prüfen, bevor das Programm rechnet</li><li>einen stillen Fehler in einer Bedingung finden</li></ul></div>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie prüft ein Programm zwei Bedingungen zugleich?</p>
+  <p>In <em>BL – Begleitetes Lernen</em> prüfst du mit dem Programm, ob zwei Dinge zugleich stimmen. Das <code>if</code> und das <code>if</code> im <code>if</code> kennst du aus dem Unterricht. Für Abschnitt 8 brauchst du Visual Studio und <code>stand-t05</code>. Die Konsolenausgaben sind gemessen (Build ohne Fehler, je Lauf ein neuer Start). Namen und Werte sind ausgedacht.</p>
+  <p>Im Lager von <em>Watt &amp; Byte</em> liegt ein Leihlaptop. Die Lagerleitung sagt: „Ausgeliehen wird, wenn der Laptop verfügbar ist und nicht defekt.“ Das sind zwei Bedingungen. Das Programm hält sie in zwei <code>bool</code>-Variablen: <code>verfuegbar</code> und <code>funktioniert</code> (also nicht defekt). Beide müssen <code>true</code> sein.</p>
+  <p>Du kennst die Lösung mit zwei <code>if</code>: Das innere <code>if</code> steht im Anweisungsblock des äußeren. Hier sind beide Werte <code>true</code>.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Ein if im if.">
+bool verfuegbar = true;
+bool funktioniert = true;
+if (verfuegbar)
+{
+    if (funktioniert)
+    {
+        Console.WriteLine("Ausleihe: ja");
+    }
+}
+</script>
+  <p>Dieselbe Entscheidung steht in einer Zeile. <code>&amp;&amp;</code> heißt <strong>UND</strong>: Die Bedingung ist nur <code>true</code>, wenn beide Teile <code>true</code> sind.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Beide Bedingungen mit &amp;&amp;.">
+bool verfuegbar = true;
+bool funktioniert = true;
+if (verfuegbar && funktioniert)
+{
+    Console.WriteLine("Ausleihe: ja");
+}
+</script>
+  <p>Ein <code>if</code> im <code>if</code> ohne <code>else</code> entscheidet genauso wie <code>&amp;&amp;</code>. Nur dann gilt diese Brücke. Die Tabelle zeigt beide Fassungen für alle vier Kombinationen.</p>
+  <div class="tbwrap"><table class="tb"><caption>Beide Fassungen, vier Kombinationen, gemessen</caption>
+    <tr><th>verfuegbar</th><th>funktioniert</th><th>if im if</th><th>mit &amp;&amp;</th></tr>
+    <tr><td class="m t">true</td><td class="m t">true</td><td class="m">Ausleihe: ja</td><td class="m">Ausleihe: ja</td></tr>
+    <tr><td class="m t">true</td><td class="m f">false</td><td class="m">keine Zeile</td><td class="m">keine Zeile</td></tr>
+    <tr><td class="m f">false</td><td class="m t">true</td><td class="m">keine Zeile</td><td class="m">keine Zeile</td></tr>
+    <tr><td class="m f">false</td><td class="m f">false</td><td class="m">keine Zeile</td><td class="m">keine Zeile</td></tr></table></div>
+  <p>Jetzt ein anderer Fall: Die Gartenbewässerung läuft, wenn der Boden trocken <em>und</em> die Pumpe bereit ist. Der Boden ist trocken, die Pumpe nicht bereit.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Bewässerung mit zwei Bedingungen.">
+bool trocken = true;
+bool pumpeBereit = false;
+if (trocken && pumpeBereit)
+{
+    Console.WriteLine("Bewässerung: ein");
+}
+</script>
+  <p>Die Konsole bleibt leer (gemessen). Stell dir <code>&amp;&amp;</code> wie zwei Schranken hintereinander vor: Ist die zweite zu, kommt der Laptop nicht zur Ausleihe.</p>
+  <div class="box merk"><b>Merksatz</b><p>Mit <code>&amp;&amp;</code> läuft der Zweig nur, wenn <strong>beide</strong> Bedingungen <code>true</code> sind.</p></div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="page" id="p-2" data-n="2" data-t="Wahrheitstabelle: && und ||" data-g="lern">
+  <span class="kick">Abschnitt 2 · Erarbeitung I</span>
+  <h1 class="ph">Die Wahrheitstabelle selbst füllen: <code style="font-size:.8em">&amp;&amp;</code> und <code style="font-size:.8em">||</code></h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Was ergeben <code>&amp;&amp;</code> und <code>||</code> bei vier Kombinationen von <code>true</code> und <code>false</code>?</p>
+  <p>Zwei Regeln brauchst du:</p>
+  <ul><li><code>&amp;&amp;</code> heißt <strong>UND</strong>: nur <code>true</code>, wenn beide Teile <code>true</code> sind.</li>
+      <li><code>||</code> heißt <strong>ODER</strong>: <code>true</code>, wenn mindestens ein Teil <code>true</code> ist, auch wenn beide <code>true</code> sind.</li></ul>
+  <p>Im Alltag meint „oder“ oft „entweder … oder“. Bei <code>||</code> ist das anders: Zwei <code>true</code> ergeben <code>true</code>.</p>
+  <p>Ein Laptop ist nicht frei, wenn er reserviert <em>oder</em> ausgeliehen ist. Dafür steht die zweite Tabelle. Fülle beide Tabellen aus (wähle in jeder Zeile <code>True</code> oder <code>False</code>).</p>
+  <h3>Tabelle 1: <code>verfuegbar &amp;&amp; funktioniert</code></h3>
+  <div data-fill="tab_and"></div>
+  <h3>Tabelle 2: <code>reserviert || ausgeliehen</code></h3>
+  <div data-fill="tab_or"></div>
+  <p>Als Gegenprobe gibt dieses Programm die vier Zeilen der ersten Tabelle aus. Sage vorher, was die Konsole zeigt, und prüfe dann deine Tabellen.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Vier Kombinationen mit &amp;&amp;.">
+bool verfuegbar = true;
+bool funktioniert = true;
+Console.WriteLine(verfuegbar && funktioniert);
+funktioniert = false;
+Console.WriteLine(verfuegbar && funktioniert);
+verfuegbar = false;
+funktioniert = true;
+Console.WriteLine(verfuegbar && funktioniert);
+funktioniert = false;
+Console.WriteLine(verfuegbar && funktioniert);
+</script>
+  <details class="sol"><summary>Lösung L1 · Beide Tabellen, gemessen</summary><div class="in">
+    <div class="tbwrap"><table class="tb"><tr><th>erster Wert</th><th>zweiter Wert</th><th>&amp;&amp;</th><th>||</th></tr>
+    <tr><td class="m t">true</td><td class="m t">true</td><td class="m">True</td><td class="m">True</td></tr>
+    <tr><td class="m t">true</td><td class="m f">false</td><td class="m">False</td><td class="m">True</td></tr>
+    <tr><td class="m f">false</td><td class="m t">true</td><td class="m">False</td><td class="m">True</td></tr>
+    <tr><td class="m f">false</td><td class="m f">false</td><td class="m">False</td><td class="m">False</td></tr></table></div>
+    <p>Bei <code>&amp;&amp;</code> ist nur die erste Zeile <code>true</code>. Bei <code>||</code> ist nur die letzte Zeile <code>false</code>. In der ersten Zeile <code>||</code> stehen zwei <code>true</code>: <code>true || true = True</code>.</p>
+    <p>Die Konsole zeigt für das Programm oben: <code>True</code>, <code>False</code>, <code>False</code>, <code>False</code>.</p></div></details>
+  <p>Jetzt ein Alarmsystem. Der Alarm löst aus, wenn die Tür offen ist <em>oder</em> das Fenster offen ist. Beide sind offen.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Alarm mit ||.">
+bool tuerOffen = true;
+bool fensterOffen = true;
+Console.WriteLine(tuerOffen || fensterOffen);
+</script>
+<script type="text/x-console" data-title="Konsole · beide offen (Kursmessung)">
+True
+</script>
+  <div class="box merk"><b>Merksatz</b><p><code>&amp;&amp;</code> braucht beide <code>true</code>; <code>||</code> genügt ein <code>true</code>, auch beide.</p></div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="page" id="p-3" data-n="3" data-t="NICHT: ! dreht um, != vergleicht" data-g="lern">
+  <span class="kick">Abschnitt 3 · Erarbeitung I</span>
+  <h1 class="ph">NICHT: <code style="font-size:.8em">!</code> dreht um, <code style="font-size:.8em">!=</code> vergleicht</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie schreibst du „nicht defekt“, wenn das Programm nur <code>defekt</code> kennt?</p>
+  <p>Das Lager speichert für jeden Laptop, ob er defekt ist. Ausgeliehen wird, wenn er verfügbar ist und <em>nicht</em> defekt. Dafür gibt es <code>!</code>, gesprochen <strong>NICHT</strong>: Es dreht einen Wahrheitswert um. Aus <code>true</code> wird <code>false</code>, aus <code>false</code> wird <code>true</code>.</p>
+  <div class="tbwrap"><table class="tb" style="max-width:340px"><caption>NICHT dreht um</caption><tr><th>Wert</th><th>mit !</th></tr><tr><td class="m t">true</td><td class="m f">false</td></tr><tr><td class="m f">false</td><td class="m t">true</td></tr></table></div>
+  <p>Das Programm gibt <code>!defekt</code> aus und fragt danach: verfügbar und nicht defekt?</p>
+<script type="text/x-code" data-lang="cs" data-cap="Der Laptop ist nicht defekt.">
+bool verfuegbar = true;
+bool defekt = false;
+Console.WriteLine(!defekt);
+if (verfuegbar && !defekt)
+{
+    Console.WriteLine("Ausleihe: ja");
+}
+</script>
+<script type="text/x-console" data-title="Konsole · defekt false">
+True
+Ausleihe: ja
+</script>
+  <p>Zeile 3 zeigt <code>!defekt</code>: <code>!false = True</code>. Darum trifft die Bedingung in Zeile 4 zu. Bei einem defekten Laptop sieht es anders aus.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Der Laptop ist defekt.">
+bool verfuegbar = true;
+bool defekt = true;
+Console.WriteLine(!defekt);
+if (verfuegbar && !defekt)
+{
+    Console.WriteLine("Ausleihe: ja");
+}
+</script>
+<script type="text/x-console" data-title="Konsole · defekt true">
+False
+</script>
+  <p>Hier ergibt <code>!defekt</code> den Wert <code>false</code>. Die Bedingung ergibt <code>false</code>, und die Ausleihe-Zeile erscheint nicht.</p>
+  <div class="tbwrap"><table class="tb"><caption><code>!</code> und <code>!=</code> im Vergleich</caption>
+    <tr><th>Zeichen</th><th>braucht</th><th>ergibt</th></tr>
+    <tr><td><code>!defekt</code></td><td>einen Wahrheitswert</td><td>den umgedrehten Wert</td></tr>
+    <tr><td><code>tage != 4</code></td><td>zwei Zahlen</td><td>true, wenn sie verschieden sind: <code>3 != 4 = True</code>, aber <code>4 != 4 = False</code></td></tr></table></div>
+  <p><code>!=</code> ist ein eigener Vergleichsoperator. Er prüft auf ungleich. Du liest es als <em>ein</em> Zeichen, nicht als <code>!</code> und <code>=</code>. Jetzt der Garten: Er läuft, wenn der Boden trocken ist und es nicht regnet. Der Boden ist trocken, es regnet.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Bewässerung mit NICHT.">
+bool trocken = true;
+bool regen = true;
+if (trocken && !regen)
+{
+    Console.WriteLine("Bewässerung: ein");
+}
+else
+{
+    Console.WriteLine("Bewässerung: aus");
+}
+</script>
+<script type="text/x-console" data-title="Konsole · trocken und Regen">
+Bewässerung: aus
+</script>
+  <div class="box merk"><b>Merksatz</b><p><code>!</code> dreht einen Wahrheitswert um; <code>!=</code> vergleicht zwei Werte auf ungleich.</p></div>
+
+  <div class="lab" data-lab="bool"></div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="page" id="p-4" data-n="4" data-t="Pseudocode im Schreibtischtest" data-g="lern">
+  <span class="kick">Abschnitt 4 · Erarbeitung II</span>
+  <h1 class="ph">Pseudocode im Schreibtischtest: <code style="font-size:.78em">wenn (… &amp;&amp; …) dann</code></h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie verfolgst du eine Bedingung mit <code>&amp;&amp;</code> im Pseudocode, wenn sich Werte zwischen zwei Prüfungen ändern?</p>
+  <p>Ein <strong>Schreibtischtest</strong> geht Zeile für Zeile durch das Programm und notiert die Werte der Variablen. Bei jeder Bedingung schreibst du auf, mit welchen Werten sie ausgewertet wird. Der Pseudocode zeigt zwei Prüfungen hintereinander.</p>
+<script type="text/x-code" data-lang="pseudo" data-cap="Anmutung B (Deutsch-C-Hybrid)">
+ausgeliehen = 0
+verfuegbar = true
+defekt = false
+wenn (verfuegbar && !defekt) dann
+    ausgeliehen = ausgeliehen + 1
+    verfuegbar = false
+ende wenn
+wenn (verfuegbar && !defekt) dann
+    ausgeliehen = ausgeliehen + 1
+ende wenn
+AUSGABE("ausgeliehen: " + ausgeliehen)
+</script>
+  <div class="tbwrap"><table class="tb"><caption>Notationskasten: Anmutung B</caption><tr><th>Schreibweise</th><th>Bedeutung</th></tr>
+    <tr><td><code>wenn (…) dann</code></td><td>Bedingung, danach der Zweig; <code>ende wenn</code> schließt ihn</td></tr>
+    <tr><td><code>&amp;&amp;</code></td><td>UND: beide Teile müssen true sein</td></tr>
+    <tr><td><code>!</code></td><td>NICHT: dreht den Wahrheitswert um</td></tr>
+    <tr><td><code>AUSGABE(…)</code></td><td>zeigt den Wert in der Konsole</td></tr></table></div>
+  <p>Das ist eine Kursschreibweise, kein Prüfungstext. Fülle die Wertetabelle: Welche Werte haben <code>verfuegbar</code>, <code>defekt</code> und <code>ausgeliehen</code> vor jeder Prüfung, und was ergibt die Bedingung? Sage vorher, was die Konsole am Ende zeigt.</p>
+  <div data-fill="tab_schreib"></div>
+  <div data-q="pr4"></div>
+  <details class="sol"><summary>Lösung L2 · Schreibtischtest</summary><div class="in">
+    <p>Die erste Prüfung trifft zu: <code>true &amp;&amp; !false = True</code>. Ihr Zweig setzt <code>verfuegbar</code> auf <code>false</code>. Die zweite Prüfung sieht schon den neuen Wert: <code>false &amp;&amp; !false = False</code>. Der Laptop wird nur einmal ausgeliehen.</p>
+<script type="text/x-console" data-title="Konsole · Schreibtischtest (Kursmessung)">
+ausgeliehen: 1
+</script></div></details>
+  <p>Jetzt ein Alarmsystem mit <code>||</code>. Es zählt Alarme und prüft zweimal, ob Tür oder Fenster offen ist. Im ersten Zweig wird die Tür geschlossen.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Zwei Prüfungen, ein Zähler.">
+int alarme = 0;
+bool tuerOffen = true;
+bool fensterOffen = false;
+if (tuerOffen || fensterOffen)
+{
+    alarme = alarme + 1;
+    tuerOffen = false;
+}
+if (tuerOffen || fensterOffen)
+{
+    alarme = alarme + 1;
+}
+Console.WriteLine("alarme: " + alarme);
+</script>
+<script type="text/x-console" data-title="Konsole · Tür offen, Fenster zu (Kursmessung)">
+alarme: 1
+</script>
+  <div class="lab" data-lab="stepper"></div>
+  <div class="box merk"><b>Merksatz</b><p>Im Schreibtischtest zählt der Wert jeder Variablen <em>vor</em> der jeweiligen Prüfung.</p></div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="page" id="p-5" data-n="5" data-t="Zwischen zwei Grenzen" data-g="lern">
+  <span class="kick">Abschnitt 5 · Erarbeitung II</span>
+  <h1 class="ph">Zwischen zwei Grenzen: die Ausleihdauer 1 bis 14</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie prüfst du, ob eine Zahl zwischen zwei Grenzen liegt?</p>
+  <p>Die Ausleihdauer darf 1 bis 14 Tage betragen. Beide Grenzen gehören dazu: mindestens 1 Tag, höchstens 14 Tage. Das sind <strong>zwei</strong> Bedingungen: <code>tage &gt;= 1</code> und <code>tage &lt;= 14</code>. Von Hand prüfst du erst die untere, dann die obere Grenze. Die Zahl liegt im Bereich, wenn beide Antworten <em>ja</em> sind.</p>
+  <div class="tbwrap"><table class="tb"><caption>Von Hand: jede Grenze einzeln</caption><tr><th>Tage</th><th>mindestens 1?</th><th>höchstens 14?</th><th>beide?</th></tr><tr><td class="m">4</td><td>ja</td><td>ja</td><td>ja</td></tr></table></div>
+  <p>Im Programm gilt: Mit <code>&gt;=</code> und <code>&lt;=</code> braucht jede Grenze einen eigenen Vergleich, verbunden mit <code>&amp;&amp;</code>. Die Reihenfolge der beiden Teile ändert das Ergebnis nicht.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Der Bereich 1 bis 14, Normalfall 4.">
+int tage = 4;
+Console.WriteLine(tage >= 1 && tage <= 14);
+</script>
+<script type="text/x-console" data-title="Konsole · tage 4">
+True
+</script>
+  <p>In der Mathematik schreibst du 1 ≤ tage ≤ 14. In C# baut das nicht.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Die Mathe-Schreibweise.">
+int tage = 4;
+Console.WriteLine(1 <= tage <= 14);
+</script>
+  <div class="box hint"><b>Compilerfehler</b><p>Gemessener Meldungsausschnitt: <code>CS0019</code>: „Der <code>&lt;=</code>-Operator kann nicht auf Operanden vom Typ "bool" und "int" angewendet werden.“ Zeile und Spalte können bei dir anders sein.</p>
+  <p>Die Erklärung: Zuerst wird <code>1 &lt;= tage</code> ausgewertet und ergibt <code>true</code> oder <code>false</code>. Dann stünde <code>true &lt;= 14</code> da, und ein Wahrheitswert lässt sich nicht mit einer Zahl vergleichen.</p></div>
+  <p>Jetzt eine Schließfachwand. Auf einer Zahlengeraden ist der Bereich von 1 bis 38 markiert, und beide Enden gehören dazu. Probiere es im Labor aus: Du kannst die Grenzen ändern.</p>
+  <div class="lab" data-lab="range"></div>
+  <div class="box merk"><b>Merksatz</b><p>Zwei Grenzen, zwei Vergleiche, verbunden mit <code>&amp;&amp;</code>; beide Grenzen gehören dazu.</p></div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="page" id="p-6" data-n="6" data-t="Außerhalb und Grenzfälle" data-g="lern">
+  <span class="kick">Abschnitt 6 · Vertiefung</span>
+  <h1 class="ph">Außerhalb und Grenzfälle: <code style="font-size:.78em">||</code> oder <code style="font-size:.78em">!( … )</code>, die Testtabelle</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie prüfst du, ob eine Zahl außerhalb liegt, und welche Testwerte brauchst du?</p>
+  <p>Außerhalb heißt: unter der unteren Grenze <em>oder</em> über der oberen. Eine Seite genügt, also <code>||</code>: <code>tage &lt; 1 || tage &gt; 14</code>. Dasselbe sagt <code>!(tage &gt;= 1 &amp;&amp; tage &lt;= 14)</code>: Außerhalb ist nicht innerhalb. Das gilt hier für ganze Zahlen.</p>
+  <p>Wie viele Testwerte braucht eine Bereichsprüfung? Ein <strong>Grenzfall</strong> ist ein Wert genau an der Grenze, an der der Zweig wechselt, dazu eins daneben. Bei zwei Grenzen testest du beide, dazu einen Normalfall. Hier sind es <strong>0, 1, 14 und 15</strong> und der Normalfall <strong>4</strong>. Ein bestandener Test zeigt nur diesen Wert.</p>
+  <p>Fülle die Testtabelle: Sage vorher, ob 0, 1, 4, 14 und 15 innerhalb oder außerhalb liegen (<code>True</code>/<code>False</code> für beide Spalten), bevor du die Auflösung öffnest.</p>
+  <div data-fill="tab_test"></div>
+  <details class="sol"><summary>Lösung L3 · Testtabelle, gemessen und berechnet</summary><div class="in">
+    <p>Die Spalten sind immer verschieden: Wo <em>innen</em> <code>true</code> ergibt, ergibt <em>außen</em> <code>false</code>. Die Grenzwerte 1 und 14 gehören zum Innenbereich.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Zwei Schreibweisen für außerhalb, tage 15.">
+int tage = 15;
+Console.WriteLine(tage < 1 || tage > 14);
+Console.WriteLine(!(tage >= 1 && tage <= 14));
+</script>
+<script type="text/x-console" data-title="Konsole · tage 15">
+True
+True
+</script></div></details>
+  <div class="grid2">
+    <div class="box"><b class="bt" style="color:var(--ok)">Innen: beide true</b><p><code>tage &gt;= 1</code> und <code>tage &lt;= 14</code> überlappen zwischen 1 und 14: Dort sind beide <code>true</code>, dort liegt der Bereich.</p></div>
+    <div class="box"><b class="bt" style="color:var(--bad)">Außen: eine Seite genügt</b><p><code>tage &lt; 1</code> und <code>tage &gt; 14</code> sind zwei getrennte Pfeile. Unter 1 <em>oder</em> über 14.</p></div>
+  </div>
+  <p>Jetzt die Schließfachwand mit den Fächern 1 bis 38. Du suchst Testwerte für die Prüfung – (die Antwort steht im <a href="#quiz">Selbsttest</a>, Frage zu Abschnitt 6).</p>
+  <div class="box merk"><b>Merksatz</b><p>Außerhalb heißt: unter der unteren <em>oder</em> über der oberen Grenze; teste beide Grenzen.</p></div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="page" id="p-7" data-n="7" data-t="Wenn der Text keine Zahl ist" data-g="lern">
+  <span class="kick">Abschnitt 7 · Erarbeitung II</span>
+  <h1 class="ph">Wenn der Text keine Zahl ist: <code style="font-size:.78em">int.Parse</code> und <code style="font-size:.78em">int.TryParse</code></h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Was passiert, wenn jemand statt einer Zahl ein Wort eingibt?</p>
+  <p>Was <code>Console.ReadLine()</code> liefert, ist immer <strong>Text</strong>. Das Programm braucht aber eine Zahl. Zuerst versucht es <code>int.Parse</code>.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Text in eine ganze Zahl verwandeln.">
+Console.WriteLine("Ausleihdauer in Tagen:");
+int tage = int.Parse(Console.ReadLine());
+Console.WriteLine("Ausleihe, Tage: " + tage);
+</script>
+<script type="text/x-console" data-title="Konsole · Eingabe zwei (Kursmessung, Ausschnitt)">
+Ausleihdauer in Tagen:
+<span class="er">Unhandled exception. System.FormatException: The input string 'zwei' was not in a
+correct format.</span>
+</script>
+  <p>Mit dem Text <code>zwei</code> löst Zeile 2 eine <code>FormatException</code> aus. Das Programm bricht an dieser Zeile ab. Ein <code>else</code> fängt das nicht.</p>
+  <p>Besser fragst du vorher. <code>int.TryParse(eingabe, out int tage)</code> stellt die Frage. Die Antwort ist <code>true</code>, wenn der <em>ganze</em> Text eine ganze Zahl ist, die in ein <code>int</code> passt, sonst <code>false</code>. <code>out int tage</code> legt die Variable <code>tage</code> an, und <code>TryParse</code> schreibt die Zahl hinein. Mit <code>if</code> wählst du den Weg.</p>
+<script type="text/x-code" data-lang="cs" data-cap="TryParse als Bedingung.">
+Console.WriteLine("Ausleihdauer in Tagen:");
+string eingabe = Console.ReadLine();
+if (int.TryParse(eingabe, out int tage))
+{
+    Console.WriteLine("Gelesen, tage ist " + tage);
+}
+else
+{
+    Console.WriteLine("Nicht gelesen, tage ist " + tage);
+}
+</script>
+  <p>Sage vorher: Was antwortet <code>int.TryParse</code> für die Eingabe <code>zwei</code>, und welcher Zweig läuft? Öffne dann die Auflösung.</p>
+  <div data-q="pr7"></div>
+  <details class="sol"><summary>Lösung L4</summary><div class="in">
+<script type="text/x-console" data-title="Konsole · Eingabe zwei (Kursmessung)">
+Ausleihdauer in Tagen:
+Nicht gelesen, tage ist 0
+</script>
+    <p>Die Antwort ist <code>false</code>, also läuft der <code>else</code>-Zweig. Außerdem legt <code>TryParse</code> bei <code>false</code> die <strong>0</strong> in <code>tage</code>: Die Konsole zeigt <em>tage ist 0</em>.</p></div></details>
+  <p>Bei <code>false</code> steht also immer 0 in <code>tage</code>. Leerzeichen am Rand und ein Vorzeichen stören nicht. Ein Komma, ein Wort hinter der Zahl, ein Wort und die leere Eingabe ergeben <code>false</code>.</p>
+  <div class="tbwrap"><table class="tb"><caption>Antwort von int.TryParse, gemessen (deutsche Ländereinstellung)</caption>
+    <tr><th>Eingabe</th><th>Antwort</th><th>tage</th></tr>
+    <tr><td class="m">„4“</td><td class="m t">true</td><td class="m">4</td></tr>
+    <tr><td class="m">„ 4 “ (mit Leerzeichen)</td><td class="m t">true</td><td class="m">4</td></tr>
+    <tr><td class="m">„+4“</td><td class="m t">true</td><td class="m">4</td></tr>
+    <tr><td class="m">„4,5“</td><td class="m f">false</td><td class="m">0</td></tr>
+    <tr><td class="m">„3 Tage“</td><td class="m f">false</td><td class="m">0</td></tr>
+    <tr><td class="m">„zwei“</td><td class="m f">false</td><td class="m">0</td></tr>
+    <tr><td class="m">(leer)</td><td class="m f">false</td><td class="m">0</td></tr></table></div>
+  <p><code>TryParse</code> prüft nur die <strong>Form</strong>: Ist der Text eine ganze Zahl? Der erlaubte Bereich ist eine zweite Frage (Abschnitt 8). Nach einer ungültigen Eingabe endet das Programm mit einer Meldung.</p>
+  <div class="lab" data-lab="tryparse"></div>
+  <div class="box hint"><b>Anders erklärt: Wenn dir <code>out</code> durcheinandergerät</b><p>Denk an ein Fach mit Etikett: <code>out int tage</code> stellt ein leeres Fach mit dem Namen <code>tage</code> hin. <code>TryParse</code> legt die Zahl hinein oder, bei <code>false</code>, die 0.</p></div>
+  <div class="box merk"><b>Merksatz</b><p><code>TryParse</code> antwortet <code>true</code> oder <code>false</code>; bei <code>false</code> steht 0 in der Variablen.</p></div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="page" id="p-8" data-n="8" data-t="Die Prüfkette: Zahl, Bereich, Entscheidung" data-g="lern">
+  <span class="kick">Abschnitt 8 · Erarbeitung III</span>
+  <h1 class="ph">Die Prüfkette vor der Kette: Zahl, Bereich, Entscheidung</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: In welcher Reihenfolge prüfst du eine Eingabe, bevor das Programm entscheidet?</p>
+  <p>Drei Schritte nacheinander: Erst fragst du, ob der Text eine <strong>Zahl</strong> ist. Dann prüfst du den erlaubten <strong>Bereich</strong> 1 bis 14. Erst danach läuft die bekannte Kette: bis 3 Tage Kurzausleihe, bis 9 Tage Standardausleihe, sonst Langausleihe.</p>
+<script type="text/x-code" data-lang="cs" data-id="chain" data-cap="Die Prüfkette der Ausleihdauer.">
+Console.WriteLine("Ausleihdauer in Tagen:");
+string eingabe = Console.ReadLine();
+if (!int.TryParse(eingabe, out int tage))
+{
+    Console.WriteLine("Ausleihe: Tage als Zahl angeben");
+}
+else if (tage < 1 || tage > 14)
+{
+    Console.WriteLine("Ausleihe: nur 1 bis 14 Tage möglich");
+}
+else if (tage <= 3)
+{
+    Console.WriteLine("Kurzausleihe, Tage: " + tage);
+}
+else if (tage <= 9)
+{
+    Console.WriteLine("Standardausleihe, Tage: " + tage);
+}
+else
+{
+    Console.WriteLine("Langausleihe, Tage: " + tage);
+}
+</script>
+  <p>Der Bereich braucht die Zahl, die <code>int.TryParse</code> in <code>tage</code> schreibt. Darum steht die Zahlprüfung <strong>zuerst</strong>. <code>TryParse</code> prüft nur die Form: 0 und 15 sind Zahlen und kommen bei der Bereichsprüfung an.</p>
+  <p>Lege eine Testtabelle an: Welche Zeile zeigt die Konsole für „zwei“, (leer), „15“, „0“, „1“, „3“, „4“, „9“, „14“? Öffne dann die Auflösung.</p>
+  <div data-fill="tab_chain"></div>
+  <div class="lab" data-lab="chain"></div>
+  <div class="box"><b>Weiterdenken: Handbuch</b><p>Ein Handbuch hat die Seiten 1 bis 71. Ein Programm liest die Seitenzahl als Text und nennt das Kapitel: bis Seite 23 Einführung, bis Seite 57 Anleitung, sonst Anhang. In welcher Reihenfolge prüfst du? → Selbsttest, Abschnitt 8, Frage 1.</p></div>
+
+  <h2>Lernwerkstatt: <code>Speicherampel.cs</code></h2>
+  <p>Öffne <code>Speicherampel.cs</code> im Ordner <code>stand-t05</code>. Dort steht die Eingabe mit <code>int.Parse</code>. Dein eigener Stand von T04 hat die Eingabe noch nicht. Ihn baust du in der Übung um.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Die Eingabe in Speicherampel.cs, Zeilen 8 bis 10.">
+Console.Write("Freier Speicher in Prozent: ");
+string eingabe = Console.ReadLine();
+int freiProzent = int.Parse(eingabe);
+</script>
+  <div class="box task"><b class="bt" style="color:var(--acc)">Aufgabe: Öffnen, vorhersagen, starten (6 min)</b>
+    <p>Erst vorhersagen: Welche Zeile von <code>Speicherampel.cs</code> bricht ab, wenn du den Text <code>zwei</code> eingibst? Starte das Werkstattprogramm ohne Debugger (an eurer Installation prüfen), wähle <strong>4</strong> und tippe <code>zwei</code>. Notiere Zeile und Fehlerart.</p>
+    <p><em>Woran du ein gutes Ergebnis erkennst:</em> Die Konsole nennt deine Fehlerart. Die Stapelzeile mit <code>Speicherampel.cs</code> nennt deine Zeile.</p>
+    <textarea class="notes" data-save="n:s8" placeholder="Meine Vorhersage (Zeile, Fehlerart) …"></textarea></div>
+  <details class="help"><summary>Tipps</summary><div class="in"><ul>
+    <li>Die Frage nach dem freien Speicher erscheint nicht?: Du hast im Menü nicht die 4 gewählt. Starte neu und wähle 4.</li>
+    <li>Du siehst eine Ampel statt eines Abbruchs?: Du hast eine Zahl eingegeben. Starte neu und tippe den Text.</li></ul>
+    <p>Ohne Visual Studio geht es im Ordner <code>stand-t05</code> mit <code>dotnet run --project Werkstatt</code> (an eurer Installation prüfen).</p></div></details>
+  <details class="sol"><summary>Lösung L6</summary><div class="in"><p>Abbruch in <strong>Zeile 10</strong>, der Zeile mit <code>int.Parse</code>. Gemessener Meldungsausschnitt: <code>Unhandled exception. System.FormatException: The input string 'zwei' was not in a correct format.</code></p>
+    <p>In den Stapelzeilen darunter nennt der Eintrag mit <code>Speicherampel.cs</code> bei der Messung die Zeile 10. Der Pfad davor ist bei dir anders. Eine Ampel erscheint nicht: Das Programm bricht vorher ab.</p></div></details>
+  <div class="box merk"><b>Merksatz</b><p>Erst die Zahl prüfen, dann den Bereich, dann die Kette.</p></div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="page" id="p-9" data-n="9" data-t="Fehler ohne Meldung: Soll und Ist" data-g="lern">
+  <span class="kick">Abschnitt 9 · Vertiefung</span>
+  <h1 class="ph">Fehler ohne Meldung: Soll und Ist</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie findest du einen Fehler in einer Bedingung, wenn der Build keine Meldung zeigt?</p>
+  <p>Stille Fehler bauen ohne Warnung und liefern trotzdem falsche Antworten. Zwei typische: Die <strong>Verknüpfung</strong> ist falsch, oder eine <strong>Grenze</strong> gehört fälschlich dazu oder nicht. Dieses Programm prüft zuerst die Zahl, dann den Bereich, und hat einen davon.</p>
+<script type="text/x-code" data-lang="cs" data-id="fehler1" data-cap="Die Bereichsprüfung mit einem Fehler.">
+Console.WriteLine("Ausleihdauer in Tagen:");
+string eingabe = Console.ReadLine();
+if (!int.TryParse(eingabe, out int tage))
+{
+    Console.WriteLine("Ausleihe: Tage als Zahl angeben");
+}
+else if (tage >= 1 || tage <= 14)
+{
+    Console.WriteLine("Ausleihe, Tage: " + tage);
+}
+else
+{
+    Console.WriteLine("Ausleihe: nur 1 bis 14 Tage möglich");
+}
+</script>
+  <p>Der Build meldet keine Warnung und keinen Fehler (gemessen). Der Compiler kennt deine Absicht nicht; <strong>Soll gegen Ist</strong> zeigt den Fehler. Das Soll kennst du: 1 bis 14 Tage werden angenommen, alles andere abgelehnt. Sage vorher, was das Programm für jeden Testwert tatsächlich ausgibt (Ist).</p>
+  <div data-fill="tab_si"></div>
+  <details class="sol"><summary>Lösung L7</summary><div class="in"><p>Die Ursache: <code>||</code> statt <code>&amp;&amp;</code>. Die Bedingung <code>tage &gt;= 1 || tage &lt;= 14</code> ergibt für jede ganze Zahl <code>true</code>. Zwei Beispiele: <code>0 &gt;= 1 || 0 &lt;= 14 = True</code> und <code>15 &gt;= 1 || 15 &lt;= 14 = True</code>. Die Testwerte 0 und 15 rutschen durch.</p></div></details>
+  <p>Zweiter Fehler, allein in einer neuen Fassung: In der unteren Grenze steht <code>&gt;</code> statt <code>&gt;=</code>.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Die untere Grenze mit > statt >=.">
+else if (tage > 1 && tage <= 14)
+</script>
+  <div class="tbwrap"><table class="tb"><caption>Soll und Ist der zweiten Fassung, gemessen</caption>
+    <tr><th>Testwert</th><th>Soll</th><th>Ist</th><th>Urteil</th></tr>
+    <tr><td class="m">0</td><td>abgelehnt</td><td>abgelehnt</td><td class="t">stimmt</td></tr>
+    <tr><td class="m">1</td><td>angenommen</td><td>abgelehnt</td><td class="f">falsch</td></tr>
+    <tr><td class="m">4</td><td>angenommen</td><td>angenommen</td><td class="t">stimmt</td></tr>
+    <tr><td class="m">14</td><td>angenommen</td><td>angenommen</td><td class="t">stimmt</td></tr>
+    <tr><td class="m">15</td><td>abgelehnt</td><td>abgelehnt</td><td class="t">stimmt</td></tr></table></div>
+  <p>Nur der Grenzwert 1 zeigt diesen Fehler. Mehrere Fehler können sich <strong>verdecken</strong>: Ein Fehler, der fast alles durchlässt, versteckt einen zweiten. Nach jeder Berichtigung neu bauen, neu starten und neu testen, mit <em>allen</em> Testwerten. Erst die richtige Fassung stimmt für alle fünf.</p>
+  <div class="lab" data-lab="fehler1"></div>
+  <p>Jetzt die Schließfachwand. Gültig sind die Fächer 1 bis 38; die Prüfung soll 1 und 38 annehmen. (→ Selbsttest, Abschnitt 9)</p>
+  <div class="box merk"><b>Merksatz</b><p>Soll und Ist vergleichen; nach jeder Berichtigung neu bauen, neu starten und neu testen.</p></div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="page" id="p-10" data-n="10" data-t="Sicherheitscheck: fremde Eingabeprüfung" data-g="lern">
+  <span class="kick">Abschnitt 10 · Vertiefung</span>
+  <h1 class="ph">Sicherheitscheck: eine fremde Eingabeprüfung testen</h1>
+  <p class="q-sec">Die Frage dieses Abschnitts: Wie prüfst du eine fremde Eingabeprüfung, bevor du ihr traust?</p>
+  <p>Ein Kollege schickt aus einem Forum die Prüfung der Ausleihdauer. Er sagt: „Läuft jetzt ohne Fehlermeldung.“ Die Vorgabe lautet: Gültig sind 1 bis 14 Tage, alles andere wird abgelehnt.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Die Prüfung aus dem Forum.">
+Console.WriteLine("Ausleihdauer in Tagen:");
+string eingabe = Console.ReadLine();
+int.TryParse(eingabe, out int tage);
+if (tage < 1 || tage > 14)
+{
+    Console.WriteLine("Ausleihe: nur 1 bis 14 Tage möglich");
+}
+else
+{
+    Console.WriteLine("Ausleihe, Tage: " + tage);
+}
+</script>
+  <p>Die <code>int.TryParse</code>-Zeile steht <strong>allein</strong>: Ihre Antwort wird nicht benutzt. Der Build baut ohne Meldung. Sage vorher, was das Programm für die Eingabe <code>zwei</code> zeigt.</p>
+<script type="text/x-console" data-title="Konsole · Eingabe zwei (Kursmessung)">
+Ausleihdauer in Tagen:
+Ausleihe: nur 1 bis 14 Tage möglich
+</script>
+  <p>Ohne Prüfung landet 0 im Fach <code>tage</code>: Die Schranke „Bereich“ ist zu, aber die Meldung nennt den wahren Grund nicht (es war ein Text). Ob die 0 auffällt, hängt vom Bereich ab. Bei Ladekabeln sind 0 bis 9 erlaubt.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Dieselbe Lücke bei Ladekabeln.">
+Console.WriteLine("Ladekabel eintragen (0 bis 9):");
+string eingabe = Console.ReadLine();
+int.TryParse(eingabe, out int kabel);
+if (kabel < 0 || kabel > 9)
+{
+    Console.WriteLine("Eintrag: nur 0 bis 9 Ladekabel möglich");
+}
+else
+{
+    Console.WriteLine("Eintrag: " + kabel + " Ladekabel");
+}
+</script>
+<script type="text/x-console" data-title="Konsole · Eingabe zwei (Kursmessung)">
+Ladekabel eintragen (0 bis 9):
+Eintrag: 0 Ladekabel
+</script>
+  <p>Die 0 gehört zum erlaubten Bereich, also läuft der Eintrag ohne Meldung weiter. Das Programm bricht nicht ab, und trotzdem ist das Ergebnis <strong>falsch</strong>.</p>
+  <div class="tbwrap"><table class="tb"><caption>Testtabelle für Ausleihdauer 1 bis 14, gemessen</caption>
+    <tr><th>Eingabe</th><th>Soll laut Vorgabe</th><th>Ist: Prüfung aus dem Forum</th><th>Ist: berichtigt</th></tr>
+    <tr><td class="m">zwei</td><td>abgelehnt, weil Text</td><td class="f">Meldung zum Bereich</td><td class="t">Meldung zum Text</td></tr>
+    <tr><td class="m">(leer)</td><td>abgelehnt, weil Text</td><td class="f">Meldung zum Bereich</td><td class="t">Meldung zum Text</td></tr>
+    <tr><td class="m">0</td><td>abgelehnt, weil außerhalb</td><td>Meldung zum Bereich</td><td>Meldung zum Bereich</td></tr>
+    <tr><td class="m">15</td><td>abgelehnt, weil außerhalb</td><td>Meldung zum Bereich</td><td>Meldung zum Bereich</td></tr>
+    <tr><td class="m">4</td><td>angenommen</td><td>angenommen</td><td>angenommen</td></tr></table></div>
+  <p>Berichtigt fragt die Prüfung zuerst nach der Zahl. Bei Text und leerer Eingabe meldet sie „Ausleihe: Tage als Zahl angeben“.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Die Antwort von TryParse steht im if.">
+if (!int.TryParse(eingabe, out int tage))
+{
+    Console.WriteLine("Ausleihe: Tage als Zahl angeben");
+}
+</script>
+  <div class="lab" data-lab="forum"></div>
+  <div class="box hint"><b>Hinweis: Fremde Eingabeprüfungen erst lesen und testen</b><p>Auf dem Spiel steht die verlässliche Auskunft des Programms. Eine falsche Meldung oder ein stiller Eintrag mit 0 führt zu falschen Entscheidungen. Lies fremden Code, bevor er läuft, und teste ihn mit Text, leerer Eingabe und Werten außerhalb. Setze die Antwort von <code>TryParse</code> immer in ein <code>if</code>. <strong>Kein Abbruch heißt nicht richtig.</strong></p></div>
+  <div class="box merk"><b>Merksatz</b><p>Erst prüfen, ob es eine Zahl ist, dann den Bereich. Kein Abbruch heißt nicht richtig.</p></div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="page" id="p-11" data-n="11" data-t="Sicherung und Abschluss" data-g="lern">
+  <span class="kick">Abschnitt 11 · Abschluss</span>
+  <h1 class="ph">Sicherung und Abschluss: dein Stand nach T05</h1>
+  <div class="box"><b>Verstanden · Angewandt</b>
+    <ul>
+      <li><strong>Verstanden: verknüpfen</strong> – <code>&amp;&amp;</code> braucht beide Teile true, <code>||</code> mindestens einen; <code>!</code> dreht um.</li>
+      <li><strong>Verstanden: Bereich und Eingabe</strong> – Ein Bereich braucht zwei Vergleiche. <code>TryParse</code> prüft nur die Form; bei <code>false</code> steht 0 in der Variablen.</li>
+      <li><strong>Angewandt: Prüfkette und Testen</strong> – Erst die Zahl, dann der Bereich, dann die Kette. Teste Grenzen, Nachbarn, einen Normalfall und Text.</li></ul></div>
+  <h2>Kann-ich-Liste, mit Weg zurück</h2>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="kann" data-save="k1"><span>Ich kann ein <code>if</code> im <code>if</code> in <code>&amp;&amp;</code> umbauen und die Wahrheitstabelle füllen. (→ <a href="#1">1</a>, <a href="#2">2</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k2"><span>Ich kann <code>!</code> und <code>!=</code> unterscheiden und einen Schreibtischtest führen. (→ <a href="#3">3</a>, <a href="#4">4</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k3"><span>Ich kann einen Bereich innen und außen prüfen und Testwerte wählen. (→ <a href="#5">5</a>, <a href="#6">6</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k4"><span>Ich kann Text mit <code>int.TryParse</code> prüfen. (→ <a href="#7">7</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k5"><span>Ich kann eine Prüfkette aus Zahl, Bereich und Entscheidung lesen und starten. (→ <a href="#8">8</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k6"><span>Ich kann einen stillen Fehler an Soll und Ist finden. (→ <a href="#9">9</a>)</span></label></li>
+    <li><label><input type="checkbox" class="kann" data-save="k7"><span>Ich kann bei fremdem Code nach der TryParse-Antwort fragen. (→ <a href="#10">10</a>)</span></label></li></ul>
+  <h2>Zum Nachdenken</h2>
+  <p>Erkläre in zwei Sätzen, warum eine Eingabe auch dann falsch verarbeitet sein kann, wenn das Programm nicht abbricht.</p>
+  <textarea class="notes" data-save="n:s11" placeholder="Deine Antwort …"></textarea>
+  <div class="box hint"><b>Ausblick</b><p>In der Übung wendest du das an. → <a href="#u0">Tagesübungen</a></p></div>
+  <div class="box merk"><b>Merksatz</b><p>Prüfen, testen, vergleichen: So findest du den stillen Fehler.</p></div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section class="page" id="p-12" data-n="12" data-t="Kür: Komma, Kurzschluss, Klammern" data-g="lern" data-kuer="1">
+  <span class="kick">Abschnitt 12 · Vertiefung · freiwillig</span>
+  <h1 class="ph">Kür: Komma, Kurzschluss und Klammern <span class="chip kuer">freiwillig</span></h1>
+  <p>Zusatzfragen für Neugierige: Drei kleine Beobachtungen, nicht Pflicht.</p>
+  <h2>1 · <code>double.TryParse</code> und das Komma</h2>
+  <p>Die Messung lief mit deutscher Ländereinstellung. Das Komma ist das Dezimalzeichen, der Punkt trennt Tausender. Bei euch kann es anders sein (an eurer Installation prüfen).</p>
+<script type="text/x-code" data-lang="cs" data-cap="Kommazahl lesen.">
+Console.WriteLine("Gewicht in kg:");
+string eingabe = Console.ReadLine();
+if (double.TryParse(eingabe, out double kilo))
+{
+    Console.WriteLine("kilo: " + kilo);
+}
+else
+{
+    Console.WriteLine("kein Gewicht");
+}
+</script>
+<script type="text/x-console" data-title="Konsole · Eingabe 8.5 (Kursmessung)">
+Gewicht in kg:
+kilo: 85
+</script>
+  <h2>2 · Kurzschluss</h2>
+  <p><code>&amp;&amp;</code> prüft rechts nur, wenn links <code>true</code> ist. Mit <code>kisten</code> 0 ergibt <code>kisten != 0 &amp;&amp; 52 / kisten &gt; 3</code> den Wert <code>False</code>, ohne Abbruch. Stehen die beiden Teile vertauscht, bricht das Programm ab: <code>System.DivideByZeroException</code> (Ausschnitt).</p>
+  <h2>3 · Klammern</h2>
+  <p><code>&amp;&amp;</code> bindet stärker als <code>||</code>. <code>true || true &amp;&amp; false = True</code>, aber <code>(true || true) &amp;&amp; false = False</code>. Wer mischt, setzt Klammern.</p>
+  <div class="lab" data-lab="kuer"></div>
+  <div class="box merk"><b>Merksatz</b><p><code>&amp;&amp;</code> bindet stärker als <code>||</code>; wer beides mischt, setzt Klammern.</p></div>
+</section>
+
+<!-- ============ SELBSTTEST ============ -->
+<section class="page" id="p-quiz" data-n="✎" data-t="Selbsttest (26 Fragen)" data-g="lern">
+  <span class="kick">Selbsttest</span>
+  <h1 class="ph">Selbsttest</h1>
+  <p class="lead">Beantworte die Fragen, ohne zurückzublättern. Wähle eine Antwort und klicke auf „Prüfen“. Bei jeder Frage steht, wo du nachlesen kannst.</p>
+  <div class="score-big" id="quizscore"><span class="num" id="qs-num">0 / 26</span><div style="flex:1;min-width:180px"><div class="bar" style="height:9px"><i id="qs-bar"></i></div><p style="margin:.5em 0 0;font-size:13.5px;color:var(--mut)" id="qs-txt"></p></div>
+    <button class="btn" id="qs-checkall">Alle beantworteten prüfen</button><button class="btn danger" id="qs-reset">Selbsttest zurücksetzen</button></div>
+  <div id="quizhost"></div>
+</section>
+
+<!-- ============ ÜBUNGEN ============ -->
+<section class="page" id="p-u0" data-n="" data-t="Überblick" data-g="ueb">
+  <span class="kick">Tagesübungen · Kapitel 1 Üben</span>
+  <h1 class="ph">Übung T05</h1>
+  <p class="lead">Eine Bedingung verknüpfen, die Speicherampel mit Eingabe prüfen, einen Fehler suchen und das Oktett im Subnetzrechner prüfen.</p>
+  <p><span class="chip">6 Aufgaben</span><span class="chip">Dauer: 42 min (+ 5 min Kür)</span></p>
+  <p>Du arbeitest bei <em>Watt &amp; Byte</em> an der Eingabeprüfung. Erst liest du eine Update-Bedingung und füllst eine Tabelle. Dann sicherst du die Speicherampel gegen Text und setzt einen Bereich davor. Danach suchst du den Fehler in einer Prüfkette. Zuletzt prüfst du im Subnetzrechner das vierte Oktett.</p>
+  <div class="box goal"><b>Lauffähiger Zustand nach dem Blatt</b><p>Speicherampel und Subnetzrechner bauen ohne Fehler. Sie antworten auf Text, einen Wert außerhalb und einen Wert im Bereich ohne Abbruch.</p></div>
+  <div class="tbwrap"><table class="tb" id="overview"><caption>Aufgaben</caption><tr><th>Aufgabe</th><th>Thema</th><th>Punkte</th><th>Zeit</th><th>Stand</th></tr></table></div>
+  <div class="box"><b>Hinweise</b>
+    <ul>
+      <li>Etwa 42 Minuten für die Aufgaben a bis e, dazu 5 Minuten Kür: zusammen etwa 47 Minuten. Du brauchst Visual Studio, die Lernwerkstatt (Startstand <code>stand-t05</code> als ZIP aus dem Tagesmaterial), Papier und Stift.</li>
+      <li>Zwei Ausgangsstände sind möglich. Mit <code>stand-t05</code> beginnst du sofort. Oder du arbeitest in deinem eigenen T04-Stand mit dem Umbau der nächsten Zeile.</li>
+      <li><strong>Umbau des eigenen T04-Stands:</strong> Ersetze in der Datei <code>Speicherampel.cs</code> die Zeile mit dem festen Startwert durch diese drei Zeilen. Die Ampel und die Menüzeile <code>4 - Speicherampel</code> bleiben.</li></ul>
+<script type="text/x-code" data-lang="cs">
+Console.Write("Freier Speicher in Prozent: ");
+string eingabe = Console.ReadLine();
+int freiProzent = int.Parse(eingabe);
+</script>
+    <ul>
+      <li>Fehlt etwas davon, nimm <code>stand-t05</code>. Lege nichts doppelt an. Aufgabe e arbeitet in deinem Subnetzrechner, Menüpunkt 2, mit der Prüfung auf größer als 255 aus T04. Fehlt sie, nimm die Datei <code>SubnetzRechner.cs</code> aus <code>stand-t05</code>.</li>
+      <li><strong>Zurücksetzen:</strong> Lösche nur den entpackten Projektordner <code>Werkstatt</code> und entpacke das ZIP neu. Sicherungskopien liegen außerhalb des Projektordners. Ein Übungsprojekt schützt andere Ordner nicht: Lösche keine anderen Ordner.</li>
+      <li>Menüpfade und Tastenkürzel (<kbd>Strg</kbd>+<kbd>F5</kbd>) nennt Microsoft für Visual Studio (an eurer Installation prüfen).</li>
+      <li><strong>Konsolenfenster und Ersatzweg:</strong> Laut dem Microsoft-Tutorial zu .NET-Konsolen-Apps bleibt das Konsolenfenster nach <kbd>Strg</kbd>+<kbd>F5</kbd> (Starten ohne Debugging) offen. Es schließt erst, wenn du eine Taste drückst (an eurer Installation prüfen). Schließt sich das Fenster sofort, nutze den Ersatzweg: Öffne das Terminal von Visual Studio (Ansicht → Terminal). Es startet laut Microsoft im Ordner der Projektmappe. Gib dort ein: <code>dotnet run --project Werkstatt</code>. Zum Bauen ohne Start gibt es im Terminal <code>dotnet build</code>. Die Kursmessungen nutzen diese Befehle. Dort folgt <code>dotnet run</code> auf ein eigenes <code>dotnet build</code> und trägt den Zusatz <code>--no-build</code>.</li>
+      <li>Die Punkte der Etappen sind Orientierungspunkte. Aufgabe a steht im Prüfungsstil und trägt 6 Prüfungspunkte; ein Prüfungspunkt entspricht dort vier Orientierungspunkten. Aufgabe d steht ebenfalls im Prüfungsstil und trägt 4 Prüfungspunkte; als Fehlersuche zählt sie 26 Orientierungspunkte. Die Musterlösungen sind eigene Fassungen.</li>
+      <li>Die Konsolenausgaben und Tabellen der Ist-Werte in den Musterlösungen stammen aus Kursmessungen. Das sind Mitschnitte, nicht deine eigene Ausführung. Trage nur ausgedachte Werte ein, keine echten Namen oder Zugangsdaten.</li></ul></div>
+  <p class="srcline">Lernmaterial von Adrian Jankovic · Tagesübungen, Teilnehmer-Fassung, Stand 11.11.2026 · © 2026 Adrian Jankovic</p>
+</section>
+
+<!-- ---- a ---- -->
+<section class="page task" id="p-ua" data-n="a" data-t="Update-Bedingung lesen" data-g="ueb" data-task="a" data-pts="24" data-time="8 min">
+  <span class="kick">Aufgabe a · Prüfungsstil, 6 Punkte</span>
+  <h1 class="ph">Die Update-Bedingung lesen und die Tabelle füllen <span class="chip pts">24 Punkte · 8 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>die Tabelle der Update-Bedingung für die drei Aufrufe ausgefüllt.</p></div>
+  <p>Ein Notebook startet Updates nur nachts, am Netzteil und wenn niemand es benutzt. Das Bild zeigt die Bedingung, der Kasten die Schreibweise.</p>
+  <div class="tbwrap"><table class="tb"><caption>Schreibweise</caption><tr><th>Zeichen</th><th>Bedeutung hier</th></tr>
+    <tr><td><code>=</code></td><td>weist zu</td></tr><tr><td><code>Wahr</code> · <code>Falsch</code></td><td>true, false</td></tr>
+    <tr><td><code>Wenn …:</code> · <code>Sonst:</code></td><td>trifft zu: Wenn, sonst: Sonst</td></tr>
+    <tr><td><code>UND</code> · <code>ODER</code> · <code>NICHT</code></td><td>verknüpfen Bedingungen (Kursschreibweise)</td></tr>
+    <tr><td><code>AUSGABE(…)</code></td><td>zeigt eine Zeile</td></tr><tr><td>Einrückung</td><td>zeigt den Zweig (Kursschreibweise)</td></tr></table></div>
+<script type="text/x-code" data-lang="pseudo" data-cap="Update-Bedingung als Pseudocode">
+nachts = stunde >= 22 ODER stunde < 6
+Wenn nachts UND amNetzteil UND NICHT inBenutzung:
+    AUSGABE("Update startet")
+Sonst:
+    AUSGABE("Update wartet")
+</script>
+  <div class="box task"><b class="bt" style="color:var(--acc)">Prüfungsaufgabe (6 Punkte)</b><p>Geben Sie für die drei Aufrufe den Wert von <code>nachts</code> und die Ausgabe an.<br>
+    <strong>Aufruf 1:</strong> stunde 0, amNetzteil Wahr, inBenutzung Falsch. <strong>Aufruf 2:</strong> 22, Wahr, Wahr. <strong>Aufruf 3:</strong> 18, Wahr, Falsch.</p></div>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:a1"><span><b>Mindestziel · Schreibweise lesen.</b> Lies den Kasten und erkläre, was <code>Wenn</code>, <code>Sonst</code> und <code>UND</code> hier tun.<em>✓ Checkpoint: Drei kurze Sätze stehen auf dem Papier.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:a2"><span><b>Mindestziel · Tabelle füllen.</b> Lege eine Tabelle an (Aufruf, nachts, Ausgabe) und fülle sie für die drei Aufrufe.<em>✓ Checkpoint: Die sechs Felder für nachts und Ausgabe sind ausgefüllt.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:a3"><span><b>Komfortziel · Ausschlag.</b> Erkläre anhand deiner Tabelle, welcher Teil einer UND-Verknüpfung den Ausschlag gibt.<em>✓ Checkpoint: Deine Erklärung steht auf dem Papier.</em></span></label></li></ul>
+  <div data-fill="tab_ua"></div>
+  <div class="lab" data-lab="update"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Setze <code>stunde</code> in <code>stunde &gt;= 22 ODER stunde &lt; 6</code> ein. ODER braucht nur einen wahren Teil.</p></div></details>
+  <h3>Antwort zu Aufgabe a · deine Notizen</h3>
+  <textarea class="notes" data-save="n:ua" placeholder="Deine Sätze und Erklärungen …"></textarea>
+  <details class="help"><summary>Weitere Hilfen (L1)</summary><div class="in"><ul>
+    <li><b>Ansatz:</b> Danach verbindet UND drei Teile: <code>nachts</code>, <code>amNetzteil</code> und <code>NICHT inBenutzung</code>. Das Update startet nur, wenn die drei Teile Wahr sind.</li>
+    <li><b>Fast-Lösung:</b> NICHT dreht <code>inBenutzung</code> um: Aus Wahr wird Falsch und aus Falsch wird Wahr.</li></ul></div></details>
+  <details class="sol"><summary>Musterlösung L1</summary><div class="in">
+    <div class="tbwrap"><table class="tb"><caption>Die Werte stammen aus den Kursmessungen</caption><tr><th>Aufruf</th><th>nachts</th><th>Ausgabe</th></tr>
+      <tr><td>1</td><td>Wahr</td><td>Update startet</td></tr><tr><td>2</td><td>Wahr</td><td>Update wartet</td></tr><tr><td>3</td><td>Falsch</td><td>Update wartet</td></tr></table></div>
+    <p>In Aufruf 2 ist <code>nachts</code> Wahr, aber <code>NICHT inBenutzung</code> ist Falsch. Dann ist die UND-Bedingung Falsch.</p>
+    <p><b>Wichtigste Einsicht:</b> Diese UND-Verknüpfung ist nur Wahr, wenn ihre drei Teile Wahr sind.</p>
+    <h3>Bewertung (24 P) – kreuze an, was du erreicht hast</h3><div class="score" data-score='[["Aufruf 1: nachts",4],["Aufruf 1: Ausgabe",4],["Aufruf 2: nachts",4],["Aufruf 2: Ausgabe",4],["Aufruf 3: nachts",4],["Aufruf 3: Ausgabe",4]]'></div>
+    <p><b>Bewertungskriterien:</b> Ich habe die sechs Felder der Tabelle ausgefüllt. · Ich kann meine Ausgabe für Aufruf 2 begründen.</p></div></details>
+</section>
+
+<!-- ---- b ---- -->
+<section class="page task" id="p-ub" data-n="b" data-t="Speicherampel mit Eingabe absichern" data-g="ueb" data-task="b" data-pts="14" data-time="9 min">
+  <span class="kick">Aufgabe b</span>
+  <h1 class="ph">Die Speicherampel mit Eingabe starten und gegen Text absichern <span class="chip pts">14 Punkte · 9 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>die Speicherampel gegen Text abgesichert: „viel“ ergibt eine Meldung, 35 eine Ampelzeile.</p></div>
+  <p>Öffne <code>Speicherampel.cs</code> aus <code>stand-t05</code>. Notiere vorher die Konsolenausgabe für die Eingaben <code>35</code> und <code>viel</code>. Starte ohne Debugger (<kbd>Strg</kbd>+<kbd>F5</kbd>, an eurer Installation prüfen), wähle Menüpunkt 4 und gib beide Werte nacheinander ein. Ersatzweg: Terminal (Ansicht → Terminal), <code>dotnet run --project Werkstatt</code>.</p>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:b1"><span><b>Mindestziel · Vorhersage und Startprobe.</b> Notiere vorher die Konsolenausgabe für 35 und für „viel“. Starte jeweils neu und vergleiche.<em>✓ Checkpoint: Deine Notiz stand vor dem Start auf Papier; die Konsolenausgabe für den Text steht als Ausschnitt dabei.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:b2"><span><b>Mindestziel · TryParse einbauen.</b> Ersetze <code>int.Parse</code> durch <code>int.TryParse</code> mit <code>if</code> und <code>else</code>: Text erhält eine Meldung. Notiere für die geänderten Zeilen die erwartete Ausgabe für „viel“ und 35. Baue neu, teste.<em>✓ Checkpoint: Der Build meldet keinen Fehler. Der Text ergibt eine Meldung. Deine neuen Erwartungen standen vor dem Start auf Papier und sind mit der Konsole verglichen.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:b3"><span><b>Komfortziel · Ausgabezeile.</b> Setze die Zeile <code>Freier Speicher: …</code> vor die Prüfung. Notiere vorher, was die Konsole für „viel“ zeigt, dann teste.<em>✓ Checkpoint: Vorhersage und Beobachtung stehen auf dem Papier.</em></span></label></li></ul>
+  <div class="lab" data-lab="ampel" data-mode="b"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Die Datei liest den Text und wandelt ihn mit <code>int.Parse</code> in eine Zahl. Überlege, was diese Zeile mit Text macht.</p></div></details>
+  <h3>Antwort zu Aufgabe b · deine Notizen</h3>
+  <textarea class="notes" data-save="n:ub" placeholder="Vorhersagen (35, viel), Beobachtungen …"></textarea>
+  <h3>Dein Code</h3>
+  <textarea class="codeedit" data-save="c:ub" spellcheck="false" placeholder="// Hier kannst du deine Fassung der Eingabe-Prüfung skizzieren …"></textarea>
+  <details class="help"><summary>Weitere Hilfen (L2)</summary><div class="in"><ul>
+    <li><b>Ansatz:</b> <code>if (int.TryParse(eingabe, out int freiProzent))</code> ersetzt die Zeile mit <code>int.Parse</code>. Ist die Bedingung wahr, läuft die Ampel, sonst steht im <code>else</code> die Meldung.</li>
+    <li><b>Fast-Lösung:</b> Die Zeile <code>int freiProzent = int.Parse(eingabe);</code> fällt weg. <code>out int freiProzent</code> legt die Variable an; die Ampel-Kette steht im <code>if</code>-Zweig.</li></ul></div></details>
+  <details class="sol"><summary>Musterlösung L2</summary><div class="in">
+    <p>Zu deinen Notizen: Kursmessungen. Das sind Messungen mit umgeleiteter Eingabe, nicht deine eigene Ausführung; die Aufforderung steht dort ohne deine Eingabe vor der Ausgabe. Mit <code>int.Parse</code> bricht „viel“ in der Zeile mit <code>int.Parse</code> ab, Ausschnitt der englischen Meldung: <code>System.FormatException: The input string 'viel' was not in a correct format.</code></p>
+    <div class="tbwrap"><table class="tb"><tr><th>Eingabe</th><th>Zeile 1</th><th>Zeile 2</th><th>Messung</th></tr>
+      <tr><td class="m">35</td><td>Freier Speicher in Prozent: Freier Speicher: 35 %</td><td>Ampel: grün, genug Platz</td><td>int.Parse und int.TryParse</td></tr>
+      <tr><td class="m">viel</td><td>Freier Speicher in Prozent: Bitte eine ganze Zahl eingeben.</td><td></td><td>int.TryParse</td></tr>
+      <tr><td class="m">viel</td><td>Freier Speicher in Prozent: Freier Speicher: 0 %</td><td>Bitte eine ganze Zahl eingeben.</td><td>Ausgabezeile vor der Prüfung</td></tr></table></div>
+<script type="text/x-code" data-lang="cs" data-cap="Gerüst (abgeleitet aus Ansatz und Fast-Lösung)">
+Console.Write("Freier Speicher in Prozent: ");
+string eingabe = Console.ReadLine();
+if (int.TryParse(eingabe, out int freiProzent))
+{
+    Console.WriteLine("Freier Speicher: " + freiProzent + " %");
+    // ... deine Ampel-Kette aus T04 ...
+}
+else
+{
+    Console.WriteLine("Bitte eine ganze Zahl eingeben.");
+}
+</script>
+    <p><b>Wichtigste Einsicht:</b> Erst prüfen, ob es eine Zahl ist, dann damit arbeiten.</p>
+    <h3>Bewertung (14 P)</h3><div class="score" data-score='[["Ausgabe für 35 und „viel“ vor dem Start notiert",3],["Abbruch beobachtet, Ausschnitt notiert",2],["int.TryParse mit if / else eingebaut, Build ohne Fehler",3],["Neue Vorhersage für die geänderten Zeilen vor dem Start notiert und verglichen",2],["„viel“ ergibt eine Meldung, 35 eine Ampelzeile",2],["Ausgabezeile vor der Prüfung vorhergesagt und getestet",2]]'></div></div></details>
+</section>
+
+<!-- ---- c ---- -->
+<section class="page task" id="p-uc" data-n="c" data-t="Bereich 0 bis 100 vor die Ampel" data-g="ueb" data-task="c" data-pts="16" data-time="11 min">
+  <span class="kick">Aufgabe c</span>
+  <h1 class="ph">Den Bereich 0 bis 100 vor die Ampel setzen und testen <span class="chip pts">16 Punkte · 11 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>die Bereichsprüfung vor die Ampel gesetzt und mit acht Eingaben gegen dein Soll geprüft.</p></div>
+  <p>Setze in deiner Datei aus Aufgabe b eine Bereichsprüfung für 0 bis 100 vor die Ampel. Text meldet „Bitte eine ganze Zahl eingeben.“, ein Wert außerhalb „Freier Speicher liegt zwischen 0 und 100 Prozent.“. Teste mit <code>viel</code>, (leer), <code>35%</code>, <code>-1</code>, <code>101</code>, <code>0</code>, <code>100</code> und <code>35</code>, im Terminal wie in Aufgabe b.</p>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:c1"><span><b>Mindestziel · Soll notieren.</b> Lege die Tabelle mit den acht Eingaben an und trage das Soll ein, bevor du startest.<em>✓ Checkpoint: Die Spalte Soll stand vor dem Start auf Papier.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:c2"><span><b>Mindestziel · Bereich einbauen und testen.</b> Setze die Bereichsprüfung hinter die Zahlprüfung, baue neu und teste die acht Eingaben.<em>✓ Checkpoint: Soll und Ist stehen für die acht Eingaben nebeneinander.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:c3"><span><b>Komfortziel · Reihenfolge.</b> Erkläre, warum erst die Zahl und dann der Bereich geprüft wird.<em>✓ Checkpoint: Deine Erklärung steht auf dem Papier.</em></span></label></li></ul>
+  <p>Trage dein <strong>Soll</strong> ein (wähle, was die Konsole zeigen soll):</p>
+  <div data-fill="tab_uc"></div>
+  <div class="lab" data-lab="ampel" data-mode="c"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Die Prüfkette hat drei Wege: Text, Wert außerhalb und Wert im Bereich. Welcher Weg gehört zu welcher Eingabe?</p></div></details>
+  <h3>Antwort zu Aufgabe c · deine Notizen</h3>
+  <textarea class="notes" data-save="n:uc" placeholder="Warum erst die Zahl, dann der Bereich? …"></textarea>
+  <h3>Dein Code</h3>
+  <textarea class="codeedit" data-save="c:uc" spellcheck="false" placeholder="// Hier kannst du deine Prüfkette skizzieren …"></textarea>
+  <details class="help"><summary>Weitere Hilfen (L3)</summary><div class="in"><ul>
+    <li><b>Ansatz:</b> <code>if (!int.TryParse(eingabe, out int freiProzent))</code>, dann <code>else if (freiProzent &lt; 0 || freiProzent &gt; 100)</code>, am Ende <code>else</code> mit Ausgabe und Ampel. Ein <code>if</code> / <code>else</code> ohne <code>!</code> geht auch.</li>
+    <li><b>Fast-Lösung:</b> Die Ausgabezeile für den Speicher gehört in den letzten <code>else</code>-Zweig, hinter beide Prüfungen.</li></ul></div></details>
+  <details class="sol"><summary>Musterlösung L3</summary><div class="in">
+    <p>Die Zeilen stammen aus den Kursmessungen (umgeleitete Eingabe, nicht deine eigene Ausführung):</p>
+    <div class="tbwrap"><table class="tb"><tr><th>Eingabe</th><th>Ausgabe</th></tr>
+      <tr><td class="m">viel · (leer) · 35%</td><td>Bitte eine ganze Zahl eingeben.</td></tr>
+      <tr><td class="m">-1 · 101</td><td>Freier Speicher liegt zwischen 0 und 100 Prozent.</td></tr>
+      <tr><td class="m">0</td><td>Freier Speicher: 0 % · Ampel: rot, Sicherung gefährdet</td></tr>
+      <tr><td class="m">100</td><td>Freier Speicher: 100 % · Ampel: grün, genug Platz</td></tr>
+      <tr><td class="m">35</td><td>Freier Speicher: 35 % · Ampel: grün, genug Platz</td></tr></table></div>
+    <p>Hast du in T04 die Stufe ab 88 ergänzt, zeigt 100 die blaue Ampel; beides ist richtig.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Gerüst (abgeleitet aus Ansatz und Fast-Lösung)">
+if (!int.TryParse(eingabe, out int freiProzent))
+{
+    Console.WriteLine("Bitte eine ganze Zahl eingeben.");
+}
+else if (freiProzent < 0 || freiProzent > 100)
+{
+    Console.WriteLine("Freier Speicher liegt zwischen 0 und 100 Prozent.");
+}
+else
+{
+    Console.WriteLine("Freier Speicher: " + freiProzent + " %");
+    // ... deine Ampel-Kette aus T04 ...
+}
+</script>
+    <p><b>Wichtigste Einsicht:</b> Erst die Form, dann der Bereich, dann die Ampel; die 0 liegt im Bereich.</p>
+    <h3>Bewertung (16 P)</h3><div class="score" data-score='[["Soll vor dem Start notiert",4],["Bereichsprüfung eingebaut, Build ohne Fehler",4],["Acht Eingaben getestet und verglichen",5],["Reihenfolge erklärt",3]]'></div></div></details>
+</section>
+
+<!-- ---- d ---- -->
+<section class="page task" id="p-ud" data-n="d" data-t="Prüfkette berichtigen" data-g="ueb" data-task="d" data-pts="26" data-time="8 min">
+  <span class="kick">Aufgabe d · Prüfungsstil, 4 Punkte</span>
+  <h1 class="ph">Den Fehlerfall laden und die Prüfkette berichtigen <span class="chip pts">26 Punkte · 8 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>die Prüfkette berichtigt, bis das Ist für deine Testwerte mit dem Soll übereinstimmt, und deine Speicherampel wiederhergestellt.</p></div>
+  <p>Sichere <code>Speicherampel.cs</code> außerhalb des Projektordners und ersetze die Zeilen in <code>Starten</code> durch diese. <strong>Gewollt:</strong> Text meldet „Das ist keine Zahl.“, 1 bis 86 laufen in den Auftragszweig, der Rest meldet „Blattzahl nicht erlaubt.“</p>
+<script type="text/x-code" data-lang="cs" data-id="blaetter" data-cap="Der Fehlerfall (Soll: siehe „Gewollt“)">
+Console.WriteLine("Blätter eingeben:");
+string eingabe = Console.ReadLine();
+if (int.TryParse(eingabe, out int blaetter))
+{
+    Console.WriteLine("Das ist keine Zahl.");
+}
+else if (blaetter < 1 || blaetter > 68)
+{
+    Console.WriteLine("Blattzahl nicht erlaubt.");
+}
+else
+{
+    Console.WriteLine("Auftrag: " + blaetter + " Blätter");
+}
+</script>
+  <p>Sichere den berichtigten Fehlerfall außerhalb des Projektordners. Stelle danach deine Speicherampel aus Aufgabe c wieder her.</p>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:d1"><span><b>Mindestziel · Testwerte und Soll.</b> Wähle Testwerte: einen Text und an beiden Grenzen den Wert darauf und den Nachbarwert außerhalb. Notiere das Soll vor dem Start.<em>✓ Checkpoint: Dein Soll stand vor dem Start auf Papier.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:d2"><span><b>Mindestziel · Berichtigen, vergleichen, sichern.</b> Baue und starte im Terminal wie in Aufgabe b. Berichtige die Zeilen und teste nach einer Änderung neu mit denselben Testwerten.<em>✓ Checkpoint: Das Ist stimmt für deine Testwerte mit dem Soll überein. Der berichtigte Fall ist gesichert, deine Speicherampel steht wieder in <code>Speicherampel.cs</code>.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:d3"><span><b>Komfortziel · Begründen.</b> Erkläre in einem Satz, warum du nach einer Änderung neu testest.<em>✓ Checkpoint: Dein Satz steht auf dem Papier.</em></span></label></li></ul>
+  <p>Trage dein <strong>Soll</strong> für die Testwerte ein:</p>
+  <div data-fill="tab_ud"></div>
+  <div class="lab" data-lab="fehler2"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Nimm die Vorgabe unter „Gewollt“ als Soll. Welche Meldung verlangt sie für Text, für eine Zahl im Bereich und für eine Zahl außerhalb?</p></div></details>
+  <h3>Antwort zu Aufgabe d · deine Notizen</h3>
+  <textarea class="notes" data-save="n:ud" placeholder="Was ist falsch? Warum neu testen? …"></textarea>
+  <h3>Dein berichteter Code</h3>
+  <textarea class="codeedit" data-save="c:ud" spellcheck="false" style="min-height:230px">Console.WriteLine("Blätter eingeben:");
+string eingabe = Console.ReadLine();
+if (int.TryParse(eingabe, out int blaetter))
+{
+    Console.WriteLine("Das ist keine Zahl.");
+}
+else if (blaetter < 1 || blaetter > 68)
+{
+    Console.WriteLine("Blattzahl nicht erlaubt.");
+}
+else
+{
+    Console.WriteLine("Auftrag: " + blaetter + " Blätter");
+}</textarea>
+  <p style="display:flex;gap:8px"><button class="btn sm" data-resetcode="c:ud">Ursprünglichen Fehlerfall wiederherstellen</button></p>
+  <details class="help"><summary>Weitere Hilfen (L4)</summary><div class="in"><ul>
+    <li><b>Ansatz:</b> Der Build meldet nichts, also zeigt nur das Ist den Fehler. Lies bei jedem Testwert, welcher Zweig läuft. Kommst du nicht weiter, stelle eine Hilfefrage nach dem T01-Muster: Erwartung, tatsächliche Ausgabe, eigener Versuch, nur ausgedachte Daten.</li>
+    <li><b>Fast-Lösung:</b> Prüfe die Bedingung der ersten Zeile mit <code>if</code> und die Zahl in der Zeile mit <code>||</code>. Starte nach einer Berichtigung neu und teste die Testwerte neu.</li></ul></div></details>
+  <details class="sol"><summary>Musterlösung L4</summary><div class="in">
+    <div class="tbwrap"><table class="tb"><caption>Kursmessung – die letzte Spalte ist das Soll</caption><tr><th>Testwert</th><th>nur ! ergänzt</th><th>beide berichtigt</th></tr>
+      <tr><td class="m">abc</td><td>Das ist keine Zahl.</td><td>Das ist keine Zahl.</td></tr>
+      <tr><td class="m">0</td><td>Blattzahl nicht erlaubt.</td><td>Blattzahl nicht erlaubt.</td></tr>
+      <tr><td class="m">86</td><td class="f">Blattzahl nicht erlaubt.</td><td class="t">Auftrag: 86 Blätter</td></tr>
+      <tr><td class="m">87</td><td>Blattzahl nicht erlaubt.</td><td>Blattzahl nicht erlaubt.</td></tr></table></div>
+<script type="text/x-code" data-lang="cs" data-cap="Berichtigt (zwei Fehler: fehlendes ! und 68 statt 86)">
+if (!int.TryParse(eingabe, out int blaetter))
+{
+    Console.WriteLine("Das ist keine Zahl.");
+}
+else if (blaetter < 1 || blaetter > 86)
+{
+    Console.WriteLine("Blattzahl nicht erlaubt.");
+}
+else
+{
+    Console.WriteLine("Auftrag: " + blaetter + " Blätter");
+}
+</script>
+    <p>Das fehlende <code>!</code> verdeckt die Grenzzahl: Erst danach zeigt 86 den Fehler. Beide Reihenfolgen sind richtig.</p>
+    <p><b>Wichtigste Einsicht:</b> Nach einer Berichtigung neu starten und die Testwerte neu testen.</p>
+    <h3>Bewertung (26 P)</h3><div class="score" data-score='[["Testwerte gewählt, Soll vor dem Start notiert",5],["Fehler erkannt",4],["Beide Zeilen berichtigt",6],["Neu getestet, Soll = Ist",5],["Fehlerfall gesichert, Speicherampel wiederhergestellt",3],["Begründung genannt",3]]'></div>
+    <p><b>Bewertungskriterien:</b> Mein Soll stand vor dem Start auf dem Papier. · Das Ist stimmt für meine Testwerte mit dem Soll überein. · Meine Speicherampel aus Aufgabe c steht wieder in der Datei.</p></div></details>
+</section>
+
+<!-- ---- e ---- -->
+<section class="page task" id="p-ue" data-n="e" data-t="Subnetzrechner: viertes Oktett" data-g="ueb" data-task="e" data-pts="10" data-time="6 min">
+  <span class="kick">Aufgabe e</span>
+  <h1 class="ph">Im Subnetzrechner das vierte Oktett einlesen und prüfen <span class="chip pts">10 Punkte · 6 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>das vierte Oktett im Subnetzrechner eingelesen, geprüft und mit drei Testwerten gegen deine Vorhersage getestet.</p></div>
+  <p>Im Subnetzrechner (Menüpunkt 2) steht <code>oktett4</code> seit T04 fest im Code, z. B. <code>int oktett4 = 77;</code>. Ersetze diese Zeile: Lies <code>oktett4</code> mit <code>Console.ReadLine</code> ein, prüfe erst die Zahl, dann den Bereich 0 bis 255. Teste mit <code>-1</code>, <code>255</code> und <code>x</code>, im Terminal wie in Aufgabe b.</p>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:e1"><span><b>Mindestziel · Vorhersage.</b> Notiere für -1, 255 und x, was die Konsole in der Zeile nach der Eingabeaufforderung zeigen soll: Meldung oder Adresse.<em>✓ Checkpoint: Deine Notiz stand vor dem Start auf Papier.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:e2"><span><b>Mindestziel · Einlesen und prüfen.</b> Ersetze die alte Zeile, baue die Prüfkette ein, starte mit den drei Werten und vergleiche.<em>✓ Checkpoint: Soll und Ist stehen für drei Testwerte nebeneinander.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:e3"><span><b>Komfortziel · Grenze erklären.</b> Erkläre anhand deiner Testtabelle, was die Prüfung von 0 bis 255 nicht kontrolliert.<em>✓ Checkpoint: Deine Erklärung steht auf dem Papier.</em></span></label></li></ul>
+  <p>Trage dein <strong>Soll</strong> ein:</p>
+  <div data-fill="tab_ue"></div>
+  <div class="lab" data-lab="oktett"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Das Oktett kommt jetzt als Text an. Zuerst prüft <code>int.TryParse</code>, ob es eine Zahl ist, dann der Bereich.</p></div></details>
+  <h3>Antwort zu Aufgabe e · deine Notizen</h3>
+  <textarea class="notes" data-save="n:ue" placeholder="Was kontrolliert die Prüfung 0 bis 255 nicht? …"></textarea>
+  <h3>Dein Code</h3>
+  <textarea class="codeedit" data-save="c:ue" spellcheck="false" placeholder="// Hier kannst du deine Prüfkette skizzieren …"></textarea>
+  <details class="help"><summary>Weitere Hilfen (L5)</summary><div class="in"><ul>
+    <li><b>Ansatz:</b> Die Zeile <code>int oktett4 = 77;</code> fällt weg. Sonst meldet der Build <code>CS0128</code>. <code>out int oktett4</code> legt die Variable an.</li>
+    <li><b>Fast-Lösung:</b> <code>if (!int.TryParse(eingabe, out int oktett4))</code> meldet Text, <code>else if (oktett4 &lt; 0 || oktett4 &gt; 255)</code> meldet Werte außerhalb, <code>else</code> gibt die Adresse aus. Bleibt die alte Zeile stehen, geht <code>out oktett4</code> ohne <code>int</code>.</li></ul></div></details>
+  <details class="sol"><summary>Musterlösung L5</summary><div class="in">
+    <div class="tbwrap"><table class="tb"><caption>Ausschnitt der Ausgabe, Kursmessung</caption><tr><th>Wert</th><th>Zeile nach der Eingabeaufforderung</th></tr>
+      <tr><td class="m">-1</td><td>Oktett 4 liegt nicht zwischen 0 und 255.</td></tr>
+      <tr><td class="m">255</td><td>IP-Adresse: 192.168.10.255/26</td></tr>
+      <tr><td class="m">x</td><td>Oktett 4 ist keine ganze Zahl.</td></tr></table></div>
+    <p>255 liegt im Bereich: Die Adresse wird ausgegeben. Die Prüfung kontrolliert nur Form und Bereich dieses einen Oktetts, nicht die ganze Adresse.</p>
+<script type="text/x-code" data-lang="cs" data-cap="Gerüst (abgeleitet aus der Fast-Lösung)">
+Console.Write("Oktett 4: ");
+string eingabe = Console.ReadLine();
+if (!int.TryParse(eingabe, out int oktett4))
+{
+    Console.WriteLine("Oktett 4 ist keine ganze Zahl.");
+}
+else if (oktett4 < 0 || oktett4 > 255)
+{
+    Console.WriteLine("Oktett 4 liegt nicht zwischen 0 und 255.");
+}
+else
+{
+    // ... deine Berechnung und Ausgabe der IP-Adresse aus T04 ...
+}
+</script>
+    <p><b>Wichtigste Einsicht:</b> Erst die Zahl, dann die beiden Grenzen; 0 und 255 gehören dazu.</p>
+    <h3>Bewertung (10 P)</h3><div class="score" data-score='[["Soll vor dem Start notiert",3],["Zeile ersetzt (oder out oktett4 ohne int), Prüfkette eingebaut, Build ohne Fehler",3],["Drei Werte getestet und verglichen",2],["Grenze erklärt",2]]'></div></div></details>
+</section>
+
+<!-- ---- k1 ---- -->
+<section class="page task" id="p-uk" data-n="k1" data-t="Kür: Ja/Nein-Abfrage" data-g="ueb" data-task="k1" data-pts="10" data-time="5 min" data-kuer="1">
+  <span class="kick">Aufgabe k1 · Kür · freiwillig</span>
+  <h1 class="ph">Eine Ja/Nein-Abfrage mit Text prüfen <span class="chip kuer">freiwillig</span><span class="chip pts">10 Punkte · 5 min</span></h1>
+  <div class="box goal"><b>Danach hast du</b><p>eine Ja/Nein-Abfrage mit Text geprüft und für den Testwert <code>Ja</code> eine Ausgabezeile erhalten.</p></div>
+  <p>Schreibe in <code>Speicherampel.cs</code> eine Abfrage <code>Backup starten? (ja oder nein)</code>. Sie gibt <code>Backup: startet</code> aus bei <code>ja</code> oder <code>j</code>. Bei <code>nein</code> oder <code>n</code> gibt sie <code>Backup: abgebrochen</code> aus, sonst <code>Backup: bitte ja oder nein antworten</code>. Verwende <code>Equals</code> mit <code>||</code>.</p>
+  <h3>Teilaufgaben</h3>
+  <ul class="todo">
+    <li><label><input type="checkbox" class="prog" data-save="t:k1"><span><b>Mindestziel · Vorhersage und Abfrage.</b> Notiere die erwartete Konsolenzeile für den Testwert <code>Ja</code>. Schreibe die Abfrage und gib das Ergebnis aus.<em>✓ Checkpoint: Deine Vorhersage stand vor dem Start auf Papier, die Konsole zeigt eine Backup-Zeile.</em></span></label></li>
+    <li><label><input type="checkbox" class="prog" data-save="t:k2"><span><b>Komfortziel · Zweiter Testwert.</b> Sage die Zeile für <code>j</code> vorher, starte und vergleiche. Notiere, was dir an <code>Ja</code> und <code>ja</code> auffällt.<em>✓ Checkpoint: Dein Befund steht auf dem Papier.</em></span></label></li></ul>
+  <div class="lab" data-lab="jn"></div>
+  <details class="help"><summary>Hinweise · Denkrichtung</summary><div class="in"><p>Die Aufgabe ist eine Kette wie die Speicherampel, eine Bedingung verbindet zwei <code>Equals</code> mit <code>||</code>.</p></div></details>
+  <h3>Antwort zu Aufgabe k1 · deine Notizen</h3>
+  <textarea class="notes" data-save="n:uk" placeholder="Vorhersage für Ja, j – und was fällt dir auf? …"></textarea>
+  <h3>Dein Code</h3>
+  <textarea class="codeedit" data-save="c:uk" spellcheck="false" placeholder="// Deine Abfrage mit Equals und || …"></textarea>
+  <details class="help"><summary>Weitere Hilfen (L6)</summary><div class="in"><p><b>Ansatz:</b> <code>Equals</code> vergleicht Zeichen für Zeichen. Große und kleine Buchstaben zählen.</p></div></details>
+  <details class="sol"><summary>Musterlösung L6</summary><div class="in">
+    <p>Zur Kür gibt es keine Musterlösung, weil Lösungen verschieden aussehen. Vergleiche deine Vorhersage mit der Konsole. Zur Kontrolle: Für <code>Ja</code> mit großem J steht dort „Backup: bitte ja oder nein antworten“.</p>
+    <h3>Bewertung (10 P)</h3><div class="score" data-score='[["Vorhersage vor dem Start notiert",2],["Abfrage mit Equals und || richtig geschrieben, mit == ebenso",3],["Ausgabe für Ja geprüft",2],["Zweiten Testwert vorhergesagt und verglichen",3]]'></div></div></details>
+</section>
+</main>
+</div>
+<div id="toast"></div>
+<script>
+(function(){
+'use strict';
+/* ---------- helpers ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>esc(s).replace(/`([^`]+)`/g,'<code>$1</code>');
+const TF=v=>v?'True':'False', tf=v=>v?'true':'false';
+let _u=0; const uid=()=>'u'+(++_u);
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove('show'),2200)}
+function twoClick(btn,label,fn){let armed=false,t,orig=btn.textContent;btn.addEventListener('click',()=>{if(!armed){armed=true;btn.textContent=label;t=setTimeout(()=>{armed=false;btn.textContent=orig},3500)}else{clearTimeout(t);armed=false;btn.textContent=orig;fn()}})}
+
+/* ---------- store ---------- */
+const PFX='t05v1:';
+const S={mem:{},ls:null,
+  init(){try{localStorage.setItem(PFX+'_t','1');localStorage.removeItem(PFX+'_t');this.ls=localStorage}catch(e){this.ls=null}
+    if(this.ls){try{for(let i=0;i<this.ls.length;i++){const k=this.ls.key(i);if(k&&k.indexOf(PFX)===0){try{this.mem[k.slice(PFX.length)]=JSON.parse(this.ls.getItem(k))}catch(e){}}}}catch(e){}}},
+  get(k){return this.mem[k]},
+  set(k,v){this.mem[k]=v;if(this.ls){try{this.ls.setItem(PFX+k,JSON.stringify(v))}catch(e){}}},
+  del(k){delete this.mem[k];if(this.ls){try{this.ls.removeItem(PFX+k)}catch(e){}}},
+  clear(){Object.keys(this.mem).forEach(k=>this.del(k));this.mem={}},
+  keys(p){return Object.keys(this.mem).filter(k=>k.indexOf(p)===0)}
+};
+
+/* ---------- syntax highlighting ---------- */
+const RE_CS=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|(\b\d+(?:[.,]\d+)?\b)|(\b(?:bool|int|string|double|if|else|true|false|out|var|new|return|static|using)\b)|(\b(?:Console|Math)\b)|(\b[A-Za-z_]\w*(?=\())|(&&|\|\||!=|>=|<=|==|[!<>=+\-*\/])/g;
+const CL_CS=['c','s','n','k','ty','fn','o'];
+const RE_PS=/("(?:[^"\\]|\\.)*")|(\b\d+\b)|(\b(?:ende wenn|wenn|dann|Wenn|Sonst)\b)|(\bAUSGABE\b)|(\b(?:UND|ODER|NICHT)\b)|(\b(?:Wahr|Falsch|true|false)\b)|(&&|\|\||!=|>=|<=|[!<>=+])/g;
+const CL_PS=['s','n','k','fn','bl','n','o'];
+function hl(line,lang){const re=lang==='pseudo'?RE_PS:RE_CS,cls=lang==='pseudo'?CL_PS:CL_CS;let out='',last=0,m;re.lastIndex=0;
+  while((m=re.exec(line))){out+=esc(line.slice(last,m.index));let g=1;while(!m[g])g++;out+='<span class="'+cls[g-1]+'">'+esc(m[0])+'</span>';last=re.lastIndex;if(m[0]==='')re.lastIndex++}
+  return out+esc(line.slice(last))}
+function codeFig(src,lang,cap,id){
+  const lines=src.replace(/^\n+/,'').replace(/\s+$/,'').split('\n');
+  const f=document.createElement('div');f.className='codefig';if(id)f.id='code-'+id;
+  f.innerHTML='<div class="code"><div class="cap"><span class="lang">'+(lang==='pseudo'?'Pseudocode':'C#')+'</span><span>'+lines.length+' Zeile'+(lines.length>1?'n':'')+'</span></div><div class="body">'+
+    lines.map((l,i)=>'<div class="cl"><span class="no">'+(i+1)+'</span><span class="tx">'+(hl(l,lang)||' ')+'</span></div>').join('')+'</div></div>'+(cap?'<div class="figcap">'+cap+'</div>':'');
+  return f}
+function setHi(fig,hi,mode){ // hi: array of 1-based lines
+  $$('.cl',fig).forEach((el,i)=>{const on=hi.indexOf(i+1)>=0;el.classList.toggle('hi',on&&mode!=='bad');el.classList.toggle('bad',on&&mode==='bad');el.classList.toggle('skip',!on&&hi.length>0&&mode==='dim')})}
+function consoleBox(title,html){const d=document.createElement('div');d.className='console';d.innerHTML='<div class="cap">'+title+'</div><pre>'+html+'</pre>';return d}
+const conLines=ls=>ls.map(l=>typeof l==='string'?esc(l):'<span class="'+l.c+'">'+esc(l.t)+'</span>').join('\n');
+
+/* ---------- parse semantics ---------- */
+function tp(s){const m=/^\s*([+-]?)(\d+)\s*$/.exec(s);if(!m)return[false,0];const n=Number(m[1]+m[2]);if(n>2147483647||n<-2147483648)return[false,0];return[true,n]}
+
+/* ---------- code / console blocks ---------- */
+function processBlocks(){
+  $$('script[type="text/x-code"]').forEach(s=>{const f=codeFig(s.textContent,s.dataset.lang||'cs',s.dataset.cap||'',s.dataset.id);s.replaceWith(f)});
+  $$('script[type="text/x-console"]').forEach(s=>{s.replaceWith(consoleBox(esc(s.dataset.title||'Konsole').replace(/&amp;/g,'&'),s.textContent.replace(/^\n/,'').replace(/\s+$/,'')))});
+}
+
+/* ---------- fill tables ---------- */
+const TT=['True','False'], AA=['angenommen','abgelehnt'];
+const FILL={
+ tab_and:{head:['verfuegbar','funktioniert','Ergebnis'],rows:[['true','true','?True'],['true','false','?False'],['false','true','?False'],['false','false','?False']],opts:TT,mono:1},
+ tab_or:{head:['reserviert','ausgeliehen','Ergebnis'],rows:[['true','true','?True'],['true','false','?True'],['false','true','?True'],['false','false','?False']],opts:TT,mono:1},
+ tab_schreib:{head:['Prüfung','verfuegbar (vor der Prüfung)','defekt','Bedingung ergibt','ausgeliehen (vor der Prüfung)'],
+   rows:[['Prüfung 1','?true','?false','?True','?0'],['Prüfung 2','?false','?false','?False','?1']],
+   copts:{1:['true','false'],2:['true','false'],3:TT,4:['0','1','2']},mono:1},
+ tab_test:{head:['Testwert','Art','innen: tage >= 1 && tage <= 14','außen: tage < 1 || tage > 14'],
+   rows:[['0','eins unter der unteren Grenze','?False','?True'],['1','untere Grenze','?True','?False'],['4','Normalfall','?True','?False'],['14','obere Grenze','?True','?False'],['15','eins über der oberen Grenze','?False','?True']],opts:TT},
+ tab_chain:{head:['Eingabe','Art des Testwerts','Konsole'],
+   rows:[['„zwei“','Text','?Ausleihe: Tage als Zahl angeben'],['(leer)','leere Eingabe','?Ausleihe: Tage als Zahl angeben'],['„15“','eins über dem Bereich','?Ausleihe: nur 1 bis 14 Tage möglich'],['„0“','eins unter dem Bereich','?Ausleihe: nur 1 bis 14 Tage möglich'],['„1“','untere Grenze, Stufe Kurz','?Kurzausleihe, Tage: 1'],['„3“','Grenze der Stufe Kurz','?Kurzausleihe, Tage: 3'],['„4“','Normalfall, Stufe Standard','?Standardausleihe, Tage: 4'],['„9“','Grenze der Stufe Standard','?Standardausleihe, Tage: 9'],['„14“','obere Grenze, Stufe Lang','?Langausleihe, Tage: 14']],
+   opts:['Ausleihe: Tage als Zahl angeben','Ausleihe: nur 1 bis 14 Tage möglich','Kurzausleihe, Tage: 1','Kurzausleihe, Tage: 3','Standardausleihe, Tage: 4','Standardausleihe, Tage: 9','Langausleihe, Tage: 14']},
+ tab_si:{head:['Testwert','Soll','Ist (Fassung mit ||)'],rows:[['0','abgelehnt','?angenommen'],['1','angenommen','?angenommen'],['4','angenommen','?angenommen'],['14','angenommen','?angenommen'],['15','abgelehnt','?angenommen']],opts:AA},
+ tab_ua:{head:['Aufruf','stunde · amNetzteil · inBenutzung','nachts','Ausgabe'],rows:[['1','0 · Wahr · Falsch','?Wahr','?Update startet'],['2','22 · Wahr · Wahr','?Wahr','?Update wartet'],['3','18 · Wahr · Falsch','?Falsch','?Update wartet']],copts:{2:['Wahr','Falsch'],3:['Update startet','Update wartet']}},
+ tab_uc:{head:['Eingabe','Soll'],rows:[['viel','?Meldung: Zahl'],['(leer)','?Meldung: Zahl'],['35%','?Meldung: Zahl'],['-1','?Meldung: Bereich'],['101','?Meldung: Bereich'],['0','?Ampel'],['100','?Ampel'],['35','?Ampel']],
+   opts:['Meldung: Zahl','Meldung: Bereich','Ampel'],note:'Meldung: Zahl = „Bitte eine ganze Zahl eingeben.“ · Meldung: Bereich = „Freier Speicher liegt zwischen 0 und 100 Prozent.“ · Ampel = „Freier Speicher: N %“ plus Ampelzeile.'},
+ tab_ud:{head:['Testwert','Soll'],rows:[['abc','?Das ist keine Zahl.'],['0','?Blattzahl nicht erlaubt.'],['1','?Auftrag: N Blätter'],['86','?Auftrag: N Blätter'],['87','?Blattzahl nicht erlaubt.']],opts:['Das ist keine Zahl.','Blattzahl nicht erlaubt.','Auftrag: N Blätter']},
+ tab_ue:{head:['Wert','Zeile nach der Eingabeaufforderung (Soll)'],rows:[['-1','?Oktett 4 liegt nicht zwischen 0 und 255.'],['255','?IP-Adresse: 192.168.10.255/26'],['x','?Oktett 4 ist keine ganze Zahl.']],opts:['Oktett 4 liegt nicht zwischen 0 und 255.','IP-Adresse: 192.168.10.255/26','Oktett 4 ist keine ganze Zahl.']}
+};
+function buildFill(host){
+  const id=host.dataset.fill,T=FILL[id];if(!T)return;
+  let h='<div class="tbwrap"><table class="tb"><tr>'+T.head.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr>';
+  T.rows.forEach((r,ri)=>{h+='<tr>';r.forEach((c,ci)=>{
+    if(typeof c==='string'&&c[0]==='?'){const ans=c.slice(1),opts=(T.copts&&T.copts[ci])||T.opts;
+      h+='<td><select data-save="f:'+id+':'+ri+':'+ci+'" data-ans="'+esc(ans)+'"><option value="">–</option>'+opts.map(o=>'<option>'+esc(o)+'</option>').join('')+'</select></td>'}
+    else h+='<td class="'+(T.mono?'m ':'')+(c==='true'?'t':c==='false'?'f':'')+'">'+esc(c)+'</td>'});h+='</tr>'});
+  h+='</table></div><div class="fillbar"><button class="btn sm pri" data-act="chk">Prüfen</button><button class="btn sm" data-act="sol">Lösung zeigen</button><button class="btn sm" data-act="clr">Leeren</button><span class="res"></span></div>'+(T.note?'<p class="exp" style="font-size:13px;color:var(--mut);margin-top:-6px">'+esc(T.note)+'</p>':'');
+  host.innerHTML=h;
+  const res=$('.res',host);
+  host.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;const sels=$$('select',host);
+    if(b.dataset.act==='chk'){let ok=0,miss=0;sels.forEach(s=>{s.classList.remove('ok','bad');if(!s.value){miss++;return}if(s.value===s.dataset.ans){ok++;s.classList.add('ok')}else s.classList.add('bad')});
+      res.className='res '+(ok===sels.length?'good':'warn');res.textContent=ok+' von '+sels.length+' richtig'+(miss?' · '+miss+' noch leer':'')+(ok===sels.length?' ✓':'')}
+    else if(b.dataset.act==='sol'){sels.forEach(s=>{s.value=s.dataset.ans;s.classList.remove('bad');s.classList.add('ok');S.set(s.dataset.save,s.value)});res.className='res';res.textContent='Lösung eingetragen.'}
+    else{sels.forEach(s=>{s.value='';s.classList.remove('ok','bad');S.del(s.dataset.save)});res.className='res';res.textContent=''}});
+  host.addEventListener('change',e=>{if(e.target.tagName==='SELECT'){e.target.classList.remove('ok','bad')}});
+}
+
+/* ---------- quiz ---------- */
+const CODE={
+ c1:'bool trocken = true;\nbool pumpeBereit = false;\nif (trocken && pumpeBereit)\n{\n    Console.WriteLine("Bewässerung: ein");\n}',
+ c2:'bool tuerOffen = true;\nbool fensterOffen = true;\nConsole.WriteLine(tuerOffen || fensterOffen);',
+ c3:'bool trocken = true;\nbool regen = true;\nif (trocken && !regen)\n{\n    Console.WriteLine("Bewässerung: ein");\n}\nelse\n{\n    Console.WriteLine("Bewässerung: aus");\n}',
+ c4:'int alarme = 0;\nbool tuerOffen = true;\nbool fensterOffen = false;\nif (tuerOffen || fensterOffen)\n{\n    alarme = alarme + 1;\n    tuerOffen = false;\n}\nif (tuerOffen || fensterOffen)\n{\n    alarme = alarme + 1;\n}\nConsole.WriteLine("alarme: " + alarme);',
+ c10:'Console.WriteLine("Ausleihdauer in Tagen:");\nstring eingabe = Console.ReadLine();\nint.TryParse(eingabe, out int tage);\nif (tage < 1 || tage > 14)\n{\n    Console.WriteLine("Ausleihe: nur 1 bis 14 Tage möglich");\n}\nelse\n{\n    Console.WriteLine("Ausleihe, Tage: " + tage);\n}',
+ c12:'Console.WriteLine("Gewicht in kg:");\nstring eingabe = Console.ReadLine();\nif (double.TryParse(eingabe, out double kilo))\n{\n    Console.WriteLine("kilo: " + kilo);\n}\nelse\n{\n    Console.WriteLine("kein Gewicht");\n}'
+};
+const STITLE={1:'Zwei Bedingungen, eine Entscheidung: vom if im if zu &&',2:'Die Wahrheitstabelle selbst füllen: && und ||',3:'NICHT: ! dreht um, != vergleicht',4:'Pseudocode im Schreibtischtest: wenn (… && …) dann',5:'Zwischen zwei Grenzen: die Ausleihdauer 1 bis 14',6:'Außerhalb und Grenzfälle: || oder !( … ), die Testtabelle',7:'Wenn der Text keine Zahl ist: int.Parse und int.TryParse',8:'Die Prüfkette vor der Kette: Zahl, Bereich, Entscheidung',9:'Fehler ohne Meldung: Soll und Ist',10:'Sicherheitscheck: eine fremde Eingabeprüfung testen',12:'Kür: Komma, Kurzschluss und Klammern'};
+const F='Fundament',T_='Transfer';
+const Q=(sec,kind,p,opts,ok,fz,code)=>({sec,kind,p,opts,ok,fz,code});
+const QUIZ=[
+ Q(1,'','Welche Zeile zeigt die Konsole, wenn `trocken` true und `pumpeBereit` false ist?',[['Die Konsole zeigt keine Zeile.','Es gibt kein `else`, und die Bedingung ergibt false: Der Zweig läuft nicht.'],['Die Konsole zeigt „Bewässerung: ein“.','Dafür müssten beide Teile true sein; ein true-Teil genügt bei && nicht.'],['Die Konsole zeigt „Bewässerung: aus“.','Diese Zeile steht nirgends im Programm.']],0,'Bei && müssen beide true sein.',CODE.c1),
+ Q(1,F,'Eine Bedingung lautet `anmeldung && bezahlt`. Wann ergibt sie true?',[['Dann, wenn anmeldung und bezahlt zugleich true sind.','UND verlangt beide Teile.'],['Dann, wenn schon anmeldung true ist.','Der zweite Wert zählt auch.'],['Dann, wenn anmeldung und bezahlt beide false sind.','Dann ergibt && false.']],0,'UND braucht beide true.'),
+ Q(2,'','Was zeigt die Konsole, wenn `tuerOffen` und `fensterOffen` beide true sind?',[['True','Mindestens ein Teil ist true; bei || zählt auch, wenn beide true sind: `true || true = True`.'],['False','Das wäre „entweder … oder“. Bei || ergeben zwei true-Werte true.'],['Die Konsole zeigt beide Wörter.','Eine Verknüpfung ergibt genau einen Wert, true oder false.']],0,'Bei || genügt ein true, auch beide.',CODE.c2),
+ Q(2,F,'Das Licht im Flur geht an, wenn `bewegung || tasteGedrueckt` true ergibt. Wann bleibt es aus?',[['Nur wenn beide Werte false sind.','Ein true-Teil genügt bei ||.'],['Wenn beide Werte true sind.','Auch dann ergibt || true: Das Licht geht an.'],['Wenn mindestens ein Wert false ist.','Das wäre die Regel für &&.']],0,'Bei || braucht es mindestens ein true.'),
+ Q(3,'','Welche Zeile zeigt die Konsole, wenn `trocken` true und `regen` true ist?',[['Bewässerung: ein und Bewässerung: aus','Mit `else` läuft genau ein Zweig.'],['Bewässerung: ein','Das gälte, wenn regen false wäre; hier dreht ! den Wert um.'],['Bewässerung: aus','`!true = False`: Die Bedingung ergibt false, also läuft der else-Zweig.']],2,'! dreht um.',CODE.c3),
+ Q(3,F,'Die Variable `leer` hat den Wert false. Was ergibt `!leer`?',[['true','`!false = True`: Das Ausrufezeichen dreht um.'],['ungleich','! ergibt true oder false, nicht ein Wort.'],['false','Das wäre der Wert von leer selbst; ! ändert ihn.']],0,'! dreht um.'),
+ Q(4,'','Welche Zeile zeigt die Konsole am Ende?',[['alarme: 1','Erste Prüfung: `true || false = True`, danach ist die Tür zu. Zweite Prüfung: `false || false = False`.'],['alarme: 0','Das wäre die Antwort für &&; bei || genügt die offene Tür.'],['alarme: 2','Die zweite Prüfung sieht die geschlossene Tür: Beide Werte sind dann false.']],0,'Werte vor jeder Prüfung aufschreiben.',CODE.c4),
+ Q(4,F,'Im Pseudocode steht `wenn (lichtAn && !leer) dann`. `lichtAn` ist true, `leer` ist true. Läuft der Zweig?',[['Ja','lichtAn ist true, aber `!leer` ist false; bei && reicht ein true nicht.'],['Nein','`!true = False`, und && braucht beide Teile true.'],['Ja, weil leer true ist.','Das ! dreht leer um: `!leer` ist false.']],1,'Erst ! anwenden, dann &&.'),
+ Q(4,T_,'Ein Pseudocode prüft zweimal `wenn (offen || laut) dann`. `offen` ist true, `laut` ist false. Der erste Zweig setzt offen auf false und laut auf true. Wie oft läuft ein Zweig?',[['Zweimal','Erste Prüfung: `true || false = True`. Zweite Prüfung mit den neuen Werten: `false || true = True`.'],['Keinmal','Die erste Prüfung trifft zu, denn offen ist true.'],['Einmal','Die zweite Prüfung sieht auch das neue laut: Es ist jetzt true.']],0,'Vor jeder Prüfung die aktuellen Werte ablesen.'),
+ Q(5,'','Welche Bedingung beschreibt den Bereich der Fächer 1 bis 38 einschließlich der Enden?',[['1 <= fach <= 38','Diese Schreibweise baut in C# nicht.'],['fach >= 1 || fach <= 38','Schon die 0 ergibt true: `0 >= 1 || 0 <= 38 = True`. Mit || zählt eine Seite.'],['fach >= 1 && fach <= 38','Jede Grenze hat einen eigenen Vergleich, beide sind mit && verbunden.']],2,'Zwei Grenzen, zwei Vergleiche, &&.'),
+ Q(5,F,'Die Etagen eines Hauses haben die Nummern 1 bis 9, beide Enden gehören dazu. Welche Bedingung prüft das?',[['etage >= 1 && etage <= 9','Beide Grenzen gehören dazu: `9 >= 1 && 9 <= 9 = True`.'],['etage >= 1 || etage <= 9','Das ergibt für jede ganze Zahl true.'],['etage > 1 && etage < 9','Damit würden 1 und 9 abgewiesen: `1 > 1 && 1 < 9 = False`.']],0,'Grenzen einschließlich: >= und <=.'),
+ Q(6,'','Welche Testwerte prüfen beide Grenzen der Fächer 1 bis 38 und einen Normalfall?',[['0, 39 und der Normalfall 26','Ohne 1 und 38 bleibt unbemerkt, wenn eine Grenze zu streng ist.'],['1, 2, 37, 38 und der Normalfall 26','Ohne 0 und 39 bleibt unbemerkt, wenn eine Grenze zu großzügig ist.'],['0, 1, 38, 39 und der Normalfall 26','An jeder Grenze der Wert selbst und eins daneben, dazu ein Normalfall.']],2,'Grenzwert und eins daneben, beide Grenzen.'),
+ Q(6,F,'Die Etagen 1 bis 9 sind erlaubt. Welche Bedingung prüft „außerhalb“?',[['etage < 1 || etage > 9','Eine Seite genügt: `0 < 1 || 0 > 9 = True`.'],['etage < 1 && etage > 9','Bei diesen Grenzen nie true: `0 < 1 && 0 > 9 = False`.'],['etage >= 1 || etage <= 9','Für jede ganze Zahl true: `2 >= 1 || 2 <= 9 = True`.']],0,'Außerhalb: eine Seite genügt, also ||.'),
+ Q(6,T_,'Ein Kollege soll die Etagen 1 bis 9 prüfen. Er testet seine Bedingung nur mit den Werten 1 und 9. Welcher Fehler in seiner Bedingung bliebe dabei unentdeckt?',[['Beide Fehler bleiben unentdeckt.','Der Test mit 1 zeigt eine zu strenge untere Grenze.'],['Eine zu strenge Grenze, etwa `etage > 1` statt `etage >= 1`.','`1 > 1 && 1 <= 9 = False`: Der Test mit 1 zeigt den Fehler.'],['Eine zu großzügige Grenze, etwa `etage >= 0` statt `etage >= 1`.','`0 >= 0 && 0 <= 9 = True`: 0 würde angenommen, aber 0 wurde nicht getestet.']],2,'Der Nachbar außerhalb deckt zu großzügige Grenzen auf.'),
+ Q(7,'','Das Programm oben liest mit `int.TryParse(eingabe, out int tage)` die Eingabe „3 Tage“ (Zahl, Leerzeichen, Wort). Was steht danach in `tage`?',[['0','Der ganze Text muss eine ganze Zahl sein; sonst antwortet TryParse false und schreibt 0.'],['3','TryParse liest nicht nur den Anfang; das Wort dahinter macht den Text ungültig.'],['nichts, tage bleibt leer','Die Variable hat nach TryParse immer einen Wert: bei false 0.']],0,'Bei false steht 0 in der Variablen.'),
+ Q(7,F,'Ein Programm liest `stueck` mit `int.TryParse(eingabe, out int stueck)`. Die Eingabe ist „keine“. Was steht danach in `stueck`?',[['keine','In einer int-Variablen steht nie Text.'],['Die Variable ist leer.','Nach TryParse hat die Variable immer einen Wert, bei false die 0.'],['0','TryParse antwortet false und schreibt 0 in die Variable, hier in stueck.']],2,'Bei false steht 0 in der Variablen.'),
+ Q(8,'','Welche Reihenfolge der Prüfungen ist für die Seitenzahl richtig? (Handbuch mit den Seiten 1 bis 71)',[['Seiten 1 bis 71 prüfen, Zahl prüfen, dann die drei Kapitel.','Der Bereich braucht eine Zahl; die gibt es erst nach der Zahlprüfung.'],['Zahl prüfen, Seiten 1 bis 71 prüfen, dann die drei Kapitel.','Jede Prüfung braucht das Ergebnis der vorigen.'],['Die drei Kapitel prüfen, danach Zahl und Bereich.','Die Kapitel brauchen eine geprüfte Zahl im Bereich; sonst bekäme etwa Seite 0 ein Kapitel.']],1,'Zahl, Bereich, Entscheidung.'),
+ Q(8,F,'Warum steht in einer Prüfkette die Prüfung mit `int.TryParse` vor der Bereichsprüfung?',[['Der Bereich braucht die Zahl, die TryParse liefert.','Ohne Zahl gibt es nichts zu vergleichen.'],['Die Reihenfolge der Prüfungen ist beliebig, solange alle da sind.','Die Reihenfolge zählt: Jede Prüfung baut auf der vorigen auf.'],['TryParse erledigt die Bereichsprüfung gleich mit.','TryParse sagt nur, ob der Text eine ganze Zahl ist.']],0,'Zahl vor Bereich.'),
+ Q(9,'','Eine Prüfung lautet `fach >= 1 && fach < 38`. Der Build meldet keinen Fehler. Welcher Testwert zeigt, dass sie falsch ist?',[['38','Soll: angenommen. Ist: `38 >= 1 && 38 < 38 = False`, also abgelehnt.'],['39','Hier stimmt Soll und Ist: `39 >= 1 && 39 < 38 = False`, abgelehnt.'],['1','Hier stimmt Soll und Ist: `1 >= 1 && 1 < 38 = True`.']],0,'Die obere Grenze selbst testen.'),
+ Q(9,F,'Eine Prüfung der Etagen 1 bis 9 lautet `etage >= 1 || etage <= 9`. Der Build meldet nichts. Welcher Testwert zeigt den Fehler?',[['9','Hier stimmt Soll und Ist: `9 >= 1 || 9 <= 9 = True`, angenommen.'],['4','Hier stimmt Soll und Ist: `4 >= 1 || 4 <= 9 = True`, angenommen.'],['0','Soll: abgelehnt. Ist: `0 >= 1 || 0 <= 9 = True`, also angenommen.']],2,'Ein Wert außerhalb zeigt || statt &&.'),
+ Q(9,T_,'Eine Prüfung der Etagen 1 bis 9 hat `etage > 1` statt `etage >= 1`. Ein Teilnehmer berichtigt das und testet nur den Wert 1. Was fehlt noch?',[['Neu bauen, neu starten und alle Testwerte erneut testen.','Eine Berichtigung kann einen zweiten Fehler zeigen.'],['Nichts: Der Test mit 1 zeigt, dass die ganze Bedingung stimmt.','Ein bestandener Test zeigt nur diesen Wert.'],['Nur den Build wiederholen.','Der Build zeigt keine falsche Grenze.']],0,'Nach jeder Berichtigung alles neu testen.'),
+ Q(10,'','Welche Zeile zeigt die Konsole für die Eingabe `zwei`? (Prüfung aus dem Forum)',[['Ausleihe: Tage als Zahl angeben','Diese Meldung gibt es in diesem Programm nicht.'],['Eine FormatException beendet das Programm.','TryParse löst keine Ausnahme aus.'],['Ausleihe: nur 1 bis 14 Tage möglich','TryParse ergibt false und schreibt 0 in tage; die Bereichsprüfung weist die 0 ab.']],2,'Die Bereichsprüfung sieht nur die 0.',CODE.c10),
+ Q(10,F,'Ein Programm liest die Gruppengröße. Die Zeile `int.TryParse(eingabe, out int gaeste);` steht allein. Danach meldet `if (gaeste < 0 || gaeste > 26)` einen Wert außerhalb von 0 bis 26. Sonst trägt das Programm die Gäste ein. Die Eingabe ist „mehrere“. Was passiert?',[['Das Programm zeigt die Meldung für den Bereich.','0 gehört zu 0 bis 26, also erscheint keine Bereichsmeldung.'],['Das Programm trägt 0 Gäste ein, ohne Meldung.','TryParse schreibt bei false die 0, und 0 liegt im Bereich 0 bis 26.'],['Das Programm bricht mit einer FormatException ab.','TryParse löst keine Ausnahme aus.']],1,'Die 0 gehört zum Bereich.'),
+ Q(12,'','Was zeigt die Konsole für die Eingabe `8.5` bei deutscher Ländereinstellung?',[['kilo: 85','Der Punkt gilt als Gruppenzeichen und wird überlesen (gemessen).'],['kein Gewicht','TryParse liest 8.5 als Zahl; es antwortet true.'],['kilo: 8,5','Das zeigt die Eingabe mit Komma, nicht die mit Punkt.']],0,'Die Ländereinstellung entscheidet.',CODE.c12),
+ Q(12,F,'Die linke Seite von `&&` ergibt false. Was gilt für die rechte Seite?',[['Sie wird trotzdem ausgewertet.','C# spart sich die Auswertung.'],['Sie wird vor der linken Seite ausgewertet.','Die linke Seite kommt zuerst.'],['Sie wird nicht ausgewertet.','Das Ergebnis steht schon fest: false.']],2,'Links false: rechts wird übersprungen.'),
+ Q(12,T_,'Wie liest C# `x || y && z` ohne Klammern?',[['Das hängt davon ab, welcher Compiler läuft.','Die Rangfolge ist festgelegt.'],['Als `x || (y && z)`, denn UND bindet stärker.','Mit Klammern schreibst du die Lesart hin.'],['Als `(x || y) && z`, also zuerst das ODER.','So liest C# nicht; UND geht vor.']],1,'Klammern machen die Lesart sichtbar.')
+];
+(function(){const cnt={};QUIZ.forEach((q,i)=>{q.id='q'+(i+1);cnt[q.sec]=(cnt[q.sec]||0)+1;q.label='Abschnitt '+q.sec+' · Frage '+cnt[q.sec];q.n=i+1})})();
+const PRED={
+ pr4:{id:'pr4',sec:4,kind:'Vorhersage',label:'Vorhersage',p:'Was zeigt die Konsole am Ende des Schreibtischtests?',opts:[['ausgeliehen: 0','Die erste Prüfung trifft zu, der Zähler steigt.'],['ausgeliehen: 1','Erste Prüfung: True, `verfuegbar` wird false. Zweite Prüfung sieht den neuen Wert: False. Der Laptop wird nur einmal ausgeliehen.'],['ausgeliehen: 2','Die zweite Prüfung sieht schon `verfuegbar = false`: Die Bedingung ergibt False.']],ok:1,fz:'Der Wert jeder Variablen zählt vor der jeweiligen Prüfung.'},
+ pr7:{id:'pr7',sec:7,kind:'Vorhersage',label:'Vorhersage',p:'Was antwortet `int.TryParse` für die Eingabe `zwei`, und welcher Zweig läuft?',opts:[['true – der if-Zweig läuft.','„zwei“ ist keine ganze Zahl; die Antwort ist false.'],['false – der else-Zweig läuft, `tage` ist 0.','TryParse antwortet false und schreibt bei false die 0 in `tage`.'],['Das Programm bricht mit einer FormatException ab.','Das passiert bei `int.Parse`, nicht bei `TryParse`.']],ok:1,fz:'Bei false steht 0 in der Variablen.'}
+};
+function renderQ(q,host){
+  const key='q:'+q.id;
+  const el=document.createElement('div');el.className='q';el.dataset.qid=q.id;
+  el.innerHTML='<div class="qh"><span class="qn">'+esc(q.label)+'</span>'+(q.kind?'<span class="qk">'+q.kind+'</span>':'')+'</div><p class="qp">'+fmt(q.p)+'</p><div class="opts">'+
+    q.opts.map((o,i)=>'<label class="opt" data-i="'+i+'"><input type="radio" name="'+key+'" value="'+i+'"><span class="ol">'+'abc'[i]+')</span><span>'+fmt(o[0])+'</span></label>').join('')+
+    '</div><div class="qa"><button class="btn sm pri" data-a="chk">Prüfen</button><button class="btn sm" data-a="sol">Lösung zeigen</button><button class="btn sm" data-a="rst">Zurücksetzen</button>'+(q.n?'<a href="#'+q.sec+'" style="margin-left:auto;font-size:13px">Nachlesen: Abschnitt '+q.sec+' →</a>':'')+'</div><div class="fb"></div>';
+  if(q.code)$('.opts',el).before(codeFig(q.code,'cs',''));
+  host.appendChild(el);
+  const fb=$('.fb',el);
+  function st(){return S.get(key)||{}}
+  function paint(){const s=st();
+    $$('.opt',el).forEach((o,i)=>{o.classList.remove('right','wrong');$('input',o).checked=(s.sel===i)});
+    el.classList.remove('ok');fb.className='fb';fb.innerHTML='';
+    if(s.sol){$$('.opt',el)[q.ok].classList.add('right');fb.className='fb show info';
+      fb.innerHTML='<b>Lösung:</b> '+'abc'[q.ok]+') '+fmt(q.opts[q.ok][0])+'<ul>'+q.opts.map((o,i)=>'<li><b>'+'abc'[i]+')</b> '+(i===q.ok?'richtig – ':'falsch – ')+fmt(o[1])+'</li>').join('')+'</ul><p style="margin:.5em 0 0"><i>Fazit: '+fmt(q.fz)+'</i></p>'}
+    else if(s.chk&&s.sel!=null){const o=$$('.opt',el)[s.sel];
+      if(s.sel===q.ok){o.classList.add('right');el.classList.add('ok');fb.className='fb show good';fb.innerHTML='<b>✓ Richtig.</b> '+fmt(q.opts[q.ok][1])+'<br><i>Fazit: '+fmt(q.fz)+'</i>'}
+      else{o.classList.add('wrong');fb.className='fb show nope';fb.innerHTML='<b>✗ Nicht ganz.</b> '+fmt(q.opts[s.sel][1])+'<br><span style="color:var(--mut)">Versuch es noch einmal oder öffne „Lösung zeigen“.</span>'}}
+    else if(s.chk){fb.className='fb show info';fb.textContent='Wähle zuerst eine Antwort.'}
+  }
+  el.addEventListener('change',e=>{if(e.target.type==='radio'){S.set(key,{sel:Number(e.target.value),chk:false,sol:false});paint();updateProgress()}});
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const s=Object.assign({},st());
+    if(b.dataset.a==='chk'){s.chk=true;s.sol=false;S.set(key,s)}
+    else if(b.dataset.a==='sol'){s.sol=true;S.set(key,s)}
+    else S.del(key);
+    paint();updateProgress()});
+  el._paint=paint;paint();
+}
+function buildQuiz(){
+  const host=$('#quizhost');host.innerHTML='';let cur=null;
+  QUIZ.forEach(q=>{if(q.sec!==cur){cur=q.sec;const h=document.createElement('h2');h.innerHTML='Zu „'+cur+'. '+esc(STITLE[cur])+'“';host.appendChild(h)}renderQ(q,host)});
+}
+function buildPreds(){$$('[data-q]').forEach(h=>{h.innerHTML='';renderQ(PRED[h.dataset.q],h)})}
+
+/* ---------- scores ---------- */
+function buildScores(){
+  $$('.score').forEach(sc=>{const task=sc.closest('.page').dataset.task;const arr=JSON.parse(sc.dataset.score);
+    sc.innerHTML=arr.map((a,i)=>'<label><input type="checkbox" class="pts" data-p="'+a[1]+'" data-save="s:'+task+':'+i+'"><span>'+esc(a[0])+'</span><span class="p">'+a[1]+' P</span></label>').join('');
+    const tot=document.createElement('div');tot.className='scoretot';sc.after(tot)});
+}
+
+/* ---------- labs ---------- */
+const LAB={};
+function lab(el,title,html){el.innerHTML='<div class="lt">'+title+'</div>'+html}
+const chipsHtml=list=>'<div class="chips" data-chips>'+list.map(([l,v])=>'<button type="button" class="chipb" data-v="'+esc(v)+'">'+esc(l)+'</button>').join('')+'</div>';
+function wireChips(el,input,cb){el.addEventListener('click',e=>{const b=e.target.closest('.chipb');if(!b||!el.contains(b)||b.dataset.v===undefined)return;if(input){input.value=b.dataset.v;cb()}})}
+const q$=(el,k)=>$('[data-r="'+k+'"]',el);
+
+LAB.bool=el=>{
+  const id=uid();
+  lab(el,'Bool-Labor · &amp;&amp;, || und !',
+  '<div class="row"><label class="tog"><input type="checkbox" data-r="a" checked><span class="sw"></span><span>verfuegbar</span></label><label class="tog"><input type="checkbox" data-r="b"><span class="sw"></span><span>defekt</span></label><label class="tog"><input type="checkbox" data-r="na"><span class="sw"></span><span>! vor verfuegbar</span></label><label class="tog"><input type="checkbox" data-r="nb" checked><span class="sw"></span><span>! vor defekt</span></label>'+
+  '<span class="seg"><label><input type="radio" name="'+id+'" value="&amp;&amp;" checked>&amp;&amp;</label><label><input type="radio" name="'+id+'" value="||">||</label></span></div>'+
+  '<p style="margin:14px 0 6px">Bedingung: <code data-r="expr"></code></p><div class="row"><span class="res-big" data-r="res"></span><span class="exp" data-r="steps" style="margin:0"></span></div>'+
+  '<div class="tbwrap"><table class="tb" data-r="tt" style="max-width:480px"></table></div><p class="exp">Schalte Werte um und lies die Tabelle: Die markierte Zeile zeigt deine aktuelle Einstellung. Probiere <code>&amp;&amp;</code> und <code>||</code> mit und ohne <code>!</code>.</p>');
+  const upd=()=>{const a=q$(el,'a').checked,b=q$(el,'b').checked,na=q$(el,'na').checked,nb=q$(el,'nb').checked,op=$('input[type=radio]:checked',el).value;
+    const f=(x,y)=>{const l=na?!x:x,r=nb?!y:y;return op==='&&'?(l&&r):(l||r)};
+    const l=na?!a:a,r=nb?!b:b,res=f(a,b);
+    q$(el,'expr').textContent=(na?'!':'')+'verfuegbar '+op+' '+(nb?'!':'')+'defekt';
+    const rs=q$(el,'res');rs.textContent=TF(res);rs.className='res-big '+(res?'T':'F');
+    q$(el,'steps').textContent=(na?'!'+tf(a)+' = '+tf(l):tf(a))+'  '+op+'  '+(nb?'!'+tf(b)+' = '+tf(r):tf(b))+'  →  '+tf(l)+' '+op+' '+tf(r)+' = '+TF(res);
+    let t='<tr><th>verfuegbar</th><th>defekt</th><th>Ergebnis</th></tr>';
+    [true,false].forEach(x=>[true,false].forEach(y=>{const cur=x===a&&y===b;t+='<tr'+(cur?' style="background:var(--accbg)"':'')+'><td class="m '+(x?'t':'f')+'">'+tf(x)+'</td><td class="m '+(y?'t':'f')+'">'+tf(y)+'</td><td class="m '+(f(x,y)?'t':'f')+'">'+TF(f(x,y))+(cur?'  ◀':'')+'</td></tr>'}));
+    q$(el,'tt').innerHTML=t};
+  el.addEventListener('change',upd);upd();
+};
+
+const PROGS=[
+ {name:'Schreibtischtest 1: ausgeliehen (Pseudocode)',lang:'pseudo',code:'ausgeliehen = 0\nverfuegbar = true\ndefekt = false\nwenn (verfuegbar && !defekt) dann\n    ausgeliehen = ausgeliehen + 1\n    verfuegbar = false\nende wenn\nwenn (verfuegbar && !defekt) dann\n    ausgeliehen = ausgeliehen + 1\nende wenn\nAUSGABE("ausgeliehen: " + ausgeliehen)',
+  vars:['ausgeliehen','verfuegbar','defekt'],
+  steps:[{l:0,v:['–','–','–'],n:'Start: noch hat keine Variable einen Wert. Klicke auf „Weiter“.'},
+   {l:1,v:[0,'–','–'],n:'ausgeliehen bekommt den Wert 0.'},{l:2,v:[0,'true','–'],n:'verfuegbar wird true.'},{l:3,v:[0,'true','false'],n:'defekt wird false.'},
+   {l:4,v:[0,'true','false'],n:'Prüfung 1: verfuegbar && !defekt = true && !false = true && true = True → der Zweig läuft.'},
+   {l:5,v:[1,'true','false'],n:'ausgeliehen = 0 + 1 = 1.'},{l:6,v:[1,'false','false'],n:'verfuegbar wird false – das sieht die nächste Prüfung!'},{l:7,v:[1,'false','false'],n:'Ende des Zweigs.'},
+   {l:8,v:[1,'false','false'],n:'Prüfung 2: verfuegbar && !defekt = false && !false = false && true = False → der Zweig wird übersprungen.'},
+   {l:11,v:[1,'false','false'],n:'AUSGABE zeigt den Wert von ausgeliehen.',o:'ausgeliehen: 1'}]},
+ {name:'Schreibtischtest 2: alarme (C#)',lang:'cs',code:'int alarme = 0;\nbool tuerOffen = true;\nbool fensterOffen = false;\nif (tuerOffen || fensterOffen)\n{\n    alarme = alarme + 1;\n    tuerOffen = false;\n}\nif (tuerOffen || fensterOffen)\n{\n    alarme = alarme + 1;\n}\nConsole.WriteLine("alarme: " + alarme);',
+  vars:['alarme','tuerOffen','fensterOffen'],
+  steps:[{l:0,v:['–','–','–'],n:'Start: noch hat keine Variable einen Wert.'},{l:1,v:[0,'–','–'],n:'alarme bekommt den Wert 0.'},{l:2,v:[0,'true','–'],n:'tuerOffen wird true.'},{l:3,v:[0,'true','false'],n:'fensterOffen wird false.'},
+   {l:4,v:[0,'true','false'],n:'Prüfung 1: tuerOffen || fensterOffen = true || false = True → der Zweig läuft.'},{l:6,v:[1,'true','false'],n:'alarme = 0 + 1 = 1.'},{l:7,v:[1,'false','false'],n:'Die Tür wird geschlossen.'},
+   {l:9,v:[1,'false','false'],n:'Prüfung 2: tuerOffen || fensterOffen = false || false = False → der Zweig wird übersprungen.'},{l:13,v:[1,'false','false'],n:'Ausgabe von alarme.',o:'alarme: 1'}]}
+];
+LAB.stepper=el=>{
+  const id=uid();
+  lab(el,'Schreibtischtest-Stepper','<div class="row"><span class="seg">'+PROGS.map((p,i)=>'<label><input type="radio" name="'+id+'" value="'+i+'"'+(i?'':' checked')+'>'+esc(p.name)+'</label>').join('')+'</span></div><div data-r="code"></div><div class="vars" data-r="vars"></div><p class="exp" data-r="note" style="min-height:2.6em;color:var(--text)"></p><div data-r="con"></div><div class="row"><button class="btn" data-r="prev">◀ Zurück</button><button class="btn pri" data-r="next">Weiter ▶</button><button class="btn" data-r="rst">Neustart</button><span class="exp" data-r="cnt" style="margin:0"></span></div>');
+  let pi=0,si=0,fig;
+  const draw=()=>{const P=PROGS[pi],s=P.steps[si],prev=P.steps[Math.max(0,si-1)];
+    setHi(fig,s.l?[s.l]:[],'hi');
+    q$(el,'vars').innerHTML=P.vars.map((v,i)=>'<div class="var'+(s.v[i]!==prev.v[i]?' chg':'')+'"><small>'+v+'</small><b>'+s.v[i]+'</b></div>').join('');
+    q$(el,'note').textContent=s.n;q$(el,'cnt').textContent='Schritt '+si+' von '+(P.steps.length-1);
+    q$(el,'con').innerHTML='';if(s.o)q$(el,'con').appendChild(consoleBox('Konsole',esc(s.o)));
+    q$(el,'prev').disabled=si===0;q$(el,'next').disabled=si===P.steps.length-1};
+  const load=()=>{const P=PROGS[pi];fig=codeFig(P.code,P.lang,'');q$(el,'code').innerHTML='';q$(el,'code').appendChild(fig);si=0;draw()};
+  el.addEventListener('change',e=>{if(e.target.type==='radio'){pi=Number(e.target.value);load()}});
+  el.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!b.dataset.r)return;const n=PROGS[pi].steps.length;
+    if(b.dataset.r==='next')si=Math.min(n-1,si+1);else if(b.dataset.r==='prev')si=Math.max(0,si-1);else if(b.dataset.r==='rst')si=0;else return;draw()});
+  load();
+};
+
+LAB.range=el=>{
+  lab(el,'Bereichs-Labor · innen und außen',
+  '<div class="row"><label>untere Grenze <input class="inp mono" type="number" data-r="lo" value="1" style="width:80px"></label><label>obere Grenze <input class="inp mono" type="number" data-r="hi" value="14" style="width:80px"></label><label>Testwert <input class="inp mono" type="number" data-r="val" value="4" style="width:90px"></label></div>'+
+  '<div class="chips" data-r="chips" style="margin:10px 0 4px"></div><svg class="numline" viewBox="0 0 700 120" data-r="svg" role="img" aria-label="Zahlengerade"></svg>'+
+  '<div class="tbwrap"><table class="tb" data-r="out"></table></div><div class="tbwrap"><table class="tb" data-r="tests"></table></div>');
+  const lo=q$(el,'lo'),hi=q$(el,'hi'),val=q$(el,'val');
+  const upd=()=>{const L=parseInt(lo.value,10),H=parseInt(hi.value,10),V=parseInt(val.value,10);
+    if([L,H,V].some(isNaN)){q$(el,'out').innerHTML='<tr><td>Bitte ganze Zahlen eingeben.</td></tr>';return}
+    const inn=V>=L&&V<=H,out=V<L||V>H,not=!(V>=L&&V<=H);const c=b=>'<td class="m '+(b?'t':'f')+'">'+TF(b)+'</td>';
+    q$(el,'out').innerHTML='<tr><th>Ausdruck</th><th>mit tage = '+V+'</th><th>Ergebnis</th></tr>'+
+     '<tr><td class="m">tage &gt;= '+L+'</td><td class="m">'+V+' &gt;= '+L+'</td>'+c(V>=L)+'</tr><tr><td class="m">tage &lt;= '+H+'</td><td class="m">'+V+' &lt;= '+H+'</td>'+c(V<=H)+'</tr>'+
+     '<tr style="background:var(--accbg)"><td class="m">tage &gt;= '+L+' &amp;&amp; tage &lt;= '+H+'</td><td>innen</td>'+c(inn)+'</tr>'+
+     '<tr style="background:var(--accbg)"><td class="m">tage &lt; '+L+' || tage &gt; '+H+'</td><td>außen</td>'+c(out)+'</tr>'+
+     '<tr><td class="m">!(tage &gt;= '+L+' &amp;&amp; tage &lt;= '+H+')</td><td>außen (andere Schreibweise)</td>'+c(not)+'</tr>';
+    const vals=[L-1,L,Math.round((L+H)/2),H,H+1];
+    q$(el,'chips').innerHTML=vals.map((v,i)=>'<button type="button" class="chipb" data-v="'+v+'">'+v+['  (unter)','  (Grenze)','  (Normalfall)','  (Grenze)','  (über)'][i]+'</button>').join('');
+    q$(el,'tests').innerHTML='<tr><th>Testwert</th><th>Art</th><th>innen</th><th>außen</th></tr>'+vals.map((v,i)=>'<tr><td class="m">'+v+'</td><td>'+['eins unter der unteren Grenze','untere Grenze','Normalfall','obere Grenze','eins über der oberen Grenze'][i]+'</td>'+c(v>=L&&v<=H)+c(v<L||v>H)+'</tr>').join('');
+    // number line
+    const mn=Math.min(L-2,V-1),mx=Math.max(H+2,V+1),x=v=>40+(v-mn)/(mx-mn)*620;
+    let s='<line x1="30" y1="62" x2="670" y2="62" stroke="#3a4152" stroke-width="2"/>';
+    if(L<=H){s+='<rect x="'+x(L)+'" y="52" width="'+Math.max(2,x(H)-x(L))+'" height="20" rx="4" fill="rgba(74,222,128,.28)" stroke="#4ade80"/>'}
+    s+='<rect x="30" y="52" width="'+Math.max(0,x(L)-30)+'" height="20" rx="4" fill="rgba(248,113,113,.18)" stroke="#f87171" stroke-dasharray="4 3"/><rect x="'+x(H)+'" y="52" width="'+Math.max(0,670-x(H))+'" height="20" rx="4" fill="rgba(248,113,113,.18)" stroke="#f87171" stroke-dasharray="4 3"/>';
+    const step=Math.max(1,Math.ceil((mx-mn)/16));
+    for(let t=Math.ceil(mn/step)*step;t<=mx;t+=step){s+='<line x1="'+x(t)+'" y1="72" x2="'+x(t)+'" y2="78" stroke="#59627a"/><text x="'+x(t)+'" y="92" text-anchor="middle" fill="#98a1b3" font-size="11" font-family="monospace">'+t+'</text>'}
+    s+='<text x="'+x(L)+'" y="42" text-anchor="middle" fill="#4ade80" font-size="12" font-family="monospace">'+L+' ≤</text><text x="'+x(H)+'" y="42" text-anchor="middle" fill="#4ade80" font-size="12" font-family="monospace">≤ '+H+'</text>';
+    s+='<path d="M'+x(V)+' 50 l-7 -16 h14 z" fill="'+(inn?'#4ade80':'#f87171')+'"/><text x="'+x(V)+'" y="20" text-anchor="middle" fill="'+(inn?'#4ade80':'#f87171')+'" font-size="13" font-weight="700" font-family="monospace">'+V+' → '+(inn?'innen':'außen')+'</text>';
+    q$(el,'svg').innerHTML=s};
+  [lo,hi,val].forEach(i=>i.addEventListener('input',upd));
+  wireChips(el,val,upd);upd();
+};
+
+LAB.tryparse=el=>{
+  const id=uid();
+  lab(el,'TryParse-Labor','<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="zwei" style="width:200px" spellcheck="false" autocomplete="off"></label><span class="seg"><label><input type="radio" name="'+id+'" value="parse">int.Parse</label><label><input type="radio" name="'+id+'" value="try" checked>int.TryParse</label></span></div>'+
+   chipsHtml([['4','4'],['␣4␣',' 4 '],['+4','+4'],['4,5','4,5'],['3 Tage','3 Tage'],['zwei','zwei'],['(leer)',''],['2147483648','2147483648']])+'<div data-r="con"></div><div data-r="ex" class="exp"></div>');
+  const inp=q$(el,'in');
+  const upd=()=>{const s=inp.value,m=$('input[type=radio]:checked',el).value,[ok,n]=tp(s);let lines=['Ausleihdauer in Tagen:'],ex='';
+    lines.push({t:s,c:'in'});
+    if(m==='parse'){if(ok){lines.push('Ausleihe, Tage: '+n);ex='<code>int.Parse</code> bekommt eine ganze Zahl: kein Problem.'}
+      else{const ov=/^\s*[+-]?\d+\s*$/.test(s);lines.push({t:ov?'Unhandled exception. System.OverflowException: Value was either too large or too small for an Int32.':"Unhandled exception. System.FormatException: The input string '"+s+"' was not in a correct format.",c:'er'});ex='<b>Absturz:</b> Das Programm bricht an der Zeile mit <code>int.Parse</code> ab. Ein <code>else</code> fängt das nicht.'}}
+    else{
+      lines.push({t:'int.TryParse("'+s+'", out int tage)  →  '+tf(ok),c:'mu'});lines.push({t:'tage = '+n,c:'mu'});
+      lines.push(ok?'Gelesen, tage ist '+n:'Nicht gelesen, tage ist '+n);
+      ex=ok?'Die Antwort ist <code>true</code>: Der ganze Text ist eine ganze Zahl, sie steht in <code>tage</code>.':'Die Antwort ist <code>false</code>: Der <code>else</code>-Zweig läuft, und in <code>tage</code> steht <b>0</b>. Kein Absturz.'}
+    q$(el,'con').innerHTML='';q$(el,'con').appendChild(consoleBox('Konsole',conLines(lines)));q$(el,'ex').innerHTML=ex};
+  inp.addEventListener('input',upd);el.addEventListener('change',e=>{if(e.target.type==='radio')upd()});wireChips(el,inp,upd);upd();
+};
+
+function ausleihe(s){const [ok,t]=tp(s);
+  if(!ok)return{out:'Ausleihe: Tage als Zahl angeben',lines:[1,2,3,5]};
+  if(t<1||t>14)return{out:'Ausleihe: nur 1 bis 14 Tage möglich',lines:[1,2,3,7,9]};
+  if(t<=3)return{out:'Kurzausleihe, Tage: '+t,lines:[1,2,3,7,11,13]};
+  if(t<=9)return{out:'Standardausleihe, Tage: '+t,lines:[1,2,3,7,11,15,17]};
+  return{out:'Langausleihe, Tage: '+t,lines:[1,2,3,7,11,15,19,21]}}
+LAB.chain=el=>{
+  lab(el,'Prüfkette-Labor · welche Zeilen laufen?','<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="4" style="width:180px" spellcheck="false" autocomplete="off"></label></div>'+chipsHtml([['zwei','zwei'],['(leer)',''],['15','15'],['0','0'],['1','1'],['3','3'],['4','4'],['9','9'],['14','14']])+'<div data-r="con"></div><p class="exp">Die Zeilen, die für diese Eingabe laufen, sind im Code oben markiert (die anderen sind abgedunkelt).</p>');
+  const inp=q$(el,'in'),fig=$('#code-chain');
+  const upd=()=>{const r=ausleihe(inp.value);if(fig)setHi(fig,r.lines,'dim');
+    q$(el,'con').innerHTML='';q$(el,'con').appendChild(consoleBox('Konsole',conLines(['Ausleihdauer in Tagen:',{t:inp.value,c:'in'},r.out])))};
+  inp.addEventListener('input',upd);wireChips(el,inp,upd);upd();
+};
+
+function fehlerLab(el,cfg){
+  const id=uid();let extra=[],vi=0,figHost;
+  lab(el,cfg.title,'<div class="row"><span class="seg">'+cfg.versions.map((v,i)=>'<label><input type="radio" name="'+id+'" value="'+i+'"'+(i?'':' checked')+'>'+esc(v.label)+'</label>').join('')+'</span></div><div data-r="code"></div><div class="row" style="margin:10px 0"><input class="inp mono" data-r="in" placeholder="eigener Testwert" style="width:180px" spellcheck="false" autocomplete="off"><button class="btn sm" data-r="add">+ testen</button><button class="btn sm" data-r="clr">eigene entfernen</button></div><div class="tbwrap"><table class="tb" data-r="tb"></table></div><p class="exp" data-r="sum" style="font-size:15px"></p>');
+  const draw=()=>{const v=cfg.versions[vi],tests=cfg.tests.concat(extra);
+    const fig=codeFig(v.snippet,'cs','Bedingungszeilen dieser Fassung (Fehler rot markiert)');setHi(fig,v.bad||[],'bad');q$(el,'code').innerHTML='';q$(el,'code').appendChild(fig);
+    let ok=0,t='<tr><th>Testwert</th><th>Soll</th><th>Ist</th><th>Urteil</th></tr>';
+    tests.forEach(s=>{const so=cfg.soll(s),is=v.f(s),g=so===is;if(g)ok++;t+='<tr><td class="m">'+(s===''?'(leer)':esc(s))+'</td><td>'+esc(so)+'</td><td>'+esc(is)+'</td><td class="'+(g?'t':'f')+'">'+(g?'stimmt':'falsch')+'</td></tr>'});
+    q$(el,'tb').innerHTML=t;const sm=q$(el,'sum');sm.innerHTML=(ok===tests.length?'<b class="t">Alle '+ok+' Testwerte stimmen mit dem Soll überein.</b>':'<b class="f">'+(tests.length-ok)+' von '+tests.length+' Testwerten weichen vom Soll ab.</b>')+' <span style="color:var(--mut)">Ein bestandener Test zeigt nur diesen Wert.</span>'};
+  el.addEventListener('change',e=>{if(e.target.type==='radio'){vi=Number(e.target.value);draw()}});
+  el.addEventListener('click',e=>{const b=e.target.closest('button[data-r]');if(!b)return;
+    if(b.dataset.r==='add'){const i=q$(el,'in');extra.push(i.value);i.value='';draw()}else if(b.dataset.r==='clr'){extra=[];draw()}});
+  q$(el,'in').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();q$(el,'add').click()}});
+  draw();
+}
+LAB.fehler1=el=>{
+  const base=cond=>s=>{const [ok,t]=tp(s);if(!ok)return'Ausleihe: Tage als Zahl angeben';return cond(t)?'Ausleihe, Tage: '+t:'Ausleihe: nur 1 bis 14 Tage möglich'};
+  const hdr='if (!int.TryParse(eingabe, out int tage))\n';
+  fehlerLab(el,{title:'Soll-Ist-Labor · Ausleihdauer 1 bis 14',tests:['0','1','4','14','15','zwei'],
+   soll:base(t=>t>=1&&t<=14),
+   versions:[{label:'Fassung 1: ||',snippet:hdr+'else if (tage >= 1 || tage <= 14)',bad:[2],f:base(t=>t>=1||t<=14)},
+             {label:'Fassung 2: > statt >=',snippet:hdr+'else if (tage > 1 && tage <= 14)',bad:[2],f:base(t=>t>1&&t<=14)},
+             {label:'Richtige Fassung',snippet:hdr+'else if (tage >= 1 && tage <= 14)',bad:[],f:base(t=>t>=1&&t<=14)}]});
+};
+LAB.fehler2=el=>{
+  const bl=(neg,up)=>s=>{const [ok,n]=tp(s);const txt=neg?!ok:ok;if(txt)return'Das ist keine Zahl.';if(n<1||n>up)return'Blattzahl nicht erlaubt.';return'Auftrag: '+n+' Blätter'};
+  fehlerLab(el,{title:'Soll-Ist-Labor · Blätterzahl 1 bis 86',tests:['abc','0','1','86','87'],soll:bl(true,86),
+   versions:[{label:'Fehlerfall (Original)',snippet:'if (int.TryParse(eingabe, out int blaetter))\nelse if (blaetter < 1 || blaetter > 68)',bad:[1,2],f:bl(false,68)},
+             {label:'Nur ! ergänzt',snippet:'if (!int.TryParse(eingabe, out int blaetter))\nelse if (blaetter < 1 || blaetter > 68)',bad:[2],f:bl(true,68)},
+             {label:'Beide berichtigt',snippet:'if (!int.TryParse(eingabe, out int blaetter))\nelse if (blaetter < 1 || blaetter > 86)',bad:[],f:bl(true,86)}]});
+};
+
+LAB.forum=el=>{
+  lab(el,'Forum-Prüfung testen','<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="zwei" style="width:180px" spellcheck="false" autocomplete="off"></label></div>'+chipsHtml([['zwei','zwei'],['(leer)',''],['0','0'],['15','15'],['4','4']])+'<div class="grid2" data-r="g" style="margin-top:6px"></div><p class="exp" data-r="ex"></p>');
+  const inp=q$(el,'in');
+  const upd=()=>{const s=inp.value,[ok,t]=tp(s);
+    const forum=(t<1||t>14)?'Ausleihe: nur 1 bis 14 Tage möglich':'Ausleihe, Tage: '+t;
+    const fixed=!ok?'Ausleihe: Tage als Zahl angeben':(t<1||t>14)?'Ausleihe: nur 1 bis 14 Tage möglich':'Ausleihe, Tage: '+t;
+    const kab=(t<0||t>9)?'Eintrag: nur 0 bis 9 Ladekabel möglich':'Eintrag: '+t+' Ladekabel';
+    const g=q$(el,'g');g.innerHTML='';
+    g.appendChild(consoleBox('Prüfung aus dem Forum (TryParse steht allein)',conLines(['Ausleihdauer in Tagen:',{t:s,c:'in'},forum,{t:'',c:'mu'},'Ladekabel (0 bis 9):',{t:s,c:'in'},kab])));
+    g.appendChild(consoleBox('Berichtigt (TryParse im if)',conLines(['Ausleihdauer in Tagen:',{t:s,c:'in'},fixed])));
+    q$(el,'ex').innerHTML=ok?'Gültige Zahl: beide Fassungen verhalten sich gleich.':'Der Text ist <b>keine Zahl</b>, aber das Forum-Programm sieht nur die 0 in der Variablen. '+(t>=0&&t<=9?'<span class="f"><b>Bei den Ladekabeln liegt 0 im erlaubten Bereich: ein stiller, falscher Eintrag – kein Abbruch, keine Meldung.</b></span>':'')};
+  inp.addEventListener('input',upd);wireChips(el,inp,upd);upd();
+};
+
+LAB.kuer=el=>{
+  lab(el,'Kür-Labor','<h3 style="margin-top:0">1 · double.TryParse (deutsche Ländereinstellung)</h3><div class="row"><label>Eingabe: <input class="inp mono" data-r="d" value="8.5" style="width:140px"></label></div>'+chipsHtml([['8.5','8.5'],['8,5','8,5'],['abc','abc']])+'<div class="exp" data-r="dout" style="color:var(--text)"></div>'+
+   '<h3>2 · Kurzschluss</h3><div class="row"><label>kisten: <input class="inp mono" type="number" data-r="k" value="0" style="width:90px"></label></div><div class="tbwrap"><table class="tb" data-r="kt"></table></div>'+
+   '<h3>3 · Klammern und Vorrang</h3><div class="row"><label class="tog"><input type="checkbox" data-r="x" checked><span class="sw"></span><span>x</span></label><label class="tog"><input type="checkbox" data-r="y" checked><span class="sw"></span><span>y</span></label><label class="tog"><input type="checkbox" data-r="z"><span class="sw"></span><span>z</span></label></div><div class="tbwrap"><table class="tb" data-r="vt" style="max-width:520px"></table></div>');
+  const d=q$(el,'d'),k=q$(el,'k');
+  const upd1=()=>{const s=d.value;let ok=false,n=0;if(/^\s*[+-]?[\d.]*(,\d*)?\s*$/.test(s)&&/\d/.test(s)){n=Number(s.replace(/\./g,'').replace(',','.'));ok=isFinite(n)}
+    q$(el,'dout').innerHTML='<code>'+(ok?'kilo: '+String(n).replace('.',','):'kein Gewicht')+'</code> &nbsp;'+(/^\s*\d+\.\d+\s*$/.test(s)?'<span class="exp">Der Punkt gilt als Gruppenzeichen und wird überlesen: aus 8.5 wird 85.</span>':'')};
+  const upd2=()=>{const K=parseInt(k.value,10);if(isNaN(K)){q$(el,'kt').innerHTML='';return}
+    const A=K!==0&&Math.trunc(52/K)>3;
+    const B=K===0?'<td class="f"><b>System.DivideByZeroException</b> (Abbruch)</td>':'<td class="m '+(Math.trunc(52/K)>3&&K!==0?'t':'f')+'">'+TF(Math.trunc(52/K)>3&&K!==0)+'</td>';
+    q$(el,'kt').innerHTML='<tr><th>Reihenfolge</th><th>Ergebnis bei kisten = '+K+'</th></tr><tr><td class="m">kisten != 0 &amp;&amp; 52 / kisten &gt; 3</td><td class="m '+(A?'t':'f')+'">'+TF(A)+'</td></tr><tr><td class="m">52 / kisten &gt; 3 &amp;&amp; kisten != 0</td>'+B+'</tr>'};
+  const upd3=()=>{const x=q$(el,'x').checked,y=q$(el,'y').checked,z=q$(el,'z').checked;const a=x||(y&&z),b=(x||y)&&z;
+    q$(el,'vt').innerHTML='<tr><th>Ausdruck</th><th>x='+tf(x)+', y='+tf(y)+', z='+tf(z)+'</th></tr><tr><td class="m">x || y &amp;&amp; z</td><td class="m '+(a?'t':'f')+'">'+TF(a)+'</td></tr><tr><td class="m">x || (y &amp;&amp; z)</td><td class="m '+(a?'t':'f')+'">'+TF(a)+'</td></tr><tr><td class="m">(x || y) &amp;&amp; z</td><td class="m '+(b?'t':'f')+'">'+TF(b)+'</td></tr>'};
+  d.addEventListener('input',upd1);k.addEventListener('input',upd2);el.addEventListener('change',upd3);wireChips(el,d,upd1);upd1();upd2();upd3();
+};
+
+LAB.update=el=>{
+  lab(el,'Update-Labor','<div class="row"><label>stunde: <input class="inp mono" type="number" min="0" max="23" data-r="h" value="22" style="width:80px"></label><label class="tog"><input type="checkbox" data-r="n" checked><span class="sw"></span><span>amNetzteil</span></label><label class="tog"><input type="checkbox" data-r="b" checked><span class="sw"></span><span>inBenutzung</span></label></div>'+chipsHtml([['Aufruf 1','1'],['Aufruf 2','2'],['Aufruf 3','3']])+'<div class="tbwrap"><table class="tb" data-r="t" style="max-width:560px"></table></div>');
+  const h=q$(el,'h'),n=q$(el,'n'),b=q$(el,'b');
+  const upd=()=>{const H=parseInt(h.value,10);if(isNaN(H))return;const a=H>=22,c=H<6,nachts=a||c,nz=n.checked,ib=b.checked,go=nachts&&nz&&!ib;const W=v=>v?'Wahr':'Falsch',cl=v=>'<td class="m '+(v?'t':'f')+'">'+W(v)+'</td>';
+    q$(el,'t').innerHTML='<tr><th>Teil</th><th>Wert</th></tr><tr><td class="m">stunde &gt;= 22 → '+H+' &gt;= 22</td>'+cl(a)+'</tr><tr><td class="m">stunde &lt; 6 → '+H+' &lt; 6</td>'+cl(c)+'</tr><tr><td class="m">nachts (ODER)</td>'+cl(nachts)+'</tr><tr><td class="m">amNetzteil</td>'+cl(nz)+'</tr><tr><td class="m">NICHT inBenutzung</td>'+cl(!ib)+'</tr><tr style="background:var(--accbg)"><td class="m">nachts UND amNetzteil UND NICHT inBenutzung</td>'+cl(go)+'</tr><tr><td>Ausgabe</td><td><b>'+(go?'Update startet':'Update wartet')+'</b></td></tr>'};
+  el.addEventListener('click',e=>{const c=e.target.closest('.chipb');if(!c)return;const v={1:[0,true,false],2:[22,true,true],3:[18,true,false]}[c.dataset.v];h.value=v[0];n.checked=v[1];b.checked=v[2];upd()});
+  h.addEventListener('input',upd);el.addEventListener('change',upd);upd();
+};
+
+LAB.ampel=el=>{
+  const mode=el.dataset.mode,id=uid();
+  const chips=mode==='b'?[['35','35'],['viel','viel']]:[['viel','viel'],['(leer)',''],['35%','35%'],['-1','-1'],['101','101'],['0','0'],['100','100'],['35','35']];
+  lab(el,'Speicherampel-Labor'+(mode==='b'?' · Aufgabe b':' · Aufgabe c'),
+   '<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="'+(mode==='b'?'viel':'101')+'" style="width:160px" spellcheck="false" autocomplete="off"></label>'+
+   (mode==='b'?'<span class="seg"><label><input type="radio" name="'+id+'" value="parse">int.Parse</label><label><input type="radio" name="'+id+'" value="try" checked>int.TryParse</label></span><label class="tog"><input type="checkbox" data-r="pre"><span class="sw"></span><span>Ausgabezeile vor der Prüfung</span></label>':'<span class="chip" style="margin:0">TryParse + Bereich 0 bis 100</span>')+
+   '<label style="font-size:13px;color:var(--mut)">rot bis ≤ <input class="inp mono" type="number" data-r="rot" value="10" style="width:64px"> %</label></div>'+chipsHtml(chips)+'<div data-r="con"></div><p class="exp" data-r="ex"></p><p class="exp" style="font-size:12.5px">Die Ampel-Schwellen kommen aus deinem T04-Stand; hier ist ein einfaches Beispiel mit zwei Stufen (anpassbar). Gemessen in den Kursmessungen: 0 → rot, 35 und 100 → grün.</p>');
+  const inp=q$(el,'in'),rot=q$(el,'rot');
+  const upd=()=>{const s=inp.value,[ok,n]=tp(s),R=parseInt(rot.value,10)||0;const m=mode==='b'?$('input[type=radio]:checked',el).value:'range';
+    const amp=v=>v<=R?'Ampel: rot, Sicherung gefährdet':'Ampel: grün, genug Platz';
+    let ex='',res=[];
+    if(m==='parse'){if(ok){res=['Freier Speicher: '+n+' %',amp(n)];ex='Mit <code>int.Parse</code> läuft jede ganze Zahl durch – auch 101 oder -1 (noch kein Bereich).'}else{res=[{t:"Unhandled exception. System.FormatException: The input string '"+s+"' was not in a correct format.",c:'er'}];ex='<b>Abbruch</b> in der Zeile mit <code>int.Parse</code>. Eine Ampel erscheint nicht.'}}
+    else if(m==='try'){const pre=q$(el,'pre').checked;if(ok){res=['Freier Speicher: '+n+' %',amp(n)];ex='Zahl erkannt: die Ampel läuft.'}else{res=(pre?['Freier Speicher: 0 %']:[]).concat(['Bitte eine ganze Zahl eingeben.']);ex=pre?'Die Zeile vor der Prüfung zeigt die <b>0</b>, die TryParse bei false schreibt – das ist irreführend. Lieber in den if-Zweig setzen.':'Text: der else-Zweig meldet es, kein Abbruch.'}}
+    else{if(!ok){res=['Bitte eine ganze Zahl eingeben.'];ex='Weg 1: <b>keine Zahl</b> → Meldung.'}else if(n<0||n>100){res=['Freier Speicher liegt zwischen 0 und 100 Prozent.'];ex='Weg 2: Zahl, aber <b>außerhalb</b> von 0 bis 100 → Bereichsmeldung.'}else{res=['Freier Speicher: '+n+' %',amp(n)];ex='Weg 3: Zahl <b>im Bereich</b> → Ausgabe und Ampel. Die 0 liegt im Bereich.'}}
+    const c=q$(el,'con');c.innerHTML='';c.appendChild(consoleBox('Konsole',esc('Freier Speicher in Prozent: ')+'<span class="in">'+esc(s)+'</span>\n'+conLines(res)));
+    q$(el,'ex').innerHTML=ex};
+  inp.addEventListener('input',upd);rot.addEventListener('input',upd);el.addEventListener('change',e=>{if(e.target.type==='radio'||e.target.type==='checkbox')upd()});wireChips(el,inp,upd);upd();
+};
+
+LAB.oktett=el=>{
+  lab(el,'Oktett-Labor','<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="x" style="width:160px" spellcheck="false" autocomplete="off"></label></div>'+chipsHtml([['-1','-1'],['255','255'],['x','x'],['0','0'],['256','256']])+'<div data-r="con"></div><p class="exp" data-r="ex"></p>');
+  const inp=q$(el,'in');
+  const upd=()=>{const s=inp.value,[ok,n]=tp(s);let r,ex;
+    if(!ok){r='Oktett 4 ist keine ganze Zahl.';ex='Weg 1: keine Zahl.'}else if(n<0||n>255){r='Oktett 4 liegt nicht zwischen 0 und 255.';ex='Weg 2: außerhalb.'}else{r='IP-Adresse: 192.168.10.'+n+'/26';ex='Weg 3: im Bereich – 0 und 255 gehören dazu. Die Prüfung kontrolliert nur Form und Bereich dieses einen Oktetts, nicht die ganze Adresse.'}
+    const c=q$(el,'con');c.innerHTML='';c.appendChild(consoleBox('Konsole',esc('Oktett 4: ')+'<span class="in">'+esc(s)+'</span>\n'+esc(r)));q$(el,'ex').innerHTML=ex};
+  inp.addEventListener('input',upd);wireChips(el,inp,upd);upd();
+};
+
+LAB.jn=el=>{
+  lab(el,'Ja/Nein-Labor','<div class="row"><label>Eingabe: <input class="inp mono" data-r="in" value="Ja" style="width:140px" spellcheck="false" autocomplete="off"></label><label class="tog"><input type="checkbox" data-r="ic"><span class="sw"></span><span>Groß-/Kleinschreibung ignorieren</span></label></div>'+chipsHtml([['Ja','Ja'],['ja','ja'],['j','j'],['NEIN','NEIN'],['nein','nein'],['n','n'],['vielleicht','vielleicht']])+'<div data-r="con"></div><p class="exp" data-r="ex"></p>');
+  const inp=q$(el,'in'),ic=q$(el,'ic');
+  const upd=()=>{const s=inp.value,e=(a)=>ic.checked?s.toLowerCase()===a:s===a;
+    const r=(e('ja')||e('j'))?'Backup: startet':(e('nein')||e('n'))?'Backup: abgebrochen':'Backup: bitte ja oder nein antworten';
+    const c=q$(el,'con');c.innerHTML='';c.appendChild(consoleBox('Konsole',esc('Backup starten? (ja oder nein) ')+'<span class="in">'+esc(s)+'</span>\n'+esc(r)));
+    q$(el,'ex').innerHTML=ic.checked?'Mit Ignorieren der Schreibweise (z. B. <code>s.Equals("ja", StringComparison.OrdinalIgnoreCase)</code>) zählt auch <code>Ja</code>.':'<code>Equals</code> vergleicht Zeichen für Zeichen: Große und kleine Buchstaben zählen.'};
+  inp.addEventListener('input',upd);el.addEventListener('change',e=>{if(e.target===ic)upd()});wireChips(el,inp,upd);upd();
+};
+
+/* ---------- nav / router ---------- */
+const pages=$$('.page');
+function buildNav(){
+  let h='',g='';
+  pages.forEach(p=>{const id=p.id.slice(2),grp=p.dataset.g;
+    if(grp!==g){g=grp;h+='<h4>'+(g==='lern'?'Lernstoff':'Tagesübungen')+'</h4>'}
+    h+='<a href="#'+id+'" data-id="'+id+'"><span class="n">'+esc(p.dataset.n||'')+'</span><span>'+esc(p.dataset.t)+'</span>'+(p.dataset.kuer?'<span class="tag">frei</span>':'')+'</a>'});
+  $('#nav').innerHTML=h;
+  pages.forEach((p,i)=>{const pn=document.createElement('div');pn.className='pn';
+    const pv=pages[i-1],nx=pages[i+1];
+    pn.innerHTML=(pv?'<a href="#'+pv.id.slice(2)+'"><small>← Zurück</small>'+esc((pv.dataset.n?pv.dataset.n+' · ':'')+pv.dataset.t)+'</a>':'<span></span>')+(nx?'<a class="next" href="#'+nx.id.slice(2)+'"><small>Weiter →</small>'+esc((nx.dataset.n?nx.dataset.n+' · ':'')+nx.dataset.t)+'</a>':'');
+    p.appendChild(pn)});
+}
+function go(){
+  const id=(location.hash||'#start').slice(1);let p=$('#p-'+id);if(!p){p=$('#p-start')}
+  pages.forEach(x=>x.classList.toggle('on',x===p));
+  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.id===p.id.slice(2)));
+  document.body.classList.remove('nav');
+  window.scrollTo(0,0);
+  const a=$('#nav a.on');if(a&&a.scrollIntoView)a.scrollIntoView({block:'nearest'});
+}
+
+/* ---------- progress ---------- */
+function updateProgress(){
+  let right=0,answered=0;
+  QUIZ.forEach(q=>{const s=S.get('q:'+q.id);if(s&&s.sel!=null){answered++;if(s.chk&&s.sel===q.ok)right++}});
+  const set=(a,b,t)=>{$('#st-'+a).textContent=t;$('#bar-'+a).style.width=(b)+'%'};
+  set('quiz',right/QUIZ.length*100,right+' / '+QUIZ.length);
+  $('#qs-num').textContent=right+' / '+QUIZ.length;$('#qs-bar').style.width=(right/QUIZ.length*100)+'%';
+  $('#qs-txt').textContent=answered+' beantwortet · '+right+' richtig geprüft'+(right===QUIZ.length?' – alles richtig! 🎉':'');
+  const k=$$('.kann'),kc=k.filter(c=>c.checked).length;set('kann',kc/k.length*100,kc+' / '+k.length);
+  const tp_=$$('.prog:not(.kuer)'),tc=tp_.filter(c=>c.checked).length;set('todo',tp_.length?tc/tp_.length*100:0,tc+' / '+tp_.length);
+  let pe=0,pt=0;$$('.page.task:not([data-kuer])').forEach(p=>{pt+=Number(p.dataset.pts);$$('input.pts',p).forEach(c=>{if(c.checked)pe+=Number(c.dataset.p)})});
+  set('pts',pt?pe/pt*100:0,pe+' / '+pt);
+  $$('.score').forEach(sc=>{const all=$$('.pts',sc),e=all.filter(c=>c.checked).reduce((a,c)=>a+Number(c.dataset.p),0),t=all.reduce((a,c)=>a+Number(c.dataset.p),0);sc.nextElementSibling.textContent='Erreicht: '+e+' / '+t+' Punkte'});
+  // overview
+  const ov=$('#overview');if(ov){$$('tr.ovr',ov).forEach(r=>r.remove());
+    $$('.page.task').forEach(p=>{const id=p.id.slice(2),all=$$('input.pts',p),e=all.filter(c=>c.checked).reduce((a,c)=>a+Number(c.dataset.p),0),pr=$$('.prog',p),pc=pr.filter(c=>c.checked).length;
+      const tr=document.createElement('tr');tr.className='ovr';tr.innerHTML='<td><a href="#'+id+'"><b>'+esc(p.dataset.n)+'</b></a></td><td><a href="#'+id+'">'+esc(p.dataset.t)+'</a>'+(p.dataset.kuer?' <span class="chip kuer" style="margin-left:4px">freiwillig</span>':'')+'</td><td class="m">'+e+' / '+p.dataset.pts+'</td><td>'+esc(p.dataset.time)+'</td><td>'+pc+' / '+pr.length+' Checkpoints</td>';ov.appendChild(tr)})}
+  // nav marks
+  const mark=(id,done)=>{const a=$('#nav a[data-id="'+id+'"]');if(a)a.classList.toggle('done',!!done)};
+  $$('.page.task').forEach(p=>{const pr=$$('.prog',p);mark(p.id.slice(2),pr.length&&pr.every(c=>c.checked))});
+  mark('11',k.length&&k.every(c=>c.checked));mark('quiz',right===QUIZ.length);
+}
+
+/* ---------- persistence wiring ---------- */
+function restoreAll(){
+  $$('[data-save]').forEach(el=>{const v=S.get(el.dataset.save);
+    if(el.type==='checkbox')el.checked=v===true;
+    else if(el.tagName==='SELECT'){el.value=(v===undefined?'':v);if(el.value!==(v===undefined?'':v))el.value='';el.classList.remove('ok','bad')}
+    else el.value=(v===undefined?el.defaultValue:v)});
+  buildQuiz();buildPreds();updateProgress();
+}
+document.addEventListener('input',e=>{const t=e.target;if(t.dataset&&t.dataset.save&&t.type!=='checkbox'&&t.tagName!=='SELECT'){S.set(t.dataset.save,t.value)}});
+document.addEventListener('change',e=>{const t=e.target;if(t.dataset&&t.dataset.save){S.set(t.dataset.save,t.type==='checkbox'?t.checked:t.value);updateProgress()}});
+document.addEventListener('keydown',e=>{const t=e.target;if(t.classList&&t.classList.contains('codeedit')){
+  if(e.key==='Escape'){t._free=true;return}
+  if(e.key==='Tab'&&!e.shiftKey&&!t._free){e.preventDefault();const s=t.selectionStart,en=t.selectionEnd;t.value=t.value.slice(0,s)+'    '+t.value.slice(en);t.selectionStart=t.selectionEnd=s+4;t.dispatchEvent(new Event('input',{bubbles:true}))}}});
+document.addEventListener('focusout',e=>{if(e.target._free)e.target._free=false});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-resetcode]');if(b){const ta=$('[data-save="'+b.dataset.resetcode+'"]');if(ta){ta.value=ta.defaultValue;S.del(ta.dataset.save);toast('Ursprünglicher Fehlerfall wiederhergestellt')}}});
+
+/* ---------- tools ---------- */
+function exportState(){
+  const data={app:'T05-lernstoff',version:1,saved:new Date().toISOString(),name:S.get('name')||'',state:S.mem};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='t05-stand-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('Stand gesichert.')}
+function importState(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||d.app!=='T05-lernstoff'||typeof d.state!=='object')throw 0;
+  S.clear();Object.keys(d.state).forEach(k=>S.set(k,d.state[k]));restoreAll();toast('Stand geladen.')}catch(e){toast('Diese Datei ist kein gültiger Stand.')}};r.readAsText(file)}
+
+/* ---------- init ---------- */
+S.init();
+processBlocks();
+$$('#p-uk .prog').forEach(c=>c.classList.add('kuer'));
+$$('[data-fill]').forEach(buildFill);
+buildScores();
+$$('[data-lab]').forEach(el=>{const f=LAB[el.dataset.lab];if(f)f(el)});
+buildNav();
+restoreAll();
+$('#qs-checkall').addEventListener('click',()=>{QUIZ.forEach(q=>{const s=S.get('q:'+q.id);if(s&&s.sel!=null&&!s.sol){S.set('q:'+q.id,Object.assign({},s,{chk:true}))}});buildQuiz();updateProgress()});
+twoClick($('#qs-reset'),'Wirklich zurücksetzen?',()=>{QUIZ.forEach(q=>S.del('q:'+q.id));buildQuiz();updateProgress()});
+$('#b-export').addEventListener('click',exportState);
+$('#b-import').addEventListener('click',()=>$('#f-import').click());
+$('#f-import').addEventListener('change',e=>{if(e.target.files[0])importState(e.target.files[0]);e.target.value=''});
+twoClick($('#b-reset'),'Wirklich alles löschen?',()=>{S.clear();restoreAll();$$('select').forEach(s=>s.classList.remove('ok','bad'));toast('Alles zurückgesetzt.')});
+$('#menubtn').addEventListener('click',()=>document.body.classList.toggle('nav'));
+if(!S.ls)$('#storenote').textContent='Hinweis: In diesem Fenster kann der Browser nichts speichern. Nutze „Sichern“, damit deine Eingaben nicht verloren gehen.';
+window.addEventListener('hashchange',go);go();
+})();
+</script>
+</body>
+</html>
