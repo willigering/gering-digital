@@ -18,20 +18,14 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
         </div>
     <?php };
     ?>
-    <div class="arcade-stage">
-        <div class="arcade-intro">
-            <?php if (!$fullPage): ?>
-                <header class="arcade-heading">
-                    <p class="eyebrow">DAU-TO-PRO</p>
-                    <h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2>
-                    <p>Die besten Lernenden nach XP.</p>
-                </header>
-            <?php endif; ?>
-            <div class="arcade-mascot" aria-hidden="true">
-                <div class="arcade-mascot-art"><span></span></div>
-                <span class="arcade-marquee">Highscore</span>
-            </div>
-        </div>
+    <div class="arcade-stage<?=$fullPage ? '' : ' arcade-stage--landing'?>">
+        <?php if (!$fullPage): ?>
+            <header class="arcade-heading">
+                <p class="eyebrow">DAU-TO-PRO</p>
+                <h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2>
+                <p>Die besten Lernenden nach XP.</p>
+            </header>
+        <?php endif; ?>
         <div class="arcade-champions" role="group" aria-label="Die ersten drei Plätze">
             <?php for ($rank = 1; $rank <= 3; $rank++):
                 $row = $rows[$rank - 1] ?? null;
