@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
+require_once __DIR__.'/../avatare_lib.php';
 header('Cache-Control: no-store, private');
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -49,6 +50,9 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             case 'logout':
                 learner_logout();
                 konto_back('',['ok'=>'Du bist abgemeldet. Der Fortschritt deines Kontos wurde von diesem Gerät entfernt und bleibt sicher im Konto gespeichert.','clear_uid'=>(string)$id]);
+            case 'change_username':
+                learner_change_username($learner,(string)($_POST['current']??''),$username);
+                konto_back('',['ok'=>'Benutzername geändert. Verwende ab jetzt den neuen Namen zur Anmeldung.']);
             case 'change_password':
                 learner_change_password($learner,(string)($_POST['current']??''),(string)($_POST['password']??''),(string)($_POST['password2']??''));
                 konto_back('',['ok'=>'Passwort geändert. Andere Geräte wurden abgemeldet.'],'');
@@ -66,7 +70,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 konto_back('',['ok'=>'Vitrine gespeichert.','section'=>'vitrine']);
             case 'highscore':
                 $visible=($_POST['visible']??'')==='1';
-                ach_set_visible($id,$visible);
+                ach_set_visible($id,$visible,($_POST['public']??'')==='1');
                 if ($visible) {
                     $_SESSION['dtp_highscore_reveal']=$id;
                     header('Location: ./#highscore',true,303);
@@ -90,7 +94,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         }
         konto_back('',['error'=>'Unbekannte Aktion.']);
     } catch (LearnerError $error) {
-        $section=in_array($action,['change_password','new_code','delete_account','highscore','reset_all'],true)?$action:'';
+        $section=in_array($action,['change_username','change_password','new_code','delete_account','highscore','reset_all'],true)?$action:'';
         konto_back($mode,['error'=>$error->getMessage(),'username'=>$username,'section'=>$section,'remember'=>!empty($_POST['remember'])],$next);
     }
 }
@@ -136,7 +140,9 @@ $title=$learner?'Mein Fortschritt':($mode==='registrieren'?'Konto erstellen':($m
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
+  <link rel="stylesheet" href="avatare.css?v=<?=filemtime(__DIR__.'/avatare.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
+  <?php if($learner): ?><script src="showcase-picker.js?v=<?=filemtime(__DIR__.'/showcase-picker.js')?>" defer></script><?php endif; ?>
 </head>
 <body class="konto-page">
 <?=dtp_backdrop()?>
@@ -193,6 +199,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
       <a class="level-link" href="#achievements"><b><?=$ach['done']?></b><small>/ <?=$ach['total']?> Achievements</small></a>
     </section>
 
+    <?php $kontoAvatar=null;try{$kontoAvatar=dtp_avatar_get((int)$learner['id']);}catch(Throwable $error){error_log('DAU TO PRO Avatare: '.$error->getMessage());} ?>
+    <section class="konto-avatar" aria-label="Dein Avatar">
+      <div class="konto-avatar-hex" aria-hidden="true"><?=dtp_avatar_stack_html($kontoAvatar)?></div>
+      <div>
+        <strong><?=$kontoAvatar?'Dein Avatar':'Noch kein Avatar gewählt'?></strong>
+        <p><?=$kontoAvatar?'So erscheinst du im Highscore und in deinem Lernprofil.':'Such dir eine von sieben Figuren aus und stell ihr Zubehör zusammen. Sie erscheint im Highscore und in deinem Lernprofil.'?></p>
+        <a class="secondary-action" href="avatare.php"><?=$kontoAvatar?'Avatar ändern':'Avatar wählen'?> <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
   <?php require __DIR__.'/progress-panels.php'; ?>
 
   <section aria-labelledby="ach-title" class="konto-section" id="achievements">
@@ -217,6 +233,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
   <section aria-labelledby="settings-title" class="konto-section" id="einstellungen">
     <div class="konto-section-head"><h2 id="settings-title">Konto-Einstellungen</h2><span class="konto-meta">Angemeldet als <strong><?=e($learner['username'])?></strong> · Konto seit <?=e(learner_format_time($learner['created_at']))?></span></div>
     <div class="settings-list">
+      <details class="settings-item" id="change_username"<?=($flash['section']??'')==='change_username'||($_GET['bearbeiten']??'')==='name'?' open':''?>>
+        <summary><span><b>Benutzernamen ändern</b><small>Der neue Name gilt für die Anmeldung und deinen Eintrag im Highscore.</small></span></summary>
+        <form method="post" class="settings-body">
+          <?=$hidden('change_username')?>
+          <label>Neuer Benutzername<input name="username" value="<?=e(($flash['section']??'')==='change_username'?$username:$learner['username'])?>" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="3" maxlength="24" pattern="[A-Za-z0-9][A-Za-z0-9._\-]{1,22}[A-Za-z0-9]" aria-describedby="rename-hint" required></label>
+          <small class="field-hint" id="rename-hint">3–24 Zeichen: Buchstaben, Ziffern, Punkt, Unterstrich oder Bindestrich. Sonderzeichen nur einzeln und zwischen Buchstaben oder Ziffern.</small>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <button class="secondary-action" type="submit">Benutzernamen speichern</button>
+        </form>
+      </details>
       <details class="settings-item" id="change_password"<?=($flash['section']??'')==='change_password'?' open':''?>>
         <summary><span><b>Passwort ändern</b><small>Danach werden deine anderen Geräte abgemeldet.</small></span></summary>
         <form method="post" class="settings-body">
@@ -240,9 +266,10 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <summary><span><b>Sichtbarkeit im Highscore</b><small><?=$achStats['visible']?'Eingeschaltet: andere Lernende sehen dich im Highscore.':'Ausgeschaltet: du bist im Highscore unsichtbar.'?></small></span></summary>
         <form method="post" class="settings-body">
           <?=$hidden('highscore')?>
-          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Besucher ohne Konto sehen den Highscore nicht. Du kannst es jederzeit wieder ausschalten, dann verschwindest du sofort aus der Liste.</p>
+          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Wenn du zusätzlich die öffentliche Anzeige einschaltest, können auch Gäste auf der Startseite deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Achievement-Vitrine sehen. Du kannst beide Einstellungen jederzeit ändern.</p>
           <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
           <label class="confirm-check"><input type="checkbox" name="visible" value="1"<?=$achStats['visible']?' checked':''?>> Ich möchte im Highscore sichtbar sein.</label>
+          <label class="confirm-check"><input type="checkbox" name="public" value="1"<?=$achStats['visible']&&ach_public_highscore_enabled((int)$learner['id'])?' checked':''?>> Wenn ich im Highscore sichtbar bin, darf mein Eintrag auch Gästen auf der Startseite angezeigt werden.</label>
           <button class="secondary-action" type="submit">Speichern</button>
         </form>
       </details>

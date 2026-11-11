@@ -140,7 +140,11 @@ try {
     check(http('GET','/dau-to-pro/api/radio.php','','anna')['status']===405,'Radio-API: nur POST');
     $ok=$radio('anna',$rm[1]??'','{"off":[]}');
     check($ok['status']===200 && (json_decode($ok['body'],true)['ok']??false)===true,'Radio-API: leere Abwahl wird gespeichert');
-    $deny=$radio('anna',$rm[1]??'','{"off":["apipa"]}');
+    // Die Zahl frei zugänglicher Songs wächst: alle tatsächlich angebotenen Titel abwählen.
+    preg_match('/data-tracks="([^"]*)"/',$landing,$playlistMatch);
+    $radioTracks=json_decode(html_entity_decode($playlistMatch[1]??'[]',ENT_QUOTES),true)?:[];
+    $allPublicIds=array_column($radioTracks,'id');
+    $deny=$radio('anna',$rm[1]??'',json_encode(['off'=>$allPublicIds],JSON_THROW_ON_ERROR));
     check($deny['status']===422 && str_contains($deny['body'],'Mindestens ein Titel'),'Radio-API: der letzte aktive Titel kann nicht abgewählt werden');
 
     // --- Wiederherstellungscode ---

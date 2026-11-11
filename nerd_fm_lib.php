@@ -29,6 +29,11 @@ function nfm_songs(): array {
     if (is_file(nfm_dir().'/deja-vu.mp3')) {
         $songs['deja-vu']=['file'=>'deja-vu.mp3','title'=>'Diggy Thal – Déjà-vu','unlock'=>null,'module'=>null];
     }
+    // Neuer Song für alle Besucher – ohne Anmeldung, XP oder Achievement.
+    // Erst anzeigen, wenn die echte Audiodatei vorhanden ist.
+    if (is_file(nfm_dir().'/wer-bist-du.mp3')) {
+        $songs['wer-bist-du']=['file'=>'wer-bist-du.mp3','title'=>'Diggy Thal – Wer bist du?','unlock'=>null,'module'=>null];
+    }
     return $songs;
 }
 function nfm_dir(): string { return __DIR__.'/dau-to-pro/audio/nerd-fm'; }

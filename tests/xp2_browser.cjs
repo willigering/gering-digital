@@ -15,7 +15,14 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
   await page.getByRole('heading',{name:'Kürzlich freigeschaltet'}).waitFor();assert.equal(await page.locator('.recent-grid .ach-item').count(),4);
   assert.equal(await page.locator('.showcase-slots select').count(),3);assert.equal(await page.locator('.learning-week li').count(),7);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`account no overflow ${width}`);
-  await page.selectOption('[name="slots[0]"]','g.easteregg');await page.selectOption('[name="slots[1]"]','osi.kabel');await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Vitrine speichern'}).click()]);
+  for(const [slot,code] of [[0,'g.easteregg'],[1,'osi.kabel']]){
+    await page.locator(`[data-showcase-slot="${slot}"]`).click();
+    const choice=page.locator(`#showcase-picker [data-showcase-value="${code}"]`);
+    assert.ok(await choice.locator('img').isVisible(),'An achievement is pictured before selection');
+    await choice.click();
+    assert.ok(await page.locator(`[data-showcase-slot="${slot}"] img`).isVisible());
+  }
+  await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Vitrine speichern'}).click()]);
   assert.equal(await page.locator('[name="slots[0]"]').inputValue(),'g.easteregg');
   await page.goto(base+'/dau-to-pro/highscore.php');assert.equal(await page.locator('.showcase-inline img').count(),3);
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),`highscore no overflow ${width}`);

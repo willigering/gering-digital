@@ -55,3 +55,7 @@
 
 /* Download-/Löschbuttons ausschließlich bei tatsächlich gespeicherter PDF anzeigen. */
 #gdm-settings-block [hidden]{display:none!important}
+
+.gdm-legacy-files{margin:18px 0;padding:12px 15px;border:1px solid #ffffff26;border-radius:8px;background:#09131c8f}
+.gdm-legacy-files summary{color:#a9bcbf;cursor:pointer;font-size:12px;font-weight:750}
+.gdm-legacy-files[open] summary{margin-bottom:15px}

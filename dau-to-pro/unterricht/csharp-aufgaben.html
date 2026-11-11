@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C# Übungen – Datenkonvertierung & If-Bedingung</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --panel: #171a23;
+    --panel-2: #1e2230;
+    --border: #2a2f40;
+    --text: #e3e6ee;
+    --muted: #9aa1b5;
+    --accent: #7aa2f7;
+    --accent-2: #9ece6a;
+    --accent-3: #e0af68;
+    --accent-4: #bb9af7;
+    --code-bg: #0b0d13;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  header {
+    padding: 2.5rem 1.5rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #151826, var(--bg));
+  }
+  header h1 { margin: 0 0 .4rem; font-size: 1.9rem; }
+  header p { margin: 0; color: var(--muted); }
+  .layout {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    max-width: 1150px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+  nav {
+    position: sticky; top: 1.5rem; align-self: start;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem;
+    font-size: .92rem;
+  }
+  nav h3 { margin: .6rem 0 .3rem; font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  nav h3:first-child { margin-top: 0; }
+  nav a { display: block; color: var(--text); text-decoration: none; padding: .25rem .5rem; border-radius: 6px; }
+  nav a:hover { background: var(--panel-2); color: var(--accent); }
+  main section { margin-bottom: 3rem; }
+  .section-title {
+    display: flex; align-items: center; gap: .7rem;
+    font-size: 1.5rem; margin: 0 0 1.2rem;
+    padding-bottom: .5rem; border-bottom: 2px solid var(--border);
+  }
+  .tag {
+    font-size: .75rem; font-weight: 600; padding: .2rem .6rem; border-radius: 999px;
+    background: var(--panel-2); border: 1px solid var(--border);
+  }
+  .s1 .tag { color: var(--accent); }
+  .s2 .tag { color: var(--accent-2); }
+  .s3 .tag { color: var(--accent-3); }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .s2 .card { border-left-color: var(--accent-2); }
+  .s3 .card { border-left-color: var(--accent-3); }
+  .card h3 { margin: 0 0 .6rem; font-size: 1.15rem; }
+  .card h3 .nr { color: var(--muted); font-weight: 500; margin-right: .3rem; }
+  .card p { margin: .4rem 0; }
+  .card ul { margin: .4rem 0; padding-left: 1.3rem; }
+  .card li { margin: .2rem 0; }
+  .label { font-weight: 600; color: var(--accent-4); }
+  .hint {
+    background: rgba(224,175,104,.08);
+    border: 1px solid rgba(224,175,104,.3);
+    border-radius: 8px;
+    padding: .6rem .9rem; margin: .8rem 0 0;
+    font-size: .93rem;
+  }
+  .hint::before { content: "💡 "; }
+  .formula {
+    display: inline-block;
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: .5rem 1rem; margin: .4rem 0;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: var(--accent-2);
+  }
+  code {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    background: var(--code-bg); padding: .1rem .35rem; border-radius: 4px;
+    font-size: .9em; color: #c0caf5;
+  }
+  table { border-collapse: collapse; margin: .5rem 0; font-size: .93rem; }
+  th, td { border: 1px solid var(--border); padding: .35rem .8rem; text-align: left; }
+  th { background: var(--panel-2); color: var(--muted); font-weight: 600; }
+  details {
+    margin-top: 1rem;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  summary {
+    cursor: pointer; padding: .6rem .9rem; font-weight: 600; color: var(--accent);
+    list-style: none; user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: "▶ "; font-size: .75em; }
+  details[open] summary::before { content: "▼ "; }
+  pre {
+    margin: 0; padding: 1rem 1.1rem;
+    background: var(--code-bg);
+    border-top: 1px solid var(--border);
+    border-radius: 0 0 8px 8px;
+    overflow-x: auto;
+    font: 14px/1.55 ui-monospace, "Cascadia Code", Consolas, monospace;
+    color: #c0caf5;
+  }
+  .c { color: #565f89; font-style: italic; }
+  .k { color: #bb9af7; }
+  .t { color: #2ac3de; }
+  .s { color: #9ece6a; }
+  .n { color: #ff9e64; }
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    nav { position: static; }
+  }
+</style><style>
+/* DAU-to-PRO Unterrichtsmaterial – Designanpassung ohne Eingriff in Lernlogik */
+:root{--bg:#080e14;--panel:#101d26;--panel2:#142631;--panel-2:#142631;--panel3:#1a313b;--border:#34535a;--line:#34535a;--text:#edf8f6;--mut:#a2bfc2;--muted:#a2bfc2;--acc:#6fe5d6;--accent:#6fe5d6;--acc2:#e8b84a;--accent-2:#e8b84a;--accent-3:#e8b84a;--accent-4:#a3f1e7;--gold:#e8b84a;--cyan:#6fe5d6}
+html{scroll-padding-top:24px}
+body{background:radial-gradient(ellipse at 72% 0%,#1a506046,transparent 46%),radial-gradient(ellipse at 10% 55%,#9d71351c,transparent 45%),linear-gradient(145deg,#071017,#0b1520 60%,#070f15);background-attachment:fixed;color:#edf8f6}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;background-image:linear-gradient(#6fe5d609 1px,transparent 1px),linear-gradient(90deg,#6fe5d609 1px,transparent 1px);background-size:50px 50px;mask-image:linear-gradient(#0008,transparent 80%)}
+header{border-bottom:2px solid #e8b84a;background:linear-gradient(115deg,#0e2633,#08131bcc)}
+header h1,.ph,.section-title{font-weight:950;letter-spacing:-.055em;text-transform:uppercase;text-wrap:balance}
+header h1{font-size:clamp(2rem,5vw,3.5rem)}
+header p,.lead{color:#a6c5c7}
+nav,#side{background:linear-gradient(160deg,#11232d,#0b1720);border-color:#467b7e55}
+nav a{transition:color .2s,background .2s,transform .2s}
+nav a:hover{background:#6fe5d616;color:#7ef7e5}
+nav a.on{background:#6fe5d61a;color:#8df7e9}
+.card,.q,.box,.lab,.stats,.code,.console,details,.unter-menu-card{border-radius:13px;border-color:#42767966;box-shadow:0 10px 32px #0004,inset 0 1px #ffffff08}
+.card{background:linear-gradient(135deg,#11232c,#0c1823);border-left:3px solid #e8b84a;transition:border-color .2s,transform .2s,box-shadow .2s}
+.card:hover{border-color:#7ee9df77;box-shadow:0 17px 42px #0007,0 0 24px #60e5d611;transform:translateY(-2px)}
+h2,h3,.card h3{letter-spacing:-.025em}
+.section-title{border-bottom:2px solid #e8b84a55}
+.tag,.chip,.qk{border-radius:5px;letter-spacing:.075em;text-transform:uppercase}
+.btn,.inp,.notes,.codeedit,.opt,.todo label,select{border-radius:8px}
+.btn.pri{background:linear-gradient(110deg,#79e8d8,#a4f7e4);color:#071d24}
+.btn:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid #e8b84a;outline-offset:3px}
+code,kbd,.formula{color:#a2f7ea}
+details>summary,summary{color:#7ee9df}
+details[open]>summary{border-bottom:1px solid #70e5d42b}
+.bar i{background:linear-gradient(90deg,#e8b84a,#72e6d8)}
+.kick,.brand small,.qn{color:#e8b84a}
+#main{position:relative}
+.page.on{animation:dtp-enter .35s ease-out}
+@keyframes dtp-enter{from{opacity:.35;transform:translateY(12px)}to{opacity:1;transform:none}}
+.dtp-back{display:inline-flex;align-items:center;gap:8px;text-decoration:none;margin:0 0 22px;padding:9px 14px;border:1px solid #79e4d65c;border-radius:8px;background:#0e2834dd;color:#a8fff0!important;font:800 12px/1.4 ui-monospace,Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.dtp-back:hover{background:#16404a;text-decoration:none;box-shadow:0 0 20px #79e4d624}
+.dtp-eyebrow{font:850 11px ui-monospace,Consolas,monospace;letter-spacing:.18em;color:#e8b84a;text-transform:uppercase}
+@media(max-width:800px){body{background-attachment:scroll}.card:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.card,nav a,.page.on{animation:none!important;transition:none!important}}
+</style>
+<link rel="stylesheet" href="csharp-material.css?v=20261111-2"></head>
+<body>
+
+<header><a class="dtp-back" href="../index.php#unterrichtsmaterial">← Zurück zum Unterrichtsmaterial</a><div class="dtp-eyebrow">DAU TO PRO // C# PRAXIS</div>
+  <h1>C# Übungsaufgaben</h1>
+  <p>Datenkonvertierung I · Datenkonvertierung II · If-Bedingung</p>
+</header>
+
+<div class="layout">
+  <nav>
+    <h3>Datenkonvertierung I</h3>
+    <a href="#dk1-1">1 · int → double</a>
+    <a href="#dk1-2">2 · double → int</a>
+    <a href="#dk1-3">3 · long ↔ float</a>
+    <a href="#dk1-4">4 · double → int &amp; float</a>
+    <h3>Datenkonvertierung II</h3>
+    <a href="#dk2-1">Währungsumrechner</a>
+    <a href="#dk2-2">Temperaturkonvertierung</a>
+    <a href="#dk2-3">Altersumrechnung</a>
+    <h3>If-Bedingung</h3>
+    <a href="#if-1">Login-System</a>
+    <a href="#if-2">Hotel-Aufschlag</a>
+  </nav>
+
+  <main>
+    <!-- ================= DATENKONVERTIERUNG I ================= -->
+    <section class="s1">
+      <h2 class="section-title">Datenkonvertierung I <span class="tag">implizit &amp; explizit</span></h2>
+
+      <div class="card" id="dk1-1">
+        <h3><span class="nr">Aufgabe 1</span> int → double</h3>
+        <p>Erstelle eine Variable vom Typ <code>int</code> und weise ihr einen Wert zu. Erstelle anschließend eine Variable vom Typ <code>double</code> und weise ihr die int-Variable zu.</p>
+        <div class="hint">Implizite Konvertierung – kein Datenverlust, daher kein Cast nötig.</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="t">int</span> zahl = <span class="n">42</span>;
+<span class="t">double</span> kommazahl = zahl;   <span class="c">// implizit</span>
+
+Console.WriteLine(kommazahl); <span class="c">// 42</span></pre>
+        </details>
+      </div>
+
+      <div class="card" id="dk1-2">
+        <h3><span class="nr">Aufgabe 2</span> double → int</h3>
+        <p>Erstelle eine Variable vom Typ <code>double</code> und weise ihr einen Wert zu. Erstelle anschließend eine Variable vom Typ <code>int</code> und konvertiere den double-Wert <strong>explizit</strong> in int.</p>
+        <div class="hint">Expliziter Cast <code>(int)</code> – die Nachkommastellen werden abgeschnitten, nicht gerundet.</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="t">double</span> preis = <span class="n">19.99</span>;
+<span class="t">int</span> ganzzahl = (<span class="t">int</span>)preis;   <span class="c">// explizit</span>
+
+Console.WriteLine(ganzzahl); <span class="c">// 19</span></pre>
+        </details>
+      </div>
+
+      <div class="card" id="dk1-3">
+        <h3><span class="nr">Aufgabe 3</span> long ↔ float</h3>
+        <p>Konvertiere <code>long</code> explizit in <code>float</code> und konvertiere <code>float</code> explizit in <code>long</code>.</p>
+        <div class="hint">long → float wäre auch implizit möglich, kann aber an Genauigkeit verlieren. float → long schneidet die Nachkommastellen ab.</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="t">long</span> grosseZahl = <span class="n">123456789L</span>;
+<span class="t">float</span> f = (<span class="t">float</span>)grosseZahl;
+Console.WriteLine(f);        <span class="c">// 1,2345679E+08 (Genauigkeit geht verloren)</span>
+
+<span class="t">float</span> wert = <span class="n">987.65f</span>;
+<span class="t">long</span> l = (<span class="t">long</span>)wert;
+Console.WriteLine(l);        <span class="c">// 987</span></pre>
+        </details>
+      </div>
+
+      <div class="card" id="dk1-4">
+        <h3><span class="nr">Aufgabe 4</span> double → int &amp; float</h3>
+        <p>Erstelle eine Variable vom Typ <code>double</code>, weise ihr einen Wert zu, und konvertiere diesen Wert explizit sowohl in <code>int</code> als auch in <code>float</code>.</p>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="t">double</span> d = <span class="n">3.14159265359</span>;
+
+<span class="t">int</span>   i = (<span class="t">int</span>)d;
+<span class="t">float</span> f = (<span class="t">float</span>)d;
+
+Console.WriteLine(<span class="s">$"double: {d}"</span>);  <span class="c">// 3,14159265359</span>
+Console.WriteLine(<span class="s">$"int:    {i}"</span>);  <span class="c">// 3</span>
+Console.WriteLine(<span class="s">$"float:  {f}"</span>);  <span class="c">// 3,1415927</span></pre>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= DATENKONVERTIERUNG II ================= -->
+    <section class="s2">
+      <h2 class="section-title">Datenkonvertierung II <span class="tag">Benutzereingaben</span></h2>
+
+      <div class="card" id="dk2-1">
+        <h3>Währungsumrechner</h3>
+        <p><span class="label">Aufgabe:</span> Schreibe ein Programm, das einen Betrag in Euro einliest und in US-Dollar umrechnet.</p>
+        <p><span class="label">Kurs:</span> <span class="formula">1 Euro = 1,1 US-Dollar</span></p>
+        <table>
+          <tr><th>Eingabe</th><th>Ausgabe</th></tr>
+          <tr><td>Betrag in Euro</td><td>Betrag in US-Dollar</td></tr>
+        </table>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="k">const</span> <span class="t">double</span> Kurs = <span class="n">1.1</span>;
+
+Console.Write(<span class="s">"Betrag in Euro: "</span>);
+<span class="t">double</span> euro = Convert.ToDouble(Console.ReadLine());
+
+<span class="t">double</span> dollar = euro * Kurs;
+
+Console.WriteLine(<span class="s">$"{euro:F2} € = {dollar:F2} $"</span>);</pre>
+        </details>
+      </div>
+
+      <div class="card" id="dk2-2">
+        <h3>Temperaturkonvertierung</h3>
+        <p><span class="label">Aufgabe:</span> Erstelle ein Programm, das eine Temperatur in Celsius von der Konsole einliest und in Fahrenheit umrechnet.</p>
+        <p><span class="label">Formel:</span> <span class="formula">F = C × 9 / 5 + 32</span></p>
+        <p><span class="label">Anforderungen:</span></p>
+        <ul>
+          <li>Frage den Benutzer nach einer Temperatur in Celsius</li>
+          <li>Konvertiere den eingegebenen Wert von <code>string</code> zu <code>int</code> oder <code>double</code></li>
+          <li>Berechne die Temperatur in Fahrenheit</li>
+          <li>Gib die umgerechnete Temperatur in Fahrenheit in der Konsole aus</li>
+        </ul>
+        <div class="hint">Verwende <code>Convert.ToDouble()</code> oder <code>Convert.ToInt32()</code> zum Konvertieren der Benutzereingabe.</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre>Console.Write(<span class="s">"Temperatur in Celsius: "</span>);
+<span class="t">double</span> celsius = Convert.ToDouble(Console.ReadLine());
+
+<span class="t">double</span> fahrenheit = celsius * <span class="n">9</span> / <span class="n">5.0</span> + <span class="n">32</span>;
+
+Console.WriteLine(<span class="s">$"{celsius} °C = {fahrenheit} °F"</span>);</pre>
+        </details>
+      </div>
+
+      <div class="card" id="dk2-3">
+        <h3>Altersumrechnung</h3>
+        <p><span class="label">Aufgabe:</span> Erstelle ein Programm, das das Alter eines Benutzers in Jahren einliest und in Monate umrechnet.</p>
+        <p><span class="label">Formel:</span> <span class="formula">Monate = Jahre × 12</span></p>
+        <p><span class="label">Anforderungen:</span></p>
+        <ul>
+          <li>Frage den Benutzer nach seinem Alter in Jahren</li>
+          <li>Konvertiere den eingegebenen Wert von <code>string</code> zu <code>int</code></li>
+          <li>Berechne das Alter in Monaten (1 Jahr = 12 Monate)</li>
+          <li>Gib das umgerechnete Alter in Monaten in der Konsole aus</li>
+        </ul>
+        <div class="hint">Verwende <code>Convert.ToInt32()</code> zum Konvertieren der Benutzereingabe.</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre>Console.Write(<span class="s">"Dein Alter in Jahren: "</span>);
+<span class="t">int</span> jahre = Convert.ToInt32(Console.ReadLine());
+
+<span class="t">int</span> monate = jahre * <span class="n">12</span>;
+
+Console.WriteLine(<span class="s">$"Du bist {monate} Monate alt."</span>);</pre>
+        </details>
+      </div>
+    </section>
+
+    <!-- ================= IF-BEDINGUNG ================= -->
+    <section class="s3">
+      <h2 class="section-title">If-Bedingung <span class="tag">if / else</span></h2>
+
+      <div class="card" id="if-1">
+        <h3><span class="nr">Aufgabe 1</span> Benutzer-Login-System</h3>
+        <p>Erstelle ein Login-System, in dem sich der Benutzer zuerst <strong>registrieren</strong> und dann <strong>einloggen</strong> kann.</p>
+        <p>Das Programm soll beim Login prüfen, ob Benutzername und Passwort mit denen der Registrierung übereinstimmen.</p>
+        <p>Da das Speichern von Daten noch nicht behandelt wurde, erfolgen Registrierung und Login in derselben Programmausführung.</p>
+        <div class="hint">Verwende if-Anweisungen, Benutzereingaben und Methoden. (if-else)</div>
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="k">class</span> <span class="t">Program</span>
+{
+    <span class="k">static</span> <span class="t">string</span> gespeicherterName;
+    <span class="k">static</span> <span class="t">string</span> gespeichertesPasswort;
+
+    <span class="k">static</span> <span class="k">void</span> Main()
+    {
+        Registrieren();
+        Einloggen();
+    }
+
+    <span class="k">static</span> <span class="k">void</span> Registrieren()
+    {
+        Console.WriteLine(<span class="s">"=== Registrierung ==="</span>);
+        Console.Write(<span class="s">"Benutzername: "</span>);
+        gespeicherterName = Console.ReadLine();
+        Console.Write(<span class="s">"Passwort: "</span>);
+        gespeichertesPasswort = Console.ReadLine();
+        Console.WriteLine(<span class="s">"Registrierung erfolgreich!\n"</span>);
+    }
+
+    <span class="k">static</span> <span class="k">void</span> Einloggen()
+    {
+        Console.WriteLine(<span class="s">"=== Login ==="</span>);
+        Console.Write(<span class="s">"Benutzername: "</span>);
+        <span class="t">string</span> name = Console.ReadLine();
+        Console.Write(<span class="s">"Passwort: "</span>);
+        <span class="t">string</span> passwort = Console.ReadLine();
+
+        <span class="k">if</span> (name == gespeicherterName &amp;&amp; passwort == gespeichertesPasswort)
+        {
+            Console.WriteLine(<span class="s">$"Login erfolgreich. Willkommen, {name}!"</span>);
+        }
+        <span class="k">else</span>
+        {
+            Console.WriteLine(<span class="s">"Benutzername oder Passwort falsch."</span>);
+        }
+    }
+}</pre>
+        </details>
+      </div>
+
+      <div class="card" id="if-2">
+        <h3><span class="nr">Aufgabe 2</span> Hotel – Aufschlag bei einer Übernachtung</h3>
+        <p>Schreibe ein Programm, das einen Aufschlag (z. B. <strong>20 €</strong>) berechnet, wenn der Gast nur <strong>einen Tag</strong> im Hotel übernachtet.</p>
+
+        <p><span class="label">Verarbeitungsschritte:</span></p>
+        <ol>
+          <li><span class="formula">Nettobetrag = Zimmerpreis × Aufenthaltsdauer × Anzahl der Personen</span><br>
+            <small style="color:var(--muted)">→ wird <strong>immer</strong> ausgeführt</small></li>
+          <li><span class="formula">Wenn Aufenthaltsdauer = 1 → Nettobetrag + 20 €</span><br>
+            <small style="color:var(--muted)">→ wird <strong>nur</strong> ausgeführt, wenn die Bedingung zutrifft</small></li>
+        </ol>
+
+        <p><span class="label">Variablen:</span></p>
+        <table>
+          <tr><th>Name</th><th>Bedeutung</th></tr>
+          <tr><td><code>Zimmerpreis</code></td><td>70 (fest)</td></tr>
+          <tr><td><code>AnzahlDerPersonen</code></td><td>Anzahl der Gäste</td></tr>
+          <tr><td><code>Aufenthaltsdauer</code></td><td>Anzahl der Nächte</td></tr>
+          <tr><td><code>Mwst</code></td><td>Mehrwertsteuer</td></tr>
+          <tr><td><code>Nettopreis</code></td><td>Preis ohne MwSt.</td></tr>
+          <tr><td><code>Gesamtpreis</code></td><td>Preis inkl. MwSt.</td></tr>
+          <tr><td><code>EingabeAufenthaltsdauer</code></td><td>Benutzereingabe (string)</td></tr>
+          <tr><td><code>EingabeAnzahlDerPerson</code></td><td>Benutzereingabe (string)</td></tr>
+        </table>
+
+        <details><summary>Lösung anzeigen</summary>
+<pre><span class="t">double</span> Zimmerpreis = <span class="n">70</span>;
+<span class="t">double</span> Mwst = <span class="n">0.19</span>;   <span class="c">// Übung: 19 % (real für Übernachtungen: 7 %)</span>
+<span class="t">double</span> Aufschlag = <span class="n">20</span>;
+
+Console.Write(<span class="s">"Aufenthaltsdauer (Nächte): "</span>);
+<span class="t">string</span> EingabeAufenthaltsdauer = Console.ReadLine();
+<span class="t">int</span> Aufenthaltsdauer = Convert.ToInt32(EingabeAufenthaltsdauer);
+
+Console.Write(<span class="s">"Anzahl der Personen: "</span>);
+<span class="t">string</span> EingabeAnzahlDerPerson = Console.ReadLine();
+<span class="t">int</span> AnzahlDerPersonen = Convert.ToInt32(EingabeAnzahlDerPerson);
+
+<span class="c">// Schritt 1 – wird immer ausgeführt</span>
+<span class="t">double</span> Nettopreis = Zimmerpreis * Aufenthaltsdauer * AnzahlDerPersonen;
+
+<span class="c">// Schritt 2 – nur bei genau einer Übernachtung</span>
+<span class="k">if</span> (Aufenthaltsdauer == <span class="n">1</span>)
+{
+    Nettopreis = Nettopreis + Aufschlag;
+    Console.WriteLine(<span class="s">$"Aufschlag für eine Übernachtung: {Aufschlag:F2} €"</span>);
+}
+
+<span class="t">double</span> Gesamtpreis = Nettopreis * (<span class="n">1</span> + Mwst);
+
+Console.WriteLine(<span class="s">$"Nettopreis:  {Nettopreis:F2} €"</span>);
+Console.WriteLine(<span class="s">$"Gesamtpreis: {Gesamtpreis:F2} €"</span>);</pre>
+        </details>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="csharp-layout.js?v=20261111-2"></script><script src="csharp-material.js?v=20261111-2"></script>
+</body>
+</html>

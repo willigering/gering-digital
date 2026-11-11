@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+        run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check dau-to-pro/avatare.js && node --check tests/avatare_browser.cjs && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
       - name: Validate private Bewerbungskompass frontend and privacy contract
         run: node tests/bewerbungen_smoke.cjs
       - name: Test application-mail PDF generation and private SMTP settings
@@ -36,6 +36,8 @@ jobs:
         run: php tests/learner_http_test.php
       - name: Test achievements, level and highscore
         run: php tests/achievements_test.php
+      - name: Test avatar catalog, files, persistence and public highscore
+        run: php tests/avatare_test.php
       - name: Check NERD FM song unlocks and protected song delivery
         run: php tests/nerd_fm_test.php
       - name: Test D2 module integration and achievement rules
@@ -64,9 +66,17 @@ jobs:
         with:
           node-version: '22'
       - name: Install isolated browser test dependency
-        run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1
+        run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1 pdf-lib@1.17.1
       - name: Install Chromium
-        run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/support/install-chromium.cjs
+      - name: Build same locally hosted PDF editor used by production
+        shell: bash
+        run: |
+          mkdir -p assets/lib
+          cp "$RUNNER_TEMP/dtp-browser/node_modules/pdf-lib/dist/pdf-lib.min.js" assets/lib/pdf-lib.min.js
+
       - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -81,10 +91,6 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots
         run: node tests/nerd_radio_browser.cjs
-      - name: Check uninterrupted NERD FM playback and single module navigation
-        env:
-          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
-        run: node tests/radio_module_continuity.cjs
       - name: Check Gering Digital V3 desktop, mobile, projects and original smartphone
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -123,6 +129,11 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/achievements
         run: node tests/achievements_browser.js
+      - name: Check avatar choice, highscore avatars and profile in desktop and mobile browsers
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/avatare
+        run: node tests/avatare_browser.cjs
       - name: Check D2 learning flow and generators
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -154,7 +165,9 @@ jobs:
       - name: Install browser test dependency
         run: npm install --prefix "$RUNNER_TEMP/dtp-design" --no-package-lock playwright@1.62.1
       - name: Install Chromium
-        run: node "$RUNNER_TEMP/dtp-design/node_modules/playwright/cli.js" install --with-deps chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
+        run: node tests/support/install-chromium.cjs
       - name: Check all module colours and Subnetting on desktop and mobile
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules

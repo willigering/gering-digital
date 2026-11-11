@@ -1,0 +1,39 @@
+name: Bewerbungsseite prüfen und auf STRATO deployen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'b.html'
+      - 'bewerbungen-*.js'
+      - 'bewerbungen-*.php'
+      - 'bewerbungen-*.css'
+      - 'tests/bewerbungen_*.cjs'
+      - 'tests/bewerbungen_*.php'
+      - '.github/workflows/bewerbungen-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Bewerbungskompass JavaScript
+        run: |
+          node --check bewerbungen-mail-ui.js
+          node --check bewerbungen-five-page.js
+          node tests/bewerbungen_smoke.cjs
+      - name: Validate Bewerbungskompass PHP
+        run: |
+          php -l bewerbungen-mail.php
+          php -l bewerbungen-mail-lib.php
+          php -l bewerbungen-api.php
+          php tests/bewerbungen_mail_test.php
+
+  deploy:
+    needs: verify
+    uses: ./.github/workflows/deploy-strato.yml
+    secrets: inherit

@@ -48,7 +48,7 @@ function gdm_uploaded_pdf(array $up,int $limit):array {
     return ['filename'=>$name,'bytes'=>$bytes];
 }
 function gdm_save_asset(PDO $db,string $id,array $up,int $limit):void {
-    if(!in_array($id,['cv','original'],true))throw new InvalidArgumentException('Unbekannter Dokumenttyp.');
+    if(!in_array($id,['cv','original','template'],true))throw new InvalidArgumentException('Unbekannter Dokumenttyp.');
     $doc=gdm_uploaded_pdf($up,$limit);
     $q=$db->prepare('INSERT INTO mail_assets(id,filename,file,uploaded_at) VALUES(?,?,?,?) ON CONFLICT(id) DO UPDATE SET filename=excluded.filename,file=excluded.file,uploaded_at=excluded.uploaded_at');
     $q->bindValue(1,$id);$q->bindValue(2,$doc['filename']);$q->bindValue(3,$doc['bytes'],PDO::PARAM_LOB);$q->bindValue(4,gmdate('c'));$q->execute();
@@ -141,16 +141,17 @@ function gdm_limited_string($x, int $max, string $field): string {
     if(!is_string($x) || mb_strlen($x,'UTF-8')>$max) throw new InvalidArgumentException("Ungültiger Text: $field");
     return trim(str_replace("\r", '', $x));
 }
-function gdm_prepare_document(array $body, array $company, array $cfg): array {
+function gdm_prepare_document(array $body, array $company, array $cfg, bool $fullMap=false): array {
     $subject = gdm_replace(gdm_limited_string($body['subject']??'',250,'Betreff'),$company,$cfg);
-    $salutation=gdm_replace(gdm_limited_string($body['salutation']??'',200,'Anrede'),$company,$cfg);
-    $letter=gdm_replace(gdm_limited_string($body['letter']??'',16000,'Anschreiben'),$company,$cfg);
+    $salutation=$fullMap?'':gdm_replace(gdm_limited_string($body['salutation']??'',200,'Anrede'),$company,$cfg);
+    $letter=$fullMap?'':gdm_replace(gdm_limited_string($body['letter']??'',16000,'Anschreiben'),$company,$cfg);
     $mailBody=gdm_replace(gdm_limited_string($body['mailBody']??'',6000,'E-Mail-Text'),$company,$cfg);
     $to=trim((string)($body['to']??''));
     if (!filter_var($to,FILTER_VALIDATE_EMAIL) || preg_match('/[\r\n]/',$to)) throw new InvalidArgumentException('Bitte eine gültige Empfänger-E-Mail eintragen.');
-    if (!$subject || !$salutation || !$letter || !$mailBody) throw new InvalidArgumentException('Betreff, Anrede, Anschreiben und E-Mail-Text dürfen nicht leer sein.');
+    if (!$subject || !$mailBody) throw new InvalidArgumentException('Betreff und E-Mail-Text dürfen nicht leer sein.');
+    if (!$fullMap && (!$salutation || !$letter)) throw new InvalidArgumentException('Betreff, Anrede, Anschreiben und E-Mail-Text dürfen nicht leer sein.');
     if (preg_match('/[\r\n]/',$subject)) throw new InvalidArgumentException('Der Betreff darf keine Zeilenumbrüche enthalten.');
-    $pdf=gdm_make_pdf($company,$cfg,$subject,$salutation,$letter);
+    $pdf=$fullMap?'':gdm_make_pdf($company,$cfg,$subject,$salutation,$letter);
     return compact('subject','salutation','letter','mailBody','to','pdf');
 }
 /**

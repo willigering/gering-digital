@@ -9,14 +9,12 @@ $learnerName=$learnerRow['username']??null;
 $revealId=$_SESSION['dtp_highscore_reveal']??null;
 unset($_SESSION['dtp_highscore_reveal']);
 $reveal=$learnerRow && $revealId===(int)$learnerRow['id'];
-if ($learnerRow) header('Cache-Control: no-store, private');
-// Highscore-Vorschau: wie highscore.php nur für angemeldete Lernende, Gäste sehen einen Hinweis.
-$hsRows=[];$hsMe=null;$hsRank=0;$hsCount=0;
+header('Cache-Control: no-store, private');
+$hsRows=[];$hsMe=null;$hsRank=0;
 $cardProgress=[];
 try {
-    $hsCount=(int)db()->query('SELECT COUNT(*) FROM learner_stats WHERE highscore_visible=1 AND highscore_blocked=0')->fetchColumn();
+    $hsRows=ach_highscore(100,publicOnly: !$learnerRow);
     if ($learnerRow) {
-        $hsRows=ach_highscore(5);
         $hsMe=ach_stats((int)$learnerRow['id']);
         $hsRank=ach_would_rank((int)$learnerRow['id']);
     }
@@ -66,6 +64,9 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <title><?=e($c['page_title'])?></title>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
+  <link rel="stylesheet" href="highscore-arcade.css?v=<?=filemtime(__DIR__.'/highscore-arcade.css')?>">
+  <link rel="stylesheet" href="avatare.css?v=<?=filemtime(__DIR__.'/avatare.css')?>">
+  <script src="highscore-arcade.js?v=<?=filemtime(__DIR__.'/highscore-arcade.js')?>" defer></script>
   <link rel="stylesheet" href="cheat-shelf.css?v=<?=filemtime(__DIR__.'/cheat-shelf.css')?>">
   <link rel="stylesheet" href="unterricht.css?v=<?=filemtime(__DIR__.'/unterricht.css')?>">
   <script src="cheat-shelf.js?v=<?=filemtime(__DIR__.'/cheat-shelf.js')?>" defer></script>
@@ -197,33 +198,15 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endif; ?>
   <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">
-      <div class="section-heading" data-reveal><div><span class="eyebrow">HIGHSCORE</span><h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2><p>Die besten Lernenden nach XP. In der Liste steht nur, wer die Sichtbarkeit im eigenen Konto eingeschaltet hat.</p></div><span class="section-count"><?=$hsCount?> <?=$hsCount===1?'Person':'Personen'?> sichtbar</span></div>
-<?php if (!$learnerRow): ?>
-      <div class="hs-teaser" data-reveal>
-        <div><strong>Nur mit Lernkonto</strong><p>Den Highscore sehen angemeldete Lernende. Mit Konto sammelst du XP, Level und Achievements und entscheidest selbst, ob du in der Liste auftauchst.</p></div>
-        <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
-      </div>
-<?php else: ?>
       <div class="hs-board" data-reveal>
-<?php if (!$hsRows): ?>
-        <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
-<?php else: ?>
-        <ol class="hs-top">
-<?php foreach($hsRows as $r): $self=(int)$r['id']===(int)$learnerRow['id']; ?>
-          <li class="hs-row<?=$self?' is-self':''?><?=$r['rank']<=3?' top-'.$r['rank']:''?>"<?=$self&&$reveal?' data-highscore-reveal':''?>>
-            <span class="hs-pos"><?=$r['rank']<=3?['🥇','🥈','🥉'][$r['rank']-1]:(int)$r['rank']?></span>
-            <span class="hs-who"><b><a href="highscore.php?profil=<?=(int)$r['id']?>"><?=e($r['username'])?></a><?php if($self): ?> <small>(du)</small><?php endif; ?></b><span class="hs-showcase" aria-label="Ausgestellte Achievements"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($r['showcase'][$slot])?xp_icon_html($r['showcase'][$slot],true):'<span class="hs-showcase-empty" aria-label="Leerer Vitrinenplatz">◇</span>'?><?php endfor; ?></span><small>Level <?=(int)$r['level']?> · <?=e($r['title'])?></small></span>
-            <span class="hs-xp"><span><b><?=number_format((int)$r['xp'],0,',','.')?></b> XP</span><small><?=(int)$r['achievements']?> Achievements</small></span>
-          </li>
-<?php endforeach; ?>
-        </ol>
-<?php endif; ?>
+        <?php require_once __DIR__.'/highscore-board.php'; ?>
+        <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
         <div class="hs-foot">
           <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
-          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
+          <?php if (!$learnerRow && !$hsRows): ?><span>Es gibt noch keine öffentlich freigegebenen Einträge.</span><?php endif; ?>
+          <a class="secondary-action" href="<?=$learnerRow?'highscore.php':'konto.php'?>"><?=$learnerRow?'Ganzer Highscore':'Zum Lernkonto'?> <span aria-hidden="true">→</span></a>
         </div>
       </div>
-<?php endif; ?>
     </div>
   </section>
  <?php $cheatTopics=[
@@ -276,7 +259,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">02 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">04 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <div class="unterricht-content">
@@ -307,8 +290,34 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <div class="module-footer"><span>6 THEMEN · 24 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
+        <a class="module-card unterricht-card" style="--mod:#e8b84a" href="unterricht/csharp-aufgaben.html" aria-label="C# Übungsaufgaben öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">C<span>#</span>01</span>
+            <span class="unterricht-art-label">CODE PRAXIS <b>03</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C# GRUNDLAGEN</span>
+            <h2>Castastrophe? Nicht mit dir.</h2>
+            <p>Datentypen umwandeln, Benutzereingaben verarbeiten und Entscheidungen mit if/else treffen. Neun Übungen mit aufklappbaren Lösungen.</p>
+            <div class="module-footer"><span>3 THEMEN · 9 AUFGABEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#70e5d4" href="unterricht/csharp-bedingungen-t05.html" aria-label="C# Bedingungen und Eingaben prüfen öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">IF<span>&amp;&amp;</span></span>
+            <span class="unterricht-art-label">LOGIK LAB <b>04</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C# T05</span>
+            <h2>Wenn, dann, sonst ... Chaos.</h2>
+            <p>UND, ODER, NICHT, Bereichsprüfungen und TryParse. Mit interaktiven Laboren, Selbsttest, Codeaufgaben und speicherbarem Lernstand im Browser.</p>
+            <div class="module-footer"><span>12 ABSCHNITTE · 26 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
       </div>
-      <p class="unterricht-account-hint">Beim interaktiven Material werden Antworten und Notizen im Lernkonto gespeichert. Der neue Support-Guide ist zum Lesen und Nachschlagen – ohne Abhaken und ohne Speichern.</p>
+      <p class="unterricht-account-hint">Das IT VI.01-Material nutzt dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
     </div>
   </details>
 </section>
