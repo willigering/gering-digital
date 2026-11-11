@@ -1,0 +1,92 @@
+/* DAU TO PRO Avatare (avatare_lib.php, assets/dau-avatare).
+   Alle Ebenen teilen dieselbe 512 × 512-Leinwand und liegen deckungsgleich übereinander. */
+.dtp-avatar { position: absolute; inset: 0; display: block; overflow: hidden; pointer-events: none; }
+.dtp-avatar-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  user-select: none;
+}
+
+/* Sechseck-Fassung wie im Highscore. */
+.avatare-hex,
+.profile-avatar,
+.konto-avatar-hex {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  clip-path: polygon(50% 0, 98% 25%, 98% 75%, 50% 100%, 2% 75%, 2% 25%);
+  background: linear-gradient(150deg, #4ee8ff, #263b49 47%, #e8b84a);
+}
+.avatare-hex::before,
+.profile-avatar::before,
+.konto-avatar-hex::before {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  clip-path: inherit;
+  background: radial-gradient(circle at 50% 38%, #1c3a4b, #071016 78%);
+}
+.avatare-hex .dtp-avatar,
+.profile-avatar .dtp-avatar,
+.konto-avatar-hex .dtp-avatar { inset: 2px; clip-path: inherit; }
+
+/* Auswahlseite */
+.avatare-editor {
+  display: grid;
+  grid-template-columns: minmax(260px, 360px) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 40px);
+  align-items: start;
+}
+.avatare-stage {
+  position: sticky;
+  top: calc(var(--nav-height) + 16px);
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid #507880;
+  border-radius: 16px;
+  background: linear-gradient(150deg, rgba(25,32,36,.94), rgba(12,16,19,.96));
+  box-shadow: 0 18px 50px #0007;
+}
+.avatare-hex--large { width: min(100%, 300px); }
+.avatare-mini { display: flex; align-items: center; gap: 14px; }
+.avatare-mini p { margin: 0; color: var(--muted); font-size: 13px; }
+.avatare-hex--96 { width: 96px; flex: none; }
+.avatare-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.avatare-status { margin: 0; min-height: 1.5em; text-align: center; }
+.avatare-panel { display: grid; gap: 22px; }
+.avatare-panel fieldset { margin: 0; padding: 18px 20px 20px; border: 1px solid #ffffff1f; border-radius: 14px; background: #0c1215d9; }
+.avatare-panel legend { padding: 0 6px; color: var(--cream); font-weight: 850; }
+.avatare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 14px; }
+.avatare-main .avatare-figure { position: relative; display: grid; justify-items: center; gap: 8px; padding: 10px 6px; border-radius: 12px; cursor: pointer; }
+.avatare-figure input { position: absolute; opacity: 0; pointer-events: none; }
+.avatare-hex--thumb { width: 84px; opacity: .78; transition: opacity .15s, transform .15s; }
+.avatare-figure:hover .avatare-hex--thumb { opacity: 1; }
+.avatare-figure input:checked ~ .avatare-hex--thumb { opacity: 1; transform: scale(1.06); background: linear-gradient(150deg, #76f4ff, #2b5566 47%, #ffd36a); filter: drop-shadow(0 0 10px #4ee8ff88); }
+.avatare-figure input:checked ~ .avatare-figure-label { color: var(--gold); }
+.avatare-figure input:focus-visible ~ .avatare-hex--thumb { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.avatare-figure-label { color: #c2d2dc; font-size: 13px; font-weight: 800; letter-spacing: .04em; }
+.avatare-figure.is-none .avatare-hex--thumb::after { content: ""; position: absolute; left: 38%; top: 38%; width: 24%; aspect-ratio: 1; border: 1px solid #9be4f374; transform: rotate(45deg); }
+.avatare-parts { display: grid; gap: 10px; }
+.avatare-main .avatare-part { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #ffffff14; border-radius: 10px; background: #111a20; cursor: pointer; font-weight: 650; }
+.avatare-main .avatare-part input { margin: 0; flex: none; width: 18px; height: 18px; accent-color: var(--cyan); }
+.avatare-parts .konto-hint { margin: 4px 0 0; }
+.avatare-none-hint { margin: 0; }
+.avatare-foot { margin-top: 26px; }
+@media (max-width: 760px) {
+  .avatare-editor { grid-template-columns: 1fr; }
+  .avatare-stage { position: static; }
+  .avatare-hex--large { width: min(70vw, 240px); }
+}
+
+/* Konto: kleine Karte „Dein Avatar“ */
+.konto-avatar { display: flex; align-items: center; gap: 20px; margin: 0 0 26px; padding: 18px 22px; border: 1px solid #507880; border-radius: 16px; background: linear-gradient(150deg, rgba(25,32,36,.94), rgba(12,16,19,.96)); }
+.konto-avatar-hex { width: 96px; flex: none; }
+.konto-avatar p { margin: 4px 0 12px; color: var(--muted); font-size: 14px; }
+
+/* Profil-Dialog im Highscore */
+.profile-avatar { width: 96px; margin: 0 0 12px; }

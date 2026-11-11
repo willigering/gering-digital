@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
+require_once __DIR__.'/../avatare_lib.php';
 header('Cache-Control: no-store, private');
 header('X-Robots-Tag: noindex, nofollow');
 header('X-Frame-Options: DENY');
@@ -136,6 +137,7 @@ $title=$learner?'Mein Fortschritt':($mode==='registrieren'?'Konto erstellen':($m
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
+  <link rel="stylesheet" href="avatare.css?v=<?=filemtime(__DIR__.'/avatare.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
   <?php if($learner): ?><script src="showcase-picker.js?v=<?=filemtime(__DIR__.'/showcase-picker.js')?>" defer></script><?php endif; ?>
 </head>
@@ -192,6 +194,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <p class="level-meta"><?=number_format($achStats['level']['xp'],0,',','.')?> XP<?php if(!$achStats['level']['max']): ?> · noch <?=number_format($achStats['level']['to']-$achStats['level']['xp'],0,',','.')?> XP bis Level <?=$achStats['level']['level']+1?><?php else: ?> · höchstes Level erreicht<?php endif; ?></p>
       </div>
       <a class="level-link" href="#achievements"><b><?=$ach['done']?></b><small>/ <?=$ach['total']?> Achievements</small></a>
+    </section>
+
+    <?php $kontoAvatar=null;try{$kontoAvatar=dtp_avatar_get((int)$learner['id']);}catch(Throwable $error){error_log('DAU TO PRO Avatare: '.$error->getMessage());} ?>
+    <section class="konto-avatar" aria-label="Dein Avatar">
+      <div class="konto-avatar-hex" aria-hidden="true"><?=dtp_avatar_stack_html($kontoAvatar)?></div>
+      <div>
+        <strong><?=$kontoAvatar?'Dein Avatar':'Noch kein Avatar gewählt'?></strong>
+        <p><?=$kontoAvatar?'So erscheinst du im Highscore und in deinem Lernprofil.':'Such dir eine von sieben Figuren aus und stell ihr Zubehör zusammen. Sie erscheint im Highscore und in deinem Lernprofil.'?></p>
+        <a class="secondary-action" href="avatare.php"><?=$kontoAvatar?'Avatar ändern':'Avatar wählen'?> <span aria-hidden="true">→</span></a>
+      </div>
     </section>
 
   <?php require __DIR__.'/progress-panels.php'; ?>

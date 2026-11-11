@@ -65,6 +65,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <link rel="icon" type="image/svg+xml" href="../assets/dau-to-pro-pixelpilz.svg?v=20261103">
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="highscore-arcade.css?v=<?=filemtime(__DIR__.'/highscore-arcade.css')?>">
+  <link rel="stylesheet" href="avatare.css?v=<?=filemtime(__DIR__.'/avatare.css')?>">
   <script src="highscore-arcade.js?v=<?=filemtime(__DIR__.'/highscore-arcade.js')?>" defer></script>
   <link rel="stylesheet" href="cheat-shelf.css?v=<?=filemtime(__DIR__.'/cheat-shelf.css')?>">
   <link rel="stylesheet" href="unterricht.css?v=<?=filemtime(__DIR__.'/unterricht.css')?>">

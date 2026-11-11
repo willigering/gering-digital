@@ -1,6 +1,13 @@
 <?php
 /** Shared ranking for the landing page and the full Highscore. */
+require_once __DIR__.'/../avatare_lib.php';
 function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fullPage = false): void {
+    $avatars = dtp_avatar_for_rows_safe($rows);
+    // Hex-Fassung: gewählter Avatar mit Zubehör; ohne Wahl (oder freier Platz) bleibt der bisherige Platzhalter.
+    $avatar = static function (?array $row) use ($avatars): string {
+        $cfg = $row ? ($avatars[(int)$row['id']] ?? null) : null;
+        return '<span class="arcade-avatar'.($cfg ? ' has-avatar' : '').'" aria-hidden="true">'.dtp_avatar_stack_html($cfg).'</span>';
+    };
     $profile = static function (array $row) use ($fullPage, $learnerId): string {
         $id = (int)$row['id'];
         $name = e($row['username']);
@@ -36,7 +43,7 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                         <span><?=$rank?></span>
                     </div>
                     <span class="arcade-frame-glints" aria-hidden="true"></span>
-                    <span class="arcade-avatar" aria-hidden="true"></span>
+                    <?=$avatar($row)?>
                     <?php if ($row): ?>
                     <div class="arcade-profile">
                         <div class="hs-name"><?=$profile($row)?><?php if ($self): ?> <small class="arcade-you">(du)</small><?php endif; ?></div>
@@ -64,7 +71,7 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                     ?>
                         <li class="arcade-runner<?=$self ? ' is-self' : ''?>" aria-label="Platz <?=$rank?>"<?=$self && $reveal ? ' data-highscore-reveal' : ''?>>
                             <span class="arcade-runner-rank" aria-hidden="true"><?=$rank?></span>
-                            <span class="arcade-avatar" aria-hidden="true"></span>
+                            <?=$avatar($row)?>
                             <div class="arcade-runner-info">
                                 <div class="hs-name"><?=$profile($row)?><?php if ($self): ?> <small class="arcade-you">(du)</small><?php endif; ?></div>
                                 <span>Level <?=(int)$row['level']?> · <?=e($row['title'])?></span>

@@ -33,6 +33,7 @@ if ($learner) {
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
   <link rel="stylesheet" href="highscore-arcade.css?v=<?=filemtime(__DIR__.'/highscore-arcade.css')?>">
+  <link rel="stylesheet" href="avatare.css?v=<?=filemtime(__DIR__.'/avatare.css')?>">
   <script src="highscore-arcade.js?v=<?=filemtime(__DIR__.'/highscore-arcade.js')?>" defer></script>
   <script src="profiles.js" defer></script>
   <?php if($reveal): ?><script src="highscore-reveal.js?v=<?=filemtime(__DIR__.'/highscore-reveal.js')?>" defer></script><?php endif; ?>

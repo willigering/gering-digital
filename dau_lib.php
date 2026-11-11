@@ -550,7 +550,7 @@ function dtp_hero_scene(array $hero,string $alt): string {
 
 /**
  * Top navigation of the DAU TO PRO pages.
- * $page: 'start' (landing page) or 'konto' (learner account page). $learner: logged-in username or null.
+ * $page: 'start' (landing page), 'konto' (learner account page), 'highscore' or 'avatare' (avatar choice). $learner: logged-in username or null.
  */
 function dtp_nav(string $page,?string $learner): string {
     $start=$page==='start';
@@ -565,17 +565,18 @@ function dtp_nav(string $page,?string $learner): string {
         // Angemeldet: „Mein Konto“ klappt ein kleines Menü auf (Fortschritt, Einstellungen, Abmelden).
         $logout='<form method="post" action="konto.php" class="nav-logout"><input type="hidden" name="csrf" value="'.e(csrf()).'"><input type="hidden" name="action" value="logout"><button type="submit">Abmelden</button></form>';
         $desktop.='      <div class="nav-account-menu">
-        <button type="button" class="nav-account'.(in_array($page,['konto','highscore'],true)?' selected':'').'" aria-expanded="false" aria-controls="dtp-account-panel">Mein Konto <span aria-hidden="true">▾</span></button>
+        <button type="button" class="nav-account'.(in_array($page,['konto','highscore','avatare'],true)?' selected':'').'" aria-expanded="false" aria-controls="dtp-account-panel">Mein Konto <span aria-hidden="true">▾</span></button>
         <div class="nav-account-panel" id="dtp-account-panel" hidden>
           <p>Angemeldet als <strong>'.e($learner).'</strong></p>
           <a href="konto.php">Mein Fortschritt</a>
           <a href="konto.php#achievements">Achievements</a>
           <a href="highscore.php"'.($page==='highscore'?' aria-current="page"':'').'>Highscore</a>
+          <a href="avatare.php"'.($page==='avatare'?' aria-current="page"':'').'>Avatar wählen</a>
           <a href="konto.php#einstellungen">Konto-Einstellungen</a>
           '.$logout.'
         </div>
       </div>'."\n";
-        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#achievements">Achievements</a><a href="highscore.php">Highscore</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
+        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#achievements">Achievements</a><a href="highscore.php">Highscore</a><a href="avatare.php"'.$current($page==='avatare').'>Avatar wählen</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">
