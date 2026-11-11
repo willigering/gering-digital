@@ -34,6 +34,11 @@ function nfm_songs(): array {
     if (is_file(nfm_dir().'/wer-bist-du.mp3')) {
         $songs['wer-bist-du']=['file'=>'wer-bist-du.mp3','title'=>'Diggy Thal – Wer bist du?','unlock'=>null,'module'=>null];
     }
+    // Öffentliches Nerd-Radio: für Gäste und Lernkonten ohne Freischaltung.
+    // Sichtbar erst, wenn die MP3 tatsächlich auf dem Server liegt.
+    if (is_file(nfm_dir().'/du-machst-mich-krank.mp3')) {
+        $songs['du-machst-mich-krank']=['file'=>'du-machst-mich-krank.mp3','title'=>'Diggy Thal – Du machst mich krank!','unlock'=>null,'module'=>null];
+    }
     return $songs;
 }
 function nfm_dir(): string { return __DIR__.'/dau-to-pro/audio/nerd-fm'; }
