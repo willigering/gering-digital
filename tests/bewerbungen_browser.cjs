@@ -7,7 +7,7 @@ const http=require("node:http");
 const path=require("node:path");
 const assert=require("node:assert/strict");
 const {chromium}=require("playwright");
-const {PDFDocument}=require("pdf-lib");
+const {PDFDocument,PDFName,decodePDFRawStream}=require("pdf-lib");
 
 const companies=[
  {id:"betrieb-lage",company:"Musterfirma Lage",city:"Lage",street:"Bahnhofstr. 10",postal:"32791",postCity:"Lage",recipient:"Personalabteilung",email:"lage@example.org",distanceKm:2,status:"beworben",appliedAt:"2026-11-10"},
@@ -23,12 +23,29 @@ const cfg={
 };
 let calls={preview:0,send:0,raw:""};
 let originalPresent=false;
-let pdfTemplate=null;
-async function run(){
+let pdfOriginal=null;
+let originalRequests=0;
+async function makeSyntheticOriginal(){
  const master=await PDFDocument.create();
  for(let i=0;i<5;i++)master.addPage([595.32,841.92]);
- master.setKeywords(["GD_Bewerbung_Seite2_Leer_V1"]);
- pdfTemplate=Buffer.from(await master.save({useObjectStreams:false}));
+ const context=master.context;
+ const page=master.getPage(1);
+ const code=c=>c.charCodeAt(0).toString(16).padStart(4,"0").toUpperCase();
+ const entries=Array.from({length:95},(_,i)=>String.fromCharCode(i+32));
+ const unicode=context.register(context.flateStream(
+   "95 beginbfchar\n"+entries.map(c=>`<${code(c)}> <${code(c)}>`).join("\n")+"\nendbfchar"
+ ));
+ const font=context.obj({
+   BaseFont:"CIDFont+F1", ToUnicode:unicode, DescendantFonts:[{W:[32,126,500]}]
+ });
+ page.node.set(PDFName.of("Resources"),context.obj({Font:{F1:font}}));
+ const rows=[224.320007,243.679993,263.040009,282.399994,378.880005,475.519989];
+ const lines=rows.map(y=>`/F1 14.720600 Tf\n1 0 0.000000 -1 94.559998 ${y} Tm\n[<0020>] TJ`);
+ page.node.set(PDFName.of("Contents"),context.register(context.flateStream(lines.join("\n"))));
+ return Buffer.from(await master.save({useObjectStreams:false}));
+}
+async function run(){
+ pdfOriginal=await makeSyntheticOriginal();
  const server=http.createServer(async(req,res)=>{
    const url=new URL(req.url,"http://localhost");
    const send=(status,body,headers={})=>{
@@ -41,9 +58,10 @@ async function run(){
    if(url.pathname==="/bewerbungen-mail.php"){
      const a=url.searchParams.get("action");
      if(a==="state"){send(200,{config:cfg,senderAddress:"willi.gering@mail.de",smtpConfigured:true,cvStored:true,cvFilename:"Lebenslauf.pdf",originalStored:originalPresent,originalFilename:originalPresent?"Stadt_Lage.pdf":null,templateStored:true,templateFilename:"Blank_Vorlage.pdf",history:[]});return;}
-     if(a==="template"){
+     if(a==="original" && req.method==="GET"){
+       originalRequests++;
        res.writeHead(200,{"Content-Type":"application/pdf","Cache-Control":"no-store"});
-       res.end(pdfTemplate);return;
+       res.end(pdfOriginal);return;
      }
      const chunks=[];for await(const chunk of req)chunks.push(chunk);
      const body=Buffer.concat(chunks).toString("utf8");
@@ -108,6 +126,15 @@ async function run(){
    assert.equal(desktopColors.neutral,"rgba(0, 0, 0, 0)","Not yet applied company is neutral");
    assert.match(desktopColors.wallpaper,/network-ports-1536\.webp/,"Uses the actual Unterrichtsmaterial background");
    assert.equal(await page.locator("#logoutTop").isVisible(),true,"Logout always visible in the top bar");
+   await page.locator(".nav-item[data-view='settings']").click();
+   await page.waitForSelector("#gdm-config-form");
+   assert.equal(await page.locator("#gdm-original-status").innerText(),"Noch keine Originalbewerbung hinterlegt");
+   assert.equal(await page.locator("#gdm-download-original").isVisible(),false,"Private original download hidden before upload");
+   await page.locator("#gdm-original-input").setInputFiles({
+     name:"Original.pdf",mimeType:"application/pdf",buffer:pdfOriginal
+   });
+   await page.waitForFunction(()=>document.querySelector("#gdm-original-status").textContent.includes("privat gespeichert"));
+   assert.equal(await page.locator("#gdm-download-original").isVisible(),true,"Private original download shown after upload");
    await page.locator('.nav-item[data-view="overview"]').click();
    await page.locator(".gdm-top-button").click();
    await page.waitForSelector("#gdm-overlay:not([hidden])");
@@ -122,7 +149,21 @@ async function run(){
    await page.locator("#gdm-preview").click();
    await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
    assert.equal(calls.preview,0,"Five-page PDF preview is created locally, not as a separate one-page server PDF");
-   await page.locator("#gdm-letter").fill("Geänderter Anschreibenstext.");
+   assert.equal(originalRequests,1,"Preview requests the private original PDF");
+   const generated=Buffer.from(await page.evaluate(async()=>{
+     const url=document.querySelector("#gdm-pdf-download").href;
+     return Array.from(new Uint8Array(await (await fetch(url)).arrayBuffer()));
+   }));
+   const pdf=await PDFDocument.load(generated);
+   assert.equal(pdf.getPageCount(),5);
+   const content=pdf.getPage(1).node.lookup(PDFName.of("Contents"));
+   const stream=Buffer.from(decodePDFRawStream(content).decode()).toString("ascii");
+   const rows=[...stream.matchAll(/<([0-9A-F]+)> Tj/g)].map(m=>
+     m[1].match(/.{4}/g).map(code=>String.fromCharCode(parseInt(code,16))).join(""));
+   assert.deepEqual(rows.slice(0,4),["Musterfirma Lemgo","Personal","Kirchweg 8","32657 Lemgo"]);
+   assert.match(rows[4],/^\d{2}\.\d{2}\.\d{4}$/);
+   assert.equal(rows[5],"Sehr geehrte Damen und Herren,");
+   await page.locator("#gdm-subject").fill("Geänderter E-Mail-Betreff.");
    assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Editing invalidates preview");
    await page.locator("#gdm-preview").click();
    await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
@@ -135,14 +176,6 @@ async function run(){
    await page.waitForSelector("#gdm-config-form");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
    assert.equal((await page.locator("#gdm-cv-status").textContent()).trim(),"Lebenslauf.pdf gespeichert");
-   assert.match(await page.locator("#gdm-map-status").innerText(),/fünfseitige Vorlage bereit/,"Five-page template ready");
-   assert.equal(await page.locator("#gdm-original-status").innerText(),"Noch keine Originalbewerbung hinterlegt");
-   assert.equal(await page.locator("#gdm-download-original").isVisible(),false,"Private original download hidden before upload");
-   await page.locator("#gdm-original-input").setInputFiles({
-     name:"Stadt Lage.pdf",mimeType:"application/pdf",buffer:Buffer.from("%PDF-1.4\n"+' '.repeat(130)+"\n%%EOF")
-   });
-   await page.waitForFunction(()=>document.querySelector("#gdm-original-status").textContent.includes("Stadt_Lage.pdf"));
-   assert.equal(await page.locator("#gdm-download-original").isVisible(),true,"Private archive download shown after upload");
    const importDoc={senderName:"Test Name",senderStreet:"Musterstr. 5",senderPostal:"32791",senderCity:"Teststadt",senderPhone:"",
       subjectTemplate:"Bewerbung bei {FIRMA}",salutation:"Sehr geehrte Damen und Herren,",
       coverLetter:"Test: kein personenbezogener Text in GitHub.",mailBody:"Hallo, anbei die Bewerbung."};
