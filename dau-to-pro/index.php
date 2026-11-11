@@ -9,14 +9,12 @@ $learnerName=$learnerRow['username']??null;
 $revealId=$_SESSION['dtp_highscore_reveal']??null;
 unset($_SESSION['dtp_highscore_reveal']);
 $reveal=$learnerRow && $revealId===(int)$learnerRow['id'];
-if ($learnerRow) header('Cache-Control: no-store, private');
-// Highscore-Vorschau: wie highscore.php nur für angemeldete Lernende, Gäste sehen einen Hinweis.
-$hsRows=[];$hsMe=null;$hsRank=0;$hsCount=0;
+header('Cache-Control: no-store, private');
+$hsRows=[];$hsMe=null;$hsRank=0;
 $cardProgress=[];
 try {
-    $hsCount=(int)db()->query('SELECT COUNT(*) FROM learner_stats WHERE highscore_visible=1 AND highscore_blocked=0')->fetchColumn();
+    $hsRows=ach_highscore(100,publicOnly: !$learnerRow);
     if ($learnerRow) {
-        $hsRows=ach_highscore(100);
         $hsMe=ach_stats((int)$learnerRow['id']);
         $hsRank=ach_would_rank((int)$learnerRow['id']);
     }
@@ -199,26 +197,15 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 <?php endif; ?>
   <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">
-      <div class="section-heading" data-reveal><div><span class="eyebrow">DAU-TO-PRO</span><h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2><p>Die besten Lernenden nach XP. In der Liste steht nur, wer die Sichtbarkeit im eigenen Konto eingeschaltet hat.</p></div><span class="section-count"><?=$hsCount?> <?=$hsCount===1?'Person':'Personen'?> sichtbar</span></div>
-<?php if (!$learnerRow): ?>
-      <div class="hs-teaser" data-reveal>
-        <div><strong>Nur mit Lernkonto</strong><p>Den Highscore sehen angemeldete Lernende. Mit Konto sammelst du XP, Level und Achievements und entscheidest selbst, ob du in der Liste auftauchst.</p></div>
-        <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
-      </div>
-<?php else: ?>
       <div class="hs-board" data-reveal>
-<?php if (!$hsRows): ?>
-        <p class="hs-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
-<?php else: ?>
         <?php require_once __DIR__.'/highscore-board.php'; ?>
-        <?php dtp_highscore_board($hsRows, (int)$learnerRow['id'], $reveal); ?>
-<?php endif; ?>
+        <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
         <div class="hs-foot">
           <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
-          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
+          <?php if (!$learnerRow && !$hsRows): ?><span>Es gibt noch keine öffentlich freigegebenen Einträge.</span><?php endif; ?>
+          <a class="secondary-action" href="<?=$learnerRow?'highscore.php':'konto.php'?>"><?=$learnerRow?'Ganzer Highscore':'Zum Lernkonto'?> <span aria-hidden="true">→</span></a>
         </div>
       </div>
-<?php endif; ?>
     </div>
   </section>
  <?php $cheatTopics=[

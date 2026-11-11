@@ -481,14 +481,32 @@ function ach_item(array $a,array $unlocked): array {
     elseif (!$on && $a['hint']!==null) $item['desc']=$a['hint'];
     return $item;
 }
+function ach_public_highscore_enabled(int $learnerId): bool {
+    $q=db()->prepare("SELECT 1 FROM learner_prefs WHERE learner_id=? AND pref_key='highscore_public' AND value='1'");
+    $q->execute([$learnerId]);
+    return (bool)$q->fetchColumn();
+}
 function ach_stats(int $learnerId): array {
     $row=ach_stats_row($learnerId);
     return ['level'=>ach_level_info((int)$row['xp']),'visible'=>(int)$row['highscore_visible']===1,'blocked'=>(int)$row['highscore_blocked']===1,'achievements'=>(int)$row['achievements']];
 }
 /** Highscore-Sichtbarkeit (Opt-in). Einschalten schaltet „Rampensau“ frei. */
-function ach_set_visible(int $learnerId,bool $visible): array {
+function ach_set_visible(int $learnerId,bool $visible,bool $public=false): array {
     ach_stats_row($learnerId);
-    db()->prepare('UPDATE learner_stats SET highscore_visible=? WHERE learner_id=?')->execute([$visible?1:0,$learnerId]);
+    $db=db();
+    $db->beginTransaction();
+    try {
+        $db->prepare('UPDATE learner_stats SET highscore_visible=? WHERE learner_id=?')->execute([$visible?1:0,$learnerId]);
+        if ($visible && $public) {
+            $db->prepare("INSERT OR REPLACE INTO learner_prefs(learner_id,pref_key,value) VALUES(?,'highscore_public','1')")->execute([$learnerId]);
+        } else {
+            $db->prepare("DELETE FROM learner_prefs WHERE learner_id=? AND pref_key='highscore_public'")->execute([$learnerId]);
+        }
+        $db->commit();
+    } catch (Throwable $error) {
+        $db->rollBack();
+        throw $error;
+    }
     return ach_evaluate($learnerId);
 }
 function ach_admin_block(int $learnerId,bool $blocked): void {
@@ -505,15 +523,19 @@ function ach_rarity(): array {
  * Rangliste: nur Konten mit eingeschalteter Sichtbarkeit (und nicht vom Admin ausgeblendet).
  * Sortierung: XP, dann Anzahl Achievements, dann wer den Stand zuerst erreicht hat.
  */
-function ach_highscore(int $limit=100): array {
+function ach_highscore(int $limit=100,bool $publicOnly=false): array {
+    $publicFilter=$publicOnly
+        ? " AND EXISTS (SELECT 1 FROM learner_prefs p WHERE p.learner_id=l.id AND p.pref_key='highscore_public' AND p.value='1')"
+        : '';
     $q=db()->prepare('SELECT l.id,l.username,s.xp,s.level,s.achievements,s.xp_changed_at FROM learner_stats s JOIN learners l ON l.id=s.learner_id
-        WHERE s.highscore_visible=1 AND s.highscore_blocked=0 ORDER BY s.xp DESC,s.achievements DESC,COALESCE(s.xp_changed_at,\'9999\') ASC,l.id ASC LIMIT ?');
+        WHERE s.highscore_visible=1 AND s.highscore_blocked=0'.$publicFilter.' ORDER BY s.xp DESC,s.achievements DESC,COALESCE(s.xp_changed_at,\'9999\') ASC,l.id ASC LIMIT ?');
     $q->execute([$limit]);
     $rows=$q->fetchAll(PDO::FETCH_ASSOC);
-    $rarity=ach_rarity();$catalog=ach_catalog();
+    $rarity=$publicOnly?[]:ach_rarity();$catalog=$publicOnly?[]:ach_catalog();
     $codes=db()->prepare('SELECT code FROM learner_achievements WHERE learner_id=?');
     foreach($rows as $i=>&$r) {
         $r['rank']=$i+1;$r['level']=ach_level((int)$r['xp']);$r['title']=ach_level_title((int)$r['level']);$r['showcase']=xp_showcase((int)$r['id']);
+        if ($publicOnly) continue;
         $codes->execute([$r['id']]);
         $own=array_values(array_filter($codes->fetchAll(PDO::FETCH_COLUMN),fn($c)=>ach_visible($c)));
         usort($own,fn($a,$b)=>[$rarity[$a]??0,-$catalog[$a]['xp']]<=>[$rarity[$b]??0,-$catalog[$b]['xp']]);
