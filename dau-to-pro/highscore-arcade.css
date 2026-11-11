@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Barlow Condensed Scoreboard";
+  src: url("../assets/fonts/barlow-condensed-black-italic.ttf") format("truetype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* Human portraits will use the same avatar frame once their art is ready. */
 .arcade-stage {
   --avatar-art: none;
@@ -34,7 +42,6 @@
   box-shadow: none;
 }
 .arcade-heading { margin-bottom: 22px; }
-.arcade-heading .eyebrow { color: #79e9ff; letter-spacing: .24em; }
 .arcade-heading h2,
 .arcade-full .hs-head h1 {
   color: #f1f8fc;
@@ -50,6 +57,10 @@
   text-shadow: 2px 4px #432507, 0 0 24px #ffc55c50;
 }
 .arcade-heading h2 {
+  font-family: "Barlow Condensed Scoreboard", Impact, system-ui, sans-serif;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: -.01em;
   font-size: clamp(28px, 3.6vw, 57px);
   line-height: .98;
   margin: 8px 0 12px;
@@ -60,6 +71,56 @@
   font-size: 12px;
   letter-spacing: .12em;
   text-transform: uppercase;
+}
+.arcade-heading h2 span { position: relative; display: inline-block; }
+.arcade-heading h2 span::before {
+  content: "";
+  position: absolute;
+  top: -.23em;
+  left: .15em;
+  width: .58em;
+  height: .36em;
+  background: linear-gradient(155deg, #fff0ad 18%, #ffcb68 48%, #b96918 91%);
+  clip-path: polygon(0 22%, 29% 46%, 50% 0, 71% 46%, 100% 22%, 85% 85%, 83% 100%, 17% 100%, 15% 85%);
+  transform: rotate(-7deg);
+}
+@supports (background-clip: text) {
+  .arcade-heading h2 span,
+  .arcade-stage--landing .rank-1 .arcade-score strong {
+    background: linear-gradient(170deg, #fff4c7 10%, #ffe08a 37%, #e8a02f 75%, #ffdf87 98%);
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 2px 1px #462509) drop-shadow(0 0 7px #f7a92565);
+  }
+}
+.arcade-frame-glints {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  color: var(--rank-glow);
+}
+.arcade-frame-glints::before,
+.arcade-frame-glints::after {
+  content: "";
+  position: absolute;
+  width: clamp(19px, 3.6vw, 55px);
+  aspect-ratio: 1;
+  background:
+    radial-gradient(circle, #fff 0 4%, #fff3ca 6%, transparent 31%),
+    linear-gradient(90deg, transparent, #fff1d1 50%, transparent) center / 100% 1px no-repeat,
+    linear-gradient(0deg, transparent, #fff1d1 50%, transparent) center / 1px 100% no-repeat;
+  filter: drop-shadow(0 0 5px currentColor);
+  transform: translate(-50%, -50%) rotate(-12deg);
+  opacity: .78;
+}
+.arcade-frame-glints::before { top: 10%; left: 11%; }
+.arcade-frame-glints::after { top: 99%; left: 86%; }
+.arcade-stage--landing .rank-1 .arcade-frame-glints::before { opacity: 1; }
+.arcade-stage--landing .rank-1 .arcade-frame-glints::after { top: 60%; left: 100%; opacity: 1; }
+.arcade-stage--landing .arcade-medals .showcase-icon img {
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--rank-glow) 65%, transparent));
 }
 .arcade-heading::after {
   content: "";
@@ -425,18 +486,11 @@
   }
   .arcade-heading {
     position: absolute;
-    top: 1.65cqw;
+    top: 3.1cqw;
     left: 4.2cqw;
     z-index: 1;
     width: 35.6cqw;
     margin: 0;
-  }
-  .arcade-heading .eyebrow {
-    margin: 0 0 .65cqw 3.75cqw;
-    font-size: clamp(11px, 1.25cqw, 20px);
-    letter-spacing: .31em;
-    font-style: italic;
-    text-shadow: 0 0 .9cqw #24cfe4;
   }
   .arcade-heading::after {
     width: 62%;
@@ -445,10 +499,10 @@
   }
   .arcade-heading h2 {
     margin: 0 0 .85cqw;
-    font-size: 3.6cqw;
+    font-size: 4.15cqw;
     line-height: .97;
     white-space: nowrap;
-    transform: skewX(-7deg) scaleX(.9);
+    transform: rotate(-3deg) scaleX(.96);
     transform-origin: left;
     text-shadow: 0 .23cqw #07111b, .16cqw .34cqw #020609, 0 0 1cqw #b0def050;
   }
@@ -484,7 +538,7 @@
   .arcade-stage--landing .arcade-champion.rank-1 {
     min-height: 26cqw;
     padding-top: .85cqw;
-    filter: drop-shadow(0 0 1.1cqw #ffa72b8a);
+    filter: drop-shadow(0 0 .4cqw #ffd478b0) drop-shadow(0 0 1.05cqw #ffa72b80);
   }
   .arcade-stage--landing .arcade-rank {
     font-size: 3.7cqw;
@@ -527,7 +581,7 @@
     border: 1px solid #b98942;
     border-radius: 6px 19px 6px 19px;
     background: linear-gradient(140deg, #0b1b26, #040a10 70%);
-    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae5355, 0 0 1.3cqw #ffbd4654;
+    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae537a, 0 0 1.3cqw #ffbd4663;
   }
   .arcade-stage--landing + .arcade-next-places--empty { min-height: 10.5cqw; }
   .arcade-stage--landing + .arcade-next-places .arcade-next-head {
