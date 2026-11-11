@@ -435,6 +435,7 @@
     position: relative;
     z-index: 1;
   }
+  .arcade-heading::after { width: 55%; }
   .arcade-heading h2 {
     font-size: clamp(28px, 3.2vw, 50px);
     text-wrap: initial;
