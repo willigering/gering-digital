@@ -282,37 +282,6 @@ details[open]>summary{border-bottom:1px solid #70e5d42b}
 <button id="menubtn" aria-label="Menü">☰ Menü</button>
 <main id="main"><a class="dtp-back" href="../index.php#unterrichtsmaterial">← Zurück zum Unterrichtsmaterial</a>
 
-<!-- ============ START ============ -->
-<section class="page" id="p-start" data-n="" data-t="Start" data-g="lern">
-  <span class="kick">Grundlagen der Programmierung zur Verwaltung von Daten</span>
-  <h1 class="ph">T05 – Bedingungen verknüpfen und Eingaben prüfen</h1>
-  <p class="lead">UND, ODER, NICHT (<code>&amp;&amp;</code>, <code>||</code>, <code>!</code>), Bereichsprüfung und <code>TryParse</code> statt Absturz.</p>
-  <p><span class="chip">12 Abschnitte</span><span class="chip">Selbsttest mit 26 Fragen</span><span class="chip">6 Übungsaufgaben · ca. 42 min</span><span class="chip">Stand 11.11.2026</span></p>
-
-  <div class="box goal"><b>Danach kannst du</b>
-    <ol>
-      <li>Für eine Bedingung mit <code>&amp;&amp;</code>, <code>||</code> oder <code>!</code> (im Pseudocode UND, ODER, NICHT) den Wahrheitswert ermitteln – jede Zeile der Wahrheitstabelle stimmt mit der C#-Ausgabe überein.</li>
-      <li>Für einen Wert mit unterer und oberer Grenze die Bereichsbedingung in C# erstellen – Testwerte unter, auf und über jeder Grenze liefern das notierte Soll.</li>
-      <li>Eine Texteingabe mit <code>int.TryParse</code> und <code>if</code> prüfen, bevor das Programm damit rechnet – Buchstaben, leere Eingabe und ganze Zahl führen je zur passenden Ausgabe ohne Abbruch.</li>
-      <li>Eine Prüfkette aus Zahlprüfung, Bereichsprüfung und Entscheidung ergänzen; ungültiger Text, Wert außerhalb und gültiger Wert liefern die erwartete Ausgabe.</li>
-      <li>Einen Verknüpfungs- oder Grenzfehler in einer Bedingung (C# ohne Compilermeldung oder Pseudocode) am Soll-Ist-Vergleich korrigieren – danach stimmen alle Testwerte mit dem Soll überein.</li>
-    </ol>
-  </div>
-
-  <div class="box"><b>So arbeitest du hier</b>
-    <ul>
-      <li>Lies die Abschnitte der Reihe nach (Menü links). Am Ende steht der <a href="#quiz">Selbsttest</a> mit den Fragen zu jedem Abschnitt – beantworte sie, ohne zurückzublättern.</li>
-      <li>Pflicht ist alles ohne die Marke <span class="chip kuer" style="margin:0">freiwillig</span>. Die Kür bearbeitest du erst, wenn der Pflichtteil sitzt.</li>
-      <li>Frage erst selbst beantworten, <em>dann</em> in die Lösung schauen. Wo „Sage vorher …“ steht: Tabelle ausfüllen oder Vorhersage tippen, bevor du die Auflösung öffnest.</li>
-      <li>Alles zum Ausfüllen ist <b>bearbeitbar</b>: Tabellen, Antwortfelder, Checkboxen, Codefelder. Alles wird automatisch im Browser gespeichert. Mit „Sichern“ / „Laden“ (links unten) kannst du deinen Stand als Datei sichern oder auf ein anderes Gerät mitnehmen.</li>
-      <li>Die <span style="color:var(--acc2)">⚗ Labore</span> sind kleine Simulatoren: Ändere Werte und sieh sofort, was <code>&amp;&amp;</code>, <code>TryParse</code> &amp; Co. tun.</li>
-    </ul>
-  </div>
-
-  <div class="row" style="margin:18px 0"><label for="name" style="font-weight:600">Name:</label><input class="inp" id="name" data-save="name" placeholder="Dein Name" style="flex:1;max-width:340px"></div>
-  <p class="srcline">Lernmaterial von Adrian Jankovic · Lernstoff &amp; Tagesübungen, Teilnehmer-Fassung, Stand 11.11.2026 · © 2026 Adrian Jankovic. Interaktive Fassung zum persönlichen Üben.</p>
-</section>
-
 <!-- ============ 1 ============ -->
 <section class="page" id="p-1" data-n="1" data-t="Zwei Bedingungen, eine Entscheidung" data-g="lern">
   <span class="kick">Abschnitt 1 · Einstieg</span>
@@ -1594,8 +1563,8 @@ function buildNav(){
     p.appendChild(pn)});
 }
 function go(){
-  const id=(location.hash||'#start').slice(1);
-  let p=$('#p-'+id);if(!p)p=$('#p-start');
+  const id=(location.hash||'#1').slice(1);
+  let p=$('#p-'+id);if(!p)p=$('#p-1');
   const group=id==='quiz'?'quiz':p.dataset.g==='ueb'?'exercise':'learn';
   pages.forEach(x=>x.classList.toggle('on',(x.id==='p-quiz'?'quiz':x.dataset.g==='ueb'?'exercise':'learn')===group));
   $('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.id===p.id.slice(2)));
@@ -1648,7 +1617,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-resetcode]
 
 /* ---------- tools ---------- */
 function exportState(){
-  const data={app:'T05-lernstoff',version:1,saved:new Date().toISOString(),name:S.get('name')||'',state:S.mem};
+  const data={app:'T05-lernstoff',version:1,saved:new Date().toISOString(),state:S.mem};
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='t05-stand-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},500);toast('Stand gesichert.')}
 function importState(file){const r=new FileReader();r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||d.app!=='T05-lernstoff'||typeof d.state!=='object')throw 0;
