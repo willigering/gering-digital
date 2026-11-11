@@ -49,8 +49,9 @@
   padding: clamp(10px, 3vw, 36px);
   border-radius: 16px;
 }
-.highscore-page .konto-main { max-width: 1480px; }
-.arcade-full .hs-head { margin-bottom: 14px; }
+.highscore-page .konto-main { max-width: 1480px; padding-top: clamp(16px, 2.4vw, 34px); }
+.arcade-full .hs-head { margin-bottom: 5px; }
+.arcade-continue { margin-top: 14px; }
 
 .arcade-mascot {
   display: grid;
@@ -64,6 +65,7 @@
   place-items: center;
   width: 100%;
   aspect-ratio: 3 / 4;
+  max-height: 258px;
   background: var(--mascot-art) center bottom / contain no-repeat,
     linear-gradient(145deg, #76e8f118, transparent 65%);
   border: 1px dashed #77c9d481;
@@ -135,7 +137,7 @@
   justify-content: center;
   gap: 6px;
   padding: 26px 8px 14px;
-  min-height: clamp(220px, 29vw, 365px);
+  min-height: clamp(220px, 26vw, 314px);
   text-align: center;
   filter: drop-shadow(0 0 8px color-mix(in srgb, var(--rank-glow) 46%, transparent));
 }
@@ -144,7 +146,7 @@
   grid-row: 1;
   --rank-glow: #f4a62a;
   --rank-ink: #ffda88;
-  min-height: clamp(245px, 33vw, 410px);
+  min-height: clamp(245px, 30vw, 359px);
 }
 .arcade-champion.rank-2 { grid-column: 1; grid-row: 1; --rank-glow: #51c9fb; --rank-ink: #b9eeff; }
 .arcade-champion.rank-3 { grid-column: 3; grid-row: 1; --rank-glow: #e4885a; --rank-ink: #ffc5a8; }
