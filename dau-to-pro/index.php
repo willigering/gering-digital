@@ -258,7 +258,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">02 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">04 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <div class="unterricht-content">
@@ -289,8 +289,34 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <div class="module-footer"><span>6 THEMEN · 24 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
+        <a class="module-card unterricht-card" style="--mod:#e8b84a" href="unterricht/csharp-aufgaben.html" aria-label="C# Übungsaufgaben öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">C<span>#</span>01</span>
+            <span class="unterricht-art-label">CODE PRAXIS <b>03</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C# GRUNDLAGEN</span>
+            <h2>Castastrophe? Nicht mit dir.</h2>
+            <p>Datentypen umwandeln, Benutzereingaben verarbeiten und Entscheidungen mit if/else treffen. Neun Übungen mit aufklappbaren Lösungen.</p>
+            <div class="module-footer"><span>3 THEMEN · 9 AUFGABEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#70e5d4" href="unterricht/csharp-bedingungen-t05.html" aria-label="C# Bedingungen und Eingaben prüfen öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">IF<span>&amp;&amp;</span></span>
+            <span class="unterricht-art-label">LOGIK LAB <b>04</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C# T05</span>
+            <h2>Wenn, dann, sonst ... Chaos.</h2>
+            <p>UND, ODER, NICHT, Bereichsprüfungen und TryParse. Mit interaktiven Laboren, Selbsttest, Codeaufgaben und speicherbarem Lernstand im Browser.</p>
+            <div class="module-footer"><span>12 ABSCHNITTE · 26 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
       </div>
-      <p class="unterricht-account-hint">Beim interaktiven Material werden Antworten und Notizen im Lernkonto gespeichert. Der neue Support-Guide ist zum Lesen und Nachschlagen – ohne Abhaken und ohne Speichern.</p>
+      <p class="unterricht-account-hint">Das IT VI.01-Material nutzt dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
     </div>
   </details>
 </section>
