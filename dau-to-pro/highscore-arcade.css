@@ -76,7 +76,7 @@
 .arcade-heading h2 span::before {
   content: "";
   position: absolute;
-  top: -.28em;
+  top: -.23em;
   left: .15em;
   width: .58em;
   height: .36em;
@@ -486,7 +486,7 @@
   }
   .arcade-heading {
     position: absolute;
-    top: 2.35cqw;
+    top: 3.1cqw;
     left: 4.2cqw;
     z-index: 1;
     width: 35.6cqw;
@@ -502,7 +502,7 @@
     font-size: 4.15cqw;
     line-height: .97;
     white-space: nowrap;
-    transform: rotate(-3deg);
+    transform: rotate(-3deg) scaleX(.96);
     transform-origin: left;
     text-shadow: 0 .23cqw #07111b, .16cqw .34cqw #020609, 0 0 1cqw #b0def050;
   }
