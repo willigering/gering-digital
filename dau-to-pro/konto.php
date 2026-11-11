@@ -137,6 +137,7 @@ $title=$learner?'Mein Fortschritt':($mode==='registrieren'?'Konto erstellen':($m
   <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
   <link rel="stylesheet" href="konto.css?v=<?=filemtime(__DIR__.'/konto.css')?>">
   <script src="site.js?v=<?=filemtime(__DIR__.'/site.js')?>" defer></script>
+  <?php if($learner): ?><script src="showcase-picker.js?v=<?=filemtime(__DIR__.'/showcase-picker.js')?>" defer></script><?php endif; ?>
 </head>
 <body class="konto-page">
 <?=dtp_backdrop()?>

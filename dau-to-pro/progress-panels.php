@@ -14,9 +14,38 @@ $uid=(int)$learner['id'];$dash=xp_dashboard($uid);$recent=xp_recent($uid);$showc
   <h2 id="showcase-title">Meine Vitrine</h2><p class="konto-hint">Drei Plätze für deine besten Geschichten. Die Reihenfolge bestimmst du hier. Sichtbar werden sie, wenn du den Highscore einschaltest.</p>
   <div class="showcase-preview" aria-label="Aktuelle Vitrine"><?php for($slot=0;$slot<3;$slot++): ?><?=isset($showcase[$slot])?xp_icon_html($showcase[$slot],true):'<span class="showcase-empty" aria-label="Leerer Platz">◇</span>'?><?php endfor; ?></div>
   <form method="post"><?=$hidden('showcase')?>
-    <div class="showcase-slots"><?php for($slot=0;$slot<3;$slot++): ?><label>Platz <?=$slot+1?><select name="slots[<?=$slot?>]"><option value="">Leer lassen</option><?php foreach($own as $code=>$at): if(!ach_visible($code))continue;$item=ach_catalog()[$code]; ?><option value="<?=e($code)?>"<?=($showcase[$slot]['code']??'')===$code?' selected':''?>><?=e($item['name'])?></option><?php endforeach; ?></select></label><?php endfor; ?></div>
+    <?php $choices=[]; foreach ($own as $code=>$at) if (ach_visible($code)) $choices[$code]=ach_item(ach_catalog()[$code],$own); ?>
+    <div class="showcase-slots">
+      <?php for($slot=0;$slot<3;$slot++): ?>
+        <div class="showcase-slot">
+          <label>Platz <?=$slot+1?>
+            <select name="slots[<?=$slot?>]">
+              <option value="">Leer lassen</option>
+              <?php foreach($choices as $code=>$item): ?>
+                <option value="<?=e($code)?>"<?=($showcase[$slot]['code']??'')===$code?' selected':''?>><?=e($item['name'])?></option>
+              <?php endforeach; ?>
+            </select>
+          </label>
+          <button type="button" class="showcase-choice" data-showcase-slot="<?=$slot?>" aria-haspopup="dialog" aria-label="Achievement für Platz <?=$slot+1?> auswählen" hidden></button>
+        </div>
+      <?php endfor; ?>
+    </div>
     <button class="secondary-action" type="submit">Vitrine speichern</button>
   </form>
+  <dialog class="profile-dialog showcase-picker" id="showcase-picker" aria-labelledby="showcase-picker-title">
+    <form method="dialog" class="profile-toolbar">
+      <h3 id="showcase-picker-title">Achievement auswählen</h3>
+      <button class="secondary-action" type="submit" autofocus>Schließen</button>
+    </form>
+    <div class="showcase-options">
+      <button type="button" class="showcase-choice" data-showcase-value=""><span class="ach-icon" aria-hidden="true">◇</span><span>Leer lassen</span></button>
+      <?php foreach($choices as $code=>$item): ?>
+        <button type="button" class="showcase-choice tier-<?=e($item['tier'])?>" data-showcase-value="<?=e($code)?>">
+          <?=xp_icon_html($item)?><span><?=e($item['name'])?></span>
+        </button>
+      <?php endforeach; ?>
+    </div>
+  </dialog>
 </section>
 <section class="konto-section konto-card" aria-labelledby="daily-title">
   <h2 id="daily-title">Dranbleiben lohnt sich</h2>

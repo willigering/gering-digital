@@ -266,3 +266,28 @@
 .highscore-page .profile-dialog .ach-item .ach-icon img{width:54px;height:54px;object-fit:contain;image-rendering:pixelated}
 @media(max-width:540px){.highscore-page .profile-showcase{gap:8px}.highscore-page .profile-showcase-card{padding:12px 7px;min-height:130px}.highscore-page .profile-showcase-card .ach-icon{width:58px;height:58px;font-size:32px}.highscore-page .profile-showcase-card .ach-icon img{width:56px;height:56px}.highscore-page .profile-showcase-card strong{font-size:11px}}
 .showcase-icon [role=tooltip] strong{display:block;color:#eab448;font-weight:700}.showcase-icon [role=tooltip] small{display:block;margin-top:4px;font:400 12px/1.4 Inter,system-ui;color:#d7dde2}.showcase-icon [role=tooltip]{max-width:220px}
+
+.showcase-slot { display: grid; gap: 6px; min-width: 0; }
+.showcase-choice[hidden] { display: none; }
+.showcase-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #536873;
+  border-radius: 7px;
+  background: #0b1820;
+  color: var(--cream);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.showcase-choice:is(:hover, :focus-visible, [aria-pressed="true"]) { border-color: var(--gold); background: #19232a; }
+.showcase-choice .ach-icon { flex: 0 0 48px; width: 48px; height: 48px; font-size: 24px; }
+.showcase-choice .ach-icon img { width: 40px; height: 40px; }
+.showcase-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr)); gap: 8px; }
+.showcase-picker .profile-toolbar { align-items: center; }
+.showcase-picker .profile-toolbar h3 { margin: 0; }
