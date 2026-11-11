@@ -277,6 +277,11 @@
   background: #071218ed;
   box-shadow: inset 0 1px #65deec60, 0 0 22px #ffb44b22;
 }
+.arcade-next-places--empty p {
+  margin: 0;
+  color: #becdd5;
+  font-size: 13px;
+}
 .arcade-next-places .arcade-next-head {
   margin: 0 0 8px;
   color: #ffe4b8;
@@ -388,35 +393,174 @@
 .arcade-runner.is-self .arcade-name { color: #fff0ce; }
 
 @media (min-width: 960px) {
+  .catalog-panel > .hs-featured {
+    --arena-width: min(1536px, calc(100vw - 36px));
+    width: var(--arena-width);
+    margin-inline: calc((100% - var(--arena-width)) / 2);
+    padding: 0;
+    border-radius: 3px;
+    border-color: #1a586a;
+    container-type: inline-size;
+    background:
+      linear-gradient(180deg, #02070f44, transparent 52%, #02070f54),
+      url("../assets/dau-backgrounds/highscore-arena.webp") center / cover no-repeat,
+      #061018;
+  }
+  .catalog-panel > .hs-featured .section-shell { width: 100%; }
   .arcade-stage--landing {
-    grid-template-columns: minmax(145px, 1fr) minmax(0, 3.4fr);
-    align-items: start;
-    background: url("../assets/dau-to-pro-highscore-mascot.webp") left bottom / 22% auto no-repeat;
+    position: relative;
+    display: block;
+    padding: 4.55cqw 6.8cqw .75cqw 28.3cqw;
+  }
+  .arcade-stage--landing::before {
+    content: "";
+    position: absolute;
+    top: 13.8cqw;
+    left: 1.2cqw;
+    width: 20.4cqw;
+    height: 34.1cqw;
+    background: url("../assets/dau-to-pro-highscore-mascot.webp") center / contain no-repeat;
+    pointer-events: none;
+    filter: drop-shadow(0 0 1.4cqw #031118);
   }
   .arcade-heading {
-    width: calc(100% + clamp(130px, 16vw, 230px));
-    position: relative;
-    z-index: 1;
-    margin-top: 6px;
-  }
-  .arcade-heading::after { width: 55%; }
-  .arcade-heading h2 {
-    font-size: clamp(27px, 3.05vw, 47px);
-    text-wrap: initial;
-  }
-  .arcade-champion.rank-1 .arcade-rank {
-    inset: 11px 7% auto auto;
-    transform: none;
-    font-size: clamp(38px, 4.4vw, 70px);
-  }
-  .arcade-champion.rank-1 .arcade-rank::before,
-  .arcade-champion.rank-1 .arcade-rank::after { content: none; }
-  .arcade-champion.rank-1 .arcade-crown {
     position: absolute;
-    right: clamp(46px, 5vw, 76px);
-    bottom: calc(100% + 8px);
-    color: #ffdc8c;
-    font-size: .9em;
+    top: 1.65cqw;
+    left: 4.2cqw;
+    z-index: 1;
+    width: 35.6cqw;
+    margin: 0;
   }
-  .arcade-champion.rank-1 > .arcade-avatar { margin-right: 13%; }
+  .arcade-heading .eyebrow {
+    margin: 0 0 .65cqw 3.75cqw;
+    font-size: clamp(11px, 1.25cqw, 20px);
+    letter-spacing: .31em;
+    font-style: italic;
+    text-shadow: 0 0 .9cqw #24cfe4;
+  }
+  .arcade-heading::after {
+    width: 62%;
+    margin-top: .85cqw;
+    transform: skewX(-25deg);
+  }
+  .arcade-heading h2 {
+    margin: 0 0 .85cqw;
+    font-size: 3.6cqw;
+    line-height: .97;
+    white-space: nowrap;
+    transform: skewX(-7deg) scaleX(.9);
+    transform-origin: left;
+    text-shadow: 0 .23cqw #07111b, .16cqw .34cqw #020609, 0 0 1cqw #b0def050;
+  }
+  .arcade-heading h2 span { font-size: 1.18em; }
+  .arcade-heading > p:last-child {
+    margin: 0 0 0 2.5cqw;
+    font-size: clamp(9px, .86cqw, 14px);
+    letter-spacing: .27em;
+    font-weight: 650;
+  }
+  .arcade-stage--landing .arcade-champions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, .99fr);
+    gap: 1.25cqw;
+    padding-top: 0;
+  }
+  .arcade-stage--landing .arcade-champion {
+    --frame: polygon(10% 0, 92% 0, 100% 10%, 100% 92%, 93% 100%, 8% 100%, 0 92%, 0 10%);
+    justify-content: start;
+    gap: .32cqw;
+    min-height: 21.6cqw;
+    padding: 1cqw .95cqw .7cqw;
+  }
+  .arcade-stage--landing .arcade-champion::before {
+    background: linear-gradient(128deg, var(--rank-glow) 1%, #fff 10%, var(--rank-glow) 15% 40%, #fff2d1 48%, var(--rank-glow) 52% 78%, #fff8e5 85%, var(--rank-glow) 91%);
+  }
+  .arcade-stage--landing .arcade-champion::after {
+    inset: 4px;
+    background:
+      radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--rank-glow) 29%, transparent), transparent 66%),
+      repeating-linear-gradient(132deg, transparent 0 3px, #8ea4a818 4px 5px, transparent 6px 11px),
+      linear-gradient(150deg, #172027, #070e13 54%, #151d21);
+  }
+  .arcade-stage--landing .arcade-champion.rank-1 {
+    min-height: 26cqw;
+    padding-top: .85cqw;
+    filter: drop-shadow(0 0 1.1cqw #ffa72b8a);
+  }
+  .arcade-stage--landing .arcade-rank {
+    font-size: 3.7cqw;
+    bottom: calc(100% - .18cqw);
+  }
+  .arcade-stage--landing .rank-1 .arcade-rank {
+    inset: 1.3cqw 9% auto auto;
+    transform: none;
+    font-size: 7.2cqw;
+    text-shadow: .22cqw .23cqw #784511, .45cqw .42cqw #0a0908, 0 0 1.1cqw #ffae2c;
+  }
+  .arcade-stage--landing .rank-1 .arcade-rank::before,
+  .arcade-stage--landing .rank-1 .arcade-rank::after { content: none; }
+  .arcade-stage--landing .rank-1 .arcade-crown {
+    position: absolute;
+    right: 7.25cqw;
+    top: -5.75cqw;
+    color: #ffdc8c;
+    font-size: .65em;
+  }
+  .arcade-stage--landing .arcade-avatar { width: 7.6cqw; }
+  .arcade-stage--landing .rank-1 > .arcade-avatar { width: 9.05cqw; margin-right: 8%; }
+  .arcade-stage--landing .arcade-name { font-size: 1.65cqw; }
+  .arcade-stage--landing .rank-1 .arcade-name { font-size: 2cqw; }
+  .arcade-stage--landing .arcade-level { font-size: 1.13cqw; }
+  .arcade-stage--landing .arcade-score strong { font-size: 3.45cqw; }
+  .arcade-stage--landing .rank-1 .arcade-score strong { font-size: 4.5cqw; }
+  .arcade-stage--landing .arcade-score > span { font-size: 1.85cqw; }
+  .arcade-stage--landing .arcade-medals { margin-top: .3cqw; }
+  .arcade-stage--landing .hs-showcase :is(.showcase-icon, .hs-showcase-empty) {
+    width: 4.4cqw;
+    border-radius: 5px;
+  }
+  .arcade-stage--landing .arcade-ach-count { display: none; }
+  .arcade-stage--landing .is-vacant .arcade-name { margin-top: .8cqw; color: #d3e1e8; }
+  .arcade-stage--landing + .arcade-next-places {
+    position: relative;
+    margin: .35cqw 1.25cqw 0 18.4cqw;
+    padding: .75cqw 1.25cqw 1cqw;
+    border: 1px solid #b98942;
+    border-radius: 6px 19px 6px 19px;
+    background: linear-gradient(140deg, #0b1b26, #040a10 70%);
+    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae5355, 0 0 1.3cqw #ffbd4654;
+  }
+  .arcade-stage--landing + .arcade-next-places--empty { min-height: 10.5cqw; }
+  .arcade-stage--landing + .arcade-next-places .arcade-next-head {
+    margin: 0 0 .65cqw 1.55cqw;
+    font-size: 1.42cqw;
+    color: #f5f5ec;
+  }
+  .arcade-stage--landing + .arcade-next-places--empty p { margin: 1.8cqw 1.55cqw; }
+  .arcade-stage--landing + .arcade-next-places .arcade-runner {
+    flex-basis: 15.8cqw;
+    gap: .4cqw;
+    padding: .5cqw .65cqw;
+  }
+  .arcade-stage--landing + .arcade-next-places .arcade-runner-info {
+    gap: .16cqw;
+    line-height: 1.2;
+  }
+  .arcade-stage--landing + .arcade-next-places .arcade-runner-info > span:last-child { display: none; }
+  .arcade-stage--landing + .arcade-next-places .arcade-runner-rank { align-self: start; }
+  .arcade-stage--landing + .arcade-next-places .arcade-runner-medals :is(.showcase-icon, .hs-showcase-empty) {
+    width: 2.65cqw;
+    height: 2.6cqw;
+  }
+  .arcade-stage--landing + .arcade-next-places .arcade-progress {
+    height: .85cqw;
+    border-color: #667a88;
+  }
+  .arcade-stage--landing + .arcade-next-places .arcade-progress > span {
+    box-shadow: 0 0 .65cqw #ffb547;
+  }
+  .catalog-panel > .hs-featured .hs-foot {
+    position: relative;
+    margin: 1.15cqw 1.65cqw 1.35cqw 18.4cqw;
+    min-height: 2.5cqw;
+  }
 }
