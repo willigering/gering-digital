@@ -1,9 +1,8 @@
-/* Replace the two empty art slots here when the character assets arrive. */
+/* Human portraits will use the same avatar frame once their art is ready. */
 .arcade-stage {
-  --mascot-art: none;
   --avatar-art: none;
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(0, 3.1fr);
+  grid-template-columns: minmax(0, 1fr);
   align-items: end;
   gap: clamp(12px, 2vw, 30px);
   padding-block: 12px 20px;
@@ -12,8 +11,10 @@
 .arcade-full {
   border: 1px solid #507880;
   background:
-    radial-gradient(ellipse at 62% 30%, #ffa82624, transparent 37%),
-    radial-gradient(ellipse at 13% 75%, #089eb940, transparent 47%),
+    radial-gradient(ellipse at 60% 37%, #ff9d292e, transparent 35%),
+    radial-gradient(ellipse at 18% 78%, #06b7e35c, transparent 45%),
+    radial-gradient(ellipse at 96% 17%, #09bdf442, transparent 27%),
+    linear-gradient(147deg, transparent 19%, #59e5fc23 19.2%, transparent 19.6% 76%, #06b9ee2f 76.2%, transparent 77%),
     linear-gradient(180deg, #040b12a6, #040b1200 38%, #040b1294 90%),
     image-set(url("../assets/dau-backgrounds/server-768.webp") 1x,
               url("../assets/dau-backgrounds/server-1536.webp") 2x) center / cover no-repeat,
@@ -76,25 +77,6 @@
 .arcade-full .hs-head { margin-bottom: 5px; }
 .arcade-continue { margin-top: 14px; }
 
-.arcade-mascot {
-  display: grid;
-  justify-items: center;
-  gap: 12px;
-  padding-bottom: 12px;
-  min-width: 0;
-}
-.arcade-mascot-art {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 1.2;
-  max-height: 220px;
-  background: var(--mascot-art) center bottom / contain no-repeat,
-    linear-gradient(145deg, #76e8f118, transparent 65%);
-  border: 1px dashed #77c9d481;
-  clip-path: polygon(9% 0, 91% 0, 100% 11%, 100% 100%, 0 100%, 0 11%);
-}
-.arcade-mascot-art span,
 .arcade-avatar::after {
   width: 24%;
   aspect-ratio: 1;
@@ -102,21 +84,6 @@
   transform: rotate(45deg);
   color: #9be4f374;
 }
-.arcade-marquee {
-  width: 100%;
-  padding: 10px 0;
-  border: 2px solid #9c682b;
-  background: linear-gradient(165deg, #242c2e, #0d1418 44%, #1a2b31);
-  color: #ffd181;
-  font-size: clamp(12px, 2vw, 25px);
-  font-weight: 900;
-  font-style: italic;
-  text-align: center;
-  text-transform: uppercase;
-  text-shadow: 0 0 13px #ff9900;
-  box-shadow: inset 0 0 14px #f994302a;
-}
-
 .arcade-champions {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr);
@@ -169,14 +136,15 @@
   grid-row: 1;
   --rank-glow: #f4a62a;
   --rank-ink: #ffda88;
+  filter: drop-shadow(0 0 13px #ffaa4373);
   min-height: clamp(280px, 31vw, 378px);
 }
 .arcade-champion.rank-2 { grid-column: 1; grid-row: 1; --rank-glow: #51c9fb; --rank-ink: #b9eeff; }
 .arcade-champion.rank-3 { grid-column: 3; grid-row: 1; --rank-glow: #e4885a; --rank-ink: #ffc5a8; }
 .arcade-champions { padding-top: clamp(48px, 5.7vw, 78px); }
 .arcade-champion::after {
-  inset: 3px;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rank-glow) 40%, #142027),
+  inset: 4px;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rank-glow) 58%, #142027),
     inset 0 0 24px color-mix(in srgb, var(--rank-glow) 34%, transparent);
 }
 .arcade-rank {
@@ -397,11 +365,8 @@
 .has-overflow .arcade-rail { scrollbar-width: none; }
 
 @media (max-width: 760px) {
-  .arcade-stage { grid-template-columns: minmax(0, 1fr); }
-  .arcade-mascot { display: none; }
   .arcade-heading { margin-bottom: 0; }
   .arcade-heading h2 { text-wrap: initial; }
-  .arcade-intro:not(:has(.arcade-heading)) { display: none; }
 }
 @media (max-width: 480px) {
   .catalog-panel > .hs-featured { padding-inline: 8px; }
@@ -423,21 +388,35 @@
 .arcade-runner.is-self .arcade-name { color: #fff0ce; }
 
 @media (min-width: 960px) {
-  .arcade-intro {
-    align-self: stretch;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  .arcade-stage--landing {
+    grid-template-columns: minmax(145px, 1fr) minmax(0, 3.4fr);
+    align-items: start;
+    background: url("../assets/dau-to-pro-highscore-mascot.webp") left bottom / 22% auto no-repeat;
   }
-  .arcade-intro > .arcade-mascot { margin-top: auto; }
   .arcade-heading {
-    width: calc(100% + clamp(100px, 14vw, 210px));
+    width: calc(100% + clamp(130px, 16vw, 230px));
     position: relative;
     z-index: 1;
+    margin-top: 6px;
   }
   .arcade-heading::after { width: 55%; }
   .arcade-heading h2 {
-    font-size: clamp(28px, 3.2vw, 50px);
+    font-size: clamp(27px, 3.05vw, 47px);
     text-wrap: initial;
   }
+  .arcade-champion.rank-1 .arcade-rank {
+    inset: 11px 7% auto auto;
+    transform: none;
+    font-size: clamp(38px, 4.4vw, 70px);
+  }
+  .arcade-champion.rank-1 .arcade-rank::before,
+  .arcade-champion.rank-1 .arcade-rank::after { content: none; }
+  .arcade-champion.rank-1 .arcade-crown {
+    position: absolute;
+    right: clamp(46px, 5vw, 76px);
+    bottom: calc(100% + 8px);
+    color: #ffdc8c;
+    font-size: .9em;
+  }
+  .arcade-champion.rank-1 > .arcade-avatar { margin-right: 13%; }
 }
