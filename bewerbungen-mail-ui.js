@@ -152,11 +152,15 @@ function createSettings(){
   });
   $("gdm-import-template").addEventListener("click",()=>$("gdm-template-input").click());
   $("gdm-template-input").addEventListener("change",async()=>{
-    const file=$("gdm-template-input").files[0];$("gdm-template-input").value="";
+    const input=$("gdm-template-input");
+    const file=input.files[0];
     if(!file)return;
     try{
       if(file.size>30000)throw new Error("Vorlagendatei zu groß.");
-      const data=JSON.parse(await file.text());
+      // Read before clearing the file input; clearing can invalidate the chosen file in browsers.
+      const contents=await file.text();
+      input.value="";
+      const data=JSON.parse(contents);
       const names={senderName:"gdm-senderName",senderStreet:"gdm-senderStreet",
         senderPostal:"gdm-senderPostal",senderCity:"gdm-senderCity",senderPhone:"gdm-senderPhone",
         subjectTemplate:"gdm-subjectTemplate",salutation:"gdm-salutationTemplate",
