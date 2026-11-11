@@ -43,5 +43,5 @@ if(isT05){
   p.append(heading,inner);p.classList.add("dtp-chapter");groups[group].appendChild(p);
  });
 }
-workspace.appendChild(flow);hero.after(workspace);
+if(!isT05)workspace.appendChild(flow);hero.after(workspace);
 })();
