@@ -88,7 +88,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-visual{position:relative;min-width:0;display:grid;align-items:center}
 .hero-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse,#4ccddc12,transparent 65%);pointer-events:none}
 .hero-art-wrap{position:relative;display:flow-root;width:100%;margin:0;pointer-events:none}
-.hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain}
+.hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain;filter:saturate(.96)}
 /* Standard-Hero: freigestellte Figuren und Logo über dem Seitenhintergrund. */
 .hero-layered{position:relative;isolation:isolate;aspect-ratio:1770 / 889;container-type:inline-size;user-select:none}
 .hero-plane{position:absolute;display:block;margin:0}
