@@ -21,8 +21,7 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
     <div class="arcade-stage<?=$fullPage ? '' : ' arcade-stage--landing'?>">
         <?php if (!$fullPage): ?>
             <header class="arcade-heading">
-                <p class="eyebrow">DAU-TO-PRO</p>
-                <h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2>
+                <h2 id="hs-title">Wer ist schon <span>PRO?</span></h2>
                 <p>Die besten Lernenden nach XP.</p>
             </header>
         <?php endif; ?>
@@ -36,6 +35,7 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                         <?php if ($rank === 1): ?><span class="arcade-crown">♛</span><?php endif; ?>
                         <span><?=$rank?></span>
                     </div>
+                    <span class="arcade-frame-glints" aria-hidden="true"></span>
                     <span class="arcade-avatar" aria-hidden="true"></span>
                     <?php if ($row): ?>
                     <div class="arcade-profile">
