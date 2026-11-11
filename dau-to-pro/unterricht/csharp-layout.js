@@ -1,6 +1,6 @@
 /* Einheitlicher DAU-to-PRO-Unterrichtsaufbau für beide C#-Materialien. */
 (()=>{"use strict";
-const isT05=!!document.getElementById("p-start"),body=document.body;
+const isT05=!!document.getElementById("p-1"),body=document.body;
 body.classList.add("dtp-material");
 const top=document.createElement("header");top.className="dtp-top";top.innerHTML='<div class="dtp-wrap"><a href="../index.php#unterrichtsmaterial">← DAU TO PRO / UNTERRICHTSMATERIAL</a><strong>C# <span>// UNTERRICHT</span></strong></div>';
 const wall=document.createElement("div");wall.className="dtp-backdrop";wall.setAttribute("aria-hidden","true");
