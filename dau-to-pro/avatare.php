@@ -1,5 +1,5 @@
 <?php
-// DAU TO PRO: Avatar wählen. Sieben Figuren, je drei eigene Zubehörteile, alles frei wählbar.
+// DAU TO PRO: Avatar wählen und Zubehör anlegen.
 // Gäste können ausprobieren, speichern geht nur mit Lernkonto (Formular mit CSRF, Post/Redirect/Get).
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
@@ -40,10 +40,14 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
     }
 }
 
-$catalog=dtp_avatar_catalog();
+$arcadeCatalog=dtp_avatar_arcade_catalog();
+$catalog=$arcadeCatalog;
 $saved=$learner?dtp_avatar_get((int)$learner['id']):null;
-// Gäste und Konten ohne Wahl sehen zum Ausprobieren den vollständigen Look von avatar-01.
-$current=$saved??dtp_avatar_full('avatar-01');
+$level=$learner?dtp_avatar_learner_level((int)$learner['id']):1;
+if ($saved && !isset($catalog[$saved['id']])) {
+    $catalog[$saved['id']]=dtp_avatar_catalog()[$saved['id']];
+}
+$current=$saved??['id'=>'avatar-08','parts'=>[]];
 $noneSelected=$learner && $saved===null;
 // Hinweise zu Teilen, die sich überdecken, aber gemeinsam getragen werden.
 $stackNotes=[
@@ -83,8 +87,12 @@ $data['order']=array_map('array_keys',$catalog);
     <div>
       <p class="eyebrow">DAU-TO-PRO · AVATAR</p>
       <h1>Dein <span>Avatar</span></h1>
-      <p class="konto-lead">Such dir eine von sieben Figuren aus und stell ihr Zubehör zusammen. Jede Figur hat drei eigene Teile, die du einzeln an- und ausschalten kannst. Dein Avatar erscheint im Highscore und in deinem Lernprofil.</p>
+      <p class="konto-lead">Wähle eine Figur für deinen Highscore und dein Lernprofil. Mit deinem Level schaltest du neue Kleidung und Zubehör frei.</p>
     </div>
+    <nav class="avatare-navigation" aria-label="Konto und Lernmodule">
+      <a class="secondary-action" href="konto.php">Mein Konto</a>
+      <a class="primary-action" href="./#lernmodule">Weiter lernen</a>
+    </nav>
   </section>
 <?php if (!empty($flash['error'])): ?><div class="konto-alert is-error" role="alert"><?=e($flash['error'])?></div><?php endif; ?>
 <?php if (!empty($flash['ok'])): ?><div class="konto-alert is-ok" role="status"><?=e($flash['ok'])?></div><?php endif; ?>
@@ -115,7 +123,7 @@ $data['order']=array_map('array_keys',$catalog);
           <?php foreach ($catalog as $aid=>$parts): $on=!$noneSelected && $current['id']===$aid; ?>
           <label class="avatare-figure">
             <input type="radio" name="avatar" value="<?=e($aid)?>"<?=$on?' checked':''?>>
-            <span class="avatare-hex avatare-hex--thumb" aria-hidden="true"><span class="dtp-avatar"><img class="dtp-avatar-layer" src="<?=e(dtp_avatar_url($aid.'-referenz'))?>" alt="" width="192" height="192" loading="lazy" decoding="async"></span></span>
+            <span class="avatare-hex avatare-hex--thumb" aria-hidden="true"><span class="dtp-avatar"><img class="dtp-avatar-layer" src="<?=e(dtp_avatar_url($aid.(isset($arcadeCatalog[$aid])?'-basis':'-referenz')))?>" alt="" width="192" height="192" loading="lazy" decoding="async"></span></span>
             <span class="avatare-figure-label"><?=e(dtp_avatar_label($aid))?></span>
           </label>
           <?php endforeach; ?>
@@ -131,16 +139,23 @@ $data['order']=array_map('array_keys',$catalog);
       <?php foreach ($catalog as $aid=>$parts): $on=!$noneSelected && $current['id']===$aid; ?>
       <fieldset class="avatare-parts" data-parts-for="<?=e($aid)?>"<?=$on?'':' hidden'?>>
         <legend>Zubehör für <?=e(dtp_avatar_label($aid))?></legend>
-        <?php foreach ($parts as $part=>$label): $worn=$current['id']===$aid?in_array($part,$current['parts'],true):true; ?>
-        <label class="avatare-part"><input type="checkbox" name="parts[<?=e($aid)?>][]" value="<?=e($part)?>"<?=$worn?' checked':''?>> <span><?=e($label)?></span></label>
+        <?php foreach ($parts as $part=>$label):
+            $requiredLevel=dtp_avatar_unlock_level($aid,$part);
+            $locked=$requiredLevel>$level;
+            $worn=!$locked && $current['id']===$aid && in_array($part,$current['parts'],true);
+        ?>
+        <label class="avatare-part">
+          <input type="checkbox" name="parts[<?=e($aid)?>][]" value="<?=e($part)?>"<?=$worn?' checked':''?><?=$locked?' disabled':''?>>
+          <span><?=e($label)?><?=$locked?' · ab Level '.$requiredLevel:''?></span>
+        </label>
         <?php endforeach; ?>
-        <p class="konto-hint">Alle drei Teile passen zusammen.<?=isset($stackNotes[$aid])?' '.e($stackNotes[$aid]):''?></p>
+        <?php if (isset($stackNotes[$aid])): ?><p class="konto-hint"><?=e($stackNotes[$aid])?></p><?php endif; ?>
       </fieldset>
       <?php endforeach; ?>
       <p class="konto-hint avatare-none-hint" data-parts-for=""<?=$noneSelected?'':' hidden'?>>Ohne Avatar bleibt deine Fassung im Highscore leer.</p>
     </div>
   </form>
-  <p class="konto-hint avatare-foot"><a class="text-link" href="./#highscore">Zum Highscore →</a><?php if($learner): ?> · <a class="text-link" href="konto.php">Mein Fortschritt →</a><?php endif; ?></p>
+  <p class="konto-hint avatare-foot"><a class="text-link" href="./#highscore">Zum Highscore →</a></p>
 </main>
 <script type="application/json" id="avatare-data"><?=json_encode($data,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES|JSON_HEX_TAG|JSON_HEX_AMP|JSON_THROW_ON_ERROR)?></script>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php#lernkonten">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>

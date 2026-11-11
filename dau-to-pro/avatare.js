@@ -4,7 +4,7 @@
   var form=document.querySelector('[data-avatare]'),raw=document.getElementById('avatare-data');
   if(!form||!raw)return;
   var data=JSON.parse(raw.textContent),status=form.querySelector('[data-avatare-status]'),dirty=false;
-  var urlOk=/^\.\.\/assets\/dau-avatare\/avatar-0[1-7]-[a-z-]+(?:-192)?\.webp(?:\?v=\d+)?$/;
+  var urlOk=/^\.\.\/assets\/dau-avatare\/avatar-(?:0[1-9]|1[0-7])-[a-z-]+(?:-192)?\.webp(?:\?v=\d+)?$/;
   function chosen(){var r=form.querySelector('input[name="avatar"]:checked');return r?r.value:null;}
   function stack(id,size){
     if(!id||!data.layers[id])return null;

@@ -66,13 +66,14 @@ async function sameBoxes(page,selector){
       if(shots)await page.locator('.arcade-stage').screenshot({path:path.join(shots,`highscore-${view.name}.png`)});
       // --- Gast: Auswahlseite
       await page.goto(base+'/dau-to-pro/avatare.php');
-      assert.equal(await page.locator('input[name="avatar"]').count(),7,'Sieben Figuren');
+      assert.equal(await page.locator('input[name="avatar"]').count(),10,'Zehn Arcade-Figuren');
       assert.equal(await page.locator('.avatare-parts:visible').count(),1,'Nur das Zubehör der gewählten Figur ist sichtbar');
-      await page.locator('.avatare-figure').nth(4).click();
-      assert.equal(await page.locator('[data-avatare-preview="512"] .dtp-avatar').getAttribute('data-avatar'),'avatar-05','Vorschau wechselt die Figur');
-      assert.equal(await page.locator('[data-avatare-preview="192"] img').count(),4,'Voller Look in der 96er-Vorschau');
-      await page.locator('[data-parts-for="avatar-05"] input[value="maske"]').uncheck();
-      assert.deepEqual(await page.$$eval('[data-avatare-preview="512"] img',l=>l.map(i=>i.dataset.part)),['basis','halsschal','kapuze'],'Teil abschalten entfernt genau diese Ebene');
+      await page.locator('.avatare-figure').nth(9).click();
+      assert.equal(await page.locator('[data-avatare-preview="512"] .dtp-avatar').getAttribute('data-avatar'),'avatar-17','Vorschau wechselt die Figur');
+      assert.equal(await page.locator('[data-avatare-preview="192"] img').count(),1,'Basisporträt in der 96er-Vorschau');
+      assert.equal(await page.locator('[data-parts-for="avatar-17"] input:disabled').count(),2,'Zubehör ist für Gäste gesperrt');
+      assert.equal(await page.getByRole('link',{name:'Weiter lernen',exact:true}).getAttribute('href'),'./#lernmodule');
+      assert.equal(await page.locator('.avatare-navigation').getByRole('link',{name:'Mein Konto',exact:true}).getAttribute('href'),'konto.php');
       assert.equal(await page.getByText('Anmelden zum Speichern').count(),1,'Gäste sehen den Hinweis zum Anmelden');
       assert.deepEqual(errors,[],`Keine Fehler (Gast, ${view.name})`);
       await guest.close();
@@ -89,10 +90,11 @@ async function sameBoxes(page,selector){
     await page.goto(base+'/dau-to-pro/avatare.php');
     assert.equal(await page.locator('input[name="avatar"][value=""]').isChecked(),true,'Noch kein Avatar gewählt');
     await page.locator('.avatare-figure').nth(0).click();
-    await page.locator('[data-parts-for="avatar-01"] input[value="atemmaske"]').uncheck();
+    await page.locator('[data-parts-for="avatar-08"] input[value="nachtjacke"]').check();
+    await page.locator('[data-parts-for="avatar-08"] input[value="ohrclip"]').check();
     await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Avatar speichern'}).click()]);
     assert.equal(await page.locator('.konto-alert.is-ok').count(),1,'Gespeichert');
-    assert.deepEqual(await page.$$eval('[data-avatare-preview="512"] img',l=>l.map(i=>i.dataset.part)),['basis','carbonkragen','kapuze'],'Gespeicherte Teile');
+    assert.deepEqual(await page.$$eval('[data-avatare-preview="512"] img',l=>l.map(i=>i.dataset.part)),['basis','nachtjacke','ohrclip'],'Gespeicherte Teile');
     assert.deepEqual(await imagesLoaded(page,'[data-avatare-preview] img, .avatare-figure img'),[],'Alle Ebenen laden (Auswahl)');
     assert.ok(await sameBoxes(page,'[data-avatare-preview] .dtp-avatar'),'Vorschau-Ebenen liegen deckungsgleich');
     const big=await page.locator('[data-avatare-preview="512"] .dtp-avatar').boundingBox();
@@ -105,6 +107,11 @@ async function sameBoxes(page,selector){
     await page.locator('#learner-profile .profile-avatar img').first().waitFor();
     assert.equal(await page.locator('#learner-profile .profile-avatar img').count(),4,'Profil-Dialog zeigt den Avatar');
     if(shots)await page.locator('#learner-profile').screenshot({path:path.join(shots,'profil.png')});
+    await page.keyboard.press('Escape');
+    await page.locator('.arcade-champion.rank-3 [data-profile]').click();
+    await page.locator('#learner-profile .profile-avatar img[src*="avatar-08-basis"]').waitFor();
+    assert.equal(await page.locator('#learner-profile .profile-avatar img').count(),3,'Profil zeigt die neuen Ebenen');
+    assert.deepEqual(await imagesLoaded(page,'#learner-profile .profile-avatar img'),[],'Die neuen Profilbilder laden');
     assert.deepEqual(errors,[],'Keine Fehler (angemeldet)');
     await ctx.close();
     console.log('Avatare im Browser: alle Prüfungen bestanden');
