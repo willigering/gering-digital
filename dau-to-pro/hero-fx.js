@@ -41,9 +41,11 @@
       width: (BOX.w * sx) + 'px', height: (BOX.h * sy) + 'px'
     });
   }
-  place();
-  if ('ResizeObserver' in window) new ResizeObserver(place).observe(img); else addEventListener('resize', place);
-  img.addEventListener('load', place);
+  if (wrap.dataset.scene !== 'layered') {
+    place();
+    if ('ResizeObserver' in window) new ResizeObserver(place).observe(img); else addEventListener('resize', place);
+    img.addEventListener('load', place);
+  }
 
   const scaleFor = n => 1 + n * 0.09;
   function setLook(n) {
