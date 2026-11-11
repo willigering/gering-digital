@@ -1,6 +1,5 @@
-/* Set the art properties when the transparent character assets arrive. */
+/* Human portraits will use the same avatar frame once their art is ready. */
 .arcade-stage {
-  --mascot-art: none;
   --avatar-art: none;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -392,7 +391,9 @@
   .arcade-stage--landing {
     grid-template-columns: minmax(145px, 1fr) minmax(0, 3.4fr);
     align-items: start;
-    background: var(--mascot-art) left bottom / 23% auto no-repeat;
+    background:
+      url("../assets/dau-to-pro-highscore-mascot.webp") left bottom / 22% auto no-repeat,
+      radial-gradient(ellipse 25% 50% at 8% 78%, #f39c3228, transparent);
   }
   .arcade-heading {
     width: calc(100% + clamp(130px, 16vw, 230px));
