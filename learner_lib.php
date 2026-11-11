@@ -292,6 +292,7 @@ function learner_reset_all(array $learner,string $current): int {
         foreach(['learner_xp_events','learner_xp_state','learner_daily','learner_practice','learner_showcase'] as $table) $db->prepare("DELETE FROM $table WHERE learner_id=?")->execute([$id]);
         $db->prepare('DELETE FROM learner_achievements WHERE learner_id=?')->execute([$id]);
         $db->prepare('INSERT OR IGNORE INTO learner_stats(learner_id) VALUES(?)')->execute([$id]);
+        $db->prepare("DELETE FROM learner_prefs WHERE learner_id=? AND pref_key='highscore_public'")->execute([$id]);
         $db->prepare("UPDATE learner_stats SET xp=0,level=1,achievements=0,best='{}',days=0,last_day='',highscore_visible=0,xp_changed_at=?,updated_at=? WHERE learner_id=?")
            ->execute([$now,$now,$id]);
         $db->commit();

@@ -179,6 +179,16 @@ ach_admin_block($t,true);
 check(!in_array('tina',array_column(ach_highscore(),'username'),true),'Admin kann ein Konto aus dem Highscore nehmen');
 ach_admin_block($t,false);
 
+check(ach_highscore(publicOnly: true)===[],'Die bisherige Freigabe gilt nur für angemeldete Lernende');
+ach_set_visible($t,true,true);
+check(ach_public_highscore_enabled($t),'Öffentliche Freigabe wird gespeichert');
+check(array_column(ach_highscore(publicOnly: true),'username')===['tina'],'Gäste sehen nur zusätzlich freigegebene Einträge');
+ach_admin_block($t,true);
+check(ach_highscore(publicOnly: true)===[],'Die Sperre gilt auch für die öffentliche Liste');
+ach_admin_block($t,false);
+ach_set_visible($t,true);
+check(ach_highscore(publicOnly: true)===[] && ach_stats($t)['visible'],'Öffentliche Freigabe ist separat widerrufbar');
+
 // --- Übersicht, Export, Löschen ---
 $view=ach_overview($o);
 check(count($view['groups'])===4 && $view['total']===43,'Kontoseite: 3 Module + modulübergreifend, 43 Achievements');

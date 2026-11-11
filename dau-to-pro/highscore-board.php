@@ -1,9 +1,10 @@
 <?php
 /** Shared ranking for the landing page and the full Highscore. */
 function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fullPage = false): void {
-    $profile = static function (array $row) use ($fullPage): string {
+    $profile = static function (array $row) use ($fullPage, $learnerId): string {
         $id = (int)$row['id'];
         $name = e($row['username']);
+        if (!$learnerId) return '<span class="arcade-name">'.$name.'</span>';
         if ($fullPage) {
             return '<button type="button" class="arcade-name profile-open" data-profile="'.$id.'">'.$name.'</button>';
         }
@@ -18,19 +19,31 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
     <?php };
     ?>
     <div class="arcade-stage">
-        <div class="arcade-mascot" aria-hidden="true">
-            <div class="arcade-mascot-art"><span></span></div>
-            <span class="arcade-marquee">Highscore</span>
+        <div class="arcade-intro">
+            <?php if (!$fullPage): ?>
+                <header class="arcade-heading">
+                    <p class="eyebrow">DAU-TO-PRO</p>
+                    <h2 id="hs-title">Wer ist schon <span>PRO</span>?</h2>
+                    <p>Die besten Lernenden nach XP.</p>
+                </header>
+            <?php endif; ?>
+            <div class="arcade-mascot" aria-hidden="true">
+                <div class="arcade-mascot-art"><span></span></div>
+                <span class="arcade-marquee">Highscore</span>
+            </div>
         </div>
         <div class="arcade-champions" role="group" aria-label="Die ersten drei Plätze">
-            <?php foreach (array_slice($rows, 0, 3) as $row):
-                $rank = (int)$row['rank'];
-                $self = (int)$row['id'] === $learnerId;
+            <?php for ($rank = 1; $rank <= 3; $rank++):
+                $row = $rows[$rank - 1] ?? null;
+                $self = $row && (int)$row['id'] === $learnerId;
             ?>
-                <article class="arcade-champion rank-<?=$rank?><?=$self ? ' is-self' : ''?>" aria-label="Platz <?=$rank?>"<?=$self && $reveal ? ' data-highscore-reveal' : ''?>>
-                    <span class="arcade-rank" aria-hidden="true"><?=$rank?></span>
-                    <?php if ($rank === 1): ?><span class="arcade-crown" aria-hidden="true">♛</span><?php endif; ?>
+                <article class="arcade-champion rank-<?=$rank?><?=$row ? '' : ' is-vacant'?><?=$self ? ' is-self' : ''?>" aria-label="Platz <?=$rank?>"<?=$self && $reveal ? ' data-highscore-reveal' : ''?>>
+                    <div class="arcade-rank" aria-hidden="true">
+                        <?php if ($rank === 1): ?><span class="arcade-crown">♛</span><?php endif; ?>
+                        <span><?=$rank?></span>
+                    </div>
                     <span class="arcade-avatar" aria-hidden="true"></span>
+                    <?php if ($row): ?>
                     <div class="arcade-profile">
                         <div class="hs-name"><?=$profile($row)?><?php if ($self): ?> <small class="arcade-you">(du)</small><?php endif; ?></div>
                         <span class="arcade-level">Level <?=(int)$row['level']?> · <?=e($row['title'])?></span>
@@ -38,8 +51,11 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                     <div class="arcade-score"><strong><?=number_format((int)$row['xp'], 0, ',', '.')?></strong><span>XP</span></div>
                     <?php $showcase($row, 'arcade-medals showcase-inline'); ?>
                     <span class="arcade-ach-count"><?=(int)$row['achievements']?> Achievements</span>
+                    <?php else: ?>
+                        <span class="arcade-name">Platz frei</span>
+                    <?php endif; ?>
                 </article>
-            <?php endforeach; ?>
+            <?php endfor; ?>
         </div>
     </div>
     <?php if (count($rows) > 3): ?>
