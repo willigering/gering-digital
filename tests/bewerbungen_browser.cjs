@@ -182,7 +182,8 @@ async function run(){
    await page.locator("#gdm-template-input").setInputFiles({
      name:"private-vorlage.json",mimeType:"application/json",buffer:Buffer.from(JSON.stringify(importDoc))
    });
-   await page.waitForFunction(()=>document.querySelector("#gdm-coverLetter").value.startsWith("Test:"));
+   await page.waitForFunction(()=>document.querySelector("#gdm-coverLetter").value.startsWith("Test:") || document.querySelector("#gdm-settings-status")?.textContent.includes("fehlgeschlagen"));
+   assert.ok((await page.locator("#gdm-coverLetter").inputValue()).startsWith("Test:"),"Template import failed: "+await page.locator("#gdm-settings-status").innerText());
    assert.equal(await page.locator("#gdm-senderStreet").inputValue(),"Musterstr. 5","Private JSON import pre-fills sender");
    assert.equal(await page.locator("#gdm-coverLetter").inputValue(),importDoc.coverLetter,"Private cover letter text is applied to form");
    assert.equal(await page.locator("#gdm-smtp-password").inputValue(),"","Private JSON import does not touch SMTP credentials");
