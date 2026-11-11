@@ -1594,12 +1594,17 @@ function buildNav(){
     p.appendChild(pn)});
 }
 function go(){
-  const id=(location.hash||'#start').slice(1);let p=$('#p-'+id);if(!p){p=$('#p-start')}
-  pages.forEach(x=>x.classList.toggle('on',x===p));
-  $$('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.id===p.id.slice(2)));
+  const id=(location.hash||'#start').slice(1);
+  let p=$('#p-'+id);if(!p)p=$('#p-start');
+  const group=id==='quiz'?'quiz':p.dataset.g==='ueb'?'exercise':'learn';
+  pages.forEach(x=>x.classList.toggle('on',(x.id==='p-quiz'?'quiz':x.dataset.g==='ueb'?'exercise':'learn')===group));
+  $('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.id===p.id.slice(2)));
   document.body.classList.remove('nav');
-  window.scrollTo(0,0);
-  const a=$('#nav a.on');if(a&&a.scrollIntoView)a.scrollIntoView({block:'nearest'});
+  document.querySelectorAll('.dtp-group').forEach(g=>g.hidden=g.dataset.group!==group);
+  document.querySelectorAll('.dtp-tab').forEach(t=>{const active=t.dataset.topic===group;t.classList.toggle('is-current',active);t.setAttribute('aria-selected',String(active))});
+  document.body.dataset.activeTopic=group;
+  if(window.DTPCSharp)window.DTPCSharp.activate(group,false);
+  requestAnimationFrame(()=>{if(id!=='start'&&p.scrollIntoView)p.scrollIntoView({block:'start'});else window.scrollTo(0,0)});
 }
 
 /* ---------- progress ---------- */
