@@ -364,12 +364,20 @@
 .arcade-ach-count { font-size: clamp(9px, 1vw, 12px); color: #bdccd5; }
 
 .arcade-next-places {
+  position: relative;
+  isolation: isolate;
   margin: 4px 0 18px;
-  padding: clamp(8px, 1.3vw, 17px);
-  border: 1px solid #bd914d;
-  border-radius: 12px;
-  background: #071218ed;
-  box-shadow: inset 0 1px #65deec60, 0 5px 12px #0007;
+  padding: clamp(14px, 1.7vw, 24px);
+}
+.arcade-next-places::before {
+  /* The podium artwork scales in nine slices so the chamfered corners stay compact. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: clamp(16px, 2.6vw, 34px) solid transparent;
+  border-image: url("../assets/dau-backgrounds/podium-gold.webp") 24% 21% 20% 25% fill stretch;
+  pointer-events: none;
 }
 .arcade-next-places--empty p {
   margin: 0;
@@ -610,13 +618,8 @@
   .arcade-stage--landing .arcade-ach-count { display: none; }
   .arcade-stage--landing .is-vacant .arcade-name { margin-top: .8cqw; color: #d3e1e8; }
   .arcade-stage--landing + .arcade-next-places {
-    position: relative;
     margin: .35cqw 1.25cqw 0 18.4cqw;
-    padding: .75cqw 1.25cqw 1cqw;
-    border: 1px solid #b98942;
-    border-radius: 6px 19px 6px 19px;
-    background: linear-gradient(140deg, #0b1b26, #040a10 70%);
-    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae537a, 0 5px 12px #0008;
+    padding: 1.2cqw 1.5cqw 1.35cqw;
   }
   .arcade-stage--landing + .arcade-next-places--empty { min-height: 10.5cqw; }
   .arcade-stage--landing + .arcade-next-places .arcade-next-head {
