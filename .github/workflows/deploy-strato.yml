@@ -195,7 +195,65 @@ jobs:
                       sftp.putfo(io.BytesIO(receipt), release_target + '.tmp', confirm=True)
                       sftp.posix_rename(release_target + '.tmp', release_target)
                       print('Activated complete learning-module release.')
-                      print(f'Deployed {len(deploy_files)} tracked website files. No remote deletes.')
+                      print(f'Deployed {len(deploy_files)} tracked website files.')
+
+                      # Optional, explicit removals. The upload itself never deletes.
+                      # Only paths in this allowlist may be removed, never account data.
+                      import stat as statmod
+                      ALLOWED_REMOVE = {
+                          'assets/avatars',
+                          'avatar_lib.php',
+                          'dau-to-pro/avatar.php',
+                          'dau-to-pro/avatar.css',
+                          'dau-to-pro/avatar-editor.js',
+                          'dau-to-pro/api/avatar.php',
+                          'tools/avatar-pipeline',
+                      }
+                      def allowed_remove(rel):
+                          rel = posixpath.normpath(rel).lstrip('/')
+                          if not rel or rel.startswith('../') or rel == '..' or rel.startswith('/'):
+                              return False
+                          parts = rel.split('/')
+                          if '..' in parts or rel.startswith('/') or any(part.startswith('.') and part not in ('.htaccess',) for part in parts):
+                              return False
+                          blocked = {'data', 'uploads', 'runtime', 'node_modules', '.git', '.github', 'tests', 'test', 'vendor'}
+                          if any(part in blocked or part.lower().endswith('uploads') for part in parts):
+                              return False
+                          return rel in ALLOWED_REMOVE or any(rel.startswith(prefix + '/') for prefix in ALLOWED_REMOVE)
+
+                      def remove_remote(path, rel):
+                          try:
+                              mode = sftp.stat(path).st_mode
+                          except OSError:
+                              print('Already absent:', rel)
+                              return 0
+                          n = 0
+                          if statmod.S_ISDIR(mode):
+                              for entry in sftp.listdir(path):
+                                  child_rel = posixpath.join(rel, entry)
+                                  if not allowed_remove(child_rel):
+                                      raise SystemExit('Refusing to delete non-allowlisted path: ' + child_rel)
+                                  n += remove_remote(posixpath.join(path, entry), child_rel)
+                              sftp.rmdir(path)
+                              print('Removed directory:', rel)
+                              n += 1
+                          else:
+                              sftp.remove(path)
+                              print('Removed:', rel)
+                              n += 1
+                          return n
+
+                      list_path = pathlib.Path('automation/strato-remove-paths.txt')
+                      removed = 0
+                      if list_path.is_file():
+                          for raw_line in list_path.read_text(encoding='utf-8').splitlines():
+                              line = raw_line.split('#', 1)[0].strip()
+                              if not line:
+                                  continue
+                              if not allowed_remove(line):
+                                  raise SystemExit('Refusing to delete non-allowlisted path: ' + line)
+                              removed += remove_remote(posixpath.join(remote_root, line), line)
+                          print(f'Removed {removed} retired website paths listed in automation/strato-remove-paths.txt.')
                   finally:
                       sftp.close()
               finally:
