@@ -1,0 +1,70 @@
+name: Publish Mila and Maja v12 preview
+on:
+  push:
+    branches: [mm-test]
+    paths: ['m-m/v12/**', '.github/workflows/deploy-mm-v12.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: strato-production-deploy
+  cancel-in-progress: false
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/mm-test'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: m-m/v12
+      - run: python -m pip install 'paramiko>=3.4,<5'
+      - name: Upload only the v12 preview
+        env:
+          STRATO_HOST: ${{ secrets.STRATO_HOST }}
+          STRATO_PORT: ${{ secrets.STRATO_PORT }}
+          STRATO_USER: ${{ secrets.STRATO_USER }}
+          STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
+          STRATO_REMOTE_PATH: ${{ secrets.STRATO_REMOTE_PATH }}
+          STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
+        run: |
+          python - <<'PY'
+          import os, posixpath, stat, tempfile
+          from pathlib import Path
+          import paramiko
+
+          local = Path('m-m/v12')
+          assert (local / 'index.html').is_file() and (local / 'v12.html').is_file()
+          files = sorted((p for p in local.rglob('*') if p.is_file()), key=lambda p: (p.suffix == '.html', p.as_posix()))
+          assert all(not p.is_symlink() for p in files)
+          root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/') or '/'
+          assert root.startswith('/') and os.environ['STRATO_REMOTE_PATH'].strip()
+          with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8') as known:
+              known.write(os.environ['STRATO_KNOWN_HOSTS'].strip() + '\n')
+              known.flush()
+              with paramiko.SSHClient() as ssh:
+                  ssh.load_host_keys(known.name)
+                  ssh.connect(os.environ['STRATO_HOST'].strip(), port=int(os.environ.get('STRATO_PORT') or 22), username=os.environ['STRATO_USER'], password=os.environ['STRATO_PASSWORD'], look_for_keys=False, allow_agent=False, timeout=25)
+                  with ssh.open_sftp() as sftp:
+                      for marker in ('index.php', 'lib.php', 'dau-to-pro'):
+                          sftp.stat(posixpath.join(root, marker))
+                      directories = set()
+                      for p in files:
+                          target = root
+                          for component in p.parts[:-1]:
+                              target = posixpath.join(target, component)
+                              if target not in directories:
+                                  try:
+                                      info = sftp.lstat(target)
+                                  except FileNotFoundError:
+                                      sftp.mkdir(target)
+                                      info = sftp.lstat(target)
+                                  assert stat.S_ISDIR(info.st_mode), target
+                                  directories.add(target)
+                          remote = posixpath.join(target, p.name)
+                          temporary = remote + '.upload-' + os.environ['GITHUB_RUN_ID']
+                          sftp.put(str(p), temporary, confirm=True)
+                          sftp.posix_rename(temporary, remote)
+                      print(f'Published {len(files)} files under /m-m/v12/')
+          PY

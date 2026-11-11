@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mila &amp; Maja · Level-Editor</title>
+<style>
+  :root { color-scheme: light; --bg:#f4ecd6; --ink:#3b2e1a; --card:#fffaf0; --line:#d8c9a3; --accent:#5c8a3a; }
+  body { margin:0; font:14px/1.4 system-ui,sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:8px 12px; background:var(--card); border-bottom:1px solid var(--line); position:sticky; top:0; z-index:2; }
+  header h1 { font-size:16px; margin:0 12px 0 0; }
+  button, select, input { font:inherit; padding:5px 9px; border:1px solid var(--line); background:#fff; border-radius:6px; color:var(--ink); }
+  button { cursor:pointer; }
+  button.tool.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  button.primary { background:#c1622f; color:#fff; border-color:#c1622f; font-weight:600; }
+  #scroll { overflow-x:auto; border-bottom:1px solid var(--line); background:#cfe3ef; }
+  canvas { display:block; cursor:crosshair; }
+  main { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px; }
+  @media (max-width:800px){ main { grid-template-columns:1fr; } }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 12px; }
+  h2 { font-size:14px; margin:0 0 6px; }
+  #warnings li.warn { color:#a3401f; } #warnings li.ok { color:#3d6e22; }
+  label { display:inline-flex; gap:4px; align-items:center; margin-right:10px; }
+  input[type=number] { width:76px; }
+  #status { margin-left:auto; color:#6b5a3b; }
+</style>
+  <script type="module" crossorigin src="./assets/editor-BcJpXZup.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/config-DplWpnuA.js">
+  <link rel="modulepreload" crossorigin href="./assets/levelOne-C-litrDE.js">
+  <link rel="modulepreload" crossorigin href="./assets/coins-DEWo7wIa.js">
+</head>
+<body>
+<header>
+  <h1>Level-Editor</h1>
+  <span id="tools"></span>
+  <span style="flex:1"></span>
+  <button id="undo">Rückgängig</button>
+  <button id="test" class="primary">Testen ▶</button>
+  <button id="save">Level speichern (Datei)</button>
+  <button id="load">Level laden</button>
+  <button id="reset">Original laden</button>
+  <span id="status"></span>
+  <input id="file" type="file" accept="application/json" hidden>
+</header>
+<div id="scroll"><canvas id="cv"></canvas></div>
+<main>
+  <section>
+    <h2>Werkzeug</h2>
+    <div id="help"></div>
+    <div id="props"></div>
+  </section>
+  <section>
+    <h2>Prüfung</h2>
+    <ul id="warnings"></ul>
+  </section>
+</main>
+
+</body>
+</html>

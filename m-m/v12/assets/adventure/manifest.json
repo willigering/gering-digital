@@ -1,0 +1,295 @@
+{
+  "version": 1,
+  "unitsPerTile": 64,
+  "images": {
+    "far": {
+      "source": "far.webp",
+      "width": 2172,
+      "height": 724,
+      "alpha": null,
+      "sha256": "b13d04034ab83d571f915cd258c4a999434021aa0485cf8b45881eac398d4be8",
+      "bytes": 1784292
+    },
+    "rock": {
+      "source": "rock.webp",
+      "width": 2150,
+      "height": 263,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "41e9e658d3491edcf7bc751d04abbe7666ecb5722bd65c43618dc999e32b1deb",
+      "bytes": 1021038
+    },
+    "tree": {
+      "source": "tree.webp",
+      "width": 968,
+      "height": 1506,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "b0f6f12af3bed3fe064b037bd9ef759e60beb416e124217d38f9fdcc343ffa36",
+      "bytes": 1659598
+    },
+    "trunk": {
+      "source": "trunk.webp",
+      "width": 403,
+      "height": 1497,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "a9892c028f55292761d81965818f251a97880b30a1278bea7b7a304ea4e57777",
+      "bytes": 686798
+    },
+    "frame": {
+      "source": "mechanisms.webp",
+      "width": 687,
+      "height": 503,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "a66d7557acb548bee9c90a10d548c2234046cf0b4dbddf2dd8e040c0ca89eeae",
+      "bytes": 330542
+    },
+    "gate": {
+      "source": "mechanisms.webp",
+      "width": 613,
+      "height": 438,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "a24d9ab163ff6904867a3c3e78901d293ec05595f4ebca3074fd15d5355db14d",
+      "bytes": 346378
+    },
+    "lever-base": {
+      "source": "mechanisms.webp",
+      "width": 536,
+      "height": 297,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "4f61c295ec4e444cff139406a85a03543dd1913a1875d968569a3741c9aa5465",
+      "bytes": 228598
+    },
+    "lever-handle": {
+      "source": "mechanisms.webp",
+      "width": 94,
+      "height": 409,
+      "alpha": [
+        0,
+        253
+      ],
+      "sha256": "f43338370f948b150fbbbb53d4633c9bae48e235e8ef9fcd6be5ffea67d7b30b",
+      "bytes": 51952
+    },
+    "root-arch": {
+      "source": "root-arch.webp",
+      "width": 2141,
+      "height": 445,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "c50ad0ecb5800f26e86cca3649b765d1462624d95d738ff870d533115a0ab274",
+      "bytes": 1119436
+    },
+    "bridge": {
+      "source": "bridge.webp",
+      "width": 2098,
+      "height": 337,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "543bda59ba42d2a36de44ccf5a43762ea34b8f24664d8acc89ab4a4e14074817",
+      "bytes": 819118
+    },
+    "waterfall": {
+      "source": "waterfall.webp",
+      "width": 1013,
+      "height": 1384,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "dbf151c65978fade96b5263efc289f88a875bf48878ba269acb903ae289baabc",
+      "bytes": 2135394
+    },
+    "plants": {
+      "source": "plants.webp",
+      "width": 2123,
+      "height": 494,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "faa677d1666dc64e1fb9028a936a75f3b29783f8eeff1760429294ae22203299",
+      "bytes": 1513372
+    },
+    "oak": {
+      "source": "oak.webp",
+      "width": 1397,
+      "height": 1061,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "040727b1a6f9d377d4619c3080b5969d555fd715ea2fadd2015099c49c22cf81",
+      "bytes": 2095402
+    },
+    "trunk-end-on": {
+      "source": "trunk-end-on.webp",
+      "width": 1217,
+      "height": 1113,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "45fc23d21f4396a7b4e6aaa84fa8debd6967505d9652dd5c3fc4762ef86ddd99",
+      "bytes": 1783574
+    },
+    "trunk-end-on-supported": {
+      "source": "trunk-end-on-supported.webp",
+      "width": 1223,
+      "height": 1121,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "302e83355fa96c154139f8a08123bab4d1d5f0c3aed93223666aa5b5515230c3",
+      "bytes": 1618890
+    },
+    "forest-deep": {
+      "source": "forest-deep.webp",
+      "width": 2172,
+      "height": 724,
+      "alpha": null,
+      "sha256": "98362cb4b0ea3de1f7b188687b146c4e2f87f626dde7ec3f61f75b98a0c23093",
+      "bytes": 1972130
+    },
+    "forest-river": {
+      "source": "forest-river.webp",
+      "width": 2172,
+      "height": 724,
+      "alpha": null,
+      "sha256": "8dfb666027625dcd85226997be3e924790580c5db21443c9d798085edafcd37c",
+      "bytes": 1940338
+    },
+    "beech-cluster": {
+      "source": "beech-cluster.webp",
+      "width": 1472,
+      "height": 984,
+      "alpha": [
+        0,
+        253
+      ],
+      "sha256": "e66464f50af788e1b76815c30b8cfb2ebacf467aca21991dbb04948644340141",
+      "bytes": 1726986
+    },
+    "root-roof": {
+      "source": "root-roof.webp",
+      "width": 2172,
+      "height": 441,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "0a292196730194fa4548c33ea7763f0a09cbddc6da62910cb1eb5f668856cbd2",
+      "bytes": 1161344
+    },
+    "cliff-ledge": {
+      "source": "cliff-ledge.webp",
+      "width": 1493,
+      "height": 527,
+      "alpha": [
+        0,
+        254
+      ],
+      "sha256": "e669ae5013b0ac00be17b10639d3ef19db21b6a6585cd43f1d6cba84f3734627",
+      "bytes": 1196346
+    },
+    "rest-marker": {
+      "source": "rest-marker.webp",
+      "width": 572,
+      "height": 1358,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "6387fb70100d46a9efdc44f9512514b0203b8a11732f8dc6a95176cdc9641a5f",
+      "bytes": 764910
+    },
+    "coop-crate": {
+      "source": "coop-crate.webp",
+      "width": 1228,
+      "height": 988,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "ccc9500f23c21c5eeb554f8049ad389dbc92846eeddd3107ce80be383fec9e9b",
+      "bytes": 2063988
+    },
+    "fern-bank": {
+      "source": "fern-bank.webp",
+      "width": 2169,
+      "height": 248,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "c18f26f25968bc21cd162ef2a29bff629b03a0440f4d094853f170bc9f895f46",
+      "bytes": 921234
+    },
+    "ivy-vine": {
+      "source": "ivy-vine.webp",
+      "width": 284,
+      "height": 1813,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "589640b702d4bef8839b2026274f53807917fdf33c1d0de51a3f05e748067f29",
+      "bytes": 804054
+    },
+    "trunk-support-left": {
+      "source": "rock.webp",
+      "width": 150,
+      "height": 263,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "79d21c93345a495018b57b65f20fbed2e7d26943c86531fe1cdb89ca8b1c6b05",
+      "bytes": 68596
+    },
+    "trunk-support-right": {
+      "source": "rock.webp",
+      "width": 150,
+      "height": 263,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "7e176aa66423317680c16dd34a285126cea16accfe156fafa8ad753046c2e2f9",
+      "bytes": 64524
+    },
+    "trunk-face": {
+      "source": "trunk-end-on.webp",
+      "width": 860,
+      "height": 860,
+      "alpha": [
+        0,
+        255
+      ],
+      "sha256": "15db7ccf6a738790edec9bb3dd976d1ba68283046616c3909ffa399cfdc43ec1",
+      "bytes": 1103500
+    }
+  },
+  "note": "Lossless exports; alpha-preserving crop only. Actual dimensions; source images retained."
+}
