@@ -70,6 +70,22 @@ check((int)learner_by_id((int)$anna['id'])['session_version']>$versionBefore,'Wi
 check($tokensBefore===1 && (int)$pdo->query('SELECT COUNT(*) FROM learner_tokens')->fetchColumn()===0,'„Angemeldet bleiben“-Token werden dabei gelöscht');
 check(error_of(fn()=>learner_login('Anna.Lernt','neues-passwort-1'))==='','Neues Passwort funktioniert');
 
+// --- Benutzername ändern ---
+$id=(int)$anna['id'];
+$beforeRename=learner_by_id($id);
+learner_progress_apply($id,'osi-sprint',['osi-sprint-score'=>'{"p":1}'],[]);
+$progressBeforeRename=learner_progress_state($id);
+check(error_of(fn()=>learner_change_username($beforeRename,'falsches-passwort','Anna.Neu'))==='Das aktuelle Passwort stimmt nicht.','Umbenennen erfordert das aktuelle Passwort');
+check(error_of(fn()=>learner_change_username($beforeRename,'neues-passwort-1','NUTZER0'))==='Dieser Benutzername ist leider schon vergeben.','Beim Umbenennen sind Namen unabhängig von Groß-/Kleinschreibung eindeutig');
+check(learner_by_id($id)['username']==='Anna.Lernt','Abgelehnte Änderungen lassen den Benutzernamen stehen');
+learner_change_username($beforeRename,'neues-passwort-1','  Anna.Neu  ');
+$afterRename=learner_by_id($id);
+check($afterRename['username']==='Anna.Neu' && learner_find('Anna.Lernt')===null,'Umbenennen ersetzt den Namen desselben Kontos');
+check($afterRename['recovery_hash']===$beforeRename['recovery_hash'] && $afterRename['session_version']===$beforeRename['session_version'],'Wiederherstellungscode und bestehende Sitzungen behalten ihre Gültigkeit');
+check(learner_progress_state($id)===$progressBeforeRename,'Der Lernfortschritt bleibt beim Umbenennen erhalten');
+check((int)learner_login('anna.neu','neues-passwort-1')['id']===$id,'Der neue Name funktioniert bei der Anmeldung');
+learner_change_username($afterRename,'neues-passwort-1','Anna.Lernt');
+
 // --- Angemeldet bleiben ---
 learner_login('Anna.Lernt','neues-passwort-1',true);
 $cookie=$_COOKIE[LEARNER_COOKIE];
