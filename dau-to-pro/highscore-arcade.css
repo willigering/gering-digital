@@ -420,3 +420,30 @@
   }
   .arcade-champion.rank-1 > .arcade-avatar { margin-right: 13%; }
 }
+
+/* ---------------------------------------------------------------- Modulare Avatare (assets/avatars, avatar_lib.php) */
+/* Alle Ebenen teilen die 1024er-Zeichenfläche; sichtbar ist der Brust-Ausschnitt aus manifest.json (x 152, y 40, 720 px). */
+.dtp-avatar { position: absolute; inset: 0; display: block; overflow: hidden; pointer-events: none; }
+.dtp-avatar-layer {
+  position: absolute;
+  left: -21.111%;
+  top: -5.556%;
+  width: 142.222%;
+  height: 142.222%;
+  max-width: none;
+  user-select: none;
+}
+/* Der Rahmen ist als Sechseck auf die ganze Fassung gezeichnet (passt zur clip-path-Kontur). */
+.dtp-avatar-layer.is-frame { left: 0; top: 0; width: 100%; height: 100%; }
+.dtp-avatar.is-mascot img { position: absolute; left: 7%; top: 5%; width: 86%; height: auto; max-width: none; }
+
+/* Highscore-Hexfassung: Avatar sitzt innerhalb der Rang-Kontur, die Rauten-Deko entfällt. */
+.arcade-avatar .dtp-avatar { inset: 2px; clip-path: inherit; background: radial-gradient(circle at 50% 38%, #1c3a4b, #071016 78%); }
+.arcade-avatar.has-avatar::after,
+.arcade-avatar.has-mascot::after { display: none; }
+.arcade-champion.is-vacant .arcade-avatar .dtp-avatar { filter: grayscale(.55) brightness(.8); }
+
+/* Profil-Dialog */
+.profile-avatar { position: relative; width: 96px; aspect-ratio: 1; margin: 0 0 12px; clip-path: polygon(50% 0, 98% 25%, 98% 75%, 50% 100%, 2% 75%, 2% 25%); background: linear-gradient(150deg, #4ee8ff, #263b49 47%, #e8b84a); }
+.profile-avatar .dtp-avatar { inset: 2px; clip-path: inherit; background: radial-gradient(circle at 50% 38%, #1c3a4b, #071016 78%); }
+

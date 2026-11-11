@@ -1,0 +1,664 @@
+{
+ "version": 1,
+ "canvas": 1024,
+ "crop": {
+  "x": 152,
+  "y": 40,
+  "size": 720
+ },
+ "formats": {
+  "png": "{file}.png",
+  "webp": "{file}.webp",
+  "thumb": "{file}-192.webp"
+ },
+ "layerOrder": [
+  "effectBack",
+  "base",
+  "clothes",
+  "beard",
+  "eyes",
+  "brows",
+  "hair",
+  "glasses",
+  "accessory",
+  "headwear",
+  "effectFront",
+  "frame"
+ ],
+ "categories": [
+  {
+   "id": "typ",
+   "label": "Typ",
+   "slots": [
+    "base"
+   ]
+  },
+  {
+   "id": "haare",
+   "label": "Haare",
+   "slots": [
+    "hair",
+    "hairColor"
+   ]
+  },
+  {
+   "id": "gesicht",
+   "label": "Gesicht",
+   "slots": [
+    "eyes",
+    "brows",
+    "beard",
+    "glasses"
+   ]
+  },
+  {
+   "id": "outfit",
+   "label": "Outfit",
+   "slots": [
+    "clothes"
+   ]
+  },
+  {
+   "id": "kopf",
+   "label": "Kopf",
+   "slots": [
+    "headwear"
+   ]
+  },
+  {
+   "id": "extras",
+   "label": "Extras",
+   "slots": [
+    "accessory"
+   ]
+  },
+  {
+   "id": "effekte",
+   "label": "Effekte",
+   "slots": [
+    "effect"
+   ]
+  },
+  {
+   "id": "rahmen",
+   "label": "Rahmen",
+   "slots": [
+    "frame"
+   ]
+  }
+ ],
+ "slots": {
+  "base": {
+   "label": "Typ",
+   "layer": "base",
+   "required": true,
+   "items": [
+    {
+     "id": "m1",
+     "label": "Kante",
+     "file": "bases/m1",
+     "presentation": "m"
+    },
+    {
+     "id": "m2",
+     "label": "Brummbär",
+     "file": "bases/m2",
+     "presentation": "m"
+    },
+    {
+     "id": "m3",
+     "label": "Skeptiker",
+     "file": "bases/m3",
+     "presentation": "m"
+    },
+    {
+     "id": "f1",
+     "label": "Strahlefrau",
+     "file": "bases/f1",
+     "presentation": "f"
+    },
+    {
+     "id": "f2",
+     "label": "Sonnenschein",
+     "file": "bases/f2",
+     "presentation": "f"
+    },
+    {
+     "id": "f3",
+     "label": "Diva",
+     "file": "bases/f3",
+     "presentation": "f"
+    }
+   ]
+  },
+  "hair": {
+   "label": "Frisur",
+   "layer": "hair",
+   "items": [
+    {
+     "id": "none",
+     "label": "Glatze"
+    },
+    {
+     "id": "undercut",
+     "label": "Undercut",
+     "file": "hair/undercut-{hairColor}"
+    },
+    {
+     "id": "bob",
+     "label": "Bob",
+     "file": "hair/bob-{hairColor}"
+    },
+    {
+     "id": "long",
+     "label": "Lange Mähne",
+     "file": "hair/long-{hairColor}"
+    },
+    {
+     "id": "afro",
+     "label": "Afro",
+     "file": "hair/afro-{hairColor}"
+    },
+    {
+     "id": "buns",
+     "label": "Space Buns",
+     "file": "hair/buns-{hairColor}"
+    },
+    {
+     "id": "mohawk",
+     "label": "Iro",
+     "file": "hair/mohawk-{hairColor}",
+     "unlock": {
+      "level": 5
+     }
+    }
+   ]
+  },
+  "hairColor": {
+   "label": "Haarfarbe",
+   "layer": null,
+   "required": true,
+   "items": [
+    {
+     "id": "braun",
+     "label": "Braun",
+     "swatch": "#5a3a22"
+    },
+    {
+     "id": "schwarz",
+     "label": "Schwarz",
+     "swatch": "#26242a"
+    },
+    {
+     "id": "blond",
+     "label": "Blond",
+     "swatch": "#d6aa5c"
+    },
+    {
+     "id": "kupfer",
+     "label": "Kupfer",
+     "unlock": {
+      "level": 3
+     },
+     "swatch": "#b0481e"
+    },
+    {
+     "id": "cyan",
+     "label": "Neon-Cyan",
+     "unlock": {
+      "any": [
+       {
+        "level": 10
+       },
+       {
+        "achievements": 12
+       }
+      ]
+     },
+     "swatch": "#18b6d6"
+    }
+   ]
+  },
+  "eyes": {
+   "label": "Augen",
+   "layer": "eyes",
+   "items": [
+    {
+     "id": "none",
+     "label": "Natürlich"
+    },
+    {
+     "id": "neon",
+     "label": "Neon-Augen",
+     "file": "face/eyes-neon--{base}",
+     "unlock": {
+      "level": 8
+     }
+    },
+    {
+     "id": "gold",
+     "label": "Goldblick",
+     "file": "face/eyes-gold--{base}",
+     "unlock": {
+      "any": [
+       {
+        "level": 20
+       },
+       {
+        "achievements": 20
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "brows": {
+   "label": "Brauen",
+   "layer": "brows",
+   "items": [
+    {
+     "id": "none",
+     "label": "Natürlich"
+    },
+    {
+     "id": "cut",
+     "label": "Brauen-Cut",
+     "file": "face/brow-cut--{base}",
+     "unlock": {
+      "level": 2
+     }
+    }
+   ]
+  },
+  "beard": {
+   "label": "Bart",
+   "layer": "beard",
+   "items": [
+    {
+     "id": "none",
+     "label": "Ohne"
+    },
+    {
+     "id": "mustache",
+     "label": "Schnauzer",
+     "file": "face/mustache--{base}"
+    },
+    {
+     "id": "short",
+     "label": "Kurzbart",
+     "file": "face/beard-short--{base}"
+    },
+    {
+     "id": "full",
+     "label": "Vollbart",
+     "file": "face/beard-full--{base}",
+     "unlock": {
+      "level": 2
+     }
+    }
+   ]
+  },
+  "glasses": {
+   "label": "Brille",
+   "layer": "glasses",
+   "items": [
+    {
+     "id": "none",
+     "label": "Ohne"
+    },
+    {
+     "id": "nerd",
+     "label": "Nerdbrille",
+     "file": "face/glasses-nerd--{base}"
+    },
+    {
+     "id": "round",
+     "label": "Rundbrille",
+     "file": "face/glasses-round--{base}",
+     "unlock": {
+      "level": 3
+     }
+    },
+    {
+     "id": "shades",
+     "label": "PRO-Shades",
+     "file": "face/shades--{base}",
+     "unlock": {
+      "any": [
+       {
+        "level": 10
+       },
+       {
+        "achievement": "g.nachteule"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "clothes": {
+   "label": "Outfit",
+   "layer": "clothes",
+   "required": true,
+   "items": [
+    {
+     "id": "tee-pilz",
+     "label": "Pilz-Shirt",
+     "file": "clothes/tee-pilz"
+    },
+    {
+     "id": "tee-circuit",
+     "label": "Platinen-Shirt",
+     "file": "clothes/tee-circuit"
+    },
+    {
+     "id": "hoodie",
+     "label": "Neon-Hoodie",
+     "file": "clothes/hoodie",
+     "unlock": {
+      "level": 2
+     }
+    },
+    {
+     "id": "jacket",
+     "label": "Tech-Jacke",
+     "file": "clothes/jacket",
+     "unlock": {
+      "any": [
+       {
+        "level": 5
+       },
+       {
+        "achievement": "g.7tage"
+       }
+      ]
+     }
+    },
+    {
+     "id": "armor",
+     "label": "Cyber-Rüstung",
+     "file": "clothes/armor",
+     "unlock": {
+      "level": 15
+     }
+    },
+    {
+     "id": "armor-pro",
+     "label": "PRO-Rüstung",
+     "file": "clothes/armor-pro",
+     "unlock": {
+      "any": [
+       {
+        "level": 30
+       },
+       {
+        "achievement": "g.komplett"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "headwear": {
+   "label": "Kopf",
+   "layer": "headwear",
+   "items": [
+    {
+     "id": "none",
+     "label": "Ohne"
+    },
+    {
+     "id": "cap",
+     "label": "Cap",
+     "file": "headwear/cap"
+    },
+    {
+     "id": "beanie",
+     "label": "Beanie",
+     "file": "headwear/beanie",
+     "unlock": {
+      "level": 3
+     },
+     "hidesHair": true
+    },
+    {
+     "id": "helmet",
+     "label": "Gaming-Helm",
+     "file": "headwear/helmet",
+     "unlock": {
+      "level": 12
+     },
+     "hidesHair": true
+    },
+    {
+     "id": "pilz",
+     "label": "Pilzhut",
+     "file": "headwear/pilz",
+     "unlock": {
+      "achievement": "g.easteregg"
+     },
+     "hidesHair": true
+    },
+    {
+     "id": "crown",
+     "label": "Krone",
+     "file": "headwear/crown",
+     "unlock": {
+      "any": [
+       {
+        "level": 40
+       },
+       {
+        "achievement": "g.10000"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "accessory": {
+   "label": "Extra",
+   "layer": "accessory",
+   "items": [
+    {
+     "id": "none",
+     "label": "Ohne"
+    },
+    {
+     "id": "headset",
+     "label": "Headset",
+     "file": "accessories/headset",
+     "unlock": {
+      "any": [
+       {
+        "level": 4
+       },
+       {
+        "achievement": "g.rampensau"
+       }
+      ]
+     }
+    },
+    {
+     "id": "visor",
+     "label": "Cyber-Visor",
+     "file": "accessories/visor--{base}",
+     "unlock": {
+      "level": 18
+     },
+     "conflicts": {
+      "glasses": "none"
+     }
+    },
+    {
+     "id": "mask",
+     "label": "LED-Maske",
+     "file": "accessories/mask--{base}",
+     "unlock": {
+      "any": [
+       {
+        "level": 22
+       },
+       {
+        "achievement": "g.30tage"
+       }
+      ]
+     },
+     "conflicts": {
+      "beard": "none"
+     }
+    }
+   ]
+  },
+  "effect": {
+   "label": "Effekt",
+   "layer": "effect",
+   "items": [
+    {
+     "id": "none",
+     "label": "Ohne"
+    },
+    {
+     "id": "aura",
+     "label": "Neon-Aura",
+     "file": "effects/aura",
+     "unlock": {
+      "level": 10
+     },
+     "layer": "effectBack"
+    },
+    {
+     "id": "lightning",
+     "label": "Blitze",
+     "file": "effects/lightning",
+     "unlock": {
+      "level": 20
+     },
+     "layer": "effectBack"
+    },
+    {
+     "id": "flames",
+     "label": "Flammen",
+     "file": "effects/flames",
+     "unlock": {
+      "any": [
+       {
+        "level": 30
+       },
+       {
+        "achievement": "g.30tage"
+       }
+      ]
+     },
+     "layer": "effectBack"
+    },
+    {
+     "id": "gold",
+     "label": "Goldregen",
+     "file": "effects/gold",
+     "unlock": {
+      "any": [
+       {
+        "level": 50
+       },
+       {
+        "achievement": "g.komplett"
+       }
+      ]
+     },
+     "layer": "effectFront"
+    }
+   ]
+  },
+  "frame": {
+   "label": "Rahmen",
+   "layer": "frame",
+   "required": true,
+   "items": [
+    {
+     "id": "standard",
+     "label": "Standard",
+     "file": "frames/standard"
+    },
+    {
+     "id": "bronze",
+     "label": "Bronze",
+     "file": "frames/bronze",
+     "unlock": {
+      "level": 5
+     }
+    },
+    {
+     "id": "silber",
+     "label": "Silber",
+     "file": "frames/silber",
+     "unlock": {
+      "level": 15
+     }
+    },
+    {
+     "id": "gold",
+     "label": "Gold",
+     "file": "frames/gold",
+     "unlock": {
+      "level": 30
+     }
+    },
+    {
+     "id": "pro",
+     "label": "PRO",
+     "file": "frames/pro",
+     "unlock": {
+      "any": [
+       {
+        "level": 50
+       },
+       {
+        "achievement": "g.komplett"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ },
+ "default": {
+  "base": "m1",
+  "hair": "undercut",
+  "hairColor": "braun",
+  "eyes": "none",
+  "brows": "none",
+  "beard": "none",
+  "glasses": "none",
+  "clothes": "tee-pilz",
+  "headwear": "none",
+  "accessory": "none",
+  "effect": "none",
+  "frame": "standard"
+ },
+ "baseDefaults": {
+  "m1": {
+   "hair": "undercut"
+  },
+  "m2": {
+   "hair": "afro",
+   "hairColor": "schwarz"
+  },
+  "m3": {
+   "hair": "undercut",
+   "hairColor": "schwarz"
+  },
+  "f1": {
+   "hair": "long",
+   "hairColor": "schwarz"
+  },
+  "f2": {
+   "hair": "bob",
+   "hairColor": "blond"
+  },
+  "f3": {
+   "hair": "buns",
+   "hairColor": "schwarz"
+  }
+ }
+}
