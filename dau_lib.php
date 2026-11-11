@@ -542,18 +542,7 @@ function dtp_hero_picture(array $hero,string $alt,string $class='hero-logo'): st
 
 /** Default hero layers share one coordinate system with the mushroom interaction. */
 function dtp_hero_scene(array $hero,string $alt): string {
-    if (!empty($hero['custom'])) return dtp_hero_picture($hero,$alt);
-
-    $art = '../assets/dau-hero/';
-    return '<div class="hero-logo hero-layered" role="img" aria-label="'.e($alt).'">'
-        .'<div class="hero-plane hero-plane-backdrop"></div>'
-        .'<div class="hero-plane hero-plane-progress" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'
-        .'<img class="hero-plane hero-plane-dau" src="'.$art.'dau.webp" alt="" decoding="async" draggable="false">'
-        .'<img class="hero-plane hero-plane-pro" src="'.$art.'pro.webp" alt="" decoding="async" draggable="false">'
-        .'<img class="hero-plane hero-plane-brand" src="'.$art.'brand.webp" alt="" decoding="async" fetchpriority="high" draggable="false">'
-        .'<span class="hero-plane hero-plane-level" aria-hidden="true">LEVEL UP!</span>'
-        .'<img class="hero-plane hero-plane-mushroom" src="'.$art.'mushroom.png" alt="" draggable="false">'
-        .'</div>';
+    return dtp_hero_picture($hero,$alt);
 }
 
 /**
