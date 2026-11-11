@@ -80,5 +80,10 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
             </div>
             <p class="arcade-scroll-hint">Mit dem Mausrad, den Pfeilen oder per Wischgeste durch die Plätze</p>
         </section>
+    <?php elseif (!$fullPage): ?>
+        <section class="arcade-next-places arcade-next-places--empty" aria-labelledby="arcade-next-title">
+            <h3 class="arcade-next-head" id="arcade-next-title">Weitere Plätze</h3>
+            <p>Sobald Platz 4 belegt ist, erscheint er hier.</p>
+        </section>
     <?php endif;
 }
