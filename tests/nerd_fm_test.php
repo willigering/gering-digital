@@ -13,7 +13,7 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 $songs=nfm_songs();
 $hasDejaVu=is_file(nfm_dir().'/deja-vu.mp3');
 $hasWerBistDu=is_file(nfm_dir().'/wer-bist-du.mp3');
-$expectedIds=['apipa','sieben-schichten','klopf-klopf','dau-to-pro'];
+$expectedIds=['apipa','sieben-schichten','klopf-klopf','ping-mich-nicht-voll','dau-to-pro'];
 if ($hasDejaVu) $expectedIds[]='deja-vu';
 if ($hasWerBistDu) $expectedIds[]='wer-bist-du';
 check(array_keys($songs)===$expectedIds,'Feste Playlist-Reihenfolge, neuer Song erst mit echter MP3');
@@ -71,6 +71,17 @@ db()->prepare('INSERT INTO learners(id,username,password_hash) VALUES(?,?,?)')->
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'b5.lernpfad','2026-11-07 12:00:00']);
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
 $learner=learner_by_id($lid);
+
+// Der Song ist auch für Lernende mit einem bereits abgeschlossenen Router-Lernpfad verfügbar.
+check(!in_array('ping-mich-nicht-voll',array_column(nfm_tracks($learner),'id'),true),'Ohne Netzwerk-Lernpfad bleibt Ping mich nicht voll gesperrt');
+db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'netz.lernpfad','2026-11-10 12:00:00']);
+check(in_array('ping-mich-nicht-voll',array_column(nfm_tracks($learner),'id'),true),'Netzwerk-Lernpfad schaltet Ping mich nicht voll frei');
+foreach (['netzwerke-sprint','netzwerke','routing-switching'] as $slug) {
+    check(str_contains((string)nfm_card_note($slug,[]),'„Ping mich nicht voll“ freischaltbar'),'Songhinweis für '.$slug);
+    check(str_contains((string)nfm_card_note($slug,['netz.lernpfad'=>'x']),'freigeschaltet'),'Freigeschalteter Songhinweis für '.$slug);
+}
+check(nfm_save_off($learner,['ping-mich-nicht-voll'])===['ping-mich-nicht-voll'],'Neuer Song lässt sich in der Playlist abwählen');
+nfm_save_off($learner,[]);
 
 // ---------------------------------------------------------------- Links
 $now=1800000000;
@@ -139,6 +150,8 @@ try {
     $locked=$base.nfm_link('klopf-klopf',0,$sid);
     [$st]=http($locked,$audio);
     check($st===403,'Nicht freigeschalteter Song bleibt gesperrt, auch mit gültiger Signatur');
+    [$st]=http($base.nfm_link('ping-mich-nicht-voll',0,$sid),$audio);
+    check($st===403,'Ping mich nicht voll bleibt für Gäste auch mit gültigem Link gesperrt');
     [$st]=http($base.'api/song.php?s=../../data/x&e=1&k=0',$audio);
     check($st===404,'Unbekannte Song-ID wird abgewiesen');
     // Begrenzung der Songstarts je Sitzung

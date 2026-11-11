@@ -20,6 +20,7 @@ function nfm_songs(): array {
         'apipa'=>['file'=>'apipa.mp3','title'=>'Diggy Thal – APIPA','unlock'=>null,'module'=>null],
         'sieben-schichten'=>['file'=>'7-schichten.mp3','title'=>'Diggy Thal – 7 Schichten','unlock'=>'osi.lernpfad','module'=>'osi-sprint'],
         'klopf-klopf'=>['file'=>'klopf-klopf.mp3','title'=>'Diggy Thal – Klopf, Klopf','unlock'=>'b5.lernpfad','module'=>'b5-netzwerkdienste'],
+        'ping-mich-nicht-voll'=>['file'=>'ping-mich-nicht-voll.mp3','title'=>'Diggy Thal – Ping mich nicht voll','unlock'=>'netz.lernpfad','module'=>'netzwerke-sprint'],
         // Versteckter Song: Freischaltung über das Pilz-Easter-Egg, bewusst ohne Vermerk auf einer Karte.
         'dau-to-pro'=>['file'=>'dau-to-pro.mp3','title'=>'DAU to PRO','unlock'=>'g.easteregg','module'=>null],
     ];
