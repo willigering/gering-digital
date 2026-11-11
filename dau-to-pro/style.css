@@ -89,18 +89,33 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-visual:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse,#4ccddc12,transparent 65%);pointer-events:none}
 .hero-art-wrap{position:relative;display:flow-root;width:100%;margin:0;pointer-events:none}
 .hero-logo{display:block;width:100%;height:auto;margin:calc(var(--hero-trim-top,0) * -100%) 0 calc(var(--hero-trim-bottom,0) * -100%);object-fit:contain}
-/* Standard-Hero: fertige Grafik, die Ränder laufen weich in den Seitenhintergrund aus. */
-.hero-art-wrap[data-scene=flat] .hero-logo{user-select:none;-webkit-user-drag:none;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);-webkit-mask-composite:source-in;
-  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent),linear-gradient(180deg,transparent,#000 7%,#000 91%,transparent);mask-composite:intersect}
+/* Standard-Hero: freigestellte Figuren und Logo über dem Seitenhintergrund. */
+.hero-layered{position:relative;isolation:isolate;aspect-ratio:1770 / 889;container-type:inline-size;user-select:none}
+.hero-plane{position:absolute;display:block;margin:0}
+.hero-plane-backdrop{inset:9% 0 1%;background:radial-gradient(ellipse at 64% 57%,#32798524,transparent 54%),radial-gradient(ellipse at 82% 48%,#a977331c,transparent 44%);z-index:-1}
+.hero-plane-dau{left:4%;bottom:8%;width:37%;height:79%;object-fit:contain;object-position:bottom}
+.hero-plane-pro{left:52%;bottom:8%;width:27%;height:77%;object-fit:contain;object-position:bottom}
+.hero-plane-brand{left:37%;top:1%;width:57%;height:23%;object-fit:contain}
+.hero-plane-progress{left:40%;bottom:9%;width:13%;height:39%;display:flex;align-items:end;gap:8%;z-index:-1}
+.hero-plane-progress i{width:19%;height:var(--bar);background:linear-gradient(#538c94,#253f46);border:1px solid #76aeb45c;border-radius:2px}
+.hero-plane-progress i:nth-child(1){--bar:17%}
+.hero-plane-progress i:nth-child(2){--bar:29%}
+.hero-plane-progress i:nth-child(3){--bar:44%}
+.hero-plane-progress i:nth-child(4){--bar:63%}
+.hero-plane-progress::before{content:"";position:absolute;inset:-3% 0 30%;background:#c89b59;clip-path:polygon(0 91%,76% 14%,49% 19%,49% 12%,92% 2%,92% 42%,85% 43%,85% 19%,6% 98%)}
+.hero-plane-level{left:74%;top:34%;padding:.52em .73em;border:1px solid #9b7744;border-radius:.28em;background:#131a1f;color:#ecd5a9;font:900 italic clamp(9px,2.6cqw,25px)/1 system-ui,sans-serif;white-space:nowrap}
+.hero-plane-level::after{content:"";position:absolute;left:30%;top:100%;width:.65em;height:.55em;background:#131a1f;border:solid #9b7744;border-width:0 1px 1px 0;transform:translateY(-50%) skew(-15deg) rotate(42deg)}
+.hero-plane-mushroom,.hero-art-wrap[data-scene=layered] > .fx-layer{left:76.4407%;top:53.2058%;width:10.226%;height:19.2351%}
+.hero-plane-mushroom{object-fit:contain;image-rendering:pixelated}
+.hero-art-wrap:has(.fx-layer.is-active) .hero-plane-mushroom{visibility:hidden}
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}
   /* Die Grafik ragt nach links und rechts in den Seitenrand, bleibt aber immer im Fenster (--hero-pad = Randbreite). */
-  .hero-art-wrap[data-scene=flat]{--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
+  .hero-art-wrap[data-scene=layered]{--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
   .hero-copy .hero-lead{max-width:min(100%,390px);text-wrap:pretty;hyphens:auto}
 }
 @media(min-width:861px) and (max-width:1060px){
-  .hero-art-wrap[data-scene=flat]{width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
+  .hero-art-wrap[data-scene=layered]{width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
   .hero-copy .hero-lead{max-width:min(100%,340px)}
 }
 .eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}

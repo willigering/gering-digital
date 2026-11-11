@@ -540,12 +540,20 @@ function dtp_hero_picture(array $hero,string $alt,string $class='hero-logo'): st
     return '<picture>'.$source.'<img class="'.e($class).'" src="../'.e($hero['src']).'" width="'.(int)$hero['width'].'" height="'.(int)$hero['height'].'" '.($class==='hero-logo'?'fetchpriority="high" ':'').'decoding="async" alt="'.e($alt).'" draggable="false"></picture>';
 }
 
-/**
- * Hero: die fertige Grafik (Figuren, Schriftzug, Balken mit Reflexion, Power-up) als ein Bild.
- * Der Pilz-Effekt (hero-fx.js) legt sich über die Pilz-Position, siehe dtp_hero_fx_attrs().
- */
+/** Default hero layers share one coordinate system with the mushroom interaction. */
 function dtp_hero_scene(array $hero,string $alt): string {
-    return dtp_hero_picture($hero,$alt);
+    if (!empty($hero['custom'])) return dtp_hero_picture($hero,$alt);
+
+    $art = '../assets/dau-hero/';
+    return '<div class="hero-logo hero-layered" role="img" aria-label="'.e($alt).'">'
+        .'<div class="hero-plane hero-plane-backdrop"></div>'
+        .'<div class="hero-plane hero-plane-progress" aria-hidden="true"><i></i><i></i><i></i><i></i></div>'
+        .'<img class="hero-plane hero-plane-dau" src="'.$art.'dau.webp" alt="" decoding="async" draggable="false">'
+        .'<img class="hero-plane hero-plane-pro" src="'.$art.'pro.webp" alt="" decoding="async" draggable="false">'
+        .'<img class="hero-plane hero-plane-brand" src="'.$art.'brand.webp" alt="" decoding="async" fetchpriority="high" draggable="false">'
+        .'<span class="hero-plane hero-plane-level" aria-hidden="true">LEVEL UP!</span>'
+        .'<img class="hero-plane hero-plane-mushroom" src="'.$art.'mushroom.png" alt="" draggable="false">'
+        .'</div>';
 }
 
 /**
@@ -645,10 +653,10 @@ HTML;
  * the effect still works but no player is shown.
  */
 function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
-    if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-to-pro-pixelpilz.svg')) return '';
+    if (!empty($hero['custom']) || !is_file(__DIR__.'/assets/dau-hero/mushroom.png')) return '';
     $video=__DIR__.'/assets/dau-to-pro-easteregg.mp4';
-    $attrs=' data-fx="../assets/dau-to-pro-pixelpilz.svg?v='.filemtime(__DIR__.'/assets/dau-to-pro-pixelpilz.svg').'"';
-    // Pilz in der Standardgrafik (Pixel der 1770 × 889 großen Datei): x, y, Breite, Höhe.
+    $attrs=' data-fx="../assets/dau-hero/mushroom.png?v='.filemtime(__DIR__.'/assets/dau-hero/mushroom.png').'"';
+    // Pilz im gemeinsamen Koordinatensystem des Standard-Heros: x, y, Breite, Höhe.
     $attrs.=' data-fx-art="'.(int)DTP_HERO_DEFAULT_SIZE[0].'x'.(int)DTP_HERO_DEFAULT_SIZE[1].'" data-fx-box="1353,473,181,171"';
     $attrs.=' data-fx-video="'.(is_file($video)?'../assets/dau-to-pro-easteregg.mp4?v='.filemtime($video):'').'"';
     // Mit Lernkonto meldet das Video das Achievement „Fremdscham erfolgreich freigeschaltet“ (200 XP).

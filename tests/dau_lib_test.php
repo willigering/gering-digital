@@ -112,8 +112,10 @@ check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','prev
 // --- Hero ---
 $hero=dtp_hero();
 $scene=dtp_hero_scene($hero,'Originalgrafik');
-check(str_contains($scene,'<picture>') && str_contains($scene,'class="hero-logo"') && str_contains($scene,'alt="Originalgrafik"') && !str_contains($scene,'hero-plane'),'Standard-Hero ist ein einzelnes Bild ohne Ebenen');
-check(str_contains($scene,'dau-to-pro-hero-v2-885.webp 885w') && str_contains($scene,'dau-to-pro-hero-v2-1770.webp 1770w'),'Hero liefert zwei Auflösungen');
+check(str_contains($scene,'class="hero-logo hero-layered"') && str_contains($scene,'aria-label="Originalgrafik"'),'Standard-Hero hat ein zugängliches Label');
+foreach(['dau.webp','pro.webp','brand.webp','mushroom.png'] as $layer) {
+    check(str_contains($scene,'assets/dau-hero/'.$layer) && is_file(__DIR__.'/../assets/dau-hero/'.$layer),'Hero liefert die getrennte Ebene '.$layer);
+}
 foreach([885=>444,1770=>889] as $width=>$height){
     $file=__DIR__.'/../assets/dau-to-pro-hero-v2-'.$width.'.webp';
     $size=getimagesize($file);
@@ -135,7 +137,7 @@ $t=dtp_hero_measure_trim($tmp,IMAGETYPE_PNG);
 check($t['left']>0.2 && $t['left']<=0.25 && $t['top']>0.15 && $t['top']<=0.2 && $t['bottom']>0.15 && $t['right']>0.2,'Transparente Ränder einer eigenen Grafik werden korrekt erkannt');
 check(!dtp_hero_is_upload('assets/dau-to-pro-hero-v2-1770.webp') && !dtp_hero_is_upload('../lib.php'),'Original und fremde Pfade werden nie gelöscht');
 $fx=dtp_hero_fx_attrs(['custom'=>false]);
-check(str_contains($fx,'data-fx="../assets/dau-to-pro-pixelpilz.svg?v=') && str_contains($fx,'data-fx-video="../assets/dau-to-pro-easteregg.mp4?v='),'Hero-Effekt: Bild und Video werden übergeben');
+check(str_contains($fx,'data-fx="../assets/dau-hero/mushroom.png?v=') && str_contains($fx,'data-fx-video="../assets/dau-to-pro-easteregg.mp4?v='),'Hero-Effekt: Bild und Video werden übergeben');
 check(str_contains($fx,'data-fx-art="1770x889"') && str_contains($fx,'data-fx-box="1353,473,181,171"'),'Hero-Effekt kennt die Pilz-Position in der Grafik');
 check(dtp_hero_fx_attrs(['custom'=>true])==='','Hero-Effekt nur mit der Original-Hero-Grafik');
 @unlink($tmp);@unlink($db);

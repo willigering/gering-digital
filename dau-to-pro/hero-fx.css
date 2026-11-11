@@ -3,7 +3,7 @@
 .fx-layer{position:absolute;z-index:3;pointer-events:none}
 .fx-shroom{position:absolute;inset:0;transform-origin:50% 88%;transform:scale(var(--fx-scale,1));will-change:transform}
 .fx-shroom.is-calm{transition:transform .7s cubic-bezier(.33,0,.25,1),filter .7s ease}
-.fx-shroom-img{position:absolute;inset:0;width:100%;height:100%;display:block;opacity:0;user-select:none;-webkit-user-drag:none;
+.fx-shroom-img{position:absolute;inset:0;width:100%;height:100%;display:block;object-fit:contain;image-rendering:pixelated;opacity:0;user-select:none;-webkit-user-drag:none;
   filter:hue-rotate(var(--fx-hue,0deg)) saturate(calc(1 + var(--fx-glow,0) * .6)) drop-shadow(0 0 calc(var(--fx-glow,0) * 18px) rgba(255,214,90,calc(var(--fx-glow,0) * .9)));
   transition:filter .35s ease}
 .fx-layer.is-active .fx-shroom-img{opacity:1}
