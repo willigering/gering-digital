@@ -467,7 +467,7 @@
     {
      "id": "headset",
      "label": "Headset",
-     "file": "accessories/headset",
+     "file": "accessories/headset--{base}",
      "unlock": {
       "any": [
        {

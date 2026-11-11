@@ -14,3 +14,4 @@ tools/nerd-radio/.work/
 lernmodule/cs2-csharp.html
 tests/support/cs2-snippets.json
 tools/__pycache__/
+tools/**/__pycache__/

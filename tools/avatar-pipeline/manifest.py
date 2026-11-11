@@ -67,7 +67,7 @@ slots = {
     ]},
     'accessory': {'label': 'Extra', 'layer': 'accessory', 'items': [
         it('none', 'Ohne'),
-        it('headset', 'Headset', 'accessories/headset', unlock=ANY(L(4), A('g.rampensau'))),
+        it('headset', 'Headset', 'accessories/headset--{base}', unlock=ANY(L(4), A('g.rampensau'))),
         it('visor', 'Cyber-Visor', 'accessories/visor--{base}', unlock=L(18), conflicts={'glasses': 'none'}),
         it('mask', 'LED-Maske', 'accessories/mask--{base}', unlock=ANY(L(22), A('g.30tage')), conflicts={'beard': 'none'}),
     ]},

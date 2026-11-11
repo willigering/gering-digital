@@ -334,4 +334,9 @@ for k, spec in FRAMES.items():
     save(frame(spec, pro=(k == 'pro')), 'frames', k)
 
 json.dump(anchors, open(os.path.join(OUT, 'anchors.json'), 'w'), indent=1)
+# Re-align visor, glasses, mask and headset from the fitted m1 layers using
+# hand-measured pupils / mouth / chin. Auto-detected sclera often latches onto
+# forehead highlights, so those items sat too high and too narrow on m2 and f2.
+from landmarks import refit_output
+written = refit_output(OUT, written)
 print('wrote', len(written), 'layers')
