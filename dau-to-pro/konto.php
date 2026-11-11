@@ -50,6 +50,9 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             case 'logout':
                 learner_logout();
                 konto_back('',['ok'=>'Du bist abgemeldet. Der Fortschritt deines Kontos wurde von diesem Gerät entfernt und bleibt sicher im Konto gespeichert.','clear_uid'=>(string)$id]);
+            case 'change_username':
+                learner_change_username($learner,(string)($_POST['current']??''),$username);
+                konto_back('',['ok'=>'Benutzername geändert. Verwende ab jetzt den neuen Namen zur Anmeldung.']);
             case 'change_password':
                 learner_change_password($learner,(string)($_POST['current']??''),(string)($_POST['password']??''),(string)($_POST['password2']??''));
                 konto_back('',['ok'=>'Passwort geändert. Andere Geräte wurden abgemeldet.'],'');
@@ -91,7 +94,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         }
         konto_back('',['error'=>'Unbekannte Aktion.']);
     } catch (LearnerError $error) {
-        $section=in_array($action,['change_password','new_code','delete_account','highscore','reset_all'],true)?$action:'';
+        $section=in_array($action,['change_username','change_password','new_code','delete_account','highscore','reset_all'],true)?$action:'';
         konto_back($mode,['error'=>$error->getMessage(),'username'=>$username,'section'=>$section,'remember'=>!empty($_POST['remember'])],$next);
     }
 }
@@ -230,6 +233,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
   <section aria-labelledby="settings-title" class="konto-section" id="einstellungen">
     <div class="konto-section-head"><h2 id="settings-title">Konto-Einstellungen</h2><span class="konto-meta">Angemeldet als <strong><?=e($learner['username'])?></strong> · Konto seit <?=e(learner_format_time($learner['created_at']))?></span></div>
     <div class="settings-list">
+      <details class="settings-item" id="change_username"<?=($flash['section']??'')==='change_username'||($_GET['bearbeiten']??'')==='name'?' open':''?>>
+        <summary><span><b>Benutzernamen ändern</b><small>Der neue Name gilt für die Anmeldung und deinen Eintrag im Highscore.</small></span></summary>
+        <form method="post" class="settings-body">
+          <?=$hidden('change_username')?>
+          <label>Neuer Benutzername<input name="username" value="<?=e(($flash['section']??'')==='change_username'?$username:$learner['username'])?>" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="3" maxlength="24" pattern="[A-Za-z0-9][A-Za-z0-9._\-]{1,22}[A-Za-z0-9]" aria-describedby="rename-hint" required></label>
+          <small class="field-hint" id="rename-hint">3–24 Zeichen: Buchstaben, Ziffern, Punkt, Unterstrich oder Bindestrich. Sonderzeichen nur einzeln und zwischen Buchstaben oder Ziffern.</small>
+          <label>Aktuelles Passwort<input type="password" name="current" autocomplete="current-password" required></label>
+          <button class="secondary-action" type="submit">Benutzernamen speichern</button>
+        </form>
+      </details>
       <details class="settings-item" id="change_password"<?=($flash['section']??'')==='change_password'?' open':''?>>
         <summary><span><b>Passwort ändern</b><small>Danach werden deine anderen Geräte abgemeldet.</small></span></summary>
         <form method="post" class="settings-body">

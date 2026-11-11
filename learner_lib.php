@@ -257,6 +257,17 @@ function learner_require_password(array $learner,string $password): void {
         throw new LearnerError('Das aktuelle Passwort stimmt nicht.');
     }
 }
+function learner_change_username(array $learner,string $current,string $username): void {
+    learner_require_password($learner,$current);
+    $username=learner_clean_username($username);
+    learner_validate_username($username);
+    try {
+        db()->prepare('UPDATE learners SET username=? WHERE id=?')->execute([$username,$learner['id']]);
+    } catch (PDOException $error) {
+        if (($error->errorInfo[1]??null)!==19) throw $error;
+        throw new LearnerError('Dieser Benutzername ist leider schon vergeben.');
+    }
+}
 function learner_change_password(array $learner,string $current,string $password,string $confirm): void {
     learner_require_password($learner,$current);
     learner_validate_password($password,$confirm,$learner['username']);

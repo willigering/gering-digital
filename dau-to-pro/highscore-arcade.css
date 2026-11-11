@@ -85,8 +85,7 @@
   transform: rotate(-7deg);
 }
 @supports (background-clip: text) {
-  .arcade-heading h2 span,
-  .arcade-stage--landing .rank-1 .arcade-score strong {
+  .arcade-heading h2 span {
     background: linear-gradient(170deg, #fff4c7 10%, #ffe08a 37%, #e8a02f 75%, #ffdf87 98%);
     background-clip: text;
     color: transparent;
@@ -94,41 +93,12 @@
     filter: drop-shadow(0 2px 1px #462509) drop-shadow(0 0 7px #f7a92565);
   }
 }
-.arcade-frame-glints {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  color: var(--rank-glow);
-}
-.arcade-frame-glints::before,
-.arcade-frame-glints::after {
-  content: "";
-  position: absolute;
-  width: clamp(19px, 3.6vw, 55px);
-  aspect-ratio: 1;
-  background:
-    radial-gradient(circle, #fff 0 4%, #fff3ca 6%, transparent 31%),
-    linear-gradient(90deg, transparent, #fff1d1 50%, transparent) center / 100% 1px no-repeat,
-    linear-gradient(0deg, transparent, #fff1d1 50%, transparent) center / 1px 100% no-repeat;
-  filter: drop-shadow(0 0 5px currentColor);
-  transform: translate(-50%, -50%) rotate(-12deg);
-  opacity: .78;
-}
-.arcade-frame-glints::before { top: 10%; left: 11%; }
-.arcade-frame-glints::after { top: 99%; left: 86%; }
-.arcade-stage--landing .rank-1 .arcade-frame-glints::before { opacity: 1; }
-.arcade-stage--landing .rank-1 .arcade-frame-glints::after { top: 60%; left: 100%; opacity: 1; }
-.arcade-stage--landing .arcade-medals .showcase-icon img {
-  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--rank-glow) 65%, transparent));
-}
 .arcade-heading::after {
   content: "";
   display: block;
   height: 2px;
   margin-top: 12px;
   background: linear-gradient(90deg, #e58d2580, #ffd383, transparent);
-  box-shadow: 0 0 8px #ffa129;
 }
 .arcade-full {
   padding: clamp(10px, 3vw, 36px);
@@ -177,9 +147,11 @@
 .arcade-champion::after,
 .arcade-runner::after {
   inset: 2px;
-  background: radial-gradient(ellipse at 42% 0, color-mix(in srgb, var(--rank-glow) 24%, #081119), transparent 65%),
-    repeating-linear-gradient(135deg, #fff0 0 5px, #ffffff07 6px 7px), #081219;
-  box-shadow: inset 0 0 20px color-mix(in srgb, var(--rank-glow) 23%, transparent);
+  background:
+    linear-gradient(155deg, color-mix(in srgb, var(--rank-glow) 26%, #1a232a), #10171d 45%, #202a31),
+    url("../assets/dau-backgrounds/highscore-metal.webp") center / 260px;
+  background-blend-mode: multiply;
+  box-shadow: inset 0 1px #ffffff35, inset 0 -2px #000a;
 }
 .arcade-champion {
   display: flex;
@@ -190,14 +162,12 @@
   padding: 19px 9px 14px;
   min-height: clamp(252px, 27vw, 330px);
   text-align: center;
-  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--rank-glow) 46%, transparent));
 }
 .arcade-champion.rank-1 {
   grid-column: 2;
   grid-row: 1;
   --rank-glow: #f4a62a;
   --rank-ink: #ffda88;
-  filter: drop-shadow(0 0 13px #ffaa4373);
   min-height: clamp(280px, 31vw, 378px);
 }
 .arcade-champion.rank-2 { grid-column: 1; grid-row: 1; --rank-glow: #51c9fb; --rank-ink: #b9eeff; }
@@ -205,13 +175,12 @@
 .arcade-champions { padding-top: clamp(48px, 5.7vw, 78px); }
 .arcade-champion::after {
   inset: 4px;
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--rank-glow) 58%, #142027),
-    inset 0 0 24px color-mix(in srgb, var(--rank-glow) 34%, transparent);
+  box-shadow: inset 0 0 0 1px #ffffff32, inset 0 2px 0 #000a, inset 0 -2px #000a;
 }
 .arcade-rank {
   position: absolute;
   z-index: 2;
-  bottom: calc(100% - 4px);
+  bottom: calc(100% - 1px);
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -219,11 +188,10 @@
   justify-content: center;
   gap: .16em;
   font-size: clamp(30px, 4.7vw, 66px);
-  line-height: .97;
+  line-height: 1.08;
   font-style: italic;
   font-weight: 950;
   color: var(--rank-ink);
-  text-shadow: 2px 3px #020609, 0 0 18px var(--rank-glow);
   pointer-events: none;
 }
 .arcade-rank::before, .arcade-rank::after {
@@ -236,10 +204,72 @@
   clip-path: polygon(20% 0, 88% 32%, 100% 92%, 53% 100%, 3% 65%);
 }
 .arcade-rank::after { transform: scaleX(-1); }
+.arcade-rank-number {
+  position: relative;
+  display: block;
+  isolation: isolate;
+  padding-inline: .12em;
+  font-family: "Barlow Condensed Scoreboard", Impact, system-ui, sans-serif;
+  font-weight: 900;
+  transform: skewY(-6deg);
+  text-shadow: 1px 2px #111b23, 3px 4px #05090d;
+}
+@supports (background-clip: text) {
+  .arcade-rank-number {
+    color: transparent;
+    background:
+      linear-gradient(160deg, #fff9ed 8%, var(--rank-ink) 30%, var(--rank-glow) 52%, var(--rank-ink) 61%, var(--rank-glow) 92%),
+      url("../assets/dau-backgrounds/highscore-metal.webp") center / 115px;
+    background-blend-mode: hard-light;
+    background-clip: text;
+    text-shadow: none;
+    -webkit-text-stroke: .45px var(--rank-ink);
+  }
+  .arcade-rank-number::before {
+    content: attr(data-rank);
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    transform: translate(.055em, .065em);
+    color: #070c10;
+    -webkit-text-stroke: 1px color-mix(in srgb, var(--rank-glow) 40%, #11161b);
+  }
+}
 .arcade-crown {
-  font-style: normal;
-  font-size: 1em;
-  line-height: 1;
+  position: relative;
+  width: .95em;
+  height: .68em;
+  flex: none;
+  transform: rotate(-7deg);
+  filter: drop-shadow(2px 3px 0 #281604);
+}
+.arcade-crown::before,
+.arcade-crown::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.arcade-crown::before {
+  clip-path: polygon(0 12%, 29% 34%, 50% 0, 71% 34%, 100% 12%, 85% 78%, 76% 90%, 24% 90%, 15% 78%);
+  background:
+    conic-gradient(from 152deg at 50% 50%, #ce8b35 0 26deg, #ffe5a3 26deg 64deg, #af6b22 64deg 110deg, #ffe5a3 110deg 152deg, #8d4817 152deg 209deg, #ffe5a3 209deg 249deg, #ce8b35 249deg),
+    url("../assets/dau-backgrounds/highscore-metal.webp") center / 115px;
+  background-blend-mode: hard-light;
+}
+.arcade-crown::after {
+  inset: 74% 15% 0;
+  clip-path: polygon(0 0, 50% 13%, 100% 0, 92% 78%, 50% 100%, 8% 78%);
+  background: linear-gradient(#643711 7%, #ffdc86 22%, #cb8838 58%, #7c4419 80%, #f3b55b);
+}
+.rank-1 .arcade-rank::before,
+.rank-1 .arcade-rank::after { content: none; }
+@media (min-width: 761px) {
+  .arcade-champion {
+    transform: perspective(900px) rotateX(7deg);
+    transform-origin: center bottom;
+  }
+  .arcade-champion.rank-2 { transform: perspective(900px) rotateX(8deg) rotateY(-5deg); }
+  .arcade-champion.rank-3 { transform: perspective(900px) rotateX(8deg) rotateY(5deg); }
 }
 .arcade-champion.is-vacant { color: #cad8df; }
 .arcade-champion.is-vacant .arcade-avatar { opacity: .65; }
@@ -294,12 +324,12 @@
   color: var(--rank-ink);
   font-style: italic;
   font-weight: 900;
-  line-height: 1.1;
-  text-shadow: 0 0 16px color-mix(in srgb, var(--rank-glow) 34%, transparent);
+  line-height: 1.18;
 }
 .arcade-score strong {
   font-size: clamp(18px, 3.7vw, 53px);
-  letter-spacing: -.05em;
+  letter-spacing: -.04em;
+  padding-inline: .08em;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
   min-width: 0;
@@ -336,7 +366,7 @@
   border: 1px solid #bd914d;
   border-radius: 12px;
   background: #071218ed;
-  box-shadow: inset 0 1px #65deec60, 0 0 22px #ffb44b22;
+  box-shadow: inset 0 1px #65deec60, 0 5px 12px #0007;
 }
 .arcade-next-places--empty p {
   margin: 0;
@@ -405,7 +435,6 @@
   font-size: 33px;
   line-height: 1;
   cursor: pointer;
-  text-shadow: 0 0 11px #faab3b;
 }
 .arcade-prev { left: 0; }
 .arcade-next { right: 0; }
@@ -424,7 +453,6 @@
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, #e39325, #ffdc82);
-  box-shadow: 0 0 10px #f9aa3b70;
 }
 .arcade-scroll-hint { display: none; margin: 9px 0 0; text-align: center; color: #c6d6dd; font-size: 12px; }
 .has-overflow .arcade-arrow, .has-overflow .arcade-progress, .has-overflow .arcade-scroll-hint { display: block; }
@@ -444,8 +472,7 @@
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (background-clip: text) {
-    .arcade-heading h2 span,
-    .arcade-stage--landing .rank-1 .arcade-score strong {
+    .arcade-heading h2 span {
       background-image:
         linear-gradient(112deg, transparent 36%, #fff3c479 47%, #fffbee 50%, #fff3c479 53%, transparent 64%),
         linear-gradient(170deg, #fff4c7 10%, #ffe08a 37%, #e8a02f 75%, #ffdf87 98%);
@@ -454,38 +481,18 @@
       background-position: right center, center;
       animation: arcade-gold-sweep 10s ease-in-out 1s infinite;
     }
-    .arcade-stage--landing .rank-1 .arcade-score strong { animation-delay: 3s; }
   }
-
-  .arcade-stage--landing .arcade-frame-glints::before {
-    animation: arcade-edge-sweep 13s linear 2s infinite;
-  }
-  .arcade-stage--landing .rank-1 .arcade-frame-glints::before {
-    animation-duration: 9s;
-    animation-delay: 1s;
-  }
-  .arcade-stage--landing .rank-3 .arcade-frame-glints::before { animation-delay: 5s; }
 
   @keyframes arcade-gold-sweep {
     0%, 4% { background-position: right center, center; }
     24%, 100% { background-position: left center, center; }
   }
 
-  @keyframes arcade-edge-sweep {
-    0%, 3% { top: 10%; left: 0; opacity: 0; }
-    6% { top: 0; left: 9%; opacity: .95; }
-    16% { top: 0; left: 92%; opacity: 1; }
-    19% { top: 10%; left: 100%; opacity: 1; }
-    29% { top: 92%; left: 100%; opacity: .85; }
-    32% { top: 100%; left: 93%; opacity: 0; }
-    100% { top: 100%; left: 93%; opacity: 0; }
-  }
-
   .arcade-champion.is-revealing, .arcade-runner.is-revealing {
     animation: arcade-reveal .9s ease-out 2;
   }
   @keyframes arcade-reveal {
-    45% { filter: drop-shadow(0 0 14px #ffd078) brightness(1.32); }
+    45% { filter: brightness(1.22); }
   }
 }
 .arcade-champion.is-self .arcade-name,
@@ -542,7 +549,7 @@
     white-space: nowrap;
     transform: rotate(-3deg) scaleX(.96);
     transform-origin: left;
-    text-shadow: 0 .23cqw #07111b, .16cqw .34cqw #020609, 0 0 1cqw #b0def050;
+    text-shadow: 0 .23cqw #07111b, .16cqw .34cqw #020609;
   }
   .arcade-heading h2 span { font-size: 1.18em; }
   .arcade-heading > p:last-child {
@@ -563,39 +570,26 @@
     min-height: 21.6cqw;
     padding: 1cqw .95cqw .7cqw;
   }
-  .arcade-stage--landing .arcade-champion::before {
-    background: linear-gradient(128deg, var(--rank-glow) 1%, #fff 10%, var(--rank-glow) 15% 40%, #fff2d1 48%, var(--rank-glow) 52% 78%, #fff8e5 85%, var(--rank-glow) 91%);
-  }
-  .arcade-stage--landing .arcade-champion::after {
-    inset: 4px;
-    background:
-      radial-gradient(ellipse at 50% 0, color-mix(in srgb, var(--rank-glow) 29%, transparent), transparent 66%),
-      repeating-linear-gradient(132deg, transparent 0 3px, #8ea4a818 4px 5px, transparent 6px 11px),
-      linear-gradient(150deg, #172027, #070e13 54%, #151d21);
-  }
   .arcade-stage--landing .arcade-champion.rank-1 {
     min-height: 26cqw;
     padding-top: .85cqw;
-    filter: drop-shadow(0 0 .4cqw #ffd478b0) drop-shadow(0 0 1.05cqw #ffa72b80);
   }
   .arcade-stage--landing .arcade-rank {
     font-size: 3.7cqw;
-    bottom: calc(100% - .18cqw);
+    bottom: 100%;
   }
   .arcade-stage--landing .rank-1 .arcade-rank {
-    inset: 1.3cqw 9% auto auto;
+    inset: 1.1cqw 7% auto 7%;
+    justify-content: flex-end;
     transform: none;
-    font-size: 7.2cqw;
-    text-shadow: .22cqw .23cqw #784511, .45cqw .42cqw #0a0908, 0 0 1.1cqw #ffae2c;
+    font-size: 6.55cqw;
   }
-  .arcade-stage--landing .rank-1 .arcade-rank::before,
-  .arcade-stage--landing .rank-1 .arcade-rank::after { content: none; }
   .arcade-stage--landing .rank-1 .arcade-crown {
     position: absolute;
-    right: 7.25cqw;
-    top: -5.75cqw;
-    color: #ffdc8c;
-    font-size: .65em;
+    right: 50%;
+    bottom: calc(100% + 1.15cqw);
+    font-size: .73em;
+    transform: translateX(50%) rotate(-7deg);
   }
   .arcade-stage--landing .arcade-avatar { width: 7.6cqw; }
   .arcade-stage--landing .rank-1 > .arcade-avatar { width: 9.05cqw; margin-right: 8%; }
@@ -619,7 +613,7 @@
     border: 1px solid #b98942;
     border-radius: 6px 19px 6px 19px;
     background: linear-gradient(140deg, #0b1b26, #040a10 70%);
-    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae537a, 0 0 1.3cqw #ffbd4663;
+    box-shadow: inset 0 2px #81e8fa65, inset 0 -2px #f1ae537a, 0 5px 12px #0008;
   }
   .arcade-stage--landing + .arcade-next-places--empty { min-height: 10.5cqw; }
   .arcade-stage--landing + .arcade-next-places .arcade-next-head {
@@ -646,9 +640,6 @@
   .arcade-stage--landing + .arcade-next-places .arcade-progress {
     height: .85cqw;
     border-color: #667a88;
-  }
-  .arcade-stage--landing + .arcade-next-places .arcade-progress > span {
-    box-shadow: 0 0 .65cqw #ffb547;
   }
   .catalog-panel > .hs-featured .hs-foot {
     position: relative;

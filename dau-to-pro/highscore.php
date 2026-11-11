@@ -68,6 +68,7 @@ if ($learner) {
   <?php require_once __DIR__.'/highscore-board.php'; ?>
   <?php dtp_highscore_board($rows, (int)$learner['id'], $reveal, true); ?>
   <?php endif; ?>
+  <a class="secondary-action" href="konto.php?bearbeiten=name#change_username">Benutzernamen ändern</a>
   <p class="konto-hint">Klicke auf einen Namen, um die Achievement-Sammlung anzusehen. Die Symbole auf den Karten zeigen die persönliche Vitrine. Deine eigenen Achievements findest du unter <a href="konto.php#achievements">Mein Fortschritt</a>.</p>
 <?php endif; ?>
   <a class="primary-action arcade-continue" href="./#lernmodule">Weiter lernen! <span aria-hidden="true">→</span></a>

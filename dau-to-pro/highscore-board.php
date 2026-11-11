@@ -39,10 +39,9 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
             ?>
                 <article class="arcade-champion rank-<?=$rank?><?=$row ? '' : ' is-vacant'?><?=$self ? ' is-self' : ''?>" aria-label="Platz <?=$rank?>"<?=$self && $reveal ? ' data-highscore-reveal' : ''?>>
                     <div class="arcade-rank" aria-hidden="true">
-                        <?php if ($rank === 1): ?><span class="arcade-crown">♛</span><?php endif; ?>
-                        <span><?=$rank?></span>
+                        <?php if ($rank === 1): ?><span class="arcade-crown"></span><?php endif; ?>
+                        <span class="arcade-rank-number" data-rank="<?=$rank?>"><?=$rank?></span>
                     </div>
-                    <span class="arcade-frame-glints" aria-hidden="true"></span>
                     <?=$avatar($row)?>
                     <?php if ($row): ?>
                     <div class="arcade-profile">
