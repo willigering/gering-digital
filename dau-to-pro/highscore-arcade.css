@@ -216,6 +216,14 @@
 }
 @supports (background-clip: text) {
   .arcade-rank-number {
+    color: #171411;
+    text-shadow: .02em .025em #473e31, .045em .05em #171411, .065em .075em #05090d;
+  }
+  .arcade-rank-number::after {
+    content: attr(data-rank);
+    position: absolute;
+    inset: 0;
+    padding-inline: inherit;
     color: transparent;
     background:
       linear-gradient(160deg, #fff9ed 8%, var(--rank-ink) 30%, var(--rank-glow) 52%, var(--rank-ink) 61%, var(--rank-glow) 92%),
@@ -224,15 +232,6 @@
     background-clip: text;
     text-shadow: none;
     -webkit-text-stroke: .45px var(--rank-ink);
-  }
-  .arcade-rank-number::before {
-    content: attr(data-rank);
-    position: absolute;
-    z-index: -1;
-    inset: 0;
-    transform: translate(.055em, .065em);
-    color: #070c10;
-    -webkit-text-stroke: 1px color-mix(in srgb, var(--rank-glow) 40%, #11161b);
   }
 }
 .arcade-crown {
