@@ -717,3 +717,46 @@
     margin-top: 1cqw;
   }
 }
+
+
+/* Touch layout: readable podium cards instead of three squeezed shields. */
+@media(max-width:760px){
+  .arcade-champions{
+    display:flex;align-items:stretch;gap:12px;
+    overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;
+    padding:55px 6px 13px;
+    scrollbar-width:thin;scrollbar-color:#bd9152 #14222b;
+  }
+  .arcade-champion,.arcade-champion.rank-1{
+    flex:0 0 min(78vw,290px);box-sizing:border-box;
+    min-height:365px;grid-column:auto;grid-row:auto;
+    padding:90px 24px 23px;gap:8px;
+    scroll-snap-align:center;justify-content:flex-start;
+  }
+  .arcade-champion.rank-1{order:0}
+  .arcade-champion.rank-2{order:1}
+  .arcade-champion.rank-3{order:2}
+  .arcade-champion > .arcade-avatar,.arcade-champion.rank-1 > .arcade-avatar{
+    position:absolute;z-index:3;top:-31px;left:50%;
+    transform:translateX(-50%);width:98px;margin:0;
+    filter:drop-shadow(0 3px 5px #000a);
+  }
+  .arcade-champion .arcade-rank{bottom:calc(100% + 2px);font-size:38px}
+  .arcade-champion.rank-1 .arcade-rank{
+    bottom:calc(100% + 2px);left:auto;right:9%;
+    transform:none;font-size:47px;
+  }
+  .arcade-champion .arcade-name,.arcade-champion.rank-1 .arcade-name{font-size:22px}
+  .arcade-champion .arcade-level{font-size:13px}
+  .arcade-champion .arcade-score strong,.arcade-champion.rank-1 .arcade-score strong{font-size:40px}
+  .arcade-champion .arcade-score > span{font-size:17px}
+  .arcade-champion .arcade-medals.hs-showcase{
+    margin-top:auto;gap:8px;align-items:center;min-width:0;
+  }
+  .arcade-champion .hs-showcase :is(.showcase-icon,.hs-showcase-empty){
+    width:min(59px,30%);max-width:30%;height:auto;flex:0 1 auto;
+  }
+  .arcade-stage--landing{min-width:0}
+  .arcade-next-places{min-width:0}
+}
