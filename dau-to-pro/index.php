@@ -13,6 +13,7 @@ header('Cache-Control: no-store, private');
 $hsRows=[];$hsMe=null;$hsRank=0;
 $cardProgress=[];
 try {
+    if ($learnerRow) ach_evaluate((int)$learnerRow['id']);
     $hsRows=ach_highscore(100,publicOnly: !$learnerRow);
     if ($learnerRow) {
         $hsMe=ach_stats((int)$learnerRow['id']);
