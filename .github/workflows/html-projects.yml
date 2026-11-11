@@ -175,6 +175,7 @@ jobs:
         run: node tests/module_design_browser.cjs && node tests/module_focus_browser.cjs && node tests/module_entry_browser.cjs && node tests/module_mobile_browser.cjs
       - uses: actions/upload-artifact@v4
         if: always()
+        continue-on-error: true # Screenshot diagnostics must not block production deployment
         with:
           name: module-design-desktop-mobile
           path: ${{ runner.temp }}/dtp-design-screenshots
