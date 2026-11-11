@@ -120,7 +120,8 @@ try{
         $entryId=gdsafeId((string)($body['entryId']??''));
         $company=gdm_company($db,$entryId);
         $cfg=gdm_config($db);
-        $doc=gdm_prepare_document($body,$company,$cfg);
+        $fullMap=$action==='send' && !empty($body['useFivePage']);
+        $doc=gdm_prepare_document($body,$company,$cfg,$fullMap);
         if($action==='preview'){
             header('X-Document-SHA256: '.hash('sha256',$doc['pdf']));
             header('Content-Type: application/pdf');
@@ -129,10 +130,9 @@ try{
             echo $doc['pdf'];exit;
         }
         // The previewed PDF must be the exact bytes sent. In five-page mode
-        // it was created locally from the private blank template.
-        $fullMap=!empty($body['useFivePage']);
+        // it was created locally from the private original.
         if($fullMap){
-            if(!gdasset($db,'template'))throw new InvalidArgumentException('Die fünfseitige Bewerbungsvorlage fehlt.');
+            if(!gdasset($db,'original'))throw new InvalidArgumentException('Die fünfseitige Originalbewerbung fehlt.');
             if(empty($_FILES['map'])||!is_array($_FILES['map']))throw new InvalidArgumentException('Bitte die geprüfte fünfseitige PDF mitsenden.');
             $map=gdm_uploaded_pdf($_FILES['map'],10*1024*1024);
             if(preg_match_all('~/Type\s*/Page\b(?!s)~',$map['bytes'])!==5){
@@ -147,7 +147,7 @@ try{
         }
         // Never transmit an automatically addressed letter with missing mandatory addresses.
         foreach(['senderName','senderStreet','senderPostal','senderCity'] as $f) {
-            if(trim((string)($cfg[$f]??''))==='')throw new InvalidArgumentException('Absenderanschrift unvollständig. Bitte unter E-Mail-Einstellungen ergänzen.');
+            if(!$fullMap && trim((string)($cfg[$f]??''))==='')throw new InvalidArgumentException('Absenderanschrift unvollständig. Bitte unter E-Mail-Einstellungen ergänzen.');
         }
         foreach(['company','street','postal'] as $f){
             if(trim((string)($company[$f]??''))==='')throw new InvalidArgumentException('Firmenanschrift unvollständig. Bitte Betrieb bearbeiten.');

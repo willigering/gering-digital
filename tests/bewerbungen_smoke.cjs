@@ -21,9 +21,9 @@ assert(mailPhp.includes("expectedPdfHash"),"Reviewed PDF SHA-256 must match uplo
 assert(mailPhp.includes("preg_match_all('~/Type"),"Five-page output page-count must be verified");
 assert(mailLib.includes("GD_Bewerbung_Seite2_Leer_V1")||mailPhp.includes("GD_Bewerbung_Seite2_Leer_V1"),
   "Only prepared redacted five-page template accepted");
-assert(fivePage.includes("doc.getPage(1)")&&fivePage.includes("getPageCount()!==PAGE_COUNT"),
+assert(fivePage.includes("const page=pages[1]")&&fivePage.includes("getPageCount()!==5"),
   "Only original letter page two must be edited");
-assert(fivePage.includes("TEMPLATE_MARKER"),"Empty original template marker checked before placing new addresses");
+assert(fivePage.includes("replaced.size!==rows.size"),"Original PDF must match every expected editable line");
 assert(mailUi.includes("GDMFivePage.make(")&&mailUi.includes("useFivePage:true"),
   "Complete five-page PDF must be assembled and mailed");
 assert(html.includes("assets/lib/pdf-lib.min.js")&&html.includes("bewerbungen-five-page.js"),
@@ -39,8 +39,8 @@ assert(mailLib.includes("is_uploaded_file($tmp)")&&mailLib.includes("gdm_save_as
   "Uploaded PDFs stored in authenticated private SQLite, never on public server paths");
 assert(mailUi.includes('gdm-template-input')&&mailUi.includes('gdm-original-input'),
   "Original application and template import controls exist");
-assert(mailUi.includes("wird deshalb")&&mailUi.includes("niemals automatisch"),
-  "Original file with a company-specific letter may not silently be attached to others");
+assert(mailUi.includes('API+"?action=original"')&&mailUi.includes("approvedBlob"),
+  "Fetch the original privately and attach only the reviewed output");
 
 const rootHtaccess=fs.readFileSync(".htaccess","utf8");
 const match=html.match(/<script>([\s\S]*?)<\/script>/i);
