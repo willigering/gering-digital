@@ -658,3 +658,62 @@
    Der gewählte Avatar liegt innerhalb der Rang-Kontur; die Rauten-Deko entfällt dann. */
 .arcade-avatar .dtp-avatar { inset: 2px; clip-path: inherit; }
 .arcade-avatar.has-avatar::after { display: none; }
+
+
+/* Highscore polish 2026-11-11: Badges sitzen wie in der Referenz auf der oberen
+   Schildkante; die drei Vitrinenplätze bleiben vollständig in der Karte. */
+.arcade-champion { box-sizing: border-box; }
+.arcade-champion > .arcade-avatar { flex: none; }
+.arcade-champion .arcade-medals.hs-showcase { flex: none; min-width: 0; }
+.arcade-champion .arcade-score { flex: none; }
+.arcade-champion .arcade-profile { min-width: 0; }
+.arcade-champion .hs-showcase :is(.showcase-icon,.hs-showcase-empty) { box-sizing: border-box; max-width: 30%; }
+
+@media (min-width: 960px) {
+  /* Die Fassung liegt auf der oberen Plakettenkante statt im Textfluss. */
+  .arcade-stage--landing .arcade-champion {
+    justify-content: flex-start;
+    padding: 7.8cqw 9% 1.25cqw;
+    gap: .3cqw;
+  }
+  .arcade-stage--landing .arcade-champion.rank-1 {
+    padding-top: 9cqw;
+    padding-bottom: 1.35cqw;
+  }
+  .arcade-stage--landing .arcade-champion > .arcade-avatar {
+    position: absolute;
+    z-index: 3;
+    top: -1.2cqw;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 7.6cqw;
+    margin: 0;
+    filter: drop-shadow(0 .28cqw .23cqw #02070dcc);
+  }
+  .arcade-stage--landing .rank-1 > .arcade-avatar {
+    top: -1.65cqw;
+    left: 42%;
+    width: 9.05cqw;
+    margin: 0;
+  }
+  .arcade-stage--landing .arcade-profile { flex: none; }
+  .arcade-stage--landing .arcade-score { margin-top: .45cqw; }
+  .arcade-stage--landing .arcade-medals.hs-showcase {
+    margin-top: auto;
+    padding: .35cqw 0 0;
+    gap: .45cqw;
+    align-items: center;
+  }
+  .arcade-stage--landing .hs-showcase :is(.showcase-icon,.hs-showcase-empty) {
+    width: min(4.1cqw, 30%);
+    max-width: 30%;
+    aspect-ratio: 1.1;
+    flex: 0 1 auto;
+  }
+  .arcade-stage--landing .rank-1 .hs-showcase :is(.showcase-icon,.hs-showcase-empty) {
+    width: min(4.5cqw, 30%);
+  }
+  .arcade-stage--landing .arcade-champion.is-vacant .arcade-name {
+    margin-top: 1cqw;
+  }
+}
