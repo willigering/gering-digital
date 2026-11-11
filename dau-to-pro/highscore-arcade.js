@@ -1,8 +1,42 @@
-/* Horizontal ranking: wheel over the rail, touch and arrows; ordinary vertical scrolling at the ends. */
-(()=>{const root=document.querySelector('[data-arcade-scroll]');if(!root)return;const rail=root.querySelector('.arcade-rail'),prev=root.querySelector('.arcade-prev'),next=root.querySelector('.arcade-next'),bar=root.querySelector('.arcade-progress>span');if(!rail)return;
-const refresh=()=>{const max=Math.max(0,rail.scrollWidth-rail.clientWidth),p=max?rail.scrollLeft/max:0;if(bar){const width=rail.clientWidth/Math.max(rail.scrollWidth,1);bar.style.width=(Math.min(1,width)*100)+'%';bar.style.transform='translateX('+((100/Math.max(width,.01)-100)*p)+'%)'}if(prev)prev.disabled=rail.scrollLeft<=2;if(next)next.disabled=rail.scrollLeft>=max-2;root.classList.toggle('has-overflow',max>2)};
-const go=d=>rail.scrollBy({left:d*rail.clientWidth*.77,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-prev?.addEventListener('click',()=>go(-1));next?.addEventListener('click',()=>go(1));
-root.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey)return;const max=rail.scrollWidth-rail.clientWidth;if(max<=1)return;const delta=Math.abs(e.deltaY)>=Math.abs(e.deltaX)?e.deltaY:e.deltaX;if((delta<0&&rail.scrollLeft<=1)||(delta>0&&rail.scrollLeft>=max-1))return;if(e.target.closest('button,[role=tooltip]'))return;e.preventDefault();rail.scrollLeft+=delta},{passive:false});
-rail.addEventListener('scroll',refresh,{passive:true});window.addEventListener('resize',refresh,{passive:true});refresh();
+(() => {
+  const root = document.querySelector('[data-arcade-scroll]');
+  if (!root) return;
+
+  const rail = root.querySelector('.arcade-rail');
+  const prev = root.querySelector('.arcade-prev');
+  const next = root.querySelector('.arcade-next');
+  const bar = root.querySelector('.arcade-progress > span');
+  const maxScroll = () => Math.max(0, rail.scrollWidth - rail.clientWidth);
+
+  function refresh() {
+    const max = maxScroll();
+    const width = rail.clientWidth / Math.max(1, rail.scrollWidth);
+    const position = max ? rail.scrollLeft / max : 0;
+    bar.style.width = `${width * 100}%`;
+    bar.style.left = `${position * (1 - width) * 100}%`;
+    prev.disabled = rail.scrollLeft <= 1;
+    next.disabled = rail.scrollLeft >= max - 1;
+    root.classList.toggle('has-overflow', max > 1);
+  }
+
+  function page(direction) {
+    rail.scrollBy({
+      left: direction * rail.clientWidth * .8,
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
+    });
+  }
+
+  prev.addEventListener('click', () => page(-1));
+  next.addEventListener('click', () => page(1));
+  rail.addEventListener('wheel', (event) => {
+    if (event.ctrlKey || event.metaKey || Math.abs(event.deltaX) >= Math.abs(event.deltaY)) return;
+    const max = maxScroll();
+    if (max <= 1 || (event.deltaY < 0 ? rail.scrollLeft <= 1 : rail.scrollLeft >= max - 1)) return;
+    const scale = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rail.clientWidth : 1;
+    event.preventDefault();
+    rail.scrollLeft += event.deltaY * scale;
+  }, { passive: false });
+  rail.addEventListener('scroll', refresh, { passive: true });
+  new ResizeObserver(refresh).observe(rail);
+  refresh();
 })();
