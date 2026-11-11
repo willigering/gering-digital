@@ -443,6 +443,44 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  @supports (background-clip: text) {
+    .arcade-heading h2 span,
+    .arcade-stage--landing .rank-1 .arcade-score strong {
+      background-image:
+        linear-gradient(112deg, transparent 36%, #fff3c479 47%, #fffbee 50%, #fff3c479 53%, transparent 64%),
+        linear-gradient(170deg, #fff4c7 10%, #ffe08a 37%, #e8a02f 75%, #ffdf87 98%);
+      background-size: 300% 100%, 100% 100%;
+      background-repeat: no-repeat;
+      background-position: right center, center;
+      animation: arcade-gold-sweep 10s ease-in-out 1s infinite;
+    }
+    .arcade-stage--landing .rank-1 .arcade-score strong { animation-delay: 3s; }
+  }
+
+  .arcade-stage--landing .arcade-frame-glints::before {
+    animation: arcade-edge-sweep 13s linear 2s infinite;
+  }
+  .arcade-stage--landing .rank-1 .arcade-frame-glints::before {
+    animation-duration: 9s;
+    animation-delay: 1s;
+  }
+  .arcade-stage--landing .rank-3 .arcade-frame-glints::before { animation-delay: 5s; }
+
+  @keyframes arcade-gold-sweep {
+    0%, 4% { background-position: right center, center; }
+    24%, 100% { background-position: left center, center; }
+  }
+
+  @keyframes arcade-edge-sweep {
+    0%, 3% { top: 10%; left: 0; opacity: 0; }
+    6% { top: 0; left: 9%; opacity: .95; }
+    16% { top: 0; left: 92%; opacity: 1; }
+    19% { top: 10%; left: 100%; opacity: 1; }
+    29% { top: 92%; left: 100%; opacity: .85; }
+    32% { top: 100%; left: 93%; opacity: 0; }
+    100% { top: 100%; left: 93%; opacity: 0; }
+  }
+
   .arcade-champion.is-revealing, .arcade-runner.is-revealing {
     animation: arcade-reveal .9s ease-out 2;
   }

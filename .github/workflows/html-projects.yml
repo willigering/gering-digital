@@ -66,7 +66,9 @@ jobs:
       - name: Install isolated browser test dependency
         run: npm install --prefix "$RUNNER_TEMP/dtp-browser" --no-package-lock playwright@1.62.1 pdf-lib@1.17.1
       - name: Install Chromium
-        run: node "$RUNNER_TEMP/dtp-browser/node_modules/playwright/cli.js" install --with-deps chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/support/install-chromium.cjs
       - name: Build same locally hosted PDF editor used by production
         shell: bash
         run: |
@@ -156,7 +158,9 @@ jobs:
       - name: Install browser test dependency
         run: npm install --prefix "$RUNNER_TEMP/dtp-design" --no-package-lock playwright@1.62.1
       - name: Install Chromium
-        run: node "$RUNNER_TEMP/dtp-design/node_modules/playwright/cli.js" install --with-deps chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
+        run: node tests/support/install-chromium.cjs
       - name: Check all module colours and Subnetting on desktop and mobile
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-design/node_modules
