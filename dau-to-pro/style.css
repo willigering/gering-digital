@@ -111,11 +111,11 @@ main,.dtp-footer{position:relative;z-index:1}
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}
   /* Die Grafik ragt nach links und rechts in den Seitenrand, bleibt aber immer im Fenster (--hero-pad = Randbreite). */
-  .hero-art-wrap[data-scene=layered]{--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
+  .hero-art-wrap:is([data-scene=flat],[data-scene=layered]){--hero-pad:max(32px,calc((100vw - var(--content)) / 2 + 32px));width:min(calc(127% + var(--hero-pad) - 16px),980px);margin-left:-27%}
   .hero-copy .hero-lead{max-width:min(100%,390px);text-wrap:pretty;hyphens:auto}
 }
 @media(min-width:861px) and (max-width:1060px){
-  .hero-art-wrap[data-scene=layered]{width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
+  .hero-art-wrap:is([data-scene=flat],[data-scene=layered]){width:calc(122% + var(--hero-pad) - 16px);margin-left:-22%}
   .hero-copy .hero-lead{max-width:min(100%,340px)}
 }
 .eyebrow{display:block;color:var(--cyan);font-size:10px;letter-spacing:.13em;font-weight:750}
