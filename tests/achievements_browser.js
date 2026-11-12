@@ -250,9 +250,11 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     await gp.reload({waitUntil:'load'});
     assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
     assert.equal(await gp.locator('#highscore .arcade-champion.is-vacant').count(),2,'Öffentliches Podium zeigt zwei freie Plätze');
-    const rank=gp.locator('.rank-2 .arcade-rank');
-    const avatar=gp.locator('.rank-2 .arcade-avatar');
-    assert.ok(await rank.evaluate((node,avatar)=>node.getBoundingClientRect().bottom<avatar.getBoundingClientRect().top,await avatar.elementHandle()),'Rang 2 liegt oberhalb des Avatars');
+    const secondPlace=gp.locator('#highscore .rank-2');
+    const rank=secondPlace.locator('.arcade-rank-number');
+    assert.equal(await rank.textContent(),'2','Rang 2 wird auf dem Podium angezeigt');
+    const [numberBox,avatarBox]=await Promise.all([rank.boundingBox(),secondPlace.locator('.arcade-avatar').boundingBox()]);
+    assert.ok(numberBox&&avatarBox&&numberBox.y<avatarBox.y,'Die Rangzahl beginnt oberhalb der Avatarfassung');
     for(let i=0;i<5;i++){await gp.locator('.fx-shroom-hit').click({force:true});await pause(120);}
     await gp.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
     await gp.keyboard.press('Escape');
