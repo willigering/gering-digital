@@ -244,11 +244,12 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.equal(await gp.locator('.arcade-champions').count(),0,'Ohne Konto keine Highscore-Liste');
     assert.ok(await gp.locator('.hs-locked').isVisible(),'Ohne Konto: Hinweis „Nur mit Lernkonto“');
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
-    assert.equal(await gp.locator('#highscore .arcade-champion.is-vacant').count(),3,'Gäste sehen das Podium mit freien Plätzen');
+    assert.ok(await gp.locator('#highscore .hs-public-empty').isVisible(),'Gäste sehen den Hinweis ohne öffentliche Einträge');
     assert.equal(await gp.locator('#highscore .hs-name').count(),0,'Bisherige Mitgliederfreigabe zeigt Gästen keine Namen');
     php("$id=(int)learner_find('cleo')['id'];ach_set_visible($id,true,true);");
     await gp.reload({waitUntil:'load'});
     assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
+    assert.equal(await gp.locator('#highscore .arcade-champion.is-vacant').count(),2,'Öffentliches Podium zeigt zwei freie Plätze');
     const rank=gp.locator('.rank-2 .arcade-rank');
     const avatar=gp.locator('.rank-2 .arcade-avatar');
     assert.ok(await rank.evaluate((node,avatar)=>node.getBoundingClientRect().bottom<avatar.getBoundingClientRect().top,await avatar.elementHandle()),'Rang 2 liegt oberhalb des Avatars');
