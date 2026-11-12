@@ -169,7 +169,7 @@ let server,browser;
   await page.locator('#unterrichtsmaterial summary').click();
   await page.locator('#unterrichtsmaterial a[href="unterricht/csharp-aufgaben.html"]').click();
   await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-aufgaben.html');
-  await learningFrame.getByRole('link',{name:/Zurück zum Unterrichtsmaterial/}).click();
+  await learningFrame.locator('.dtp-top a[href$="#unterrichtsmaterial"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
 
   await page.locator('#bonusmodule a.module-card').click();
