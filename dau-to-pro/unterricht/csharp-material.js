@@ -14,5 +14,5 @@ tabs.forEach((t,i)=>{t.addEventListener("click",e=>{e.preventDefault();activate(
 window.DTPCSharp={activate,measure};
 addEventListener("scroll",queue,{passive:true});addEventListener("resize",measure,{passive:true});addEventListener("load",measure);
 if("ResizeObserver"in window)new ResizeObserver(()=>requestAnimationFrame(measure)).observe(flow);reduce.addEventListener?.("change",measure);desktop.addEventListener?.("change",measure);
-const hash=decodeURIComponent(location.hash.slice(1));const group=groups.find(g=>g.dataset.group===hash||g.querySelector("#"+CSS.escape(hash)));activate(group?.dataset.group||groups[0]?.dataset.group||"conversion");if(group&&hash!==group.dataset.group){requestAnimationFrame(()=>document.getElementById(hash)?.scrollIntoView({block:"start"}))}
+const hash=decodeURIComponent(location.hash.slice(1));const group=hash?groups.find(g=>g.dataset.group===hash||g.querySelector("#"+CSS.escape(hash))):undefined;activate(group?.dataset.group||groups[0]?.dataset.group||"conversion");if(group&&hash!==group.dataset.group){requestAnimationFrame(()=>document.getElementById(hash)?.scrollIntoView({block:"start"}))}
 })();

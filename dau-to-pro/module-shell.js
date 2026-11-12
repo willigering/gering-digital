@@ -4,9 +4,8 @@
 (() => {
   'use strict';
   const shell = document.querySelector('[data-module-shell]');
-  const grid = document.getElementById('module-grid');
   const radio = document.querySelector('[data-nerd-radio]');
-  if (!shell || !grid || !radio) return;
+  if (!shell || !radio) return;
 
   const frame = shell.querySelector('[data-module-frame]');
   const closeButton = shell.querySelector('[data-module-back]');
@@ -17,6 +16,7 @@
   const next = shell.querySelector('[data-module-radio-next]');
   const volume = shell.querySelector('[data-module-radio-volume]');
   const homeTitle = document.title;
+  const learningLinks = '#module-grid a.module-card, #module-grid a.module-open, #bonusmodule a.module-card, #cheat-sheets a.cheat-mini, #cheat-sheets a.cheat-all, #unterrichtsmaterial a.unterricht-card';
   const allowed = new Map();
   let openedFromHome = false;
   let activeSlug = '';
@@ -30,21 +30,29 @@
     return state === 'playing' || state === 'paused';
   }
 
-  // Nur tatsächlich veröffentlichte, auf der Startseite verlinkte Lernmodule.
-  grid.querySelectorAll('a.module-card, a.module-open').forEach(a => {
-    const url = new URL(a.href);
-    const m = /^\/([a-z0-9][a-z0-9-]{2,59})\/?$/.exec(url.pathname);
-    if (url.origin === location.origin && m) {
-      allowed.set(m[1], { path: url.pathname, label: a.getAttribute('aria-label') || a.textContent.trim() });
+  document.querySelectorAll(learningLinks).forEach(link => {
+    const url = new URL(link.href);
+    if (url.origin === location.origin) {
+      const label = link.getAttribute('aria-label') || link.textContent.trim();
+      allowed.set(url.pathname + url.search, label);
     }
   });
+  allowed.set('/dau-to-pro/csharp-befehle.html', 'C# Befehle & Erklärungen');
 
-  function slugFromLink(a) {
-    if (!a || !a.href) return '';
-    const url = new URL(a.href, location.href);
-    if (url.origin !== location.origin) return '';
-    const m = /^\/([a-z0-9][a-z0-9-]{2,59})\/?$/.exec(url.pathname);
-    return m && allowed.has(m[1]) ? m[1] : '';
+  function slugFromLink(link) {
+    if (!link?.href) return '';
+    const url = new URL(link.href);
+    if (url.origin !== location.origin || !allowed.has(url.pathname + url.search)) return '';
+    const module = /^\/([a-z0-9][a-z0-9-]{2,59})\/$/.exec(url.pathname);
+    return module && !url.search && !url.hash ? module[1] : url.pathname + url.search + url.hash;
+  }
+
+  function resolveEntry(slug) {
+    const path = /^[a-z0-9][a-z0-9-]{2,59}$/.test(slug) ? '/' + slug + '/' : slug;
+    if (!path.startsWith('/') || path.startsWith('//')) return null;
+    const url = new URL(path, location.origin);
+    if (url.origin !== location.origin || !allowed.has(url.pathname + url.search)) return null;
+    return { url, label: allowed.get(url.pathname + url.search) };
   }
 
   function shellUrl(slug) {
@@ -78,7 +86,7 @@
   }
 
   function open(slug) {
-    const entry = allowed.get(slug);
+    const entry = resolveEntry(slug);
     if (!entry) return false;
     shell.hidden = false;
     document.body.classList.add('dtp-module-active');
@@ -89,7 +97,7 @@
       activeSlug = slug;
       frame.title = entry.label;
       // replace() statt assign(): Der iframe erzeugt keinen zweiten Browser-History-Eintrag.
-      frame.contentWindow.location.replace(new URL(entry.path, location.origin).href);
+      frame.contentWindow.location.replace(entry.url.href);
     }
     updateControls();
     if (!clockTimer) clockTimer = setInterval(updateControls, 450);
@@ -120,8 +128,8 @@
     }
   }
 
-  grid.addEventListener('click', event => {
-    const link = event.target.closest('a.module-card, a.module-open');
+  document.addEventListener('click', event => {
+    const link = event.target.closest(learningLinks);
     if (!link || event.defaultPrevented || event.button !== 0 ||
         event.ctrlKey || event.shiftKey || event.altKey || event.metaKey ||
         link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
@@ -135,7 +143,7 @@
   });
 
   closeButton.addEventListener('click', leaveModule);
-  shell.querySelector('[data-module-radio-play]').addEventListener('click', () => {
+  play.addEventListener('click', () => {
     radio.querySelector('[data-radio-play]')?.click();
     updateControls();
   });
@@ -174,27 +182,29 @@
         if (!link || link.hasAttribute('download') || (link.target && link.target !== '_self')) return;
         const url = new URL(link.href, frame.contentWindow.location.href);
         if (url.origin !== location.origin) return;
-        if (url.pathname.replace(/\/+$/, '/') === '/dau-to-pro/') {
+        if (['/dau-to-pro', '/dau-to-pro/', '/dau-to-pro/index.php'].includes(url.pathname)) {
           event.preventDefault();
           leaveModule();
           return;
         }
         const destination = slugFromLink(link);
-        if (destination && destination !== activeSlug) {
+        const current = frame.contentWindow.location;
+        if (destination && (url.pathname !== current.pathname || url.search !== current.search)) {
           event.preventDefault();
           // Innerhalb der Lernansicht direkt wechseln, ohne die Hauptseite zu entladen.
           history.replaceState({ dtpRadioShell: true, slug: destination }, '', shellUrl(destination));
           open(destination);
         }
-      }, true);
+      });
     } catch (_) { /* Bei nicht einbettbaren URLs bleibt die native Navigation bestehen. */ }
   });
 
   addEventListener('popstate', () => {
     const slug = new URL(location.href).searchParams.get('modul');
-    if (slug && allowed.has(slug)) {
+    const entry = slug && resolveEntry(slug);
+    if (entry) {
       if (needsPersistentRadio()) open(slug);
-      else location.replace(new URL(allowed.get(slug).path, location.origin).href);
+      else location.replace(entry.url.href);
     } else {
       hide();
       openedFromHome = false;
@@ -203,9 +213,10 @@
 
   // Direktes Öffnen eines Lesezeichens (?modul=…) funktioniert auch nach Reload.
   const initial = new URL(location.href).searchParams.get('modul');
-  if (initial && allowed.has(initial)) {
+  const entry = initial && resolveEntry(initial);
+  if (entry) {
     // A reloaded module bookmark has no active radio: avoid the extra toolbar.
     if (needsPersistentRadio()) open(initial);
-    else location.replace(new URL(allowed.get(initial).path, location.origin).href);
+    else location.replace(entry.url.href);
   }
 })();

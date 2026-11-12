@@ -182,7 +182,10 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 /* Themenblätter nach dem ursprünglichen Klausur-Spickzettel: kantige
    Lesekarten, feste Sprungleiste und native Swipe-Seiten bis 900 px. */
 .sheet-jump:empty{display:none}
-.sheet-jump{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:0 0 10px;overscroll-behavior-x:contain}
+.sheet-jump{display:flex;flex-wrap:wrap;gap:6px;padding:2px 0 10px}
+@media(max-width:900px){
+  .sheet-jump{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-x:contain;mask-image:linear-gradient(to right,transparent,#000 var(--fade-start,0px),#000 calc(100% - var(--fade-end,0px)),transparent)}
+}
 .sheet-jump a{flex:none;display:flex;align-items:center;min-height:44px;text-decoration:none;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--sheet-light);border:1px solid var(--sheet-line);background:var(--sheet-panel);padding:6px 12px}
 .sheet-jump a:hover,.sheet-jump a:focus-visible{border-color:var(--sheet-tone);color:var(--cream)}
 .sheet-jump a[aria-current=true]{background:var(--sheet-tone);border-color:var(--sheet-tone);color:#111017}

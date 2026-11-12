@@ -36,8 +36,8 @@ function setup() {
   assert.equal(r.status,0,r.stderr||r.stdout);
   fs.rmSync(testDir,{recursive:true,force:true});
   fs.mkdirSync(testDir,{recursive:true});
-  fs.writeFileSync(path.join(testDir,'01_Test_Alpha.wav'),wav(24,150));
-  fs.writeFileSync(path.join(testDir,'02_Test_Beta.wav'),wav(24,180));
+  fs.writeFileSync(path.join(testDir,'01_Test_Alpha.wav'),wav(60,150));
+  fs.writeFileSync(path.join(testDir,'02_Test_Beta.wav'),wav(60,180));
 }
 function probe() {
   return new Promise(resolve=>{
@@ -142,6 +142,45 @@ let server,browser;
   await page.locator('[data-module-back]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
   assert.equal((await state()).state,'playing','Returning from the single navigation bar retains playback');
+  const learningFrame=page.frameLocator('[data-module-frame]');
+  await page.locator('#cheat-sheets a.cheat-mini[href$="thema=csharp"]').click();
+  const method=learningFrame.locator('#sheet-jump a', {hasText:'Methoden und Rückgabe'});
+  await method.click();
+  assert.equal(await method.getAttribute('aria-current'),'true');
+  assert.equal(await method.evaluate(tab=>{
+    const bar=tab.parentElement.getBoundingClientRect(),rect=tab.getBoundingClientRect();
+    return rect.left>=bar.left-1 && rect.right<=bar.right+1;
+  }),true,'The active desktop tab is fully visible');
+
+  await page.setViewportSize({width:390,height:844});
+  await method.click();
+  assert.equal(await method.evaluate(tab=>{
+    const bar=tab.parentElement.getBoundingClientRect(),rect=tab.getBoundingClientRect();
+    return rect.left>=bar.left+11 && rect.right<=bar.right-11;
+  }),true,'The active mobile tab stays clear of the faded edges');
+  await page.setViewportSize({width:1440,height:900});
+
+  await learningFrame.getByRole('link',{name:/C# BEFEHLE/}).click();
+  await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/csharp-befehle.html');
+  assert.equal((await state()).track,before.track,'Music survives switching from a cheat sheet to its C# reference');
+  await page.locator('[data-module-back]').click();
+  await page.locator('[data-module-shell]').waitFor({state:'hidden'});
+
+  await page.locator('#unterrichtsmaterial summary').click();
+  await page.locator('#unterrichtsmaterial a[href="unterricht/csharp-aufgaben.html"]').click();
+  await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-aufgaben.html');
+  await learningFrame.locator('.dtp-top a[href$="#unterrichtsmaterial"]').click();
+  await page.locator('[data-module-shell]').waitFor({state:'hidden'});
+
+  await page.locator('#bonusmodule a.module-card').click();
+  await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-finde-den-fehler.html');
+  await learningFrame.getByRole('link',{name:/DAU TO PRO \/ BONUSMODULE/}).click();
+  await page.locator('[data-module-shell]').waitFor({state:'hidden'});
+  const afterLearning=await state();
+  assert.equal(afterLearning.state,'playing','Music survives cheat sheets, classroom materials and bonus modules');
+  assert.equal(afterLearning.track,before.track);
+  assert.equal(afterLearning.contexts,1);
+
   // A directly opened module has no shell: its original navigation must remain.
   await page.goto(base+'/osi/',{waitUntil:'networkidle'});
   assert.ok(await page.locator('dtp-back #back-module').isVisible(),

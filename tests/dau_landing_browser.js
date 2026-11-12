@@ -37,14 +37,11 @@ let server,browser;
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
-    assert.equal(await page.locator('.hero-plane').count(),7,'Hero renders seven independent layers');
-    const hero=await page.locator('.hero-art-wrap[data-scene=layered] .hero-logo').evaluate(e=>({loaded:[...e.querySelectorAll('img')].every(img=>img.complete&&img.naturalWidth>0),right:e.getBoundingClientRect().right,left:e.getBoundingClientRect().left,view:document.documentElement.clientWidth}));
-    assert.ok(hero.loaded,'Every hero image layer loads');
+    const hero=await page.locator('.hero-art-wrap[data-scene=flat] img.hero-logo').evaluate(e=>({loaded:e.complete&&e.naturalWidth>0,right:e.getBoundingClientRect().right,left:e.getBoundingClientRect().left,view:document.documentElement.clientWidth}));
+    assert.ok(hero.loaded,'Restored hero artwork loads');
     assert.ok(hero.left>=0&&hero.right<=hero.view+0.5,`Hero artwork stays inside the window (${hero.left}..${hero.right} of ${hero.view})`);
     assert.equal(await page.locator('.hero-art-wrap > .fx-layer').count(),1,'Mushroom interaction sits over the artwork');
     const pilz=await pilzBox(page);
-    const sprite=await page.locator('.hero-plane-mushroom').boundingBox();
-    for(const axis of ['x','y','width','height'])assert.ok(Math.abs(sprite[axis]-pilz[({width:'w',height:'h'})[axis]||axis])<1.5,'Mushroom sprite and interaction overlap ('+axis+')');
     for(const axis of ['x','y','w','h'])assert.ok(Math.abs(pilz[axis]-pilz['e'+axis])<1.5,`Mushroom layer matches the artwork position (${axis})`);
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .secondary-action').getBoundingClientRect();
@@ -60,16 +57,16 @@ let server,browser;
     if(width>=1024){assert.ok(geometry.columns>=2,'Desktop retains a stable multi-column grid');assert.ok(geometry.modulesY<1400,'Modules no longer start below 2500px')}
     assert.equal(await page.locator('#pruefungsfinder').count(),0,'Prüfungsfinder was removed');
     assert.equal(await page.locator('#exam-form').count(),0,'No exam search field remains');
-    assert.equal(await page.locator('.module-card:visible').count(),2,'All modules initially visible');
+    assert.equal(await page.locator('#module-grid .module-card:visible').count(),2,'All modules initially visible');
     assert.deepEqual(await page.locator('.filterbar [data-filter]').evaluateAll(options=>options.map(option=>option.dataset.filter)),['alle','subnet','netzwerk','sicherheit','pruefung','sonstiges','wirtschaft'],'All modules followed by all six topics');
     await page.locator('[data-filter="subnet"]').click();
-    assert.equal(await page.locator('.module-card:visible').count(),1,'Topic filter works without exam finder');
+    assert.equal(await page.locator('#module-grid .module-card:visible').count(),1,'Topic filter works without exam finder');
     assert.equal(await page.locator('#module-grid').getAttribute('data-count'),'1','Visible module count updates');
-    assert.ok(Math.abs(await page.locator('.module-card:visible').evaluate(n=>n.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtered cards retain their width');
+    assert.ok(Math.abs(await page.locator('#module-grid .module-card:visible').evaluate(n=>n.getBoundingClientRect().width)-geometry.cardWidth)<1,'Filtered cards retain their width');
     await page.locator('[data-filter="wirtschaft"]').click();
     assert.ok(await page.locator('#search-empty').isVisible(),'Empty topic state is visible');
     await page.locator('[data-filter="alle"]').click();
-    assert.equal(await page.locator('.module-card:visible').count(),2,'All modules restored');
+    assert.equal(await page.locator('#module-grid .module-card:visible').count(),2,'All modules restored');
     assert.ok(await page.locator('#search-empty').isHidden(),'Empty topic state dismissed');
     if(width<=860){
       await page.getByRole('button',{name:'Mein Konto',exact:true}).click();
@@ -164,7 +161,7 @@ let server,browser;
   }
   const noJs=await browser.newContext({javaScriptEnabled:false,viewport:{width:390,height:844}});
   const staticPage=await noJs.newPage();await staticPage.goto(base+'/dau-to-pro/');
-  assert.equal(await staticPage.locator('.module-card:visible').count(),2,'Modules remain visible without effects');
+  assert.equal(await staticPage.locator('#module-grid .module-card:visible').count(),2,'Modules remain visible without effects');
   await staticPage.locator('.disclaimer-shell summary').click();
   assert.ok(await staticPage.locator('.disclaimer-body').isVisible(),'Native disclosure works without JS');
   await noJs.close();

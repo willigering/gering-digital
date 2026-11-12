@@ -236,13 +236,21 @@
     const links=[...nav.children];
     let current=0,pending=0;
     const fit=()=>{track.style.height=mobile.matches?Math.ceil(panels[current].getBoundingClientRect().height)+"px":""};
+    function updateTabEdges(){
+      nav.style.setProperty("--fade-start",nav.scrollLeft>1?"12px":"0px");
+      nav.style.setProperty("--fade-end",nav.scrollLeft+nav.clientWidth<nav.scrollWidth-1?"12px":"0px");
+    }
     function mark(i){
       current=i;
       links.forEach((a,n)=>{if(n===i)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
       panels.forEach((p,n)=>{p.inert=mobile.matches&&n!==i});
       status.hidden=!mobile.matches;
       status.textContent=(i+1)+" / "+panels.length+" · nach links oder rechts wischen";
-      nav.scrollTo({left:Math.max(0,links[i].offsetLeft-nav.offsetLeft-16),behavior:"auto"});
+      if(mobile.matches){
+        const tab=links[i].getBoundingClientRect(),bar=nav.getBoundingClientRect();
+        nav.scrollLeft+=tab.left-bar.left+(tab.width-nav.clientWidth)/2;
+        updateTabEdges();
+      }
       fit();
     }
     function go(i,updateHash=true){
@@ -254,7 +262,9 @@
         const top=track.getBoundingClientRect().top+scrollY-navH()-12;
         if(scrollY>top)scrollTo({top:Math.max(0,top),behavior:"auto"});
       }else{
-        mark(i);panels[i].scrollIntoView({behavior:calm.matches?"auto":"smooth",block:"start"});
+        mark(i);
+        const top=panels[i].getBoundingClientRect().top+scrollY-navH()-12;
+        scrollTo({top:Math.max(0,top),behavior:calm.matches?"auto":"smooth"});
       }
     }
     links.forEach((a,i)=>{
@@ -285,10 +295,11 @@
     function hashChange(){const i=panels.findIndex(p=>"#"+p.id===location.hash);if(i>=0)go(i,false)}
     const observer=new ResizeObserver(fit);panels.forEach(p=>observer.observe(p));
     track.addEventListener("scroll",onScroll,{passive:true});
+    nav.addEventListener("scroll",updateTabEdges,{passive:true});
     addEventListener("resize",resize);addEventListener("hashchange",hashChange);
     mobile.addEventListener("change",resize);
     const initial=panels.findIndex(p=>"#"+p.id===location.hash);current=Math.max(0,initial);resize();
-    disposeReader=()=>{observer.disconnect();cancelAnimationFrame(pending);removeEventListener("resize",resize);removeEventListener("hashchange",hashChange);mobile.removeEventListener("change",resize)};
+    disposeReader=()=>{observer.disconnect();cancelAnimationFrame(pending);nav.removeEventListener("scroll",updateTabEdges);removeEventListener("resize",resize);removeEventListener("hashchange",hashChange);mobile.removeEventListener("change",resize)};
   }
   function route(){
     const id=new URLSearchParams(location.search).get("thema");
