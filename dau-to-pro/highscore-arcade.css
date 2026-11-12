@@ -760,3 +760,19 @@
   .arcade-stage--landing{min-width:0}
   .arcade-next-places{min-width:0}
 }
+
+/* Public guest leaderboard: explicit visibility scope and useful empty state. */
+.hs-public-hint,.hs-public-empty{
+  position:relative;max-width:850px;margin:10px auto 16px;
+  padding:13px 17px;border:1px solid #6b9caa55;
+  border-radius:9px;background:#081820ec;
+  color:#d8e8ed;font-size:14px;line-height:1.55;
+}
+.hs-public-empty{margin:26px auto;padding:23px;text-align:center}
+.hs-public-empty a{color:#ffe1a0;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:610px){
+  .hs-public-hint,.hs-public-empty{
+    font-size:13px;padding:13px 14px;
+    margin-inline:12px;
+  }
+}
