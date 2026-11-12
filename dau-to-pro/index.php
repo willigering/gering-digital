@@ -268,7 +268,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">04 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">05 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <div class="unterricht-content">
@@ -325,8 +325,21 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <div class="module-footer"><span>12 ABSCHNITTE · 26 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
+        <a class="module-card unterricht-card" style="--mod:#e8b84a" href="unterricht/csharp-finde-den-fehler.html" aria-label="Finde den Fehler – C# öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">C<span>#</span>!</span>
+            <span class="unterricht-art-label">BONUS <b>05</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C# BONUS</span>
+            <h2>Finde den Fehler.</h2>
+            <p>Drei prüfungsnahe C#-Aufgaben mit je einem stillen Fehler. Im Browser ausführen und die Testfälle prüfen. In dieser Fassung ohne XP.</p>
+            <div class="module-footer"><span>3 AUFGABEN · DEBUGGING</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
       </div>
-      <p class="unterricht-account-hint">Das IT VI.01-Material nutzt dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
+      <p class="unterricht-account-hint">Das IT VI.01-Material nutzt dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar. Finde den Fehler prüft C# im Browser und schreibt in dieser Fassung kein XP.</p>
     </div>
   </details>
 </section>

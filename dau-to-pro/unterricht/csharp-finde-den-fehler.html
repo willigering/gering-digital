@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Finde den Fehler – C# · DAU TO PRO</title>
+<link rel="icon" type="image/svg+xml" href="../../assets/dau-to-pro-pixelpilz.svg">
+<link rel="stylesheet" href="csharp-material.css">
+<link rel="stylesheet" href="csharp-finde-den-fehler.css">
+</head>
+<body class="dtp-material fehler-page">
+<div class="dtp-backdrop" aria-hidden="true"></div>
+<header class="dtp-top">
+  <div class="dtp-wrap">
+    <a href="../index.php#unterrichtsmaterial">← DAU TO PRO / UNTERRICHTSMATERIAL</a>
+    <strong>C# <span>// BONUS</span></strong>
+  </div>
+</header>
+<section class="dtp-hero">
+  <div class="dtp-wrap">
+    <span class="dtp-kicker">BONUSMODUL · FINDE DEN FEHLER</span>
+    <h1>FINDE DEN<br><em>FEHLER.</em></h1>
+    <p>Drei prüfungsnahe C#-Aufgaben. In jedem Programm steckt ein Fehler. Korrigiere den Code und prüfe das Verhalten. Es gibt keinen Lernpfad, keinen Prüfungsmodus und kein Nachschlagwerk.</p>
+    <div class="dtp-tags">
+      <span>3 Aufgaben</span>
+      <span>Prüfung im Browser</span>
+      <span>In dieser Fassung ohne XP</span>
+    </div>
+  </div>
+</section>
+<main class="dtp-workspace dtp-wrap fehler-main" id="app">
+  <section id="picker">
+    <p class="fehler-lead">Wähle eine Aufgabe. Der Fehler ist nicht markiert. „Ausführen“ zeigt die Ausgabe. „Lösung prüfen“ startet jeden Testfall getrennt. Jede Lösung, die alle Fälle besteht, zählt.</p>
+    <div class="fehler-grid" id="task-list"></div>
+  </section>
+  <section id="game" hidden>
+    <button type="button" class="fehler-back" id="back">← Aufgaben</button>
+    <span class="fehler-kicker" id="kicker">Aufgabe</span>
+    <h2 class="fehler-title" id="title"></h2>
+    <div class="fehler-box">
+      <b>Arbeitsauftrag</b>
+      <p id="order"></p>
+    </div>
+    <div class="fehler-console">
+      <div class="cap">Erwartete Beispielausgabe</div>
+      <pre id="sample"></pre>
+    </div>
+    <p class="fehler-note" id="sample-note"></p>
+    <details class="help">
+      <summary>Hinweis</summary>
+      <p id="hint"></p>
+    </details>
+    <div class="editor">
+      <div class="cap">C# · direkt editierbar</div>
+      <div class="editor-body">
+        <pre class="gutter" id="gutter" aria-hidden="true">1</pre>
+        <textarea class="codeedit" id="code" spellcheck="false" aria-label="C#-Code"></textarea>
+      </div>
+    </div>
+    <label class="fehler-label" for="stdin">Eingabe für „Ausführen“</label>
+    <textarea class="stdin" id="stdin" spellcheck="false" aria-label="Eingabe für Ausführen"></textarea>
+    <div class="fehler-actions">
+      <button type="button" class="btn" id="run">Ausführen</button>
+      <button type="button" class="btn pri" id="check">Lösung prüfen</button>
+      <button type="button" class="btn" id="reset">Code zurücksetzen</button>
+    </div>
+    <div class="run-view" id="run-view" aria-live="polite"></div>
+  </section>
+</main>
+<script src="csharp-finde-den-fehler-runtime.js"></script>
+<script src="csharp-finde-den-fehler.js"></script>
+</body>
+</html>
