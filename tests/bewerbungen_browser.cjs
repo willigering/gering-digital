@@ -174,6 +174,8 @@ async function run(){
    assert.equal(errors.length,0,"No browser page exceptions: "+errors.join(", "));
    await page.locator(".nav-item[data-view='settings']").click();
    await page.waitForSelector("#gdm-config-form");
+   // Finish the settings refresh before the import replaces form values.
+   await page.waitForLoadState("networkidle");
    assert.equal(await page.locator("#gdm-senderName").inputValue(),"Willi Gering");
    assert.equal((await page.locator("#gdm-cv-status").textContent()).trim(),"Lebenslauf.pdf gespeichert");
    const importDoc={senderName:"Test Name",senderStreet:"Musterstr. 5",senderPostal:"32791",senderCity:"Teststadt",senderPhone:"",
