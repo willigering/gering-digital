@@ -112,10 +112,8 @@ check(dtp_preview_resolve(['slug'=>'netzwerke-sprint','title'=>'Netzwerke','prev
 // --- Hero ---
 $hero=dtp_hero();
 $scene=dtp_hero_scene($hero,'Originalgrafik');
-check(str_contains($scene,'class="hero-logo hero-layered"') && str_contains($scene,'aria-label="Originalgrafik"'),'Standard-Hero hat ein zugängliches Label');
-foreach(['dau.webp','pro.webp','brand.webp','mushroom.png'] as $layer) {
-    check(str_contains($scene,'assets/dau-hero/'.$layer) && is_file(__DIR__.'/../assets/dau-hero/'.$layer),'Hero liefert die getrennte Ebene '.$layer);
-}
+check(str_contains($scene,'class="hero-logo"') && str_contains($scene,'alt="Originalgrafik"'),'Standard-Hero hat einen Alternativtext');
+check(str_contains($scene,'assets/dau-to-pro-hero-v2-885.webp 885w') && str_contains($scene,'assets/dau-to-pro-hero-v2-1770.webp 1770w'),'Standard-Hero liefert beide responsiven Bildquellen');
 foreach([885=>444,1770=>889] as $width=>$height){
     $file=__DIR__.'/../assets/dau-to-pro-hero-v2-'.$width.'.webp';
     $size=getimagesize($file);

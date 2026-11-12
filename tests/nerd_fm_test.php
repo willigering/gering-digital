@@ -13,12 +13,15 @@ function check(bool $ok,string $label): void {global $failures,$count;$count++;i
 $songs=nfm_songs();
 $hasDejaVu=is_file(nfm_dir().'/deja-vu.mp3');
 $hasWerBistDu=is_file(nfm_dir().'/wer-bist-du.mp3');
+$hasDuMachstMichKrank=is_file(nfm_dir().'/du-machst-mich-krank.mp3');
 $expectedIds=['apipa','sieben-schichten','klopf-klopf','ping-mich-nicht-voll','dau-to-pro'];
 if ($hasDejaVu) $expectedIds[]='deja-vu';
 if ($hasWerBistDu) $expectedIds[]='wer-bist-du';
+if ($hasDuMachstMichKrank) $expectedIds[]='du-machst-mich-krank';
 check(array_keys($songs)===$expectedIds,'Feste Playlist-Reihenfolge, neuer Song erst mit echter MP3');
 if ($hasDejaVu) check($songs['deja-vu']['unlock']===null && $songs['deja-vu']['module']===null,'Diggy Thal – Déjà-vu ist ohne Konto oder Achievement verfügbar');
 if ($hasWerBistDu) check($songs['wer-bist-du']['unlock']===null && $songs['wer-bist-du']['module']===null && $songs['wer-bist-du']['title']==='Diggy Thal – Wer bist du?','Wer bist du? ist ohne Konto oder Achievement verfügbar');
+if ($hasDuMachstMichKrank) check($songs['du-machst-mich-krank']['unlock']===null && $songs['du-machst-mich-krank']['module']===null && $songs['du-machst-mich-krank']['title']==='Diggy Thal – Du machst mich krank!','Du machst mich krank! ist ohne Konto oder Achievement verfügbar');
 check($songs['apipa']['unlock']===null,'APIPA ist sofort verfügbar');
 check($songs['sieben-schichten']['unlock']==='osi.lernpfad' && $songs['sieben-schichten']['module']==='osi-sprint','7 Schichten: Lernpfad Easy OSI for FISI');
 check($songs['klopf-klopf']['unlock']==='b5.lernpfad' && $songs['klopf-klopf']['module']==='b5-netzwerkdienste','Klopf, Klopf: Lernpfad Port 80, bitte kommen');
@@ -33,6 +36,7 @@ $guest=nfm_tracks(null);
 $guestTitles=['Diggy Thal – APIPA'];
 if ($hasDejaVu) $guestTitles[]='Diggy Thal – Déjà-vu';
 if ($hasWerBistDu) $guestTitles[]='Diggy Thal – Wer bist du?';
+if ($hasDuMachstMichKrank) $guestTitles[]='Diggy Thal – Du machst mich krank!';
 check(array_column($guest,'title')===$guestTitles,'Gäste hören alle öffentlichen Songs ohne Konto');
 check(!str_contains(json_encode($guest),'.mp3'),'Playlist verrät keine Dateinamen');
 
@@ -45,22 +49,23 @@ $titles=array_column(nfm_tracks($learner),'title');
 $expectedB5=['Diggy Thal – APIPA','Diggy Thal – Klopf, Klopf'];
 if ($hasDejaVu) $expectedB5[]='Diggy Thal – Déjà-vu';
 if ($hasWerBistDu) $expectedB5[]='Diggy Thal – Wer bist du?';
+if ($hasDuMachstMichKrank) $expectedB5[]='Diggy Thal – Du machst mich krank!';
 check($titles===$expectedB5,'Lernpfad B5 schaltet „Klopf, Klopf“ frei, öffentlicher Song bleibt verfügbar');
 db()->prepare('INSERT INTO learner_achievements(learner_id,code,unlocked_at) VALUES(?,?,?)')->execute([$lid,'g.easteregg','2026-11-07 12:00:00']);
 check(in_array('DAU to PRO',array_column(nfm_tracks($learner),'title'),true),'Easter Egg schaltet „DAU to PRO“ frei');
 
 // ---------------------------------------------------------------- Playlist-Editor: abgewählte Titel im Konto
-check(array_column(nfm_tracks($learner),'on')===array_fill(0,3+($hasDejaVu?1:0)+($hasWerBistDu?1:0),true),'Standard: alle freigeschalteten Titel sind aktiv');
+check(array_column(nfm_tracks($learner),'on')===array_fill(0,count($guestTitles)+2,true),'Standard: alle freigeschalteten Titel sind aktiv');
 check(nfm_save_off($learner,['klopf-klopf'])===['klopf-klopf'] && nfm_off_ids($learner)===['klopf-klopf'],'Abgewählter Titel wird im Konto gespeichert');
 $on=array_column(nfm_tracks($learner),'on','id');
 check($on['klopf-klopf']===false && $on['apipa']===true && $on['dau-to-pro']===true,'Playlist liefert den gespeicherten Stand (aus für „Klopf, Klopf“)');
 check(nfm_save_off($learner,['apipa','unbekannt','../x',42,'sieben-schichten'])===['apipa'],'Unbekannte, nicht freigeschaltete und ungültige IDs werden ignoriert');
 check(nfm_off_ids($learner)===['apipa'],'Gespeichert wird nur, was dem Konto zur Verfügung steht');
-try { nfm_save_off($learner,array_merge(['apipa','klopf-klopf','dau-to-pro'],$hasDejaVu?['deja-vu']:[],$hasWerBistDu?['wer-bist-du']:[])); check(false,'Alle Titel abwählen wird abgelehnt'); }
+try { nfm_save_off($learner,array_merge(['apipa','klopf-klopf','dau-to-pro'],$hasDejaVu?['deja-vu']:[],$hasWerBistDu?['wer-bist-du']:[],$hasDuMachstMichKrank?['du-machst-mich-krank']:[])); check(false,'Alle Titel abwählen wird abgelehnt'); }
 catch (LearnerError $e) { check(str_contains($e->getMessage(),'Mindestens ein Titel'),'Alle Titel abwählen wird abgelehnt'); }
 check(nfm_off_ids($learner)===['apipa'],'Abgelehnte Änderung lässt den Stand unverändert');
 nfm_save_off($learner,[]);
-check(array_column(nfm_tracks($learner),'on')===array_fill(0,3+($hasDejaVu?1:0)+($hasWerBistDu?1:0),true) && nfm_off_ids($learner)===[],'Alle wieder aktivieren');
+check(array_column(nfm_tracks($learner),'on')===array_fill(0,count($guestTitles)+2,true) && nfm_off_ids($learner)===[],'Alle wieder aktivieren');
 nfm_save_off($learner,['dau-to-pro']);
 check(nfm_off_ids(null)===[] && !in_array(false,array_column(nfm_tracks(null),'on'),true),'Gäste haben keine Konto-Einstellung');
 $export=learner_export($learner);
@@ -137,6 +142,15 @@ try {
             $publicSrc=$base.$tracks[$publicIndex]['src'];
             [$status,$publicHeaders,$publicBytes]=http($publicSrc,array_merge($audio,['Range: bytes=0-1023']));
             check($status===206 && strlen($publicBytes)===1024 && ($publicHeaders['content-type'][0]??'')==='audio/mpeg','Wer bist du? für Gäste ohne Freischaltung streambar');
+        }
+    }
+    if ($hasDuMachstMichKrank) {
+        $publicIndex=array_search('du-machst-mich-krank',array_column($tracks,'id'),true);
+        check($publicIndex!==false,'Du machst mich krank! erscheint im Gästeradio');
+        if ($publicIndex!==false) {
+            $publicSrc=$base.$tracks[$publicIndex]['src'];
+            [$status,$publicHeaders,$publicBytes]=http($publicSrc,array_merge($audio,['Range: bytes=0-1023']));
+            check($status===206 && strlen($publicBytes)===1024 && ($publicHeaders['content-type'][0]??'')==='audio/mpeg','Du machst mich krank! für Gäste ohne Freischaltung streambar');
         }
     }
     [$st]=http($src,['Sec-Fetch-Site: same-origin','Sec-Fetch-Dest: audio']);
