@@ -49,7 +49,7 @@ function expectPass(name, id, code) {
 
 const euroStart = expectFail('Euro-Start fällt durch', euro.id, euro.start, function (result) {
   const byId = Object.fromEntries(result.cases.map(function (item) { return [item.id, item]; }));
-  return byId['1'].pass && !byId['2'].pass && byId['3'].pass && !byId['2'].error && /Zu wenig Geld/.test(byId['2'].actual);
+  return byId['1'].pass && !byId['2'].pass && byId['3'].pass && !byId['2'].error && /Zu wenig/.test(byId['2'].actual) && !/Betrag passt/.test(byId['2'].actual);
 });
 const inventurStart = expectFail('Inventur-Start fällt durch', inventur.id, inventur.start, function (result) {
   return result.cases.every(function (item) {
@@ -66,17 +66,15 @@ function replaceLine(source, from, to) {
   return source.replace(from, to);
 }
 
-expectPass('Euro >=', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro >= 2)'));
-expectPass('Euro oder', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro == 2 || euro > 2)'));
-expectPass('Euro unter zwei', euro.id, euro.start
-  .replace('if (euro > 2)', 'if (euro < 2)')
-  .replace('Console.WriteLine("Ticket ausgegeben");', 'Console.WriteLine("TEMP");')
-  .replace('Console.WriteLine("Zu wenig Geld");', 'Console.WriteLine("Ticket ausgegeben");')
-  .replace('Console.WriteLine("TEMP");', 'Console.WriteLine("Zu wenig Geld");'));
+const euroElse = 'else\n{\n    Console.WriteLine("Zu wenig");\n}';
+const euroFixed = euro.start.replace(euroElse, 'else\n{\n    Console.WriteLine("Betrag passt");\n}');
+expectPass('Euro Grenzfall', euro.id, euroFixed);
+expectPass('Euro neu geordnet', euro.id,
+  'Console.WriteLine("Betrag in Euro:");\nstring eingabe = Console.ReadLine();\nint euro = int.Parse(eingabe);\nif (euro == 2)\n    Console.WriteLine("Betrag passt");\nelse if (euro < 2)\n    Console.WriteLine("Zu wenig");\nelse\n    Console.WriteLine("Zu viel");\n');
 expectPass('Euro ternär', euro.id,
-  'Console.WriteLine("Betrag in Euro:");\nstring eingabe = Console.ReadLine();\nint euro = int.Parse(eingabe);\nConsole.WriteLine(euro >= 2 ? "Ticket ausgegeben" : "Zu wenig Geld");\n');
-expectFail('Euro ab 3', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro >= 3)'));
-expectFail('Euro ab 1', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro >= 1)'));
+  'Console.WriteLine("Betrag in Euro:");\nstring eingabe = Console.ReadLine();\nint euro = int.Parse(eingabe);\nConsole.WriteLine(euro < 2 ? "Zu wenig" : euro > 2 ? "Zu viel" : "Betrag passt");\n');
+expectFail('Euro 2 als zu viel', euro.id, euro.start.replace(euroElse, 'else\n{\n    Console.WriteLine("Zu viel");\n}'));
+expectFail('Euro ab 2 passt', euro.id, euro.start.replace('else if (euro > 2)', 'else if (euro >= 2)').replace('Console.WriteLine("Zu viel");', 'Console.WriteLine("Betrag passt");'));
 
 expectPass('Inventur kleiner', inventur.id, replaceLine(inventur.start, 'i <= artikel.Length', 'i < artikel.Length'));
 expectPass('Inventur foreach', inventur.id,
@@ -91,9 +89,17 @@ expectPass('Noten Komma als Text', noten.id,
   'Console.WriteLine("Punktzahl 1:");\nint a = int.Parse(Console.ReadLine());\nConsole.WriteLine("Punktzahl 2:");\nint b = int.Parse(Console.ReadLine());\nif (a == 1)\n    Console.WriteLine("Schnitt: 1,5");\nelse\n    Console.WriteLine("Schnitt: 3");\n');
 
 const unsupported = grade(euro.id, 'switch (euro) { }');
-check('switch ist keine falsche Lösung', unsupported.status === 'unsupported' && unsupported.ok === false, JSON.stringify(unsupported));
+check('switch ist keine falsche Lösung', unsupported.status === 'unsupported' && unsupported.ok === false && /switch/.test(unsupported.message), JSON.stringify(unsupported));
+check('switch-Meldung in der Oberfläche', ui.includes('kennt das Konstrukt nicht und wertet ihn nicht als Lösung'));
 const syntax = grade(euro.id, 'if (');
 check('Syntaxfehler bleibt Fehler', syntax.status === 'fail' && syntax.ok === false && syntax.cases.length === 0, JSON.stringify(syntax));
+const dead = 'if (false) { int x = "text"; } Console.WriteLine(42);';
+const deadRun = api.run(dead, '');
+check('toter ungültiger Zweig läuft nicht', !!deadRun.error && deadRun.unsupported === false && !/42/.test(deadRun.stdout) && /int/.test(deadRun.error), JSON.stringify(deadRun));
+const deadGrade = grade(euro.id, dead);
+check('toter ungültiger Zweig besteht nicht', deadGrade.ok === false && deadGrade.status === 'fail' && deadGrade.cases.length === 0, JSON.stringify(deadGrade));
+const alive = api.run('if (false) { int x = 1; }\nConsole.WriteLine(42);\n', '');
+check('gültiger toter Zweig läuft', !alive.error && alive.stdout.replace(/\s+$/, '') === '42', JSON.stringify(alive));
 
 check('Norm akzeptiert Komma', api.norm('Schnitt: 1,5') === api.norm('Schnitt: 1.5'));
 
@@ -101,6 +107,8 @@ const first = api.award(euro.id);
 const second = api.award(euro.id);
 check('erste Abgabe vergibt kein XP', first.awarded === 0 && first.xp === 0 && first.enabled === false && first.reason === 'xp-disabled' && first.taskXp === 2, JSON.stringify(first));
 check('zweite Abgabe vergibt kein weiteres XP', second.awarded === 0 && second.xp === 0 && second.taskId === euro.id, JSON.stringify(second));
+check('parallele Abgabe vergibt kein XP', api.award(euro.id).awarded === 0 && api.award(inventur.id).awarded === 0 && api.XP_ENABLED === false);
+check('XP-Lücke benannt', /vertrauenswürdig/.test(runtime) && /Webserver/.test(runtime));
 
 ['csharp-finde-den-fehler.html', 'csharp-finde-den-fehler.js', 'csharp-finde-den-fehler-runtime.js'].forEach(function (name) {
   const text = name.endsWith('.html') ? page : name.endsWith('.js') && name.indexOf('runtime') < 0 ? ui : runtime;
@@ -109,16 +117,18 @@ check('zweite Abgabe vergibt kein weiteres XP', second.awarded === 0 && second.x
 check('Seite nutzt das Unterrichts-Backdrop', page.includes('class="dtp-material fehler-page"') && page.includes('class="dtp-backdrop"') && page.includes('href="csharp-material.css"') && !page.includes('data-active-topic'));
 check('Wand ist circuit-signal-1536', /\.dtp-backdrop\{[^}]*circuit-signal-1536\.webp/.test(material));
 check('Wandregeln stehen nur im Material-CSS', !css.includes('circuit-signal') && !css.includes('--dtp-wall'));
-check('Knöpfe und Parallax', page.includes('>Ausführen<') && page.includes('>Lösung prüfen<') && page.includes('>Code zurücksetzen<') && ui.includes('Math.atan(Math.max(0, scrollY) / 1100) * 62'));
-check('Startcode unmarkiert in der Seite', !page.includes('euro > 2') && !page.includes('euro >= 2') && ui.indexOf('innerHTML') < 0);
-check('Karte im Unterrichtsmaterial', index.includes('href="unterricht/csharp-finde-den-fehler.html"') && index.includes('>05 <small>MATERIALIEN</small>') && index.includes('href="unterricht/it-vi-01.php"') && index.includes('schreibt in dieser Fassung kein XP'));
+check('Knöpfe und Parallax', page.includes('>Ausführen<') && page.includes('>Lösung prüfen<') && page.includes('>Code zurücksetzen<') && ui.includes('Math.atan(Math.max(0, scrollY) / 1100) * 62') && page.includes('href="../index.php#bonusmodule"'));
+check('Startcode unmarkiert in der Seite', !page.includes('Zu wenig') && !page.includes('Betrag passt') && ui.indexOf('innerHTML') < 0);
+const unterricht = index.slice(index.indexOf('class="unterricht-collection"'), index.indexOf('</section>', index.indexOf('class="unterricht-collection"')));
+const bonus = index.slice(index.indexOf('id="bonusmodule"'), index.indexOf('id="highscore"'));
+check('Unterricht ohne Bonus-Kachel', unterricht.includes('>04 <small>MATERIALIEN</small>') && unterricht.includes('href="unterricht/it-vi-01.php"') && !unterricht.includes('csharp-finde-den-fehler') && !unterricht.includes('Finde den Fehler'));
+check('Kachel im Abschnitt Bonusmodule', bonus.includes('href="unterricht/csharp-finde-den-fehler.html"') && bonus.includes('id="bonus-title"') && bonus.includes('Bonus'));
 check('kein Lernpfad auf der Seite', !/Prüfungsmodus|Nachschlagwerk|Lernpfad/.test(page) || page.includes('keinen Lernpfad'));
 
 const programs = [
   ['Euro-Start', euro.id, euro.start],
-  ['Euro >=', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro >= 2)')],
-  ['Euro oder', euro.id, replaceLine(euro.start, 'if (euro > 2)', 'if (euro == 2 || euro > 2)')],
-  ['Euro ternär', euro.id, 'Console.WriteLine("Betrag in Euro:");\nstring eingabe = Console.ReadLine();\nint euro = int.Parse(eingabe);\nConsole.WriteLine(euro >= 2 ? "Ticket ausgegeben" : "Zu wenig Geld");\n'],
+  ['Euro Grenzfall', euro.id, euroFixed],
+  ['Euro ternär', euro.id, 'Console.WriteLine("Betrag in Euro:");\nstring eingabe = Console.ReadLine();\nint euro = int.Parse(eingabe);\nConsole.WriteLine(euro < 2 ? "Zu wenig" : euro > 2 ? "Zu viel" : "Betrag passt");\n'],
   ['Inventur-Start', inventur.id, inventur.start],
   ['Inventur kleiner', inventur.id, replaceLine(inventur.start, 'i <= artikel.Length', 'i < artikel.Length')],
   ['Inventur foreach', inventur.id, 'Console.WriteLine("Wie viele Artikel?");\nint anzahl = int.Parse(Console.ReadLine());\nstring[] artikel = new string[anzahl];\nfor (int i = 0; i < anzahl; i = i + 1)\n{\n    artikel[i] = Console.ReadLine();\n}\nint n = 1;\nforeach (string name in artikel)\n{\n    Console.WriteLine(n + ". " + name);\n    n += 1;\n}\n'],
@@ -195,6 +205,20 @@ function crossCheck(dotnetInfo) {
       }
     });
   });
+  const deadFile = path.join(tmp, 'dead.cs');
+  fs.writeFileSync(deadFile, 'if (false) { int x = "text"; }\nConsole.WriteLine(42);\n');
+  const deadCompile = spawnSync(dotnetInfo.dotnet, [dotnetInfo.csc, '-nologo', '-langversion:12', '-t:exe', ...dotnetInfo.refs, '-out:' + path.join(tmp, 'dead.dll'), usings, deadFile], { encoding: 'utf8' });
+  ran.push('dotnet toter ungültiger Zweig');
+  compared += 1;
+  if (deadCompile.status === 0) fails.push('dotnet hat ungültigen Code im toten Zweig übersetzt');
+  const switchFile = path.join(tmp, 'switch.cs');
+  fs.writeFileSync(switchFile, 'switch (1) { default: Console.WriteLine("x"); break; }\n');
+  const switchCompile = spawnSync(dotnetInfo.dotnet, [dotnetInfo.csc, '-nologo', '-langversion:12', '-t:exe', ...dotnetInfo.refs, '-out:' + path.join(tmp, 'switch.dll'), usings, switchFile], { encoding: 'utf8' });
+  const switchBrowser = api.check(euro.id, fs.readFileSync(switchFile, 'utf8'));
+  ran.push('dotnet switch bleibt unterstützt');
+  compared += 1;
+  if (switchCompile.status !== 0) fails.push('dotnet übersetzt gültiges switch nicht\n  ' + (switchCompile.stdout + switchCompile.stderr).slice(0, 500));
+  if (switchBrowser.ok || switchBrowser.status !== 'unsupported') fails.push('Browser wertet switch falsch: ' + JSON.stringify(switchBrowser));
   return compared;
 }
 

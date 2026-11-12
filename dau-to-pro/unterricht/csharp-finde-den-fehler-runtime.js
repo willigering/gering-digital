@@ -2,12 +2,14 @@
    Im Projekt gibt es keine abgesicherte C#-Laufzeit für Nutzercode.
    tests/cs_verify.cjs startet dotnet nur für mitgelieferte Schnipsel, nicht für Eingaben aus dem Browser.
    Dieser Prüfer läuft deshalb lokal im Browser, mit Schrittlimit und ohne Netzwerk.
-   Er versteht die Teilmenge, die diese drei Aufgaben brauchen. Unbekannte Schreibweisen
-   gelten nicht als falsche Lösung.
-   XP bleibt aus. Die vorhandene Kontobuchung kann einen stabilen Schlüssel nur einmal buchen,
-   aber kein bestehender Endpunkt vergibt die Belohnung pro Aufgaben-ID und prüft vorher die
-   Testfälle, ohne den Code auf dem Webserver auszuführen. task_xp in xp-config.json ist 2.
-   Vorgesehener Schlüssel, falls das Review die Buchung freigibt:
+   Er versteht die Teilmenge, die diese drei Aufgaben brauchen. Gültiges, aber nicht
+   unterstütztes C# gilt nicht als falsche Lösung. Ungültiges C# gilt auch in Zweigen
+   als Fehler, die zur Laufzeit nicht drankommen.
+   XP bleibt aus. xp_add würde einen stabilen Schlüssel pro Konto nur einmal buchen,
+   auch bei parallelen Abgaben. Es fehlt der Vergabeweg: kein Endpunkt prüft die Testfälle
+   vertrauenswürdig, ohne Nutzercode auf dem Webserver auszuführen. Ein „gelöst“ im Browser
+   reicht dafür nicht. Der öffentliche Fortschritt bucht nach Zählerstand, nicht pro Aufgaben-ID.
+   task_xp in xp-config.json ist 2. Vorgesehener Schlüssel, falls das Review die Buchung freigibt:
    bonus:csharp-finde-den-fehler:{taskId}. */
 (function (root, factory) {
   const api = factory();
@@ -25,28 +27,32 @@
     {
       id: 'csharp-fehler-euro-automat',
       title: '2-Euro-Automat',
-      card: 'Der Automat am Empfang. Getestet wird mit 1, 2 und 3 Euro.',
-      order: 'Ein Automat gibt ein Ticket aus, sobald mindestens 2 Euro eingeworfen wurden. Bei weniger Geld schreibt er „Zu wenig Geld“. Der Vergleich an der Grenze ist falsch. Korrigiere das Programm. Die Prüfung startet es getrennt mit 1, mit 2 und mit 3 Euro.',
-      sample: 'Betrag in Euro:\n2\nTicket ausgegeben',
+      card: 'Drei Ergebnisse: zu wenig, passt, zu viel. Getestet mit 1, 2 und 3 Euro.',
+      order: 'Der Automat unterscheidet drei Beträge. Unter 2 Euro schreibt er „Zu wenig“, bei genau 2 Euro „Betrag passt“ und über 2 Euro „Zu viel“. Der Grenzfall ist falsch. Die Prüfung startet das Programm getrennt mit 1, mit 2 und mit 3 Euro.',
+      sample: 'Betrag in Euro:\n2\nBetrag passt',
       sampleNote: 'Beispiel für genau 2 Euro. Die Zeile 2 ist die Eingabe. Geprüft wird nur, was das Programm selbst schreibt.',
       sampleInput: '2\n',
-      hint: 'Prüfe den Fall, in dem der Betrag genau 2 Euro ist. Diese Grenze gehört zum Ticket.',
+      hint: 'Genau 2 Euro ist der Grenzfall. Dieser Fall darf nicht als „Zu wenig“ enden.',
       start:
         'Console.WriteLine("Betrag in Euro:");\n' +
         'string eingabe = Console.ReadLine();\n' +
         'int euro = int.Parse(eingabe);\n' +
-        'if (euro > 2)\n' +
+        'if (euro < 2)\n' +
         '{\n' +
-        '    Console.WriteLine("Ticket ausgegeben");\n' +
+        '    Console.WriteLine("Zu wenig");\n' +
+        '}\n' +
+        'else if (euro > 2)\n' +
+        '{\n' +
+        '    Console.WriteLine("Zu viel");\n' +
         '}\n' +
         'else\n' +
         '{\n' +
-        '    Console.WriteLine("Zu wenig Geld");\n' +
+        '    Console.WriteLine("Zu wenig");\n' +
         '}\n',
       cases: [
-        { id: '1', label: '1 Euro', input: '1\n', output: 'Betrag in Euro:\nZu wenig Geld' },
-        { id: '2', label: '2 Euro', input: '2\n', output: 'Betrag in Euro:\nTicket ausgegeben' },
-        { id: '3', label: '3 Euro', input: '3\n', output: 'Betrag in Euro:\nTicket ausgegeben' }
+        { id: '1', label: '1 Euro', input: '1\n', output: 'Betrag in Euro:\nZu wenig' },
+        { id: '2', label: '2 Euro', input: '2\n', output: 'Betrag in Euro:\nBetrag passt' },
+        { id: '3', label: '3 Euro', input: '3\n', output: 'Betrag in Euro:\nZu viel' }
       ]
     },
     {
@@ -772,6 +778,256 @@
     }
   }
 
+  function staticCheck(program) {
+    const scopes = [new Map()];
+    const simple = { int: 1, double: 1, string: 1, bool: 1, null: 1 };
+    function current() { return scopes[scopes.length - 1]; }
+    function fail(line, message) { throw problem(line, message); }
+    function unsupported(line, message) { throw problem(line, message, 'Unsupported', true); }
+    function lookup(name, line) {
+      for (let s = scopes.length - 1; s >= 0; s -= 1) {
+        if (scopes[s].has(name)) return scopes[s].get(name);
+      }
+      fail(line, '„' + name + '“ ist hier nicht bekannt.');
+    }
+    function isNum(type) { return type && (type.t === 'int' || type.t === 'double'); }
+    function accept(dest, src, line) {
+      if (!src) fail(line, 'Hier fehlt ein Wert.');
+      if (dest.t === 'int') {
+        if (src.t === 'int') return { t: 'int' };
+        fail(line, 'Dieser Wert passt nicht in int.');
+      }
+      if (dest.t === 'double') {
+        if (src.t === 'double' || src.t === 'int') return { t: 'double' };
+        fail(line, 'Dieser Wert passt nicht in double.');
+      }
+      if (dest.t === 'string') {
+        if (src.t === 'string' || src.t === 'null') return { t: 'string' };
+        fail(line, 'Dieser Wert passt nicht in string.');
+      }
+      if (dest.t === 'bool') {
+        if (src.t === 'bool') return { t: 'bool' };
+        fail(line, 'Dieser Wert passt nicht in bool.');
+      }
+      if (dest.t === 'array') {
+        if (src.t !== 'array') fail(line, 'Hier wird ein Array erwartet.');
+        if (dest.elem && src.elem && dest.elem !== src.elem) fail(line, 'Der Array-Typ passt nicht.');
+        return { t: 'array', elem: dest.elem || src.elem };
+      }
+      fail(line, 'Unbekannter Typ.');
+    }
+    function plusType(left, right, line) {
+      if ((left.t === 'string' || right.t === 'string') && simple[left.t] && simple[right.t]) return { t: 'string' };
+      if (isNum(left) && isNum(right)) return { t: left.t === 'double' || right.t === 'double' ? 'double' : 'int' };
+      fail(line, 'Diese Werte kann + hier nicht verbinden.');
+    }
+    function arithType(left, right, line) {
+      if (!isNum(left) || !isNum(right)) fail(line, 'Hier wird eine Zahl erwartet.');
+      return { t: left.t === 'double' || right.t === 'double' ? 'double' : 'int' };
+    }
+    function common(left, right, line) {
+      if (left.t === 'string' && right.t === 'string') return { t: 'string' };
+      if (isNum(left) && isNum(right)) return { t: left.t === 'double' || right.t === 'double' ? 'double' : 'int' };
+      if (left.t === 'bool' && right.t === 'bool') return { t: 'bool' };
+      if (left.t === 'array' && right.t === 'array' && left.elem === right.elem) return { t: 'array', elem: left.elem };
+      fail(line, 'Die beiden Zweige haben keinen gemeinsamen Typ.');
+    }
+    function demandBool(type, line) {
+      if (!type || type.t !== 'bool') fail(line, 'Die Bedingung muss true oder false ergeben.');
+    }
+    function typeOf(node) {
+      if (node.kind === 'lit') return { t: node.value.t };
+      if (node.kind === 'var') return lookup(node.name, node.line);
+      if (node.kind === 'un') {
+        const value = typeOf(node.expr);
+        if (node.op === '!') {
+          if (value.t !== 'bool') fail(node.line, '! braucht true oder false.');
+          return { t: 'bool' };
+        }
+        if (!isNum(value)) fail(node.line, 'Hier wird eine Zahl erwartet.');
+        return { t: value.t };
+      }
+      if (node.kind === 'cast') {
+        const value = typeOf(node.expr);
+        if (node.type === 'int' && (value.t === 'int' || value.t === 'double')) return { t: 'int' };
+        if (node.type === 'double' && (value.t === 'int' || value.t === 'double')) return { t: 'double' };
+        if ((node.type === 'int' || node.type === 'double') && !isNum(value)) fail(node.line, 'Das lässt sich hier nicht in ' + node.type + ' umwandeln.');
+        unsupported(node.line, 'Diese Umwandlung wird in der Browser-Prüfung nicht unterstützt.');
+      }
+      if (node.kind === 'new') {
+        const size = typeOf(node.size);
+        if (size.t !== 'int') fail(node.line, 'Die Array-Größe muss eine ganze Zahl sein.');
+        return { t: 'array', elem: node.elem };
+      }
+      if (node.kind === 'init') {
+        const items = node.items.map(typeOf);
+        const elem = node.elem || (items[0] ? items[0].t : 'string');
+        items.forEach(function (item) { accept({ t: elem }, item, node.line); });
+        return { t: 'array', elem: elem };
+      }
+      if (node.kind === 'index') {
+        const array = typeOf(node.target);
+        const index = typeOf(node.index);
+        if (array.t !== 'array') fail(node.line, 'Das ist kein Array.');
+        if (index.t !== 'int') fail(node.line, 'Der Index muss eine ganze Zahl sein.');
+        return { t: array.elem || 'string' };
+      }
+      if (node.kind === 'member') {
+        const target = typeOf(node.target);
+        if (node.name === 'Length' && (target.t === 'array' || target.t === 'string')) return { t: 'int' };
+        if (node.name === 'Length') fail(node.line, 'Length gibt es hier nicht.');
+        unsupported(node.line, node.name + ' wird in dieser Browser-Prüfung nicht unterstützt.');
+      }
+      if (node.kind === 'static') {
+        if ((node.type === 'int' || node.type === 'double') && node.name === 'Parse' && node.args.length === 1) {
+          const arg = typeOf(node.args[0]);
+          if (arg.t !== 'string' && arg.t !== 'null') fail(node.line, 'Parse erwartet einen Text.');
+          return { t: node.type };
+        }
+        unsupported(node.line, node.type + '.' + node.name + ' wird in dieser Browser-Prüfung nicht unterstützt.');
+      }
+      if (node.kind === 'call') {
+        if (node.target.kind === 'var' && node.target.name === 'Console' && node.name === 'ReadLine' && node.args.length === 0) return { t: 'string' };
+        if (node.name === 'ToString' && node.args.length === 0) {
+          const target = typeOf(node.target);
+          if (simple[target.t] && target.t !== 'null') return { t: 'string' };
+        }
+        unsupported(node.line, node.name + ' wird in dieser Browser-Prüfung nicht unterstützt.');
+      }
+      if (node.kind === 'cond') {
+        demandBool(typeOf(node.cond), node.line);
+        return common(typeOf(node.yes), typeOf(node.no), node.line);
+      }
+      if (node.kind === 'bin') {
+        if (node.op === '||' || node.op === '&&') {
+          demandBool(typeOf(node.left), node.line);
+          demandBool(typeOf(node.right), node.line);
+          return { t: 'bool' };
+        }
+        const left = typeOf(node.left);
+        const right = typeOf(node.right);
+        if (node.op === '+') return plusType(left, right, node.line);
+        if (node.op === '-' || node.op === '*' || node.op === '/' || node.op === '%') return arithType(left, right, node.line);
+        if (node.op === '==' || node.op === '!=') {
+          const bothNum = isNum(left) && isNum(right);
+          const bothText = (left.t === 'string' || left.t === 'null') && (right.t === 'string' || right.t === 'null');
+          const bothBool = left.t === 'bool' && right.t === 'bool';
+          if (!bothNum && !bothText && !bothBool) fail(node.line, 'Diese Werte lassen sich hier nicht vergleichen.');
+          return { t: 'bool' };
+        }
+        if (!isNum(left) || !isNum(right)) fail(node.line, 'Hier lassen sich nur Zahlen vergleichen.');
+        return { t: 'bool' };
+      }
+      unsupported(node.line, 'Dieser Ausdruck wird in der Browser-Prüfung nicht unterstützt.');
+    }
+    function walk(node) {
+      if (node.kind === 'empty') return;
+      if (node.kind === 'block') {
+        scopes.push(new Map());
+        node.body.forEach(walk);
+        scopes.pop();
+        return;
+      }
+      if (node.kind === 'decl') {
+        const actual = typeOf(node.init);
+        let stored;
+        if (node.declared === 'var') {
+          if (!actual || actual.t === 'null') fail(node.line, 'var braucht einen erkennbaren Startwert.');
+          stored = actual;
+        } else if (node.declared === 'array') stored = accept({ t: 'array', elem: node.elem }, actual, node.line);
+        else stored = accept({ t: node.declared }, actual, node.line);
+        if (current().has(node.name)) fail(node.line, '„' + node.name + '“ gibt es in diesem Block schon.');
+        current().set(node.name, stored);
+        return;
+      }
+      if (node.kind === 'assign') {
+        const now = lookup(node.name, node.line);
+        const value = typeOf(node.value);
+        const next = node.op === '+=' ? plusType(now, value, node.line) : node.op === '-=' ? arithType(now, value, node.line) : value;
+        accept(now, next, node.line);
+        return;
+      }
+      if (node.kind === 'post' || node.kind === 'pre') {
+        const now = lookup(node.name, node.line);
+        if (now.t === 'double') unsupported(node.line, '++ und -- für double werden in dieser Browser-Prüfung nicht unterstützt.');
+        if (now.t !== 'int') fail(node.line, '++ und -- brauchen hier eine int-Variable.');
+        return;
+      }
+      if (node.kind === 'aset') {
+        const array = lookup(node.name, node.line);
+        const index = typeOf(node.index);
+        if (array.t !== 'array') fail(node.line, 'Das ist kein Array.');
+        if (index.t !== 'int') fail(node.line, 'Der Index muss eine ganze Zahl sein.');
+        const value = typeOf(node.value);
+        const currentItem = { t: array.elem || 'string' };
+        const next = node.op === '+=' ? plusType(currentItem, value, node.line) : node.op === '-=' ? arithType(currentItem, value, node.line) : value;
+        accept(currentItem, next, node.line);
+        return;
+      }
+      if (node.kind === 'write') {
+        if (!node.value) return;
+        const value = typeOf(node.value);
+        if (!simple[value.t]) unsupported(node.line, 'Diese Ausgabe wird in der Browser-Prüfung nicht unterstützt.');
+        return;
+      }
+      if (node.kind === 'if') {
+        demandBool(typeOf(node.cond), node.line);
+        walk(node.then);
+        if (node.els) walk(node.els);
+        return;
+      }
+      if (node.kind === 'while') {
+        demandBool(typeOf(node.cond), node.line);
+        walk(node.body);
+        return;
+      }
+      if (node.kind === 'for') {
+        scopes.push(new Map());
+        if (node.init) walk(node.init);
+        if (node.cond) demandBool(typeOf(node.cond), node.line);
+        walk(node.body);
+        if (node.update) walk(node.update);
+        scopes.pop();
+        return;
+      }
+      if (node.kind === 'foreach') {
+        const collection = typeOf(node.collection);
+        if (collection.t === 'string') unsupported(node.line, 'foreach über Text wird in dieser Browser-Prüfung nicht unterstützt.');
+        if (collection.t !== 'array') fail(node.line, 'foreach braucht hier ein Array.');
+        const elem = { t: collection.elem || 'string' };
+        accept({ t: node.declared }, elem, node.line);
+        scopes.push(new Map());
+        current().set(node.name, { t: node.declared });
+        walk(node.body);
+        scopes.pop();
+        return;
+      }
+      unsupported(node.line, 'Diese Anweisung wird in der Browser-Prüfung nicht unterstützt.');
+    }
+    program.forEach(walk);
+  }
+
+  function prepare(source) {
+    if (source.length > SOURCE_LIMIT) {
+      return { error: { message: 'Der Code ist zu lang für die Prüfung im Browser.', errorName: 'Limit', line: null, unsupported: true, compile: false } };
+    }
+    try {
+      const program = parse(tokenize(source));
+      staticCheck(program);
+      return { program: program };
+    } catch (error) {
+      return {
+        error: {
+          message: error.message,
+          errorName: error.errorName || 'CompileError',
+          line: error.line || null,
+          unsupported: !!error.unsupported,
+          compile: !error.unsupported
+        }
+      };
+    }
+  }
+
   function stdinLines(text) {
     const source = String(text == null ? '' : text).replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     if (source === '') return [];
@@ -786,15 +1042,9 @@
 
   function run(code, stdin) {
     const source = String(code == null ? '' : code).replace(/^\uFEFF/, '');
-    if (source.length > SOURCE_LIMIT) {
-      return { stdout: '', error: 'Der Code ist zu lang für die Prüfung im Browser.', errorName: 'Limit', line: null, unsupported: true, compile: false };
-    }
-    let program;
-    try { program = parse(tokenize(source)); }
-    catch (error) {
-      return { stdout: '', error: error.message, errorName: error.errorName || 'CompileError', line: error.line || null, unsupported: !!error.unsupported, compile: true };
-    }
-    return execute(program, stdin == null ? '' : String(stdin));
+    const ready = prepare(source);
+    if (ready.error) return { stdout: '', error: ready.error.message, errorName: ready.error.errorName, line: ready.error.line, unsupported: ready.error.unsupported, compile: ready.error.compile };
+    return execute(ready.program, stdin == null ? '' : String(stdin));
   }
 
   function taskById(id) {
@@ -805,20 +1055,17 @@
     const task = taskById(taskId);
     if (!task) return { ok: false, status: 'fail', message: 'Unbekannte Aufgabe.', cases: [] };
     const source = String(code == null ? '' : code).replace(/^\uFEFF/, '');
-    if (source.length > SOURCE_LIMIT) {
-      return { ok: false, status: 'unsupported', message: 'Der Code ist zu lang für die Prüfung im Browser.', cases: [] };
-    }
-    let program;
-    try { program = parse(tokenize(source)); }
-    catch (error) {
+    const ready = prepare(source);
+    if (ready.error) {
       return {
         ok: false,
-        status: error.unsupported ? 'unsupported' : 'fail',
-        message: error.message,
-        compile: !error.unsupported,
+        status: ready.error.unsupported ? 'unsupported' : 'fail',
+        message: ready.error.message,
+        compile: ready.error.compile,
         cases: []
       };
     }
+    const program = ready.program;
     const cases = task.cases.map(function (item) {
       const result = execute(program, item.input);
       if (result.unsupported) {

@@ -72,6 +72,12 @@
 
   function showRun(result) {
     clear(runView);
+    if (result.unsupported) {
+      runView.className = 'run-view';
+      runView.appendChild(el('p', 'result-line warn', 'Dieser Code kann gültiges C# sein. Die Prüfung im Browser kennt das Konstrukt nicht und führt ihn nicht aus.'));
+      if (result.error) runView.appendChild(el('p', 'fehler-note', result.error));
+      return;
+    }
     runView.className = 'run-view' + (result.error ? ' is-error' : '');
     const box = el('div', 'fehler-console');
     box.appendChild(el('div', 'cap', result.error ? 'Ausführung' : 'Konsolenausgabe'));
@@ -88,7 +94,7 @@
     clear(runView);
     runView.className = 'run-view';
     if (result.status === 'unsupported') {
-      runView.appendChild(el('p', 'result-line warn', 'Diese Schreibweise kann die Prüfung im Browser nicht ausführen. Das ist keine Bewertung der Lösung.'));
+      runView.appendChild(el('p', 'result-line warn', 'Dieser Code kann gültiges C# sein. Die Prüfung im Browser kennt das Konstrukt nicht und wertet ihn nicht als Lösung.'));
       if (result.message) runView.appendChild(el('p', 'fehler-note', result.message));
       return;
     }
