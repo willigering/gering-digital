@@ -1,10 +1,18 @@
 <!doctype html>
-<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mila & Maja · Der Weg zum Waldstern</title>  <script type="module" crossorigin src="/m-m/assets/main-Bro9Qj-m.js"></script>
+<html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Mila & Maja · Der Weg zum Waldstern</title><script>
+  if ('production' === 'v12-preview') {
+    const url = new URL(location.href);
+    if (!url.searchParams.has('level') && !url.searchParams.has('draft')) {
+      url.searchParams.set('level', 'v12');
+      history.replaceState(null, '', url);
+    }
+  }
+</script>  <script type="module" crossorigin src="/m-m/assets/main-BAIaqcxV.js"></script>
   <link rel="modulepreload" crossorigin href="/m-m/assets/config-DplWpnuA.js">
+  <link rel="modulepreload" crossorigin href="/m-m/assets/levelOne-DMMNsAez.js">
   <link rel="modulepreload" crossorigin href="/m-m/assets/Character-PVBLp6bR.js">
-  <link rel="modulepreload" crossorigin href="/m-m/assets/levelOne-DYPVY1pw.js">
-  <link rel="modulepreload" crossorigin href="/m-m/assets/LumiNpc-Cxq2ibOd.js">
-  <link rel="modulepreload" crossorigin href="/m-m/assets/coins-D7nEpWSx.js">
+  <link rel="modulepreload" crossorigin href="/m-m/assets/LumiNpc-ChveCMpU.js">
+  <link rel="modulepreload" crossorigin href="/m-m/assets/terrainPieces-D7OXyofj.js">
   <link rel="stylesheet" crossorigin href="/m-m/assets/main-BBEb09TC.css">
 </head>
 <body><main id="game" aria-label="Mila und Maja"></main></body></html>
