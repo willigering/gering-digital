@@ -37,11 +37,14 @@ let server,browser;
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.equal(await page.locator('h1').count(),1,'One clear page heading');
-    const hero=await page.locator('.hero-art-wrap[data-scene=flat] img.hero-logo').evaluate(e=>({loaded:e.complete&&e.naturalWidth>0,right:e.getBoundingClientRect().right,left:e.getBoundingClientRect().left,view:document.documentElement.clientWidth}));
-    assert.ok(hero.loaded,'Restored hero artwork loads');
+    assert.equal(await page.locator('.hero-plane').count(),7,'Hero renders seven independent layers');
+    const hero=await page.locator('.hero-art-wrap[data-scene=layered] .hero-logo').evaluate(e=>({loaded:[...e.querySelectorAll('img')].every(img=>img.complete&&img.naturalWidth>0),right:e.getBoundingClientRect().right,left:e.getBoundingClientRect().left,view:document.documentElement.clientWidth}));
+    assert.ok(hero.loaded,'Every hero image layer loads');
     assert.ok(hero.left>=0&&hero.right<=hero.view+0.5,`Hero artwork stays inside the window (${hero.left}..${hero.right} of ${hero.view})`);
     assert.equal(await page.locator('.hero-art-wrap > .fx-layer').count(),1,'Mushroom interaction sits over the artwork');
     const pilz=await pilzBox(page);
+    const sprite=await page.locator('.hero-plane-mushroom').boundingBox();
+    for(const axis of ['x','y','width','height'])assert.ok(Math.abs(sprite[axis]-pilz[({width:'w',height:'h'})[axis]||axis])<1.5,'Mushroom sprite and interaction overlap ('+axis+')');
     for(const axis of ['x','y','w','h'])assert.ok(Math.abs(pilz[axis]-pilz['e'+axis])<1.5,`Mushroom layer matches the artwork position (${axis})`);
     const geometry=await page.evaluate(()=>{
       const r=document.querySelector('.hero-actions .secondary-action').getBoundingClientRect();
