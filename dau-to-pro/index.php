@@ -197,6 +197,31 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
+<section class="bonus-collection" id="bonusmodule" aria-labelledby="bonus-title">
+  <div class="section-heading">
+    <div>
+      <span class="eyebrow">Neben den Lernmodulen</span>
+      <h2 id="bonus-title">Bonus<span>module</span></h2>
+      <p>Kurze Debugging-Spiele. Ohne Lernpfad, ohne Prüfungsmodus und ohne Nachschlagwerk.</p>
+    </div>
+    <span class="section-count">01 Modul</span>
+  </div>
+  <div class="module-grid bonus-grid">
+    <a class="module-card" style="--mod:#e8b84a" href="unterricht/csharp-finde-den-fehler.html" aria-label="Finde den Fehler – C# öffnen">
+      <div class="module-art">
+        <span class="module-art-symbol" aria-hidden="true">C#</span>
+      </div>
+      <div class="module-body">
+        <span class="module-category">Bonusmodul</span>
+        <span class="module-subtopic">C#</span>
+        <h2>Finde den Fehler.</h2>
+        <p>Drei Programme, je ein stiller Fehler. Im Browser ausführen und die Testfälle prüfen.</p>
+        <div class="module-footer"><span>Debugging-Spiel</span><b aria-hidden="true">↗</b></div>
+      </div>
+    </a>
+  </div>
+  <p class="bonus-note">Finde den Fehler prüft C# im Browser. XP wird in dieser Fassung nicht gebucht.</p>
+</section>
   <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">
       <div class="hs-board" data-reveal>
