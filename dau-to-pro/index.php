@@ -200,11 +200,19 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">
       <div class="hs-board" data-reveal>
-        <?php require_once __DIR__.'/highscore-board.php'; ?>
-        <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
+        <?php if (!$learnerRow): ?>
+          <p class="hs-public-hint" role="note">Öffentlicher Highscore: Hier erscheinen nur Lernende, die ihre Platzierung ausdrücklich auch für Gäste freigegeben haben. Die vollständige Rangliste ist nach Anmeldung sichtbar.</p>
+        <?php endif; ?>
+        <?php if ($hsRows): ?>
+          <?php require_once __DIR__.'/highscore-board.php'; ?>
+          <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
+        <?php elseif (!$learnerRow): ?>
+          <p class="hs-public-empty">Noch keine öffentlich freigegebenen Platzierungen. <a href="konto.php">Anmelden</a>, um den Highscore der Lernenden zu sehen.</p>
+        <?php else: ?>
+          <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
+        <?php endif; ?>
         <div class="hs-foot">
           <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
-          <?php if (!$learnerRow && !$hsRows): ?><span>Es gibt noch keine öffentlich freigegebenen Einträge.</span><?php endif; ?>
           <a class="secondary-action" href="<?=$learnerRow?'highscore.php':'konto.php'?>"><?=$learnerRow?'Ganzer Highscore':'Zum Lernkonto'?> <span aria-hidden="true">→</span></a>
         </div>
       </div>
