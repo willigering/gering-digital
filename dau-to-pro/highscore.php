@@ -1,5 +1,5 @@
 <?php
-// DAU TO PRO: Highscore. Nur für angemeldete Lernende sichtbar; in der Liste steht nur, wer es selbst eingeschaltet hat.
+// Gäste sehen Einträge mit ausdrücklicher öffentlicher Freigabe.
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
@@ -12,14 +12,14 @@ $learner=learner_current();
 $revealId=$_SESSION['dtp_highscore_reveal']??null;
 unset($_SESSION['dtp_highscore_reveal']);
 $reveal=$learner && $revealId===(int)$learner['id'];
-$rows=[];$me=null;$rank=0;
+$me=null;$rank=0;
 if ($learner) {
     $id=(int)$learner['id'];
     try { ach_evaluate($id); } catch (Throwable $error) { error_log('DAU TO PRO Achievements: '.$error->getMessage()); }
     $me=ach_stats($id);
-    $rows=ach_highscore(100);
     $rank=ach_would_rank($id);
 }
+$rows=ach_highscore(100,publicOnly: !$learner);
 ?>
 <!doctype html>
 <html lang="de">
@@ -53,21 +53,22 @@ if ($learner) {
     </div>
   </section>
 <?php if (!$learner): ?>
-  <section class="konto-card hs-locked">
-    <h2>Nur mit Lernkonto</h2>
-    <p>Den Highscore sehen nur angemeldete Lernende. Melde dich an oder erstelle ein kostenloses Konto. Ob du selbst in der Liste auftauchst, entscheidest du danach in den Konto-Einstellungen.</p>
-    <a class="primary-action" href="konto.php">Anmelden <span aria-hidden="true">→</span></a>
-  </section>
-<?php else: ?>
-  <?php if (!$me['visible'] || $me['blocked']): ?>
+  <p class="hs-public-hint">Hier erscheinen Lernende, die ihre Platzierung für Gäste freigegeben haben.</p>
+<?php endif; ?>
+<?php if ($me && (!$me['visible'] || $me['blocked'])): ?>
   <div class="konto-alert hs-hint" role="status">Du bist im Highscore <strong>unsichtbar</strong>.<?php if(!$me['blocked']): ?> Mit deinen <?=number_format($me['level']['xp'],0,',','.')?> XP wärst du auf <strong>Platz <?=$rank?></strong>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></div>
   <?php endif; ?>
   <?php if (!$rows): ?>
+  <?php if (!$learner): ?>
+  <p class="konto-empty hs-public-empty">Noch keine öffentlich freigegebenen Platzierungen.</p>
+  <?php else: ?>
   <p class="konto-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a class="text-link" href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
+  <?php endif; ?>
   <?php else: ?>
   <?php require_once __DIR__.'/highscore-board.php'; ?>
-  <?php dtp_highscore_board($rows, (int)$learner['id'], $reveal, true); ?>
+  <?php dtp_highscore_board($rows, (int)($learner['id']??0), $reveal, true); ?>
   <?php endif; ?>
+<?php if ($learner): ?>
   <a class="secondary-action" href="konto.php?bearbeiten=name#change_username">Benutzernamen ändern</a>
   <p class="konto-hint">Klicke auf einen Namen, um die Achievement-Sammlung anzusehen. Die Symbole auf den Karten zeigen die persönliche Vitrine. Deine eigenen Achievements findest du unter <a href="konto.php#achievements">Mein Fortschritt</a>.</p>
 <?php endif; ?>

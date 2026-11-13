@@ -241,13 +241,15 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     // Ohne Konto: Startseiten-Podium und ausdrücklich öffentliche Einträge.
     const guest=await browser.newContext();const gp=await guest.newPage();
     await gp.goto(base+'/dau-to-pro/highscore.php');
-    assert.equal(await gp.locator('.arcade-champions').count(),0,'Ohne Konto keine Highscore-Liste');
-    assert.ok(await gp.locator('.hs-locked').isVisible(),'Ohne Konto: Hinweis „Nur mit Lernkonto“');
+    assert.equal(await gp.locator('.arcade-champions').count(),0,'Keine öffentlichen Einträge ohne Freigabe');
+    assert.ok(await gp.locator('.hs-public-empty').isVisible(),'Ohne öffentliche Freigaben bleibt die Gästeliste leer');
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
     assert.ok(await gp.locator('#highscore .hs-public-empty').isVisible(),'Gäste sehen den Hinweis ohne öffentliche Einträge');
     assert.equal(await gp.locator('#highscore .hs-name').count(),0,'Bisherige Mitgliederfreigabe zeigt Gästen keine Namen');
     php("$id=(int)learner_find('cleo')['id'];ach_set_visible($id,true,true);");
-    await gp.reload({waitUntil:'load'});
+    await gp.locator('#highscore a[href="highscore.php"]').click();
+    assert.deepEqual(await gp.locator('.hs-name').allTextContents(),['cleo']);
+    await gp.goto(base+'/dau-to-pro/');
     assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
     assert.equal(await gp.locator('#highscore .arcade-champion.is-vacant').count(),2,'Öffentliches Podium zeigt zwei freie Plätze');
     const secondPlace=gp.locator('#highscore .rank-2');
