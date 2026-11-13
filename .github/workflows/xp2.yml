@@ -31,10 +31,16 @@ jobs:
           php tests/learner_http_test.php
           node tests/learner_sync.js
       - name: Install browser
-        run: |
-          npm install --no-save --package-lock=false playwright@1.51.1
-          node tests/support/install-chromium.cjs
+        run: npm install --prefix "$RUNNER_TEMP/dtp-xp-browser" --no-package-lock playwright@1.62.1
+      - name: Install Chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-xp-browser/node_modules
+        run: node tests/support/install-chromium.cjs
       - name: Desktop and smartphone profiles, showcase, privacy and accessibility
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-xp-browser/node_modules
         run: node tests/xp2_browser.cjs
       - name: Unterrichtsmaterial browser regression – tabs and responsive cards
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-xp-browser/node_modules
         run: node tests/unterricht_support_browser.cjs
