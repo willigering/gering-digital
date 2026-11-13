@@ -357,7 +357,7 @@ body{background:#09080f!important}
 /* IT VI.01: keine dekorative Linie/kreisförmige Kontur über der Titelgrafik. */
 .hero::before, .hero::after { content:none !important; display:none !important; }
 </style>
-<link rel="stylesheet" href="it-vi-01-theme.css?v=20261109-2"/>
+
 <script src="it-vi-01-parallax.js?v=20261109-2" defer></script>
 <style>.brand a{color:inherit}.chapter-body{overflow-wrap:anywhere}.chapter-body summary{cursor:pointer}.chapter-body a{color:var(--cyan)}.free textarea{width:100%}</style><style id="itil-task-navigation-style">
 .itil-related-tasks{margin:32px 0 12px;padding:17px 20px;border:1px solid #eab44855;border-radius:12px;background:#eab4480a}
@@ -366,6 +366,26 @@ body{background:#09080f!important}
 .itil-task-jump{padding:10px 14px;border:1px solid #a78cdb92;border-radius:8px;background:#9e8ac516;color:#e2ccff;font-weight:750;font-size:12px}
 .itil-task-jump:hover{background:#c4a3fb25;border-color:#e1c8ff}
 @media print{.itil-related-tasks{display:none!important}}
+</style><link rel="stylesheet" href="it-vi-01-theme.css?v=20261113-itil-1"/>
+<style id="itil-material-design">
+/* ITIL übernimmt das Unterrichtsmaterial-Design aus IT VI.01; nur Darstellung, keine Inhalte. */
+:root{--cyan:#78e7d9;--cream:#f7f2e7;--muted:#b4c5ca;--stroke:#f2be5d3b}
+.lf6-topic-nav-head h2{color:#f7f2e7!important}
+.lf6-topic-nav-head p{color:#b8d0d1!important}
+.lf6-topic-kicker{color:#82e2d4!important}
+.lf6-topic-symbol{color:#79d5c336!important}
+.lf6-topic-title{color:#f0dcad!important}
+.lf6-topic-link-copy b{color:#edf4ee!important}
+.lf6-topic-link-copy small{color:#b2cbd0!important}
+.lf6-topic-chevron{color:#87e0d4!important}
+.itil-related-tasks{background:#14262edd!important;border-color:#79e5d24f!important}
+.itil-related-tasks strong{color:#eacb80!important}
+.itil-task-jump{background:#192d36!important;border-color:#73dcca5c!important;color:#d0f5eb!important}
+.itil-task-jump:hover{background:#24454a!important}
+.lf6-return-area:not([hidden]){background:linear-gradient(110deg,#153732,#19303a)!important;border-color:#73dfc18c!important}
+.lf6-return-area span b{color:#88ebd0!important}
+.lf6-return-area span small{color:#c2ded7!important}
+@media(max-width:650px){.itil-related-tasks{padding:14px!important}.itil-task-jump{max-width:100%}}
 </style></head><body><div class="itvi-backdrop" aria-hidden="true"></div><header><div class="shell"><div class="brand"><a href="../index.php#unterrichtsmaterial">← DAU TO PRO</a> <em> / IT VI</em></div><div class="toolbar noprint"><div class="lf6-search-host"><input aria-autocomplete="list" aria-controls="lf6-search-results" aria-expanded="false" aria-label="Lernstoff durchsuchen" autocomplete="off" id="search" placeholder="Suchen: ITIL, DSGVO, Change …" role="combobox" type="search"/><div aria-label="Suchergebnisse" class="lf6-search-results" hidden="" id="lf6-search-results" role="listbox"><div class="lf6-search-summary" id="lf6-search-summary"></div><div class="lf6-search-list" id="lf6-search-list"></div><div class="lf6-search-foot">Enter: ersten Treffer öffnen · Esc: schließen</div></div></div><button class="btn primary" onclick="window.print()">Als PDF speichern</button></div></div></header><main class="shell"><section class="hero"><div class="hero-shape" aria-hidden="true">ITIL</div><span class="badge">UNTERRICHTSMATERIAL · IT VI</span><div class="eyebrow" style="margin-top:23px">SERVICE MANAGEMENT / VERTRÄGE / DATENSCHUTZ</div><h1>ITIL &amp;<span>IT-RECHT.</span></h1><p>Vom ersten Ticket bis zur Datenpanne. Lerne an einer fiktiven Lernplattform, wie IT-Teams Services betreiben, Risiken einschätzen und Vorfälle sauber dokumentieren.</p><div class="progress"><div id="bar"></div></div><p id="pct" style="font-size:12px;margin-top:12px">0 von 20 Wissensfragen beantwortet</p><button class="lf6-hero-start noprint" id="lf6-hero-start" type="button">LERNPFAD STARTEN ↓</button></section><nav aria-label="Themenreiter: nur das gewählte Thema anzeigen" class="lf6-topic-navigation noprint">
 <div class="lf6-topic-nav-head"><div><span class="lf6-topic-kicker">LERNPFAD / THEMATISCH SORTIERT</span><h2>Wähle dein Thema.</h2><p>Wähle einen Themenbereich. Es wird immer nur das gewählte Thema angezeigt.</p></div><span aria-hidden="true" class="lf6-topic-symbol">≡</span></div>
 <div aria-label="Lernbereiche" class="lf6-topic-links" role="tablist"><a aria-controls="kap1" aria-selected="true" class="lf6-topic-link" data-topic="support" href="#kap1" role="tab" tabindex="0"><span class="lf6-topic-link-num">01</span><span class="lf6-topic-link-copy"><b>ITIL &amp; Services</b><small>Kapitel 01–04 · Grundlagen und Wertschöpfung</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a><a aria-controls="kap5" aria-selected="false" class="lf6-topic-link" data-topic="sla" href="#kap5" role="tab" tabindex="-1"><span class="lf6-topic-link-num">02</span><span class="lf6-topic-link-copy"><b>Servicebetrieb</b><small>Kapitel 05–09 · Tickets, SLA und Changes</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a><a aria-controls="kap10" aria-selected="false" class="lf6-topic-link" data-topic="services" href="#kap10" role="tab" tabindex="-1"><span class="lf6-topic-link-num">03</span><span class="lf6-topic-link-copy"><b>Verträge &amp; Datenschutz</b><small>Kapitel 10–13 · Verträge, DSGVO und Datenpannen</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a><a aria-controls="kap14" aria-selected="false" class="lf6-topic-link" data-topic="itsm" href="#kap14" role="tab" tabindex="-1"><span class="lf6-topic-link-num">04</span><span class="lf6-topic-link-copy"><b>Sicherheit &amp; IT-Recht</b><small>Kapitel 14–17 · NIS-2, Lizenzen und Haftung</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a><a aria-controls="kap18" aria-selected="false" class="lf6-topic-link" data-topic="practice" href="#kap18" role="tab" tabindex="-1"><span class="lf6-topic-link-num">05</span><span class="lf6-topic-link-copy"><b>Praxiswerkstatt</b><small>Kapitel 18–20 · Fall, Arbeitsblätter und Quellen</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a><a aria-controls="kap21" aria-selected="false" class="lf6-topic-link" data-topic="quiz" href="#kap21" role="tab" tabindex="-1"><span class="lf6-topic-link-num">06</span><span class="lf6-topic-link-copy"><b>Aufgaben</b><small>Arbeitsblätter und 20 Wissensfragen</small></span><span aria-hidden="true" class="lf6-topic-chevron">▸</span></a></div></nav><div aria-label="Jeweils nur der gewählte Themenbereich mit vollständig lesbaren Kapiteln" class="lf6-flow" id="lf6-flow">
