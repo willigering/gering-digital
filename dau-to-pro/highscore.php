@@ -64,10 +64,9 @@ $rows=ach_highscore(100,publicOnly: !$learner);
   <?php else: ?>
   <p class="konto-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a class="text-link" href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
   <?php endif; ?>
-  <?php else: ?>
+  <?php endif; ?>
   <?php require_once __DIR__.'/highscore-board.php'; ?>
   <?php dtp_highscore_board($rows, (int)($learner['id']??0), $reveal, true); ?>
-  <?php endif; ?>
 <?php if ($learner): ?>
   <a class="secondary-action" href="konto.php?bearbeiten=name#change_username">Benutzernamen ändern</a>
   <p class="konto-hint">Klicke auf einen Namen, um die Achievement-Sammlung anzusehen. Die Symbole auf den Karten zeigen die persönliche Vitrine. Deine eigenen Achievements findest du unter <a href="konto.php#achievements">Mein Fortschritt</a>.</p>

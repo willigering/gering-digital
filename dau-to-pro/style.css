@@ -107,6 +107,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-plane-level::after{content:"";position:absolute;left:30%;top:100%;width:.65em;height:.55em;background:#131a1f;border:solid #9b7744;border-width:0 1px 1px 0;transform:translateY(-50%) skew(-15deg) rotate(42deg)}
 .hero-plane-mushroom,.hero-art-wrap[data-scene=layered] > .fx-layer{left:76.4407%;top:53.2058%;width:10.226%;height:19.2351%}
 .hero-plane-mushroom{object-fit:contain;image-rendering:pixelated}
+.hero-plane-mushroom,.hero-art-wrap[data-scene=layered] .fx-shroom-img{filter:saturate(.68) brightness(.86)}
 .hero-art-wrap:has(.fx-layer.is-active) .hero-plane-mushroom{visibility:hidden}
 @media(min-width:861px){
   .hero-visual{align-self:stretch;align-content:center}

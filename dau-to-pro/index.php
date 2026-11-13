@@ -228,12 +228,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <?php if (!$learnerRow): ?>
           <p class="hs-public-hint" role="note">Öffentlicher Highscore: Hier erscheinen nur Lernende, die ihre Platzierung ausdrücklich auch für Gäste freigegeben haben. Die vollständige Rangliste ist nach Anmeldung sichtbar.</p>
         <?php endif; ?>
-        <?php if ($hsRows): ?>
           <?php require_once __DIR__.'/highscore-board.php'; ?>
           <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
-        <?php elseif (!$learnerRow): ?>
+        <?php if (!$hsRows && !$learnerRow): ?>
           <p class="hs-public-empty">Noch keine öffentlich freigegebenen Platzierungen. <a href="konto.php">Anmelden</a>, um den Highscore der Lernenden zu sehen.</p>
-        <?php else: ?>
+        <?php elseif (!$hsRows): ?>
           <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
         <?php endif; ?>
         <div class="hs-foot">
