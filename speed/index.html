@@ -45,10 +45,25 @@ kbd{background:#3a2c66;border-radius:5px;padding:1px 6px;font-family:inherit;fon
 #touch button.dn{background:rgba(255,210,63,.55)}
 @media (pointer:coarse){body.game #touch{display:block}}
 body.game #quit{display:block}
+
+#hj-music{position:fixed;top:10px;left:10px;z-index:8;display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(15,10,32,.93);border:1px solid #6e5796;border-radius:12px;box-shadow:0 4px 14px #0006;font-size:12px}
+#hj-music-toggle{font-size:12px;padding:8px 10px;background:#3a2c66;color:#fff;white-space:nowrap}
+#hj-music-volume{width:90px;padding:0;accent-color:#ffd23f;cursor:pointer}
+#hj-music-label{min-width:24px;color:#cdb8ff;font-weight:700}
+@media(max-width:500px){#hj-music{top:8px;left:8px;padding:5px;gap:5px}#hj-music-volume{width:58px}#hj-music-label{display:none}}
+
 </style>
 </head>
 <body>
 <canvas id="cv"></canvas>
+
+<div id="hj-music" role="group" aria-label="Hintergrundmusik">
+  <button id="hj-music-toggle" type="button" aria-pressed="false">♫ Musik aus</button>
+  <label for="hj-music-volume" style="display:none">Musiklautstärke</label>
+  <input id="hj-music-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Musiklautstärke">
+  <span id="hj-music-label" aria-live="polite">1/5</span>
+</div>
+
 
 <div id="menu" class="screen on">
   <div class="card">
@@ -96,5 +111,6 @@ body.game #quit{display:block}
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
 <script src="game.js"></script>
+<script src="music-player.js"></script>
 </body>
 </html>
