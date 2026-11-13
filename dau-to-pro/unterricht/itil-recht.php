@@ -49,7 +49,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
         } elseif (preg_match('/^q(?:[0-9]|1[0-9])$/D',(string)$key)) {
             if (!is_int($value)||$value<0||$value>2) itvi_reply(422,['ok'=>false,'error'=>'Ungültige Antwort.']);
             $clean[(string)$key]=$value;
-        } elseif ($key==='notes'||preg_match('/^p[0-9]$/D',(string)$key)) {
+        } elseif ($key==='notes'||preg_match('/^p[0-9]$/D',(string)$key)||preg_match('/^t(?:[1-9]|[1-4][0-9]|5[0-5])$/D',(string)$key)||preg_match('/^w(?:[0-9]|1[0-8])$/D',(string)$key)||preg_match('/^k(?:[0-9]|1[0-9])$/D',(string)$key)) {
             if (!is_string($value)||!mb_check_encoding($value,'UTF-8')||strlen($value)>($key==='notes'?22000:8000))
                 itvi_reply(422,['ok'=>false,'error'=>'Antworttext zu lang oder ungültig.']);
             $clean[(string)$key]=$value;
