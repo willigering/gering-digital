@@ -105,6 +105,7 @@
   addEventListener('keydown',e=>{if(e.key==='Escape'&&menuBtn.getAttribute('aria-expanded')==='true'){closeMenu();menuBtn.focus()}});
   document.addEventListener('click',e=>{if(!e.target.closest('.nav'))closeMenu()});
   matchMedia('(max-width:800px)').addEventListener('change',closeMenu);
+  // Catalogue filters work without page reloads and never hide existing project data.
   const filters=document.querySelector('.catalog-filters');
   if(filters){
     const buttons=[...filters.querySelectorAll('.catalog-filter')];
@@ -113,31 +114,30 @@
     const applyCategory=category=>{
       let visible=0;
       cards.forEach(card=>{
-        card.hidden=category!=='alle' && card.dataset.category!==category;
-        if(!card.hidden)visible++;
+        const show=category==='alle'||card.dataset.category===category;
+        card.hidden=!show;
+        if(show)visible++;
       });
       buttons.forEach(button=>{
         const active=button.dataset.category===category;
         button.classList.toggle('is-active',active);
         button.setAttribute('aria-pressed',String(active));
       });
-      empty.textContent=visible?'':category==='spiele'?'Hier erscheinen meine Spiele, sobald sie veröffentlicht sind.':'In dieser Kategorie gibt es noch keine Projekte.';
-      empty.hidden=visible>0;
+      if(empty)empty.hidden=visible>0;
     };
-    const syncCategory=()=>{
-      const hash=location.hash.slice(1);
-      const category=buttons.find(button=>button.dataset.category===hash)?.dataset.category;
-      applyCategory(category||'alle');
-      if(category==='spiele')filters.closest('#apps').scrollIntoView();
-    };
-    buttons.forEach(button=>button.addEventListener('click',()=>{
-      const category=button.dataset.category;
-      history.replaceState(null,'',category==='alle'?'#apps':'#'+category);
-      applyCategory(category);
-    }));
-    window.addEventListener('hashchange',syncCategory);
-    syncCategory();
+    buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
+    applyCategory(buttons.find(button=>button.classList.contains('is-active'))?.dataset.category||buttons[0]?.dataset.category);
   }
+  document.querySelectorAll('.app-card').forEach((card,index)=>{
+    const text=card.querySelector('.card-body>p'),button=card.querySelector('.app-details');
+    if(button && text){
+      text.id=`app-description-${index}`;button.setAttribute('aria-controls',text.id);
+      button.addEventListener('click',()=>{const closed=card.classList.toggle('details-closed');button.setAttribute('aria-expanded',String(!closed));button.innerHTML=closed?'Details anzeigen <span>+</span>':'Details ausblenden <span>−</span>'});
+    }
+    card.addEventListener('pointermove',e=>{if(!fine.matches||reduced.matches)return;const r=card.getBoundingClientRect(),px=(e.clientX-r.left)/r.width,py=(e.clientY-r.top)/r.height;card.style.setProperty('--rx',`${(py-.5)*-5}deg`);card.style.setProperty('--ry',`${(px-.5)*6}deg`);card.style.setProperty('--lx',`${px*100}%`);card.style.setProperty('--ly',`${py*100}%`);card.style.setProperty('--lift','-5px')},{passive:true});
+    const reset=()=>{card.style.setProperty('--rx','0deg');card.style.setProperty('--ry','0deg');card.style.setProperty('--lift','0px');card.classList.remove('is-pressed')};
+    card.addEventListener('pointerleave',reset);card.addEventListener('pointerdown',()=>card.classList.add('is-pressed'));card.addEventListener('pointerup',()=>card.classList.remove('is-pressed'));card.addEventListener('pointercancel',reset);reduced.addEventListener('change',reset);fine.addEventListener('change',reset);
+  });
   const clock=document.getElementById('phone-digital-clock');
   const tick=()=>{if(document.hidden)return;const now=new Date();clock.textContent=now.toLocaleTimeString('de-DE',{hour12:false});clock.dateTime=now.toISOString()};tick();setInterval(tick,1000);
 })();
