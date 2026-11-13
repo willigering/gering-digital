@@ -104,84 +104,76 @@ body{
   color:var(--gdv3-soft);max-width:345px;margin:0 0 6px;
   font-size:15px;line-height:1.8;
 }
-.gdv3-gold-rule{height:1px;margin:0 0 28px;background:linear-gradient(90deg,var(--gdv3-gold),#76dad778,transparent 89%);opacity:.6}
+#apps{scroll-margin-top:24px}
+#apps .gdv3-section-heading{margin-bottom:20px}
+#apps .gdv3-section-heading h2{font-size:clamp(30px,4vw,48px)!important;margin-top:0!important}
 #apps .catalog-filters{
-  justify-content:flex-start!important;gap:10px;margin:0 0 29px;
+  justify-content:flex-start!important;gap:8px;margin:0 0 22px;
 }
 #apps .catalog-filter{
-  border-radius:9px!important;border:1px solid #85c6c239!important;
-  background:#11202ab0;color:#cbd6d6;box-shadow:none;
-  letter-spacing:.04em;font-size:11px;padding:10px 15px;
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  min-height:44px;border-radius:9px!important;border:1px solid #85c6c250!important;
+  background:#11202a;color:#e2ebeb;box-shadow:none;
+  font-size:13px;letter-spacing:0;text-transform:none;padding:8px 12px;
 }
-#apps .catalog-filter:hover{background:#192c34;border-color:#8fdce1a2}
+#apps .catalog-filter:hover{background:#192c34}
+#apps .catalog-filter:focus-visible{outline:2px solid var(--gdv3-gold);outline-offset:3px}
 #apps .catalog-filter.is-active{
-  border-color:var(--gdv3-gold)!important;
-  background:linear-gradient(120deg,#e9cb89,#d8a94e)!important;color:#1a1b1b!important;
+  border-color:var(--gdv3-gold)!important;background:#e9cb89!important;color:#1a1b1b!important;
 }
-#apps .catalog-filter span{background:#94bfbd18;color:inherit;border-radius:6px}
+#apps .catalog-filter span{background:#94bfbd25;color:inherit;border-radius:6px}
 #apps .gdv3-project-grid{
   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
-  gap:20px!important;perspective:none;align-items:stretch;
+  gap:16px!important;perspective:none;align-items:stretch;
 }
 #apps .gdv3-project-grid .app-card{
-  border-radius:18px!important;
-  border:1px solid var(--gdv3-edge);background:linear-gradient(143deg,#13232bcf,#0c161fef 70%)!important;
-  box-shadow:inset 0 1px #ffffff0d,0 17px 44px #0007;
-  transform:translateY(var(--lift,0px))!important;
-  transition:transform .2s,border-color .2s,box-shadow .2s;
-  display:flex;flex-direction:column;min-height:320px;
+  display:flex;flex-direction:column;min-width:0;min-height:0;
+  border-radius:14px!important;border:1px solid var(--gdv3-edge);
+  background:#111e26!important;box-shadow:none;transform:none!important;
+  transition:border-color .2s;
 }
-/* Preserve native [hidden] for category filters despite high-specificity card display rules. */
 #apps .gdv3-project-grid .app-card[hidden]{display:none!important}
-#apps .gdv3-project-grid .app-card:hover{
-  --lift:-5px;
-  border-color:#e3bb6b94!important;
-  box-shadow:inset 0 1px #ffffff1b,0 26px 60px #0009,0 0 22px #7bdee00e;
-}
-#apps .gdv3-project-grid .app-card::before{
-  background:radial-gradient(ellipse at 30% 2%,#71d8df15,transparent 70%)!important;
-  opacity:1;z-index:0;
-}
+#apps .gdv3-project-grid .app-card:hover,
+#apps .gdv3-project-grid .app-card:focus-within{border-color:#e3bb6b94;box-shadow:none}
+#apps .gdv3-project-grid .app-card::before{display:none}
 #apps .gdv3-project-grid .app-card>.icon-wrap,
-#apps .gdv3-project-grid .app-card>.dtp-portal-art,
-#apps .gdv3-project-grid .app-card>.card-body{position:relative;z-index:1}
-#apps .gdv3-project-grid .app-card .card-body{padding:18px 22px 23px}
-#apps .gdv3-project-grid .app-card .icon-wrap{
-  height:184px;min-height:184px;padding:20px;
-  background:radial-gradient(ellipse at 50% -30%,#67c3ce16,transparent 82%);
-  border-bottom:1px solid #a4d6d318;
+#apps .gdv3-project-grid .app-card>.icon-wrap.html-preview-wrap,
+#apps .gdv3-project-grid .app-card>.dtp-portal-art{
+  width:100%;height:clamp(112px,13vw,162px);min-height:0;max-height:none!important;
+  aspect-ratio:auto;padding:0;overflow:hidden;
+  background:#162630;border:0;border-bottom:1px solid #a4d6d326;
 }
-#apps .gdv3-project-grid .app-card .icon-wrap.html-preview-wrap{height:184px}
-#apps .gdv3-project-grid .app-card .category-badge{
-  border-radius:5px!important;font:800 10px/1.3 ui-monospace,Consolas,monospace;
-  letter-spacing:.07em;color:#9cdddc;
-  background:#5ecacf0d;border:1px solid #78e6dc3b;
+#apps .gdv3-project-grid .app-card .icon-wrap .html-preview-image,
+#apps .gdv3-project-grid .dtp-portal-art img{
+  display:block;width:100%;height:100%;border:0;border-radius:0;box-shadow:none;
 }
-#apps .gdv3-project-grid .app-card h3{font-size:clamp(20px,2.1vw,27px);font-weight:900;letter-spacing:-.04em}
-#apps .gdv3-project-grid .app-card p{line-height:1.65;font-size:13px;color:#afc2c5}
-#apps .gdv3-project-grid .app-card .app-status,
-#apps .gdv3-project-grid .app-card .html-card-cta{
-  font-size:11px;letter-spacing:.045em;
-}
-#apps .gdv3-project-grid .dtp-portal-card{
-  grid-column:span 2;
-  display:grid!important;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);
-  min-height:365px;align-items:stretch;
-  border-color:#e1b96356!important;
-  background:linear-gradient(130deg,#18252a,#10191d)!important;
-}
-#apps .dtp-portal-card>.dtp-portal-art{
-  height:100%;min-height:340px;aspect-ratio:auto;
-  border:0;border-right:1px solid #e0bf6f33;
-}
-#apps .dtp-portal-card>.dtp-portal-art img{height:100%;width:100%;object-fit:cover;object-position:center}
-#apps .dtp-portal-card>.card-body{
-  padding:clamp(24px,3vw,37px)!important;justify-content:center
-}
-#apps .dtp-portal-card h3{font-size:clamp(32px,3.4vw,48px)!important;line-height:1.08}
-#apps .dtp-portal-card p{font-size:15px!important;line-height:1.75;min-height:0}
-#apps .dtp-portal-card .dtp-portal-cta{font-size:12px;letter-spacing:.09em}
+#apps .gdv3-project-grid .dtp-portal-art img{object-fit:cover;object-position:center}
+#apps .gdv3-project-grid .appicon{width:76px;height:76px;border-radius:16px}
 #apps .gdv3-project-grid .html-project-icon{border-radius:14px!important}
+#apps .gdv3-project-grid .app-card>.card-body{
+  padding:16px;min-width:0;justify-content:flex-start;align-items:flex-start;
+}
+#apps .gdv3-project-grid .category-badge{
+  margin:0 0 7px;padding:0;border:0;background:none;color:#9cdddc;
+  font-size:12px;font-weight:650;line-height:1.35;letter-spacing:0;text-transform:none;
+}
+#apps .gdv3-project-grid .app-card h3{
+  margin:0 0 6px;font-size:clamp(19px,2vw,24px);font-weight:800;
+  letter-spacing:-.025em;overflow-wrap:anywhere;
+}
+#apps .gdv3-project-grid .app-card p{
+  display:block;overflow:visible;min-height:0;margin:0 0 12px;line-height:1.55;font-size:14px;color:#c3d0d3;
+  overflow-wrap:anywhere;
+}
+#apps .gdv3-project-grid .card-actions,
+#apps .gdv3-project-grid .html-card-cta,
+#apps .gdv3-project-grid .dtp-portal-cta{
+  margin-top:auto;min-height:44px;display:inline-flex;align-items:center;
+  font-size:13px;letter-spacing:0;text-transform:none;
+}
+#apps .gdv3-project-grid .card-actions{flex-wrap:wrap;gap:0 12px}
+#apps .gdv3-project-grid .dtp-portal-cta{border:0;padding:0}
+#apps .gdv3-project-grid .app-status{margin:0;padding:0;font-size:13px}
 /* About: typography / timeline, no big repeating text boxes. */
 .gdv3-about-section{position:relative;padding:110px 0!important;isolation:isolate}
 .gdv3-about-section:before{
@@ -265,7 +257,6 @@ body{
 /* Responsive changes are limited to new copy and new sections. Phone/chassis unchanged. */
 @media(max-width:1100px){
   #apps .gdv3-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #apps .dtp-portal-card{grid-column:span 2}
   .gdv3-about-grid{gap:42px}
   .gdv3-about-copy h2{font-size:clamp(45px,6.5vw,68px)!important}
 }
@@ -285,24 +276,11 @@ body{
   .gdv3-step{min-height:218px;padding:26px}
   .gdv3-step h3{margin:17px 0 5px}
   .gdv3-process-caption{align-items:start;flex-direction:column;gap:9px}
-  #apps .gdv3-project-grid .app-card .icon-wrap{height:auto;min-height:0;aspect-ratio:16/9;max-height:none!important}
 }
 @media(max-width:600px){
   #apps .gdv3-project-grid{grid-template-columns:minmax(0,1fr)!important}
-  /* Equal specificity with the desktop feature rule: no implicit second grid column. */
-  #apps .gdv3-project-grid .dtp-portal-card{
-    grid-column:1 / -1!important;display:flex!important;flex-direction:column;min-height:0
-  }
-  #apps .gdv3-project-grid .dtp-portal-card>.dtp-portal-art{
-    width:100%;min-height:0;height:auto;aspect-ratio:16/9;
-    border-right:0;border-bottom:1px solid #e9c17444
-  }
-  #apps .gdv3-project-grid .dtp-portal-card>.card-body{padding:23px!important}
-  #apps .dtp-portal-card{grid-column:auto;display:flex!important;flex-direction:column;min-height:0}
-  #apps .dtp-portal-card>.dtp-portal-art{width:100%;min-height:0;height:auto;aspect-ratio:16/9;border-right:0;border-bottom:1px solid #e9c17444}
-  #apps .dtp-portal-card>.card-body{padding:23px!important}
-  #apps .gdv3-project-grid .app-card{min-height:0}
-  #apps .gdv3-project-grid .app-card .icon-wrap{aspect-ratio:16/10}
+  #apps .catalog-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+  #apps .catalog-filter{width:100%;padding-inline:7px}
   .gdv3-about-facts{gap:33px}
   .gdv3-hero-meta{font-size:8px;letter-spacing:.05em}
   .gdv3-hero-actions,.gdv3-end-actions{align-items:flex-start;gap:14px}

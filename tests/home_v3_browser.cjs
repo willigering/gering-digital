@@ -14,7 +14,8 @@ let phpServer,browser;
 const phpInit=spawnSync('php',['-r',
   'require '+JSON.stringify(path.join(root,'lib.php'))+'; '+
   '$q=db()->prepare("INSERT INTO apps(name,short_description,icon,category,status,published,sort_order) VALUES(?,?,?,?,?,1,1)");'+
-  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'
+  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'+
+  'db()->exec("INSERT INTO html_pages(slug,title,category,published) VALUES (\'test-spiel\',\'Test-Spiel\',\'spiele\',1)");'
 ],{env,encoding:'utf8'});
 assert.equal(phpInit.status,0,phpInit.stderr||phpInit.stdout);
 const src=fs.readFileSync(path.join(root,'index.php'),'utf8');
@@ -82,6 +83,15 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     assert.equal(await page.locator('.dtp-portal-card').isVisible(),false,'Category filter should still work');
     await page.locator('.catalog-filter[data-category="alle"]').click();
     assert.equal(await page.locator('.dtp-portal-card').isVisible(),true,'All filter restores featured project');
+    if(width<=800)await page.locator('.mobile-menu-btn').click();
+    await page.locator('.nav a[href="#spiele"]:visible').click();
+    const games=page.locator('#apps .app-card:visible');
+    await page.locator('.catalog-filter[data-category="spiele"][aria-pressed="true"]').waitFor();
+    assert.equal(await games.count(),1,'Games filter shows only the published game');
+    assert.equal(await games.getByRole('link',{name:'Test-Spiel – Spielen'}).getAttribute('href'),'/test-spiel/');
+    await page.reload({waitUntil:'networkidle'});
+    assert.equal(await games.count(),1,'Direct games URL restores the games filter');
+    await page.locator('.catalog-filter[data-category="alle"]').click();
     if(width>=1101){
       await page.locator('.phone-spin-control').click();
       await pause(100);

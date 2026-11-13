@@ -25,7 +25,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <html lang="de">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Gering Digital – Meine Apps & Programme</title>
+<title>Gering Digital – Apps, Spiele & Lernprojekte</title>
 <meta name="description" content="Gering Digital ist die persönliche Plattform von Willi: selbst entwickelte Apps und Programme aus Alltagsproblemen, Neugier und Vibe Coding.">
 <link rel="stylesheet" href="style.css?v=<?=filemtime(__DIR__.'/style.css')?>">
 <link rel="stylesheet" href="assets/personal.css?v=<?=filemtime(__DIR__.'/assets/personal.css')?>">
@@ -52,6 +52,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
     </a>
     <nav class="desktop-nav" aria-label="Hauptnavigation">
       <a href="#top">Startseite</a>
+      <a href="#spiele">Spiele</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
       <a class="dtp-nav-link" href="dau-to-pro/">DAU TO PRO</a>
@@ -61,6 +62,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
       <a href="#apps">Meine Projekte</a>
+      <a href="#spiele">Spiele</a>
       <a href="dau-to-pro/">DAU TO PRO</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
@@ -121,19 +123,17 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 
 <section class="section apps-section">
   <div class="wrap">
-    <div id="apps" class="apps-panel gdv3-projects" data-parallax="0.025">
-      <div class="gdv3-section-heading" data-gdv3-reveal>
-        <div><span class="gdv3-section-index">01 / DAS PORTFOLIO</span><h2>Hier wird gebaut.<br><em>Nicht nur geredet.</em></h2></div>
-        <p>Apps, Lernprogramme und Werkzeuge – entstanden aus eigenen Ideen und echten Alltagsproblemen.</p>
+    <div id="apps" class="apps-panel gdv3-projects">
+      <div class="gdv3-section-heading">
+        <div><h2>Meine Projekte</h2></div>
       </div>
-      <div class="gdv3-gold-rule" aria-hidden="true"></div>
       <div class="catalog-filters" role="group" aria-label="Projekte nach Kategorie filtern">
-        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle Projekte <span><?=count($apps)+1?></span></button>
+        <button type="button" class="catalog-filter is-active" data-category="alle" aria-pressed="true">Alle</button>
         <?php foreach($categories as $key=>$label): ?>
-        <button type="button" class="catalog-filter" data-category="<?=e($key)?>" aria-pressed="false"><?=e($label)?> <span><?= (int)$categoryCounts[$key] ?></span></button>
+        <button type="button" class="catalog-filter" data-category="<?=e($key)?>"<?php if($key==='spiele'): ?> id="spiele"<?php endif; ?> aria-pressed="false"><?=e($label)?><?php if($categoryCounts[$key]>0): ?> <span><?= (int)$categoryCounts[$key] ?></span><?php endif; ?></button>
         <?php endforeach; ?>
       </div>
-      <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
+      <p id="catalog-empty" class="catalog-empty" role="status" hidden></p>
       <div class="cards gdv3-project-grid">
         <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
           <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
@@ -142,28 +142,38 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
           <span class="dtp-portal-cta">Lernplattform öffnen <b>↗</b></span></div>
         </article>
-      <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
-        <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
-          <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
-            <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
-              <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
-            <?php elseif(!empty($app['is_html'])): ?>
+      <?php foreach($apps as $app):
+          $category=$app['category']??'apps';
+          $category=array_key_exists($category,$categories)?$category:'apps';
+          $isWeb=!empty($app['is_html']);
+          $preview='assets/app-previews/'.basename($app['icon']).'.webp';
+          $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon'];
+          $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar');
+          $action=$category==='spiele'?'Spielen':'Im Browser öffnen';
+          $hasGoogle=in_array($st,['google','both'],true) && !empty($app['play_url']);
+          $hasApple=in_array($st,['apple','both'],true) && !empty($app['apple_url']);
+      ?>
+        <article class="card glass-card app-card<?=$isWeb?' html-clickable-card':''?>" data-category="<?=e($category)?>">
+          <?php if($isWeb): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – <?=e($action)?>"></a><?php endif; ?>
+          <div class="icon-wrap<?=$isWeb&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
+            <?php if($isWeb&&!empty($app['preview_image'])): ?>
+              <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
+            <?php elseif($isWeb): ?>
               <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
             <?php else: ?>
-              <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>">
+              <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="">
             <?php endif; ?>
           </div>
-          <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Android-Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
-          <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
-          <?php if(empty($app['is_html'])): ?>
-          <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
-          <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
-          <?php if(in_array($st,['apple','both'],true) && !empty($app['apple_url'])): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
-          <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
-          <?php if($st==='entwicklung'): ?><span class="store muted">In Entwicklung</span><?php endif; ?>
+          <div class="card-body"><span class="category-badge"><?=e($categories[$category])?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <?php if(!$isWeb): ?>
+          <div class="card-actions">
+          <?php if($hasGoogle): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
+          <?php if($hasApple): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
+          <?php if(!$hasGoogle && !$hasApple): ?>
+            <span class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></span>
+          <?php endif; ?>
           </div>
-          <?php else: ?><span class="html-card-cta" aria-hidden="true">Im Browser öffnen <b>↗</b></span>
+          <?php else: ?><span class="html-card-cta" aria-hidden="true"><?=e($action)?> <b>↗</b></span>
           <?php endif; ?>
           </div>
         </article>
