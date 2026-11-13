@@ -82,9 +82,11 @@ function build(seq) {
   return { W, g, boxes, bi };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
+// cutX: Levelende auf waagerechten Strecken. Links davon ist alles zerfallen – kein Boden, keine Wände.
+let cutX = -1e9;
 const tile = (tx, ty) => map.vert
   ? (tx < 0 || tx >= map.W || ty >= map.floor ? '#' : map.g[mod(ty, map.H)][tx])
-  : (ty < 0 || ty >= MH ? '#' : map.g[ty][mod(tx, map.W)]);
+  : (tx * T + T / 2 < cutX ? ' ' : ty < 0 || ty >= MH ? '#' : map.g[ty][mod(tx, map.W)]);
 const solid = (tx, ty) => { const c = tile(tx, ty); return c === '#' || c === 'H'; };
 const stand = (tx, ty) => solid(tx, ty) || tile(tx, ty) === '=';
 const boxAt = (tx, ty) => map.boxes[map.bi[map.vert ? tx + ',' + mod(ty, map.H) : mod(tx, map.W) + ',' + ty]];
@@ -355,7 +357,7 @@ function stepWorld(dt) {
     const c = crates[i]; c.t += dt;
     if (!stand(fl(c.x / T), fl((c.y + 1) / T))) { c.vy += 2400 * dt; c.y += c.vy * dt; if (stand(fl(c.x / T), fl(c.y / T))) { c.y = fl(c.y / T) * T; c.vy = 0; } }
     if (me.alive && (c.o !== myId || c.t > 0.7) && Math.abs(me.x - c.x) < 28 && me.y > c.y - 34 && me.y - ph(me) < c.y && hurt(0.6, 0.2, -300)) { send({ t: 'ev', k: 'cx', c: c.id }); onEv({ k: 'cx', c: c.id }); continue; }
-    if (c.t > 20) crates.splice(i, 1);
+    if (c.t > 20 || (!map.vert && c.y > MH * T + 600)) crates.splice(i, 1);
   }
   for (let i = parts.length - 1; i >= 0; i--) { const p = parts[i]; p.l -= dt; p.x += p.vx * dt; p.y += p.vy * dt; if (p.l <= 0) parts.splice(i, 1); }
   for (let i = fx.length - 1; i >= 0; i--) { fx[i].t += dt; if (fx[i].t > 0.35) fx.splice(i, 1); }
@@ -535,8 +537,10 @@ const Host = (() => {
           if (rt > 1.2) out = L.players.filter(p => p.alive && py(p) - 18 > L.kill).sort((a, b) => py(b) - py(a));
         } else {
           L.kill = rt > 16 ? Math.max(150, 800 - (rt - 16) * 26) : 800;
-          const px = p => p.s ? p.s[0] : START_X; // wer nie etwas sendet (Tab im Hintergrund), steht am Start
-          if (rt > 1.2) out = L.players.filter(p => p.alive && px(p) < L.cam - L.kill - 14).sort((a, b) => px(a) - px(b));
+          // Links der Abbruchkante ist der Boden zerfallen: Wer dort ist, stürzt ab und ist raus, sobald er unten aus der Welt fällt.
+          // Rückfallnetz: wer weit links hängt oder nie etwas sendet (Tab im Hintergrund, steht am Start), fliegt ebenfalls.
+          const px = p => p.s ? p.s[0] : START_X, py = p => p.s ? p.s[1] : F * T;
+          if (rt > 1.2) out = L.players.filter(p => p.alive && (py(p) > MH * T + 150 || px(p) < L.cam - Math.min(L.kill, 800) - 400)).sort((a, b) => px(a) - px(b));
         }
         {
           let aliveN = L.players.filter(p => p.alive).length, last = null;
@@ -646,7 +650,7 @@ function onMsg(m) {
     }
     case 'round': {
       if (!THEMES[m.map]) break;
-      map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round;
+      cutX = -1e9; map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round;
       rockets = []; crates = []; parts = []; fx = []; banner = null; cele = null;
       const slot = Math.max(0, m.order.indexOf(myId));
       resetMe(slot); me.alive = !m.spec && m.order.includes(myId);
@@ -660,13 +664,13 @@ function onMsg(m) {
       break;
     }
     case 's':
-      camT = m.c; kill = m.k;
+      camT = m.c; kill = m.k; cutX = solo || map.vert ? -1e9 : m.c - Math.min(m.k, 800);
       for (const id in m.ps) { const r = remotes.get(+id); if (r) { r.buf.push({ t: now, s: m.ps[id] }); if (r.buf.length > 12) r.buf.shift(); } }
       break;
     case 'ev': onEv(m); break;
     case 'elim': {
       const p = posOf(m.id); if (p) boom(p.x, p.y);
-      if (m.id === myId) { me.alive = false; me.hook = null; banner = map.vert ? { text: 'ABGESOFFEN!', sub: 'Das Wasser war schneller …', until: now + 1800, col: '#7fc8f8' } : { text: 'RAUS!', sub: 'Rüdiger, nicht so langsam!', until: now + 1800, col: '#ff5a5a' }; shake = 20; }
+      if (m.id === myId) { me.alive = false; me.hook = null; banner = map.vert ? { text: 'ABGESOFFEN!', sub: 'Das Wasser war schneller …', until: now + 1800, col: '#7fc8f8' } : { text: 'ABGESTÜRZT!', sub: 'Rüdiger, nicht so langsam!', until: now + 1800, col: '#ff5a5a' }; shake = 20; }
       else { const r = remotes.get(m.id); if (r) r.alive = false; }
       break;
     }
@@ -783,14 +787,24 @@ function render(now, dt) {
       for (let i = fl(o / bw) - 1; i < (o + VW) / bw + 1; i++) { const h = 120 + hash(i + f * 100) * hh; ctx.fillRect(i * bw - o, VH - 60 - h, bw - 8, h + 60); }
     }
   }
+  // Levelende (waagerechte Strecken): links von kx ist alles zerfallen, auch Himmel und Hintergrund – nur noch Leere
+  const dissolve = !solo && !map.vert && cutX > -1e8, kx = dissolve ? cutX : -1e9;
+  if (dissolve) {
+    const sc = VW / 2 + (kx - camX) * zoom;
+    if (sc > -60) {
+      ctx.fillStyle = '#05030c'; ctx.fillRect(0, 0, Math.max(0, sc), VH);
+      const gg = ctx.createLinearGradient(sc, 0, sc + 70, 0); gg.addColorStop(0, 'rgba(5,3,12,.85)'); gg.addColorStop(1, 'rgba(5,3,12,0)');
+      ctx.fillStyle = gg; ctx.fillRect(sc, 0, 70, VH);
+    }
+  }
   shake = Math.max(0, shake - dt * 40);
   const sx = (Math.random() - 0.5) * shake, sy = (Math.random() - 0.5) * shake;
   ctx.translate(VW / 2 + sx, VH / 2 + sy); ctx.scale(zoom, zoom); ctx.translate(-camX, -camY);
-  // Levelende (waagerechte Strecken): links von kx gibt es nichts mehr, an der Kante zerfallen die Felder in Partikel
-  const dissolve = !solo && !map.vert, kx = dissolve ? camX - Math.min(kill, 800) : -1e9;
   if (dissolve) {
-    const gg = ctx.createLinearGradient(camX - VW / 2, 0, kx, 0); gg.addColorStop(0, 'rgba(5,3,12,.6)'); gg.addColorStop(1, 'rgba(5,3,12,0)');
-    ctx.fillStyle = gg; ctx.fillRect(camX - VW / 2 - 20, -50, Math.max(0, kx - camX + VW / 2 + 20), MH * T + 100);
+    // Hintergrund zerbröselt an der Kante über die ganze Bildhöhe
+    const bgc = [theme.far, theme.near, theme.sky[0], theme.sky[1]];
+    for (let i = 0; i < 7; i++) parts.push({ x: kx + Math.random() * 30, y: camY - VH / 2 + Math.random() * VH, vx: -40 - Math.random() * 150, vy: -20 - Math.random() * 90, l: 0.6 + Math.random() * 0.9, c: bgc[fl(Math.random() * 4)], s: 5 + Math.random() * 9 });
+    // Spielfelder zerfallen an der Kante
     for (let i = 0; i < 6; i++) {
       const ty = fl(Math.random() * MH), tx = fl((kx + Math.random() * T * 1.5) / T), c = tile(tx, ty);
       if (c !== ' ' && c !== '?') parts.push({ x: tx * T + Math.random() * T, y: ty * T + Math.random() * T, vx: -60 - Math.random() * 180, vy: -30 - Math.random() * 140, l: 0.5 + Math.random() * 0.8, c: Math.random() < 0.55 ? theme.edge : theme.hook, s: 3 + Math.random() * 6 });
@@ -850,9 +864,6 @@ function render(now, dt) {
     ctx.beginPath(); for (let x = x0; x <= x1; x += 32) ctx.lineTo(x, surf(x)); ctx.strokeStyle = 'rgba(200,240,255,.85)'; ctx.lineWidth = 4; ctx.stroke();
     if (Math.random() < 0.6) parts.push({ x: Math.random() * x1, y: wy + 20 + Math.random() * 300, vx: 0, vy: -60 - Math.random() * 60, l: 0.9, c: 'rgba(200,240,255,.7)', s: 4 });
   }
-  // Konfetti über dem Sieger
-  const wp = cele ? posOf(cele.id) : null;
-  if (wp && Math.random() < 0.7) parts.push({ x: wp.x + (Math.random() - 0.5) * 260, y: wp.y - 160 - Math.random() * 60, vx: (Math.random() - 0.5) * 60, vy: 80 + Math.random() * 90, l: 1.6, c: COLORS[fl(Math.random() * 6)], s: 5 + Math.random() * 4 });
   ctx.restore();
   // ------------------------------------------------ HUD
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, VW, VH); ctx.clip();
@@ -910,7 +921,7 @@ function frame(now) {
     if (me.alive && now - sendT > 33) { sendT = now; sendState(); }
     // Kamera: folgt dem Feld; bei der Siegerfeier sanft auf den Sieger mit leichtem Zoom
     const wp = cele && now - cele.t0 > 250 ? posOf(cele.id) : null, k = Math.min(1, dt * (wp ? 3 : 10));
-    zoom += ((wp ? 1.35 : 1) - zoom) * Math.min(1, dt * 2.2);
+    zoom += ((wp ? 2 : 1) - zoom) * Math.min(1, dt * 2.2);
     if (wp) { camX += (wp.x - camX) * k; camY += (wp.y - 30 - camY) * k; }
     else if (map.vert) { camX = map.W * T / 2; camY += (camT - camY) * k; }
     else { camX += (camT - camX) * k; camY += (VH / 2 - 2 - camY) * k; }
