@@ -7,6 +7,9 @@ const THEMES = [
   { name: 'Neonhafen', sky: ['#1b1040', '#6b2f7e'], far: '#2c1b5a', near: '#1d1140', tile: '#120d24', edge: '#ff4fd8', hook: '#ffe66d' },
   { name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#0a222c', edge: '#7dffb0', hook: '#fff3b0' },
   { name: 'Schrottplatz', sky: ['#2b1d14', '#b55f2e'], far: '#4f301c', near: '#301c10', tile: '#1a110a', edge: '#ffb347', hook: '#e8f7ff' },
+  { name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#0d2238', edge: '#bff4ff', hook: '#ffe66d', ice: true },
+  { name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#180402', edge: '#ff7b2e', hook: '#fff3b0' },
+  { name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#05170e', edge: '#c6ff5e', hook: '#ffe66d' },
 ];
 const ITEMS = { rocket: '🚀', crate: '📦', shock: '💥', lasso: '🧲', turbo: '⚡' };
 const ITEM_NAMES = { rocket: 'Rakete', crate: 'Kiste', shock: 'Schockwelle', lasso: 'Magnet', turbo: 'Turbo' };
@@ -27,11 +30,18 @@ const M = {
   big: (b, x) => { b.s(x + 4, F - 1, 'T'); b.r(x + 8, F - 5, 26, 5); b.r(x + 17, F - 6, 2, 1); b.r(x + 22, F - 6, 4, 1, '^'); b.r(x + 12, F - 18, 18, 2); b.r(x + 12, F - 16, 18, 1, 'H'); b.s(x + 30, F - 8, '?'); return 40; },
   items: (b, x) => { b.s(x + 8, F - 2, '?'); b.s(x + 8, F - 5, '?'); b.s(x + 8, F - 8, '?'); return 16; },
   boost: (b, x) => { b.s(x + 3, F - 1, '>'); b.s(x + 6, F - 1, '>'); b.r(x + 12, F - 1, 13, 1, '^'); b.r(x + 15, F - 5, 6, 1); b.s(x + 18, F - 7, '?'); return 34; },
+  stairs: (b, x) => { b.r(x + 4, F - 2, 4, 2); b.r(x + 8, F - 4, 4, 4); b.r(x + 12, F - 6, 4, 6); b.r(x + 16, F - 8, 8, 8); b.s(x + 19, F - 9, '>'); b.s(x + 21, F - 11, '?'); return 32; },
+  pillars: (b, x) => { b.r(x + 6, F - 3, 2, 3); b.r(x + 13, F - 5, 2, 5); b.r(x + 20, F - 3, 2, 3); b.r(x + 27, F - 6, 2, 6); b.s(x + 17, F - 7, '?'); return 34; },
+  hookchain: (b, x) => { b.r(x + 6, F - 1, 30, 1, '^'); b.r(x + 4, F - 14, 34, 2); b.r(x + 4, F - 12, 34, 1, 'H'); b.r(x + 12, F - 4, 2, 1); b.r(x + 20, F - 4, 2, 1); b.r(x + 28, F - 4, 2, 1); b.s(x + 21, F - 7, '?'); return 40; },
+  spikes: (b, x) => { b.s(x + 4, F - 1, 'T'); b.r(x + 7, F - 1, 10, 1, '^'); b.r(x + 19, F - 3, 4, 1); b.r(x + 24, F - 1, 8, 1, '^'); b.s(x + 21, F - 5, '?'); return 36; },
 };
 const SEQS = [
   [['flat', 24], 'hurdles', 'gate', 'hookpit', 'items', 'upper', 'plateau', 'boost', 'tunnel', 'big', ['flat', 12]],
   [['flat', 24], 'boost', 'big', 'items', 'tunnel', 'hookpit', 'plateau', 'hurdles', 'upper', 'gate', 'hookpit', ['flat', 12]],
   [['flat', 24], 'upper', 'hookpit', 'gate', 'items', 'hurdles', 'tunnel', 'boost', 'plateau', 'big', 'gate', ['flat', 12]],
+  [['flat', 24], 'stairs', 'pillars', 'hookchain', 'items', 'spikes', 'tunnel', 'upper', 'boost', 'plateau', ['flat', 12]],
+  [['flat', 24], 'spikes', 'gate', 'pillars', 'hookpit', 'items', 'boost', 'big', 'stairs', 'hookchain', ['flat', 12]],
+  [['flat', 24], 'pillars', 'upper', 'hookchain', 'items', 'plateau', 'stairs', 'spikes', 'tunnel', 'gate', 'big', ['flat', 12]],
 ];
 function build(seq) {
   const cells = []; let W = 0;
@@ -65,7 +75,12 @@ resetMe(0); me.alive = false;
 
 // ---------------------------------------------------------------- Ton
 let ac;
-function initAudio() { if (!ac) try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { } }
+// Hintergrundmusik spielt music-player.js (Playlist aus music/). Hier nur der Anschluss für Taste M.
+const Music = { start() { }, mode() { }, toggle() { if (window.hjMusic) window.hjMusic.toggle(); }, get info() { return null; } };
+function initAudio() {
+  if (!ac) try { ac = new (window.AudioContext || window.webkitAudioContext)(); } catch { return; }
+  Music.start();
+}
 function beep(f, d = 0.1, type = 'square', v = 0.05, to) {
   if (!ac) return;
   const o = ac.createOscillator(), g = ac.createGain(), t = ac.currentTime;
@@ -88,6 +103,8 @@ addEventListener('keydown', e => {
 addEventListener('keyup', e => { keys[e.code] = false; });
 addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
 addEventListener('pointerdown', initAudio);
+addEventListener('click', initAudio);
+addEventListener('touchend', initAudio);
 for (const b of document.querySelectorAll('#touch button')) {
   const k = b.dataset.k, set = v => e => { e.preventDefault(); touch[k] = v; b.classList.toggle('dn', v); };
   b.addEventListener('pointerdown', set(true)); b.addEventListener('pointerup', set(false));
@@ -204,8 +221,9 @@ function stepMe(dt, now) {
     if (dir) p.vx += dir * 200 * dt;
   } else if (p.slide) p.vx = approach(p.vx, 0, 220 * dt);
   else if (p.ground) {
-    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 400 * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 3200 : 2200) * dt); }
-    else p.vx = approach(p.vx, 0, (ctrl ? 2600 : 900) * dt);
+    const ia = theme.ice ? 0.45 : 1, ib = theme.ice ? 0.18 : 1; // Eis: träge beim Anlaufen, kaum Bremsen
+    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 400 * ib * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 3200 : 2200) * (Math.sign(p.vx) === -dir ? ib * 2 : ia) * dt); }
+    else p.vx = approach(p.vx, 0, (ctrl ? 2600 : 900) * ib * dt);
   } else {
     if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 100 * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 2200 : 1500) * dt); }
     else p.vx = approach(p.vx, 0, 250 * dt);
@@ -321,6 +339,7 @@ const $ = id => document.getElementById(id);
 function status(msg, good) { $('status').style.color = good ? '#7dffb0' : '#ff8a8a'; $('status').textContent = msg || ''; }
 function show(s) {
   phase = s;
+  if (s !== 'game') Music.mode('menu');
   $('menu').classList.toggle('on', s === 'menu'); $('lobby').classList.toggle('on', s === 'lobby');
   document.body.classList.toggle('game', s === 'game');
 }
@@ -372,9 +391,19 @@ async function createLobby() {
   try { await Host.open(myName()); status(''); } catch (e) { status(e && e.message ? e.message : 'Lobby konnte nicht erstellt werden.'); }
   busy = false;
 }
+let topT = -1e9;
+const fmtM = m => m < 1000 ? m + ' m' : (m / 1000).toFixed(1).replace('.', ',') + ' km';
+function renderTop(r) {
+  const col = (title, rows, fmt) => `<div class="hsc"><h3>${title}</h3>${rows.length ? '<ol>' + rows.map(x => `<li><b>${esc(x.n)}</b><span>${fmt(x)}</span></li>`).join('') + '</ol>' : '<div class="empty">Noch keine Einträge – spielt eine Runde!</div>'}</div>`;
+  const h = col('🏆 Meiste Siege', r.wins, x => `${x.m} Match${x.m === 1 ? '' : 'es'} · ${x.w} Rund${x.w === 1 ? 'e' : 'en'}`)
+    + col('🏃 Weiteste Strecke', r.dist, x => `${fmtM(x.d)} · Rekord ${fmtM(x.b)}`);
+  for (const el of document.querySelectorAll('.hs')) el.innerHTML = h;
+}
+function refreshTop() { topT = performance.now(); api('top').then(r => { if (r.wins) renderTop(r); }).catch(() => { }); }
 let listT = 0;
 function refreshList() {
   listT = performance.now();
+  if (listT - topT > 15000) refreshTop();
   return api('list').then(r => { if (r.ls) renderList(r.ls); if (phase === 'menu' && !busy && $('status').textContent.startsWith('Keine Verbindung')) status(''); return r.ls || []; })
     .catch(() => { if (phase === 'menu' && !busy) status('Keine Verbindung zum Server.'); return []; });
 }
@@ -409,9 +438,11 @@ const Host = (() => {
     bc({ t: 'gone', id: c.id }); sendLobby(); checkEnd(); lastPoll = 0;
   }
   function startRound() {
-    L.fn = null; L.state = 'countdown'; L.round++;
+    L.fn = null; L.state = 'countdown';
+    if (L.map < 0 && L.round > 0) L.curMap = fl(Math.random() * SEQS.length); // „Zufällig“: jede Runde eine neue Strecke
+    L.round++;
     L.order = L.players.map(p => p.id).sort(() => Math.random() - 0.5);
-    for (const p of L.players) { p.alive = true; p.s = null; }
+    for (const p of L.players) { p.alive = true; p.s = null; p.maxX = START_X; }
     L.solo = L.players.length === 1; L.cam = START_X + 100; L.kill = 800; L.tGo = Date.now() + 3600;
     bc({ t: 'round', map: L.curMap, in: 3600, order: L.order, round: L.round, solo: L.solo });
   }
@@ -427,6 +458,9 @@ const Host = (() => {
     const match = !!(w && w.score >= WIN);
     bc({ t: 'roundEnd', w: w ? w.id : 0, sc, match });
     later(match ? 7000 : 3500, match ? toLobby : startRound);
+    // Bestenliste: Rundensieg, Matchsieg und zurückgelegte Meter jedes Teilnehmers melden
+    const ps = L.players.filter(p => L.order.includes(p.id)).map(p => ({ name: p.name, m: Math.max(0, Math.round(((p.maxX || START_X) - START_X) / T)), win: p === w, match: match && p === w }));
+    if (ps.length >= 2) api('score', { id: L.id, ps }).catch(() => { });
   }
   function tick() {
     if (!L) return;
@@ -460,7 +494,7 @@ const Host = (() => {
     if (m.t === 'join') return join(c, m.name);
     if (!c.in) return;
     switch (m.t) {
-      case 's': if (Array.isArray(m.s) && m.s.length <= 9) c.s = m.s.map(v => +v || 0); break;
+      case 's': if (Array.isArray(m.s) && m.s.length <= 9) { c.s = m.s.map(v => +v || 0); if (c.alive) c.maxX = Math.max(c.maxX || START_X, c.s[0]); } break;
       case 'ev': if (c.alive && L.state !== 'lobby') { m.id = c.id; bc(m, c); } break;
       case 'leave': if (c === H.local) H.close(); else { leave(c); c.close(); } break;
       case 'map': if (c === L.host && L.state === 'lobby') { const i = fl(+m.i); L.map = i >= 0 && i < SEQS.length ? i : -1; sendLobby(); } break;
@@ -547,7 +581,7 @@ function onMsg(m) {
       }
       for (const id of [...remotes.keys()]) if (!ids.has(id)) remotes.delete(id);
       history.replaceState(null, '', '#' + m.id);
-      if (m.state === 'lobby') { show('lobby'); renderLobby(); }
+      if (m.state === 'lobby') { show('lobby'); renderLobby(); if (performance.now() - topT > 4000) { topT = performance.now(); setTimeout(refreshTop, 1500); } }
       break;
     }
     case 'round': {
@@ -557,6 +591,7 @@ function onMsg(m) {
       resetMe(slot); me.alive = !m.spec && m.order.includes(myId);
       for (const [id, r] of remotes) { r.alive = m.order.includes(id); r.buf = []; r.rx = null; }
       camX = camT = START_X + 100; goAt = now + m.in; lastCount = 4;
+      Music.mode('race', m.map);
       show('game');
       if (m.spec) banner = { text: 'Zuschauer', sub: 'Du bist in der nächsten Runde dabei', until: now + 3000, col: '#fff' };
       break;
@@ -576,8 +611,9 @@ function onMsg(m) {
     case 'roundEnd': {
       if (lobby) for (const p of lobby.ps) if (m.sc[p.id] != null) p.sc = m.sc[p.id];
       const w = lobby && lobby.ps.find(p => p.id === m.w), nm = w ? (w.id === myId ? 'Du' : w.name) : 'Niemand';
-      banner = m.match ? { text: (w && w.id === myId ? 'DU GEWINNST' : nm + ' GEWINNT') + ' DAS MATCH!', sub: '🏆 Gleich geht es zurück in die Lobby', until: now + 7000, col: w ? COLORS[w.c] : '#fff' }
-        : { text: nm + (w && w.id === myId ? ' gewinnst' : ' gewinnt') + ' die Runde!', sub: 'Nächste Runde startet …', until: now + 3500, col: w ? COLORS[w.c] : '#fff' };
+      const md = Math.round((me.x - START_X) / T), myDist = md > 0 ? ` · Deine Strecke: ${md} m` : '';
+      banner = m.match ? { text: (w && w.id === myId ? 'DU GEWINNST' : nm + ' GEWINNT') + ' DAS MATCH!', sub: '🏆 Gleich geht es zurück in die Lobby' + myDist, until: now + 7000, col: w ? COLORS[w.c] : '#fff' }
+        : { text: nm + (w && w.id === myId ? ' gewinnst' : ' gewinnt') + ' die Runde!', sub: 'Nächste Runde startet …' + myDist, until: now + 3500, col: w ? COLORS[w.c] : '#fff' };
       beep(523, 0.15, 'square', 0.06); setTimeout(() => beep(659, 0.15, 'square', 0.06), 150); setTimeout(() => beep(784, 0.3, 'square', 0.06), 300);
       break;
     }
@@ -730,6 +766,7 @@ function render(now, dt) {
     }
     ctx.globalAlpha = 1;
     text(solo ? 'Solo-Training · Link teilen, um Mitspieler zu holen' : `Runde ${roundNo} · ${theme.name}`, VW / 2, 30, 22, '#fff');
+    if (me.alive) text(Math.max(0, Math.round((me.x - START_X) / T)) + ' m', VW / 2, 62, 26, '#ffd23f');
   }
   if (me.alive) {
     ctx.fillStyle = 'rgba(10,6,24,.7)'; rr(24, VH - 110, 86, 86, 14);
@@ -769,11 +806,13 @@ function frame(now) {
   requestAnimationFrame(frame);
 }
 addEventListener('keydown', e => { if (e.code === 'Escape' && phase === 'game' && lobby && lobby.host === myId) send({ t: 'stop' }); });
+addEventListener('keydown', e => { if (e.code === 'KeyM' && e.target.tagName !== 'INPUT') Music.toggle(); });
+initAudio(); // startet sofort, falls der Browser es schon erlaubt; sonst beim ersten Klick/Tastendruck
 refreshList();
 if (/^#[A-Za-z]{4}$/.test(location.hash) && $('name').value.trim()) joinLobby(location.hash.slice(1).toUpperCase());
 requestAnimationFrame(frame);
 window.__hj = { me, remotes, get phase() { return phase; }, get lobby() { return lobby; }, keys, I, tile, F,
-  get W() { return map.W; }, get banner() { return banner; }, sync: () => sendState(),
+  get W() { return map.W; }, get banner() { return banner; }, get music() { return Music.info; }, sync: () => sendState(),
   step(n, inp) { for (let i = 0; i < n; i++) { if (typeof inp === 'function') inp(me, I, i); else if (inp) Object.assign(I, inp); stepMe(STEP, performance.now() + 1e7); I.jumpP = I.itemP = I.hookP = false; } },
   view() { camX = camT = me.x + 100; render(performance.now(), 0.016); } };
 })();

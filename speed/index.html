@@ -40,30 +40,37 @@ button:disabled{opacity:.4;cursor:default;transform:none}
 .help{margin-top:16px;font-size:13px;color:#cdb8ff;line-height:1.7}
 kbd{background:#3a2c66;border-radius:5px;padding:1px 6px;font-family:inherit;font-weight:800;color:#fff}
 #quit{position:fixed;top:10px;right:10px;display:none;z-index:5;padding:8px 12px;font-size:13px;background:rgba(58,44,102,.8);color:#fff}
+#hj-music{position:fixed;top:10px;left:10px;z-index:8;display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(15,10,32,.93);border:1px solid #6e5796;border-radius:12px;box-shadow:0 4px 14px #0006;font-size:12px}
+#hj-music-toggle{font-size:12px;padding:8px 10px;background:#3a2c66;color:#fff;white-space:nowrap}
+#hj-music-volume{width:90px;padding:0;accent-color:#ffd23f;cursor:pointer}
+#hj-music-label{min-width:24px;color:#cdb8ff;font-weight:700}
+body.game #hj-music{top:auto;left:auto;right:10px;bottom:10px;opacity:.75}
+@media(max-width:500px){#hj-music{top:8px;left:8px;padding:5px;gap:5px}#hj-music-volume{width:58px}#hj-music-label{display:none}}
+@media (pointer:coarse){body.game #hj-music{top:8px;bottom:auto;right:auto;left:50%;transform:translateX(-50%)}}
+.hs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.hsc{background:#1a1235;border-radius:10px;padding:10px 12px;min-width:0}
+.hs h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#ffd23f}
+.hs ol{margin:0;padding:0 0 0 22px;font-size:14px}
+.hs li{padding:2px 0;display:list-item}
+.hs li b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hs li span{display:block;color:#cdb8ff;font-size:12px}
+.hs .empty{padding:6px 0;font-size:13px}
+@media (max-width:520px){.hs{grid-template-columns:1fr}}
 #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:4}
 #touch button{position:absolute;pointer-events:auto;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:26px;padding:0;border:2px solid rgba(255,255,255,.35)}
 #touch button.dn{background:rgba(255,210,63,.55)}
 @media (pointer:coarse){body.game #touch{display:block}}
 body.game #quit{display:block}
-
-#hj-music{position:fixed;top:10px;left:10px;z-index:8;display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(15,10,32,.93);border:1px solid #6e5796;border-radius:12px;box-shadow:0 4px 14px #0006;font-size:12px}
-#hj-music-toggle{font-size:12px;padding:8px 10px;background:#3a2c66;color:#fff;white-space:nowrap}
-#hj-music-volume{width:90px;padding:0;accent-color:#ffd23f;cursor:pointer}
-#hj-music-label{min-width:24px;color:#cdb8ff;font-weight:700}
-@media(max-width:500px){#hj-music{top:8px;left:8px;padding:5px;gap:5px}#hj-music-volume{width:58px}#hj-music-label{display:none}}
-
 </style>
 </head>
 <body>
 <canvas id="cv"></canvas>
 
 <div id="hj-music" role="group" aria-label="Hintergrundmusik">
-  <button id="hj-music-toggle" type="button" aria-pressed="false">♫ Musik aus</button>
-  <label for="hj-music-volume" style="display:none">Musiklautstärke</label>
+  <button id="hj-music-toggle" type="button" aria-pressed="true">♫ Musik an</button>
   <input id="hj-music-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Musiklautstärke">
   <span id="hj-music-label" aria-live="polite">1/5</span>
 </div>
-
 
 <div id="menu" class="screen on">
   <div class="card">
@@ -77,6 +84,7 @@ body.game #quit{display:block}
     </div>
     <div id="list"></div>
     <div id="status"></div>
+    <div class="hs"></div>
   </div>
 </div>
 
@@ -95,8 +103,9 @@ body.game #quit{display:block}
     <div class="help">
       <kbd>A</kbd>/<kbd>D</kbd> oder <kbd>←</kbd>/<kbd>→</kbd> laufen · <kbd>Leertaste</kbd>/<kbd>W</kbd> springen (Doppel- &amp; Wandsprung) · <kbd>S</kbd> rutschen<br>
       <kbd>J</kbd>/<kbd>Shift</kbd> Greifhaken (an hellen Decken, halten!) · <kbd>K</kbd>/<kbd>E</kbd> Item · <kbd>L</kbd>/<kbd>Q</kbd> Boost<br>
-      Wer 3 Runden gewinnt, gewinnt das Match. Gamepad wird unterstützt.
+      Wer 3 Runden gewinnt, gewinnt das Match. <kbd>M</kbd> Musik an/aus. Gamepad wird unterstützt.
     </div>
+    <div class="hs"></div>
   </div>
 </div>
 

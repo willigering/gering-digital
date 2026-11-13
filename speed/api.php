@@ -14,6 +14,8 @@ const HJ_LOBBY_TTL = 25;     // Sekunden ohne Lebenszeichen des Hosts
 const HJ_MSG_TTL = 40;       // Sekunden, die eine Signalnachricht abholbar bleibt
 const HJ_MAX_MSGS = 24;      // wartende Signalnachrichten je Lobby
 const HJ_MAX_SDP = 12000;    // Zeichen je Verbindungsbeschreibung
+const HJ_MAX_METERS = 3000; // plausibles Maximum je Spieler und Runde
+const HJ_MAX_NAMES = 500;   // Einträge in der Bestenliste
 const HJ_GUARD = "<?php http_response_code(403); exit; ?>\n";
 
 function hj_out(array $data, int $code = 200): void
@@ -49,6 +51,91 @@ function hj_save($fh, array $db): void
     fclose($fh);
 }
 
+function hj_open(string $file): array
+{
+    $fh = @fopen($file, 'c+');
+    if ($fh === false) {
+        return [null, []];
+    }
+    if (!flock($fh, LOCK_EX)) {
+        fclose($fh);
+        return [null, []];
+    }
+    $txt = (string) stream_get_contents($fh);
+    $nl = strpos($txt, "\n");
+    $data = $nl === false ? null : json_decode(substr($txt, $nl + 1), true);
+    return [$fh, is_array($data) ? $data : []];
+}
+
+function hj_key(string $name): string
+{
+    return function_exists('mb_strtolower') ? mb_strtolower($name, 'UTF-8') : strtolower($name);
+}
+
+// Bestenliste: je Name Rundensiege (w), Matchsiege (m), Meter gesamt (d), beste Runde (b), Runden (r).
+function hj_top(array $hs): array
+{
+    $rows = [];
+    foreach ((array) ($hs['p'] ?? []) as $e) {
+        if (is_array($e)) {
+            $rows[] = ['n' => (string) ($e['n'] ?? ''), 'w' => (int) ($e['w'] ?? 0), 'm' => (int) ($e['m'] ?? 0),
+                'd' => (int) ($e['d'] ?? 0), 'b' => (int) ($e['b'] ?? 0), 'r' => (int) ($e['r'] ?? 0)];
+        }
+    }
+    $wins = array_values(array_filter($rows, static function (array $e): bool { return $e['w'] > 0; }));
+    usort($wins, static function (array $a, array $b): int { return [$b['m'], $b['w'], $a['r']] <=> [$a['m'], $a['w'], $b['r']]; });
+    $dist = array_values(array_filter($rows, static function (array $e): bool { return $e['d'] > 0; }));
+    usort($dist, static function (array $a, array $b): int { return [$b['d'], $b['b']] <=> [$a['d'], $a['b']]; });
+    return ['wins' => array_slice($wins, 0, 10), 'dist' => array_slice($dist, 0, 10)];
+}
+
+function hj_record(string $file, $list): array
+{
+    if (!is_array($list)) {
+        return ['err' => 'Ungültige Ergebnisse.'];
+    }
+    $entries = [];
+    $won = false;
+    foreach (array_slice(array_values($list), 0, 6) as $e) {
+        if (!is_array($e)) {
+            continue;
+        }
+        $name = hj_name($e['name'] ?? '');
+        $key = hj_key($name);
+        if (isset($entries[$key])) {
+            continue;
+        }
+        $win = !$won && !empty($e['win']);
+        $won = $won || $win;
+        $entries[$key] = ['n' => $name, 'm' => max(0, min(HJ_MAX_METERS, (int) ($e['m'] ?? 0))), 'win' => $win, 'match' => $win && !empty($e['match'])];
+    }
+    if (count($entries) < 2) {
+        return ['err' => 'Zu wenige Spieler.'];
+    }
+    [$fh, $hs] = hj_open($file);
+    if ($fh === null) {
+        return ['err' => 'Speicher nicht verfügbar.'];
+    }
+    $p = isset($hs['p']) && is_array($hs['p']) ? $hs['p'] : [];
+    foreach ($entries as $key => $e) {
+        $cur = isset($p[$key]) && is_array($p[$key]) ? $p[$key] : [];
+        $p[$key] = [
+            'n' => $e['n'],
+            'w' => (int) ($cur['w'] ?? 0) + ($e['win'] ? 1 : 0),
+            'm' => (int) ($cur['m'] ?? 0) + ($e['match'] ? 1 : 0),
+            'd' => (int) ($cur['d'] ?? 0) + $e['m'],
+            'b' => max((int) ($cur['b'] ?? 0), $e['m']),
+            'r' => (int) ($cur['r'] ?? 0) + 1,
+        ];
+    }
+    if (count($p) > HJ_MAX_NAMES) {
+        uasort($p, static function ($a, $b): int { return ((int) ($b['d'] ?? 0)) <=> ((int) ($a['d'] ?? 0)); });
+        $p = array_slice($p, 0, HJ_MAX_NAMES, true);
+    }
+    hj_save($fh, ['p' => $p]);
+    return ['ok' => true];
+}
+
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     hj_out(['err' => 'Nur POST erlaubt.'], 405);
 }
@@ -58,7 +145,7 @@ if (!is_array($in)) {
     hj_out(['err' => 'Ungültige Anfrage.'], 400);
 }
 $action = isset($_GET['a']) && is_string($_GET['a']) ? $_GET['a'] : '';
-if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close'], true)) {
+if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'top', 'score'], true)) {
     hj_out(['err' => 'Unbekannte Aktion.'], 400);
 }
 
@@ -68,7 +155,7 @@ if (preg_match('/^[a-f0-9]{32}$/', $tok) !== 1) {
 }
 $pid = substr(hash('sha256', $tok), 0, 12);
 $id = isset($in['id']) && is_string($in['id']) ? strtoupper($in['id']) : '';
-if ($action !== 'list' && $action !== 'create' && preg_match('/^[A-Z]{4}$/', $id) !== 1) {
+if (in_array($action, ['poll', 'signal', 'close', 'score'], true) && preg_match('/^[A-Z]{4}$/', $id) !== 1) {
     hj_out(['err' => 'Ungültiger Lobby-Code.'], 400);
 }
 
@@ -134,8 +221,26 @@ if ($action === 'list') {
         $db['l'][$new] = ['id' => $new, 'name' => $name, 'host' => $pid, 'n' => 1, 'run' => false, 'seen' => $now, 'q' => []];
         $res = ['id' => $new, 'name' => $name];
     }
+} elseif ($action === 'top') {
+    [$sh, $hs] = hj_open($dir . '/scores.php');
+    if ($sh === null) {
+        $res = ['err' => 'Bestenliste nicht verfügbar.'];
+    } else {
+        flock($sh, LOCK_UN);
+        fclose($sh);
+        $res = hj_top($hs);
+    }
 } elseif (!isset($db['l'][$id])) {
     $res = ['gone' => true];
+} elseif ($action === 'score') {
+    if ($db['l'][$id]['host'] !== $pid) {
+        $res = ['err' => 'Nur der Host meldet Ergebnisse.'];
+    } elseif ($now - (int) ($db['l'][$id]['rep'] ?? 0) < 3) {
+        $res = ['err' => 'Ergebnis wurde gerade erst gemeldet.'];
+    } else {
+        $db['l'][$id]['rep'] = $now;
+        $res = hj_record($dir . '/scores.php', $in['ps'] ?? null);
+    }
 } elseif ($action === 'poll') {
     if ($db['l'][$id]['host'] === $pid) {
         $db['l'][$id]['seen'] = $now;
