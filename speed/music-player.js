@@ -44,7 +44,7 @@ volume.addEventListener('input', () => {
 audio.addEventListener('ended', () => { index = (index + 1) % files.length; load(); if (enabled) play(); });
 audio.addEventListener('error', () => { label.textContent = 'Audio nicht verfügbar'; });
 function kick(e) {
-  if (e && e.target && box.contains(e.target)) return; // Schalter regelt das selbst
+  if (e && e.target instanceof Node && box.contains(e.target)) return; // Schalter regelt das selbst
   if (enabled && audio.paused) play();
   if (!audio.paused) for (const t of ['pointerdown', 'keydown', 'touchend']) removeEventListener(t, kick, true);
 }
