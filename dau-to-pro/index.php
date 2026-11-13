@@ -293,7 +293,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">04 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">05 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <div class="unterricht-content">
@@ -350,8 +350,21 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <div class="module-footer"><span>12 ABSCHNITTE · 26 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
+        <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/itil-recht.php" aria-label="ITIL und IT-Recht Unterrichtsmaterial öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">IT<span>//</span>VI</span>
+            <span class="unterricht-art-label">ITIL &amp; RECHT <b>05</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · IT VI</span>
+            <h2>ITIL &amp; IT-Recht.</h2>
+            <p>ITIL, Verträge, Datenschutz und NIS-2. Mit einem durchgehenden Praxisfall, Arbeitsblättern und Wissenscheck.</p>
+            <div class="module-footer"><span>18 KAPITEL · 20 WISSENSFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
       </div>
-      <p class="unterricht-account-hint">Das IT VI.01-Material nutzt dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
+      <p class="unterricht-account-hint">IT VI.01 und ITIL &amp; IT-Recht nutzen dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
     </div>
   </details>
 </section>
