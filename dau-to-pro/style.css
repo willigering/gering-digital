@@ -94,8 +94,8 @@ main,.dtp-footer{position:relative;z-index:1}
 .hero-plane{position:absolute;display:block;margin:0}
 .hero-plane-backdrop{inset:9% 0 1%;background:radial-gradient(ellipse at 64% 57%,#32798524,transparent 54%),radial-gradient(ellipse at 82% 48%,#a977331c,transparent 44%);z-index:-1}
 .hero-plane-dau{left:4%;bottom:8%;width:37%;height:79%;object-fit:contain;object-position:bottom}
-.hero-plane-pro{left:52%;bottom:8%;width:27%;height:77%;object-fit:contain;object-position:bottom}
-.hero-plane-brand{left:37%;top:1%;width:57%;height:23%;object-fit:contain}
+.hero-plane-pro{left:52%;bottom:8%;width:27%;height:77%;object-fit:contain;object-position:bottom;z-index:1}
+.hero-plane-brand{left:31%;top:7%;width:57%;height:23%;object-fit:contain}
 .hero-plane-progress{left:40%;bottom:9%;width:13%;height:39%;display:flex;align-items:end;gap:8%;z-index:-1}
 .hero-plane-progress i{width:19%;height:var(--bar);background:linear-gradient(#538c94,#253f46);border:1px solid #76aeb45c;border-radius:2px}
 .hero-plane-progress i:nth-child(1){--bar:17%}
