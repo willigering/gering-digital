@@ -137,7 +137,7 @@ const M = {
   tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.r(x + 6 + c, F - 3, 2, 2); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
   big: (b, x) => { const L = b.R(18, 28), h = b.R(4, 5); b.s(x + 1, F - 1, 'T'); b.r(x + 8, F - h, L, h); const s = b.R(6, L - 6); b.r(x + 8 + s, F - h - 1, b.R(2, 4), 1, '^'); b.r(x + 12, F - 18, L - 8, 2); b.r(x + 12, F - 16, L - 8, 1, 'H'); b.s(x + 8 + b.R(2, L - 2), F - h - 3, '?'); return L + 14; },
   items: (b, x) => { const n = b.R(2, 3), cx = x + b.R(5, 10); for (let i = 0; i < n; i++) b.s(cx + b.R(-1, 1), F - 2 - i * 3, '?'); return b.R(14, 18); },
-  boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(8, 14); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 7); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(4, 5), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
+  boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(7, 11); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 6); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(3, 4), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
   stairs: (b, x) => {
     const s2 = b.H(2), n = Math.min(b.R(3, 5), fl(20 / s2)), sw = b.R(3, 4); let c = 4;
     for (let i = 1; i <= n; i++) { b.r(x + c, F - i * s2, sw, i * s2); c += sw; }
