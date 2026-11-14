@@ -72,8 +72,6 @@ const M = {
     const L = b.R(34, 44), rx = x + 12;
     b.s(x + 2, F - 1, 'T'); b.r(rx, F - 8, L, 1);
     let c = 6; while (c < L - 8) { if (b.ch(0.5)) b.r(rx + c, F - 9, 2, 1, '^'); c += b.R(7, 10); }
-    b.s(rx + L - 3, F - 9, 'X');                                     // Auslöser am Ende der Schiene
-    b.r(x + L + 6, F - 7, 1, 7, 'Y');                                 // Tor unten (darüber geht es oben weiter)
     c = 14; while (c < L) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - 1, 1, 1); else if (k === 1) b.r(x + c, F, 3, 1, 'D'); else b.s(x + c, F - 1, 'O'); c += b.R(5, 7); }
     return L + 14;
   },
