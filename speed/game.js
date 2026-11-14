@@ -196,6 +196,7 @@ const SEQS = [
   ['gravfield', 'gravfield', 'hills', 'pillars', 'chimney', 'descent', 'fork', 'mogul', 'stairs', 'bigslide'], // Mond
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
+const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
 const TALL = { chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
 // Lange Strecke würfeln: Bausteine aus dem Vorrat (nie einer der letzten 4), dazwischen Geländewechsel und freie Abschnitte
 function mapSeq(pool, seed, len = 3000) {
@@ -203,11 +204,12 @@ function mapSeq(pool, seed, len = 3000) {
   const out = [['flat', 22]], last = []; let w = 22, lvl = 0, guard = 0;
   while (w < len && guard++ < 400) {
     if (rnd() < 0.45) { const nl = rnd() < 0.25 ? 0 : 1 + fl(rnd() * 7); if (nl !== lvl) { out.push(['lvl', nl]); lvl = nl; w += 10; } }
-    let m, t = 0; do { m = pool[fl(rnd() * pool.length)]; } while ((last.includes(m) || (TALL[m] && lvl > 3)) && ++t < 30);
+    const prevHard = HARD[last[last.length - 1]];
+    let m, t = 0; do { m = pool[fl(rnd() * pool.length)]; } while ((last.includes(m) || (TALL[m] && lvl > 3) || (prevHard && HARD[m])) && ++t < 40);
     if (TALL[m] && lvl > 3) { out.push(['lvl', fl(rnd() * 3)]); lvl = 0; }
     out.push(m); last.push(m); if (last.length > 4) last.shift(); w += 36;
     if (rnd() < 0.3) out.push('items');
-    if (rnd() < 0.35) { const n = 4 + fl(rnd() * 14); out.push(['flat', n]); w += n; }
+    if (HARD[m] || rnd() < 0.35) { const n = HARD[m] ? 6 + fl(rnd() * 5) : 4 + fl(rnd() * 10); out.push(['flat', n]); w += n; } // Atempause nach schweren Abschnitten
   }
   if (lvl) out.push(['lvl', 0]);
   out.push(['flat', 12]); return out;
@@ -253,7 +255,7 @@ function buildV(seed, cols = VCOLS, fh = FH, deco = '') {
       else x += gap();                                                                                                     // freie Strecke
     }
   }
-  thinPads(g);
+  thinPads(g); thinHazards(g);
   const boxes = [], bi = {};
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W: cols, H: rows, g, boxes, bi, vert: true, floor: rows, fh, wide, signs };
@@ -285,6 +287,15 @@ const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T 
 const progress = (x, y) => map.vert ? zigProg(x, y) : (x - START_X) / T; // Meter (1 Feld = 1 m)
 function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y) / (map.fh * T) + 0.05)), a = x / T; return k * W + (k % 2 ? W - a : a) - (map.wide ? 3 : W / 2); }
 // Boostfelder entzerren: in jeder Reihe höchstens eins pro 12 Felder (doppelte hintereinander bringen nichts)
+// Flow: Stachel- und Lavareihen nach 4 Feldern immer durch 2 sichere Felder unterbrechen. So kommt man immer raus
+// und findet einen Sprungrhythmus. Stacheln werden zu freiem Boden, Lava zu festem Boden.
+function thinHazards(g) {
+  for (let y = 0; y < g.length; y++) { const row = g[y];
+    for (let x = 0; x < row.length;) { const c = row[x]; if (c !== '^' && c !== '~') { x++; continue; }
+      let e = x; while (e < row.length && row[e] === c) e++;
+      if (e - x > 5) for (let i = x; i < e; i++) if ((i - x) % 6 >= 4) row[i] = c === '^' ? ' ' : '#';
+      x = e; } }
+}
 function thinPads(g) {
   for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
 }
@@ -319,7 +330,7 @@ function build(seq, seed = 1, hs = 1) {
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
   for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
-  thinPads(g);
+  thinPads(g); thinHazards(g);
   return { W, g, boxes, bi, movers };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
