@@ -28,6 +28,8 @@ function wav(seconds, frequency) {
 }
 function setup() {
   const code=`require ${JSON.stringify(root+'/dau_lib.php')};
+    require_once ${JSON.stringify(root+'/learner_lib.php')};
+    learner_register('RadioTest','Fixture-radio!982','Fixture-radio!982');
     db()->exec("DELETE FROM html_pages");
     $q=db()->prepare("INSERT INTO html_pages(slug,title,description,category,published) VALUES(?,?,?,'lernen',1)");
     $q->execute(['osi','Testmodul OSI','Modulwechsel testen']);
@@ -59,6 +61,15 @@ let server,browser;
   assert.ok(ready,'PHP fixture server starts');
   browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   const page=await browser.newPage({viewport:{width:1440,height:900}});
+  await page.goto(base+'/dau-to-pro/konto.php?material=1#unterrichtszugang');
+  const login=page.locator('form:has(input[name="action"][value="login"])');
+  await login.locator('[name="username"]').fill('RadioTest');
+  await login.locator('[name="password"]').fill('Fixture-radio!982');
+  await login.locator('button[type="submit"]').click();
+  const unlock=page.locator('#unterrichtszugang form:has(input[name="action"][value="material_unlock"])');
+  await unlock.locator('[name="material_password"]').fill('DAA');
+  await unlock.locator('button[type="submit"]').click();
+  await unlock.waitFor({state:'detached'});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
