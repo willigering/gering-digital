@@ -48,10 +48,6 @@ body{
   color:#f5f6ef!important;text-transform:uppercase;
 }
 .hero .gdv3-hero-title>span:first-child{color:var(--gdv3-gold)!important}
-.hero .gdv3-hero-title .gdv3-outline{
-  color:transparent!important;
-  -webkit-text-stroke:1px #e7f2f0a5;text-shadow:none!important;
-}
 .gdv3-hero-description{
   max-width:58ch;margin:0;color:#bccbd0;font-size:clamp(15px,1.45vw,17px);
   line-height:1.8;font-weight:450;
@@ -138,7 +134,6 @@ body{
   opacity:1;z-index:0;
 }
 #apps .gdv3-project-grid .app-card>.icon-wrap,
-#apps .gdv3-project-grid .app-card>.dtp-portal-art,
 #apps .gdv3-project-grid .app-card>.card-body{position:relative;z-index:1}
 #apps .gdv3-project-grid .app-card .card-body{padding:18px 22px 23px}
 #apps .gdv3-project-grid .app-card .icon-wrap{
@@ -158,24 +153,6 @@ body{
 #apps .gdv3-project-grid .app-card .html-card-cta{
   font-size:11px;letter-spacing:.045em;
 }
-#apps .gdv3-project-grid .dtp-portal-card{
-  grid-column:span 2;
-  display:grid!important;grid-template-columns:minmax(0,1.03fr) minmax(0,.97fr);
-  min-height:365px;align-items:stretch;
-  border-color:#e1b96356!important;
-  background:linear-gradient(130deg,#18252a,#10191d)!important;
-}
-#apps .dtp-portal-card>.dtp-portal-art{
-  height:100%;min-height:340px;aspect-ratio:auto;
-  border:0;border-right:1px solid #e0bf6f33;
-}
-#apps .dtp-portal-card>.dtp-portal-art img{height:100%;width:100%;object-fit:cover;object-position:center}
-#apps .dtp-portal-card>.card-body{
-  padding:clamp(24px,3vw,37px)!important;justify-content:center
-}
-#apps .dtp-portal-card h3{font-size:clamp(32px,3.4vw,48px)!important;line-height:1.08}
-#apps .dtp-portal-card p{font-size:15px!important;line-height:1.75;min-height:0}
-#apps .dtp-portal-card .dtp-portal-cta{font-size:12px;letter-spacing:.09em}
 #apps .gdv3-project-grid .html-project-icon{border-radius:14px!important}
 /* About: typography / timeline, no big repeating text boxes. */
 .gdv3-about-section{position:relative;padding:110px 0!important;isolation:isolate}
@@ -260,7 +237,6 @@ body{
 /* Responsive changes are limited to new copy and new sections. Phone/chassis unchanged. */
 @media(max-width:1100px){
   #apps .gdv3-project-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-  #apps .dtp-portal-card{grid-column:span 2}
   .gdv3-about-grid{gap:42px}
   .gdv3-about-copy h2{font-size:clamp(45px,6.5vw,68px)!important}
 }
@@ -284,18 +260,6 @@ body{
 }
 @media(max-width:600px){
   #apps .gdv3-project-grid{grid-template-columns:minmax(0,1fr)!important}
-  /* Equal specificity with the desktop feature rule: no implicit second grid column. */
-  #apps .gdv3-project-grid .dtp-portal-card{
-    grid-column:1 / -1!important;display:flex!important;flex-direction:column;min-height:0
-  }
-  #apps .gdv3-project-grid .dtp-portal-card>.dtp-portal-art{
-    width:100%;min-height:0;height:auto;aspect-ratio:16/9;
-    border-right:0;border-bottom:1px solid #e9c17444
-  }
-  #apps .gdv3-project-grid .dtp-portal-card>.card-body{padding:23px!important}
-  #apps .dtp-portal-card{grid-column:auto;display:flex!important;flex-direction:column;min-height:0}
-  #apps .dtp-portal-card>.dtp-portal-art{width:100%;min-height:0;height:auto;aspect-ratio:16/9;border-right:0;border-bottom:1px solid #e9c17444}
-  #apps .dtp-portal-card>.card-body{padding:23px!important}
   #apps .gdv3-project-grid .app-card{min-height:0}
   #apps .gdv3-project-grid .app-card .icon-wrap{aspect-ratio:16/10}
   .gdv3-about-facts{gap:33px}

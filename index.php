@@ -6,6 +6,10 @@ $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id
 $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND IFNULL(category,'')<>'lernen' ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
     $preview=['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
+    if ($page['slug']==='perlenwahn') {
+        $preview['fit']='contain';
+        $preview['x']=$preview['y']=50;
+    }
     $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
        'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
        'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
@@ -70,7 +74,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
   <div class="hero-grid wrap">
     <div class="hero-copy gdv3-hero-copy" data-parallax="0.05">
       <p class="eyebrow gdv3-kicker">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
-      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER<br><span>UND IDEEN</span><br><span class="gdv3-outline">WIRD CODE.</span></h1>
+      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER<br><span>UND IDEEN</span><br><span>WIRD CODE.</span></h1>
       <p class="gdv3-hero-description">Mich nerven Dinge, die einfacher gehen müssten. Also entwickle ich Lösungen dafür. Apps, Lernprogramme und digitale Experimente – manchmal nützlich, manchmal einfach, weil ich wissen will, ob es geht.</p>
       <div class="gdv3-hero-actions"><a class="btn" href="#apps">Projekte entdecken <b aria-hidden="true">↗</b></a><a class="gdv3-subtle-link" href="#ueber-mich">Die Geschichte dahinter <span aria-hidden="true">↓</span></a></div>
       <p class="gdv3-hero-meta"><span class="gdv3-light-dot" aria-hidden="true"></span> UNABHÄNGIG ENTWICKELT <span aria-hidden="true">✦</span> MIT NEUGIER GEBAUT</p>
@@ -132,12 +136,12 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       </div>
       <p id="catalog-empty" class="catalog-empty" role="status" hidden>Hier ist noch nichts gelandet. Aber die Ideen stehen schon Schlange. 😎</p>
       <div class="cards gdv3-project-grid">
-        <article class="card glass-card app-card dtp-portal-card" data-category="sonstiges">
-          <a class="dtp-portal-hit" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
-          <div class="dtp-portal-art"><img src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
+        <article class="card glass-card app-card html-clickable-card dtp-portal-card" data-category="sonstiges">
+          <a class="html-card-link" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
+          <div class="icon-wrap html-preview-wrap"><img class="html-preview-image" src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
-          <span class="dtp-portal-cta">Lernplattform öffnen <b>↗</b></span></div>
+          <span class="html-card-cta" aria-hidden="true">Lernplattform öffnen <b>↗</b></span></div>
         </article>
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
