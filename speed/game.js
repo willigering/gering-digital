@@ -59,7 +59,7 @@ const M = {
   lasers: (b, x) => { let c = 4; const n = b.R(3, 5); for (let i = 0; i < n; i++) { b.s(x + c, F - 1, 'L'); c += b.R(6, 9); } return c + 2; },
   tube: (b, x) => { const L = b.R(12, 18); b.r(x + 4, F - 6, L, 2); for (let i = 0; i < L; i++) for (let j = 1; j <= 4; j++) b.s(x + 4 + i, F - j, 'Z'); b.s(x + 4 + fl(L / 2), F - 2, '?'); return L + 8; },
   icicles: (b, x) => { const L = b.R(18, 28); b.r(x + 2, F - 11, L, 2); let c = 3; while (c < L - 1) { b.s(x + 2 + c, F - 9, 'I'); c += b.R(3, 5); } b.s(x + 2 + b.R(3, L - 3), F - 3, '?'); return L + 6; },
-  bridge: (b, x) => { const L = b.R(10, 16); b.r(x + 4, F - 1, L, 1, '^'); b.r(x + 3, F - 4, L + 2, 1, 'B'); b.r(x + 2, F - 4, 1, 4); b.r(x + 5 + L, F - 4, 1, 4); b.s(x + 4 + fl(L / 2), F - 7, '?'); return L + 9; },
+  bridge: (b, x) => { const L = b.R(10, 16); b.r(x + 4, F - 1, L, 1, '^'); b.r(x + 3, F - 4, L + 2, 1, '='); b.r(x + 2, F - 4, 1, 4); b.r(x + 5 + L, F - 4, 1, 4); b.s(x + 4 + fl(L / 2), F - 7, '?'); return L + 9; },
   gondolas: (b, x) => { const L = b.R(26, 34); b.r(x + 3, F - 1, L, 1, '^'); const n = b.R(2, 3); for (let i = 0; i < n; i++) { const a = x + 3 + fl(L * i / n), z = a + fl(L / n) - 3; b.mover(a, z, F - b.R(3, 5), 3, b.R(3200, 4600)); } b.s(x + 3 + fl(L / 2), F - 9, '?'); return L + 7; },
   conveyors: (b, x) => { const L = b.R(14, 22), dir = b.ch(0.5) ? 'C' : 'D'; b.r(x + 3, F, L, 1, dir); let c = 5; while (c < L - 2) { if (b.ch(0.6)) b.r(x + 3 + c, F - b.R(1, 2), 1, 2); c += b.R(4, 6); } return L + 6; },
   crusher: (b, x) => { const n = b.R(2, 4); b.r(x + 3, F - 9, n * 6 + 2, 2); for (let i = 0; i < n; i++) b.r(x + 5 + i * 6, F - 7, 2, 1, 'P'); return n * 6 + 8; },
@@ -179,23 +179,41 @@ const M = {
     return L + 6;
   },
 };
+// Bausteinvorrat je Welt (Mehrfachnennung = häufiger). Daraus wird eine lange Strecke (~3000 Felder) gewürfelt,
+// fest je Strecke, damit alle Spieler dieselbe bekommen. Keine Fallen mit Takt mehr.
 const SEQS = [
-  [['flat', 20], 'tube', 'hurdles', 'lasers', 'items', 'fork', 'pillars', 'lasers', 'saws', 'tube', 'collapse', 'upper', 'launchers', 'hookpit', ['flat', 10]], // Neonhafen
-  [['flat', 20], 'hills', 'fork', 'hurdles', 'items', 'bridge', 'swing', 'mogul', 'roller', 'plateau', 'bigslide', 'gate', ['flat', 10]], // Dachgarten
-  [['flat', 20], 'conveyors', 'crusher', 'hurdles', 'items', 'roller', 'conveyors', 'fork', 'crusher', 'launchers', 'stairs', 'collapse', ['flat', 10]], // Schrottplatz
-  [['flat', 20], 'icicles', 'hills', 'items', 'bigslide', 'icicles', 'fork', 'pillars', 'mogul', 'collapse', 'descent', ['flat', 10]], // Eiswerk
-  [['flat', 20], 'firejets', 'lava', 'items', 'fork', 'firejets', 'pillars', 'roller', 'lava', 'chimney', 'firejets', 'spikes', ['flat', 10]], // Vulkan
-  [['flat', 20], 'swing', 'bridge', 'items', 'hills', 'swing', 'fork', 'bridge', 'hookforest', 'roller', 'descent', ['flat', 10]], // Dschungel
+  ['tube', 'tube', 'fork', 'hurdles', 'pillars', 'saws', 'upper', 'hookpit', 'gate', 'boost', 'stairs', 'wallshaft', 'hills', 'spikes', 'shortcut', 'tunnel', 'chimney'], // Neonhafen
+  ['hills', 'hills', 'swing', 'bridge', 'mogul', 'plateau', 'bigslide', 'gate', 'hurdles', 'fork', 'upper', 'pillars', 'trampchain', 'shortcut'], // Dachgarten
+  ['conveyors', 'conveyors', 'hurdles', 'stairs', 'fork', 'saws', 'pillars', 'gate', 'tunnel', 'big', 'hookchain', 'wallshaft', 'chimneys'], // Schrottplatz
+  ['hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'pillars', 'fork', 'upper', 'stairs', 'spikes', 'chimney', 'hurdles'], // Eiswerk
+  ['lava', 'lava', 'spikes', 'fork', 'pillars', 'chimney', 'hurdles', 'trampchain', 'big', 'saws', 'stairs', 'plateau'], // Vulkan
+  ['swing', 'swing', 'hookforest', 'bridge', 'hills', 'fork', 'descent', 'hookchain', 'trampchain', 'pillars', 'bridge'], // Dschungel
   null, // Lagerhaus: Etagen, siehe buildV
-  [['flat', 20], 'lasers', 'bridge', 'items', 'stairs', 'fork', 'chimney', 'lasers', 'tube', 'collapse', 'hookchain', ['flat', 10]], // Kristallmine
-  [['flat', 20], 'gondolas', 'swing', 'items', 'gondolas', 'hookforest', 'fork', 'gondolas', 'hookchain', ['flat', 10]], // Seilbahn-Werft
-  [['flat', 20], 'hills', 'icicles', 'bigslide', 'items', 'mogul', 'fork', 'descent', 'icicles', 'bigslide', ['flat', 10]], // Skipiste
-  [['flat', 20], 'hills', 'roller', 'bridge', 'items', 'lava', 'fork', 'pillars', 'roller', 'bigslide', 'launchers', ['flat', 10]], // Wüste
-  [['flat', 20], 'launchers', 'descent', 'lava', 'items', 'fork', 'gravfield', 'pillars', 'chimney', 'launchers', 'spikes', ['flat', 10]], // Mars
+  ['tube', 'bridge', 'stairs', 'fork', 'chimney', 'hookchain', 'pillars', 'wallshaft', 'saws', 'gate', 'tunnel', 'upper'], // Kristallmine
+  ['gondolas', 'gondolas', 'swing', 'hookforest', 'hookchain', 'fork', 'hookpit', 'upper', 'swing', 'shortcut'], // Seilbahn-Werft
+  ['hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'descent', 'fork', 'spikes', 'hurdles'], // Skipiste
+  ['hills', 'bridge', 'lava', 'pillars', 'bigslide', 'fork', 'hurdles', 'mogul', 'saws', 'plateau', 'gate'], // Wüste
+  ['descent', 'lava', 'gravfield', 'pillars', 'chimney', 'fork', 'hills', 'spikes', 'stairs', 'gravfield'], // Mars
   null, // Weltall: breite Etagen, siehe buildV
-  [['flat', 20], 'gravfield', 'hills', 'pillars', 'items', 'fork', 'chimney', 'gravfield', 'descent', 'launchers', 'mogul', ['flat', 10]], // Mond
-  'MIX', // Bonus: Zufallsstrecke
+  ['gravfield', 'gravfield', 'hills', 'pillars', 'chimney', 'descent', 'fork', 'mogul', 'stairs', 'bigslide'], // Mond
+  'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
+const TALL = { chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
+// Lange Strecke würfeln: Bausteine aus dem Vorrat (nie einer der letzten 4), dazwischen Geländewechsel und freie Abschnitte
+function mapSeq(pool, seed, len = 3000) {
+  let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
+  const out = [['flat', 22]], last = []; let w = 22, lvl = 0, guard = 0;
+  while (w < len && guard++ < 400) {
+    if (rnd() < 0.45) { const nl = rnd() < 0.25 ? 0 : 1 + fl(rnd() * 7); if (nl !== lvl) { out.push(['lvl', nl]); lvl = nl; w += 10; } }
+    let m, t = 0; do { m = pool[fl(rnd() * pool.length)]; } while ((last.includes(m) || (TALL[m] && lvl > 3)) && ++t < 30);
+    if (TALL[m] && lvl > 3) { out.push(['lvl', fl(rnd() * 3)]); lvl = 0; }
+    out.push(m); last.push(m); if (last.length > 4) last.shift(); w += 36;
+    if (rnd() < 0.3) out.push('items');
+    if (rnd() < 0.35) { const n = 4 + fl(rnd() * 14); out.push(['flat', n]); w += n; }
+  }
+  if (lvl) out.push(['lvl', 0]);
+  out.push(['flat', 12]); return out;
+}
 // Zickzack-Etagen: Auf jeder Etage läuft man bis zur Wand, ein Trampolin schießt durch die Luke ('=' von unten
 // durchspringbar) nach oben, dort geht es in die Gegenrichtung weiter. Gerade Etagen nach rechts, ungerade nach links.
 function buildV(seed, cols = VCOLS, fh = FH, deco = '') {
@@ -233,7 +251,6 @@ function buildV(seed, cols = VCOLS, fh = FH, deco = '') {
         else if (h < 0.75 && wide) { for (let i = 0; i < 3; i++) P(x + i, fy - 2, '#'); x += 3 + gap(); }                   // niedriger Balken: rutschen
         else { for (let i = 0; i < 6; i++) P(x + i, fy - 1, '^'); for (let i = 1; i < 5; i++) P(x + i, cy + 1, 'H'); x += 6 + gap(); } // Hakengrube
       }
-      else if (e < 0.88 && deco === 'ware' && x < end - 6) { for (let j = 1; j <= 3; j++) P(x, fy - j, 'R'); x += 1 + gap(); } // Rolltor
       else if (e < 0.88 && deco === 'space' && x < end - 12) { for (let i = 0; i < 6; i++) P(x + i, fy - 1, '^'); for (let i = 1; i < 5; i++) for (let j = 2; j <= fh - 2; j++) P(x + i, fy - j, 'G'); x += 6 + gap(); } // Schwerkraftfeld
       else x += gap();                                                                                                     // freie Strecke
     }
@@ -260,8 +277,10 @@ function longSeq(i) {
 // Feste, handgebaute Rundkurse je Strecke. „MIX“ = Bonus-Zufallsstrecke aus allen Bausteinen, jeden Tag anders.
 function mixSeq(seed) { let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647, pool = Object.keys(M).filter(k => k !== 'flat' && k !== 'items'), out = [['flat', 20]];
   for (let k = 0; k < 26; k++) { out.push(pool[fl(rnd() * pool.length)]); if (rnd() < 0.3) out.push('items'); } out.push(['flat', 10]); return out; }
-const buildMap = i => THEMES[i].vert ? buildV(THEMES[i].vert, THEMES[i].cols, THEMES[i].fh, THEMES[i].deco)
-  : SEQS[i] === 'MIX' ? build(mixSeq(fl(Date.now() / 864e5)), fl(Date.now() / 864e5), 1) : build(SEQS[i], i + 1, 1 / (THEMES[i].grav || 1)); // wenig Schwerkraft: höhere Hindernisse
+const MIXPOOL = ['hurdles', 'gate', 'plateau', 'hookpit', 'upper', 'tunnel', 'big', 'boost', 'stairs', 'pillars', 'hookchain', 'spikes', 'saws', 'lava', 'trampchain', 'wallshaft', 'swing', 'hookforest', 'hills', 'bigslide', 'mogul', 'descent', 'chimney', 'shortcut', 'fork', 'tube', 'bridge', 'gondolas', 'conveyors', 'gravfield'];
+const buildMap = i => { const th = THEMES[i]; if (th.vert) return buildV(th.vert, th.cols, th.fh, th.deco);
+  const day = fl(Date.now() / 864e5), mix = SEQS[i] === 'MIX';
+  return build(mapSeq(mix ? MIXPOOL : SEQS[i], mix ? day : i + 1), mix ? day : i + 1, 1 / (th.grav || 1)); }; // wenig Schwerkraft: höhere Hindernisse
 const vFloor = i => (THEMES[i].fh || FH) * (THEMES[i].cols ? 12 : 8); // Bodenreihe einer Etagen-Map
 const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T + 11 : VCOLS * T / 2 + (slot - 9.5) * 40, y: map.floor * T } : { x: START_X - slot * 17, y: F * T };
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
@@ -271,12 +290,34 @@ function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y)
 function thinPads(g) {
   for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
 }
+// Übergang zwischen zwei Geländehöhen: hoch per Rampe oder Treppe, runter per Rampe oder Abbruch
+function levelChange(b, x, from, to) {
+  const d = to - from, k = b.rnd(); let c = 0;
+  plat(b, x, from, 1); c = 1;                                                                              // Anschluss auf alter Höhe
+  if (d > 0 && k >= 0.4) { for (let h = from + 1; h <= to; h++) { b.r(x + c, F - h, 2, h); c += 2; } }    // Treppe
+  else if (d < 0 && k >= 0.5) { /* Abbruch: einfach runterspringen */ }
+  else c += ramp(b, x + c, from, d, d > 0 ? k < 0.2 : k < 0.25);                                          // Rampe
+  plat(b, x + c, to, 1); return c + 1;                                                                     // Anschluss auf neuer Höhe, ohne Lücke
+}
 function build(seq, seed = 1, hs = 1) {
   const cells = [], movers = []; let W = 0; let rs = seed * 48271 % 2147483647 || 1;
   const rnd = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
   const b = { rnd, R: (a, z) => a + fl(rnd() * (z - a + 1)), ch: p => rnd() < p, H: n => Math.max(1, Math.round(n * hs)), // H: Höhe passend zur Schwerkraft
     mover: (x0, x1, y, w, ms) => movers.push({ x0, x1, y, w, ms }), s: (x, y, c) => cells.push([x, y, c]), r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) cells.push([x + i, y + j, c]); } };
-  for (const m of seq) { const [n, a] = Array.isArray(m) ? m : [m]; W += M[n](b, W, a); }
+  b.lvl = 0;
+  // verschobener Baukasten: alles um die aktuelle Geländehöhe nach oben, unterhalb wird mit Boden aufgefüllt
+  const sb = Object.assign({}, b, {
+    s: (x, y, c) => { const yy = y - b.lvl; if (yy >= 1) cells.push([x, yy, c]); },
+    r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) sb.s(x + i, y + j, c); },
+    mover: (x0, x1, y, w, ms) => movers.push({ x0, x1, y: y - b.lvl, w, ms }),
+  });
+  for (const m of seq) {
+    const [n, a] = Array.isArray(m) ? m : [m];
+    if (n === 'lvl') { W += levelChange(b, W, b.lvl, a); b.lvl = a; continue; }
+    const at = cells.length, w = M[n](sb, W, a);
+    if (b.lvl > 0) { const fill = []; for (let x = W; x < W + w; x++) for (let y = F - b.lvl; y < F; y++) fill.push([x, y, '#']); cells.splice(at, 0, ...fill); }
+    W += w;
+  }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
   for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
