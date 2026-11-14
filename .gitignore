@@ -14,3 +14,6 @@ tools/nerd-radio/.work/
 lernmodule/cs2-csharp.html
 tests/support/cs2-snippets.json
 tools/__pycache__/
+
+# Lokale Spielstände des Rennspiels (PHP-Testserver)
+speed/data/

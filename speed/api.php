@@ -96,7 +96,7 @@ function hj_record(string $file, $list): array
     }
     $entries = [];
     $won = false;
-    foreach (array_slice(array_values($list), 0, 6) as $e) {
+    foreach (array_slice(array_values($list), 0, 20) as $e) {
         if (!is_array($e)) {
             continue;
         }
@@ -244,7 +244,7 @@ if ($action === 'list') {
 } elseif ($action === 'poll') {
     if ($db['l'][$id]['host'] === $pid) {
         $db['l'][$id]['seen'] = $now;
-        $db['l'][$id]['n'] = max(1, min(6, (int) ($in['n'] ?? 1)));
+        $db['l'][$id]['n'] = max(1, min(20, (int) ($in['n'] ?? 1)));
         $db['l'][$id]['run'] = !empty($in['run']);
     }
     $mine = [];

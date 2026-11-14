@@ -2,7 +2,7 @@
 'use strict';
 // Hintergrundmusik (Playlist). Standardmäßig an: Browser erlauben Ton erst nach der ersten
 // Eingabe, darum startet sie mit dem ersten Klick, Tipp oder Tastendruck auf der Seite.
-const files = ['HJ_1.mp3','HJ_2.mp3','HJ_1 (3).mp3','HJ_1 (2).mp3','HJ_1 (1).mp3'];
+const files = ['Dodging at Full Speed.mp3','Lunar Arcade.mp3','Moonwalk Breaks.mp3','Hijaz Breakbeat.mp3','Dodging at Full Speed_2.mp3','HJ_1.mp3','HJ_2.mp3','HJ_1 (3).mp3','HJ_1 (2).mp3','HJ_1 (1).mp3'];
 const audio = new Audio();
 audio.preload = 'auto';
 const box = document.getElementById('hj-music');

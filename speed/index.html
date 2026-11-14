@@ -4,59 +4,144 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Rüdiger, nicht so schnell!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
+:root{--ink:#2a1206;--gold:#ffc31f;--gold2:#ff9a0e;--cream:#fff1d6;--red:#e6392f;--txt:#fff6e6;--muted:#f2c99a}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;background:#0b0716;color:#fff;font-family:system-ui,"Segoe UI",Roboto,sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%;background:#2a1206;color:var(--txt);font-family:Fredoka,system-ui,"Segoe UI",sans-serif;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
 canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
-.screen{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:16px;overflow:auto;
-  background:radial-gradient(ellipse at 50% 0%,#5b2a86 0%,#1b1040 55%,#0b0716 100%)}
+.screen{position:fixed;inset:0;display:none;align-items:center;flex-direction:column;padding:24px 16px;overflow:auto;
+  background:radial-gradient(ellipse at 50% 45%,rgba(40,15,5,.1) 0%,rgba(30,10,3,.55) 80%)}
 .screen.on{display:flex}
-.card{width:min(560px,100%);background:rgba(15,10,32,.86);border:2px solid #ff4fd8;border-radius:18px;padding:24px;box-shadow:0 0 50px rgba(255,79,216,.25)}
-h1{margin:0;font-size:clamp(40px,9vw,68px);font-style:italic;font-weight:900;letter-spacing:-2px;transform:skewX(-8deg);
-  background:linear-gradient(90deg,#ffd23f,#ff4fd8);-webkit-background-clip:text;background-clip:text;color:transparent}
-.tag{margin:2px 0 18px;color:#cdb8ff;font-weight:600}
-label{display:block;font-size:13px;color:#cdb8ff;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-input,select{width:100%;padding:12px 14px;border-radius:10px;border:2px solid #4a3a78;background:#1a1235;color:#fff;font-size:18px;font-weight:700;outline:none;user-select:text;-webkit-user-select:text}
-input:focus,select:focus{border-color:#ffd23f}
-button{cursor:pointer;border:0;border-radius:10px;padding:12px 18px;font-size:16px;font-weight:800;color:#1a1235;background:#ffd23f;transition:transform .08s}
-button:hover{transform:translateY(-1px) scale(1.02)}
-button.alt{background:#3a2c66;color:#fff}
-button.big{font-size:22px;padding:14px 26px;background:linear-gradient(90deg,#ffd23f,#ff8a3f)}
-button:disabled{opacity:.4;cursor:default;transform:none}
-.row{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.card{width:min(620px,100%);display:flex;flex-direction:column;align-items:stretch;gap:14px;margin:auto 0}
+/* Logo */
+.logo{position:relative;align-self:center;text-align:center;margin:0 0 6px;filter:drop-shadow(0 8px 0 rgba(0,0,0,.35));animation:bob 3s ease-in-out infinite;font-weight:400}
+.logo .l1{display:block;font-family:"Lilita One",sans-serif;font-size:clamp(54px,10vw,112px);line-height:.95;color:var(--cream);letter-spacing:1px;
+  -webkit-text-stroke:10px var(--ink);paint-order:stroke fill;transform:rotate(-3deg)}
+.logo .l2{display:inline-block;margin-top:-4px;padding:4px 26px 10px;font-family:"Lilita One",sans-serif;font-size:clamp(28px,5vw,56px);color:var(--gold);
+  -webkit-text-stroke:8px var(--ink);paint-order:stroke fill;background:var(--red);border:5px solid var(--ink);border-radius:10px;transform:rotate(-3deg) skewX(-8deg);
+  box-shadow:0 7px 0 #8d1a12}
+.logo::before,.logo::after{content:"";position:absolute;top:28%;width:60px;height:60px;background:
+  linear-gradient(var(--gold),var(--gold)) 0 50%/26px 7px no-repeat,linear-gradient(var(--gold),var(--gold)) 50% 0/7px 22px no-repeat}
+.logo::before{left:-40px;transform:rotate(-30deg)}.logo::after{right:-40px;transform:rotate(30deg) scaleX(-1)}
+@keyframes bob{50%{transform:translateY(-6px)}}
+/* Panels */
+.panel{background:linear-gradient(#45210e,#341709);border:5px solid var(--gold);border-radius:22px;padding:14px 18px;box-shadow:0 0 0 5px var(--ink),0 10px 0 5px rgba(0,0,0,.35)}
+.panel h2,.hsc h3{margin:0 0 8px;font-family:"Lilita One",sans-serif;font-weight:400;font-size:26px;text-align:center;color:var(--cream);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.tag{margin:0;text-align:center;color:var(--muted);font-weight:600;font-size:15px;text-shadow:0 2px 0 #0008}
+label{display:block;font-size:13px;color:var(--muted);margin:6px 0 4px 6px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+input,select{width:100%;padding:12px 20px;border-radius:999px;border:4px solid var(--ink);background:var(--cream);color:var(--ink);font-family:inherit;font-size:20px;font-weight:700;outline:none;user-select:text;-webkit-user-select:text;box-shadow:inset 0 4px 0 rgba(0,0,0,.12)}
+input::placeholder{color:#b08a64}
+input:focus,select:focus{border-color:var(--gold2)}
+/* Knöpfe */
+button{cursor:pointer;font-family:"Lilita One",sans-serif;font-weight:400;border:5px solid var(--ink);border-radius:999px;padding:8px 22px;font-size:22px;color:var(--ink);
+  background:linear-gradient(#fff8e8,#f3dcb2);box-shadow:0 6px 0 #a57a45,0 6px 0 5px var(--ink);transition:transform .08s,box-shadow .08s}
+button:hover{transform:translateY(-2px) scale(1.02)}
+button:active{transform:translateY(5px);box-shadow:0 1px 0 #a57a45,0 1px 0 5px var(--ink)}
+button.big{font-size:clamp(36px,6vw,58px);padding:4px 40px 10px;background:linear-gradient(#ffe56a 0%,#ffc31f 45%,#ff9a0e 100%);box-shadow:inset 0 6px 0 rgba(255,255,255,.55),0 9px 0 #b85f00,0 9px 0 5px var(--ink);margin:6px 0}
+/* Startbildschirm wie ein Konsolenspiel: Logo, Start, Optionen, Highscore */
+.home{width:min(560px,100%);align-items:center;gap:18px}
+.home .logo .l1{font-size:clamp(60px,11vw,124px)}
+button.start{width:min(460px,100%);font-size:clamp(48px,8vw,80px);padding:2px 30px 8px;border-radius:999px;margin:0}
+button.start::before{content:"▶";margin-right:18px;font-size:.75em;vertical-align:4%}
+.pill{font-size:28px;padding:4px 44px 6px}
+.hiscore{width:min(540px,100%);background:linear-gradient(#3e1d0c,#2c1306);border:5px solid var(--gold);border-radius:20px;padding:10px 22px 12px;box-shadow:0 0 0 5px var(--ink),0 10px 0 5px rgba(0,0,0,.35)}
+.hiscore h2{margin:0 0 4px;text-align:center;font-family:"Lilita One",sans-serif;font-weight:400;font-size:34px;color:var(--cream);-webkit-text-stroke:5px var(--ink);paint-order:stroke fill}
+.hiscore .hrow{padding:7px 4px}.hiscore .hrow b,.hiscore .hrow em{font-family:"Lilita One",sans-serif;font-weight:400;font-size:24px}
+.hiscore .medal{width:36px;height:36px;font-size:19px}
+.logo.small .l1{font-size:clamp(40px,6vw,64px)}.logo.small .l2{font-size:clamp(20px,3vw,32px)}
+/* Hauptmenü-Bühne aus den Grafiken */
+#stage{position:fixed;inset:0;overflow:hidden;background:linear-gradient(#8f3f20,#5a2410 60%,#2a1206);z-index:0;--mx:0;--my:0}
+body.game #stage{display:none}
+body.lobbyview #home{display:none}
+.screen{z-index:1;pointer-events:none}.screen .card{pointer-events:auto}
+#stage .lay{position:absolute;inset:0}
+#stage .bg{filter:blur(.6px)}
+#stage .fig{filter:drop-shadow(0 16px 10px rgba(25,8,2,.5)) drop-shadow(0 0 2px rgba(0,0,0,.35))}
+#stage .ui{filter:drop-shadow(0 14px 10px rgba(25,8,2,.5))}
+/* Tiefe ohne Bewegung: Logo ganz vorn, Start davor, Optionen und Tafel weiter hinten (verschieden starke Schatten, leichte Größe) */
+#stage .d-logo{filter:drop-shadow(0 28px 18px rgba(25,8,2,.6)) drop-shadow(0 6px 3px rgba(25,8,2,.35))}
+#stage .d-start{filter:drop-shadow(0 20px 14px rgba(25,8,2,.55))}
+#stage .d-opt{filter:drop-shadow(0 9px 6px rgba(25,8,2,.45))}
+#stage .d-board{filter:drop-shadow(0 6px 5px rgba(25,8,2,.4))}
+#stage .sv{position:absolute;left:50%;top:50%;width:1672px;height:941px;transform-origin:50% 50%}
+.screen{background:none!important} /* keine Abdeckung: Menü in vollen Farben */
+#stage .a{position:absolute}
+#stage .fig{pointer-events:none}
+.ib{background:none!important;border:0!important;padding:0!important;box-shadow:none!important;border-radius:0!important;cursor:pointer;transition:transform .1s}
+.ib img{width:100%;display:block;pointer-events:none}
+.ib:hover{transform:scale(1.04)}.ib:active{transform:scale(.96)}
+#sndbtn.off img{opacity:.45;filter:grayscale(1)}
+#hs1{position:absolute;left:128px;right:40px;top:80px}
+#hs1 .hsr{display:flex;align-items:center;justify-content:space-between;height:54px;font-family:"Lilita One",sans-serif;font-size:30px;color:var(--cream);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill}
+#hs1 .hsr b{font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:280px}
+#play{position:relative;z-index:2}
+/* Knöpfe aus den leeren Grafiken (gelb: Hauptaktion, creme: Nebenaktion) */
+.gbtn{border:0!important;box-shadow:none!important;border-radius:0!important;background:transparent center/100% 100% no-repeat!important;padding:0 20px!important;font-family:"Lilita One",sans-serif;color:#2a1206;transition:transform .1s}
+.gbtn.gold{background-image:url(assets/menu/start-leer.webp)!important;aspect-ratio:475/144;font-size:clamp(24px,3.4vw,40px);padding-bottom:6px!important}
+.gbtn.cream{background-image:url(assets/menu/optionen-leer.webp)!important;aspect-ratio:416/78;font-size:clamp(17px,2vw,24px);padding-bottom:3px!important}
+.gbtn:hover{transform:scale(1.04)}.gbtn:active{transform:scale(.96)}.gbtn:disabled{opacity:.5;transform:none}
+.modes .mode{display:flex;flex-direction:column;align-items:stretch;gap:6px;text-align:center;min-height:0;padding:0;background:none;border:0;box-shadow:none}
+.modes .mode small{color:var(--muted);font-weight:600;font-size:13px;text-shadow:0 2px 0 #0008}
+.modes .gbtn.gold{font-size:clamp(20px,2.4vw,30px)}
+#start.gbtn{font-size:clamp(18px,2.2vw,28px)}
+label.step{font-family:"Lilita One",sans-serif;font-weight:400;font-size:20px;text-transform:none;letter-spacing:0;color:var(--cream);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;margin:4px 0 -4px 8px}
+.modes{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:16px;margin-bottom:8px}
+.mode{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 12px 12px;border-radius:22px;min-height:96px}
+.mode b{font-weight:400;font-size:24px;line-height:1.1}
+.mode small{font-family:Fredoka,sans-serif;font-weight:600;font-size:13px;opacity:.75;line-height:1.2}
+.mode.main{background:linear-gradient(#ffe56a 0%,#ffc31f 45%,#ff9a0e 100%);box-shadow:inset 0 6px 0 rgba(255,255,255,.55),0 9px 0 #b85f00,0 9px 0 5px var(--ink)}
+.mode.main b{font-size:32px}.mode.main b::before{content:"▶ ";font-size:.75em}
+@media (max-width:620px){.modes{grid-template-columns:1fr}.mode{min-height:0}}
+#start{font-size:clamp(30px,4.5vw,44px)}
+button:disabled{opacity:.45;cursor:default;transform:none}
+.row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:2px 0 6px}
 .row>*{flex:1}
-#list{margin-top:16px;max-height:34vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
-.lob{display:flex;align-items:center;gap:10px;background:#1a1235;border-radius:10px;padding:10px 12px}
-.lob b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lob small{color:#cdb8ff}
-.lob button{padding:8px 14px}
-.empty{color:#8f7fc0;text-align:center;padding:14px}
-#status,#err{min-height:20px;margin-top:10px;color:#ff8a8a;font-weight:700;text-align:center}
-#players{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
-.pl{display:flex;align-items:center;gap:10px;background:#1a1235;border-radius:10px;padding:10px 12px;font-weight:800}
-.pl i{width:18px;height:18px;border-radius:6px;flex:none}
-.pl.free{opacity:.35;font-weight:600}
-.code{font-family:ui-monospace,monospace;background:#1a1235;padding:2px 8px;border-radius:6px;color:#ffd23f}
-.help{margin-top:16px;font-size:13px;color:#cdb8ff;line-height:1.7}
-kbd{background:#3a2c66;border-radius:5px;padding:1px 6px;font-family:inherit;font-weight:800;color:#fff}
-#quit{position:fixed;top:10px;right:10px;display:none;z-index:5;padding:8px 12px;font-size:13px;background:rgba(58,44,102,.8);color:#fff}
-#hj-music{position:fixed;top:10px;left:10px;z-index:8;display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(15,10,32,.93);border:1px solid #6e5796;border-radius:12px;box-shadow:0 4px 14px #0006;font-size:12px}
-#hj-music-toggle{font-size:12px;padding:8px 10px;background:#3a2c66;color:#fff;white-space:nowrap}
-#hj-music-volume{width:90px;padding:0;accent-color:#ffd23f;cursor:pointer}
-#hj-music-label{min-width:24px;color:#cdb8ff;font-weight:700}
-body.game #hj-music{display:none}
-@media(max-width:500px){#hj-music{top:8px;left:8px;padding:5px;gap:5px}#hj-music-volume{width:58px}#hj-music-label{display:none}}
-.hs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.hsc{background:#1a1235;border-radius:10px;padding:10px 12px;min-width:0}
-.hs h3{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:1px;color:#ffd23f}
-.hs ol{margin:0;padding:0 0 0 22px;font-size:14px}
-.hs li{padding:2px 0;display:list-item}
-.hs li b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hs li span{display:block;color:#cdb8ff;font-size:12px}
-.hs .empty{padding:6px 0;font-size:13px}
-@media (max-width:520px){.hs{grid-template-columns:1fr}}
+#list{max-height:20vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
+.lob{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);border:3px solid #5c2f14;border-radius:14px;padding:6px 12px}
+.lob b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:18px}
+.lob small{color:var(--muted);font-weight:600}
+.lob button{padding:2px 14px;font-size:16px;border-width:4px;box-shadow:0 4px 0 #a57a45,0 4px 0 4px var(--ink)}
+.empty{color:var(--muted);text-align:center;padding:6px;font-weight:600}
+#status,#err{min-height:20px;color:#ff9a8a;font-weight:700;text-align:center;text-shadow:0 2px 0 #0008}
+/* Bestenliste */
+.hs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:4px}
+.hsc{background:linear-gradient(#45210e,#341709);border:5px solid var(--gold);border-radius:22px;padding:10px 14px;box-shadow:0 0 0 5px var(--ink),0 10px 0 5px rgba(0,0,0,.35);min-width:0}
+.hsc h3{font-size:22px}.hsc h3 span{margin-right:8px;-webkit-text-stroke:0}
+.hrow{display:flex;align-items:center;gap:10px;padding:5px 2px;border-top:2px solid rgba(255,195,31,.15)}
+.hrow b{flex:1;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hrow em{font-style:normal;font-family:"Lilita One",sans-serif;font-size:17px;color:var(--cream)}
+.medal{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;font-style:normal;font-family:"Lilita One",sans-serif;font-size:15px;color:var(--ink);background:#8a5a35;border:3px solid var(--ink)}
+.medal.m1{background:radial-gradient(circle at 35% 30%,#fff4a8,#ffc31f 60%,#d48a00)}
+.medal.m2{background:radial-gradient(circle at 35% 30%,#fff,#c9d1da 60%,#8d97a3)}
+.medal.m3{background:radial-gradient(circle at 35% 30%,#ffd2a8,#e0843f 60%,#9c4f1c)}
+/* Lobby */
+#players{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0}
+.pl{display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.28);border:3px solid #5c2f14;border-radius:12px;padding:6px 8px;font-weight:700;font-size:15px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pl i{width:18px;height:18px;border-radius:6px;flex:none;border:2px solid var(--ink);background:#5c2f14}
+.pl.free{opacity:.4;font-weight:600}
+.code{font-family:"Lilita One",sans-serif;background:var(--cream);color:var(--ink);padding:1px 10px;border-radius:8px;border:3px solid var(--ink);letter-spacing:2px}
+.help{font-size:14px;color:var(--muted);line-height:1.9;text-align:center;margin-top:6px}
+kbd{background:var(--cream);color:var(--ink);border:2px solid var(--ink);border-bottom-width:4px;border-radius:6px;padding:0 6px;font-family:inherit;font-weight:700}
+/* Ecke oben rechts: Ton + Optionen */
+.corner{position:fixed;top:16px;right:16px;z-index:8;display:flex;gap:14px}
+.ibtn{width:64px;height:64px;padding:0;display:grid;place-items:center;font-size:30px;border-radius:16px;background:linear-gradient(#5a2c12,#3b1d0c);color:var(--cream);border:4px solid var(--gold);box-shadow:0 0 0 4px var(--ink),0 6px 0 4px rgba(0,0,0,.4);font-family:system-ui}
+.ibtn:active{box-shadow:0 0 0 4px var(--ink)}
+body.game .corner{display:none}
+#opts{position:fixed;inset:0;z-index:9;display:none;align-items:center;justify-content:center;background:rgba(20,8,2,.6);padding:16px}
+#opts.on{display:flex}
+#opts .panel{width:min(540px,100%);display:flex;flex-direction:column;gap:8px}
+#hj-music{display:flex;align-items:center;gap:12px}
+#hj-music-toggle{font-size:18px;padding:4px 16px;flex:none}
+#hj-music-volume{flex:1;padding:0;accent-color:var(--gold);border:0;box-shadow:none;background:transparent;height:30px}
+#hj-music-label{min-width:30px;color:var(--muted);font-weight:700}
+#quit{position:fixed;top:12px;right:14px;display:none;z-index:5;width:170px;aspect-ratio:416/78;padding:0 0 3px!important;font-size:18px;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent url(assets/menu/optionen-leer.webp) center/100% 100% no-repeat!important;color:#2a1206;filter:drop-shadow(0 6px 5px rgba(20,6,0,.45))}
+@media (max-width:620px){.hs{grid-template-columns:1fr}#players{grid-template-columns:repeat(2,1fr)}.ibtn{width:48px;height:48px;font-size:22px}.logo::before,.logo::after{display:none}.screen{padding-top:76px}}
 #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:4}
-#touch button{position:absolute;pointer-events:auto;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:26px;padding:0;border:2px solid rgba(255,255,255,.35)}
+#touch button{position:absolute;pointer-events:auto;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:26px;padding:0;border:2px solid rgba(255,255,255,.35);box-shadow:none;font-family:system-ui}
 #touch button.dn{background:rgba(255,210,63,.55)}
 @media (pointer:coarse){body.game #touch{display:block}}
 body.game #quit{display:block}
@@ -65,45 +150,95 @@ body.game #quit{display:block}
 <body>
 <canvas id="cv"></canvas>
 
-<div id="hj-music" role="group" aria-label="Hintergrundmusik">
-  <button id="hj-music-toggle" type="button" aria-pressed="true">♫ Musik an</button>
-  <input id="hj-music-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Musiklautstärke">
-  <span id="hj-music-label" aria-live="polite">1/5</span>
+
+
+<div id="opts">
+  <div class="panel">
+    <h2>Optionen</h2>
+    <label>Musik</label>
+    <div id="hj-music" role="group" aria-label="Hintergrundmusik">
+      <button id="hj-music-toggle" type="button" aria-pressed="true">Musik an</button>
+      <input id="hj-music-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Musiklautstärke">
+      <span id="hj-music-label" aria-live="polite">1/5</span>
+    </div>
+    <label>Steuerung</label>
+    <div class="help">
+      <kbd>A</kbd>/<kbd>D</kbd> laufen · <kbd>Leertaste</kbd> springen (Doppel- &amp; Wandsprung) · <kbd>S</kbd> rutschen<br>
+      <kbd>J</kbd>/<kbd>Shift</kbd> Greifhaken – zielt auf den blinkenden Kreis, gedrückt halten!<br>
+      <kbd>K</kbd> Item · <kbd>L</kbd> Boost · <kbd>M</kbd> Musik · Gamepad geht auch
+    </div>
+    <button id="optclose" class="gbtn cream" style="align-self:center;width:260px">Zurück</button>
+  </div>
+</div>
+
+<!-- Hauptmenü-Bühne im Maß des Referenzbilds (1672×941). Drei Ebenen für Parallax: Hintergrund, Figuren, Bedienung.
+     Sie liegt hinter Hauptmenü, Spielauswahl und Lobby; im Spiel ist sie aus. -->
+<div id="stage" aria-label="Hauptmenü">
+  <div class="sv">
+    <div class="lay l0">
+      <img src="assets/menu/fabrik-sonnenuntergang.webp" alt="" class="a bg" style="left:-1672px;top:0;width:1672px;transform:scaleX(-1)">
+      <img src="assets/menu/fabrik-sonnenuntergang.webp" alt="" class="a bg" style="left:0;top:0;width:1672px">
+      <img src="assets/menu/fabrik-sonnenuntergang.webp" alt="" class="a bg" style="left:1672px;top:0;width:1672px;transform:scaleX(-1)">
+    </div>
+    <div class="lay l1">
+      <img src="assets/menu/lila.webp" alt="" class="a fig" style="left:60px;top:235px;width:172px">
+      <img src="assets/menu/blau.webp" alt="" class="a fig" style="left:330px;top:298px;width:165px">
+      <img src="assets/menu/rot.webp" alt="" class="a fig" style="left:38px;top:635px;width:330px">
+      <img src="assets/menu/orange.webp" alt="" class="a fig" style="left:1352px;top:232px;width:265px">
+      <img src="assets/menu/gruen.webp" alt="" class="a fig" style="left:1138px;top:385px;width:182px">
+      <img src="assets/menu/pink.webp" alt="" class="a fig" style="left:1440px;top:438px;width:188px">
+      <img src="assets/menu/sprungfeder.webp" alt="" class="a fig" style="left:776px;top:772px;width:114px">
+      <img src="assets/menu/stacheln.webp" alt="" class="a fig" style="left:1222px;top:820px;width:140px">
+    </div>
+    <div class="lay l2">
+      <div id="home">
+        <img src="assets/menu/logo.webp" alt="Rüdiger, nicht so schnell!" class="a ui d-logo" style="left:468px;top:12px;width:723px">
+        <button id="go" class="ib a ui d-start" style="left:596px;top:276px;width:475px" aria-label="Start"><img src="assets/menu/start.webp" alt=""></button>
+        <button id="optbtn2" class="ib a ui d-opt" style="left:628px;top:424px;width:416px" aria-label="Optionen"><img src="assets/menu/optionen.webp" alt=""></button>
+        <div class="a ui d-board" style="left:532px;top:512px;width:600px;height:265px">
+          <img src="assets/menu/highscore-leer.webp" alt="Highscore" style="width:100%">
+          <div id="hs1"></div>
+        </div>
+      </div>
+      <button id="sndbtn" class="ib a ui" style="left:1460px;top:12px;width:92px" aria-label="Musik an/aus"><img src="assets/menu/ton.webp" alt=""></button>
+      <button id="optbtn" class="ib a ui" style="left:1564px;top:12px;width:90px" aria-label="Optionen"><img src="assets/menu/einstellungen.webp" alt=""></button>
+    </div>
+  </div>
 </div>
 
 <div id="menu" class="screen on">
-  <div class="card">
-    <h1>RÜDIGER,<span style="display:block;font-size:.5em;letter-spacing:-1px">nicht so schnell!</span></h1>
-    <div class="tag">Renn um dein Leben – wer aus dem Bild fällt oder absäuft, fliegt raus! (2–6 Spieler)</div>
-    <label for="name">Dein Name</label>
+  <div class="card" id="play" hidden>
+    <img src="assets/menu/logo.webp" alt="Rüdiger, nicht so schnell!" style="width:min(460px,90%);align-self:center;filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))">
+    <label for="name" class="step">① Wie heißt du?</label>
     <input id="name" maxlength="14" placeholder="z. B. Turbo-Tina" autocomplete="off">
-    <div class="row">
-      <button id="quick" class="big">Schnellspiel</button>
-      <button id="create" class="alt">Neue Lobby</button>
+    <label class="step">② Wie willst du spielen?</label>
+    <div class="modes">
+      <div class="mode"><button id="quick" class="gbtn gold">▶ Schnellspiel</button><small>Einem offenen Rennen beitreten</small></div>
+      <div class="mode"><button id="create" class="gbtn cream">Mit Freunden</button><small>Eigene Lobby – Link verschicken</small></div>
+      <div class="mode"><button id="solo" class="gbtn cream">Alleine üben</button><small>Sofort los, ohne Gegner</small></div>
     </div>
-    <div id="list"></div>
+    <div class="panel" id="lobs" hidden><h2>Offene Rennen</h2><div id="list"></div></div>
     <div id="status"></div>
-    <div class="hs"></div>
+    <button id="back" class="gbtn cream" style="align-self:center;width:260px">◀ Zurück</button>
   </div>
 </div>
 
 <div id="lobby" class="screen">
   <div class="card">
-    <h1 style="font-size:40px" id="lname">Lobby</h1>
-    <div class="tag">Code <span class="code" id="lcode"></span> &nbsp; <button id="copy" class="alt" style="padding:5px 10px;font-size:13px">Einladungslink kopieren</button></div>
-    <div id="players"></div>
-    <label for="map">Strecke</label>
-    <select id="map"></select>
-    <div class="row">
-      <button id="start" class="big">Start!</button>
-      <button id="leave" class="alt" style="flex:0 0 auto">Verlassen</button>
+    <div class="panel">
+      <h2 id="lname">Lobby</h2>
+      <p class="tag">Code <span class="code" id="lcode"></span> &nbsp; <button id="copy" style="padding:0 14px;font-size:15px;border-width:4px;box-shadow:0 4px 0 #a57a45,0 4px 0 4px var(--ink)">Einladungslink kopieren</button></p>
+      <div id="players"></div>
+      <label for="map">Strecke</label>
+      <select id="map"></select>
+      <div id="err"></div>
+      <div class="help">
+        <kbd>A</kbd>/<kbd>D</kbd> laufen · <kbd>Leertaste</kbd> springen · <kbd>S</kbd> rutschen · <kbd>J</kbd> Haken · <kbd>K</kbd> Item · <kbd>L</kbd> Boost<br>
+        Wer 3 Runden gewinnt, gewinnt das Match – und tanzt.
+      </div>
     </div>
-    <div id="err"></div>
-    <div class="help">
-      <kbd>A</kbd>/<kbd>D</kbd> oder <kbd>←</kbd>/<kbd>→</kbd> laufen · <kbd>Leertaste</kbd>/<kbd>W</kbd> springen (Doppel- &amp; Wandsprung) · <kbd>S</kbd> rutschen / durch Plattform fallen<br>
-      <kbd>J</kbd>/<kbd>Shift</kbd> Greifhaken (an hellen Decken, halten!) · <kbd>K</kbd>/<kbd>E</kbd>/<kbd>Num −</kbd> Item · <kbd>L</kbd>/<kbd>Q</kbd>/<kbd>Num +</kbd> Boost (kurzer Schub, lädt sich auf)<br>
-      Wer 3 Runden gewinnt, gewinnt das Match. <kbd>M</kbd> Musik an/aus. Gamepad wird unterstützt.
-    </div>
+    <button id="start" class="gbtn gold" style="align-self:center;width:min(420px,100%)">▶ Start!</button>
+    <div class="row"><button id="leave" class="gbtn cream" style="flex:0 0 auto;width:260px">Verlassen</button></div>
     <div class="hs"></div>
   </div>
 </div>
@@ -118,7 +253,23 @@ body.game #quit{display:block}
   <button data-k="item" style="right:26px;bottom:126px">★</button>
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
-<script src="game.js"></script>
+<script src="game.js?v=45"></script>
 <script src="music-player.js"></script>
+<script>
+(() => {
+  const o = document.getElementById('opts'), snd = document.getElementById('sndbtn');
+  const open = () => o.classList.add('on'), close = () => o.classList.remove('on');
+  document.getElementById('optbtn').onclick = open; 
+  document.getElementById('optbtn2').onclick = open; document.getElementById('optclose').onclick = close; o.addEventListener('click', e => { if (e.target === o) close(); });
+  const sync = () => snd.classList.toggle('off', !!(window.hjMusic && !window.hjMusic.playing));
+  // Bühne einpassen: füllt den Bildschirm, die Mittelspalte (Logo, Knöpfe, Tafel) bleibt aber immer ganz sichtbar
+  const sv = document.querySelector('#stage .sv');
+  const fit = () => { const k = Math.min(innerHeight / 941, innerWidth / 760, Math.max(innerWidth / 1672, innerHeight / 941)); sv.style.transform = 'translate(-50%,-50%) scale(' + k + ')'; };
+
+  addEventListener('resize', fit); fit();
+  snd.onclick = () => { if (window.hjMusic) window.hjMusic.toggle(); setTimeout(sync, 80); };
+  setInterval(sync, 1000);
+})();
+</script>
 </body>
 </html>
