@@ -72,11 +72,11 @@
   letter-spacing: .12em;
   text-transform: uppercase;
 }
-.arcade-heading h2 span { position: relative; display: inline-block; }
+.arcade-heading h2 span { position: relative; display: inline-block; line-height: 1.12; padding-inline: .04em .14em; }
 .arcade-heading h2 span::before {
   content: "";
   position: absolute;
-  top: -.23em;
+  top: -.16em;
   left: .15em;
   width: .58em;
   height: .36em;
@@ -528,7 +528,7 @@
   .arcade-stage--landing {
     position: relative;
     display: block;
-    padding: 4.55cqw 6.8cqw .75cqw 28.3cqw;
+    padding: 5.05cqw 6.8cqw .75cqw 28.3cqw;
   }
   .arcade-stage--landing::before {
     content: "";
@@ -556,7 +556,7 @@
   }
   .arcade-heading h2 {
     margin: 0 0 .85cqw;
-    font-size: 4.15cqw;
+    font-size: 3.85cqw;
     line-height: .97;
     white-space: nowrap;
     transform: rotate(-3deg) scaleX(.96);
@@ -602,8 +602,6 @@
     font-size: .73em;
     transform: translateX(50%) rotate(-7deg);
   }
-  .arcade-stage--landing .arcade-avatar { width: 7.6cqw; }
-  .arcade-stage--landing .rank-1 > .arcade-avatar { width: 9.05cqw; margin-right: 8%; }
   .arcade-stage--landing .arcade-name { font-size: 1.65cqw; }
   .arcade-stage--landing .rank-1 .arcade-name { font-size: 2cqw; }
   .arcade-stage--landing .arcade-level { font-size: 1.13cqw; }
@@ -663,7 +661,7 @@
 /* Highscore polish 2026-11-11: Badges sitzen wie in der Referenz auf der oberen
    Schildkante; die drei Vitrinenplätze bleiben vollständig in der Karte. */
 .arcade-champion { box-sizing: border-box; }
-.arcade-champion > .arcade-avatar { flex: none; }
+.arcade-champion > .arcade-avatar { flex: none; z-index: 1; transform: skew(-6deg, -6deg); }
 .arcade-champion .arcade-medals.hs-showcase { flex: none; min-width: 0; }
 .arcade-champion .arcade-score { flex: none; }
 .arcade-champion .arcade-profile { min-width: 0; }
@@ -682,18 +680,17 @@
   }
   .arcade-stage--landing .arcade-champion > .arcade-avatar {
     position: absolute;
-    z-index: 3;
-    top: -1.2cqw;
+    top: -.35cqw;
     left: 50%;
-    transform: translateX(-50%);
-    width: 7.6cqw;
+    transform: translateX(-50%) skew(-6deg, -6deg);
+    width: 7.15cqw;
     margin: 0;
     filter: drop-shadow(0 .28cqw .23cqw #02070dcc);
   }
   .arcade-stage--landing .rank-1 > .arcade-avatar {
-    top: -1.65cqw;
-    left: 42%;
-    width: 9.05cqw;
+    top: -.12cqw;
+    left: 44%;
+    width: 8.4cqw;
     margin: 0;
   }
   .arcade-stage--landing .arcade-profile { flex: none; }
@@ -725,7 +722,7 @@
     display:flex;align-items:stretch;gap:12px;
     overflow-x:auto;overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;
-    padding:55px 6px 13px;
+    padding:63px 6px 13px;
     scrollbar-width:thin;scrollbar-color:#bd9152 #14222b;
   }
   .arcade-champion,.arcade-champion.rank-1{
@@ -738,8 +735,8 @@
   .arcade-champion.rank-2{order:1}
   .arcade-champion.rank-3{order:2}
   .arcade-champion > .arcade-avatar,.arcade-champion.rank-1 > .arcade-avatar{
-    position:absolute;z-index:3;top:-31px;left:50%;
-    transform:translateX(-50%);width:98px;margin:0;
+    position:absolute;top:-8px;left:50%;
+    transform:translateX(-50%) skew(-6deg, -6deg);width:90px;margin:0;
     filter:drop-shadow(0 3px 5px #000a);
   }
   .arcade-champion .arcade-rank{bottom:calc(100% + 2px);font-size:38px}
