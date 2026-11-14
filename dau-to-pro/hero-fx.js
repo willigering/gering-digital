@@ -93,6 +93,7 @@
   function reset(smooth) {
     clearTimeout(resetTimer);
     count = 0; firstAt = 0;
+    body.classList.remove('is-charged');
     counter.classList.remove('is-on');
     body.classList.toggle('is-calm', !!smooth);
     setLook(0);
@@ -135,6 +136,7 @@
     if (count === 3 && videoSrc) prepareVideo();
     if (count >= CLICKS) { counter.classList.remove('is-on'); levelUp(); return; }
     pop(count);
+    if (count === CLICKS - 1) body.classList.add('is-charged');
   });
 
   // ---------------------------------------------------------------- Video

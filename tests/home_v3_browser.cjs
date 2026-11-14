@@ -82,6 +82,8 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     }else if(width<=600){
       assert.equal(details.gridCols,1,'One-column readable cards on narrow mobile');
     }
+    await page.locator('.catalog-filter[data-category="spiele"]').click();
+    assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
     await page.locator('.catalog-filter[data-category="apps"]').click();
     assert.equal(await page.locator('.dtp-portal-card').isVisible(),false,'Category filter should still work');
     await page.locator('.catalog-filter[data-category="alle"]').click();

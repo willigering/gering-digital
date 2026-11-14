@@ -3,7 +3,7 @@ require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
 // DAU-TO-PRO-Lernmodule erscheinen nur auf /dau-to-pro/, hier steht stattdessen die eine DAU-TO-PRO-Karte unter „Sonstiges“.
-$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND IFNULL(category,'')<>'lernen' ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
     $preview=['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
     if ($page['slug']==='perlenwahn') {
@@ -11,9 +11,17 @@ foreach ($webPages as $page) {
         $preview['x']=$preview['y']=50;
     }
     $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
-       'category'=>$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+       'category'=>$page['slug']==='speed'?'spiele':$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
        'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
        'preview_fit'=>$preview['fit']==='contain'?'contain':'cover','preview_x'=>$preview['x'],'preview_y'=>$preview['y']];
+}
+if (!in_array('speed', array_column($apps,'slug'), true)) {
+    $apps[]=[
+        'is_html'=>true,'name'=>'Rüdiger, nicht so schnell!',
+        'short_description'=>'Ein rasantes Spiel für den Browser.',
+        'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+        'play_url'=>'','apple_url'=>'','slug'=>'speed'
+    ];
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
@@ -164,7 +172,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
           <?php if($st==='entwicklung'): ?><span class="store muted">In Entwicklung</span><?php endif; ?>
           </div>
-          <?php else: ?><span class="html-card-cta" aria-hidden="true">Im Browser öffnen <b>↗</b></span>
+          <?php else: ?><span class="html-card-cta" aria-hidden="true"><?=$app['category']==='spiele'?'Spielen':'Im Browser öffnen'?> <b>↗</b></span>
           <?php endif; ?>
           </div>
         </article>
