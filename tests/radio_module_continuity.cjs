@@ -84,7 +84,7 @@ let server,browser;
   // No playback started: module links MUST use their regular page navigation,
   // without the persistent-radio shell or a second navigation toolbar.
   assert.equal(await page.locator('[data-nerd-radio]').getAttribute('data-state'), 'stopped');
-  await page.locator('#module-grid a.module-card[href="../osi/"]').click();
+  await page.locator('#module-grid .module-card[href="../osi/"], #module-grid .module-card a[href="../osi/"]').click();
   await page.waitForURL(base+'/osi/');
   assert.equal(await page.locator('[data-module-shell]').count(),0,
     'Inactive radio must not insert its module-shell toolbar');
@@ -115,7 +115,7 @@ let server,browser;
   assert.equal(before.contexts,1);
   assert.ok(seconds(before.elapsed)>=1);
 
-  await page.locator('#module-grid a.module-card[href="../osi/"]').click();
+  await page.locator('#module-grid .module-card[href="../osi/"], #module-grid .module-card a[href="../osi/"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'visible'});
   await page.frameLocator('[data-module-frame]').locator('h1').waitFor();
   assert.equal(await page.frameLocator('[data-module-frame]').locator('dtp-back').isVisible(),false,
@@ -146,7 +146,7 @@ let server,browser;
   assert.equal((await state()).state,'playing','Music survives return to overview');
   assert.ok(!new URL(page.url()).searchParams.has('modul'));
 
-  await page.locator('#module-grid a.module-card[href="../osi/"]').click();
+  await page.locator('#module-grid .module-card[href="../osi/"], #module-grid .module-card a[href="../osi/"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'visible'});
   assert.equal(await page.frameLocator('[data-module-frame]').locator('dtp-back').isVisible(),false,
     'Only the outer navigation remains visible in the learning view');
