@@ -497,6 +497,12 @@ function releaseHook(p) {
   p.hook = null; p.vx = clamp(p.vx * 1.08, -1050, 1050); if (p.vy > -200) p.vy -= 150; p.jumps = 1;
   beep(500, 0.08, 'triangle', 0.04, 300);
 }
+// Was steckt in der Kiste? Fest je Position (alle Spieler sehen dasselbe). 'q' = Überraschung wie bisher.
+function boxKind(tx, ty) {
+  const h = hash(tx * 7.31 + ty * 3.17); if (h < 0.5) return 'q';
+  const pool = ['rocket', 'turbo', 'shock', 'crate', 'lasso', theme.item || 'rocket', theme.item || 'turbo'];
+  return pool[fl(hash(tx * 1.9 + ty * 5.3 + 11) * pool.length)];
+}
 function rollItem() {
   let ahead = 0, n = 0; for (const r of remotes.values()) if (r.alive) { n++; if (r.rx > me.x) ahead++; }
   const w = theme.item || 'rocket'; // jede Welt hat ihr eigenes Item, der Schneeball gibt es nur im Schnee
@@ -620,7 +626,7 @@ function stepMe(dt, now) {
     else if (c === 'T') { if (p.vy >= 0 && p.y > ty * T + 12) { p.vy = -1180; p.launch = true; p.jumps = 1; p.ground = false; p.slide = false; beep(200, 0.25, 'sine', 0.09, 800); dust(p.x, p.y, 8, '#7dffb0'); } }
     else if (c === '?') {
       const b = boxAt(tx, ty), i = map.boxes.indexOf(b);
-      if (b && now >= b.t && !p.item) { b.t = now + 6000; p.item = rollItem(); p.roll = 0.9; send({ t: 'ev', k: 'box', i }); beep(660, 0.08, 'square', 0.05); setTimeout(() => beep(990, 0.12, 'square', 0.05), 80); dust(tx * T + 16, ty * T + 16, 10, '#ffd23f', 260); }
+      if (b && now >= b.t && !p.item) { b.t = now + 6000; { const k = boxKind(b.tx, b.ty); p.item = k === 'q' ? rollItem() : k; } p.roll = 0.9; send({ t: 'ev', k: 'box', i }); beep(660, 0.08, 'square', 0.05); setTimeout(() => beep(990, 0.12, 'square', 0.05), 80); dust(tx * T + 16, ty * T + 16, 10, '#ffd23f', 260); }
     }
   }
   // Welt-Mechaniken und Fallen
@@ -1549,8 +1555,12 @@ function drawBackdrop(now) {
   // Wolken
   for (let i = 0; i < (theme.deco === 'moon' || theme.deco === 'space' ? 0 : 7); i++) { // keine Wolken auf Mond und im Weltall
     const cx = mod(hash(i) * 2400 - camX * 0.05 + now * 0.012 * (1 + hash(i + 9)), 2400) - 300, cy = 70 + hash(i + 3) * 240;
-    ctx.fillStyle = theme.deco === 'lava' ? 'rgba(20,5,5,.25)' : 'rgba(255,255,255,.08)';
-    for (let j = 0; j < 4; j++) { ctx.beginPath(); ctx.ellipse(cx + j * 46, cy - (j % 2) * 18, 60, 30, 0, 0, 7); ctx.fill(); }
+    drawCloud(cx, cy, 0.6 + hash(i + 5) * 0.7, i, hash(i + 7) < 0.4);
+  }
+    // Schleier: lange spitze Streifen
+  for (let i = 0; i < (theme.deco === 'moon' || theme.deco === 'space' ? 0 : 4); i++) {
+    const cx = mod(hash(i + 40) * 2600 - camX * 0.03 + now * 0.008, 2600) - 400, cy = 40 + hash(i + 41) * 260, len = 200 + hash(i + 42) * 220;
+    ctx.fillStyle = cloudCol(-0.15); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.bezierCurveTo(cx + len * 0.3, cy - 14, cx + len * 0.5, cy + 16, cx + len, cy - 6); ctx.bezierCurveTo(cx + len * 0.55, cy + 10, cx + len * 0.3, cy - 4, cx, cy); ctx.fill();
   }
   // Seilbahn: Seile mit fahrenden Gondeln
   if (theme.deco === 'rope') for (let k = 0; k < 2; k++) {
@@ -1715,16 +1725,58 @@ function drawTile(c, tx, ty, x, y, now) {
   } else if (c === '?') {
     const b = boxAt(tx, ty);
     if (b && now >= b.t) {
-      // Item-Kugel: schwebende Glaskugel mit drehendem Stern (bewusst kein „?“-Block)
-      const cx = x + 16, cy = y + 16 + Math.sin(now / 300 + tx) * 3, a = now / 600 + tx;
-      ctx.fillStyle = 'rgba(125,240,255,.14)'; ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 7); ctx.fill();
-      const gl = ctx.createRadialGradient(cx - 4, cy - 5, 2, cx, cy, 14); gl.addColorStop(0, '#e9fdff'); gl.addColorStop(0.45, '#7de3f2'); gl.addColorStop(1, '#3a62c9');
-      ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(cx, cy, 13, 0, 7); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 13, 0, 7); ctx.stroke();
-      { const ks = Object.keys(ITEMS), it = ks[fl(now / 450 + tx * 1.7) % ks.length]; ctx.globalAlpha = 0.9; ctx.font = '15px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(ITEMS[it], cx, cy + 1); ctx.globalAlpha = 1; } // Inhalt wechselt: zufällig
-      ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.ellipse(cx - 5, cy - 7, 3.5, 2, -0.6, 0, 7); ctx.fill();
+      drawItemBox(x + 16, y + 16 + Math.sin(now / 300 + tx) * 2, boxKind(b.tx, b.ty), now);
     }
   }
+}
+// Item-Kiste im Comicstil: dicke Kontur, Eckbeschläge, Glanz, Symbol des Inhalts
+const BOXCOL = { q: ['#ffb21f', '#c77a00', '#ffd060'], rocket: ['#ff3b3b', '#b51e1e', '#ff7a6a'], turbo: ['#9be021', '#5f9a0c', '#c4f060'], shock: ['#ff8a1f', '#b8520a', '#ffb866'],
+  crate: ['#b97a3c', '#7a4a1e', '#d9a066'], lasso: ['#a64bff', '#6c26b3', '#c891ff'], snow: ['#3fb6ff', '#1a78c2', '#8fd6ff'], banana: ['#ffe14d', '#c9a400', '#fff08a'],
+  lavaball: ['#ff5a1f', '#a8300a', '#ff9a5a'], gravity: ['#4b6bff', '#2a3fb0', '#8fa2ff'], jammer: ['#ff4fa8', '#b8236e', '#ff8cc6'] };
+function drawItemBox(cx, cy, kind, now) {
+  const [f, d, l] = BOXCOL[kind] || BOXCOL.q, h = 12, dp = 5, K = '#141414';
+  ctx.save(); ctx.lineJoin = 'round'; ctx.lineWidth = 2; ctx.strokeStyle = K;
+  ctx.fillStyle = d; ctx.beginPath(); ctx.moveTo(cx + h - 1, cy - h); ctx.lineTo(cx + h + dp, cy - h - dp * 0.6); ctx.lineTo(cx + h + dp, cy + h - dp * 0.6); ctx.lineTo(cx + h - 1, cy + h); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = l; ctx.beginPath(); ctx.moveTo(cx - h, cy - h + 1); ctx.lineTo(cx - h + dp, cy - h - dp * 0.6); ctx.lineTo(cx + h + dp, cy - h - dp * 0.6); ctx.lineTo(cx + h, cy - h + 1); ctx.closePath(); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = f; rr(cx - h, cy - h, h * 2, h * 2, 3); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.fillRect(cx - h + 3, cy - h + 3, 8, 2);
+  for (const [a, b] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { const px = cx + a * h, py = cy + b * h; ctx.fillStyle = '#333'; rr(px - 4, py - 4, 8, 8, 2); ctx.stroke(); ctx.fillStyle = '#ffd21f'; ctx.fillRect(px - 2, py - 2, 4, 4); }
+  boxIcon(cx, cy + 1, kind, now); ctx.restore();
+}
+function boxIcon(cx, cy, k, now) {
+  const K = '#141414', W = '#fff8e8'; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const both = (fn, fill) => { ctx.lineWidth = 4; ctx.strokeStyle = K; fn(); ctx.stroke(); ctx.lineWidth = 2; ctx.strokeStyle = fill; fn(); ctx.stroke(); };
+  const shape = (fn, fill) => { ctx.beginPath(); fn(); ctx.lineWidth = 2; ctx.strokeStyle = K; ctx.stroke(); ctx.fillStyle = fill; ctx.fill(); };
+  if (k === 'q') { ctx.font = 'bold 17px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 3; ctx.strokeStyle = K; ctx.strokeText('?', cx, cy); ctx.fillStyle = W; ctx.fillText('?', cx, cy); }
+  else if (k === 'rocket') { ctx.save(); ctx.translate(cx, cy); ctx.rotate(0.7); shape(() => { ctx.moveTo(-2, 5); ctx.lineTo(0, 9 + Math.sin(now / 50) * 1.5); ctx.lineTo(2, 5); }, '#ffb21f');
+    shape(() => { ctx.moveTo(0, -9); ctx.quadraticCurveTo(5, -3, 3, 5); ctx.lineTo(-3, 5); ctx.quadraticCurveTo(-5, -3, 0, -9); }, W); ctx.fillStyle = '#3fb6ff'; ctx.beginPath(); ctx.arc(0, -2, 1.6, 0, 7); ctx.fill(); ctx.restore(); }
+  else if (k === 'turbo') { const o = (now / 40) % 3; for (const a of [-5, 2]) both(() => { ctx.beginPath(); ctx.moveTo(cx + a - 2 + o, cy - 6); ctx.lineTo(cx + a + 3 + o, cy); ctx.lineTo(cx + a - 2 + o, cy + 6); }, W); }
+  else if (k === 'shock') shape(() => { for (let i = 0; i < 16; i++) { const r = i % 2 ? 4 : 9, a = i * Math.PI / 8 + now / 900; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } ctx.closePath(); }, '#ffe14d');
+  else if (k === 'crate') { shape(() => ctx.rect(cx - 6, cy - 6, 12, 12), '#e0b070'); both(() => { ctx.beginPath(); ctx.moveTo(cx - 5, cy - 5); ctx.lineTo(cx + 5, cy + 5); }, '#7a4a1e'); }
+  else if (k === 'lasso') { both(() => { ctx.beginPath(); ctx.arc(cx, cy - 1, 6, Math.PI, 0, true); }, '#ff3b3b'); ctx.fillStyle = W; ctx.fillRect(cx - 8, cy - 3, 4, 3); ctx.fillRect(cx + 4, cy - 3, 4, 3); }
+  else if (k === 'snow') { ctx.save(); ctx.translate(cx, cy); ctx.rotate(now / 1500); for (let i = 0; i < 3; i++) { ctx.rotate(Math.PI / 3); both(() => { ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(0, 8); }, W); } ctx.restore(); }
+  else if (k === 'banana') both(() => { ctx.beginPath(); ctx.arc(cx - 3, cy - 4, 8, 0.2, 1.9); }, '#fff08a');
+  else if (k === 'lavaball') { shape(() => { ctx.moveTo(cx, cy - 9 - Math.sin(now / 90)); ctx.quadraticCurveTo(cx + 8, cy, cx + 5, cy + 5); ctx.arc(cx, cy + 3, 5, 0.4, Math.PI - 0.4); ctx.quadraticCurveTo(cx - 8, cy, cx, cy - 9); }, '#ffe14d'); }
+  else if (k === 'gravity') both(() => { ctx.beginPath(); for (let i = 0; i < 26; i++) { const a = i * 0.5 + now / 400, r = 1 + i * 0.3; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } }, W);
+  else if (k === 'jammer') { both(() => { ctx.beginPath(); ctx.moveTo(cx, cy + 7); ctx.lineTo(cx, cy - 2); }, W); for (const r of [4, 7]) both(() => { ctx.beginPath(); ctx.arc(cx, cy - 2, r, -2.4, -0.7); }, W); }
+}
+// Wolkenfarbe aus dem Himmel der Welt: etwas heller als die obere Himmelsfarbe
+function cloudCol(k) { return theme.deco === 'lava' ? shade('#3a0d06', k) : shade(theme.cloud || mixHex(theme.sky[0], theme.sky[1], 0.55), 0.18 + k); }
+function mixHex(a, b, t) { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)), A = p(a), B = p(b); return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join(''); }
+const CLOUDS = [[[-50, 0, 30], [-6, 4, 24], [30, 0, 14]], [[-40, 0, 20], [0, 6, 30], [38, 0, 18], [62, -2, 12]], [[-60, 0, 30], [0, 22, 58], [60, 4, 26], [100, -2, 22], [140, -4, 16]]];
+function drawCloud(cx, by, s, i, flip) {
+  const bumps = CLOUDS[i % 3], body = cloudCol(0), rim = cloudCol(0.22), last = bumps[bumps.length - 1], first = bumps[0];
+  ctx.save(); if (flip) { ctx.translate(cx, 0); ctx.scale(-1, 1); ctx.translate(-cx, 0); }
+  const tail = (x0, y0, len, th, dir) => { ctx.beginPath(); ctx.moveTo(x0, y0); ctx.bezierCurveTo(x0 + dir * len * 0.35, y0 - th * 0.2, x0 + dir * len * 0.65, y0 - th * 1.4, x0 + dir * len, y0 - th * 1.6);
+    ctx.bezierCurveTo(x0 + dir * len * 0.7, y0 - th * 0.6, x0 + dir * len * 0.4, y0 + th, x0, y0 + th); ctx.closePath(); ctx.fill(); };
+  ctx.fillStyle = body; tail(cx + last[0] * s, by - 2 * s, 150 * s, 7 * s, 1); tail(cx + first[0] * s - 10 * s, by - s, 60 * s, 5 * s, -1);
+  ctx.beginPath(); ctx.moveTo(cx + (first[0] - first[2] - 20) * s, by); ctx.quadraticCurveTo(cx, by + 4 * s, cx + (last[0] + last[2] + 30) * s, by);
+  for (const [p, lift, r] of bumps.slice().reverse()) { ctx.lineTo(cx + (p + r) * s, by - lift * s); ctx.arc(cx + p * s, by - lift * s, r * s, 0, Math.PI, true); }
+  ctx.closePath(); ctx.fill();
+  for (const [p, lift, r] of bumps) { const x = cx + p * s, y = by - lift * s, R = r * s;
+    ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(x, y, R, R * 1.02, 0, Math.PI, 0); ctx.fill();
+    ctx.fillStyle = rim; ctx.beginPath(); ctx.ellipse(x, y, R, R * 1.02, 0, Math.PI * 1.08, Math.PI * 1.75); ctx.ellipse(x + R * 0.08, y + R * 0.12, R * 0.92, R * 0.9, 0, Math.PI * 1.75, Math.PI * 1.08, true); ctx.fill(); }
+  ctx.restore();
 }
 function topDeco(d, tx, ty, x, y, h1, now) {
   if (d === 'garden' || d === 'jungle') {
