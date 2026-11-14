@@ -63,6 +63,7 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
         gridWidth:grid.getBoundingClientRect().width,
         cssLoaded:[...document.styleSheets].some(t=>t.href?.includes('home-v3.css')),
         cssLink:document.querySelector('link[href*="home-v3.css"]')?.href,
+        featuredWidth:featured.getBoundingClientRect().width,otherWidth:other.getBoundingClientRect().width,
         featuredX:featured.getBoundingClientRect().x,otherX:other.getBoundingClientRect().x,
         headingOverflows:heading.scrollWidth-heading.clientWidth,
         world:!!document.querySelector('.gdv3-world'),
@@ -72,6 +73,7 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     });
     console.log('V3 CSS DIAGNOSTIC '+width+': '+JSON.stringify(details));
     assert.ok(details.overflow<=2,'Horizontal overflow '+width+'px: '+JSON.stringify(details));
+    assert.ok(Math.abs(details.featuredWidth-details.otherWidth)<1,'DAU TO PRO uses the standard card width');
     assert.ok(details.headingOverflows<=2,'Hero title clipped at '+width);
     assert.equal(details.about,true);assert.equal(details.process,3);assert.equal(details.world,true);
     if(width>=1101){
