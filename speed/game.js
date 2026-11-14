@@ -1368,12 +1368,12 @@ function drawMovers(now) {
   else if (d === 'crystal') { for (let i = 0; i < 7; i++) { const x = mod(hash(i * 4.1) * VW + now * 0.01 * (i % 2 ? 1 : -1), VW), y = VH - mod(hash(i * 2.3) * VH + now * 0.02, VH), r = now / 1500 + i;
       ctx.save(); ctx.translate(x, y); ctx.rotate(r); ctx.fillStyle = `rgba(243,156,255,${0.25 + 0.2 * Math.sin(now / 700 + i)})`; ctx.beginPath(); ctx.moveTo(0, -12); ctx.lineTo(6, 0); ctx.lineTo(0, 12); ctx.lineTo(-6, 0); ctx.fill(); ctx.restore(); } }
   else if (d === 'desert') { // Karawane in der Ferne und kreisende Geier
-    const t = cyc(now, 90000), x0 = -200 + t * (VW + 400), y = VH - 150;
+    const t = cyc(now, 90000), x0 = -200 + t * (VW + 400), y = VH - 62; // auf der fernen Bodenlinie, hinter den nahen Dünen
     ctx.fillStyle = 'rgba(120,70,35,.7)'; for (let i = 0; i < 4; i++) { const x = x0 - i * 46, st = Math.sin(now / 250 + i) * 3; ctx.beginPath(); ctx.ellipse(x, y - 18, 16, 8, 0, 0, 7); ctx.fill(); ctx.fillRect(x + 10, y - 34, 5, 18); ctx.fillRect(x + 10, y - 36, 10, 5); ctx.fillRect(x - 12 + st, y - 12, 3, 14); ctx.fillRect(x + 9 - st, y - 12, 3, 14); ctx.beginPath(); ctx.ellipse(x - 2, y - 27, 7, 5, 0, 0, 7); ctx.fill(); }
     for (let i = 0; i < 2; i++) { const a = now / 3000 + i * 3, x = VW * 0.3 + i * 500 + Math.cos(a) * 80, y = 160 + Math.sin(a) * 25; ctx.strokeStyle = 'rgba(60,35,20,.7)'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(x - 12, y - 3); ctx.quadraticCurveTo(x, y + 3, x + 12, y - 3); ctx.stroke(); } }
   else if (d === 'mars' || d === 'moon') { // Rakete startet ab und zu, auf dem Mars fährt ein Rover
-    const t = cyc(now, 24000, 6000); if (t < 0.4) { const k = t / 0.4, x = VW * 0.68 + k * 60, y = VH - 110 - k * k * 900; rocket(x, y, 0.06 + k * 0.1, 0.9, now); trail(x, y + 30, -0.1, -1, 9, 'rgba(230,220,210,.55)'); }
-    if (d === 'mars') { const t2 = cyc(now, 60000), x = -80 + t2 * (VW + 160), y = VH - 128; ctx.fillStyle = 'rgba(60,25,15,.85)'; ctx.fillRect(x - 22, y - 14, 44, 12); ctx.fillRect(x + 8, y - 26, 3, 12); ctx.fillRect(x + 4, y - 30, 12, 5); for (const wx of [-16, 0, 16]) { ctx.beginPath(); ctx.arc(x + wx, y, 6, 0, 7); ctx.fill(); } } }
+    const t = cyc(now, 24000, 6000); if (t < 0.4) { const k = t / 0.4, x = VW * 0.68 + k * 60, y = VH - 90 - k * k * 900; rocket(x, y, 0.06 + k * 0.1, 0.9, now); trail(x, y + 30, -0.1, -1, 9, 'rgba(230,220,210,.55)'); }
+    if (d === 'mars') { const t2 = cyc(now, 60000), x = -80 + t2 * (VW + 160), y = VH - 66; ctx.fillStyle = 'rgba(60,25,15,.85)'; ctx.fillRect(x - 22, y - 14, 44, 12); ctx.fillRect(x + 8, y - 26, 3, 12); ctx.fillRect(x + 4, y - 30, 12, 5); for (const wx of [-16, 0, 16]) { ctx.beginPath(); ctx.arc(x + wx, y, 6, 0, 7); ctx.fill(); } } }
   else if (d === 'space') { // Raumschiff zieht vorbei, ab und zu ein zweites in die andere Richtung
     const t = cyc(now, 22000), x = -150 + t * (VW + 300), y = 200 + Math.sin(now / 1500) * 18; spaceship(x, y, 1.1, 1, now); trail(x - 40, y, 1, 0, 6, 'rgba(120,220,255,.35)');
     const t2 = cyc(now, 34000, 15000), x2 = VW + 120 - t2 * (VW + 240), y2 = 330 + Math.sin(now / 1800) * 10; spaceship(x2, y2, 0.6, -1, now); }
