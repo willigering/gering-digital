@@ -7,7 +7,7 @@ const COLORS = ['#ff4d5a', '#3fa9ff', '#ffd23f', '#5be37d', '#c77dff', '#ff9f43'
 // deco: Art der Verzierung (Hintergrund, Kanten, Lampen, Pflanzen …), sun: Sonne/Mond, fx: Teilchen in der Luft
 const THEMES = [
   { name: 'Neonhafen', sky: ['#1b1040', '#6b2f7e'], far: '#2c1b5a', near: '#1d1140', tile: '#1a1330', edge: '#ff4fd8', hook: '#ffe66d', deco: 'neon', sun: '#ffd6f5', fx: 'stars' },
-  { wind: 0.8, name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
+  { name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
   { name: 'Schrottplatz', sky: ['#2b1d14', '#c46a32'], far: '#5a361f', near: '#3a2213', tile: '#2a1a0f', edge: '#ffb347', hook: '#e8f7ff', deco: 'junk', sun: '#ff9b3d', fx: 'dust' },
   { name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#17324f', edge: '#bff4ff', hook: '#ffe66d', ice: true, deco: 'ice', sun: '#f0fbff', fx: 'snow' },
   { name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#241008', edge: '#ff7b2e', hook: '#fff3b0', deco: 'lava', sun: '#ff5a1f', fx: 'embers' },
@@ -17,8 +17,8 @@ const THEMES = [
   { name: 'Seilbahn-Werft (Haken!)', sky: ['#0f2f3a', '#e0a35a'], far: '#1f4a55', near: '#15343d', tile: '#1b2e33', edge: '#ffd166', hook: '#ffffff', deco: 'rope', sun: '#ffe2a8', fx: 'flies' },
   // Breite Etagen: lange Strecke nach rechts, Kletterschacht nach oben, oben nach links. Kamera fährt mit.
   { name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
-  { wind: 1.2, name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
-  { wind: 1, grav: 0.8, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
+  { name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
+  { grav: 0.8, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
   { name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
   { grav: 0.5, name: 'Mond (halbe Schwerkraft)', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
 ];
