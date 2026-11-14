@@ -2096,7 +2096,10 @@ function endRun() {
 }
 function drawGhost(now) {
   if (!ghost || !solo || now < goAt) return;
-  const i = fl((now - goAt) / 50), f = ghost.f[Math.min(i, ghost.f.length - 1)]; if (!f) return;
+  const u = (now - goAt) / 50, i = fl(u), f0 = ghost.f[Math.min(i, ghost.f.length - 1)]; if (!f0) return;
+  // weich zwischen den Aufnahmepunkten (20 pro Sekunde) überblenden, damit der Geist nicht ruckelt
+  const f1 = ghost.f[Math.min(i + 1, ghost.f.length - 1)], k = u - i, lerp = (a, b) => Math.abs(b - a) > 160 ? a : a + (b - a) * k;
+  const f = [lerp(f0[0], f1[0]), lerp(f0[1], f1[1]), f0[2], f0[3], lerp(f0[4], f1[4])];
   ctx.save(); ctx.globalAlpha = i < ghost.f.length ? 0.38 : 0.18;
   drawRunner(f[0], f[1], f[4], f[2], f[3], '#dfe7ff', now, false, false);
   ctx.restore();
