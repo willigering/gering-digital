@@ -7,18 +7,18 @@ const COLORS = ['#ff4d5a', '#3fa9ff', '#ffd23f', '#5be37d', '#c77dff', '#ff9f43'
 // deco: Art der Verzierung (Hintergrund, Kanten, Lampen, Pflanzen …), sun: Sonne/Mond, fx: Teilchen in der Luft
 const THEMES = [
   { name: 'Neonhafen', sky: ['#1b1040', '#6b2f7e'], far: '#2c1b5a', near: '#1d1140', tile: '#1a1330', edge: '#ff4fd8', hook: '#ffe66d', deco: 'neon', sun: '#ffd6f5', fx: 'stars' },
-  { name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
+  { wind: 0.8, name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
   { name: 'Schrottplatz', sky: ['#2b1d14', '#c46a32'], far: '#5a361f', near: '#3a2213', tile: '#2a1a0f', edge: '#ffb347', hook: '#e8f7ff', deco: 'junk', sun: '#ff9b3d', fx: 'dust' },
   { name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#17324f', edge: '#bff4ff', hook: '#ffe66d', ice: true, deco: 'ice', sun: '#f0fbff', fx: 'snow' },
   { name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#241008', edge: '#ff7b2e', hook: '#fff3b0', deco: 'lava', sun: '#ff5a1f', fx: 'embers' },
-  { name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#13291a', edge: '#c6ff5e', hook: '#ffe66d', deco: 'jungle', sun: '#fff2b0', fx: 'leaves' },
+  { rain: true, name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#13291a', edge: '#c6ff5e', hook: '#ffe66d', deco: 'jungle', sun: '#fff2b0', fx: 'leaves' },
   { name: 'Lagerhaus ⇄ (Wasser steigt)', sky: ['#2a160c', '#a5562a'], far: '#4f2c17', near: '#3a2012', tile: '#2b1910', edge: '#ffa53a', hook: '#ffe66d', vert: 11, deco: 'ware', sun: '#ffb04a', fx: 'dust' },
   { name: 'Kristallmine', sky: ['#160a2e', '#7a3fb0'], far: '#2e1755', near: '#1f0f3d', tile: '#1e1038', edge: '#f39cff', hook: '#fff3b0', deco: 'crystal', sun: '#e9c8ff', fx: 'stars' },
   { name: 'Seilbahn-Werft (Haken!)', sky: ['#0f2f3a', '#e0a35a'], far: '#1f4a55', near: '#15343d', tile: '#1b2e33', edge: '#ffd166', hook: '#ffffff', deco: 'rope', sun: '#ffe2a8', fx: 'flies' },
   // Breite Etagen: lange Strecke nach rechts, Kletterschacht nach oben, oben nach links. Kamera fährt mit.
   { name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
-  { name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
-  { name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
+  { wind: 1.2, name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
+  { wind: 1, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
   { name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
 ];
 const NMAPS = THEMES.length, ROCKET_V = 1500;
@@ -61,6 +61,17 @@ const M = {
     const m = fl(h / 2) + b.R(-1, 1);
     let c = 12; c += plat(b, x + c, h, b.R(2, 4)); c += ramp(b, x + c, h, -(h - m), b.ch(0.4)); c += plat(b, x + c, m, b.R(1, 4)); c += ramp(b, x + c, m, -m, b.ch(0.6));
     return c + b.R(2, 5);
+  },
+  shortcut: (b, x) => {
+    const L = b.R(36, 48), rx = x + 12, gap = rx + fl(L / 2) - 2;
+    b.s(x + 2, F - 1, 'T');                                         // Trampolin hoch auf die Schiene
+    b.r(rx, F - 8, L, 1);                                           // Schiene (Höhe 8), unten drunter der langsame Weg
+    for (let i = 0; i < 4; i++) b.s(gap + i, F - 8, ' ');           // Lücke in der Schiene …
+    hookBar(b, gap - 1, F - 13, 6);                                 // … mit Hakenbalken darüber
+    b.s(rx + 3, F - 9, '>'); b.s(gap + 7, F - 9, '>');              // Boostfelder auf der Schiene
+    b.s(rx + L - 4, F - 11, '?');
+    let c = 14; while (c < L + 8) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - b.R(1, 2), 1, 2, '#'); else if (k === 1) b.s(x + c, F - 1, 'O'); else b.r(x + c, F - 1, 2, 1, '^'); c += b.R(4, 6); }
+    return 12 + L + 6;
   },
   chimneys: (b, x) => { let c = M.chimney(b, x, b.R(9, 11)); c += M.chimney(b, x + c, b.R(11, 13)); return c; },
   hills: (b, x) => {
@@ -144,18 +155,18 @@ const M = {
   },
 };
 const SEQS = [
-  [['flat', 24], 'hurdles', 'gate', 'saws', 'hookpit', 'chimney', 'items', 'upper', 'lava', 'plateau', 'boost', 'tunnel', 'wallshaft', 'big', ['flat', 12]],
-  [['flat', 24], 'boost', 'hills', 'trampchain', 'big', 'items', 'tunnel', 'hookpit', 'bigslide', 'saws', 'plateau', 'hurdles', 'upper', 'mogul', 'gate', 'hookpit', ['flat', 12]],
+  [['flat', 24], 'hurdles', 'gate', 'saws', 'hookpit', 'chimney', 'items', 'shortcut', 'upper', 'lava', 'plateau', 'boost', 'tunnel', 'wallshaft', 'big', ['flat', 12]],
+  [['flat', 24], 'boost', 'hills', 'trampchain', 'big', 'items', 'shortcut', 'tunnel', 'hookpit', 'bigslide', 'saws', 'plateau', 'hurdles', 'upper', 'mogul', 'gate', 'hookpit', ['flat', 12]],
   [['flat', 24], 'upper', 'hookpit', 'saws', 'gate', 'items', 'wallshaft', 'chimneys', 'hurdles', 'tunnel', 'boost', 'plateau', 'big', 'lava', 'gate', ['flat', 12]],
-  [['flat', 24], 'stairs', 'pillars', 'hookchain', 'items', 'trampchain', 'chimney', 'spikes', 'tunnel', 'upper', 'saws', 'boost', 'plateau', ['flat', 12]],
+  [['flat', 24], 'stairs', 'pillars', 'hookchain', 'items', 'shortcut', 'trampchain', 'chimney', 'spikes', 'tunnel', 'upper', 'saws', 'boost', 'plateau', ['flat', 12]],
   [['flat', 24], 'spikes', 'lava', 'gate', 'pillars', 'hookpit', 'items', 'lava', 'boost', 'big', 'chimneys', 'stairs', 'wallshaft', 'hookchain', ['flat', 12]],
-  [['flat', 24], 'pillars', 'descent', 'upper', 'hookchain', 'items', 'chimney', 'trampchain', 'hills', 'plateau', 'stairs', 'saws', 'bigslide', 'spikes', 'tunnel', 'gate', 'big', ['flat', 12]],
+  [['flat', 24], 'pillars', 'descent', 'upper', 'hookchain', 'shortcut', 'items', 'chimney', 'trampchain', 'hills', 'plateau', 'stairs', 'saws', 'bigslide', 'spikes', 'tunnel', 'gate', 'big', ['flat', 12]],
   null, // Lagerhaus: Etagen, siehe buildV
-  [['flat', 24], 'stairs', 'hookchain', 'saws', 'items', 'pillars', 'lava', 'upper', 'chimneys', 'hills', 'wallshaft', 'boost', 'tunnel', 'big', ['flat', 12]], // Kristallmine
+  [['flat', 24], 'stairs', 'hookchain', 'saws', 'items', 'shortcut', 'pillars', 'lava', 'upper', 'chimneys', 'hills', 'wallshaft', 'boost', 'tunnel', 'big', ['flat', 12]], // Kristallmine
   [['flat', 24], 'swing', 'items', 'hookforest', 'hookchain', 'swing', 'items', 'hookpit', 'hookforest', 'big', 'swing', 'hookchain', 'items', 'hookforest', ['flat', 12]],
   [['flat', 20], 'hills', 'items', 'bigslide', 'mogul', 'hurdles', 'descent', 'items', 'hills', 'mogul', 'spikes', 'bigslide', 'descent', ['flat', 12]], // Skipiste
-  [['flat', 24], 'hills', 'hurdles', 'lava', 'items', 'bigslide', 'spikes', 'chimney', 'pillars', 'saws', 'mogul', 'gate', 'plateau', ['flat', 12]], // Wüste
-  [['flat', 24], 'descent', 'pillars', 'lava', 'items', 'trampchain', 'hills', 'saws', 'chimneys', 'upper', 'stairs', 'spikes', 'big', ['flat', 12]], // Mars
+  [['flat', 24], 'hills', 'hurdles', 'lava', 'items', 'shortcut', 'bigslide', 'spikes', 'chimney', 'pillars', 'saws', 'mogul', 'gate', 'plateau', ['flat', 12]], // Wüste
+  [['flat', 24], 'descent', 'pillars', 'lava', 'items', 'shortcut', 'trampchain', 'hills', 'saws', 'chimneys', 'upper', 'stairs', 'spikes', 'big', ['flat', 12]], // Mars
   null, // Weltall: breite Etagen, siehe buildV
 ];
 // Zickzack-Etagen: Auf jeder Etage läuft man bis zur Wand, ein Trampolin schießt durch die Luke ('=' von unten
@@ -401,6 +412,12 @@ function useItem(p) {
   else if (k === 'snow') { const m = { t: 'ev', k: 'sb', r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 34), vx: Math.round(p.face * 950 + p.vx * 0.5), vy: -420 }; send(m); m.id = myId; onEv(m); }
   else if (k === 'turbo') { p.turbo = 1.8; p.boost = 1; beep(300, 0.4, 'sawtooth', 0.06, 1200); }
 }
+// Wind: Böen im Wechsel nach rechts und links, Stärke je Welt (0 = kein Wind)
+function windAt(now) {
+  const k = theme.wind; if (!k || phase !== 'game') return 0;
+  const t = Math.max(0, now - goAt) / 7000, ph = t % 1; if (ph < 0.3 || ph > 0.7) return 0;
+  return k * Math.sin(Math.PI * (ph - 0.3) / 0.4) * (fl(t) % 2 ? -1 : 1);
+}
 function stepMe(dt, now) {
   const p = me;
   p.inv = Math.max(0, p.inv - dt); p.padCd -= dt; p.miss -= dt; p.drop -= dt;
@@ -454,6 +471,8 @@ function stepMe(dt, now) {
   if (!I.jump && p.vy < -300 && !p.launch && !p.hook) p.vy += 3000 * dt;
   p.vy += 2400 * (theme.grav || 1) * dt; // Weltall: weniger Schwerkraft
   if (p.wall && !p.ground && p.vy > 170 && dir === p.wall && !p.hook) p.vy = 170;
+  const w = windAt(now); if (w) p.vx += w * (p.ground ? 500 : 750) * dt; // Wind schiebt, in der Luft stärker
+  p.dustT = (p.dustT || 0) - dt; if (p.ground && !p.slide && Math.abs(p.vx) > 450 && p.dustT <= 0) { p.dustT = 0.07; parts.push({ x: p.x - Math.sign(p.vx) * 10, y: p.y - 3, vx: -Math.sign(p.vx) * (40 + Math.random() * 60), vy: -30 - Math.random() * 40, l: 0.35, c: 'rgba(235,225,205,.75)', s: 4 + Math.random() * 4 }); }
   p.vx = clamp(p.vx, -1100, 1100); p.vy = clamp(p.vy, -1500, 1500);
   // Bewegen
   if (moveX(p, p.vx * dt)) { p.vx = 0; if (p.hook) releaseHook(p); }
@@ -578,6 +597,7 @@ let link = null, hosting = false, busy = false;   // link: Verbindung eines Gast
 const $ = id => document.getElementById(id);
 function status(msg, good) { $('status').style.color = good ? '#7dffb0' : '#ff8a8a'; $('status').textContent = msg || ''; }
 function show(s) {
+  if (s !== 'game' && phase === 'game') endRun();
   phase = s;
   if (s !== 'game') Music.mode('menu');
   $('menu').classList.toggle('on', s === 'menu'); $('lobby').classList.toggle('on', s === 'lobby');
@@ -841,7 +861,7 @@ function onMsg(m) {
     }
     case 'round': {
       if (!THEMES[m.map]) break;
-      cutX = -1e9; map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round;
+      endRun(); cutX = -1e9; map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round; startRun(m.map);
       rockets = []; crates = []; parts = []; fx = []; snowballs = []; banner = null; cele = null;
       const slot = Math.max(0, m.order.indexOf(myId));
       resetMe(slot); me.alive = !m.spec && m.order.includes(myId);
@@ -1259,6 +1279,10 @@ function drawAmbient(now) {
     else if (fx === 'sand') { if (i > 36) break; const x = mod(h1 * VW + now * 0.09 * sp - camX * 0.3, VW), y = mod(h2 * VH + Math.sin(now / 900 + i) * 20, VH); ctx.fillStyle = 'rgba(255,224,170,.3)'; ctx.fillRect(x, y, 2 + h1 * 2, 1.5); }
     else if (fx === 'dust') { if (i > 30) break; const x = mod(h1 * VW + now * 0.012 * sp - camX * 0.25, VW), y = mod(h2 * VH + Math.sin(now / 2000 + i) * 40, VH); ctx.fillStyle = 'rgba(255,225,180,.22)'; ctx.beginPath(); ctx.arc(x, y, 1.5 + h1 * 2, 0, 7); ctx.fill(); }
   }
+  // Regen (Dschungel)
+  if (theme.rain) { ctx.strokeStyle = 'rgba(190,220,255,.32)'; ctx.lineWidth = 1.6; ctx.beginPath(); for (let i = 0; i < 110; i++) { const x = mod(hash(i * 2.3) * VW + now * 0.25 - camX * 0.6, VW), y = mod(hash(i * 5.1) * VH + now * 1.1, VH); ctx.moveTo(x, y); ctx.lineTo(x - 6, y + 22); } ctx.stroke(); }
+  // Windstreifen
+  { const w = windAt(now); if (Math.abs(w) > 0.1) { ctx.strokeStyle = `rgba(255,255,255,${0.12 + Math.abs(w) * 0.15})`; ctx.lineWidth = 2; ctx.beginPath(); for (let i = 0; i < 26; i++) { const x = mod(hash(i * 3.7) * VW + now * 1.4 * Math.sign(w), VW), y = hash(i * 9.1) * VH, len = 40 + hash(i) * 80; ctx.moveTo(x, y); ctx.lineTo(x - Math.sign(w) * len, y); } ctx.stroke(); } }
   // Vignette
   const vg = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.45, VW / 2, VH / 2, VW * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.38)');
   ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
@@ -1486,6 +1510,7 @@ function render(now, dt, menu = false) {
   for (const r of rockets) { ctx.save(); ctx.translate(r.x, r.y); ctx.scale(r.d, 1); ctx.fillStyle = '#f2f2f2'; rr(-14, -6, 24, 12, 5); ctx.fillStyle = '#ff4d5a'; ctx.beginPath(); ctx.moveTo(10, -6); ctx.lineTo(20, 0); ctx.lineTo(10, 6); ctx.fill(); ctx.restore(); }
   // Menü-Läufer
   if (menu && false) for (const r of demo.rs) drawRunner(r.x, r.y, r.sp, r.g ? 0 : 1, 1, r.c, now, false, false);
+  if (!menu) drawGhost(now);
   // Mitspieler
   for (const [id, r] of remotes) {
     if (!r.alive || menu) continue; const p = interp(r, now); if (!p) continue;
@@ -1493,6 +1518,18 @@ function render(now, dt, menu = false) {
     if (s[4] === 3) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x, p.y - 24); ctx.lineTo(s[6], s[7]); ctx.stroke(); }
     drawRunner(p.x, p.y, s[2], s[4], s[5], COLORS[r.color], now, false, s[8], cele && cele.id === id ? cele.dance : -1);
     text(r.name, p.x, p.y - 58, 17, COLORS[r.color]);
+  }
+  // Wurfbahn: wohin der Schneeball fliegt (gleiche Physik wie beim Wurf)
+  if (me.alive && !menu && me.item === 'snow' && !(me.roll > 0)) {
+    let x = me.x + me.face * 18, y = me.y - 34, vx = me.face * 950 + me.vx * 0.5, vy = -420; const gr = 1500 * (theme.grav || 1), dt = 1 / 60;
+    ctx.fillStyle = 'rgba(230,245,255,.85)';
+    for (let i = 0; i < 100; i++) { vy += gr * dt; x += vx * dt; y += vy * dt; if (solid(fl(x / T), fl(y / T))) { ctx.strokeStyle = 'rgba(230,245,255,.9)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - 7, y - 7); ctx.lineTo(x + 7, y + 7); ctx.moveTo(x + 7, y - 7); ctx.lineTo(x - 7, y + 7); ctx.stroke(); break; } if (i % 4 === 0) { ctx.beginPath(); ctx.arc(x, y, 3.2 - i / 60, 0, 7); ctx.fill(); } }
+  }
+  // Speed-Linien hinter dem eigenen Läufer bei hohem Tempo
+  if (me.alive && !menu && (Math.abs(me.vx) > 720 || me.boosting)) {
+    const a = clamp((Math.abs(me.vx) - 600) / 500, 0.25, 0.8), sd = -Math.sign(me.vx || me.face);
+    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+    for (let i = 0; i < 5; i++) { const h = hash(fl(now / 45) * 7 + i), yy = me.y - 8 - h * 36, x0 = me.x + sd * (18 + h * 10), len = 30 + h * 60; ctx.beginPath(); ctx.moveTo(x0, yy); ctx.lineTo(x0 + sd * len, yy); ctx.stroke(); }
   }
   // Hakenziel anzeigen
   if (me.alive && !menu && !me.hook && now >= goAt) { const hp = findHook(me); if (hp) { const k = 0.6 + 0.4 * Math.sin(now / 120); ctx.strokeStyle = theme.hook; ctx.globalAlpha = k; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(hp.x, hp.y, 9, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.moveTo(hp.x - 14, hp.y); ctx.lineTo(hp.x - 5, hp.y); ctx.moveTo(hp.x + 5, hp.y); ctx.lineTo(hp.x + 14, hp.y); ctx.stroke(); ctx.globalAlpha = 1; } }
@@ -1553,8 +1590,9 @@ function render(now, dt, menu = false) {
     const title = solo ? 'Solo-Training · Link teilen, um Mitspieler zu holen' : `Runde ${roundNo} · ${theme.name}`;
     ctx.font = '400 20px "Lilita One",system-ui'; const tw = ctx.measureText(title).width + 40;
     panel(VW / 2 - tw / 2, 12, tw, 36, 12); text(title, VW / 2, 31, 20, CREAM);
-    if (me.alive) { const mt = Math.max(0, Math.round(progress(me.x, me.y))) + ' m'; goldPill(VW / 2 - 70, 58, 140, 40); text(mt, VW / 2, 79, 28, INK2, 'center', false); }
+    if (me.alive) { const mt = Math.max(0, Math.round(progress(me.x, me.y))) + ' m'; goldPill(VW / 2 - 70, 58, 140, 40); text(mt, VW / 2, 79, 28, INK2, 'center', false); const rec = bestOf(curMap), cur = run ? run.best : 0; if (rec > 0 || cur > 0) text(cur > rec ? 'Rekord!' : 'Rekord ' + rec + ' m', VW / 2, 114, 16, cur > rec ? '#7dffb0' : CREAM); }
   }
+  { const w = windAt(now); if (Math.abs(w) > 0.15) { panel(VW - 210, 70, 180, 40, 12); text((w > 0 ? 'WIND →' : '← WIND'), VW - 120, 90, 22, '#bfe9ff'); } }
   if (me.alive) {
     // Item-Fach unten links
     const sx = 26, sy = VH - 116; panel(sx, sy, 92, 92, 18, me.item ? GOLD : '#8a5a35');
@@ -1590,6 +1628,38 @@ function render(now, dt, menu = false) {
 }
 const myState = () => me.stun > 0 ? 4 : me.hook ? 3 : me.slide ? 2 : !me.ground ? (me.wall ? 5 : 1) : 0;
 
+// ---------------------------------------------------------------- Bestzeiten und Geister-Rennen
+// Rekord je Strecke (weiteste Strecke in Metern) und im Solo-Training der beste Lauf als Geist.
+const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } };
+let curMap = -1, run = null, ghost = null, recordShown = false;
+const bestOf = i => (store.get('hj_best_' + i) || 0);
+function startRun(i) {
+  curMap = i; recordShown = false;
+  run = { best: 0, solo, frames: [], last: 0 };
+  const gd = solo ? store.get('hj_ghost_' + i) : null; ghost = gd && gd.f && gd.f.length ? gd : null;
+}
+function recordRun(now) {
+  if (!run || !me.alive || now < goAt) return;
+  const d = progress(me.x, me.y); if (d > run.best) run.best = d;
+  if (run.solo && now - run.last >= 50 && run.frames.length < 3600) { run.last = now; run.frames.push([Math.round(me.x), Math.round(me.y), myState(), me.face, Math.round(me.vx)]); }
+  const rec = bestOf(curMap);
+  if (!recordShown && rec > 50 && d > rec) { recordShown = true; banner = { text: 'NEUER REKORD!', sub: 'Weiter als je zuvor auf dieser Strecke', until: now + 1800, col: '#7dffb0' }; beep(660, 0.12, 'square', 0.05); setTimeout(() => beep(990, 0.2, 'square', 0.05), 120); }
+}
+function endRun() {
+  if (!run || curMap < 0) return;
+  const d = Math.round(run.best);
+  if (d > bestOf(curMap)) store.set('hj_best_' + curMap, d);
+  if (run.solo && run.frames.length > 40) { const old = store.get('hj_ghost_' + curMap); if (!old || d > old.d) store.set('hj_ghost_' + curMap, { d, f: run.frames }); }
+  run = null;
+}
+function drawGhost(now) {
+  if (!ghost || !solo || now < goAt) return;
+  const i = fl((now - goAt) / 50), f = ghost.f[Math.min(i, ghost.f.length - 1)]; if (!f) return;
+  ctx.save(); ctx.globalAlpha = i < ghost.f.length ? 0.38 : 0.18;
+  drawRunner(f[0], f[1], f[4], f[2], f[3], '#dfe7ff', now, false, false);
+  ctx.restore();
+  ctx.globalAlpha = 0.6; text('Geist · ' + ghost.d + ' m', f[0], f[1] - 58, 14, '#dfe7ff'); ctx.globalAlpha = 1;
+}
 // ---------------------------------------------------------------- Zweite Chance
 // Wer kurz vorm Ausscheiden ist (Abbruchkante bzw. Wasser direkt hinter einem), bekommt einmal pro Runde automatisch einen Turbo-Schub.
 function secondChance(now) {
@@ -1617,7 +1687,7 @@ function frame(now) {
       if (me.alive && now >= goAt) stepMe(STEP, now);
       I.jumpP = I.itemP = I.hookP = false; acc -= STEP;
     }
-    secondChance(now);
+    secondChance(now); recordRun(now);
     stepWorld(dt);
     if (me.alive && now - sendT > 33) { sendT = now; sendState(); }
     // Kamera: folgt dem Feld; bei der Siegerfeier sanft auf den Sieger mit leichtem Zoom
@@ -1642,7 +1712,7 @@ initAudio(); // startet sofort, falls der Browser es schon erlaubt; sonst beim e
 refreshList();
 if (/^#[A-Za-z]{4}$/.test(location.hash) && $('name').value.trim()) joinLobby(location.hash.slice(1).toUpperCase());
 requestAnimationFrame(frame);
-window.__hj = { me, remotes, get phase() { return phase; }, get lobby() { return lobby; }, keys, I, tile, F, findHook: p => findHook(p), dance: n => { cele = { id: myId, dance: n, t0: performance.now() }; },
+window.__hj = { me, remotes, get phase() { return phase; }, get lobby() { return lobby; }, keys, I, tile, F, findHook: p => findHook(p), get run() { return run; }, get ghost() { return ghost; }, recordRun: n => recordRun(n), endRun: () => endRun(), dance: n => { cele = { id: myId, dance: n, t0: performance.now() }; },
   get W() { return map.W; }, get map() { return map; }, get banner() { return banner; }, get cele() { return cele; }, get zoom() { return zoom; }, get kill() { return kill; },
   get rockets() { return rockets; }, get crates() { return crates; }, onEv: m => onEv(m), stepWorld: dt => stepWorld(dt), sync: () => sendState(),
   secondChance: n => secondChance(n), step(n, inp) { for (let i = 0; i < n; i++) { if (typeof inp === 'function') inp(me, I, i); else if (inp) Object.assign(I, inp); stepMe(STEP, performance.now() + 1e7); I.jumpP = I.itemP = I.hookP = false; } },

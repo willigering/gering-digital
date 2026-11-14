@@ -141,8 +141,11 @@ body.game .corner{display:none}
 #quit{position:fixed;top:12px;right:14px;display:none;z-index:5;width:170px;aspect-ratio:416/78;padding:0 0 3px!important;font-size:18px;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent url(assets/menu/optionen-leer.webp) center/100% 100% no-repeat!important;color:#2a1206;filter:drop-shadow(0 6px 5px rgba(20,6,0,.45))}
 @media (max-width:620px){.hs{grid-template-columns:1fr}#players{grid-template-columns:repeat(2,1fr)}.ibtn{width:48px;height:48px;font-size:22px}.logo::before,.logo::after{display:none}.screen{padding-top:76px}}
 #touch{position:fixed;inset:0;display:none;pointer-events:none;z-index:4}
-#touch button{position:absolute;pointer-events:auto;width:74px;height:74px;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:26px;padding:0;border:2px solid rgba(255,255,255,.35);box-shadow:none;font-family:system-ui}
-#touch button.dn{background:rgba(255,210,63,.55)}
+/* Touch-Knöpfe im Spiel-Look: runde Knöpfe mit dunkler Kante wie im Menü; Springen gelb */
+#touch button{position:absolute;pointer-events:auto;width:76px;height:76px;border-radius:50%;padding:0;font-family:'Lilita One',system-ui;font-size:30px;color:#2a1206;
+  background:radial-gradient(circle at 35% 30%,#fffaf0,#f3dcb2 70%,#d9b583)!important;border:4px solid #2a1206!important;box-shadow:0 6px 0 #8a5a2c,0 6px 0 4px #2a1206!important;opacity:.92}
+#touch button[data-k=jump]{background:radial-gradient(circle at 35% 30%,#fff3a0,#ffc31f 60%,#ff9a0e)!important;box-shadow:0 7px 0 #b85f00,0 7px 0 4px #2a1206!important;font-size:38px}
+#touch button.dn{transform:translateY(5px);box-shadow:0 1px 0 #8a5a2c,0 1px 0 4px #2a1206!important;filter:brightness(1.1)}
 @media (pointer:coarse){body.game #touch{display:block}}
 body.game #quit{display:block}
 </style>
@@ -249,11 +252,11 @@ body.game #quit{display:block}
   <button data-k="r" style="left:102px;bottom:22px">▶</button>
   <button data-k="down" style="left:59px;bottom:106px">▼</button>
   <button data-k="jump" style="right:16px;bottom:22px;width:92px;height:92px">⤒</button>
-  <button data-k="hook" style="right:120px;bottom:22px">🪝</button>
+  <button data-k="hook" style="right:120px;bottom:22px;font-size:26px">🪝</button>
   <button data-k="item" style="right:26px;bottom:126px">★</button>
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
-<script src="game.js?v=45"></script>
+<script src="game.js?v=48"></script>
 <script src="music-player.js"></script>
 <script>
 (() => {
