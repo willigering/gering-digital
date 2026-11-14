@@ -1494,7 +1494,7 @@ function drawMovers(now) {
   if (d === 'neon') { // Luftschiff mit Leuchtreklame und fliegendes Auto
     const t = cyc(now, 46000), x = VW + 200 - t * (VW + 500), y = 170 + Math.sin(now / 3000) * 10;
     ctx.fillStyle = '#2a2050'; ctx.beginPath(); ctx.ellipse(x, y, 120, 34, 0, 0, 7); ctx.fill(); ctx.fillRect(x - 30, y + 28, 60, 14);
-    ctx.fillStyle = `rgba(255,79,216,${0.75 + 0.2 * Math.sin(now / 500)})`; ctx.font = '400 26px "Lilita One",system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('RÜDIGER COLA', x, y + 1);
+    ctx.fillStyle = 'rgba(255,79,216,.55)'; ctx.fillRect(x - 70, y - 3, 140, 6); /* nur ein Leuchtstreifen, keine Werbung */
     const t2 = cyc(now, 13000, 4000), cx = -100 + t2 * (VW + 200), cy = 300 + Math.sin(t2 * 12) * 12;
     ctx.fillStyle = '#3a2a6a'; ctx.beginPath(); ctx.ellipse(cx, cy, 30, 9, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#5ef2ff'; ctx.fillRect(cx - 34, cy + 6, 12, 3); ctx.fillRect(cx + 22, cy + 6, 12, 3);
   }
