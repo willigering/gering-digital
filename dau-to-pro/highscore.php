@@ -19,7 +19,7 @@ if ($learner) {
     $me=ach_stats($id);
     $rank=ach_would_rank($id);
 }
-$rows=ach_highscore(100,publicOnly: !$learner);
+$rows=$learner ? ach_highscore(100) : ach_guest_highscore();
 ?>
 <!doctype html>
 <html lang="de">
@@ -53,14 +53,14 @@ $rows=ach_highscore(100,publicOnly: !$learner);
     </div>
   </section>
 <?php if (!$learner): ?>
-  <p class="hs-public-hint">Hier erscheinen Lernende, die ihre Platzierung für Gäste freigegeben haben.</p>
+  <p class="hs-public-hint">Platzierungen ohne öffentliche Freigabe werden anonym angezeigt.</p>
 <?php endif; ?>
 <?php if ($me && (!$me['visible'] || $me['blocked'])): ?>
   <div class="konto-alert hs-hint" role="status">Du bist im Highscore <strong>unsichtbar</strong>.<?php if(!$me['blocked']): ?> Mit deinen <?=number_format($me['level']['xp'],0,',','.')?> XP wärst du auf <strong>Platz <?=$rank?></strong>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></div>
   <?php endif; ?>
   <?php if (!$rows): ?>
   <?php if (!$learner): ?>
-  <p class="konto-empty hs-public-empty">Noch keine öffentlich freigegebenen Platzierungen.</p>
+  <p class="konto-empty hs-public-empty">Noch keine Platzierungen.</p>
   <?php else: ?>
   <p class="konto-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a class="text-link" href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
   <?php endif; ?>
@@ -77,6 +77,3 @@ $rows=ach_highscore(100,publicOnly: !$learner);
 <?php if($learner): ?><dialog class="profile-dialog" id="learner-profile" aria-labelledby="profile-title"><div class="profile-toolbar"><h2 id="profile-title">Lernprofil</h2><button type="button" class="secondary-action" data-profile-close aria-label="Profil schließen">Schließen ×</button></div><div id="profile-content" aria-live="polite"></div></dialog><?php endif; ?>
 <footer class="dtp-footer"><div class="footer-inner"><?=dtp_footer_brand()?><div class="footer-links"><a href="./">DAU TO PRO</a><a href="../impressum.php">Impressum</a><a href="../datenschutz.php#lernkonten">Datenschutz</a></div><small>© 2026 Willi Gering</small></div></footer>
 </body></html>
-
-
-

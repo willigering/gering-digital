@@ -661,7 +661,7 @@
 /* Highscore polish 2026-11-11: Badges sitzen wie in der Referenz auf der oberen
    Schildkante; die drei Vitrinenplätze bleiben vollständig in der Karte. */
 .arcade-champion { box-sizing: border-box; }
-.arcade-champion > .arcade-avatar { flex: none; z-index: 1; transform: skew(-6deg, -6deg); }
+.arcade-champion > .arcade-avatar { flex: none; z-index: 1; transform: none; }
 .arcade-champion .arcade-medals.hs-showcase { flex: none; min-width: 0; }
 .arcade-champion .arcade-score { flex: none; }
 .arcade-champion .arcade-profile { min-width: 0; }
@@ -682,7 +682,7 @@
     position: absolute;
     top: -.35cqw;
     left: 50%;
-    transform: translateX(-50%) skew(-6deg, -6deg);
+    transform: translateX(-50%);
     width: 7.15cqw;
     margin: 0;
     filter: drop-shadow(0 .28cqw .23cqw #02070dcc);
@@ -736,7 +736,7 @@
   .arcade-champion.rank-3{order:2}
   .arcade-champion > .arcade-avatar,.arcade-champion.rank-1 > .arcade-avatar{
     position:absolute;top:-8px;left:50%;
-    transform:translateX(-50%) skew(-6deg, -6deg);width:90px;margin:0;
+    transform:translateX(-50%);width:90px;margin:0;
     filter:drop-shadow(0 3px 5px #000a);
   }
   .arcade-champion .arcade-rank{bottom:calc(100% + 2px);font-size:38px}

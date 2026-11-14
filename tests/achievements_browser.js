@@ -241,17 +241,16 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     // Ohne Konto: Startseiten-Podium und ausdrücklich öffentliche Einträge.
     const guest=await browser.newContext();const gp=await guest.newPage();
     await gp.goto(base+'/dau-to-pro/highscore.php');
-    assert.equal(await gp.locator('.arcade-champion.is-vacant').count(),3,'Gäste sehen das leere Podium ohne öffentliche Freigaben');
-    assert.ok(await gp.locator('.hs-public-empty').isVisible(),'Ohne öffentliche Freigaben bleibt die Gästeliste leer');
+    assert.ok(await gp.getByText('Anonymer Platz', {exact:true}).count() > 0);
+    assert.equal(await gp.locator('.hs-name').count(),0);
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
-    assert.ok(await gp.locator('#highscore .hs-public-empty').isVisible(),'Gäste sehen den Hinweis ohne öffentliche Einträge');
+    assert.ok(await gp.locator('#highscore').getByText('Anonymer Platz', {exact:true}).count() > 0);
     assert.equal(await gp.locator('#highscore .hs-name').count(),0,'Bisherige Mitgliederfreigabe zeigt Gästen keine Namen');
     php("$id=(int)learner_find('cleo')['id'];ach_set_visible($id,true,true);");
     await gp.locator('#highscore a[href="highscore.php"]').click();
     assert.deepEqual(await gp.locator('.hs-name').allTextContents(),['cleo']);
     await gp.goto(base+'/dau-to-pro/');
     assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
-    assert.equal(await gp.locator('#highscore .arcade-champion.is-vacant').count(),2,'Öffentliches Podium zeigt zwei freie Plätze');
     const secondPlace=gp.locator('#highscore .rank-2');
     const rank=secondPlace.locator('.arcade-rank-number');
     assert.equal(await rank.textContent(),'2','Rang 2 wird auf dem Podium angezeigt');
@@ -271,4 +270,3 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     fs.rmSync(scratch,{recursive:true,force:true});
   }
 })().catch(e=>{console.error(e);process.exit(1);});
-

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/../dau_lib.php';
+require_once __DIR__.'/material-access.php';
 require_once __DIR__.'/../learner_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
 require_once __DIR__.'/../nerd_fm_lib.php';
@@ -14,7 +15,7 @@ $hsRows=[];$hsMe=null;$hsRank=0;
 $cardProgress=[];
 try {
     if ($learnerRow) ach_evaluate((int)$learnerRow['id']);
-    $hsRows=ach_highscore(100,publicOnly: !$learnerRow);
+    $hsRows=$learnerRow ? ach_highscore(100) : ach_guest_highscore();
     if ($learnerRow) {
         $hsMe=ach_stats((int)$learnerRow['id']);
         $hsRank=ach_would_rank((int)$learnerRow['id']);
@@ -224,15 +225,10 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </section>
   <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
     <div class="section-shell">
-      <div class="hs-board" data-reveal>
-        <?php if (!$learnerRow): ?>
-          <p class="hs-public-hint" role="note">Öffentlicher Highscore: Hier erscheinen nur Lernende, die ihre Platzierung ausdrücklich auch für Gäste freigegeben haben. Die vollständige Rangliste ist nach Anmeldung sichtbar.</p>
-        <?php endif; ?>
+      <div class="hs-board">
           <?php require_once __DIR__.'/highscore-board.php'; ?>
           <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
-        <?php if (!$hsRows && !$learnerRow): ?>
-          <p class="hs-public-empty">Noch keine öffentlich freigegebenen Platzierungen. <a href="konto.php">Anmelden</a>, um den Highscore der Lernenden zu sehen.</p>
-        <?php elseif (!$hsRows): ?>
+        <?php if (!$hsRows): ?>
           <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
         <?php endif; ?>
         <div class="hs-foot">
@@ -285,7 +281,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </section>
 
 <section class="unterricht-collection" aria-labelledby="unterricht-title">
-  <details id="unterrichtsmaterial" class="unterricht-accordion">
+  <details id="unterrichtsmaterial" class="unterricht-accordion"<?=isset($_GET['material']) && dtp_material_unlocked($learnerRow) ? ' open' : ''?>>
     <summary>
       <span class="unterricht-summary-copy">
         <span class="unterricht-kicker">EIGENER BEREICH · DEINE LERNUNTERLAGEN</span>
@@ -295,6 +291,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <span class="unterricht-count">05 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
+    <?php if (dtp_material_unlocked($learnerRow)): ?>
     <div class="unterricht-content">
       <div class="unterricht-grid">
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
@@ -365,6 +362,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       </div>
       <p class="unterricht-account-hint">IT VI.01 und ITIL &amp; IT-Recht nutzen dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
     </div>
+    <?php else: ?>
+      <div class="unterricht-content">
+        <a class="secondary-action" href="konto.php?material=1#unterrichtszugang"><?=$learnerRow ? 'Im Konto freischalten' : 'Zum Freischalten anmelden'?> →</a>
+      </div>
+    <?php endif; ?>
   </details>
 </section>
               </div>
@@ -414,6 +416,3 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <iframe class="dtp-module-frame" data-module-frame src="about:blank" title="Lernmodul"></iframe>
 </section>
 </body></html>
-
-
-

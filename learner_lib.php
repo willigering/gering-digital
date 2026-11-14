@@ -158,6 +158,7 @@ function learner_login(string $username,string $password,bool $remember=false): 
 }
 function learner_start_session(array $learner,bool $remember=false): void {
     if (session_status()===PHP_SESSION_ACTIVE && !headers_sent()) session_regenerate_id(true);
+    unset($_SESSION['dtp_material_learner']);
     $_SESSION[LEARNER_SESSION_KEY]=['id'=>(int)$learner['id'],'v'=>(int)$learner['session_version']];
     db()->prepare('UPDATE learners SET last_login_at=?,last_seen_at=? WHERE id=?')->execute([learner_now(),learner_now(),$learner['id']]);
     if ($remember) learner_issue_remember((int)$learner['id']);
@@ -218,7 +219,7 @@ function learner_logout(): void {
     $cookie=(string)($_COOKIE[LEARNER_COOKIE]??'');
     if (preg_match('/^([a-f0-9]{24}):/',$cookie,$m)) db()->prepare('DELETE FROM learner_tokens WHERE selector=?')->execute([$m[1]]);
     learner_clear_remember_cookie();
-    unset($_SESSION[LEARNER_SESSION_KEY]);
+    unset($_SESSION[LEARNER_SESSION_KEY], $_SESSION['dtp_material_learner']);
     if (session_status()===PHP_SESSION_ACTIVE && !headers_sent()) session_regenerate_id(true);
     learner_current(true);
 }
@@ -638,7 +639,3 @@ function learner_format_time(?string $utc): string {
 }
 /** Only module slugs are accepted as redirect target (no open redirects). */
 function learner_safe_next(string $next): string { return hp_valid_slug($next)?$next:''; }
-
-
-
-

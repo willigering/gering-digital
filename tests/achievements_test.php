@@ -180,6 +180,11 @@ check(!in_array('tina',array_column(ach_highscore(),'username'),true),'Admin kan
 ach_admin_block($t,false);
 
 check(ach_highscore(publicOnly: true)===[],'Die bisherige Freigabe gilt nur für angemeldete Lernende');
+$guestRows=ach_guest_highscore();
+check($guestRows!==[] && $guestRows===array_map(
+    static fn(int $rank): array => ['id'=>0,'rank'=>$rank,'anonymous'=>true],
+    range(1,count(ach_highscore()))
+),'Gastansicht maskiert Identität und Kennzahlen privater Einträge');
 ach_set_visible($t,true,true);
 check(ach_public_highscore_enabled($t),'Öffentliche Freigabe wird gespeichert');
 check(array_column(ach_highscore(publicOnly: true),'username')===['tina'],'Gäste sehen nur zusätzlich freigegebene Einträge');

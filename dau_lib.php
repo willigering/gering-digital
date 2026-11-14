@@ -568,7 +568,8 @@ function dtp_nav(string $page,?string $learner): string {
     if ($learner===null) {
         $on=$page==='konto';
         $desktop.='      <a class="nav-account'.($on?' selected':'').'" href="konto.php"'.$current($on).'>Mein Konto</a>'."\n";
-        $mobile.='<a href="konto.php"'.$current($on).'>Mein Konto</a>';
+        $mobile.='<a href="konto.php"'.$current($on).'>Mein Konto</a><a href="highscore.php"'.$current($page==='highscore').'>Highscore</a>';
+        $desktop='<a href="highscore.php"'.$current($page==='highscore').'>Highscore</a>'.$desktop;
     } else {
         // Angemeldet: „Mein Konto“ klappt ein kleines Menü auf (Fortschritt, Einstellungen, Abmelden).
         $logout='<form method="post" action="konto.php" class="nav-logout"><input type="hidden" name="csrf" value="'.e(csrf()).'"><input type="hidden" name="action" value="logout"><button type="submit">Abmelden</button></form>';
@@ -580,11 +581,11 @@ function dtp_nav(string $page,?string $learner): string {
           <a href="konto.php#achievements">Achievements</a>
           <a href="highscore.php"'.($page==='highscore'?' aria-current="page"':'').'>Highscore</a>
           <a href="avatare.php"'.($page==='avatare'?' aria-current="page"':'').'>Avatar wählen</a>
-          <a href="konto.php#einstellungen">Konto-Einstellungen</a>
+          <a href="konto.php#einstellungen">Konto-Einstellungen</a><a href="konto.php?material=1#unterrichtszugang">Unterrichtsmaterial</a>
           '.$logout.'
         </div>
       </div>'."\n";
-        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#achievements">Achievements</a><a href="highscore.php">Highscore</a><a href="avatare.php"'.$current($page==='avatare').'>Avatar wählen</a><a href="konto.php#einstellungen">Konto-Einstellungen</a>'.$logout;
+        $mobile.='<span class="mobile-account-label">Mein Konto · '.e($learner).'</span><a href="konto.php">Mein Fortschritt</a><a href="konto.php#achievements">Achievements</a><a href="highscore.php">Highscore</a><a href="avatare.php"'.$current($page==='avatare').'>Avatar wählen</a><a href="konto.php#einstellungen">Konto-Einstellungen</a><a href="konto.php?material=1#unterrichtszugang">Unterrichtsmaterial</a>'.$logout;
     }
     return '<header class="dtp-nav" id="oben">
   <div class="nav-inner">
@@ -663,7 +664,3 @@ function dtp_hero_fx_attrs(array $hero,bool $learner=false): string {
     if ($learner) $attrs.=' data-fx-egg="api/easteregg.php" data-fx-csrf="'.e(csrf()).'"';
     return $attrs;
 }
-
-
-
-
