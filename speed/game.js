@@ -55,7 +55,7 @@ const hookBar = (b, x, y, w) => { b.r(x, y - 2, w, 2); b.r(x, y, w, 1, 'H'); };
 const M = {
   // Kamin: zwei Wände dicht beieinander. Unten rein, mit Wandsprüngen hin und her nach oben, oben rüber und per Rutsche runter.
   chimney: (b, x, h) => {
-    h = h || b.R(12, 16);
+    h = Math.min(21, b.H(h || b.R(12, 16)));
     b.r(x + 4, F - h, 2, h - 3);            // linke Wand, unten offen zum Reinlaufen
     b.r(x + 10, F - h, 2, h);               // rechte Wand bis zum Boden
     b.s(x + 7 + b.R(0, 1), F - h + b.R(2, 5), '?');
@@ -89,14 +89,14 @@ const M = {
   },
   mogul: (b, x) => { let c = 2; const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = b.R(1, 2); c += ramp(b, x + c, 0, h, true); c += ramp(b, x + c, h, -h, true); if (b.ch(0.4)) { const s = b.R(1, 3); b.r(x + c, F - 1, s, 1, '^'); c += s; } c += b.R(1, 3); } return c + 2; },
   descent: (b, x) => {
-    let c = 2; const st = b.R(4, 6), top = st * 2;
-    for (let s = 1; s <= st; s++) { b.r(x + c, F - s * 2, 2, s * 2); c += 2; }
+    let c = 2; const s2 = b.H(2), st = Math.min(b.R(4, 6), fl(20 / s2)), top = st * s2;
+    for (let s = 1; s <= st; s++) { b.r(x + c, F - s * s2, 2, s * s2); c += 2; }
     c += plat(b, x + c, top, b.R(2, 4)); const m = fl(top / 2) + b.R(-1, 1);
     c += ramp(b, x + c, top, -(top - m), b.ch(0.4)); c += plat(b, x + c, m, b.R(2, 4)); c += ramp(b, x + c, m, -m, true); return c + b.R(3, 5);
   },
   flat: (b, x, n = 20) => { if (n > 6 && b.ch(0.6)) b.s(x + b.R(2, n - 3), F - b.R(2, 4), '?'); return n; },
-  hurdles: (b, x) => { let c = b.R(3, 6); const n = b.R(2, 4); for (let i = 0; i < n; i++) { const h = b.R(1, 2), w = b.R(1, 2); b.r(x + c, F - h, w, h); if (i === 1 && b.ch(0.6)) b.s(x + c, F - h - 4, '?'); c += w + b.R(5, 9); } return c; },
-  gate: (b, x) => { const w = b.R(4, 8), h = b.R(4, 7); b.r(x + 8, F - 1 - h, w, h); b.s(x + 8 + fl(w / 2), F - h - 4, '?'); if (b.ch(0.6)) b.s(x + 9 + w + b.R(0, 2), F - 1, '>'); return 14 + w + b.R(2, 5); },
+  hurdles: (b, x) => { let c = b.R(3, 6); const n = b.R(2, 4); for (let i = 0; i < n; i++) { const h = b.H(b.R(1, 2)), w = b.R(1, 2); b.r(x + c, F - h, w, h); if (i === 1 && b.ch(0.6)) b.s(x + c, F - h - 4, '?'); c += w + b.R(5, 9); } return c; },
+  gate: (b, x) => { const w = b.R(4, 8), h = Math.min(18, b.H(b.R(4, 7))); b.r(x + 8, F - 1 - h, w, h); b.s(x + 8 + fl(w / 2), F - h - 4, '?'); if (b.ch(0.6)) b.s(x + 9 + w + b.R(0, 2), F - 1, '>'); return 14 + w + b.R(2, 5); },
   plateau: (b, x) => { const h = b.R(5, 7), w = b.R(8, 14); b.s(x + 2, F - 1, 'T'); b.r(x + 10, F - h, w, h); if (b.ch(0.6)) b.s(x + 12 + b.R(0, w - 4), F - h - 1, '>'); b.s(x + 10 + b.R(1, w - 2), F - h - 3, '?'); return 12 + w + b.R(3, 7); },
   hookpit: (b, x) => {
     const L = b.R(16, 24), hy = F - b.R(11, 13);
@@ -115,13 +115,13 @@ const M = {
   items: (b, x) => { const n = b.R(2, 3), cx = x + b.R(5, 10); for (let i = 0; i < n; i++) b.s(cx + b.R(-1, 1), F - 2 - i * 3, '?'); return b.R(14, 18); },
   boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(8, 14); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 7); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(4, 5), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
   stairs: (b, x) => {
-    const n = b.R(3, 5), sw = b.R(3, 4); let c = 4;
-    for (let i = 1; i <= n; i++) { b.r(x + c, F - i * 2, sw, i * 2); c += sw; }
-    const tw = b.R(4, 8); b.r(x + c, F - n * 2, tw, n * 2); b.s(x + c + 1, F - n * 2 - 1, '>'); b.s(x + c + fl(tw / 2), F - n * 2 - 3, '?'); c += tw;
-    if (b.ch(0.5)) for (let i = n - 1; i >= 1; i--) { b.r(x + c, F - i * 2, sw, i * 2); c += sw; }
+    const s2 = b.H(2), n = Math.min(b.R(3, 5), fl(20 / s2)), sw = b.R(3, 4); let c = 4;
+    for (let i = 1; i <= n; i++) { b.r(x + c, F - i * s2, sw, i * s2); c += sw; }
+    const tw = b.R(4, 8); b.r(x + c, F - n * s2, tw, n * s2); b.s(x + c + 1, F - n * s2 - 1, '>'); b.s(x + c + fl(tw / 2), F - n * s2 - 3, '?'); c += tw;
+    if (b.ch(0.5)) for (let i = n - 1; i >= 1; i--) { b.r(x + c, F - i * s2, sw, i * s2); c += sw; }
     return c + b.R(3, 6);
   },
-  pillars: (b, x) => { let c = b.R(4, 7); const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = b.R(2, 5); b.r(x + c, F - h, 2, h); if (b.ch(0.25)) b.s(x + c, F - h - 3, '?'); c += 2 + b.R(5, 8); } return c; },
+  pillars: (b, x) => { let c = b.R(4, 7); const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = Math.min(18, b.H(b.R(2, 5))); b.r(x + c, F - h, 2, h); if (b.ch(0.25)) b.s(x + c, F - h - 3, '?'); c += 2 + b.R(5, 8); } return c; },
   hookchain: (b, x) => {
     const L = b.R(24, 36), hy = F - b.R(11, 13); b.r(x + 6, F - 1, L, 1, '^'); b.r(x + 4, hy - 2, L + 4, 2); b.r(x + 4, hy, L + 4, 1, 'H');
     let c = b.R(5, 8); while (c < L - 3) { b.r(x + 6 + c, F - b.R(3, 5), 2, 1); c += b.R(7, 10); }
@@ -140,7 +140,7 @@ const M = {
   },
   lava: (b, x) => { const L = b.R(10, 18); b.r(x + 5, F, L, 1, '~'); const k = Math.ceil(L / 7); for (let i = 0; i < k; i++) b.r(x + 6 + fl((L - 3) * (i + 0.5) / k), F - b.R(3, 4), b.R(2, 3), 1, '='); b.s(x + 5 + b.R(2, L - 2), F - 6, '?'); return L + 10; },
   trampchain: (b, x) => { b.s(x + 2, F - 1, 'T'); b.r(x + 8, F - 1, 26, 1, '^'); b.r(x + 17, F - 2, 5, 2); b.s(x + 19, F - 3, 'T'); b.s(x + 18 + b.R(0, 4), F - b.R(9, 11), '?'); return 40; },
-  wallshaft: (b, x) => { const h = b.R(6, 8); b.r(x + 4, F - 14, 2, 9); b.r(x + 10, F - h, 2, h); b.r(x + 12, F - h, b.R(5, 8), 1, '='); b.s(x + 14, F - h - 2, '?'); return 24; },
+  wallshaft: (b, x) => { const h = Math.min(18, b.H(b.R(6, 8))); b.r(x + 4, F - 14, 2, 9); b.r(x + 10, F - h, 2, h); b.r(x + 12, F - h, b.R(5, 8), 1, '='); b.s(x + 14, F - h - 2, '?'); return 24; },
   swing: (b, x) => {
     const n = b.R(4, 7), sp = b.R(7, 9), L = n * sp + 4;
     b.r(x + 4, F - 1, L, 1, '^');
@@ -230,7 +230,7 @@ function longSeq(i) {
   }
   out.push(base[base.length - 1]); return out;
 }
-const buildMap = i => THEMES[i].vert ? buildV(THEMES[i].vert, THEMES[i].cols, THEMES[i].fh) : build(longSeq(i), i + 1);
+const buildMap = i => THEMES[i].vert ? buildV(THEMES[i].vert, THEMES[i].cols, THEMES[i].fh) : build(longSeq(i), i + 1, 1 / (THEMES[i].grav || 1)); // wenig Schwerkraft: höhere Hindernisse
 const vFloor = i => (THEMES[i].fh || FH) * (THEMES[i].cols ? 12 : 8); // Bodenreihe einer Etagen-Map
 const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T + 11 : VCOLS * T / 2 + (slot - 9.5) * 40, y: map.floor * T } : { x: START_X - slot * 17, y: F * T };
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
@@ -240,10 +240,11 @@ function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y)
 function thinPads(g) {
   for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
 }
-function build(seq, seed = 1) {
+function build(seq, seed = 1, hs = 1) {
   const cells = []; let W = 0; let rs = seed * 48271 % 2147483647 || 1;
   const rnd = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
-  const b = { rnd, R: (a, z) => a + fl(rnd() * (z - a + 1)), ch: p => rnd() < p, s: (x, y, c) => cells.push([x, y, c]), r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) cells.push([x + i, y + j, c]); } };
+  const b = { rnd, R: (a, z) => a + fl(rnd() * (z - a + 1)), ch: p => rnd() < p, H: n => Math.max(1, Math.round(n * hs)), // H: Höhe passend zur Schwerkraft
+    s: (x, y, c) => cells.push([x, y, c]), r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) cells.push([x + i, y + j, c]); } };
   for (const m of seq) { const [n, a] = Array.isArray(m) ? m : [m]; W += M[n](b, W, a); }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
