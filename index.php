@@ -42,7 +42,6 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <div class="ambient ambient-3" data-parallax="0.16"></div>
 <div class="grain"></div>
 <div class="gdv3-world" aria-hidden="true"></div>
-<div class="gdv3-scroll-progress" aria-hidden="true"></div>
 
 <header class="nav glass-nav">
   <div class="wrap navin">
@@ -54,14 +53,12 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <a href="#top">Startseite</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
-      <a class="dtp-nav-link" href="dau-to-pro/">DAU TO PRO</a>
     </nav>
     <a class="btn small desktop-cta" href="#apps">Meine Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
       <a href="#apps">Meine Projekte</a>
-      <a href="dau-to-pro/">DAU TO PRO</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
     </nav>
