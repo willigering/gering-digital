@@ -30,11 +30,6 @@ body{
   background:repeating-linear-gradient(132deg,transparent 0 170px,#5cdbda0e 171px,transparent 172px,transparent 420px),radial-gradient(circle at 69% 32%,#edb95d1b,transparent 20%);
   transform:translate3d(0,calc(var(--gdv3-scroll,0px) * -.035),0);will-change:transform;
 }
-.gdv3-scroll-progress{
-  position:fixed;top:0;left:0;width:100%;height:2px;z-index:41;pointer-events:none;
-  background:linear-gradient(90deg,var(--gdv3-gold),var(--gdv3-cyan));
-  transform:scaleX(var(--gdv3-progress,0));transform-origin:left;box-shadow:0 0 13px #74d7d66e;
-}
 .gdv3-kicker,.gdv3-section-index{
   display:inline-flex;align-items:center;gap:11px;
   font:800 10px/1.5 ui-monospace,Consolas,monospace;
@@ -320,7 +315,7 @@ body{
   .gdv3-step,#apps .gdv3-project-grid .app-card{transition:none!important}
 }
 @media print{
-  .gdv3-world,.gdv3-scroll-progress{display:none!important}
+  .gdv3-world{display:none!important}
   .gdv3-enhanced [data-gdv3-reveal]{opacity:1!important;transform:none!important}
   .gdv3-step,.gdv3-end-content,.dtp-portal-card{box-shadow:none!important;break-inside:avoid}
 }

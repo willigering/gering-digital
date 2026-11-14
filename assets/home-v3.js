@@ -4,13 +4,10 @@
   'use strict';
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
   const root=document.documentElement;
-  const progress=document.querySelector('.gdv3-scroll-progress');
   let frame=0;
   function paint(){
     frame=0;
-    const available=Math.max(1,root.scrollHeight-innerHeight);
     const y=Math.max(0,scrollY);
-    if(progress)progress.style.setProperty('--gdv3-progress',String(Math.min(1,y/available)));
     root.style.setProperty('--gdv3-scroll',reduced.matches?'0px':Math.min(y,7000)+'px');
   }
   function queue(){if(!frame)frame=requestAnimationFrame(paint);}

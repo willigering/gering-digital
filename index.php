@@ -42,7 +42,6 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 <div class="ambient ambient-3" data-parallax="0.16"></div>
 <div class="grain"></div>
 <div class="gdv3-world" aria-hidden="true"></div>
-<div class="gdv3-scroll-progress" aria-hidden="true"></div>
 
 <header class="nav glass-nav">
   <div class="wrap navin">
@@ -54,14 +53,12 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <a href="#top">Startseite</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
-      <a class="dtp-nav-link" href="dau-to-pro/">DAU TO PRO</a>
     </nav>
     <a class="btn small desktop-cta" href="#apps">Meine Projekte <b>→</b></a>
     <button class="mobile-menu-btn" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Menü öffnen"><span></span><span></span><span></span></button>
     <nav class="mobile-menu" id="mobile-menu" aria-hidden="true" aria-label="Mobile Navigation">
       <a href="#top">Startseite</a>
       <a href="#apps">Meine Projekte</a>
-      <a href="dau-to-pro/">DAU TO PRO</a>
       <a href="#ueber-mich">Über mich</a>
       <a href="#leistungen">Wie ich entwickle</a>
     </nav>
@@ -73,7 +70,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
   <div class="hero-grid wrap">
     <div class="hero-copy gdv3-hero-copy" data-parallax="0.05">
       <p class="eyebrow gdv3-kicker">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
-      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER.<br><span>AUS IDEEN.</span><br><span class="gdv3-outline">AUS CODE.</span></h1>
+      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER<br><span>UND IDEEN</span><br><span class="gdv3-outline">WIRD CODE.</span></h1>
       <p class="gdv3-hero-description">Mich nerven Dinge, die einfacher gehen müssten. Also entwickle ich Lösungen dafür. Apps, Lernprogramme und digitale Experimente – manchmal nützlich, manchmal einfach, weil ich wissen will, ob es geht.</p>
       <div class="gdv3-hero-actions"><a class="btn" href="#apps">Projekte entdecken <b aria-hidden="true">↗</b></a><a class="gdv3-subtle-link" href="#ueber-mich">Die Geschichte dahinter <span aria-hidden="true">↓</span></a></div>
       <p class="gdv3-hero-meta"><span class="gdv3-light-dot" aria-hidden="true"></span> UNABHÄNGIG ENTWICKELT <span aria-hidden="true">✦</span> MIT NEUGIER GEBAUT</p>
@@ -182,9 +179,9 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <div class="gdv3-about-facts"><div><b>20</b><span>Jahre Produktion</span></div><div><b>∞</b><span>Neue Ideen</span></div></div>
     </div>
     <div class="gdv3-timeline" data-gdv3-reveal>
-      <div class="gdv3-time-item"><small>KAPITEL 01</small><h3>Erst mal anpacken.</h3><p>Fast 20 Jahre Produktion haben mich geprägt: anpacken, umdenken und gute Kollegen schätzen.</p></div>
-      <div class="gdv3-time-item"><small>KAPITEL 02</small><h3>Einfach mal anfangen.</h3><p>Aus einem Experiment wurde meine erste App. Die nächste ließ nicht lange auf sich warten.</p></div>
-      <div class="gdv3-time-item"><small>KAPITEL 03 · HEUTE</small><h3>Noch mal was Neues.</h3><p>Heute lerne ich Netzwerke, Server und Systemintegration – und entwickle weiter eigene Projekte.</p></div>
+      <div class="gdv3-time-item"><h3>Erst mal anpacken.</h3><p>Fast 20 Jahre Produktion haben mich geprägt: anpacken, umdenken und gute Kollegen schätzen.</p></div>
+      <div class="gdv3-time-item"><h3>Einfach mal anfangen.</h3><p>Aus einem Experiment wurde meine erste App. Die nächste ließ nicht lange auf sich warten.</p></div>
+      <div class="gdv3-time-item"><h3>Noch mal was Neues.</h3><p>Heute lerne ich Netzwerke, Server und Systemintegration – und entwickle weiter eigene Projekte.</p></div>
       <div class="gdv3-terminal"><span aria-hidden="true">● ● ●</span><code>&gt; status: neugierig<br>&gt; modus: lernen + bauen<br>&gt; motivation: immer noch vorhanden_</code></div>
     </div>
   </div>
