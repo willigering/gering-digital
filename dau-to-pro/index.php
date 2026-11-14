@@ -115,12 +115,12 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <div class="nr-rail">
         <div class="nr-pin">
           <div class="nr-device" data-nerd-radio data-state="stopped" data-mode="spectrum" data-tracks="<?=e(json_encode($nrFiles,JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES))?>"<?php if($learnerRow && $nrSub===''): ?> data-radio-api="api/radio.php" data-radio-csrf="<?=e(csrf())?>"<?php endif; ?>>
-            <img class="nr-chassis" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
+            <img class="nr-chassis" loading="lazy" src="nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?>" srcset="nerd-radio/base-half.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base-half.webp')?> 1000w, nerd-radio/base.webp?v=<?=filemtime(__DIR__.'/nerd-radio/base.webp')?> 2000w" sizes="(max-width:610px) 100vw, 560px" alt="" decoding="async">
             <!-- Frontebene in Paket-Koordinaten; per matrix3d perspektivisch exakt auf die Gehäusefront gelegt -->
             <div class="nr-face" data-radio-face>
   <?php $nrImg = function (string $file, string $cls, string $light = ''): string {
               $src = "nerd-radio/$file.webp"; $v = filemtime(__DIR__ . '/' . $src);
-              return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" decoding="async">';
+              return '<img class="' . $cls . '" src="' . $src . '?v=' . $v . '"' . ($light ? ' data-radio-light="' . $light . '"' : '') . ' alt="" loading="lazy" decoding="async">';
             }; ?>
             <!-- Lautsprecher: Membran schwingt mit dem Bass hinter dem stehenden Gitter mit eingesetztem Pixelpilz;
                  das RGB-Licht fällt auf die Membran und ist nur durch die Gitterlöcher zu sehen.
@@ -166,9 +166,9 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             </div>
             <button class="nr-key" type="button" data-radio-mode aria-pressed="false" aria-label="Anzeige auf Wellenform umschalten" title="Anzeige: Spektrum / Wellenform"></button>
             <div class="nr-volume">
-              <img class="nr-volume__track" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
-              <img class="nr-volume__fill" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
-              <img class="nr-volume__knob" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
+              <img class="nr-volume__track" loading="lazy" decoding="async" src="nerd-radio/vol-track.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-track.webp')?>" alt="">
+              <img class="nr-volume__fill" loading="lazy" decoding="async" src="nerd-radio/vol-fill.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-fill.webp')?>" alt="">
+              <img class="nr-volume__knob" loading="lazy" decoding="async" src="nerd-radio/vol-knob.webp?v=<?=filemtime(__DIR__.'/nerd-radio/vol-knob.webp')?>" alt="">
               <input type="range" min="0" max="100" step="1" value="35" data-radio-volume aria-label="Lautstärke">
             </div>
             <button class="nr-key" type="button" data-radio-list aria-expanded="false" aria-controls="nr-playlist" aria-label="Playlist öffnen" title="Playlist"></button>

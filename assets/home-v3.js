@@ -3,18 +3,23 @@
 (() => {
   'use strict';
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+  const compact=matchMedia('(max-width: 800px)');
   const root=document.documentElement;
   let frame=0;
   function paint(){
     frame=0;
     const y=Math.max(0,scrollY);
-    root.style.setProperty('--gdv3-scroll',reduced.matches?'0px':Math.min(y,7000)+'px');
+    root.style.setProperty('--gdv3-scroll',(reduced.matches||compact.matches)?'0px':Math.min(y,7000)+'px');
   }
   function queue(){if(!frame)frame=requestAnimationFrame(paint);}
-  addEventListener('scroll',queue,{passive:true});
-  addEventListener('resize',queue,{passive:true});
-  reduced.addEventListener?.('change',queue);
-  paint();
+  function updateScroll(){
+    removeEventListener('scroll',queue);
+    if(!compact.matches&&!reduced.matches)addEventListener('scroll',queue,{passive:true});
+    paint();
+  }
+  compact.addEventListener('change',updateScroll);
+  reduced.addEventListener?.('change',updateScroll);
+  updateScroll();
   if(!reduced.matches && 'IntersectionObserver' in window){
     root.classList.add('gdv3-enhanced');
     const io=new IntersectionObserver((entries)=>{
