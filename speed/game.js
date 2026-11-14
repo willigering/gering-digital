@@ -6,29 +6,30 @@ const COLORS = ['#ff4d5a', '#3fa9ff', '#ffd23f', '#5be37d', '#c77dff', '#ff9f43'
   '#818cf8', '#f43f5e', '#22d3ee', '#facc15', '#e879f9', '#84cc16', '#fb7185', '#60a5fa', '#fbbf24', '#ffffff'];
 // deco: Art der Verzierung (Hintergrund, Kanten, Lampen, Pflanzen …), sun: Sonne/Mond, fx: Teilchen in der Luft
 const THEMES = [
-  { name: 'Neonhafen', sky: ['#1b1040', '#6b2f7e'], far: '#2c1b5a', near: '#1d1140', tile: '#1a1330', edge: '#ff4fd8', hook: '#ffe66d', deco: 'neon', sun: '#ffd6f5', fx: 'stars' },
-  { name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
-  { name: 'Schrottplatz', sky: ['#2b1d14', '#c46a32'], far: '#5a361f', near: '#3a2213', tile: '#2a1a0f', edge: '#ffb347', hook: '#e8f7ff', deco: 'junk', sun: '#ff9b3d', fx: 'dust' },
-  { name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#17324f', edge: '#bff4ff', hook: '#ffe66d', ice: true, deco: 'ice', sun: '#f0fbff', fx: 'snow' },
-  { name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#241008', edge: '#ff7b2e', hook: '#fff3b0', deco: 'lava', sun: '#ff5a1f', fx: 'embers' },
-  { rain: true, name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#13291a', edge: '#c6ff5e', hook: '#ffe66d', deco: 'jungle', sun: '#fff2b0', fx: 'leaves' },
-  { name: 'Lagerhaus ⇄ (Wasser steigt)', sky: ['#2a160c', '#a5562a'], far: '#4f2c17', near: '#3a2012', tile: '#2b1910', edge: '#ffa53a', hook: '#ffe66d', vert: 11, deco: 'ware', sun: '#ffb04a', fx: 'dust' },
-  { name: 'Kristallmine', sky: ['#160a2e', '#7a3fb0'], far: '#2e1755', near: '#1f0f3d', tile: '#1e1038', edge: '#f39cff', hook: '#fff3b0', deco: 'crystal', sun: '#e9c8ff', fx: 'stars' },
-  { name: 'Seilbahn-Werft (Haken!)', sky: ['#0f2f3a', '#e0a35a'], far: '#1f4a55', near: '#15343d', tile: '#1b2e33', edge: '#ffd166', hook: '#ffffff', deco: 'rope', sun: '#ffe2a8', fx: 'flies' },
+  { item: 'jammer', name: 'Neonhafen', sky: ['#1b1040', '#6b2f7e'], far: '#2c1b5a', near: '#1d1140', tile: '#1a1330', edge: '#ff4fd8', hook: '#ffe66d', deco: 'neon', sun: '#ffd6f5', fx: 'stars' },
+  { item: 'banana', name: 'Dachgarten', sky: ['#0d3b4f', '#f2a65a'], far: '#17566b', near: '#0e3a49', tile: '#123240', edge: '#7dffb0', hook: '#fff3b0', deco: 'garden', sun: '#ffd27a', fx: 'flies' },
+  { item: 'jammer', name: 'Schrottplatz', sky: ['#2b1d14', '#c46a32'], far: '#5a361f', near: '#3a2213', tile: '#2a1a0f', edge: '#ffb347', hook: '#e8f7ff', deco: 'junk', sun: '#ff9b3d', fx: 'dust' },
+  { item: 'snow', name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#17324f', edge: '#bff4ff', hook: '#ffe66d', ice: true, deco: 'ice', sun: '#f0fbff', fx: 'snow' },
+  { item: 'lavaball', name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#241008', edge: '#ff7b2e', hook: '#fff3b0', deco: 'lava', sun: '#ff5a1f', fx: 'embers' },
+  { rain: true, item: 'banana', name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#13291a', edge: '#c6ff5e', hook: '#ffe66d', deco: 'jungle', sun: '#fff2b0', fx: 'leaves' },
+  { item: 'banana', name: 'Lagerhaus ⇄ (Wasser steigt)', sky: ['#2a160c', '#a5562a'], far: '#4f2c17', near: '#3a2012', tile: '#2b1910', edge: '#ffa53a', hook: '#ffe66d', vert: 11, deco: 'ware', sun: '#ffb04a', fx: 'dust' },
+  { item: 'jammer', name: 'Kristallmine', sky: ['#160a2e', '#7a3fb0'], far: '#2e1755', near: '#1f0f3d', tile: '#1e1038', edge: '#f39cff', hook: '#fff3b0', deco: 'crystal', sun: '#e9c8ff', fx: 'stars' },
+  { item: 'banana', name: 'Seilbahn-Werft (Haken!)', sky: ['#0f2f3a', '#e0a35a'], far: '#1f4a55', near: '#15343d', tile: '#1b2e33', edge: '#ffd166', hook: '#ffffff', deco: 'rope', sun: '#ffe2a8', fx: 'flies' },
   // Breite Etagen: lange Strecke nach rechts, Kletterschacht nach oben, oben nach links. Kamera fährt mit.
-  { name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
-  { name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
-  { grav: 0.8, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
-  { name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
-  { grav: 0.5, name: 'Mond (halbe Schwerkraft)', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
+  { item: 'snow', name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
+  { item: 'lavaball', name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
+  { grav: 0.8, item: 'lavaball', name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
+  { item: 'gravity', name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
+  { grav: 0.5, item: 'gravity', name: 'Mond (halbe Schwerkraft)', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
+  { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const DANCES = ['KUSSHAND', 'ZENSIERT', 'PO ZEIGEN'];
 const POSES_ON = true; // Siegergesten an
 const DANCE_POSE = [6, 7, 8]; // Gesten (siehe gesture); 0–5 sind die alten Posen, derzeit aus
 const VCOLS = 50, FH = 7, VROWS = FH * 8, VFLOOR = VROWS; // Zickzack-Etagen: 50 Felder breit, 7 Reihen je Etage, Muster wiederholt sich alle 8 Etagen
-const ITEMS = { rocket: '🚀', crate: '📦', shock: '💥', lasso: '🧲', turbo: '⚡', snow: '❄️' };
-const ITEM_NAMES = { rocket: 'Rakete', crate: 'Kiste', shock: 'Schockwelle', lasso: 'Magnet', turbo: 'Turbo', snow: 'Schneeball' };
+const ITEMS = { rocket: '🚀', crate: '📦', shock: '💥', lasso: '🧲', turbo: '⚡', snow: '❄️', banana: '🍌', lavaball: '🔥', gravity: '🌀', jammer: '📡' };
+const ITEM_NAMES = { rocket: 'Rakete', crate: 'Kiste', shock: 'Schockwelle', lasso: 'Magnet', turbo: 'Turbo', snow: 'Schneeball', banana: 'Banane', lavaball: 'Lavaball', gravity: 'Schwerelos', jammer: 'Störsender' };
 const fl = Math.floor, clamp = (v, a, b) => v < a ? a : v > b ? b : v, mod = (a, n) => ((a % n) + n) % n;
 const approach = (v, t, d) => v < t ? Math.min(t, v + d) : Math.max(t, v - d);
 
@@ -53,6 +54,29 @@ const hookBar = (b, x, y, w) => { b.r(x, y - 2, w, 2); b.r(x, y, w, 1, 'H'); };
 // Jeder Baustein würfelt Höhen, Längen, Anzahl und Abstände (b.R(a, z) = ganze Zahl a..z, b.ch(p) = mit Wahrscheinlichkeit p).
 // Der Zufall hängt nur von der Strecke ab, damit alle Spieler dieselbe Strecke bekommen.
 const M = {
+  // --- Welt-Abschnitte und neue Fallen
+  firejets: (b, x) => { let c = 4; const n = b.R(3, 5); for (let i = 0; i < n; i++) { b.s(x + c, F - 1, 'F'); if (i === 1) { const L = b.R(3, 5); b.r(x + c + 3, F, L, 1, '~'); c += L + 3; } c += b.R(4, 6); } b.s(x + fl(c / 2), F - 5, '?'); return c + 3; },
+  lasers: (b, x) => { let c = 4; const n = b.R(3, 5); for (let i = 0; i < n; i++) { b.s(x + c, F - 1, 'L'); c += b.R(6, 9); } return c + 2; },
+  tube: (b, x) => { const L = b.R(12, 18); b.r(x + 4, F - 6, L, 2); for (let i = 0; i < L; i++) for (let j = 1; j <= 4; j++) b.s(x + 4 + i, F - j, 'Z'); b.s(x + 4 + fl(L / 2), F - 2, '?'); return L + 8; },
+  icicles: (b, x) => { const L = b.R(18, 28); b.r(x + 2, F - 11, L, 2); let c = 3; while (c < L - 1) { b.s(x + 2 + c, F - 9, 'I'); c += b.R(3, 5); } b.s(x + 2 + b.R(3, L - 3), F - 3, '?'); return L + 6; },
+  bridge: (b, x) => { const L = b.R(10, 16); b.r(x + 4, F - 1, L, 1, '^'); b.r(x + 3, F - 4, L + 2, 1, 'B'); b.r(x + 2, F - 4, 1, 4); b.r(x + 5 + L, F - 4, 1, 4); b.s(x + 4 + fl(L / 2), F - 7, '?'); return L + 9; },
+  gondolas: (b, x) => { const L = b.R(26, 34); b.r(x + 3, F - 1, L, 1, '^'); const n = b.R(2, 3); for (let i = 0; i < n; i++) { const a = x + 3 + fl(L * i / n), z = a + fl(L / n) - 3; b.mover(a, z, F - b.R(3, 5), 3, b.R(3200, 4600)); } b.s(x + 3 + fl(L / 2), F - 9, '?'); return L + 7; },
+  conveyors: (b, x) => { const L = b.R(14, 22), dir = b.ch(0.5) ? 'C' : 'D'; b.r(x + 3, F, L, 1, dir); let c = 5; while (c < L - 2) { if (b.ch(0.6)) b.r(x + 3 + c, F - b.R(1, 2), 1, 2); c += b.R(4, 6); } return L + 6; },
+  crusher: (b, x) => { const n = b.R(2, 4); b.r(x + 3, F - 9, n * 6 + 2, 2); for (let i = 0; i < n; i++) b.r(x + 5 + i * 6, F - 7, 2, 1, 'P'); return n * 6 + 8; },
+  collapse: (b, x) => { const L = b.R(8, 14); b.r(x + 4, F - 8, L, 4); b.r(x + 4, F - 4, L, 1, 'Q'); b.s(x + 4 + fl(L / 2), F - 1, '?'); return L + 8; },
+  roller: (b, x) => { let c = 5; const n = b.R(1, 3); for (let i = 0; i < n; i++) { b.s(x + c, F - 2, 'W'); c += b.R(7, 10); } return c + 2; },
+  launchers: (b, x) => { const L = b.R(16, 22); b.r(x + L, F - 3, 2, 3); b.s(x + L, F - 4, 'M'); b.r(x + L, F - 5, 2, 1); b.s(x + fl(L / 2), F - 5, '?'); return L + 6; },
+  gravfield: (b, x) => { const L = b.R(8, 12); b.r(x + 4, F - 1, L, 1, '^'); for (let i = 2; i < L - 2; i++) for (let j = 2; j <= 10; j++) b.s(x + 4 + i, F - j, 'G'); b.r(x + 4 + L, F - 9, 6, 1); b.s(x + 6 + L, F - 11, '?'); return L + 14; },
+  // Gabelung: oben (Trampolin, Schiene, Stacheln, Auslöser) schneller, unten langsamer; der Auslöser schließt das Tor unten für 3,5 s
+  fork: (b, x) => {
+    const L = b.R(34, 44), rx = x + 12;
+    b.s(x + 2, F - 1, 'T'); b.r(rx, F - 8, L, 1);
+    let c = 6; while (c < L - 8) { if (b.ch(0.5)) b.r(rx + c, F - 9, 2, 1, '^'); c += b.R(7, 10); }
+    b.s(rx + L - 3, F - 9, 'X');                                     // Auslöser am Ende der Schiene
+    b.r(x + L + 6, F - 7, 1, 7, 'Y');                                 // Tor unten (darüber geht es oben weiter)
+    c = 14; while (c < L) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - 1, 1, 1); else if (k === 1) b.r(x + c, F, 3, 1, 'D'); else b.s(x + c, F - 1, 'O'); c += b.R(5, 7); }
+    return L + 14;
+  },
   // Kamin: zwei Wände dicht beieinander. Unten rein, mit Wandsprüngen hin und her nach oben, oben rüber und per Rutsche runter.
   chimney: (b, x, h) => {
     h = Math.min(21, b.H(h || b.R(12, 16)));
@@ -156,24 +180,25 @@ const M = {
   },
 };
 const SEQS = [
-  [['flat', 24], 'hurdles', 'gate', 'saws', 'hookpit', 'chimney', 'items', 'shortcut', 'upper', 'lava', 'plateau', 'boost', 'tunnel', 'wallshaft', 'big', ['flat', 12]],
-  [['flat', 24], 'boost', 'hills', 'trampchain', 'big', 'items', 'shortcut', 'tunnel', 'hookpit', 'bigslide', 'saws', 'plateau', 'hurdles', 'upper', 'mogul', 'gate', 'hookpit', ['flat', 12]],
-  [['flat', 24], 'upper', 'hookpit', 'saws', 'gate', 'items', 'wallshaft', 'chimneys', 'hurdles', 'tunnel', 'boost', 'plateau', 'big', 'lava', 'gate', ['flat', 12]],
-  [['flat', 24], 'stairs', 'pillars', 'hookchain', 'items', 'shortcut', 'trampchain', 'chimney', 'spikes', 'tunnel', 'upper', 'saws', 'boost', 'plateau', ['flat', 12]],
-  [['flat', 24], 'spikes', 'lava', 'gate', 'pillars', 'hookpit', 'items', 'lava', 'boost', 'big', 'chimneys', 'stairs', 'wallshaft', 'hookchain', ['flat', 12]],
-  [['flat', 24], 'pillars', 'descent', 'upper', 'hookchain', 'shortcut', 'items', 'chimney', 'trampchain', 'hills', 'plateau', 'stairs', 'saws', 'bigslide', 'spikes', 'tunnel', 'gate', 'big', ['flat', 12]],
+  [['flat', 20], 'tube', 'hurdles', 'lasers', 'items', 'fork', 'pillars', 'lasers', 'saws', 'tube', 'collapse', 'upper', 'launchers', 'hookpit', ['flat', 10]], // Neonhafen
+  [['flat', 20], 'hills', 'fork', 'hurdles', 'items', 'bridge', 'swing', 'mogul', 'roller', 'plateau', 'bigslide', 'gate', ['flat', 10]], // Dachgarten
+  [['flat', 20], 'conveyors', 'crusher', 'hurdles', 'items', 'roller', 'conveyors', 'fork', 'crusher', 'launchers', 'stairs', 'collapse', ['flat', 10]], // Schrottplatz
+  [['flat', 20], 'icicles', 'hills', 'items', 'bigslide', 'icicles', 'fork', 'pillars', 'mogul', 'collapse', 'descent', ['flat', 10]], // Eiswerk
+  [['flat', 20], 'firejets', 'lava', 'items', 'fork', 'firejets', 'pillars', 'roller', 'lava', 'chimney', 'firejets', 'spikes', ['flat', 10]], // Vulkan
+  [['flat', 20], 'swing', 'bridge', 'items', 'hills', 'swing', 'fork', 'bridge', 'hookforest', 'roller', 'descent', ['flat', 10]], // Dschungel
   null, // Lagerhaus: Etagen, siehe buildV
-  [['flat', 24], 'stairs', 'hookchain', 'saws', 'items', 'shortcut', 'pillars', 'lava', 'upper', 'chimneys', 'hills', 'wallshaft', 'boost', 'tunnel', 'big', ['flat', 12]], // Kristallmine
-  [['flat', 24], 'swing', 'items', 'hookforest', 'hookchain', 'swing', 'items', 'hookpit', 'hookforest', 'big', 'swing', 'hookchain', 'items', 'hookforest', ['flat', 12]],
-  [['flat', 20], 'hills', 'items', 'bigslide', 'mogul', 'hurdles', 'descent', 'items', 'hills', 'mogul', 'spikes', 'bigslide', 'descent', ['flat', 12]], // Skipiste
-  [['flat', 24], 'hills', 'hurdles', 'lava', 'items', 'shortcut', 'bigslide', 'spikes', 'chimney', 'pillars', 'saws', 'mogul', 'gate', 'plateau', ['flat', 12]], // Wüste
-  [['flat', 24], 'descent', 'pillars', 'lava', 'items', 'shortcut', 'trampchain', 'hills', 'saws', 'chimneys', 'upper', 'stairs', 'spikes', 'big', ['flat', 12]], // Mars
+  [['flat', 20], 'lasers', 'bridge', 'items', 'stairs', 'fork', 'chimney', 'lasers', 'tube', 'collapse', 'hookchain', ['flat', 10]], // Kristallmine
+  [['flat', 20], 'gondolas', 'swing', 'items', 'gondolas', 'hookforest', 'fork', 'gondolas', 'hookchain', ['flat', 10]], // Seilbahn-Werft
+  [['flat', 20], 'hills', 'icicles', 'bigslide', 'items', 'mogul', 'fork', 'descent', 'icicles', 'bigslide', ['flat', 10]], // Skipiste
+  [['flat', 20], 'hills', 'roller', 'bridge', 'items', 'lava', 'fork', 'pillars', 'roller', 'bigslide', 'launchers', ['flat', 10]], // Wüste
+  [['flat', 20], 'launchers', 'descent', 'lava', 'items', 'fork', 'gravfield', 'pillars', 'chimney', 'launchers', 'spikes', ['flat', 10]], // Mars
   null, // Weltall: breite Etagen, siehe buildV
-  [['flat', 24], 'hills', 'pillars', 'descent', 'items', 'shortcut', 'mogul', 'chimney', 'spikes', 'bigslide', 'stairs', 'saws', 'hurdles', ['flat', 12]], // Mond
+  [['flat', 20], 'gravfield', 'hills', 'pillars', 'items', 'fork', 'chimney', 'gravfield', 'descent', 'launchers', 'mogul', ['flat', 10]], // Mond
+  'MIX', // Bonus: Zufallsstrecke
 ];
 // Zickzack-Etagen: Auf jeder Etage läuft man bis zur Wand, ein Trampolin schießt durch die Luke ('=' von unten
 // durchspringbar) nach oben, dort geht es in die Gegenrichtung weiter. Gerade Etagen nach rechts, ungerade nach links.
-function buildV(seed, cols = VCOLS, fh = FH) {
+function buildV(seed, cols = VCOLS, fh = FH, deco = '') {
   const floors = cols > VCOLS ? 12 : 8, rows = fh * floors, wide = cols > VCOLS, hw = 10; // hw: Breite der Luke zur nächsten Etage
   let r = seed * 7919; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
   const g = []; for (let y = 0; y < rows; y++) g.push(new Array(cols).fill(' '));
@@ -208,6 +233,8 @@ function buildV(seed, cols = VCOLS, fh = FH) {
         else if (h < 0.75 && wide) { for (let i = 0; i < 3; i++) P(x + i, fy - 2, '#'); x += 3 + gap(); }                   // niedriger Balken: rutschen
         else { for (let i = 0; i < 6; i++) P(x + i, fy - 1, '^'); for (let i = 1; i < 5; i++) P(x + i, cy + 1, 'H'); x += 6 + gap(); } // Hakengrube
       }
+      else if (e < 0.88 && deco === 'ware' && x < end - 6) { for (let j = 1; j <= 3; j++) P(x, fy - j, 'R'); x += 1 + gap(); } // Rolltor
+      else if (e < 0.88 && deco === 'space' && x < end - 12) { for (let i = 0; i < 6; i++) P(x + i, fy - 1, '^'); for (let i = 1; i < 5; i++) for (let j = 2; j <= fh - 2; j++) P(x + i, fy - j, 'G'); x += 6 + gap(); } // Schwerkraftfeld
       else x += gap();                                                                                                     // freie Strecke
     }
   }
@@ -230,7 +257,11 @@ function longSeq(i) {
   }
   out.push(base[base.length - 1]); return out;
 }
-const buildMap = i => THEMES[i].vert ? buildV(THEMES[i].vert, THEMES[i].cols, THEMES[i].fh) : build(longSeq(i), i + 1, 1 / (THEMES[i].grav || 1)); // wenig Schwerkraft: höhere Hindernisse
+// Feste, handgebaute Rundkurse je Strecke. „MIX“ = Bonus-Zufallsstrecke aus allen Bausteinen, jeden Tag anders.
+function mixSeq(seed) { let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647, pool = Object.keys(M).filter(k => k !== 'flat' && k !== 'items'), out = [['flat', 20]];
+  for (let k = 0; k < 26; k++) { out.push(pool[fl(rnd() * pool.length)]); if (rnd() < 0.3) out.push('items'); } out.push(['flat', 10]); return out; }
+const buildMap = i => THEMES[i].vert ? buildV(THEMES[i].vert, THEMES[i].cols, THEMES[i].fh, THEMES[i].deco)
+  : SEQS[i] === 'MIX' ? build(mixSeq(fl(Date.now() / 864e5)), fl(Date.now() / 864e5), 1) : build(SEQS[i], i + 1, 1 / (THEMES[i].grav || 1)); // wenig Schwerkraft: höhere Hindernisse
 const vFloor = i => (THEMES[i].fh || FH) * (THEMES[i].cols ? 12 : 8); // Bodenreihe einer Etagen-Map
 const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T + 11 : VCOLS * T / 2 + (slot - 9.5) * 40, y: map.floor * T } : { x: START_X - slot * 17, y: F * T };
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
@@ -241,16 +272,16 @@ function thinPads(g) {
   for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
 }
 function build(seq, seed = 1, hs = 1) {
-  const cells = []; let W = 0; let rs = seed * 48271 % 2147483647 || 1;
+  const cells = [], movers = []; let W = 0; let rs = seed * 48271 % 2147483647 || 1;
   const rnd = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
   const b = { rnd, R: (a, z) => a + fl(rnd() * (z - a + 1)), ch: p => rnd() < p, H: n => Math.max(1, Math.round(n * hs)), // H: Höhe passend zur Schwerkraft
-    s: (x, y, c) => cells.push([x, y, c]), r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) cells.push([x + i, y + j, c]); } };
+    mover: (x0, x1, y, w, ms) => movers.push({ x0, x1, y, w, ms }), s: (x, y, c) => cells.push([x, y, c]), r: (x, y, w, h, c = '#') => { for (let i = 0; i < w; i++) for (let j = 0; j < h; j++) cells.push([x + i, y + j, c]); } };
   for (const m of seq) { const [n, a] = Array.isArray(m) ? m : [m]; W += M[n](b, W, a); }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
   for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
   thinPads(g);
-  return { W, g, boxes, bi };
+  return { W, g, boxes, bi, movers };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
 // cutX: Levelende auf waagerechten Strecken. Links davon ist alles zerfallen – kein Boden, keine Wände.
@@ -258,7 +289,17 @@ let cutX = -1e9;
 const tile = (tx, ty) => map.vert
   ? (tx < 0 || tx >= map.W || ty >= map.floor ? '#' : map.g[mod(ty, map.H)][tx])
   : (tx * T + T / 2 < cutX ? ' ' : ty < 0 || ty >= MH ? '#' : map.g[ty][mod(tx, map.W)]);
-const solid = (tx, ty) => { const c = tile(tx, ty); return c === '#' || c === 'H'; };
+const RT = () => Math.max(0, performance.now() - goAt);                 // Rundenzeit in ms
+const fireOn = tx => (RT() + tx * 211) % 2400 > 1500;                      // Feuerdüse: 0,9 s an
+const fireWarn = tx => { const t = (RT() + tx * 211) % 2400; return t > 1100 && t <= 1500; };
+const laserOn = tx => (RT() + tx * 137) % 1800 < 900;                      // Laserschranke im Takt
+const doorClosed = tx => (RT() + tx * 97) % 4000 > 2700;                   // Rolltor: 1,3 s zu
+const crushExt = tx => { const t = ((RT() + tx * 331) % 3000) / 3000; return t < 0.55 ? 0 : t < 0.65 ? (t - 0.55) / 0.1 : t < 0.8 ? 1 : 1 - (t - 0.8) / 0.2; }; // Presse 0..1
+const icicleFall = tx => { const t = ((RT() + tx * 173) % 3600) / 3600; return t < 0.75 ? 0 : (t - 0.75) / 0.25; }; // 0..1 = fällt
+const gateClosed = tx => { const gu = map.gateUntil; if (!gu) return false; const n = performance.now(), t = mod(tx, map.W); for (const k in gu) if (n < gu[k] && t <= +k + 12 && t >= +k - 60) return true; return false; };
+const brokenNow = (tx, ty) => { const b = map.brk && map.brk[mod(tx, map.W) + ',' + ty]; if (!b) return false; const n = performance.now(); if (n > b.until) { delete map.brk[mod(tx, map.W) + ',' + ty]; return false; } return n >= b.at; };
+const solid = (tx, ty) => { const c = tile(tx, ty);
+  return c === '#' || c === 'H' || c === 'C' || c === 'D' || c === 'M' || c === 'Q' || c === 'P' || (c === 'R' && doorClosed(tx)) || (c === 'Y' && gateClosed(tx)) || (c === 'B' && !brokenNow(tx, ty)); };
 const stand = (tx, ty) => solid(tx, ty) || tile(tx, ty) === '=';
 const boxAt = (tx, ty) => map.boxes[map.bi[map.vert ? tx + ',' + mod(ty, map.H) : mod(tx, map.W) + ',' + ty]];
 function onPlat(x, row) { for (let tx = fl((x - 11) / T); tx <= fl((x + 11 - 0.001) / T); tx++) if (tile(tx, row) === '=') return true; return false; }
@@ -273,7 +314,7 @@ let myId = 0, lobby = null, phase = 'menu', goAt = 0, solo = false, roundNo = 0;
 let camX = START_X, camT = START_X, camY = VH / 2 - 2, zoom = 1, kill = 800, shake = 0, banner = null, uid = 1;
 let cele = null; // Siegerfeier: { id, dance, t0 }
 const remotes = new Map();           // id -> {name,color,score,alive,buf[],rx,ry,...}
-let rockets = [], crates = [], parts = [], fx = [], snowballs = [];
+let rockets = [], crates = [], parts = [], fx = [], snowballs = [], bananas = [];
 const me = {};
 function resetMe(slot) {
   const s = startPos(slot);
@@ -345,6 +386,8 @@ function slopeAt(x, y) { // Oberfläche einer Schräge in der Nähe der Füße: 
   }
   return best;
 }
+// Position einer Gondel (Welt-x), nahe der Position px (Strecke wiederholt sich)
+function moverX(m, t, px) { const x = (m.x0 + (m.x1 - m.x0) * (0.5 - 0.5 * Math.cos(2 * Math.PI * t / m.ms))) * T, L = map.W * T; return x + Math.round((px - x) / L) * L; }
 function moveX(p, dx) {
   p.x += dx; const h = ph(p), lift = p.wasG ? 14 : 0; // am Boden: kleine Stufen (Schrägen-Übergänge) nicht als Wand werten
   if (!hitRect(p.x - 11, p.y - h, 22, h - lift)) return false;
@@ -406,7 +449,8 @@ function releaseHook(p) {
 }
 function rollItem() {
   let ahead = 0, n = 0; for (const r of remotes.values()) if (r.alive) { n++; if (r.rx > me.x) ahead++; }
-  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo'] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', 'snow', 'snow'];
+  const w = theme.item || 'rocket'; // jede Welt hat ihr eigenes Item, der Schneeball gibt es nur im Schnee
+  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo', w] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', w, w];
   return pool[fl(Math.random() * pool.length)];
 }
 function nearestAhead(maxD) {
@@ -420,6 +464,10 @@ function useItem(p) {
   else if (k === 'shock') { const m = { t: 'ev', k: 'sh', x: Math.round(p.x), y: Math.round(p.y - 20) }; send(m); m.id = myId; onEv(m); }
   else if (k === 'lasso') { const m = { t: 'ev', k: 'ls', tg: nearestAhead(1200) }; send(m); m.id = myId; onEv(m); p.vx = Math.min(1050, Math.max(p.vx, 300) + 420); p.vy = Math.min(p.vy, -220); }
   else if (k === 'snow') { const m = { t: 'ev', k: 'sb', r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 34), vx: Math.round(p.face * 950 + p.vx * 0.5), vy: -420 }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'lavaball') { const m = { t: 'ev', k: 'sb', lv: 1, r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 30), vx: Math.round(p.face * 800 + p.vx * 0.4), vy: -260 }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'banana') { const m = { t: 'ev', k: 'bn', r: myId * 1e5 + uid++, x: Math.round(p.x - p.face * 30), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'gravity') { const m = { t: 'ev', k: 'gv', x: Math.round(p.x), y: Math.round(p.y - 20) }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'jammer') { const m = { t: 'ev', k: 'jm' }; send(m); m.id = myId; onEv(m); }
   else if (k === 'turbo') { p.turbo = 1.8; p.boost = 1; beep(300, 0.4, 'sawtooth', 0.06, 1200); }
 }
 // Wind: Böen im Wechsel nach rechts und links, Stärke je Welt (0 = kein Wind)
@@ -439,11 +487,11 @@ function stepMe(dt, now) {
   p.coy = p.ground ? 0.1 : p.coy - dt;
   // Grundtempo wie in Version 1; Boost hält ~1,6 s.
   let boosting = false;
-  if (ctrl && I.boost && p.boost > 0.02 && dir) { boosting = true; p.boost -= dt / 1.6; } else if (!I.boost) p.boost = Math.min(1, p.boost + dt * 0.07);
+  if (ctrl && I.boost && p.boost > 0.02 && dir && !(p.jam > 0)) { boosting = true; p.boost -= dt / 1.6; } else if (!I.boost) p.boost = Math.min(1, p.boost + dt * 0.07);
   if (p.turbo > 0) { p.turbo -= dt; boosting = true; }
   p.boosting = boosting;
-  p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt);
-  const max = (boosting ? 880 : 580) * (p.slow > 0 ? 0.45 : 1); // vom Schneeball getroffen: kurz langsamer
+  p.jam = Math.max(0, (p.jam || 0) - dt); p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt);
+  const max = (boosting ? 880 : 580) * (p.slow > 0 ? 0.45 : 1) * (p.tube > 0 ? 1.6 : 1); // vom Schneeball getroffen: kurz langsamer
   // Durch eine Plattform nach unten fallen lassen
   if (p.ground && ctrl && I.down && !p.slide && !p.hook && onPlatAt(p) && !hitRect(p.x - 11, p.y, 22, 1)) { p.drop = 0.22; p.ground = false; p.y += 1; }
   // Rutschen
@@ -488,6 +536,12 @@ function stepMe(dt, now) {
   if (moveX(p, p.vx * dt)) { p.vx = 0; if (p.hook) releaseHook(p); }
   const vy0 = p.vy;
   if (moveY(p, p.vy * dt)) { if (vy0 > 700) dust(p.x, p.y, 6); p.vy = 0; }
+  // Gondeln: von oben draufspringen, sie nehmen einen mit
+  p.onMover = false;
+  if (map.movers && map.movers.length && !p.hook && p.vy >= 0) for (const m of map.movers) {
+    const t = RT(), mx = moverX(m, t, p.x), top = m.y * T;
+    if (p.x > mx - 8 && p.x < mx + m.w * T + 8 && p.y >= top - 2 && p.y <= top + 14 + p.vy * dt) { p.y = top; p.vy = 0; p.onMover = true; p.x += mx - moverX(m, t - dt * 1000, p.x); break; }
+  }
   // Schrägen: Füße auf die Oberfläche setzen; wer schon am Boden war, bleibt auch bergab am Boden
   p.onS = false;
   if (!p.hook && p.vy >= 0) { const s = slopeAt(p.x, p.y); if (s && (p.y >= s.y - 1 || (p.wasG && p.y >= s.y - 14))) { p.y = s.y; p.vy = 0; p.onS = true; p.slopeK = s.k; } }
@@ -500,7 +554,7 @@ function stepMe(dt, now) {
     if (dy < 24 || nx * p.face > 0.8) releaseHook(p);
   }
   const h = ph(p);
-  p.ground = p.vy >= 0 && (hitRect(p.x - 11, p.y, 22, 1) || onPlatAt(p) || p.onS);
+  p.ground = p.vy >= 0 && (hitRect(p.x - 11, p.y, 22, 1) || onPlatAt(p) || p.onS || p.onMover);
   p.wasG = p.ground;
   if (p.ground) { p.jumps = 0; p.launch = false; }
   p.wall = p.ground ? 0 : hitRect(p.x + 11, p.y - h + 4, 2, h - 8) ? 1 : hitRect(p.x - 13, p.y - h + 4, 2, h - 8) ? -1 : 0;
@@ -519,7 +573,33 @@ function stepMe(dt, now) {
       if (b && now >= b.t && !p.item) { b.t = now + 6000; p.item = rollItem(); p.roll = 0.9; send({ t: 'ev', k: 'box', i }); beep(660, 0.08, 'square', 0.05); setTimeout(() => beep(990, 0.12, 'square', 0.05), 80); dust(tx * T + 16, ty * T + 16, 10, '#ffd23f', 260); }
     }
   }
-  if (ctrl && I.itemP && p.item && !(p.roll > 0)) useItem(p); // erst wenn die Item-Auswahl fertig gedreht hat
+  // Welt-Mechaniken und Fallen
+  const fb = fl((p.y + 1) / T), ftx = fl(p.x / T), fc = p.ground ? tile(ftx, fb) : ' ';
+  if (fc === 'C' || fc === 'D') moveX(p, (fc === 'C' ? 230 : -230) * dt);                                 // Förderband
+  if (fc === 'B' && !(map.brk = map.brk || {})[mod(ftx, map.W) + ',' + fb]) map.brk[mod(ftx, map.W) + ',' + fb] = { at: now + 450, until: now + 4500 }; // morsche Brücke bricht
+  for (let tx = x0; tx <= x1; tx++) {
+    for (let ty = y1 - 4; ty <= y1 + 4; ty++) { const c = tile(tx, ty);
+      if (c === 'F' && fireOn(tx) && p.y > (ty - 3) * T + 6 && p.y - h < (ty + 1) * T) hurt(0.6, 0.3, -560);     // Feuerdüse
+      if (c === 'L' && laserOn(tx) && p.y > (ty - 3) * T + 4 && p.y - h < (ty + 1) * T) hurt(0.5, 0.3, -420);    // Laserschranke
+    }
+    for (let ty = y0 - 9; ty < y0; ty++) { const c = tile(tx, ty);
+      if (c === 'I') { const fy = ty * T + 20 + icicleFall(tx) * 9 * T; if (icicleFall(tx) > 0 && fy > p.y - h && fy < p.y + 4) hurt(0.6, 0.3, -300); } // Eiszapfen
+      if ((c === 'P' || tile(tx - 1, ty) === 'P') && crushExt(c === 'P' ? tx : tx - 1) > 0.6 && (ty + 1 + crushExt(tx) * 5) * T > p.y - h) hurt(0.8, 0.2, 200);       // Presse
+    }
+    if (tile(tx, y0 - 1) === 'Q' && !p.slide && p.ground && p.inv <= 0) { hurt(0.5, 0.4, -200); for (let i = 0; i < 6; i++) parts.push({ x: tx * T + Math.random() * T, y: (y0 - 1) * T + T, vx: (Math.random() - 0.5) * 80, vy: 100 + Math.random() * 200, l: 0.6, c: theme.tile, s: 6 + Math.random() * 6 }); } // einstürzende Decke
+  }
+  for (let ty = y0; ty <= y1; ty++) for (let tx = x0 - 1; tx <= x1 + 1; tx++) { const c = tile(tx, ty);
+    if (c === 'W' && Math.hypot(p.x - tx * T - 16, p.y - h / 2 - ty * T - 16) < 34) hurt(0.6, 0.3, -500);                    // Stachelwalze
+    if (c === 'G') { p.vy = Math.max(p.vy - 4600 * dt, -700); p.ground = false; }                                                  // Schwerkraftfeld
+    if (c === 'Z') { p.tube = 0.15; p.vx += (p.face || 1) * 1500 * dt; }                                                          // Boost-Röhre
+    if (c === 'X' && !(p.trig > 0)) { p.trig = 2; const m = { t: 'ev', k: 'gt', x: mod(tx, map.W) }; send(m); onEv(m); banner = { text: 'TOR ZU!', sub: 'Der untere Weg ist kurz gesperrt', until: now + 1100, col: '#7dffb0' }; } // Auslöser
+  }
+  p.trig = Math.max(0, (p.trig || 0) - dt); p.tube = Math.max(0, (p.tube || 0) - dt);
+  for (let tx = x1; tx <= x1 + 22; tx++) for (let ty = y0 - 1; ty <= y1 + 1; ty++) if (tile(tx, ty) === 'M') {                     // Raketenwerfer an der Wand
+    const tr = ((RT() + tx * 53) % 3500) / 1000 * 650, rx = tx * T - tr, ry = ty * T + 16;
+    if (tr < 18 * T && Math.abs(p.x - rx) < 22 && ry > p.y - h && ry < p.y) hurt(0.7, 0.2, -420);
+  }
+  if (ctrl && I.itemP && p.item && !(p.roll > 0) && !(p.jam > 0)) useItem(p); // erst wenn die Item-Auswahl fertig gedreht hat
   if (boosting && Math.random() < 0.6) parts.push({ x: p.x - p.face * 10, y: p.y - 8 - Math.random() * 20, vx: -p.vx * 0.2, vy: (Math.random() - 0.5) * 60, l: 0.25, c: p.turbo > 0 ? '#7df9ff' : '#ffb347', s: 5 });
 }
 
@@ -533,8 +613,15 @@ function onEv(m) {
   if (k === 'box') { const b = map.boxes[m.i]; if (b) b.t = now + 6000; }
   else if (k === 'rk') { rockets.push({ id: m.r, x: +m.x, y: +m.y, d: m.d < 0 ? -1 : 1, o: m.id, t: 0 }); beep(900, 0.3, 'sawtooth', 0.05, 200); }
   else if (k === 'rx') { const i = rockets.findIndex(r => r.id === m.r); if (i >= 0) { boom(rockets[i].x, rockets[i].y); rockets.splice(i, 1); } }
-  else if (k === 'sb') { snowballs.push({ id: m.r, x: +m.x, y: +m.y, vx: +m.vx, vy: +m.vy, o: m.id, t: 0 }); beep(500, 0.12, 'triangle', 0.05, 300); }
+  else if (k === 'sb') { snowballs.push({ id: m.r, x: +m.x, y: +m.y, vx: +m.vx, vy: +m.vy, o: m.id, t: 0, lv: !!m.lv, bo: 0 }); beep(500, 0.12, 'triangle', 0.05, 300); }
   else if (k === 'sx') { const i = snowballs.findIndex(s => s.id === m.r); if (i >= 0) { splat(snowballs[i].x, snowballs[i].y); snowballs.splice(i, 1); } }
+  else if (k === 'bn') bananas.push({ id: m.r, x: +m.x, y: +m.y, o: m.id, t: 0 });
+  else if (k === 'bx') { const i = bananas.findIndex(b => b.id === m.r); if (i >= 0) bananas.splice(i, 1); }
+  else if (k === 'gv') { fx.push({ k: 'ring', x: +m.x, y: +m.y, t: 0, r: 700 }); beep(180, 0.5, 'sine', 0.07, 900);
+    if (m.id !== myId && me.alive && me.inv <= 0 && Math.hypot(me.x - m.x, me.y - 20 - m.y) < 700) { me.vy = -950; me.ground = false; me.jumps = 2; me.hook = null; banner = { text: 'SCHWERELOS!', sub: 'Jemand hat dir den Boden geklaut', until: now + 1200, col: '#c9a7ff' }; } }
+  else if (k === 'gt') { map.gateUntil = map.gateUntil || {}; map.gateUntil[+m.x] = now + 3500; beep(140, 0.3, 'square', 0.05, 80); }
+  else if (k === 'jm') { beep(1400, 0.4, 'square', 0.04, 200);
+    if (m.id !== myId && me.alive) { me.jam = 2.5; me.boost = 0; me.turbo = 0; banner = { text: 'GESTÖRT!', sub: 'Kein Boost, keine Items', until: now + 1300, col: '#ff4fd8' }; } }
   else if (k === 'cr') crates.push({ id: m.c, x: +m.x, y: +m.y, vy: 0, o: m.id, t: 0 });
   else if (k === 'cx') { const i = crates.findIndex(c => c.id === m.c); if (i >= 0) { dust(crates[i].x, crates[i].y - 16, 14, '#c98a4b', 320); crates.splice(i, 1); beep(140, 0.15, 'square', 0.06, 60); } }
   else if (k === 'sh') {
@@ -551,11 +638,27 @@ function stepWorld(dt) {
   // Schneebälle fliegen im Bogen; ein Treffer bremst kurz (kein Umfallen)
   for (let i = snowballs.length - 1; i >= 0; i--) {
     const s = snowballs[i]; s.t += dt; s.vy += 1500 * (theme.grav || 1) * dt; s.x += s.vx * dt; s.y += s.vy * dt;
+    if (s.lv) { // Lavaball: hüpft dreimal über den Boden
+      if (s.vy > 0 && stand(fl(s.x / T), fl((s.y + 8) / T))) { s.y = fl((s.y + 8) / T) * T - 8; s.vy = -520; s.bo++; dust(s.x, s.y + 8, 5, '#ff8a3a', 160); }
+      if (Math.random() < 0.6) parts.push({ x: s.x, y: s.y, vx: (Math.random() - 0.5) * 40, vy: -40, l: 0.3, c: '#ff8a3a', s: 4 });
+      if (me.alive && s.o !== myId && Math.hypot(me.x - s.x, me.y - 22 - s.y) < 30 && hurt(0.6, 0.3, -420)) { send({ t: 'ev', k: 'sx', r: s.id }); boom(s.x, s.y); snowballs.splice(i, 1); banner = { text: 'VERBRANNT!', sub: 'Heiß, heiß, heiß …', until: performance.now() + 1100, col: '#ff8a3a' }; continue; }
+      if (s.bo > 3 || s.t > 4 || solid(fl((s.x + Math.sign(s.vx) * 8) / T), fl(s.y / T))) { boom(s.x, s.y); snowballs.splice(i, 1); }
+      continue;
+    }
     if (me.alive && s.o !== myId && Math.hypot(me.x - s.x, me.y - 22 - s.y) < 30) {
       me.slow = 1.3; me.turbo = 0; shake = 6; send({ t: 'ev', k: 'sx', r: s.id }); splat(s.x, s.y); snowballs.splice(i, 1);
       banner = { text: 'EINGESCHNEIT!', sub: 'Kurz langsamer …', until: performance.now() + 1100, col: '#bfe9ff' }; continue;
     }
     if (s.t > 3 || solid(fl(s.x / T), fl(s.y / T))) { splat(s.x, s.y); snowballs.splice(i, 1); }
+  }
+  for (let i = bananas.length - 1; i >= 0; i--) { // Bananen: wer drauftritt, rutscht aus
+    const b = bananas[i]; b.t += dt;
+    if (!stand(fl(b.x / T), fl((b.y + 1) / T))) b.y += 400 * dt;
+    if (me.alive && me.ground && (b.o !== myId || b.t > 0.8) && Math.abs(me.x - b.x) < 20 && Math.abs(me.y - b.y) < 14 && me.inv <= 0) {
+      me.stun = 0.7; me.vx = -me.face * 260; me.inv = 1.6; shake = 6; send({ t: 'ev', k: 'bx', r: b.id }); bananas.splice(i, 1); beep(700, 0.3, 'triangle', 0.05, 200);
+      banner = { text: 'AUSGERUTSCHT!', sub: 'Banane!', until: performance.now() + 1100, col: '#ffe066' }; continue;
+    }
+    if (b.t > 25) bananas.splice(i, 1);
   }
   for (let i = rockets.length - 1; i >= 0; i--) {
     // Rakete fliegt stur geradeaus, schneller als jeder Läufer
@@ -872,7 +975,7 @@ function onMsg(m) {
     case 'round': {
       if (!THEMES[m.map]) break;
       endRun(); cutX = -1e9; map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round; startRun(m.map);
-      rockets = []; crates = []; parts = []; fx = []; snowballs = []; banner = null; cele = null;
+      rockets = []; crates = []; parts = []; fx = []; snowballs = []; bananas = []; banner = null; cele = null;
       const slot = Math.max(0, m.order.indexOf(myId));
       resetMe(slot); me.alive = !m.spec && m.order.includes(myId);
       for (const [id, r] of remotes) { r.alive = m.order.includes(id); r.buf = []; r.rx = null; }
@@ -1453,7 +1556,7 @@ function drawAmbient(now) {
   const vg = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.45, VW / 2, VH / 2, VW * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.38)');
   ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
 }
-const isAir = (tx, ty) => { const c = tile(tx, ty); return c === ' ' || c === '?' || c === 'T' || c === '>' || c === '<' || c === 'O' || c === '~'; };
+const isAir = (tx, ty) => { const c = tile(tx, ty); return c === ' ' || c === '?' || c === 'T' || c === '>' || c === '<' || c === 'O' || c === 'F' || c === 'L' || c === 'I' || c === 'W' || c === 'G' || c === 'Z' || c === 'X' || (c === 'Y' && !gateClosed(tx)) || (c === 'R' && !doorClosed(tx)) || (c === 'B' && brokenNow(tx, ty)) || c === '~'; };
 function drawTile(c, tx, ty, x, y, now) {
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
   if (c === '#' || c === 'H') {
@@ -1481,6 +1584,46 @@ function drawTile(c, tx, ty, x, y, now) {
     ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill();
     ctx.strokeStyle = theme.edge; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 2.5); ctx.lineTo(x + T + 0.5, y + f(T) + 2.5); ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 0.8); ctx.lineTo(x + T + 0.5, y + f(T) + 0.8); ctx.stroke();
+  } else if (c === 'F') { // Feuerdüse
+    ctx.fillStyle = '#2b2f38'; ctx.fillRect(x + 4, y + T - 8, T - 8, 8); ctx.fillStyle = '#ff7b2e'; ctx.fillRect(x + 8, y + T - 6, T - 16, 2);
+    if (fireOn(tx)) { const h = 3 * T + Math.sin(now / 40 + tx) * 8, gr = ctx.createLinearGradient(0, y + T, 0, y + T - h); gr.addColorStop(0, 'rgba(255,240,150,.95)'); gr.addColorStop(0.4, 'rgba(255,140,40,.9)'); gr.addColorStop(1, 'rgba(255,60,20,0)');
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x + 4, y + T - 6); ctx.quadraticCurveTo(x + 16 + Math.sin(now / 60) * 6, y + T - h * 1.1, x + T - 4, y + T - 6); ctx.fill(); }
+    else if (fireWarn(tx)) { for (let i = 0; i < 3; i++) { ctx.fillStyle = '#ffb347'; ctx.fillRect(x + 8 + hash(now / 50 + i) * 16, y + T - 10 - hash(now / 70 + i) * 14, 3, 3); } }
+  } else if (c === 'L') { // Laserschranke
+    ctx.fillStyle = '#2b2f38'; ctx.fillRect(x + 8, y + T - 10, 16, 10); ctx.fillRect(x + 8, y - 3 * T, 16, 10);
+    const on = laserOn(tx); ctx.fillStyle = on ? '#ff3b5c' : '#5a2a35'; ctx.fillRect(x + 12, y + T - 12, 8, 3); ctx.fillRect(x + 12, y - 3 * T + 9, 8, 3);
+    if (on) { ctx.fillStyle = 'rgba(255,60,90,.3)'; ctx.fillRect(x + 10, y - 3 * T + 10, 12, 4 * T - 20); ctx.fillStyle = '#ffd0d8'; ctx.fillRect(x + 14.5, y - 3 * T + 10, 3, 4 * T - 20); }
+  } else if (c === 'I') { // Eiszapfen (fällt im Takt)
+    const k = icicleFall(tx), yy = y + k * 9 * T; ctx.fillStyle = 'rgba(220,245,255,.95)'; ctx.beginPath(); ctx.moveTo(x + 8, yy); ctx.lineTo(x + 16, yy + 26); ctx.lineTo(x + 24, yy); ctx.fill();
+    if (k === 0 && ((RT() + tx * 173) % 3600) / 3600 > 0.6) { ctx.translate(Math.sin(now / 30) * 1.5, 0); ctx.translate(-Math.sin(now / 30) * 1.5, 0); ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillRect(x + 14, y, 4, 4); }
+  } else if (c === 'B') { // morsche Brücke
+    const b = map.brk && map.brk[mod(tx, map.W) + ',' + ty]; if (!(b && now >= b.at)) { const sh = b ? Math.sin(now / 20) * 2 : 0; ctx.fillStyle = '#8a5a2b'; ctx.fillRect(x + 1 + sh, y, T - 2, 10); ctx.fillStyle = '#5a3818'; ctx.fillRect(x + 1 + sh, y + 8, T - 2, 3); ctx.fillRect(x + 15 + sh, y, 2, 10); }
+  } else if (c === 'C' || c === 'D') { // Förderband
+    ctx.fillStyle = '#2b2f38'; ctx.fillRect(x, y, T + 0.5, T + 0.5); ctx.fillStyle = '#4a505c'; ctx.fillRect(x, y, T + 0.5, 6);
+    const o = mod((c === 'C' ? 1 : -1) * now / 12, 12); ctx.fillStyle = '#ffd23f'; for (let i = -1; i < 3; i++) ctx.fillRect(x + i * 12 + o, y + 1, 5, 3);
+  } else if (c === 'P' && tile(tx - 1, ty) !== 'P') { // Presse (zwei Felder breit, einmal zeichnen)
+    ctx.fillStyle = '#4a505c'; ctx.fillRect(x, y, T * 2, T); const e = crushExt(tx) * 5 * T; ctx.fillStyle = '#9aa4b2'; ctx.fillRect(x + 22, y + T, 20, e);
+    ctx.fillStyle = '#c03a2b'; ctx.fillRect(x + 2, y + T + e - 4, T * 2 - 4, 14); ctx.fillStyle = '#ffd23f'; for (let i = 0; i < 4; i++) ctx.fillRect(x + 4 + i * 15, y + T + e - 4, 7, 3);
+  } else if (c === 'R') { // Rolltor
+    const cl = doorClosed(tx); ctx.fillStyle = '#3a3f4a'; ctx.fillRect(x + 2, y, 4, T); ctx.fillRect(x + T - 6, y, 4, T);
+    if (cl) { ctx.fillStyle = '#7a828f'; ctx.fillRect(x + 6, y, T - 12, T); ctx.fillStyle = 'rgba(0,0,0,.3)'; for (let i = 4; i < T; i += 6) ctx.fillRect(x + 6, y + i, T - 12, 2); }
+  } else if (c === 'Y') { // Tor der Gabelung
+    const cl = gateClosed(tx); ctx.fillStyle = cl ? '#c0392b' : 'rgba(125,255,176,.25)'; for (let i = 0; i < 3; i++) ctx.fillRect(x + 4 + i * 10, y, 4, T);
+  } else if (c === 'X') { // Auslöser
+    const any = map.gateUntil && Object.values(map.gateUntil).some(v => v > now); ctx.fillStyle = '#2b2f38'; ctx.fillRect(x + 4, y + T - 6, T - 8, 6);
+    ctx.fillStyle = any ? '#ff4d5a' : `rgba(125,255,176,${0.7 + 0.3 * Math.sin(now / 200)})`; ctx.fillRect(x + 8, y + T - 10, T - 16, 5);
+  } else if (c === 'Q') { // einstürzende Decke
+    ctx.fillStyle = theme.tile; ctx.fillRect(x, y, T + 0.5, T + 0.5); ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 4, y + T); ctx.lineTo(x + 12, y + 14); ctx.lineTo(x + 8, y + 4); ctx.moveTo(x + 12, y + 14); ctx.lineTo(x + 24, y + 18); ctx.lineTo(x + 28, y + T); ctx.stroke();
+  } else if (c === 'W') { // Stachelwalze
+    ctx.save(); ctx.translate(x + 16, y + 16); ctx.rotate(-now / 160); ctx.fillStyle = '#5a5f6b'; ctx.beginPath(); ctx.arc(0, 0, 22, 0, 7); ctx.fill(); ctx.fillStyle = '#d6dde6';
+    for (let i = 0; i < 10; i++) { ctx.rotate(Math.PI / 5); ctx.beginPath(); ctx.moveTo(-5, -20); ctx.lineTo(0, -32); ctx.lineTo(5, -20); ctx.fill(); } ctx.restore();
+  } else if (c === 'M') { // Raketenwerfer; die Raketen fliegen nach links
+    ctx.fillStyle = '#3a3f4a'; ctx.fillRect(x, y, T + 0.5, T + 0.5); ctx.fillStyle = '#1b1d22'; ctx.fillRect(x - 6, y + 10, 10, 12);
+    const tr = ((RT() + tx * 53) % 3500) / 1000 * 650; if (tr < 18 * T) { const rx = x - tr; ctx.fillStyle = '#eef1f6'; rr(rx - 14, y + 10, 24, 12, 5); ctx.fillStyle = '#e8454f'; ctx.beginPath(); ctx.moveTo(rx - 14, y + 10); ctx.lineTo(rx - 22, y + 16); ctx.lineTo(rx - 14, y + 22); ctx.fill(); ctx.fillStyle = `rgba(255,180,60,${0.6 + 0.4 * Math.random()})`; ctx.fillRect(rx + 10, y + 13, 10, 6); }
+  } else if (c === 'G') { // Schwerkraftfeld
+    ctx.fillStyle = 'rgba(180,120,255,.12)'; ctx.fillRect(x, y, T + 0.5, T + 0.5); ctx.fillStyle = 'rgba(220,190,255,.6)'; const o = mod(-now / 8 + tx * 9, T); ctx.fillRect(x + 8 + (tx % 3) * 6, y + o, 2, 6);
+  } else if (c === 'Z') { // Boost-Röhre
+    ctx.fillStyle = 'rgba(62,240,255,.10)'; ctx.fillRect(x, y, T + 0.5, T + 0.5); ctx.fillStyle = 'rgba(160,250,255,.55)'; const o = mod(now / 3 + ty * 11, T * 2); ctx.fillRect(x + o - T, y + 14, 16, 2);
   } else if (c === '=') {
     ctx.fillStyle = theme.tile; ctx.fillRect(x, y, T + 0.5, 12); ctx.fillStyle = theme.edge; ctx.fillRect(x, y, T + 0.5, 4);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x, y, T, 1.5); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + T - 1, y + 4, 1.5, 8);
@@ -1688,8 +1831,15 @@ function render(now, dt, menu = false) {
     }
     text('HOCH', wx, wy + 26, 13, '#eafff0', 'center', false);
   }
+  // Gondeln
+  if (map.movers) for (const m of map.movers) { const mx = moverX(m, RT(), camX), y = m.y * T; if (Math.abs(mx - camX) > VW) continue;
+    ctx.strokeStyle = 'rgba(30,30,30,.7)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(mx + m.w * T / 2, y - 3 * T); ctx.lineTo(mx + m.w * T / 2, y); ctx.stroke();
+    ctx.fillStyle = '#c0392b'; rr(mx, y, m.w * T, 14, 5); ctx.fillStyle = theme.edge; ctx.fillRect(mx + 2, y, m.w * T - 4, 3); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(mx + 8, y + 5, m.w * T - 16, 4);
+    ctx.strokeStyle = 'rgba(30,30,30,.5)'; ctx.beginPath(); ctx.moveTo(mx + m.w * T / 2 - VW, y - 3 * T); ctx.lineTo(mx + m.w * T / 2 + VW, y - 3 * T); ctx.stroke(); }
+  // Bananen
+  for (const b of bananas) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(b.x, b.y - 5, 10, 5, -0.3, 0, Math.PI); ctx.fill(); ctx.fillStyle = '#7a5a10'; ctx.fillRect(b.x + 7, b.y - 9, 3, 3); }
   // Kisten, Raketen
-  for (const s of snowballs) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#cfe9f7'; ctx.beginPath(); ctx.arc(s.x + 2.5, s.y + 3, 5, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(120,170,200,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.stroke(); }
+  for (const s of snowballs) { if (s.lv) { ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(s.x + 2, s.y + 2, 5, 0, 7); ctx.fill(); continue; } ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#cfe9f7'; ctx.beginPath(); ctx.arc(s.x + 2.5, s.y + 3, 5, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(120,170,200,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.stroke(); }
   if (me.alive && me.slow > 0) { for (let i = 0; i < 6; i++) { const a = performance.now() / 300 + i; ctx.fillStyle = 'rgba(230,245,255,.85)'; ctx.beginPath(); ctx.arc(me.x + Math.cos(a) * 18, me.y - 24 + Math.sin(a * 1.3) * 18, 2.5, 0, 7); ctx.fill(); } }
   for (const c of crates) { ctx.fillStyle = '#b5773a'; rr(c.x - 17, c.y - 34, 34, 34, 4); ctx.strokeStyle = '#6e4218'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(c.x - 12, c.y - 29); ctx.lineTo(c.x + 12, c.y - 5); ctx.moveTo(c.x + 12, c.y - 29); ctx.lineTo(c.x - 12, c.y - 5); ctx.stroke(); }
   for (const r of rockets) { ctx.save(); ctx.translate(r.x, r.y); ctx.scale(r.d, 1); ctx.fillStyle = '#f2f2f2'; rr(-14, -6, 24, 12, 5); ctx.fillStyle = '#ff4d5a'; ctx.beginPath(); ctx.moveTo(10, -6); ctx.lineTo(20, 0); ctx.lineTo(10, 6); ctx.fill(); ctx.restore(); }

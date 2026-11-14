@@ -99,6 +99,11 @@ table.keys kbd{white-space:nowrap;display:inline-block;margin:1px 0;font-family:
 .fxrow{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:16px;color:var(--cream);cursor:pointer;margin:2px 0 8px}
 .fxrow input{width:22px;height:22px;accent-color:var(--gold);box-shadow:none;padding:0}
 .fxrow small{color:var(--muted);font-weight:600}
+#lobby{overflow:hidden!important}
+#lobby .card{gap:10px}
+#lobby .panel{padding:10px 16px}
+#players{gap:6px;margin:6px 0}
+#players .pl{padding:4px 8px;font-size:14px}
 label.step{font-family:"Lilita One",sans-serif;font-weight:400;font-size:20px;text-transform:none;letter-spacing:0;color:var(--cream);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;margin:4px 0 -4px 8px}
 .modes{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:16px;margin-bottom:8px}
 .mode{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 12px 12px;border-radius:22px;min-height:96px}
@@ -258,26 +263,10 @@ body.game #quit{display:block}
       <label for="map">Strecke</label>
       <select id="map"></select>
       <div id="err"></div>
-      <div class="help">
-      <table class="keys">
-        <tr><th>Aktion</th><th>Tastatur</th><th>Gamepad</th></tr>
-        <tr><td>Nach links laufen</td><td><kbd>A</kbd> <kbd>Pfeil links</kbd></td><td>Steuerkreuz links / Stick</td></tr>
-        <tr><td>Nach rechts laufen</td><td><kbd>D</kbd> <kbd>Pfeil rechts</kbd></td><td>Steuerkreuz rechts / Stick</td></tr>
-        <tr><td>Springen (Doppel- &amp; Wandsprung)</td><td><kbd>Leertaste</kbd> <kbd>W</kbd> <kbd>Pfeil hoch</kbd></td><td>A</td></tr>
-        <tr><td>Rutschen / durch Plattform fallen</td><td><kbd>S</kbd> <kbd>Pfeil runter</kbd></td><td>Steuerkreuz unten / Stick</td></tr>
-        <tr><td>Greifhaken (gedrückt halten)</td><td><kbd>J</kbd> <kbd>Shift</kbd> <kbd>X</kbd></td><td>X / LB</td></tr>
-        <tr><td>Item benutzen</td><td><kbd>K</kbd> <kbd>E</kbd> <kbd>C</kbd> <kbd>Num −</kbd></td><td>B / Y</td></tr>
-        <tr><td>Boost</td><td><kbd>L</kbd> <kbd>Q</kbd> <kbd>V</kbd> <kbd>Num +</kbd></td><td>RB / RT</td></tr>
-        <tr><td>Musik an/aus</td><td><kbd>M</kbd></td><td>–</td></tr>
-        <tr><td>Runde abbrechen (nur Host)</td><td><kbd>Esc</kbd></td><td>–</td></tr>
-      </table>
-      <p class="tip">Handy: Knöpfe auf dem Bildschirm. Der Haken zielt auf den blinkenden Kreis.</p>
-        <p class="tip">Wer 3 Runden gewinnt, gewinnt das Match.</p>
-      </div>
+      <div class="help"><kbd>A</kbd>/<kbd>D</kbd> laufen · <kbd>Leertaste</kbd> springen · <kbd>S</kbd> rutschen · <kbd>J</kbd> Haken · <kbd>K</kbd> Item · <kbd>L</kbd> Boost<br><span class="tip">Alle Tasten und Alternativen: ⚙ Optionen · Wer 3 Runden gewinnt, gewinnt das Match.</span></div>
     </div>
     <button id="start" class="gbtn gold" style="align-self:center;width:min(420px,100%)">▶ Start!</button>
     <div class="row"><button id="leave" class="gbtn cream" style="flex:0 0 auto;width:260px">Verlassen</button></div>
-    <div class="hs"></div>
   </div>
 </div>
 
@@ -291,7 +280,7 @@ body.game #quit{display:block}
   <button data-k="item" style="right:26px;bottom:126px">★</button>
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
-<script src="game.js?v=66"></script>
+<script src="game.js?v=67"></script>
 <script src="music-player.js"></script>
 <script>
 (() => {
