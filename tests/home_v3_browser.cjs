@@ -41,7 +41,7 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     const page=await context.newPage();
     const errors=[];page.on('pageerror',error=>errors.push(error.message));
     await page.goto(base+'/',{waitUntil:'networkidle'});
-    assert.match(await page.locator('.gdv3-hero-title').innerText(),/ICH BAUE,\s+WAS MIR\s+FEHLT\./);
+    assert.match(await page.locator('.gdv3-hero-title').innerText(),/AUS NEUGIER\s+UND IDEEN\s+WIRD CODE\./);
     assert.equal(await page.locator('.hero-stage .phone.phone-locked').count(),1,'Original interactive phone missing');
     assert.equal(await page.locator('#phone-digital-clock').count(),1,'Original phone clock missing');
     assert.equal(await page.locator('.phone-spin-control').count(),1,'Original phone drag control missing');

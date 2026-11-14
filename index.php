@@ -73,7 +73,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
   <div class="hero-grid wrap">
     <div class="hero-copy gdv3-hero-copy" data-parallax="0.05">
       <p class="eyebrow gdv3-kicker">EIGENE APPS · PROGRAMME · EXPERIMENTE</p>
-      <h1 class="pd-hero-title gdv3-hero-title">ICH BAUE,<br><span>WAS MIR</span><br><span class="gdv3-outline">FEHLT.</span></h1>
+      <h1 class="pd-hero-title gdv3-hero-title">AUS NEUGIER<br><span>UND IDEEN</span><br><span class="gdv3-outline">WIRD CODE.</span></h1>
       <p class="gdv3-hero-description">Mich nerven Dinge, die einfacher gehen müssten. Also entwickle ich Lösungen dafür. Apps, Lernprogramme und digitale Experimente – manchmal nützlich, manchmal einfach, weil ich wissen will, ob es geht.</p>
       <div class="gdv3-hero-actions"><a class="btn" href="#apps">Projekte entdecken <b aria-hidden="true">↗</b></a><a class="gdv3-subtle-link" href="#ueber-mich">Die Geschichte dahinter <span aria-hidden="true">↓</span></a></div>
       <p class="gdv3-hero-meta"><span class="gdv3-light-dot" aria-hidden="true"></span> UNABHÄNGIG ENTWICKELT <span aria-hidden="true">✦</span> MIT NEUGIER GEBAUT</p>
