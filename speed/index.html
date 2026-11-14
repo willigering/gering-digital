@@ -96,6 +96,9 @@ table.keys td:first-child{color:var(--muted);font-weight:600}
 .help .tip{margin:6px 0 0;color:var(--muted);font-size:13px;text-align:center}
 #opts .panel{max-height:94vh;overflow:auto;width:min(800px,100%)!important}
 table.keys kbd{white-space:nowrap;display:inline-block;margin:1px 0;font-family:system-ui,"Segoe UI",sans-serif}
+.fxrow{display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0;font-size:16px;color:var(--cream);cursor:pointer;margin:2px 0 8px}
+.fxrow input{width:22px;height:22px;accent-color:var(--gold);box-shadow:none;padding:0}
+.fxrow small{color:var(--muted);font-weight:600}
 label.step{font-family:"Lilita One",sans-serif;font-weight:400;font-size:20px;text-transform:none;letter-spacing:0;color:var(--cream);-webkit-text-stroke:4px var(--ink);paint-order:stroke fill;margin:4px 0 -4px 8px}
 .modes{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:16px;margin-bottom:8px}
 .mode{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 12px 12px;border-radius:22px;min-height:96px}
@@ -172,6 +175,8 @@ body.game #quit{display:block}
       <input id="hj-music-volume" type="range" min="0" max="1" step="0.01" value="0.35" aria-label="Musiklautstärke">
       <span id="hj-music-label" aria-live="polite">1/5</span>
     </div>
+    <label>Grafik</label>
+    <label class="fxrow"><input type="checkbox" id="fxtoggle" checked> Effekte: Leuchten, Dunst und Farbstimmung <small>(auf schwachen Geräten ausschalten)</small></label>
     <label>Steuerung</label>
     <div class="help">
       <table class="keys">
@@ -286,7 +291,7 @@ body.game #quit{display:block}
   <button data-k="item" style="right:26px;bottom:126px">★</button>
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
-<script src="game.js?v=56"></script>
+<script src="game.js?v=62"></script>
 <script src="music-player.js"></script>
 <script>
 (() => {
