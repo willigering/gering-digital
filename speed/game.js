@@ -68,7 +68,7 @@ const M = {
     b.r(rx, F - 8, L, 1);                                           // Schiene (Höhe 8), unten drunter der langsame Weg
     for (let i = 0; i < 4; i++) b.s(gap + i, F - 8, ' ');           // Lücke in der Schiene …
     hookBar(b, gap - 1, F - 13, 6);                                 // … mit Hakenbalken darüber
-    b.s(rx + 3, F - 9, '>'); b.s(gap + 7, F - 9, '>');              // Boostfelder auf der Schiene
+    b.s(gap + 7, F - 9, '>');              // Boostfelder auf der Schiene
     b.s(rx + L - 4, F - 11, '?');
     let c = 14; while (c < L + 8) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - b.R(1, 2), 1, 2, '#'); else if (k === 1) b.s(x + c, F - 1, 'O'); else b.r(x + c, F - 1, 2, 1, '^'); c += b.R(4, 6); }
     return 12 + L + 6;
@@ -105,14 +105,14 @@ const M = {
   },
   upper: (b, x) => {
     const L = b.R(18, 28), h = b.R(5, 6); b.r(x + 3, F - 3, 3, 1); b.r(x + 9, F - h, L, 1);
-    for (let i = 0; i < b.R(1, 3); i++) b.s(x + 11 + b.R(0, L - 4), F - h - 1, '>');
+    b.s(x + 11 + b.R(0, L - 6), F - h - 1, '>');
     b.s(x + 9 + b.R(2, L - 3), F - h - 3, '?'); let c = 10; while (c < L) { if (b.ch(0.5)) b.r(x + c, F - 1, b.R(1, 3), 1, b.ch(0.5) ? '^' : '#'); c += b.R(5, 8); }
     return L + 14;
   },
   tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.r(x + 6 + c, F - 3, 2, 2); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
   big: (b, x) => { const L = b.R(18, 28), h = b.R(4, 5); b.s(x + 1, F - 1, 'T'); b.r(x + 8, F - h, L, h); const s = b.R(6, L - 6); b.r(x + 8 + s, F - h - 1, b.R(2, 4), 1, '^'); b.r(x + 12, F - 18, L - 8, 2); b.r(x + 12, F - 16, L - 8, 1, 'H'); b.s(x + 8 + b.R(2, L - 2), F - h - 3, '?'); return L + 14; },
   items: (b, x) => { const n = b.R(2, 3), cx = x + b.R(5, 10); for (let i = 0; i < n; i++) b.s(cx + b.R(-1, 1), F - 2 - i * 3, '?'); return b.R(14, 18); },
-  boost: (b, x) => { const n = b.R(1, 3); for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(8, 14); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 7); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(4, 5), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
+  boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(8, 14); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 7); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(4, 5), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
   stairs: (b, x) => {
     const n = b.R(3, 5), sw = b.R(3, 4); let c = 4;
     for (let i = 1; i <= n; i++) { b.r(x + c, F - i * 2, sw, i * 2); c += sw; }
@@ -209,6 +209,7 @@ function buildV(seed, cols = VCOLS, fh = FH) {
       else x += gap();                                                                                                     // freie Strecke
     }
   }
+  thinPads(g);
   const boxes = [], bi = {};
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W: cols, H: rows, g, boxes, bi, vert: true, floor: rows, fh, wide, signs };
@@ -233,6 +234,10 @@ const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T 
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
 const progress = (x, y) => map.vert ? zigProg(x, y) : (x - START_X) / T; // Meter (1 Feld = 1 m)
 function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y) / (map.fh * T) + 0.05)), a = x / T; return k * W + (k % 2 ? W - a : a) - (map.wide ? 3 : W / 2); }
+// Boostfelder entzerren: in jeder Reihe höchstens eins pro 12 Felder (doppelte hintereinander bringen nichts)
+function thinPads(g) {
+  for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
+}
 function build(seq, seed = 1) {
   const cells = []; let W = 0; let rs = seed * 48271 % 2147483647 || 1;
   const rnd = () => (rs = (rs * 16807) % 2147483647) / 2147483647;
@@ -241,6 +246,7 @@ function build(seq, seed = 1) {
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
   for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
+  thinPads(g);
   return { W, g, boxes, bi };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
