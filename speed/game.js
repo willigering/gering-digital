@@ -56,7 +56,7 @@ const M = {
   // Kamin: zwei Wände dicht beieinander. Unten rein, mit Wandsprüngen hin und her nach oben, oben rüber und per Rutsche runter.
   chimney: (b, x, h) => {
     h = Math.min(21, b.H(h || b.R(12, 16)));
-    b.r(x + 4, F - h, 2, h - 3);            // linke Wand, unten offen zum Reinlaufen
+    b.r(x + 4, F - h - 3, 2, h + 1);        // hintere (linke) Wand: 3 Felder höher als die rechte, unten nur 2 Felder offen zum Reinlaufen
     b.r(x + 10, F - h, 2, h);               // rechte Wand bis zum Boden
     b.s(x + 7 + b.R(0, 1), F - h + b.R(2, 5), '?');
     const m = fl(h / 2) + b.R(-1, 1);
@@ -946,7 +946,9 @@ $('copy').onclick = () => { const u = location.origin + location.pathname + '#' 
 try { $('name').value = localStorage.getItem('hj_name') || ''; } catch { }
 
 // ---------------------------------------------------------------- Zeichnen
-const cv = $('cv'), ctx = cv.getContext('2d');
+const cv = $('cv'), mainCtx = cv.getContext('2d'); let ctx = mainCtx;
+// Anzeigen (HUD) liegen bei aktiven Effekten auf einer eigenen Ebene über dem Effektbild, damit sie nicht mitleuchten
+const hud = document.createElement('canvas'); hud.id = 'hudcv'; hud.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:none;pointer-events:none'; const hudCtx = hud.getContext('2d');
 let scale = 1, offX = 0, offY = 0;
 // ---------------------------------------------------------------- Grafik-Effekte (WebGL-Nachbearbeitung)
 // Das fertige Spielbild (Canvas 2D) wird in WebGL übernommen und bekommt Bloom (helle Stellen leuchten über),
@@ -971,7 +973,7 @@ const FX_LOOK = {
 function fxInit() {
   const c = document.createElement('canvas'); c.id = 'fxcv';
   c.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;display:none;pointer-events:none';
-  cv.after(c);
+  cv.after(c); c.after(hud);
   const gl = c.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false, preserveDrawingBuffer: true });
   if (!gl) return;
   const VS = 'attribute vec2 p;varying vec2 uv;void main(){uv=p*.5+.5;gl_Position=vec4(p,0.,1.);}';
@@ -1019,7 +1021,7 @@ function fxRender() {
   gl.uniform3f(u('fc'), fc[0], fc[1], fc[2]); gl.uniform3f(u('tint'), L.tint[0], L.tint[1], L.tint[2]);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
-function fxShow(on) { if (FX.c) FX.c.style.display = on ? 'block' : 'none'; }
+function fxShow(on) { if (FX.c) FX.c.style.display = on ? 'block' : 'none'; hud.style.display = on ? 'block' : 'none'; }
 function resize() {
   // mit Effekten etwas niedrigere Auflösung, damit es flüssig bleibt
   const d = Math.min(FX.on ? 1.25 : 2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d;
@@ -1557,6 +1559,7 @@ function goldPill(x, y, w, h) {
 }
 let lastCount = 4;
 function render(now, dt, menu = false) {
+  ctx = mainCtx;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
   // Im Menü füllt die Szene den ganzen Bildschirm (cover), im Spiel wird eingepasst (contain)
   const sc = menu ? Math.max(cv.width / VW, cv.height / VH) : scale;
@@ -1673,6 +1676,11 @@ function render(now, dt, menu = false) {
   drawAmbient(now);
   if (GALLERY) drawGallery(now);
   if (menu) return;
+  if (FX.on && FX.ok) { // HUD auf die eigene Ebene zeichnen
+    if (hud.width !== cv.width || hud.height !== cv.height) { hud.width = cv.width; hud.height = cv.height; }
+    hudCtx.setTransform(1, 0, 0, 1, 0, 0); hudCtx.clearRect(0, 0, hud.width, hud.height);
+    ctx = hudCtx; ctx.setTransform(scale, 0, 0, scale, offX, offY);
+  }
   // ------------------------------------------------ HUD
   ctx.save(); ctx.beginPath(); ctx.rect(0, 0, VW, VH); ctx.clip();
   if (me.alive && !solo && !cele) {
