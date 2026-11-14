@@ -1344,7 +1344,7 @@ function drawRunner(x, y, vx, st, face, col, t, blink, boosting, dance = -1) {
   if (P) { ctx.translate(P.x, P.y); face = (face || 1) * P.flip; }
   if (blink && fl(t / 70) % 2) ctx.globalAlpha = 0.35;
   ctx.scale(face || 1, 1);
-  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0, -1 - (P ? P.y : 0), 13, 3, 0, 0, 7); ctx.fill();
+  if (!isAir(fl(x / T), fl((y + 4) / T))) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(0, -1 - (P ? P.y : 0), 13, 3, 0, 0, 7); ctx.fill(); } // Schatten nur am Boden
   const dk = shade(col, -0.3), band = shade(col, -0.38);
   ctx.lineCap = 'round'; ctx.lineJoin = 'round';
   if (st === 2) { // Rutschen: liegt auf dem Rücken, Füße voraus
