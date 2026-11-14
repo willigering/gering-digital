@@ -18,8 +18,9 @@ const THEMES = [
   // Breite Etagen: lange Strecke nach rechts, Kletterschacht nach oben, oben nach links. Kamera fährt mit.
   { name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
   { wind: 1.2, name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
-  { wind: 1, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
+  { wind: 1, grav: 0.8, name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
   { name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
+  { grav: 0.5, name: 'Mond (halbe Schwerkraft)', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
 ];
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const DANCES = ['KUSSHAND', 'ZENSIERT', 'PO ZEIGEN'];
@@ -168,6 +169,7 @@ const SEQS = [
   [['flat', 24], 'hills', 'hurdles', 'lava', 'items', 'shortcut', 'bigslide', 'spikes', 'chimney', 'pillars', 'saws', 'mogul', 'gate', 'plateau', ['flat', 12]], // Wüste
   [['flat', 24], 'descent', 'pillars', 'lava', 'items', 'shortcut', 'trampchain', 'hills', 'saws', 'chimneys', 'upper', 'stairs', 'spikes', 'big', ['flat', 12]], // Mars
   null, // Weltall: breite Etagen, siehe buildV
+  [['flat', 24], 'hills', 'pillars', 'descent', 'items', 'shortcut', 'mogul', 'chimney', 'spikes', 'bigslide', 'stairs', 'saws', 'hurdles', ['flat', 12]], // Mond
 ];
 // Zickzack-Etagen: Auf jeder Etage läuft man bis zur Wand, ein Trampolin schießt durch die Luke ('=' von unten
 // durchspringbar) nach oben, dort geht es in die Gegenrichtung weiter. Gerade Etagen nach rechts, ungerade nach links.
@@ -1181,7 +1183,7 @@ function drawBld(x, y, w, h, col, sd, lit, near, now) {
       if (r(1) < 0.5) { const cx = x + w * 0.35, cy = y + h * 0.6; ctx.fillRect(cx - 6, cy - 60, 12, 62); ctx.fillRect(cx - 22, cy - 40, 8, 20); ctx.fillRect(cx - 22, cy - 26, 18, 7); ctx.fillRect(cx + 14, cy - 48, 8, 22); ctx.fillRect(cx + 4, cy - 30, 18, 7); } }
     return;
   }
-  if (d === 'mars') {
+  if (d === 'mars' || d === 'moon') {
     if (!near) { ctx.beginPath(); ctx.moveTo(x - w * 0.5, y + h); ctx.lineTo(x + w * 0.4, y + h * 0.15); ctx.lineTo(x + w * 0.6, y + h * 0.2); ctx.lineTo(x + w * 1.5, y + h); ctx.fill(); ctx.fillStyle = shade(col, -0.2); for (let i = 0; i < 3; i++) { ctx.beginPath(); ctx.ellipse(x + w * (0.2 + r(i + 3) * 0.6), y + h * (0.55 + r(i + 6) * 0.3), 10 + r(i) * 14, 4 + r(i) * 4, 0, 0, 7); ctx.fill(); } }
     else { ctx.beginPath(); ctx.moveTo(x - 20, y + h); ctx.lineTo(x + 10, y + h * 0.35); ctx.lineTo(x + w - 10, y + h * 0.35); ctx.lineTo(x + w + 20, y + h); ctx.fill();
       if (r(1) < 0.3) { ctx.strokeStyle = 'rgba(255,230,210,.35)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x + w / 2, y + h * 0.35, 34, Math.PI, 0); ctx.stroke(); ctx.fillStyle = 'rgba(255,220,180,.18)'; ctx.fill(); } }
@@ -1238,8 +1240,14 @@ function drawBackdrop(now) {
   sg.addColorStop(0, theme.sun); sg.addColorStop(0.25, theme.sun + '55'); sg.addColorStop(1, theme.sun + '00');
   ctx.fillStyle = sg; ctx.fillRect(sx - 320, sy - 320, 640, 640);
   ctx.fillStyle = theme.sun; ctx.beginPath(); ctx.arc(sx, sy, 86, 0, 7); ctx.fill();
+  if (theme.deco === 'moon') { // Erde: Kontinente und Wolken, rechts im Schatten
+    ctx.save(); ctx.beginPath(); ctx.arc(sx, sy, 86, 0, 7); ctx.clip(); ctx.fillStyle = '#4fae5a';
+    for (const [ex, ey, rx, ry, a] of [[-30, -20, 34, 22, 0.5], [20, 25, 26, 34, -0.3], [40, -40, 18, 12, 0.2], [-45, 40, 16, 10, 0]]) { ctx.beginPath(); ctx.ellipse(sx + ex, sy + ey, rx, ry, a, 0, 7); ctx.fill(); }
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; for (const [ex, ey, rx] of [[-10, -50, 30], [30, 0, 22], [-50, 10, 18]]) { ctx.beginPath(); ctx.ellipse(sx + ex, sy + ey, rx, 6, 0.2, 0, 7); ctx.fill(); }
+    const sh = ctx.createLinearGradient(sx - 86, 0, sx + 86, 0); sh.addColorStop(0.45, 'rgba(5,6,12,0)'); sh.addColorStop(1, 'rgba(5,6,12,.75)'); ctx.fillStyle = sh; ctx.fillRect(sx - 90, sy - 90, 180, 180); ctx.restore();
+  }
   // Wolken
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < (theme.deco === 'moon' || theme.deco === 'space' ? 0 : 7); i++) { // keine Wolken auf Mond und im Weltall
     const cx = mod(hash(i) * 2400 - camX * 0.05 + now * 0.012 * (1 + hash(i + 9)), 2400) - 300, cy = 70 + hash(i + 3) * 240;
     ctx.fillStyle = theme.deco === 'lava' ? 'rgba(20,5,5,.25)' : 'rgba(255,255,255,.08)';
     for (let j = 0; j < 4; j++) { ctx.beginPath(); ctx.ellipse(cx + j * 46, cy - (j % 2) * 18, 60, 30, 0, 0, 7); ctx.fill(); }
@@ -1382,6 +1390,7 @@ function topDeco(d, tx, ty, x, y, h1, now) {
   else if (d === 'lava') { if (h1 < 0.35) { ctx.strokeStyle = `rgba(255,${100 + fl(h1 * 200)},40,${0.4 + 0.4 * Math.sin(now / 350 + tx)})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 4, y + 8); ctx.lineTo(x + 12, y + 14); ctx.lineTo(x + 10, y + 22); ctx.stroke(); } }
   else if (d === 'crystal') { if (h1 < 0.22) { ctx.fillStyle = h1 < 0.11 ? '#f39cff' : '#8fe3ff'; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.moveTo(x + 8, y); ctx.lineTo(x + 12, y - 16); ctx.lineTo(x + 16, y); ctx.moveTo(x + 14, y); ctx.lineTo(x + 20, y - 10); ctx.lineTo(x + 24, y); ctx.fill(); ctx.globalAlpha = 1; } }
   else if (d === 'desert') { if (h1 < 0.05) { ctx.fillStyle = '#4f8a3c'; ctx.fillRect(x + 14, y - 16, 5, 16); ctx.fillRect(x + 9, y - 11, 5, 3); ctx.fillRect(x + 9, y - 14, 3, 5); } else if (h1 < 0.1) { ctx.fillStyle = '#8a6a4a'; ctx.beginPath(); ctx.ellipse(x + 16, y - 2, 6, 3, 0, Math.PI, 0); ctx.fill(); } }
+  else if (d === 'moon') { if (h1 < 0.14) { ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x + 8 + h1 * 90, y + 3, 5 + h1 * 20, 2.5, 0, 0, 7); ctx.fill(); } }
   else if (d === 'mars') { if (h1 < 0.12) { ctx.fillStyle = '#5a2418'; ctx.beginPath(); ctx.ellipse(x + 8 + h1 * 90, y - 1, 4 + h1 * 20, 3, 0, Math.PI, 0); ctx.fill(); } }
   else if (d === 'neon') { if (h1 < 0.08) { ctx.fillStyle = `rgba(94,242,255,${0.6 + 0.4 * Math.sin(now / 150 + tx)})`; ctx.fillRect(x + 6, y - 4, 20, 3); } }
   else if (d === 'ware' || d === 'junk' || d === 'rope') {
@@ -1397,7 +1406,7 @@ function bottomDeco(d, tx, ty, x, y, h1, now) {
     if (h1 < 0.3) { const len = 30 + h1 * 120, sw = Math.sin(now / 800 + tx) * 6; ctx.strokeStyle = '#3c8a3f'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(x + 16, yb); ctx.quadraticCurveTo(x + 16 + sw, yb + len / 2, x + 16 + sw * 1.5, yb + len); ctx.stroke(); ctx.fillStyle = '#5bd17a'; for (let k = 1; k < 4; k++) { ctx.beginPath(); ctx.ellipse(x + 16 + sw * k / 3 + (k % 2 ? 4 : -4), yb + len * k / 4, 5, 2.5, k % 2 ? 0.6 : -0.6, 0, 7); ctx.fill(); } }
     return;
   }
-  if (d === 'desert' || d === 'mars') return;
+  if (d === 'desert' || d === 'mars' || d === 'moon') return;
   if (mod(tx, 7) !== 3) return;
   // Hängelampe mit Lichtkegel
   ctx.fillStyle = '#111'; ctx.fillRect(x + 15, yb, 2, 10);
