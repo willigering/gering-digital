@@ -175,12 +175,13 @@ function buildV(seed, cols = VCOLS, fh = FH) {
   const floors = cols > VCOLS ? 12 : 8, rows = fh * floors, wide = cols > VCOLS, hw = 10; // hw: Breite der Luke zur nächsten Etage
   let r = seed * 7919; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
   const g = []; for (let y = 0; y < rows; y++) g.push(new Array(cols).fill(' '));
-  const put = (x, y, c) => { if (x >= 0 && x < cols) g[mod(y, rows)][x] = c; };
+  const put = (x, y, c) => { if (x >= 0 && x < cols) g[mod(y, rows)][x] = c; }, signs = [];
   const flip = (k, x) => k % 2 ? cols - 1 - x : x; // ungerade Etagen laufen nach links
   for (let k = 0; k < floors; k++) {
     const fy = rows - fh * k, cy = fy - fh; // fy: Boden dieser Etage, cy: Decke = Boden der nächsten
     const P = (x, y, c) => put(flip(k, x), y, k % 2 && c === '>' ? '<' : c); // nach links laufende Etage: Boostfeld nach links
     for (let x = 0; x < cols; x++) P(x, cy, x >= cols - hw ? '=' : '#');
+    signs.push({ x: flip(k, wide ? cols - hw - 2 : cols - 9) + 0.5, y: fy - (wide ? 5 : 4) }); // Neon-Pfeil: hier geht es hoch
     if (wide) { // Kletterschacht: versetzte Plattformen alle 3 Reihen bis zur Luke
       for (let y = fy - 3, j = 0; y > cy + 1; y -= 3, j++) for (let i = 0; i < 4; i++) P(j % 2 ? cols - 5 + i : cols - hw + 1 + i, y, '=');
     } else P(cols - 6, fy - 1, 'T'); // schmale Etage: Trampolin mittig unter der Luke
@@ -210,7 +211,7 @@ function buildV(seed, cols = VCOLS, fh = FH) {
   }
   const boxes = [], bi = {};
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
-  return { W: cols, H: rows, g, boxes, bi, vert: true, floor: rows, fh, wide };
+  return { W: cols, H: rows, g, boxes, bi, vert: true, floor: rows, fh, wide, signs };
 }
 // Waagerechte Strecken: feste Folge plus zwei gemischte Durchgänge mit kurzen Pausen dazwischen.
 // Die Mischung hängt nur von der Kartennummer ab, damit alle Spieler dieselbe Strecke bekommen.
@@ -1334,15 +1335,19 @@ function drawTile(c, tx, ty, x, y, now) {
     ctx.fillStyle = lg; ctx.fillRect(x, top, T + 0.5, y + T - top);
     const k = (now / 900 + h1) % 1; ctx.fillStyle = hot ? 'rgba(255,240,180,.8)' : 'rgba(230,255,200,.8)'; ctx.beginPath(); ctx.arc(x + 8 + h1 * 16, top + 14 - k * 14, 2 + k * 3, 0, 7); ctx.fill();
     ctx.fillStyle = hot ? 'rgba(255,140,40,.18)' : 'rgba(150,255,90,.15)'; ctx.fillRect(x, top - 26, T + 0.5, 26);
-  } else if (c === '>' || c === '<') { // Boostfeld:
-    if (c === '<') { ctx.save(); ctx.translate(x * 2 + T, 0); ctx.scale(-1, 1); } // nach links: gespiegelt leuchtender Streifen, Warnmuster und große Pfeile
-    const pulse = 0.5 + 0.5 * Math.sin(now / 160);
-    const gl = ctx.createLinearGradient(0, y - 46, 0, y + T); gl.addColorStop(0, 'rgba(255,214,50,0)'); gl.addColorStop(1, `rgba(255,214,50,${0.3 + 0.25 * pulse})`);
-    ctx.fillStyle = gl; ctx.fillRect(x - 3, y - 46, T + 6, T + 46);
-    ctx.fillStyle = '#181818'; ctx.fillRect(x, y + T - 10, T + 0.5, 10);
-    ctx.fillStyle = '#ffd23f'; ctx.fillRect(x, y + T - 10, T + 0.5, 6);
-    ctx.fillStyle = '#181818'; for (let i = -1; i < 4; i++) { const sx = x + i * 10 + (now / 25) % 10; ctx.beginPath(); ctx.moveTo(sx, y + T - 4); ctx.lineTo(sx + 4, y + T - 10); ctx.lineTo(sx + 8, y + T - 10); ctx.lineTo(sx + 4, y + T - 4); ctx.fill(); }
-    for (let i = 0; i < 3; i++) { const o = ((now / 5) + i * 13) % 39, a = 1 - o / 39; ctx.strokeStyle = `rgba(255,246,170,${a})`; ctx.lineWidth = 4; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(x + o - 8, y + 2); ctx.lineTo(x + o, y + 10); ctx.lineTo(x + o - 8, y + 18); ctx.stroke(); }
+  } else if (c === '>' || c === '<') { // Boostfeld: cyan leuchtende Bodenplatte, darüber ein schwebender Doppelpfeil in Laufrichtung
+    if (c === '<') { ctx.save(); ctx.translate(x * 2 + T, 0); ctx.scale(-1, 1); } // nach links: gespiegelt
+    const pulse = 0.5 + 0.5 * Math.sin(now / 180 + tx), by = y + T;
+    const gl = ctx.createRadialGradient(x + 16, by - 4, 2, x + 16, by - 4, 30); gl.addColorStop(0, `rgba(62,240,255,${0.35 + 0.2 * pulse})`); gl.addColorStop(1, 'rgba(62,240,255,0)');
+    ctx.fillStyle = gl; ctx.fillRect(x - 14, by - 34, T + 28, 40);
+    ctx.fillStyle = '#0b1f27'; path(x, by - 8, T, 8, 3); ctx.fill();
+    ctx.fillStyle = `rgba(120,248,255,${0.75 + 0.25 * pulse})`; path(x + 3, by - 6, T - 6, 3, 1.5); ctx.fill();
+    const o = ((now / 9) % 10) - 5, cy = by - 20 - Math.sin(now / 260 + tx) * 1.5;
+    for (const [w, col] of [[7, 'rgba(62,240,255,.35)'], [4, '#3ef0ff'], [1.6, '#ffffff']]) {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
+      for (const dx of [0, 10]) { ctx.moveTo(x + 7 + dx + o, cy - 7); ctx.lineTo(x + 14 + dx + o, cy); ctx.lineTo(x + 7 + dx + o, cy + 7); }
+      ctx.stroke();
+    }
     if (c === '<') ctx.restore();
   } else if (c === 'T') {
     ctx.fillStyle = '#2b2f38'; rr(x + 2, y + T - 5, T - 4, 5, 2);
@@ -1502,6 +1507,19 @@ function render(now, dt, menu = false) {
     const fade = x < kx + T * 2; if (fade) { ctx.save(); ctx.globalAlpha = clamp((x + T - kx) / (T * 3), 0.15, 1); ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4); }
     drawTile(c, tx, ty, x, y, now);
     if (fade) ctx.restore();
+  }
+  // Neon-Pfeilschilder (Etagen-Maps): ruhig leuchtend, Pfeil nach oben, „HOCH“
+  if (map.vert && map.signs) for (const s of map.signs) {
+    const rowsT = map.H * T, wx = s.x * T, base = s.y * T, n = Math.round((camY - base) / rowsT), wy = base + n * rowsT;
+    if (Math.abs(wy - camY) > VH || wy > map.floor * T) continue; // nicht unter der untersten Etage im Boden
+    const p = 0.85 + 0.15 * Math.sin(now / 400), bob = Math.sin(now / 300) * 3;
+    ctx.fillStyle = 'rgba(8,10,18,.82)'; path(wx - 28, wy - 40, 56, 76, 10); ctx.fill();
+    for (const [w, col] of [[9, `rgba(93,255,138,${0.18 * p})`], [3.5, `rgba(93,255,138,${p})`]]) { ctx.strokeStyle = col; ctx.lineWidth = w; path(wx - 28, wy - 40, 56, 76, 10); ctx.stroke(); }
+    for (const [w, col] of [[11, `rgba(93,255,138,${0.25 * p})`], [6, `rgba(93,255,138,${p})`], [2, '#eafff0']]) {
+      ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
+      ctx.moveTo(wx, wy + 14 + bob); ctx.lineTo(wx, wy - 26 + bob); ctx.moveTo(wx - 13, wy - 13 + bob); ctx.lineTo(wx, wy - 26 + bob); ctx.lineTo(wx + 13, wy - 13 + bob); ctx.stroke();
+    }
+    text('HOCH', wx, wy + 26, 13, '#eafff0', 'center', false);
   }
   // Kisten, Raketen
   for (const s of snowballs) { ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#cfe9f7'; ctx.beginPath(); ctx.arc(s.x + 2.5, s.y + 3, 5, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(120,170,200,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.stroke(); }
