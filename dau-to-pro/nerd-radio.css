@@ -21,8 +21,8 @@
 @media(min-width:861px){
   .catalog-section{--nr-w:clamp(400px,43vw,566px)}   /* max.: bleibt rechts neben der Textspalte des Hero */
   .nr-stage{position:absolute;right:20px;top:calc(var(--nr-w) * -.25);width:var(--nr-w);margin:0}
-  .catalog-section .section-heading{padding-right:calc(var(--nr-w) + 16px);min-height:calc(var(--nr-w) * .2)}
-  .catalog-section .section-heading .section-count{position:absolute;right:32px;top:calc(var(--nr-w) * .2)}
+  .catalog-section .section-heading{padding-right:calc(var(--nr-w) + 16px);min-height:calc(var(--nr-w) * .22)}
+  .catalog-section .section-heading .section-count{position:absolute;right:32px;top:calc(var(--nr-w) * .22)}
 }
 
 /* ---------- Gerät ---------- */
