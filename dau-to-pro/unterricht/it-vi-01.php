@@ -3,7 +3,8 @@
  *  Nutzt die vorhandene learner_progress-Tabelle; keine neuen Konten oder Tabellen.
  */
 declare(strict_types=1);
-require_once __DIR__.'/../../learner_lib.php';
+require_once __DIR__.'/../material-access.php';
+dtp_material_require_access();
 
 header('Cache-Control: no-store, private');
 header('X-Content-Type-Options: nosniff');
