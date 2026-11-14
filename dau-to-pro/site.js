@@ -127,16 +127,15 @@
       frame=0;
       const target=on?Math.max(0,scrollY):0;
       // Weiches Nachführen nur mit Maus/Trackpad; auf Touch-Geräten direkt, damit nichts schwimmt.
-      const glide=on&&finePointer.matches&&!compact.matches&&smooth>=0;
+      const glide=on&&smooth>=0;
       smooth=glide?smooth+(target-smooth)*.16:target;
       if(Math.abs(target-smooth)<.3)smooth=target;
       const y=smooth;
-      const scale=compact.matches?.5:1;
       const max=Math.max(1,document.documentElement.scrollHeight-innerHeight);
       const progress=clamp(y/max,0,1);
-      if(stage)stage.style.translate=on&&y?`0 ${(-progress*.28*innerHeight*scale).toFixed(1)}px`:'';
+      if(stage)stage.style.translate=on&&y?`0 ${(-progress*.28*innerHeight).toFixed(1)}px`:'';
       layers.forEach(([el,lag])=>{
-        el.style.translate=on&&y?`0 ${(progress*lag*scale).toFixed(1)}px`:'';
+        el.style.translate=on&&y?`0 ${(progress*lag).toFixed(1)}px`:'';
       });
       // Modulbilder: das Motiv gleitet im Kartenfenster leicht gegen die Scrollrichtung (Fenster-Effekt).
       shots.forEach(img=>{
@@ -150,13 +149,22 @@
       if(smooth!==target)request();
     };
     const request=()=>{if(!frame)frame=requestAnimationFrame(apply)};
-    const update=()=>{on=!reduced.matches;request()};
-    addEventListener('scroll',request,{passive:true});
-    addEventListener('resize',request,{passive:true});
+    const observer=typeof ResizeObserver==='undefined'?null:new ResizeObserver(request);
+    const update=()=>{
+      on=!reduced.matches&&!compact.matches&&finePointer.matches;
+      removeEventListener('scroll',request);
+      removeEventListener('resize',request);
+      observer?.disconnect();
+      if(on){
+        addEventListener('scroll',request,{passive:true});
+        addEventListener('resize',request,{passive:true});
+        observer?.observe(document.body);
+      }
+      request();
+    };
     reduced.addEventListener('change',update);
-    compact.addEventListener('change',request);
-    // Details, Suchfilter, Bildnachladen und eigene Admin-Texte ändern die Seitenhöhe.
-    if(typeof ResizeObserver!=='undefined')new ResizeObserver(request).observe(document.body);
+    compact.addEventListener('change',update);
+    finePointer.addEventListener('change',update);
     update();
   })();
   (() => {
