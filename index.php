@@ -6,6 +6,9 @@ $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id
 $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
     $preview=['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
+    if ($page['slug']==='speed' && $preview['src']==='') {
+        $preview=['src'=>'assets/ruediger-vorschau.webp','fit'=>'contain','x'=>50,'y'=>50];
+    }
     if ($page['slug']==='perlenwahn') {
         $preview['fit']='contain';
         $preview['x']=$preview['y']=50;
@@ -20,7 +23,8 @@ if (!in_array('speed', array_column($apps,'slug'), true)) {
         'is_html'=>true,'name'=>'Rüdiger, nicht so schnell!',
         'short_description'=>'Ein rasantes Spiel für den Browser.',
         'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
-        'play_url'=>'','apple_url'=>'','slug'=>'speed'
+        'play_url'=>'','apple_url'=>'','slug'=>'speed',
+        'preview_image'=>'assets/ruediger-vorschau.webp','preview_fit'=>'contain','preview_x'=>50,'preview_y'=>50
     ];
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
