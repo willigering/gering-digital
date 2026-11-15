@@ -551,7 +551,7 @@ function useItem(p) {
   else if (k === 'snow') { const m = { t: 'ev', k: 'sb', r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 34), vx: Math.round(p.face * 950 + p.vx * 0.5), vy: -420 }; send(m); m.id = myId; onEv(m); }
   else if (k === 'lavaball') { const m = { t: 'ev', k: 'sb', lv: 1, r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 30), vx: Math.round(p.face * 800 + p.vx * 0.4), vy: -260 }; send(m); m.id = myId; onEv(m); }
   else if (k === 'banana') { const m = { t: 'ev', k: 'bn', r: myId * 1e5 + uid++, x: Math.round(p.x - p.face * 30), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
-  else if (k === 'ball') { const m = { t: 'ev', k: 'bl', x: Math.round(p.x - 650), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'ball') { const m = { t: 'ev', k: 'bl', x: Math.round(p.x + 30), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
   else if (k === 'gravity') { const m = { t: 'ev', k: 'gv', x: Math.round(p.x), y: Math.round(p.y - 20) }; send(m); m.id = myId; onEv(m); }
   else if (k === 'jammer') { const m = { t: 'ev', k: 'jm' }; send(m); m.id = myId; onEv(m); }
   else if (k === 'turbo') { p.turbo = 1.8; p.boost = 1; beep(300, 0.4, 'sawtooth', 0.06, 1200); }
@@ -702,7 +702,7 @@ function onEv(m) {
   else if (k === 'rx') { const i = rockets.findIndex(r => r.id === m.r); if (i >= 0) { boom(rockets[i].x, rockets[i].y); rockets.splice(i, 1); } }
   else if (k === 'sb') { snowballs.push({ id: m.r, x: +m.x, y: +m.y, vx: +m.vx, vy: +m.vy, o: m.id, t: 0, lv: !!m.lv, bo: 0 }); beep(500, 0.12, 'triangle', 0.05, 300); }
   else if (k === 'sx') { const i = snowballs.findIndex(s => s.id === m.r); if (i >= 0) { splat(snowballs[i].x, snowballs[i].y); snowballs.splice(i, 1); } }
-  else if (k === 'bl') { { const o = { x: +m.x, y: +m.y, vy: 0, o: m.id, t: 0, a: 0 }; for (let i = 0; i < 20 && !isAir(fl(o.x / T), fl((o.y - 4) / T)); i++) o.y -= T; balls.push(o); } beep(70, 0.9, 'sawtooth', 0.08, 40); banner = m.id === myId ? banner : { text: 'ACHTUNG!', sub: 'Eine Felskugel rollt von hinten heran', until: now + 1400, col: '#c9b08a' }; }
+  else if (k === 'bl') { { const o = { x: +m.x, y: +m.y, vy: 0, o: m.id, t: 0, a: 0 }; for (let i = 0; i < 20 && !isAir(fl(o.x / T), fl((o.y - 4) / T)); i++) o.y -= T; balls.push(o); } beep(70, 0.9, 'sawtooth', 0.08, 40); banner = m.id === myId ? banner : { text: 'ACHTUNG!', sub: 'Eine Felskugel rollt heran', until: now + 1400, col: '#c9b08a' }; }
   else if (k === 'bn') bananas.push({ id: m.r, x: +m.x, y: +m.y, o: m.id, t: 0 });
   else if (k === 'bx') { const i = bananas.findIndex(b => b.id === m.r); if (i >= 0) bananas.splice(i, 1); }
   else if (k === 'gv') { fx.push({ k: 'ring', x: +m.x, y: +m.y, t: 0, r: 700 }); beep(180, 0.5, 'sine', 0.07, 900);
