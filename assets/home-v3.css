@@ -480,6 +480,12 @@ body{
   object-fit:contain;
 }
 
+/* The Perlenwahn thumbnail contains a headline and CTA close to the edges.
+   Keep the entire screenshot visible instead of cutting off its left-hand copy. */
+#apps .gdv3-project-grid .app-card:has(> .html-card-link[href="/perlenwahn/"]) .project-preview-wide {
+  background:#fff7fa;
+}
 #apps .gdv3-project-grid .app-card:has(> .html-card-link[href="/perlenwahn/"]) .project-preview-wide > .html-preview-image {
-  object-fit:cover;
+  object-fit:contain;
+  object-position:center;
 }
