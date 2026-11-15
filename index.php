@@ -153,6 +153,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <div class="icon-wrap html-preview-wrap"><img class="html-preview-image" src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
+          <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
           <span class="html-card-cta" aria-hidden="true">Lernplattform öffnen <b>↗</b></span></div>
         </article>
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
@@ -168,6 +169,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
             <?php endif; ?>
           </div>
           <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Android-Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
           <?php if(empty($app['is_html'])): ?>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
@@ -232,6 +234,12 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 </section>
 
 </main>
+
+<dialog class="project-description" id="project-description" aria-labelledby="project-description-title">
+  <h2 id="project-description-title"></h2>
+  <p></p>
+  <form method="dialog"><button type="submit" autofocus>Schließen</button></form>
+</dialog>
 
 <footer><div class="wrap footer"><a class="brand" href="#top"><picture><source media="(max-width:800px)" type="image/webp" srcset="assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture><span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span></a><p class="pd-footer-quote">„Entstanden aus Neugier, einer Portion Hartnäckigkeit und der Frage: Kann man das nicht irgendwie einfacher machen?“</p><div><a href="impressum.php">Impressum</a> · <a href="datenschutz.php">Datenschutz</a> · <a href="admin/">Admin</a></div><small>© <?=date('Y')?> Gering Digital</small></div></footer>
 

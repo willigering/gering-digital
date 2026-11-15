@@ -128,6 +128,30 @@
     buttons.forEach(button=>button.addEventListener('click',()=>applyCategory(button.dataset.category)));
     applyCategory(buttons.find(button=>button.classList.contains('is-active'))?.dataset.category||buttons[0]?.dataset.category);
   }
+  const reader=document.getElementById('project-description');
+  const projectGrid=document.querySelector('.gdv3-project-grid');
+  if(reader?.showModal && projectGrid && 'ResizeObserver' in window){
+    const mobile=matchMedia('(max-width:860px)');
+    const descriptionButtons=new Map();
+    const measured=new ResizeObserver(entries=>{
+      for(const {target} of entries){
+        descriptionButtons.get(target).hidden=!mobile.matches || target.scrollHeight<=target.clientHeight+1;
+      }
+    });
+    projectGrid.classList.add('has-project-reader');
+    for(const button of projectGrid.querySelectorAll('.project-read-more')){
+      const card=button.closest('.app-card');
+      const description=card.querySelector('.card-body > p');
+      descriptionButtons.set(description,button);
+      measured.observe(description);
+      button.addEventListener('click',()=>{
+        reader.querySelector('h2').textContent=card.querySelector('h3').textContent;
+        reader.querySelector('p').textContent=description.textContent;
+        reader.showModal();
+      });
+    }
+    mobile.addEventListener('change',()=>{if(!mobile.matches&&reader.open)reader.close()});
+  }
   document.querySelectorAll('.app-card').forEach((card,index)=>{
     const text=card.querySelector('.card-body>p'),button=card.querySelector('.app-details');
     if(button && text){
