@@ -479,3 +479,7 @@ body{
   transform:none;
   object-fit:contain;
 }
+
+#apps .gdv3-project-grid .app-card:has(> .html-card-link[href="/perlenwahn/"]) .project-preview-wide > .html-preview-image {
+  object-fit:cover;
+}
