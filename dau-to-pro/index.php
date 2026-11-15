@@ -198,6 +198,21 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </div>
 <p id="search-empty" class="search-empty" hidden>Hier ist noch kein Lernmodul veröffentlicht. Wähle einen anderen Themenbereich.</p>
 <?php endif; ?>
+  <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
+    <div class="section-shell">
+      <div class="hs-board">
+          <?php require_once __DIR__.'/highscore-board.php'; ?>
+          <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
+        <?php if (!$hsRows): ?>
+          <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
+        <?php endif; ?>
+        <div class="hs-foot">
+          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
+          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
 <section class="bonus-collection" id="bonusmodule" aria-labelledby="bonus-title">
   <div class="section-heading">
     <div>
@@ -223,21 +238,6 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </div>
   <p class="bonus-note">Finde den Fehler prüft C# im Browser. XP wird in dieser Fassung nicht gebucht.</p>
 </section>
-  <section class="hs-section hs-featured" id="highscore" aria-labelledby="hs-title">
-    <div class="section-shell">
-      <div class="hs-board">
-          <?php require_once __DIR__.'/highscore-board.php'; ?>
-          <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
-        <?php if (!$hsRows): ?>
-          <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
-        <?php endif; ?>
-        <div class="hs-foot">
-          <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
-          <a class="secondary-action" href="highscore.php">Ganzer Highscore <span aria-hidden="true">→</span></a>
-        </div>
-      </div>
-    </div>
-  </section>
  <?php $cheatTopics=[
   ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
   ['osi','OSI-Modell','Schichten, Protokolle und Kapselung','07','#6cdad4'],

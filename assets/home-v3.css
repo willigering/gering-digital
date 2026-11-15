@@ -258,9 +258,16 @@ body{
   .gdv3-process-caption{align-items:start;flex-direction:column;gap:9px}
   #apps .gdv3-project-grid .app-card .icon-wrap{height:auto;min-height:0;aspect-ratio:16/9;max-height:none!important}
 }
+@media(min-width:700px) and (max-width:860px){
+  #apps .gdv3-project-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
 @media(max-width:600px){
-  #apps .gdv3-project-grid{grid-template-columns:minmax(0,1fr)!important}
-  #apps .gdv3-project-grid .app-card{min-height:0}
+  #apps .gdv3-project-grid{gap:10px!important}
+  #apps .gdv3-project-grid .app-card{min-height:0;min-width:0}
+  #apps .gdv3-project-grid .app-card .card-body{padding:10px;overflow-wrap:anywhere}
+  #apps .gdv3-project-grid .app-card h3{font-size:16px}
+  #apps .gdv3-project-grid .app-card .icon-wrap:not(.html-preview-wrap){padding:10px}
+  #apps .gdv3-project-grid .appicon{max-width:100%;max-height:100%;height:auto}
   #apps .gdv3-project-grid .app-card .icon-wrap{aspect-ratio:16/10}
   .gdv3-about-facts{gap:33px}
   .gdv3-hero-meta{font-size:8px;letter-spacing:.05em}

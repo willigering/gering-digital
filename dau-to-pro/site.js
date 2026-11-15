@@ -316,12 +316,13 @@
   function build(){
     teardown();
     const visible=all.filter(c=>!c.hidden);
-    if(!wide.matches||calm.matches||visible.length<=3)return;
+    const columns=wide.matches?3:1;
+    if(calm.matches||visible.length<=columns)return;
     on=true;grid.classList.add('is-stacked');
     stage=document.createElement('div');stage.className='stack-stage';grid.append(stage);
-    for(let i=0;i<visible.length;i+=3){
+    for(let i=0;i<visible.length;i+=columns){
       const row=document.createElement('div');row.className='stack-row';row.dataset.row=String(rows.length);
-      visible.slice(i,i+3).forEach(c=>row.append(c));
+      visible.slice(i,i+columns).forEach(c=>row.append(c));
       row.addEventListener('click',e=>{const k=Number(row.dataset.row);if(k!==active()){e.preventDefault();e.stopPropagation();go(k)}},true);
       stage.append(row);rows.push(row);
     }
@@ -330,7 +331,7 @@
   }
   function measure(){
     if(!on)return;
-    rows.forEach(r=>{r.style.transform='';r.style.position='static'});
+    rows.forEach(r=>{r.style.transform='';r.style.position='static';r.style.height=''});
     rowH=Math.max(...rows.map(r=>r.getBoundingClientRect().height));
     gap=parseFloat(getComputedStyle(grid).rowGap)||24;
     rows.forEach(r=>{r.style.position='';r.style.height=rowH+'px'});
@@ -370,7 +371,7 @@
   }
   const queue=()=>{if(on&&!frame)frame=requestAnimationFrame(paint)};
   addEventListener('scroll',queue,{passive:true});
-  addEventListener('resize',()=>{if(wide.matches!==on||on)build()},{passive:true});
+  addEventListener('resize',()=>{if(on)measure()},{passive:true});
   wide.addEventListener('change',build);calm.addEventListener('change',build);
   grid.addEventListener('toggle',measure,true);
   addEventListener('load',measure);
