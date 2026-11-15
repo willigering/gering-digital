@@ -126,6 +126,14 @@ const M = {
     const k = b.R(1, 2); for (let i = 1; i <= k; i++) b.r(x + 8 + fl(L * i / (k + 1)) - 1, F - b.R(3, 5), b.R(2, 3), 1);
     b.s(x + 8 + b.R(4, L - 4), hy + 4, '?'); return L + 16;
   },
+  // Etagen: unten der Boden mit Bremskisten, darüber zwei durchspringbare Ebenen. Jeder Weg führt weiter.
+  decks: (b, x) => {
+    const L = b.R(44, 64); b.s(x + 2, F - 1, 'T');
+    let c = 6; while (c < L) { const w = b.R(9, 15); b.r(x + c, F - 4, Math.min(w, L - c), 1, '='); if (b.ch(0.3)) b.s(x + c + 2, F - 5, '>'); c += w + b.R(2, 3); }
+    c = 10; while (c < L - 4) { const w = b.R(10, 18); b.r(x + c, F - 8, Math.min(w, L - 4 - c), 1, '='); if (b.ch(0.5)) b.s(x + c + b.R(1, 4), F - 10, '?'); c += w + b.R(3, 5); }
+    c = 8; while (c < L) { if (b.ch(0.55)) b.s(x + c, F - 1, 'K'); else if (b.ch(0.3)) b.s(x + c, F - 1, '>'); c += b.R(6, 9); }
+    return L + 6;
+  },
   upper: (b, x) => {
     const L = b.R(18, 28), h = b.R(5, 6); b.r(x + 3, F - 3, 3, 1); b.r(x + 9, F - h, L, 1);
     b.s(x + 11 + b.R(0, L - 6), F - h - 1, '>');
@@ -180,20 +188,20 @@ const M = {
 // Bausteinvorrat je Welt (Mehrfachnennung = häufiger). Daraus wird eine lange Strecke (~3000 Felder) gewürfelt,
 // fest je Strecke, damit alle Spieler dieselbe bekommen. Keine Fallen mit Takt mehr.
 const SEQS = [
-  ['tube', 'tube', 'fork', 'hurdles', 'pillars', 'saws', 'upper', 'hookpit', 'gate', 'boost', 'stairs', 'wallshaft', 'hills', 'spikes', 'shortcut', 'tunnel', 'chimney'], // Neonhafen
-  ['hills', 'hills', 'swing', 'bridge', 'mogul', 'plateau', 'bigslide', 'gate', 'hurdles', 'fork', 'upper', 'pillars', 'trampchain', 'shortcut'], // Dachgarten
-  ['conveyors', 'conveyors', 'hurdles', 'stairs', 'fork', 'saws', 'pillars', 'gate', 'tunnel', 'big', 'hookchain', 'wallshaft', 'chimneys'], // Schrottplatz
-  ['hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'pillars', 'fork', 'upper', 'stairs', 'spikes', 'chimney', 'hurdles'], // Eiswerk
-  ['lava', 'lava', 'spikes', 'fork', 'pillars', 'chimney', 'hurdles', 'trampchain', 'big', 'saws', 'stairs', 'plateau'], // Vulkan
-  ['swing', 'swing', 'hookforest', 'bridge', 'hills', 'fork', 'descent', 'hookchain', 'trampchain', 'pillars', 'bridge'], // Dschungel
+  ['decks', 'decks', 'tube', 'tube', 'fork', 'hurdles', 'pillars', 'saws', 'upper', 'hookpit', 'gate', 'boost', 'wallshaft', 'hills', 'spikes', 'shortcut', 'tunnel', 'chimney'], // Neonhafen
+  ['decks', 'decks', 'hills', 'hills', 'swing', 'bridge', 'mogul', 'plateau', 'bigslide', 'gate', 'hurdles', 'fork', 'upper', 'pillars', 'trampchain', 'shortcut'], // Dachgarten
+  ['decks', 'decks', 'conveyors', 'conveyors', 'hurdles', 'fork', 'saws', 'pillars', 'gate', 'tunnel', 'big', 'hookchain', 'wallshaft', 'chimneys'], // Schrottplatz
+  ['decks', 'decks', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'pillars', 'fork', 'upper', 'spikes', 'chimney', 'hurdles'], // Eiswerk
+  ['decks', 'decks', 'lava', 'lava', 'spikes', 'fork', 'pillars', 'chimney', 'hurdles', 'trampchain', 'big', 'saws', 'plateau'], // Vulkan
+  ['decks', 'decks', 'swing', 'swing', 'hookforest', 'bridge', 'hills', 'fork', 'descent', 'hookchain', 'trampchain', 'pillars', 'bridge'], // Dschungel
   null, // Lagerhaus: Etagen, siehe buildV
-  ['tube', 'bridge', 'stairs', 'fork', 'chimney', 'hookchain', 'pillars', 'wallshaft', 'saws', 'gate', 'tunnel', 'upper'], // Kristallmine
-  ['gondolas', 'gondolas', 'swing', 'hookforest', 'hookchain', 'fork', 'hookpit', 'upper', 'swing', 'shortcut'], // Seilbahn-Werft
-  ['hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'descent', 'fork', 'spikes', 'hurdles'], // Skipiste
-  ['hills', 'bridge', 'lava', 'pillars', 'bigslide', 'fork', 'hurdles', 'mogul', 'saws', 'plateau', 'gate'], // Wüste
-  ['descent', 'lava', 'gravfield', 'pillars', 'chimney', 'fork', 'hills', 'spikes', 'stairs', 'gravfield'], // Mars
+  ['decks', 'decks', 'tube', 'bridge', 'fork', 'chimney', 'hookchain', 'pillars', 'wallshaft', 'saws', 'gate', 'tunnel', 'upper'], // Kristallmine
+  ['decks', 'decks', 'gondolas', 'gondolas', 'swing', 'hookforest', 'hookchain', 'fork', 'hookpit', 'upper', 'swing', 'shortcut'], // Seilbahn-Werft
+  ['decks', 'decks', 'hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'descent', 'fork', 'spikes', 'hurdles'], // Skipiste
+  ['decks', 'decks', 'hills', 'bridge', 'lava', 'pillars', 'bigslide', 'fork', 'hurdles', 'mogul', 'saws', 'plateau', 'gate'], // Wüste
+  ['decks', 'decks', 'descent', 'lava', 'gravfield', 'pillars', 'chimney', 'fork', 'hills', 'spikes', 'gravfield'], // Mars
   null, // Weltall: breite Etagen, siehe buildV
-  ['gravfield', 'gravfield', 'hills', 'pillars', 'chimney', 'descent', 'fork', 'mogul', 'stairs', 'bigslide'], // Mond
+  ['decks', 'decks', 'gravfield', 'gravfield', 'hills', 'pillars', 'chimney', 'descent', 'fork', 'mogul', 'bigslide'], // Mond
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
 const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
@@ -255,7 +263,7 @@ function buildV(seed, cols = VCOLS, fh = FH, deco = '') {
       else x += gap();                                                                                                     // freie Strecke
     }
   }
-  thinPads(g); thinHazards(g);
+  thinPads(g); spikesToCrates(g); thinHazards(g);
   const boxes = [], bi = {};
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W: cols, H: rows, g, boxes, bi, vert: true, floor: rows, fh, wide, signs };
@@ -277,7 +285,7 @@ function longSeq(i) {
 // Feste, handgebaute Rundkurse je Strecke. „MIX“ = Bonus-Zufallsstrecke aus allen Bausteinen, jeden Tag anders.
 function mixSeq(seed) { let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647, pool = Object.keys(M).filter(k => k !== 'flat' && k !== 'items'), out = [['flat', 20]];
   for (let k = 0; k < 26; k++) { out.push(pool[fl(rnd() * pool.length)]); if (rnd() < 0.3) out.push('items'); } out.push(['flat', 10]); return out; }
-const MIXPOOL = ['hurdles', 'gate', 'plateau', 'hookpit', 'upper', 'tunnel', 'big', 'boost', 'stairs', 'pillars', 'hookchain', 'spikes', 'saws', 'lava', 'trampchain', 'wallshaft', 'swing', 'hookforest', 'hills', 'bigslide', 'mogul', 'descent', 'chimney', 'shortcut', 'fork', 'tube', 'bridge', 'gondolas', 'conveyors', 'gravfield'];
+const MIXPOOL = ['decks', 'decks', 'hurdles', 'gate', 'plateau', 'hookpit', 'upper', 'tunnel', 'big', 'boost', 'pillars', 'hookchain', 'spikes', 'saws', 'lava', 'trampchain', 'wallshaft', 'swing', 'hookforest', 'hills', 'bigslide', 'mogul', 'descent', 'chimney', 'shortcut', 'fork', 'tube', 'bridge', 'gondolas', 'conveyors', 'gravfield'];
 const buildMap = i => { const th = THEMES[i]; if (th.vert) return buildV(th.vert, th.cols, th.fh, th.deco);
   const day = fl(Date.now() / 864e5), mix = SEQS[i] === 'MIX';
   return build(mapSeq(mix ? MIXPOOL : SEQS[i], mix ? day : i + 1), mix ? day : i + 1, 1 / (th.grav || 1)); }; // wenig Schwerkraft: höhere Hindernisse
@@ -289,6 +297,14 @@ function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y)
 // Boostfelder entzerren: in jeder Reihe höchstens eins pro 12 Felder (doppelte hintereinander bringen nichts)
 // Flow: Stachel- und Lavareihen nach 4 Feldern immer durch 2 sichere Felder unterbrechen. So kommt man immer raus
 // und findet einen Sprungrhythmus. Stacheln werden zu freiem Boden, Lava zu festem Boden.
+// Flow: die meisten Stachelreihen werden zu einzelnen Bremskisten (zerbrechen beim Durchlaufen, kosten Tempo)
+function spikesToCrates(g) {
+  for (let y = 0; y < g.length; y++) { const row = g[y];
+    for (let x = 0; x < row.length;) { if (row[x] !== '^') { x++; continue; }
+      let e = x; while (e < row.length && row[e] === '^') e++;
+      const hv = Math.sin((x * 3.7 + y * 11.3) * 127.1) * 43758.5453; if (hv - Math.floor(hv) < 0.8) for (let i = x; i < e; i++) row[i] = (i - x) % 5 === 1 ? 'K' : ' ';
+      x = e; } }
+}
 function thinHazards(g) {
   for (let y = 0; y < g.length; y++) { const row = g[y];
     for (let x = 0; x < row.length;) { const c = row[x]; if (c !== '^' && c !== '~') { x++; continue; }
@@ -303,8 +319,7 @@ function thinPads(g) {
 function levelChange(b, x, from, to) {
   const d = to - from, k = b.rnd(); let c = 0;
   plat(b, x, from, 1); c = 1;                                                                              // Anschluss auf alter Höhe
-  if (d > 0 && k >= 0.4) { for (let h = from + 1; h <= to; h++) { b.r(x + c, F - h, 2, h); c += 2; } }    // Treppe
-  else if (d < 0 && k >= 0.5) { /* Abbruch: einfach runterspringen */ }
+  if (d < 0 && k >= 0.5) { /* Abbruch: einfach runterspringen */ }
   else c += ramp(b, x + c, from, d, d > 0 ? k < 0.2 : k < 0.25);                                          // Rampe
   plat(b, x + c, to, 1); return c + 1;                                                                     // Anschluss auf neuer Höhe, ohne Lücke
 }
@@ -330,7 +345,7 @@ function build(seq, seed = 1, hs = 1) {
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   const boxes = [], bi = {};
   for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
-  thinPads(g); thinHazards(g);
+  thinPads(g); spikesToCrates(g); thinHazards(g);
   return { W, g, boxes, bi, movers };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
@@ -619,6 +634,7 @@ function stepMe(dt, now) {
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
     const c = tile(tx, ty);
     if (c === '^') { if (p.y > ty * T + 14) hurt(0.5, 0.3, -380); }
+    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.5; shake = Math.max(shake, 4); dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
     else if (c === 'O') { if (Math.hypot(p.x - tx * T - 16, p.y - h / 2 - ty * T - 16) < 26) hurt(0.5, 0.3, -460); }
     else if (c === '<') { if (p.ground && p.padCd <= 0) { p.vx = Math.min(p.vx, -1000); p.boost = Math.min(1, p.boost + 0.25); p.padCd = 0.3; beep(260, 0.25, 'sawtooth', 0.05, 900); } }
     else if (c === '~') { if (p.y > ty * T + 10) hurt(0.5, 0.3, -520); }
@@ -1620,8 +1636,18 @@ function drawAmbient(now) {
   const vg = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.45, VW / 2, VH / 2, VW * 0.75); vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.38)');
   ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
 }
-const isAir = (tx, ty) => { const c = tile(tx, ty); return c === ' ' || c === '?' || c === 'T' || c === '>' || c === '<' || c === 'O' || c === 'F' || c === 'L' || c === 'I' || c === 'W' || c === 'G' || c === 'Z' || c === 'X' || (c === 'Y' && !gateClosed(tx)) || (c === 'R' && !doorClosed(tx)) || (c === 'B' && brokenNow(tx, ty)) || c === '~'; };
+const crateBroken = new Map();
+const crateUp = (tx, ty) => !(crateBroken.get(tx + ',' + ty) > performance.now());
+const isAir = (tx, ty) => { const c = tile(tx, ty); return c === ' ' || c === 'K' || c === '?' || c === 'T' || c === '>' || c === '<' || c === 'O' || c === 'F' || c === 'L' || c === 'I' || c === 'W' || c === 'G' || c === 'Z' || c === 'X' || (c === 'Y' && !gateClosed(tx)) || (c === 'R' && !doorClosed(tx)) || (c === 'B' && brokenNow(tx, ty)) || c === '~'; };
+function drawCrate(x, y) {
+  const K = '#141414'; ctx.save(); ctx.lineJoin = 'round'; ctx.lineWidth = 2; ctx.strokeStyle = K;
+  ctx.fillStyle = '#b97a3c'; rr(x + 2, y + 2, T - 4, T - 2, 3); ctx.stroke();
+  ctx.strokeStyle = '#7a4a1e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 6, y + 6); ctx.lineTo(x + T - 6, y + T - 2); ctx.moveTo(x + T - 6, y + 6); ctx.lineTo(x + 6, y + T - 2); ctx.stroke();
+  ctx.strokeStyle = K; ctx.lineWidth = 2; ctx.strokeRect(x + 5, y + 5, T - 10, T - 8);
+  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x + 6, y + 4, 10, 2); ctx.restore();
+}
 function drawTile(c, tx, ty, x, y, now) {
+  if (c === 'K') { if (crateUp(tx, ty)) drawCrate(x, y); return; }
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
   if (c === '#' || c === 'H') {
     ctx.fillStyle = theme.tile; ctx.fillRect(x, y, T + 0.5, T + 0.5);
@@ -1844,7 +1870,7 @@ function drawHeroes(now) {
 // Menü-Hintergrund: eine Demo-Strecke, auf der bunte Läufer rennen und hüpfen
 let demo = null;
 function stepDemo(dt) {
-  if (!demo) demo = { map: build([['flat', 30], 'hurdles', ['flat', 16], 'stairs', ['flat', 24], 'items', 'hurdles', ['flat', 20]]), cam: START_X, rs: COLORS.slice(0, 8).map((c, i) => ({ c, x: START_X + (i - 4) * 150, y: F * T, vy: 0, g: true, sp: 330 + i * 17 % 70, d: (i * 3) % 6 })) };
+  if (!demo) demo = { map: build([['flat', 30], 'hurdles', ['flat', 16], ['flat', 24], 'items', 'hurdles', ['flat', 20]]), cam: START_X, rs: COLORS.slice(0, 8).map((c, i) => ({ c, x: START_X + (i - 4) * 150, y: F * T, vy: 0, g: true, sp: 330 + i * 17 % 70, d: (i * 3) % 6 })) };
   return; // Menü-Hintergrund steht still: keine Kamerafahrt, keine kleinen Läufer
   for (const r of demo.rs) {
     const tx = fl(r.x / T), ty = fl((r.y - 1) / T);
