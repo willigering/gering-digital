@@ -437,6 +437,7 @@ body{
     overflow:hidden;
   }
   #apps .gdv3-project-grid.has-project-reader .app-details{display:none}
+  #apps .gdv3-project-grid.has-project-reader .app-card>.card-body{z-index:auto}
   #apps .gdv3-project-grid.has-project-reader .project-read-more:not([hidden]){
     display:inline-flex;
     align-self:flex-start;
