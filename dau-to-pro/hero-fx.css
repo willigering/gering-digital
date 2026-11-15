@@ -7,17 +7,6 @@
   filter:hue-rotate(var(--fx-hue,0deg)) saturate(calc(.79 + var(--fx-glow,0) * .6)) brightness(.93) drop-shadow(0 0 calc(var(--fx-glow,0) * 18px) rgba(255,214,90,calc(var(--fx-glow,0) * .9)));
   transition:filter .35s ease}
 .fx-layer.is-active .fx-shroom-img{opacity:1}
-@media(prefers-reduced-motion:no-preference){
-  .fx-shroom.is-charged .fx-shroom-img{
-    transform-origin:50% 88%;
-    animation:fx-shroom-wobble .32s .68s ease-in-out infinite;
-  }
-}
-@keyframes fx-shroom-wobble{
-  0%,100%{transform:rotate(0)}
-  25%{transform:translateX(-2px) rotate(-5deg)}
-  75%{transform:translateX(2px) rotate(5deg)}
-}
 .fx-shroom-hit{position:absolute;inset:0;pointer-events:auto;margin:0;padding:0;border:0;background:transparent;cursor:default;-webkit-tap-highlight-color:transparent;
   clip-path:polygon(22% 0,78% 0,100% 30%,100% 64%,82% 100%,18% 100%,0 64%,0 30%)}
 .fx-layer.is-active .fx-shroom-hit{cursor:pointer}

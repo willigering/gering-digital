@@ -67,9 +67,9 @@
       ], { duration: 520 + 160 * i, easing: 'cubic-bezier(.2,.8,.3,1)' });
       burst(6 + n * 5, 0.5 + i);
       if (n >= 3) wrap.animate([
-        { transform: 'translate(0,0)' }, { transform: `translate(${-3 * i}px,${2 * i}px)` },
-        { transform: `translate(${4 * i}px,${-2 * i}px)` }, { transform: `translate(${-2 * i}px,${1 * i}px)` }, { transform: 'translate(0,0)' }
-      ], { duration: 260 + 80 * i });
+        { transform: 'translate(0,0)' }, { transform: `translate(${-8 * i}px,${3 * i}px)` },
+        { transform: `translate(${9 * i}px,${-3 * i}px)` }, { transform: `translate(${-5 * i}px,${2 * i}px)` }, { transform: 'translate(0,0)' }
+      ], { duration: 310 + 90 * i });
     }
     counter.textContent = n + 'x';
     counter.style.setProperty('--fx-size', (1 + 0.28 * n).toFixed(2));
@@ -93,7 +93,6 @@
   function reset(smooth) {
     clearTimeout(resetTimer);
     count = 0; firstAt = 0;
-    body.classList.remove('is-charged');
     counter.classList.remove('is-on');
     body.classList.toggle('is-calm', !!smooth);
     setLook(0);
@@ -136,7 +135,6 @@
     if (count === 3 && videoSrc) prepareVideo();
     if (count >= CLICKS) { counter.classList.remove('is-on'); levelUp(); return; }
     pop(count);
-    if (count === CLICKS - 1) body.classList.add('is-charged');
   });
 
   // ---------------------------------------------------------------- Video

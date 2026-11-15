@@ -87,6 +87,12 @@ let server, browser;
     page.on('pageerror', e => errors.push(`${width}: ${e.message}`));
     await page.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
     const g = await layout(page);
+    if (mobile) {
+      assert.ok(await page.locator('#module-grid.is-stacked .stack-row').count() > 1,
+        'Mobile Lernmodule verwenden den überlappenden Stapel');
+    }
+    assert.deepEqual(await page.locator('#module-grid, #highscore, #bonusmodule, #unterrichtsmaterial')
+      .evaluateAll(nodes => nodes.map(node => node.id)), ['module-grid', 'highscore', 'bonusmodule', 'unterrichtsmaterial']);
     assert.equal(g.players, 1, `Genau ein Player bei ${width}`);
     assert.ok(g.overflow <= 0, `Kein horizontales Scrollen bei ${width}: ${g.overflow}`);
     assert.ok(Math.abs(g.cardsCenter - g.pageCenter) < 1.5, `Modulkarten bleiben mittig bei ${width}: ${g.cardsCenter} vs ${g.pageCenter}`);

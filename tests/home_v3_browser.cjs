@@ -79,8 +79,10 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     if(width>=1101){
       assert.equal(details.gridCols,3,'Three-column project layout on desktop');
       assert.ok(details.otherX>details.featuredX,'Project cards side by side desktop');
+    }else if(width>=700&&width<=860){
+      assert.equal(details.gridCols,3,'Three project cards per row on wider mobile screens');
     }else if(width<=600){
-      assert.equal(details.gridCols,1,'One-column readable cards on narrow mobile');
+      assert.equal(details.gridCols,2,'Two project cards per row on narrow mobile');
     }
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
