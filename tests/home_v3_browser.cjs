@@ -93,6 +93,10 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const dialog=page.getByRole('dialog',{name:'Test-App'});
       assert.match(await dialog.innerText(),/Der vollständige Text erscheint im Dialog/);
       await dialog.getByRole('button',{name:'Schließen'}).click();
+      if(width===390){
+        await page.locator('.dtp-portal-card').getByRole('button',{name:'Weiterlesen'}).click();
+        await page.getByRole('dialog',{name:'DAU TO PRO'}).getByRole('button',{name:'Schließen'}).click();
+      }
       const cards=await page.locator('#apps .app-card:visible').evaluateAll(nodes=>nodes.map(card=>{
         const image=card.querySelector('.icon-wrap').getBoundingClientRect();
         const body=card.querySelector('.card-body').getBoundingClientRect();
