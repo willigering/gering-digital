@@ -1,0 +1,18 @@
+{
+  "name": "myground-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Spielserver für „Der Boden ist gekündigt“ (WebRTC-Gegenstelle, autoritative Spiellogik)",
+  "type": "commonjs",
+  "main": "server.js",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/rules.test.js",
+    "test:load": "node test/load.js",
+    "test:browser": "node test/browser.js"
+  },
+  "dependencies": {
+    "node-datachannel": "^0.26.0"
+  }
+}
