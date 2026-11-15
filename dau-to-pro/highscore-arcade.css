@@ -309,9 +309,10 @@
   font-weight: 900;
   text-decoration: none;
   overflow-wrap: anywhere;
-  cursor: pointer;
 }
-:is(a, button).arcade-name:hover, .arcade-name:focus-visible { color: var(--rank-ink); text-decoration: underline; }
+:is(a, button).arcade-name { cursor: pointer; }
+:is(a, button).arcade-name:is(:hover, :focus-visible) { color: var(--rank-ink); text-decoration: none; }
+:is(a, button).arcade-name:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
 .arcade-you { color: #86edf4; font-size: .72em; font-weight: 800; white-space: nowrap; }
 .arcade-level { font-size: clamp(10px, 1.2vw, 14px); color: #c2d2dc; }
 .arcade-score {
