@@ -14,7 +14,9 @@ let phpServer,browser;
 const phpInit=spawnSync('php',['-r',
   'require '+JSON.stringify(path.join(root,'lib.php'))+'; '+
   '$q=db()->prepare("INSERT INTO apps(name,short_description,icon,category,status,published,sort_order) VALUES(?,?,?,?,?,1,1)");'+
-  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung. Dieser zusätzliche Satz macht die Beschreibung lang genug, um Weiterlesen auch bei breiteren Karten zu prüfen. Der vollständige Text erscheint im Dialog.","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'
+  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung. Dieser zusätzliche Satz macht die Beschreibung lang genug, um Weiterlesen auch bei breiteren Karten zu prüfen. Der vollständige Text erscheint im Dialog.","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'+
+  '$q=db()->prepare("INSERT INTO html_pages(slug,title,description,category,published,preview_image) VALUES(?,?,?,?,1,?)");'+
+  '$q->execute(["perlenwahn","Perlenwahn","Bügelperlen-Motive","sonstiges","assets/dau-to-pro-page-preview.webp"]);'
 ],{env,encoding:'utf8'});
 assert.equal(phpInit.status,0,phpInit.stderr||phpInit.stdout);
 const src=fs.readFileSync(path.join(root,'index.php'),'utf8');
@@ -110,8 +112,8 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const rect=preview.getBoundingClientRect();
       return rect.width/rect.height;
     }));
-    assert.equal(landscape.length,2,'Rüdiger and DAU TO PRO have shared wide preview frames');
-    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'Both preview frames are 16:9');
+    assert.equal(landscape.length,3,'Rüdiger, DAU TO PRO and Perlenwahn have shared wide preview frames');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All three preview frames are 16:9');
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
     await page.locator('.catalog-filter[data-category="apps"]').click();
