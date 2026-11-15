@@ -23,6 +23,8 @@ jobs:
       STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
       STRATO_REMOTE_PATH: ${{ secrets.STRATO_REMOTE_PATH }}
       STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
+      CF_TURN_ID: ${{ secrets.CF_TURN_ID }}
+      CF_TURN_KEY: ${{ secrets.CF_TURN_KEY }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -196,6 +198,25 @@ jobs:
                       sftp.posix_rename(release_target + '.tmp', release_target)
                       print('Activated complete learning-module release.')
                       print(f'Deployed {len(deploy_files)} tracked website files.')
+
+                      # Rüdiger-Spiel: TURN-Zugang aus den Secrets in den gesperrten Datenordner schreiben.
+                      # Die Datei ist nie im Repo und beginnt mit einem PHP-Abbruch.
+                      turn_id = os.environ.get('CF_TURN_ID', '').strip()
+                      turn_key = os.environ.get('CF_TURN_KEY', '').strip()
+                      if turn_id and turn_key:
+                          turn_dir = posixpath.join(remote_root, 'speed/data')
+                          try:
+                              sftp.stat(turn_dir)
+                          except OSError:
+                              sftp.mkdir(turn_dir)
+                          sftp.putfo(io.BytesIO(b'Require all denied
+'), posixpath.join(turn_dir, '.htaccess'), confirm=True)
+                          body = '<?php http_response_code(403); exit; ?>
+' + json.dumps({'id': turn_id, 'key': turn_key})
+                          turn_target = posixpath.join(turn_dir, 'turn.php')
+                          sftp.putfo(io.BytesIO(body.encode()), turn_target + '.tmp', confirm=True)
+                          sftp.posix_rename(turn_target + '.tmp', turn_target)
+                          print('Wrote TURN credentials for speed/.')
 
                       # Optional, explicit removals. The upload itself never deletes.
                       # Only paths in this allowlist may be removed, never account data.

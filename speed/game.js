@@ -753,6 +753,9 @@ function interp(r, now) {
 // Danach laufen alle Spieldaten per WebRTC direkt zwischen den Browsern. Der Lobby-Ersteller
 // ist der Host: Sein Browser führt die Rundenlogik (Host unten) und verteilt die Positionen.
 const ICE = { iceServers: [{ urls: ['stun:stun.l.google.com:19302', 'stun:stun.cloudflare.com:3478'] }] };
+// TURN (Weiterleitung) vom Server holen: hilft Spielern im Mobilfunk oder hinter strengen Firewalls
+let iceReady = null;
+const loadIce = () => iceReady || (iceReady = Promise.race([api('ice', {}).then(r => { if (r && Array.isArray(r.ice) && r.ice.length) ICE.iceServers = ICE.iceServers.concat(r.ice); }).catch(() => { }), sleep(4000)]));
 const tok = [...crypto.getRandomValues(new Uint8Array(16))].map(b => b.toString(16).padStart(2, '0')).join('');
 const api = (a, body) => fetch('api.php?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store', body: JSON.stringify(Object.assign({ tok }, body)) }).then(r => r.json());
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -789,6 +792,7 @@ async function joinLobby(id) {
   const name = myName();
   let pc;
   try {
+    await loadIce();
     pc = new RTCPeerConnection(ICE);
     const r = pc.createDataChannel('r'), u = pc.createDataChannel('u', { ordered: false, maxRetransmits: 0 }), lk = { pc, r, u };
     let open = false; r.onopen = () => { open = true; };
@@ -804,7 +808,7 @@ async function joinLobby(id) {
       if (p.gone) throw new Error('Diese Lobby gibt es nicht mehr.');
       for (const m of p.msgs || []) if (m.data && m.data.sdp && m.data.sdp.type === 'answer' && !pc.remoteDescription) await pc.setRemoteDescription(m.data.sdp);
     }
-    if (!open) throw new Error('Verbindung fehlgeschlagen – dein Netzwerk oder das des Hosts lässt keine Direktverbindung zu.');
+    if (!open) throw new Error(pc.remoteDescription ? 'Verbindung fehlgeschlagen – dein Netzwerk oder das des Hosts blockiert die Verbindung. Versuch es im WLAN statt Mobilfunk.' : 'Der Host antwortet nicht – vielleicht hat er das Spiel im Hintergrund. Bitte gleich noch mal versuchen.');
     link = lk; status('');
     r.onclose = () => { if (link === lk) toMenu('Verbindung zum Host verloren.'); };
     pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed' && link === lk) toMenu('Verbindung zum Host verloren.'); };
@@ -989,7 +993,7 @@ const Host = (() => {
       for (const m of r.msgs || []) if (m.data && m.data.sdp && m.data.sdp.type === 'offer') onOffer(m.from, m.data.sdp);
     }).catch(() => { });
   }
-  H.open = async name => {
+  H.open = async name => { loadIce();
     const r = await api('create', { name });
     if (!r.id) throw new Error(r.err || 'Lobby konnte nicht erstellt werden.');
     H.local = mk(s => onMsg(JSON.parse(s)), () => { });

@@ -145,7 +145,7 @@ if (!is_array($in)) {
     hj_out(['err' => 'Ungültige Anfrage.'], 400);
 }
 $action = isset($_GET['a']) && is_string($_GET['a']) ? $_GET['a'] : '';
-if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'top', 'score'], true)) {
+if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'top', 'score', 'ice'], true)) {
     hj_out(['err' => 'Unbekannte Aktion.'], 400);
 }
 
@@ -154,6 +154,47 @@ if (preg_match('/^[a-f0-9]{32}$/', $tok) !== 1) {
     hj_out(['err' => 'Ungültiges Token.'], 400);
 }
 $pid = substr(hash('sha256', $tok), 0, 12);
+
+// TURN-Zugang (Cloudflare) für Spieler ohne Direktverbindung. Die Zugangsdaten gelten 24 h
+// und werden 12 h zwischengespeichert, damit nicht jeder Beitritt Cloudflare fragt.
+if ($action === 'ice') {
+    $ddir = __DIR__ . '/data';
+    $cache = $ddir . '/turncache.php';
+    $txt = @file_get_contents($cache);
+    if (is_string($txt) && ($nl = strpos($txt, "\n")) !== false) {
+        $c = json_decode(substr($txt, $nl + 1), true);
+        if (is_array($c) && time() - (int) ($c['t'] ?? 0) < 43200 && !empty($c['s'])) {
+            hj_out(['ice' => $c['s']]);
+        }
+    }
+    $cfgTxt = @file_get_contents($ddir . '/turn.php');
+    $cfg = is_string($cfgTxt) && ($nl = strpos($cfgTxt, "\n")) !== false ? json_decode(substr($cfgTxt, $nl + 1), true) : null;
+    if (!is_array($cfg) || empty($cfg['id']) || empty($cfg['key']) || preg_match('/^[A-Za-z0-9_-]{8,128}$/', (string) $cfg['id']) !== 1) {
+        hj_out(['ice' => []]);
+    }
+    $ctx = stream_context_create(['http' => [
+        'method' => 'POST', 'timeout' => 5, 'ignore_errors' => true,
+        'header' => "Authorization: Bearer " . $cfg['key'] . "\r\nContent-Type: application/json\r\n",
+        'content' => '{"ttl":86400}',
+    ]]);
+    $r = @file_get_contents('https://rtc.live.cloudflare.com/v1/turn/keys/' . $cfg['id'] . '/credentials/generate-ice-servers', false, $ctx);
+    $j = is_string($r) ? json_decode($r, true) : null;
+    $servers = [];
+    foreach ((array) ($j['iceServers'] ?? []) as $srv) {
+        if (!is_array($srv) || empty($srv['urls'])) {
+            continue;
+        }
+        // Port 53 blockieren Browser ohnehin: weglassen
+        $urls = array_values(array_filter((array) $srv['urls'], static function ($u): bool { return is_string($u) && strpos($u, ':53?') === false && substr($u, -3) !== ':53'; }));
+        if ($urls) {
+            $servers[] = array_filter(['urls' => $urls, 'username' => $srv['username'] ?? null, 'credential' => $srv['credential'] ?? null]);
+        }
+    }
+    if ($servers) {
+        @file_put_contents($cache, HJ_GUARD . json_encode(['t' => time(), 's' => $servers]), LOCK_EX);
+    }
+    hj_out(['ice' => $servers]);
+}
 $id = isset($in['id']) && is_string($in['id']) ? strtoupper($in['id']) : '';
 if (in_array($action, ['poll', 'signal', 'close', 'score'], true) && preg_match('/^[A-Z]{4}$/', $id) !== 1) {
     hj_out(['err' => 'Ungültiger Lobby-Code.'], 400);
