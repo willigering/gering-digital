@@ -106,6 +106,12 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       assert.ok(cards.every(card=>card.gap>=4 && card.inside),'Mobile card text stays below the image and inside the card');
       if(screenshots && width===390)await page.locator('.gdv3-project-grid').screenshot({path:path.join(screenshots,'project-cards-390.png')});
     }
+    const landscape=await page.locator('#apps .project-preview-wide').evaluateAll(previews=>previews.map(preview=>{
+      const rect=preview.getBoundingClientRect();
+      return rect.width/rect.height;
+    }));
+    assert.equal(landscape.length,2,'Rüdiger and DAU TO PRO have shared wide preview frames');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'Both preview frames are 16:9');
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
     await page.locator('.catalog-filter[data-category="apps"]').click();

@@ -289,10 +289,10 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <summary><span><b>Sichtbarkeit im Highscore</b><small><?=$achStats['visible']?'Eingeschaltet: andere Lernende sehen dich im Highscore.':'Ausgeschaltet: du bist im Highscore unsichtbar.'?></small></span></summary>
         <form method="post" class="settings-body">
           <?=$hidden('highscore')?>
-          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Wenn du zusätzlich die öffentliche Anzeige einschaltest, können auch Gäste auf der Startseite deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Achievement-Vitrine sehen. Du kannst beide Einstellungen jederzeit ändern.</p>
+          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Wenn du zusätzlich die öffentliche Anzeige einschaltest, können auch Gäste auf der DAU-TO-PRO-Startseite und auf der Ranglistenseite deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Achievement-Vitrine sehen. Du kannst beide Einstellungen jederzeit ändern.</p>
           <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
           <label class="confirm-check"><input type="checkbox" name="visible" value="1"<?=$achStats['visible']?' checked':''?>> Ich möchte im Highscore sichtbar sein.</label>
-          <label class="confirm-check"><input type="checkbox" name="public" value="1"<?=$achStats['visible']&&ach_public_highscore_enabled((int)$learner['id'])?' checked':''?>> Wenn ich im Highscore sichtbar bin, darf mein Eintrag auch Gästen auf der Startseite angezeigt werden.</label>
+          <label class="confirm-check"><input type="checkbox" name="public" value="1"<?=$achStats['visible']&&ach_public_highscore_enabled((int)$learner['id'])?' checked':''?>> Meinen Benutzernamen und meinen Eintrag im öffentlichen Highscore auch ohne Anmeldung anzeigen.</label>
           <button class="secondary-action" type="submit">Speichern</button>
         </form>
       </details>

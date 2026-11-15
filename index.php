@@ -150,7 +150,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <div class="cards gdv3-project-grid">
         <article class="card glass-card app-card html-clickable-card dtp-portal-card" data-category="sonstiges">
           <a class="html-card-link" href="dau-to-pro/" aria-label="DAU TO PRO – Lernplattform öffnen"></a>
-          <div class="icon-wrap html-preview-wrap"><img class="html-preview-image" src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
+          <div class="icon-wrap html-preview-wrap project-preview-wide"><img class="html-preview-image" src="assets/dau-to-pro-page-preview.webp" loading="lazy" width="640" height="360" alt=""></div>
           <div class="card-body"><span class="category-badge">Lernplattform</span><h3>DAU TO PRO</h3>
           <p>Von Null Plan zu echtem IT-Verständnis. Interaktive Lernprogramme, Übungsaufgaben und Prüfungsvorbereitung.</p>
           <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
@@ -159,7 +159,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap':''?>">
+          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.($app['slug']==='speed'?' project-preview-wide':''):''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
             <?php elseif(!empty($app['is_html'])): ?>
