@@ -14,7 +14,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     environment: production
     env:
       STRATO_HOST: ${{ secrets.STRATO_HOST }}
@@ -209,10 +209,8 @@ jobs:
                               sftp.stat(turn_dir)
                           except OSError:
                               sftp.mkdir(turn_dir)
-                          sftp.putfo(io.BytesIO(b'Require all denied
-'), posixpath.join(turn_dir, '.htaccess'), confirm=True)
-                          body = '<?php http_response_code(403); exit; ?>
-' + json.dumps({'id': turn_id, 'key': turn_key})
+                          sftp.putfo(io.BytesIO(b'Require all denied\n'), posixpath.join(turn_dir, '.htaccess'), confirm=True)
+                          body = '<?php http_response_code(403); exit; ?>\n' + json.dumps({'id': turn_id, 'key': turn_key})
                           turn_target = posixpath.join(turn_dir, 'turn.php')
                           sftp.putfo(io.BytesIO(body.encode()), turn_target + '.tmp', confirm=True)
                           sftp.posix_rename(turn_target + '.tmp', turn_target)
