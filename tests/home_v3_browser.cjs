@@ -14,7 +14,7 @@ let phpServer,browser;
 const phpInit=spawnSync('php',['-r',
   'require '+JSON.stringify(path.join(root,'lib.php'))+'; '+
   '$q=db()->prepare("INSERT INTO apps(name,short_description,icon,category,status,published,sort_order) VALUES(?,?,?,?,?,1,1)");'+
-  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'
+  '$q->execute(["Test-App","Beispiel-App für die Layoutprüfung. Dieser zusätzliche Satz macht die Beschreibung lang genug, um Weiterlesen auch bei breiteren Karten zu prüfen. Der vollständige Text erscheint im Dialog.","assets/gering-digital-logo-icon.png","apps","entwicklung"]);'
 ],{env,encoding:'utf8'});
 assert.equal(phpInit.status,0,phpInit.stderr||phpInit.stdout);
 const src=fs.readFileSync(path.join(root,'index.php'),'utf8');
@@ -85,6 +85,14 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       assert.equal(details.gridCols,2,'Two project cards per row on narrow mobile');
     }
     if(width<=860){
+      const visibleCards=page.locator('#apps .app-card:visible');
+      const heights=await visibleCards.evaluateAll(cards=>cards.map(card=>card.getBoundingClientRect().height));
+      assert.ok(Math.max(...heights)-Math.min(...heights)<1,'Mobile app cards have equal heights');
+      const more=visibleCards.filter({has:page.getByRole('heading',{name:'Test-App',exact:true})}).getByRole('button',{name:'Weiterlesen'});
+      await more.click();
+      const dialog=page.getByRole('dialog',{name:'Test-App'});
+      assert.match(await dialog.innerText(),/Der vollständige Text erscheint im Dialog/);
+      await dialog.getByRole('button',{name:'Schließen'}).click();
       const cards=await page.locator('#apps .app-card:visible').evaluateAll(nodes=>nodes.map(card=>{
         const image=card.querySelector('.icon-wrap').getBoundingClientRect();
         const body=card.querySelector('.card-body').getBoundingClientRect();
