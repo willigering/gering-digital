@@ -84,6 +84,16 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
     }else if(width<=600){
       assert.equal(details.gridCols,2,'Two project cards per row on narrow mobile');
     }
+    if(width<=860){
+      const cards=await page.locator('#apps .app-card:visible').evaluateAll(nodes=>nodes.map(card=>{
+        const image=card.querySelector('.icon-wrap').getBoundingClientRect();
+        const body=card.querySelector('.card-body').getBoundingClientRect();
+        const badge=card.querySelector('.category-badge').getBoundingClientRect();
+        return {gap:badge.top-image.bottom, inside:badge.right<=body.right+1};
+      }));
+      assert.ok(cards.every(card=>card.gap>=4 && card.inside),'Mobile card text stays below the image and inside the card');
+      if(screenshots && width===390)await page.locator('.gdv3-project-grid').screenshot({path:path.join(screenshots,'project-cards-390.png')});
+    }
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
     await page.locator('.catalog-filter[data-category="apps"]').click();

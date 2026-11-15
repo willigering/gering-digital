@@ -48,3 +48,13 @@
 @media(prefers-reduced-motion:reduce){.cheat-mini,.cheat-stack-row{transition:none!important}.cheat-mini:hover{transform:none}}
 
 .cheat-mini-grid.is-stacked .cheat-stack-row.is-waiting{filter:brightness(.72) saturate(.82);pointer-events:none}
+
+@media (max-width:899px) and (min-height:480px) and (prefers-reduced-motion:no-preference) {
+  #cheat-mini-grid { grid-template-columns: minmax(0,1fr); }
+  #cheat-mini-grid > .cheat-mini {
+    position: sticky;
+    top: calc(var(--nav-height) + 12px);
+    align-self: start;
+    scroll-margin-top: calc(var(--nav-height) + 12px);
+  }
+}

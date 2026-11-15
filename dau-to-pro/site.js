@@ -316,8 +316,8 @@
   function build(){
     teardown();
     const visible=all.filter(c=>!c.hidden);
-    const columns=wide.matches?3:1;
-    if(calm.matches||visible.length<=columns)return;
+    const columns=3;
+    if(!wide.matches||calm.matches||visible.length<=columns)return;
     on=true;grid.classList.add('is-stacked');
     stage=document.createElement('div');stage.className='stack-stage';grid.append(stage);
     for(let i=0;i<visible.length;i+=columns){

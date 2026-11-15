@@ -88,8 +88,19 @@ let server, browser;
     await page.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
     const g = await layout(page);
     if (mobile) {
-      assert.ok(await page.locator('#module-grid.is-stacked .stack-row').count() > 1,
-        'Mobile Lernmodule verwenden den überlappenden Stapel');
+      for (const selector of ['#module-grid', '#cheat-mini-grid']) {
+        const overlap = await page.locator(selector).evaluate(grid => {
+          const [first, second] = grid.children;
+          const top = parseFloat(getComputedStyle(first).top);
+          const next = second.getBoundingClientRect().top + scrollY;
+          window.scrollTo({top: next - top - 28, behavior: 'instant'});
+          const a = first.getBoundingClientRect(), b = second.getBoundingClientRect();
+          return {pinned: Math.abs(a.top - top) < 2, overlap: a.bottom - b.top};
+        });
+        assert.ok(overlap.pinned && overlap.overlap > 35, selector + ' überlappt mobil');
+        if (shots && width === 390) await page.screenshot({path:path.join(shots, selector.slice(1)+'-390.png')});
+      }
+      await page.evaluate(() => scrollTo({top: 0, behavior: 'instant'}));
     }
     assert.deepEqual(await page.locator('#module-grid, #highscore, #bonusmodule, #unterrichtsmaterial')
       .evaluateAll(nodes => nodes.map(node => node.id)), ['module-grid', 'highscore', 'bonusmodule', 'unterrichtsmaterial']);
