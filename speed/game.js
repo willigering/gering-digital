@@ -28,8 +28,8 @@ const DANCES = ['KUSSHAND', 'ZENSIERT', 'PO ZEIGEN'];
 const POSES_ON = true; // Siegergesten an
 const DANCE_POSE = [6, 7, 8]; // Gesten (siehe gesture); 0–5 sind die alten Posen, derzeit aus
 const VCOLS = 50, FH = 7, VROWS = FH * 8, VFLOOR = VROWS; // Zickzack-Etagen: 50 Felder breit, 7 Reihen je Etage, Muster wiederholt sich alle 8 Etagen
-const ITEMS = { rocket: '🚀', crate: '📦', shock: '💥', lasso: '🧲', turbo: '⚡', snow: '❄️', banana: '🍌', lavaball: '🔥', gravity: '🌀', jammer: '📡' };
-const ITEM_NAMES = { rocket: 'Rakete', crate: 'Kiste', shock: 'Schockwelle', lasso: 'Magnet', turbo: 'Turbo', snow: 'Schneeball', banana: 'Banane', lavaball: 'Lavaball', gravity: 'Schwerelos', jammer: 'Störsender' };
+const ITEMS = { rocket: '🚀', crate: '📦', shock: '💥', lasso: '🧲', turbo: '⚡', snow: '❄️', banana: '🍌', lavaball: '🔥', gravity: '🌀', jammer: '📡', ball: '🪨' };
+const ITEM_NAMES = { rocket: 'Rakete', crate: 'Kiste', shock: 'Schockwelle', lasso: 'Magnet', turbo: 'Turbo', snow: 'Schneeball', banana: 'Banane', lavaball: 'Lavaball', gravity: 'Schwerelos', jammer: 'Störsender', ball: 'Felskugel' };
 const fl = Math.floor, clamp = (v, a, b) => v < a ? a : v > b ? b : v, mod = (a, n) => ((a % n) + n) % n;
 const approach = (v, t, d) => v < t ? Math.min(t, v + d) : Math.max(t, v - d);
 
@@ -127,12 +127,26 @@ const M = {
     b.s(x + 8 + b.R(4, L - 4), hy + 4, '?'); return L + 16;
   },
   // Etagen: unten der Boden mit Bremskisten, darüber zwei durchspringbare Ebenen. Jeder Weg führt weiter.
+  // Etagen: drei getrennte Wege übereinander, durch feste Decken abgeschlossen. Unten einfach weiterlaufen,
+  // Mitte per Sprung auf die erste Decke, oben per Trampolin. Jeder Weg bekommt zufällig mehr oder weniger Hindernisse.
   decks: (b, x) => {
-    const L = b.R(44, 64); b.s(x + 2, F - 1, 'T');
-    let c = 6; while (c < L) { const w = b.R(9, 15); b.r(x + c, F - 4, Math.min(w, L - c), 1, '='); if (b.ch(0.3)) b.s(x + c + 2, F - 5, '>'); c += w + b.R(2, 3); }
-    c = 10; while (c < L - 4) { const w = b.R(10, 18); b.r(x + c, F - 8, Math.min(w, L - 4 - c), 1, '='); if (b.ch(0.5)) b.s(x + c + b.R(1, 4), F - 10, '?'); c += w + b.R(3, 5); }
-    c = 8; while (c < L) { if (b.ch(0.55)) b.s(x + c, F - 1, 'K'); else if (b.ch(0.3)) b.s(x + c, F - 1, '>'); c += b.R(6, 9); }
-    return L + 6;
+    const L = b.R(46, 66), m0 = x + 10, t0 = x + 20, end = x + L;
+    b.r(m0, F - 5, end - m0, 1);                 // Decke unten = Boden Mitte
+    b.r(t0, F - 10, end - 6 - t0, 1);           // Decke Mitte = Boden oben
+    b.s(t0 - 4, F - 6, 'T');                    // Trampolin auf dem Mittelweg: hoch nach oben
+    const lane = (from, to, fy, room) => {      // fy = Bodenzeile des Weges (Feld direkt darüber ist frei)
+      const d = b.R(0, 2); let c = from + b.R(3, 5);
+      while (c < to - 3) {
+        const k = b.rnd();
+        if (d === 0) { if (k < 0.35) b.s(c, fy, '>'); else if (k < 0.55) b.s(c, fy, 'K'); }                       // leicht: Boost, kaum Kisten
+        else if (d === 1) { if (k < 0.5) b.s(c, fy, 'K'); else if (k < 0.7) b.s(c, fy, '#'); else if (k < 0.8) b.s(c, fy, '>'); }
+        else { if (k < 0.55) b.s(c, fy, 'K'); else if (k < 0.85) { b.s(c, fy, '#'); if (room > 4 && b.ch(0.5)) b.s(c, fy - 1, '#'); } } // schwer: Kisten und Hürden
+        c += d === 2 ? b.R(4, 6) : b.R(6, 9);
+      }
+      if (b.ch(0.6)) b.s(from + b.R(4, Math.max(5, to - from - 4)), fy - 2, '?');
+    };
+    lane(m0, end, F - 1, 4); lane(m0 + 2, end, F - 6, 4); lane(t0, end - 6, F - 11, 9);
+    return L + 4;
   },
   upper: (b, x) => {
     const L = b.R(18, 28), h = b.R(5, 6); b.r(x + 3, F - 3, 3, 1); b.r(x + 9, F - h, L, 1);
@@ -205,7 +219,7 @@ const SEQS = [
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
 const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
-const TALL = { chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
+const TALL = { decks: 1, chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
 // Lange Strecke würfeln: Bausteine aus dem Vorrat (nie einer der letzten 4), dazwischen Geländewechsel und freie Abschnitte
 function mapSeq(pool, seed, len = 3000) {
   let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
@@ -379,7 +393,7 @@ let myId = 0, lobby = null, phase = 'menu', goAt = 0, solo = false, roundNo = 0;
 let camX = START_X, camT = START_X, camY = VH / 2 - 2, zoom = 1, kill = 800, shake = 0, banner = null, uid = 1;
 let cele = null; // Siegerfeier: { id, dance, t0 }
 const remotes = new Map();           // id -> {name,color,score,alive,buf[],rx,ry,...}
-let rockets = [], crates = [], parts = [], fx = [], snowballs = [], bananas = [];
+let balls = [], rockets = [], crates = [], parts = [], fx = [], snowballs = [], bananas = [];
 const me = {};
 function resetMe(slot) {
   const s = startPos(slot);
@@ -515,13 +529,13 @@ function releaseHook(p) {
 // Was steckt in der Kiste? Fest je Position (alle Spieler sehen dasselbe). 'q' = Überraschung wie bisher.
 function boxKind(tx, ty) {
   const h = hash(tx * 7.31 + ty * 3.17); if (h < 0.5) return 'q';
-  const pool = ['rocket', 'turbo', 'shock', 'crate', 'lasso', theme.item || 'rocket', theme.item || 'turbo'];
+  const pool = ['rocket', 'turbo', 'shock', 'crate', 'lasso', 'ball', theme.item || 'rocket', theme.item || 'turbo'];
   return pool[fl(hash(tx * 1.9 + ty * 5.3 + 11) * pool.length)];
 }
 function rollItem() {
   let ahead = 0, n = 0; for (const r of remotes.values()) if (r.alive) { n++; if (r.rx > me.x) ahead++; }
   const w = theme.item || 'rocket'; // jede Welt hat ihr eigenes Item, der Schneeball gibt es nur im Schnee
-  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo', w] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', w, w];
+  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo', w] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', 'ball', w, w];
   return pool[fl(Math.random() * pool.length)];
 }
 function nearestAhead(maxD) {
@@ -537,6 +551,7 @@ function useItem(p) {
   else if (k === 'snow') { const m = { t: 'ev', k: 'sb', r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 34), vx: Math.round(p.face * 950 + p.vx * 0.5), vy: -420 }; send(m); m.id = myId; onEv(m); }
   else if (k === 'lavaball') { const m = { t: 'ev', k: 'sb', lv: 1, r: myId * 1e5 + uid++, x: Math.round(p.x + p.face * 18), y: Math.round(p.y - 30), vx: Math.round(p.face * 800 + p.vx * 0.4), vy: -260 }; send(m); m.id = myId; onEv(m); }
   else if (k === 'banana') { const m = { t: 'ev', k: 'bn', r: myId * 1e5 + uid++, x: Math.round(p.x - p.face * 30), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
+  else if (k === 'ball') { const m = { t: 'ev', k: 'bl', x: Math.round(p.x - 900), y: Math.round(p.y) }; send(m); m.id = myId; onEv(m); }
   else if (k === 'gravity') { const m = { t: 'ev', k: 'gv', x: Math.round(p.x), y: Math.round(p.y - 20) }; send(m); m.id = myId; onEv(m); }
   else if (k === 'jammer') { const m = { t: 'ev', k: 'jm' }; send(m); m.id = myId; onEv(m); }
   else if (k === 'turbo') { p.turbo = 1.8; p.boost = 1; beep(300, 0.4, 'sawtooth', 0.06, 1200); }
@@ -687,6 +702,7 @@ function onEv(m) {
   else if (k === 'rx') { const i = rockets.findIndex(r => r.id === m.r); if (i >= 0) { boom(rockets[i].x, rockets[i].y); rockets.splice(i, 1); } }
   else if (k === 'sb') { snowballs.push({ id: m.r, x: +m.x, y: +m.y, vx: +m.vx, vy: +m.vy, o: m.id, t: 0, lv: !!m.lv, bo: 0 }); beep(500, 0.12, 'triangle', 0.05, 300); }
   else if (k === 'sx') { const i = snowballs.findIndex(s => s.id === m.r); if (i >= 0) { splat(snowballs[i].x, snowballs[i].y); snowballs.splice(i, 1); } }
+  else if (k === 'bl') { balls.push({ x: +m.x, y: +m.y, vy: 0, o: m.id, t: 0, a: 0 }); beep(70, 0.9, 'sawtooth', 0.08, 40); banner = m.id === myId ? banner : { text: 'ACHTUNG!', sub: 'Eine Felskugel rollt von hinten heran', until: now + 1400, col: '#c9b08a' }; }
   else if (k === 'bn') bananas.push({ id: m.r, x: +m.x, y: +m.y, o: m.id, t: 0 });
   else if (k === 'bx') { const i = bananas.findIndex(b => b.id === m.r); if (i >= 0) bananas.splice(i, 1); }
   else if (k === 'gv') { fx.push({ k: 'ring', x: +m.x, y: +m.y, t: 0, r: 700 }); beep(180, 0.5, 'sine', 0.07, 900);
@@ -731,6 +747,15 @@ function stepWorld(dt) {
       banner = { text: 'AUSGERUTSCHT!', sub: 'Banane!', until: performance.now() + 1100, col: '#ffe066' }; continue;
     }
     if (b.t > 25) bananas.splice(i, 1);
+  }
+  for (let i = balls.length - 1; i >= 0; i--) {
+    // Felskugel: rollt schnell am Boden entlang, steigt kleine Stufen hoch, zerschellt an hohen Wänden
+    const o = balls[i], solid = (x, y) => !isAir(fl(x / T), fl(y / T)); o.t += dt; o.x += 1350 * dt; o.a += 1350 * dt / 30;
+    let up = 0; while (solid(o.x + 20, o.y - 4) && up < 4) { o.y = (fl((o.y - 4) / T)) * T; up++; }
+    if (up >= 4 || o.t > 4) { if (up >= 4) dust(o.x, o.y - 30, 24, '#9a8a70', 420); balls.splice(i, 1); continue; }
+    o.vy += 2600 * dt; const ny = o.y + o.vy * dt; if (solid(o.x, ny)) { o.y = fl(ny / T) * T; o.vy = 0; } else o.y = ny;
+    if (Math.random() < 0.5) parts.push({ x: o.x - 20, y: o.y - 2, vx: -200, vy: -60 * Math.random(), l: 0.4, c: '#8a7a60', s: 5 });
+    if (o.o !== myId && me.alive && me.inv <= 0 && Math.abs(me.x - o.x) < 36 && me.y > o.y - 70 && me.y < o.y + 10) { hurt(0.9, 0.2, -560); banner = { text: 'PLATT!', sub: 'Von der Felskugel überrollt', until: performance.now() + 1200, col: '#c9b08a' }; }
   }
   for (let i = rockets.length - 1; i >= 0; i--) {
     // Rakete fliegt stur geradeaus, schneller als jeder Läufer
@@ -1051,7 +1076,7 @@ function onMsg(m) {
     case 'round': {
       if (!THEMES[m.map]) break;
       endRun(); cutX = -1e9; map = buildMap(m.map); theme = THEMES[m.map]; solo = m.solo; roundNo = m.round; startRun(m.map);
-      rockets = []; crates = []; parts = []; fx = []; snowballs = []; bananas = []; banner = null; cele = null;
+      balls = []; rockets = []; crates = []; parts = []; fx = []; snowballs = []; bananas = []; banner = null; cele = null;
       const slot = Math.max(0, m.order.indexOf(myId));
       resetMe(slot); me.alive = !m.spec && m.order.includes(myId);
       for (const [id, r] of remotes) { r.alive = m.order.includes(id); r.buf = []; r.rx = null; }
@@ -1762,7 +1787,7 @@ function drawTile(c, tx, ty, x, y, now) {
 // Item-Kiste im Comicstil: dicke Kontur, Eckbeschläge, Glanz, Symbol des Inhalts
 const BOXCOL = { q: ['#ffb21f', '#c77a00', '#ffd060'], rocket: ['#ff3b3b', '#b51e1e', '#ff7a6a'], turbo: ['#9be021', '#5f9a0c', '#c4f060'], shock: ['#ff8a1f', '#b8520a', '#ffb866'],
   crate: ['#b97a3c', '#7a4a1e', '#d9a066'], lasso: ['#a64bff', '#6c26b3', '#c891ff'], snow: ['#3fb6ff', '#1a78c2', '#8fd6ff'], banana: ['#ffe14d', '#c9a400', '#fff08a'],
-  lavaball: ['#ff5a1f', '#a8300a', '#ff9a5a'], gravity: ['#4b6bff', '#2a3fb0', '#8fa2ff'], jammer: ['#ff4fa8', '#b8236e', '#ff8cc6'] };
+  lavaball: ['#ff5a1f', '#a8300a', '#ff9a5a'], ball: ['#9c8b72', '#5e5242', '#c2b294'], gravity: ['#4b6bff', '#2a3fb0', '#8fa2ff'], jammer: ['#ff4fa8', '#b8236e', '#ff8cc6'] };
 function drawItemBox(cx, cy, kind, now) {
   const [f, d, l] = BOXCOL[kind] || BOXCOL.q, h = 12, dp = 5, K = '#141414';
   ctx.save(); ctx.lineJoin = 'round'; ctx.lineWidth = 2; ctx.strokeStyle = K;
@@ -1787,6 +1812,7 @@ function boxIcon(cx, cy, k, now) {
   else if (k === 'snow') { ctx.save(); ctx.translate(cx, cy); ctx.rotate(now / 1500); for (let i = 0; i < 3; i++) { ctx.rotate(Math.PI / 3); both(() => { ctx.beginPath(); ctx.moveTo(0, -8); ctx.lineTo(0, 8); }, W); } ctx.restore(); }
   else if (k === 'banana') both(() => { ctx.beginPath(); ctx.arc(cx - 3, cy - 4, 8, 0.2, 1.9); }, '#fff08a');
   else if (k === 'lavaball') { shape(() => { ctx.moveTo(cx, cy - 9 - Math.sin(now / 90)); ctx.quadraticCurveTo(cx + 8, cy, cx + 5, cy + 5); ctx.arc(cx, cy + 3, 5, 0.4, Math.PI - 0.4); ctx.quadraticCurveTo(cx - 8, cy, cx, cy - 9); }, '#ffe14d'); }
+  else if (k === 'ball') { ctx.save(); ctx.translate(cx, cy); ctx.rotate(now / 300); ctx.beginPath(); ctx.arc(0, 0, 7, 0, 7); ctx.lineWidth = 2; ctx.strokeStyle = K; ctx.fillStyle = '#e8dcc4'; ctx.fill(); ctx.stroke(); ctx.fillStyle = '#7d6e5a'; ctx.beginPath(); ctx.arc(2, 2, 2, 0, 7); ctx.fill(); ctx.restore(); }
   else if (k === 'gravity') both(() => { ctx.beginPath(); for (let i = 0; i < 26; i++) { const a = i * 0.5 + now / 400, r = 1 + i * 0.3; ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } }, W);
   else if (k === 'jammer') { both(() => { ctx.beginPath(); ctx.moveTo(cx, cy + 7); ctx.lineTo(cx, cy - 2); }, W); for (const r of [4, 7]) both(() => { ctx.beginPath(); ctx.arc(cx, cy - 2, r, -2.4, -0.7); }, W); }
 }
@@ -1974,6 +2000,10 @@ function render(now, dt, menu = false) {
   for (const s of snowballs) { if (s.lv) { ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(s.x + 2, s.y + 2, 5, 0, 7); ctx.fill(); continue; } ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#cfe9f7'; ctx.beginPath(); ctx.arc(s.x + 2.5, s.y + 3, 5, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(120,170,200,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.stroke(); }
   if (me.alive && me.slow > 0) { for (let i = 0; i < 6; i++) { const a = performance.now() / 300 + i; ctx.fillStyle = 'rgba(230,245,255,.85)'; ctx.beginPath(); ctx.arc(me.x + Math.cos(a) * 18, me.y - 24 + Math.sin(a * 1.3) * 18, 2.5, 0, 7); ctx.fill(); } }
   for (const c of crates) { ctx.fillStyle = '#b5773a'; rr(c.x - 17, c.y - 34, 34, 34, 4); ctx.strokeStyle = '#6e4218'; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(c.x - 12, c.y - 29); ctx.lineTo(c.x + 12, c.y - 5); ctx.moveTo(c.x + 12, c.y - 29); ctx.lineTo(c.x - 12, c.y - 5); ctx.stroke(); }
+  for (const o of balls) { ctx.save(); ctx.translate(o.x, o.y - 28); ctx.rotate(o.a);
+    ctx.fillStyle = '#7d6e5a'; ctx.strokeStyle = '#141414'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(0, 0, 28, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = '#9c8b72'; ctx.beginPath(); ctx.arc(-8, -8, 12, 0, 7); ctx.fill(); ctx.fillStyle = '#5e5242'; for (const [a, b, r] of [[10, 8, 5], [-12, 12, 4], [14, -12, 3]]) { ctx.beginPath(); ctx.arc(a, b, r, 0, 7); ctx.fill(); }
+    ctx.restore(); }
   for (const r of rockets) { ctx.save(); ctx.translate(r.x, r.y); ctx.scale(r.d, 1); ctx.fillStyle = '#f2f2f2'; rr(-14, -6, 24, 12, 5); ctx.fillStyle = '#ff4d5a'; ctx.beginPath(); ctx.moveTo(10, -6); ctx.lineTo(20, 0); ctx.lineTo(10, 6); ctx.fill(); ctx.restore(); }
   // Menü-Läufer
   if (menu && false) for (const r of demo.rs) drawRunner(r.x, r.y, r.sp, r.g ? 0 : 1, 1, r.c, now, false, false);
