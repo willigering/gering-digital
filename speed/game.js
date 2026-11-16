@@ -23,7 +23,7 @@ const THEMES = [
   { item: 'jammer', name: 'Mond', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
   { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
-const VER = 83; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
+const VER = 84; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const PLAY = THEMES.map((t, i) => t.off ? -1 : i).filter(i => i >= 0); // spielbare Strecken (die senkrechten Etagen-Strecken sind vorerst aus der Auswahl genommen)
 const randMap = () => PLAY[fl(Math.random() * PLAY.length)];
@@ -62,9 +62,9 @@ const M = {
   lasers: (b, x) => { let c = 4; const n = b.R(3, 5); for (let i = 0; i < n; i++) { b.s(x + c, F - 1, 'L'); c += b.R(6, 9); } return c + 2; },
   tube: (b, x) => { const L = b.R(12, 18); b.r(x + 4, F - 6, L, 2); for (let i = 0; i < L; i++) for (let j = 1; j <= 4; j++) b.s(x + 4 + i, F - j, 'Z'); b.s(x + 4 + fl(L / 2), F - 2, '?'); return L + 8; },
   icicles: (b, x) => { const L = b.R(18, 28); b.r(x + 2, F - 11, L, 2); let c = 3; while (c < L - 1) { b.s(x + 2 + c, F - 9, 'I'); c += b.R(3, 5); } b.s(x + 2 + b.R(3, L - 3), F - 3, '?'); return L + 6; },
-  bridge: (b, x) => { const L = b.R(10, 16); b.r(x + 4, F - 1, L, 1, '^'); b.r(x + 3, F - 4, L + 2, 1, '='); b.r(x + 2, F - 4, 1, 4); b.r(x + 5 + L, F - 4, 1, 4); b.s(x + 4 + fl(L / 2), F - 7, '?'); return L + 9; },
+  bridge: (b, x) => { const L = b.R(10, 16); b.r(x + 4, F - 1, L, 1, '^'); b.r(x + 2, F - 4, L + 4, 1, '='); b.s(x + 4 + fl(L / 2), F - 7, '?'); return L + 9; },
   gondolas: (b, x) => { const L = b.R(26, 34); b.r(x + 3, F - 1, L, 1, '^'); const n = b.R(2, 3); for (let i = 0; i < n; i++) { const a = x + 3 + fl(L * i / n), z = a + fl(L / n) - 3; b.mover(a, z, F - b.R(3, 5), 3, b.R(3200, 4600)); } b.s(x + 3 + fl(L / 2), F - 9, '?'); return L + 7; },
-  conveyors: (b, x) => { const L = b.R(14, 22), dir = b.ch(0.5) ? 'C' : 'D'; b.r(x + 3, F, L, 1, dir); let c = 5; while (c < L - 2) { if (b.ch(0.6)) b.r(x + 3 + c, F - b.R(1, 2), 1, 2); c += b.R(4, 6); } return L + 6; },
+  conveyors: (b, x) => { const L = b.R(14, 22), dir = b.ch(0.5) ? 'C' : 'D'; b.r(x + 3, F, L, 1, dir); let c = 5; while (c < L - 2) { if (b.ch(0.6)) b.s(x + 3 + c, F - 1, 'K'); c += b.R(4, 6); } return L + 6; },
   crusher: (b, x) => { const n = b.R(2, 4); b.r(x + 3, F - 9, n * 6 + 2, 2); for (let i = 0; i < n; i++) b.r(x + 5 + i * 6, F - 7, 2, 1, 'P'); return n * 6 + 8; },
   collapse: (b, x) => { const L = b.R(8, 14); b.r(x + 4, F - 8, L, 4); b.r(x + 4, F - 4, L, 1, 'Q'); b.s(x + 4 + fl(L / 2), F - 1, '?'); return L + 8; },
   roller: (b, x) => { let c = 5; const n = b.R(1, 3); for (let i = 0; i < n; i++) { b.s(x + c, F - 2, 'W'); c += b.R(7, 10); } return c + 2; },
@@ -75,7 +75,7 @@ const M = {
     const L = b.R(34, 44), rx = x + 12;
     b.s(x + 2, F - 1, 'T'); b.r(rx, F - 8, L, 1);
     let c = 6; while (c < L - 8) { if (b.ch(0.5)) b.r(rx + c, F - 9, 2, 1, '^'); c += b.R(7, 10); }
-    c = 14; while (c < L) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - 1, 1, 1); else if (k === 1) b.r(x + c, F, 3, 1, 'D'); else b.s(x + c, F - 1, 'O'); c += b.R(5, 7); }
+    c = 14; while (c < L) { const k = b.R(0, 2); if (k === 0) b.s(x + c, F - 1, 'K'); else if (k === 1) b.r(x + c, F, 3, 1, 'D'); else b.s(x + c, F - 1, 'O'); c += b.R(5, 7); }
     return L + 14;
   },
   // Kamin: zwei Wände dicht beieinander. Unten rein, mit Wandsprüngen hin und her nach oben, oben rüber und per Rutsche runter.
@@ -96,7 +96,7 @@ const M = {
     hookBar(b, gap - 1, F - 13, 6);                                 // … mit Hakenbalken darüber
     b.s(gap + 7, F - 9, '>');              // Boostfelder auf der Schiene
     b.s(rx + L - 4, F - 11, '?');
-    let c = 14; while (c < L + 8) { const k = b.R(0, 2); if (k === 0) b.r(x + c, F - b.R(1, 2), 1, 2, '#'); else if (k === 1) b.s(x + c, F - 1, 'O'); else b.r(x + c, F - 1, 2, 1, '^'); c += b.R(4, 6); }
+    let c = 14; while (c < L + 8) { const k = b.R(0, 2); if (k === 0) b.s(x + c, F - 1, 'K'); else if (k === 1) b.s(x + c, F - 1, 'O'); else b.r(x + c, F - 1, 2, 1, '^'); c += b.R(4, 6); }
     return 12 + L + 6;
   },
   chimneys: (b, x) => { let c = M.chimney(b, x, b.R(9, 11)); c += M.chimney(b, x + c, b.R(11, 13)); return c; },
@@ -115,14 +115,14 @@ const M = {
   mogul: (b, x) => { let c = 2; const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = b.R(1, 2); c += ramp(b, x + c, 0, h, true); c += ramp(b, x + c, h, -h, true); if (b.ch(0.4)) { const s = b.R(1, 3); b.r(x + c, F - 1, s, 1, '^'); c += s; } c += b.R(1, 3); } return c + 2; },
   descent: (b, x) => {
     let c = 2; const s2 = b.H(2), st = Math.min(b.R(4, 6), fl(20 / s2)), top = st * s2;
-    for (let s = 1; s <= st; s++) { b.r(x + c, F - s * s2, 2, s * s2); c += 2; }
+    c += ramp(b, x + c, 0, top, false);                       // Aufstieg als Rampe statt Stufen
     c += plat(b, x + c, top, b.R(2, 4)); const m = fl(top / 2) + b.R(-1, 1);
     c += ramp(b, x + c, top, -(top - m), b.ch(0.4)); c += plat(b, x + c, m, b.R(2, 4)); c += ramp(b, x + c, m, -m, true); return c + b.R(3, 5);
   },
   flat: (b, x, n = 20) => { if (n > 6 && b.ch(0.6)) b.s(x + b.R(2, n - 3), F - b.R(2, 4), '?'); return n; },
-  hurdles: (b, x) => { let c = b.R(3, 6); const n = b.R(2, 4); for (let i = 0; i < n; i++) { const h = b.H(b.R(1, 2)), w = b.R(1, 2); b.r(x + c, F - h, w, h); if (i === 1 && b.ch(0.6)) b.s(x + c, F - h - 4, '?'); c += w + b.R(5, 9); } return c; },
+  hurdles: (b, x) => { let c = b.R(3, 6); const n = b.R(2, 4); for (let i = 0; i < n; i++) { if (b.ch(0.45)) { const w = b.R(3, 5); b.r(x + c, F - b.R(3, 4), w, 1, '='); if (b.ch(0.5)) b.s(x + c + 1, F - 1, 'K'); c += w + b.R(4, 7); } else { b.s(x + c, F - 1, 'K'); if (i === 1 && b.ch(0.6)) b.s(x + c, F - 5, '?'); c += 1 + b.R(5, 9); } } return c; }, // Bremskisten und kleine Stege statt Mauern
   gate: (b, x) => { const w = b.R(4, 8), h = Math.min(18, b.H(b.R(4, 7))); b.r(x + 8, F - 2 - h, w, h); b.s(x + 8 + fl(w / 2), F - h - 5, '?'); if (b.ch(0.6)) b.s(x + 9 + w + b.R(0, 2), F - 1, '>'); return 14 + w + b.R(2, 5); },
-  plateau: (b, x) => { const h = b.R(5, 7), w = b.R(8, 14); b.s(x + 2, F - 1, 'T'); b.r(x + 10, F - h, w, h); if (b.ch(0.6)) b.s(x + 12 + b.R(0, w - 4), F - h - 1, '>'); b.s(x + 10 + b.R(1, w - 2), F - h - 3, '?'); return 12 + w + b.R(3, 7); },
+  plateau: (b, x) => { const h = b.R(5, 7), w = b.R(8, 14); b.s(x + 2, F - 1, 'T'); b.r(x + 10, F - h, w, 1); /* schwebende Platte: wer das Trampolin verpasst, läuft unten durch */ if (b.ch(0.6)) b.s(x + 12 + b.R(0, w - 4), F - h - 1, '>'); b.s(x + 10 + b.R(1, w - 2), F - h - 3, '?'); return 12 + w + b.R(3, 7); },
   hookpit: (b, x) => {
     const L = b.R(16, 24), hy = F - b.R(11, 13);
     b.r(x + 8, F - 1, L, 1, '^'); b.r(x + 6, hy - 2, L + 4, 2); b.r(x + 6, hy, L + 4, 1, 'H');
@@ -134,16 +134,16 @@ const M = {
   // Mitte per Sprung auf die erste Decke, oben per Trampolin. Jeder Weg bekommt zufällig mehr oder weniger Hindernisse.
   decks: (b, x) => {
     const L = b.R(46, 66), m0 = x + 10, t0 = x + 20, end = x + L;
-    b.r(m0, F - 5, end - m0, 1);                 // Decke unten = Boden Mitte
-    b.r(t0, F - 10, end - 6 - t0, 1);           // Decke Mitte = Boden oben
+    b.r(m0, F - 5, end - m0, 1, '=');            // Mittelweg: von unten durchspringbar
+    b.r(t0, F - 10, end - 6 - t0, 1, '=');      // oberer Weg
     b.s(t0 - 4, F - 6, 'T');                    // Trampolin auf dem Mittelweg: hoch nach oben
     const lane = (from, to, fy, room) => {      // fy = Bodenzeile des Weges (Feld direkt darüber ist frei)
       const d = b.R(0, 2); let c = from + b.R(3, 5);
       while (c < to - 3) {
         const k = b.rnd();
         if (d === 0) { if (k < 0.35) b.s(c, fy, '>'); else if (k < 0.55) b.s(c, fy, 'K'); }                       // leicht: Boost, kaum Kisten
-        else if (d === 1) { if (k < 0.5) b.s(c, fy, 'K'); else if (k < 0.7) b.s(c, fy, '#'); else if (k < 0.8) b.s(c, fy, '>'); }
-        else { if (k < 0.55) b.s(c, fy, 'K'); else if (k < 0.85) { b.s(c, fy, '#'); if (room > 4 && b.ch(0.5)) b.s(c, fy - 1, '#'); } } // schwer: Kisten und Hürden
+        else if (d === 1) { if (k < 0.6) b.s(c, fy, 'K'); else if (k < 0.8) b.s(c, fy, '>'); }
+        else { if (k < 0.85) b.s(c, fy, 'K'); } // schwer: viele Kisten
         c += d === 2 ? b.R(4, 6) : b.R(6, 9);
       }
       if (b.ch(0.6)) b.s(from + b.R(4, Math.max(5, to - from - 4)), fy - 2, '?');
@@ -154,21 +154,21 @@ const M = {
   upper: (b, x) => {
     const L = b.R(18, 28), h = b.R(5, 6); b.r(x + 3, F - 3, 3, 1); b.r(x + 9, F - h, L, 1);
     b.s(x + 11 + b.R(0, L - 6), F - h - 1, '>');
-    b.s(x + 9 + b.R(2, L - 3), F - h - 3, '?'); let c = 10; while (c < L) { if (b.ch(0.5)) b.r(x + c, F - 1, b.R(1, 3), 1, b.ch(0.5) ? '^' : '#'); c += b.R(5, 8); }
+    b.s(x + 9 + b.R(2, L - 3), F - h - 3, '?'); let c = 10; while (c < L) { if (b.ch(0.5)) { if (b.ch(0.5)) b.r(x + c, F - 1, b.R(1, 3), 1, '^'); else b.s(x + c, F - 1, 'K'); } c += b.R(5, 8); }
     return L + 14;
   },
-  tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.r(x + 6 + c, F - 1, 2, 1); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
-  big: (b, x) => { const L = b.R(18, 28), h = b.R(4, 5); b.s(x + 1, F - 1, 'T'); b.r(x + 8, F - h, L, h); const s = b.R(6, L - 6); b.r(x + 8 + s, F - h - 1, b.R(2, 4), 1, '^'); b.r(x + 12, F - 18, L - 8, 2); b.r(x + 12, F - 16, L - 8, 1, 'H'); b.s(x + 8 + b.R(2, L - 2), F - h - 3, '?'); return L + 14; },
+  tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.s(x + 6 + c, F - 1, 'K'); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
+  big: (b, x) => { const L = b.R(18, 28), h = b.R(4, 5); b.s(x + 1, F - 1, 'T'); b.r(x + 8, F - h, L, 1); const s = b.R(6, L - 6); b.r(x + 8 + s, F - h - 1, b.R(2, 4), 1, '^'); b.r(x + 12, F - 18, L - 8, 2); b.r(x + 12, F - 16, L - 8, 1, 'H'); b.s(x + 8 + b.R(2, L - 2), F - h - 3, '?'); return L + 14; },
   items: (b, x) => { const n = b.R(2, 3), cx = x + b.R(5, 10); for (let i = 0; i < n; i++) b.s(cx + b.R(-1, 1), F - 2 - i * 3, '?'); return b.R(14, 18); },
   boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(7, 11); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 6); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(3, 4), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
   stairs: (b, x) => {
     const s2 = b.H(2), n = Math.min(b.R(3, 5), fl(20 / s2)), sw = b.R(3, 4); let c = 4;
-    for (let i = 1; i <= n; i++) { b.r(x + c, F - i * s2, sw, i * s2); c += sw; }
+    for (let i = 1; i <= n; i++) { c += ramp(b, x + c, (i - 1) * s2, s2, b.ch(0.5)); c += plat(b, x + c, i * s2, sw - 1); } // Terrassen mit Rampen statt Stufen
     const tw = b.R(4, 8); b.r(x + c, F - n * s2, tw, n * s2); b.s(x + c + 1, F - n * s2 - 1, '>'); b.s(x + c + fl(tw / 2), F - n * s2 - 3, '?'); c += tw;
-    if (b.ch(0.5)) for (let i = n - 1; i >= 1; i--) { b.r(x + c, F - i * s2, sw, i * s2); c += sw; }
+    if (b.ch(0.5)) for (let i = n - 1; i >= 1; i--) { c += ramp(b, x + c, (i + 1) * s2, -s2, false); c += plat(b, x + c, i * s2, sw - 1); }
     return c + b.R(3, 6);
   },
-  pillars: (b, x) => { let c = b.R(4, 7); const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = Math.min(18, b.H(b.R(2, 5))); b.r(x + c, F - h, 2, h); if (b.ch(0.25)) b.s(x + c, F - h - 3, '?'); c += 2 + b.R(5, 8); } return c; },
+  pillars: (b, x) => { let c = b.R(4, 7); const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = Math.min(9, b.H(b.R(3, 6))), w = b.R(3, 5); b.r(x + c, F - h, w, 1, '='); if (b.ch(0.4)) b.s(x + c + 1, F - 1, 'K'); if (b.ch(0.25)) b.s(x + c + 1, F - h - 3, '?'); c += w + b.R(3, 6); } return c; }, // schwebende Trittflächen in wechselnder Höhe statt massiver Pfeiler
   hookchain: (b, x) => {
     const L = b.R(24, 36), hy = F - b.R(11, 13); b.r(x + 6, F - 1, L, 1, '^'); b.r(x + 4, hy - 2, L + 4, 2); b.r(x + 4, hy, L + 4, 1, 'H');
     let c = b.R(5, 8); while (c < L - 3) { b.r(x + 6 + c, F - b.R(3, 5), 2, 1); c += b.R(7, 10); }
@@ -186,7 +186,7 @@ const M = {
     return c;
   },
   lava: (b, x) => { const L = b.R(10, 18); b.r(x + 5, F, L, 1, '~'); const k = Math.ceil(L / 7); for (let i = 0; i < k; i++) b.r(x + 6 + fl((L - 3) * (i + 0.5) / k), F - b.R(3, 4), b.R(2, 3), 1, '='); b.s(x + 5 + b.R(2, L - 2), F - 6, '?'); return L + 10; },
-  trampchain: (b, x) => { b.s(x + 2, F - 1, 'T'); b.r(x + 8, F - 1, 26, 1, '^'); b.r(x + 17, F - 2, 5, 2); b.s(x + 19, F - 3, 'T'); b.s(x + 18 + b.R(0, 4), F - b.R(9, 11), '?'); return 40; },
+  trampchain: (b, x) => { b.s(x + 2, F - 1, 'T'); b.r(x + 8, F - 1, 26, 1, '^'); b.r(x + 17, F - 2, 5, 1, '='); b.s(x + 19, F - 3, 'T'); b.s(x + 18 + b.R(0, 4), F - b.R(9, 11), '?'); return 40; },
   wallshaft: (b, x) => { const h = Math.min(18, b.H(b.R(6, 8))); b.r(x + 4, F - 14, 2, 9); b.r(x + 10, F - h, 2, h); b.r(x + 12, F - h, b.R(5, 8), 1, '='); b.s(x + 14, F - h - 2, '?'); return 24; },
   swing: (b, x) => {
     const n = b.R(4, 7), sp = b.R(7, 9), L = n * sp + 4;
@@ -329,6 +329,43 @@ function thinHazards(g) {
       if (e - x > 5) for (let i = x; i < e; i++) if ((i - x) % 6 >= 4) row[i] = c === '^' ? ' ' : '#';
       x = e; } }
 }
+// Obere Etagen: Über offenen Abschnitten hängen lange, von unten durchspringbare Stege, links mit einer Auffahrt.
+// Oben liegen Boostfelder und selten eine Kiste; über langen Stegen manchmal noch ein zweiter. Wer unten bleibt, läuft durch.
+function addDecks(g, rnd) {
+  const W = g[0].length, top = [], open = [];
+  const soft = c => c === ' ' || c === 'K' || c === '>' || c === '?';
+  for (let x = 0; x < W; x++) {
+    let y = F; while (y > 1 && (g[y - 1][x] === '#' || SLOPE[g[y - 1][x]])) y--;   // y: oberste Bodenreihe dieser Spalte
+    let ok = g[F][x] === '#'; for (let r = 1; r < y && ok; r++) ok = soft(g[r][x]);
+    top.push(y); open.push(ok);
+  }
+  const free = (x, y, n) => { for (let i = 0; i < n; i++) if (g[y][x + i] !== ' ') return false; return true; };
+  const deck = (x, d, k, L) => {              // Auffahrt über k Felder, dann Steg bis x + L
+    for (let i = 0; i < k; i++) if (g[d + k - 1 - i][x + i] !== ' ') return false;
+    if (!free(x + k, d, L - k)) return false;
+    for (let i = 0; i < k; i++) g[d + k - 1 - i][x + i] = '/';
+    for (let i = k; i < L; i++) g[d][x + i] = '=';
+    if (rnd() < 0.7) g[d - 1][x + k + 2 + fl(rnd() * 3)] = '>';
+    if (L - k > 16 && rnd() < 0.5) g[d - 1][x + k + 10 + fl(rnd() * (L - k - 14))] = rnd() < 0.5 ? 'K' : '>';
+    if (rnd() < 0.3) g[d - 3][x + k + 4 + fl(rnd() * (L - k - 6))] = '?';
+    return true;
+  };
+  for (let x = 30; x < W - 40;) {
+    if (rnd() > 0.8) { x += 6 + fl(rnd() * 8); continue; }
+    const want = 18 + fl(rnd() * 28); let L = 0, lo = top[x], hi = top[x];
+    while (L < want && open[x + L] && Math.max(hi, top[x + L]) - Math.min(lo, top[x + L]) <= 3) { lo = Math.min(lo, top[x + L]); hi = Math.max(hi, top[x + L]); L++; }
+    const d = lo - 5, k = clamp(top[x] - 2 - d, 2, 5);
+    if (L < k + 10 || d < 5 || !deck(x, d, k, L)) { x += Math.max(2, fl(L / 2)); continue; }
+    if (L - k > 22 && d - 5 >= 5 && rnd() < 0.5) deck(x + k + 5, d - 5, 3, L - k - 8 - fl(rnd() * 5)); // dritte Etage
+    x += L + 5 + fl(rnd() * 9);
+  }
+}
+// Itemboxen ausdünnen: höchstens eine je 26 Felder Strecke, keine Stapel oder Haufen in der Luft
+function thinBoxes(g) {
+  let last = -99;
+  for (let x = 0; x < g[0].length; x++) { let kept = false;
+    for (let y = g.length - 1; y >= 0; y--) if (g[y][x] === '?') { if (kept || x - last < 26) g[y][x] = ' '; else { kept = true; last = x; } } }
+}
 function thinPads(g) {
   for (const row of g) { let last = -99; for (let x = 0; x < row.length; x++) if (row[x] === '>' || row[x] === '<') { if (x - last < 12) row[x] = ' '; else last = x; } }
 }
@@ -360,9 +397,10 @@ function build(seq, seed = 1, hs = 1) {
     W += w;
   }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
+  for (const [x, y, c] of cells) g[y][x] = c;
+  spikesToCrates(g); thinHazards(g); addDecks(g, rnd); thinPads(g); thinBoxes(g);
   const boxes = [], bi = {};
-  for (const [x, y, c] of cells) { g[y][x] = c; if (c === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); } }
-  thinPads(g); spikesToCrates(g); thinHazards(g);
+  for (let x = 0; x < W; x++) for (let y = 0; y < MH; y++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W, g, boxes, bi, movers };
 }
 let map = build(SEQS[0]), theme = THEMES[0];
@@ -499,6 +537,9 @@ function moverX(m, t, px) { const x = (m.x0 + (m.x1 - m.x0) * (0.5 - 0.5 * Math.
 function moveX(p, dx) {
   p.x += dx; const h = ph(p), lift = p.wasG ? 14 : 0; // am Boden: kleine Stufen (Schrägen-Übergänge) nicht als Wand werten
   if (!hitRect(p.x - 11, p.y - h, 22, h - lift)) return false;
+  // Auf einer Schräge bergauf: Füße erst auf die Oberfläche heben. Sonst zählt bei hohem Tempo der Block unter dem
+  // nächsten Schrägenfeld als Wand und man bleibt mitten auf der Rampe stehen.
+  if (p.wasG && !p.hook) { const s = slopeAt(p.x, p.y); if (s && s.y < p.y && !hitRect(p.x - 11, s.y - h, 22, h - lift)) { p.y = s.y; return false; } }
   // Kantenhilfe: streift man in der Luft knapp die Oberkante eines Blocks, wird man hinaufgeschoben statt abzuprallen
   if (!p.wasG && !p.hook && p.vy > -500) for (const up of [5, 10, 15]) if (!hitRect(p.x - 11, p.y - up - h, 22, h)) { p.y -= up; return false; }
   if (dx > 0) p.x = fl((p.x + 11) / T) * T - 11 - 0.001; else p.x = fl((p.x - 11) / T) * T + T + 11;
@@ -607,8 +648,8 @@ function stepMe(dt, now) {
   if (ctrl && I.boost && p.boost > 0.02 && dir && !(p.jam > 0)) { boosting = true; p.boost -= dt / 1.6; } else if (!I.boost) p.boost = Math.min(1, p.boost + dt * 0.07);
   if (p.turbo > 0) { p.turbo -= dt; boosting = true; }
   p.boosting = boosting;
-  p.slipT = Math.max(0, (p.slipT || 0) - dt); p.jam = Math.max(0, (p.jam || 0) - dt); p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt);
-  const max = (boosting ? 880 : 580) * (p.slow > 0 ? 0.45 : 1) * (p.tube > 0 ? 1.6 : 1); // vom Schneeball getroffen: kurz langsamer
+  p.slipT = Math.max(0, (p.slipT || 0) - dt); p.jam = Math.max(0, (p.jam || 0) - dt); p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt); p.crate = Math.max(0, (p.crate || 0) - dt);
+  const max = (boosting ? 880 : 580) * (p.slow > 0 ? 0.45 : 1) * (p.crate > 0 ? 0.5 : 1) * (p.tube > 0 ? 1.6 : 1); // vom Schneeball getroffen: kurz langsamer
   // Durch eine Plattform nach unten fallen lassen
   if (p.ground && ctrl && I.down && !p.slide && !p.hook && onPlatAt(p) && !hitRect(p.x - 11, p.y, 22, 1)) { p.drop = 0.22; p.ground = false; p.y += 1; }
   // Rutschen
@@ -680,10 +721,10 @@ function stepMe(dt, now) {
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
     const c = tile(tx, ty);
     if (c === '^') { if (p.y > ty * T + 14) hurt(0.5, 0.3, -380); }
-    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.8; shake = Math.max(shake, 4); dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
+    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.45; p.crate = 0.55; shake = Math.max(shake, 6); /* Kiste: Tempo weg und gut eine halbe Sekunde nur halbes Höchsttempo */ dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
     else if (c === 'O') { if (Math.hypot(p.x - tx * T - 16, p.y - h / 2 - ty * T - 16) < 26) hurt(0.5, 0.3, -460); }
     else if (c === '<') { if (p.ground && p.padCd <= 0) { p.vx = Math.min(p.vx, -1000); p.boost = Math.min(1, p.boost + 0.25); p.padCd = 0.3; beep(260, 0.25, 'sawtooth', 0.05, 900); } }
-    else if (c === '~') { if (p.y > ty * T + 10) hurt(0.5, 0.3, -520); }
+    else if (c === '~') { if (p.y > ty * T + 10 && !hurt(0.5, 0.3, -520) && p.stun <= 0) p.vy = Math.min(p.vy, -520); } // noch unverwundbar: trotzdem herausfedern, sonst klebt man an der Grubenwand
     else if (c === '>') { if (p.ground && p.padCd <= 0) { p.vx = Math.max(p.vx, 1000); p.boost = Math.min(1, p.boost + 0.25); p.padCd = 0.3; beep(260, 0.25, 'sawtooth', 0.05, 900); } }
     else if (c === 'T') { if (p.vy >= 0 && p.y > ty * T + 12) { p.vy = -1180; p.launch = true; p.jumps = 1; p.ground = false; p.slide = false; beep(200, 0.25, 'sine', 0.09, 800); dust(p.x, p.y, 8, '#7dffb0'); } }
     else if (c === '?') {
@@ -1820,17 +1861,21 @@ function drawTile(c, tx, ty, x, y, now) {
     ctx.fillStyle = lg; ctx.fillRect(x, top, T + 0.5, y + T - top);
     const k = (now / 900 + h1) % 1; ctx.fillStyle = hot ? 'rgba(255,240,180,.8)' : 'rgba(230,255,200,.8)'; ctx.beginPath(); ctx.arc(x + 8 + h1 * 16, top + 14 - k * 14, 2 + k * 3, 0, 7); ctx.fill();
     ctx.fillStyle = hot ? 'rgba(255,140,40,.18)' : 'rgba(150,255,90,.15)'; ctx.fillRect(x, top - 26, T + 0.5, 26);
-  } else if (c === '>' || c === '<') { // Boostfeld: cyan leuchtende Bodenplatte, darüber ein schwebender Doppelpfeil in Laufrichtung
+  } else if (c === '>' || c === '<') { // Boostfeld: gelb-schwarze Platte mit Laufstreifen, Lichtsäule und großem Doppelpfeil in Laufrichtung
     if (c === '<') { ctx.save(); ctx.translate(x * 2 + T, 0); ctx.scale(-1, 1); } // nach links: gespiegelt
-    const pulse = 0.5 + 0.5 * Math.sin(now / 180 + tx), by = y + T;
-    const gl = ctx.createRadialGradient(x + 16, by - 4, 2, x + 16, by - 4, 30); gl.addColorStop(0, `rgba(62,240,255,${0.35 + 0.2 * pulse})`); gl.addColorStop(1, 'rgba(62,240,255,0)');
-    ctx.fillStyle = gl; ctx.fillRect(x - 14, by - 34, T + 28, 40);
-    ctx.fillStyle = '#0b1f27'; path(x, by - 8, T, 8, 3); ctx.fill();
-    ctx.fillStyle = `rgba(120,248,255,${0.75 + 0.25 * pulse})`; path(x + 3, by - 6, T - 6, 3, 1.5); ctx.fill();
-    const o = ((now / 9) % 10) - 5, cy = by - 20 - Math.sin(now / 260 + tx) * 1.5;
-    for (const [w, col] of [[7, 'rgba(62,240,255,.35)'], [4, '#3ef0ff'], [1.6, '#ffffff']]) {
+    const pulse = 0.5 + 0.5 * Math.sin(now / 180 + tx), by = y + T, px = x - 10, pw = T + 20;
+    const beam = ctx.createLinearGradient(0, by - 96, 0, by); beam.addColorStop(0, 'rgba(255,214,64,0)'); beam.addColorStop(1, `rgba(255,214,64,${0.3 + 0.2 * pulse})`);
+    ctx.fillStyle = beam; ctx.fillRect(px + 4, by - 96, pw - 8, 96);                                   // Lichtsäule: von weitem zu sehen
+    ctx.fillStyle = '#141414'; path(px - 2, by - 12, pw + 4, 12, 4); ctx.fill();                        // Platte mit dunkler Kontur
+    ctx.save(); path(px, by - 10, pw, 8, 3); ctx.clip();
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(px, by - 10, pw, 8);
+    ctx.fillStyle = '#141414'; const so = (now / 14) % 16; for (let q = -2; q < 6; q++) { const sx = px + q * 16 + so; ctx.beginPath(); ctx.moveTo(sx, by - 10); ctx.lineTo(sx + 6, by - 10); ctx.lineTo(sx + 12, by - 2); ctx.lineTo(sx + 6, by - 2); ctx.fill(); }
+    ctx.restore();
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + 0.4 * pulse})`; ctx.fillRect(px + 2, by - 10, pw - 4, 1.5);
+    const o = ((now / 7) % 12) - 6, cy = by - 30 - Math.sin(now / 260 + tx) * 2;
+    for (const [w, col] of [[11, '#141414'], [6.5, '#ffd23f'], [2, '#fffbe0']]) {                      // großer Doppelpfeil in Laufrichtung
       ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.beginPath();
-      for (const dx of [0, 10]) { ctx.moveTo(x + 7 + dx + o, cy - 7); ctx.lineTo(x + 14 + dx + o, cy); ctx.lineTo(x + 7 + dx + o, cy + 7); }
+      for (const dx of [-4, 12]) { ctx.moveTo(x + 6 + dx + o, cy - 11); ctx.lineTo(x + 17 + dx + o, cy); ctx.lineTo(x + 6 + dx + o, cy + 11); }
       ctx.stroke();
     }
     if (c === '<') ctx.restore();
@@ -2296,6 +2341,7 @@ requestAnimationFrame(frame);
 window.__hj = { me, remotes, get phase() { return phase; }, get lobby() { return lobby; }, keys, I, tile, F, findHook: p => findHook(p), get run() { return run; }, get ghost() { return ghost; }, recordRun: n => recordRun(n), endRun: () => endRun(), dance: n => { cele = { id: myId, dance: n, t0: performance.now() }; },
   get W() { return map.W; }, get map() { return map; }, get banner() { return banner; }, get cele() { return cele; }, get zoom() { return zoom; }, get kill() { return kill; },
   get rockets() { return rockets; }, get crates() { return crates; }, onEv: m => onEv(m), stepWorld: dt => stepWorld(dt), sync: () => sendState(),
+  load: i => { cutX = -1e9; map = buildMap(i); theme = THEMES[i]; resetMe(0); }, PLAY,
   secondChance: n => secondChance(n), step(n, inp) { for (let i = 0; i < n; i++) { if (typeof inp === 'function') inp(me, I, i); else if (inp) Object.assign(I, inp); stepMe(STEP, performance.now() + 1e7); I.jumpP = I.itemP = I.hookP = false; } },
   view() { if (map.vert) { camX = map.wide ? clamp(me.x, VW / 2, map.W * T - VW / 2) : map.W * T / 2; camY = camT = me.y - 140; } else { camX = camT = me.x + 100; } render(performance.now(), 0.016); } };
 })();
