@@ -1,4 +1,5 @@
 import { BUS, DOOR, HEIGHT, SEAT, STOPS, TRAVEL, WASH, WIDTH } from './world.mjs';
+import { makePixelart } from './pixelart.mjs';
 
 export const PALETTES = [
   ['#fbc55d', '#a96136', '#ffd0a0', '#583a51'],
@@ -444,6 +445,7 @@ function road(g, t) {
 export function makeRenderer(canvas) {
   const g = canvas.getContext('2d', { alpha: false });
   g.imageSmoothingEnabled = false;
+  const pixelart = makePixelart(g, PALETTES);
   const maps = STOPS.map((_, index) => makeMap(index));
   const rng = random(154);
   const drops = Array.from({ length: 185 }, () => [rng() * WIDTH, rng() * HEIGHT, 70 + rng() * 130, 4 + rng() * 8]);
@@ -452,6 +454,10 @@ export function makeRenderer(canvas) {
     const t = reduced.matches ? 0 : time;
     const travelling = world.phase === 'travel';
     const offset = travelling ? 60 + Math.min(1, world.trip / TRAVEL) * 232 : 0;
+    if (world.stop === 0 && pixelart.ready()) {
+      if (travelling) road(g, world.trip);
+      pixelart.draw(world, id, t, offset - (travelling ? 60 : 0));
+    } else {
     if (travelling) road(g, world.trip);
     else g.drawImage(maps[world.stop], 0, 0);
     if (!travelling && STOPS[world.stop].wash) {
@@ -478,13 +484,19 @@ export function makeRenderer(canvas) {
     }
     for (const p of Object.values(world.players).filter(p => p.inside)) actor(g, { ...p, x: p.x + offset }, t, false, p.id === id);
     for (const { p, zombie } of actors.filter(({ p }) => p.y >= BUS.y + BUS.h)) actor(g, p, t, zombie, p.id === id);
+    }
     for (const shot of world.shots) {
+      if (travelling) break;
       g.strokeStyle = '#ffdc8bd4';
       g.beginPath();
       g.moveTo(shot.x, shot.y);
       g.lineTo(shot.tx, shot.ty);
       g.stroke();
-      glow(g, shot.x, shot.y, 18, '#ffe399a0');
+      const angle = Math.atan2(shot.ty - shot.y, shot.tx - shot.x);
+      const flashX = shot.x + Math.cos(angle) * 15;
+      const flashY = shot.y + Math.sin(angle) * 15;
+      glow(g, flashX, flashY, 20, '#ffe399a0');
+      rect(g, '#fff5cc', flashX - 2, flashY - 2, 5, 5);
     }
     if (!reduced.matches) {
       for (const [x, y, speed, length] of drops) {

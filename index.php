@@ -28,11 +28,11 @@ if (!in_array('speed', array_column($apps,'slug'), true)) {
     ];
 }
 $apps[]=[
-    'is_html'=>true,'name'=>'ZomBUS!!!',
+    'is_html'=>true,'name'=>'ZomBUS',
     'short_description'=>'Sammelt Vorräte, haltet Zombies auf und bringt die Nachtlinie 13 zur Endstation. Koop für bis zu vier Fahrgäste.',
     'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
     'play_url'=>'','apple_url'=>'','slug'=>'zombiebus',
-    'preview_image'=>'assets/zombiebus-vorschau.webp','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
+    'preview_image'=>'zombiebus/assets/pixelart/preview.png','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
 ];
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
@@ -169,6 +169,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn','zombiebus'],true)?' project-preview-wide':''):''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
+              <?php if($app['slug']==='zombiebus'): ?><span class="zombiebus-tile-title" aria-hidden="true">Zom<b>BUS</b></span><?php endif; ?>
             <?php elseif(!empty($app['is_html'])): ?>
               <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
             <?php else: ?>

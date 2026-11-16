@@ -1,8 +1,11 @@
 import { randomBytes } from 'node:crypto';
-import { BUS, DOOR, FARE, HEIGHT, SEAT, STOPS, TRAVEL, WASH, WIDTH, blocked, clamp, distance, interaction } from '../../zombiebus/world.mjs';
+import { FARE, HEIGHT, STOPS, TRAVEL, WASH, WIDTH, blocked, clamp, distance, interaction, layout } from '../../zombiebus/world.mjs';
 
 export const MAX_CREW = 4;
-const entry = { x: 317, y: 294 };
+export function placeRider(world, player, slot = 0) {
+  const { entry, cabin } = layout(world.stop);
+  Object.assign(player, entry, { x: Math.max(cabin.left, entry.x - slot * 17), inside: true, moving: false });
+}
 
 export function createWorld({ stop = 0, fuel = 16, kills = 0, cargo = {}, phase = 'stop' } = {}) {
   return {
@@ -16,9 +19,10 @@ export function addPlayer(world, name) {
   const id = randomBytes(8).toString('hex');
   const palette = [0, 1, 2, 3].find(color => !Object.values(world.players).some(p => p.color === color));
   world.players[id] = {
-    id, name, color: palette, ...entry, x: entry.x - palette * 17, angle: 0, inside: true, hp: 3, ammo: 18,
+    id, name, color: palette, angle: 0, hp: 3, ammo: 18,
     cargo: null, cooldown: 0, hurt: 0, moving: false
   };
+  placeRider(world, world.players[id], palette);
   return world.players[id];
 }
 
@@ -38,16 +42,17 @@ export function removePlayer(world, id) {
 
 export function use(world, player) {
   const target = interaction(world, player);
+  const { door, seat } = layout(world.stop);
   switch (target?.action) {
     case 'seat':
       world.driver = player.id;
-      Object.assign(player, SEAT);
+      Object.assign(player, seat);
       break;
     case 'exit':
-      Object.assign(player, { x: DOOR.x, y: DOOR.y + 14, inside: false });
+      Object.assign(player, { x: door.x, y: door.y + 14, inside: false, moving: false });
       break;
     case 'board':
-      Object.assign(player, entry, { inside: true });
+      placeRider(world, player);
       break;
     case 'deliver': {
       const kind = player.cargo;
@@ -68,7 +73,7 @@ export function use(world, player) {
       break;
     case 'wash':
       world.wash = world.wash > 0 ? 0 : 18;
-      if (world.wash && !world.zombies.some(z => distance(z, WASH) < 120) && world.zombies.length < 28) {
+      if (world.wash && !world.zombies.some(z => distance(z, WASH) < 46)) {
         spawn(world, WASH.x, WASH.y + 30);
       }
       break;
@@ -108,8 +113,9 @@ function movePlayer(world, p, input, dt) {
     const dx = input.dx / length * speed * dt;
     const dy = input.dy / length * speed * dt;
     if (p.inside) {
-      p.x = clamp(p.x + dx, BUS.x + 16, BUS.x + BUS.w - 13);
-      p.y = clamp(p.y + dy, BUS.y + 21, BUS.y + BUS.h - 5);
+      const { cabin } = layout(world.stop);
+      p.x = clamp(p.x + dx, cabin.left, cabin.right);
+      p.y = clamp(p.y + dy, cabin.top, cabin.bottom);
     } else {
       moveOutside(world, p, dx, dy);
     }
@@ -141,11 +147,11 @@ function shoot(world, player) {
     hit.flash = 0.15;
     if (hit.hp === 0) world.kills++;
   }
-  world.shots.push({ x: player.x, y: player.y - 7, tx: player.x + dx * range, ty: player.y + dy * range - 7, life: 0.11 });
+  world.shots.push({ owner: player.id, time: world.age, x: player.x, y: player.y - 7, tx: player.x + dx * range, ty: player.y + dy * range - 7, life: 0.11 });
 }
 
 function spawn(world, x, y) {
-  const points = [[788, 216], [773, 420], [27, 416], [313, 56], [10, 193]];
+  const points = [[788, 216], [773, 420], [27, 428], [313, 56], [10, 193]];
   const [px, py] = points[Math.floor(Math.random() * points.length)];
   world.zombies.push({
     id: randomBytes(4).toString('hex'), x: x ?? px, y: y ?? py, hp: 2,
@@ -161,17 +167,18 @@ export function seedHorde(world) {
 
 function stepZombie(world, z, outside, dt) {
   z.flash = Math.max(0, z.flash - dt);
-  if (world.wash > 0 && distance(z, WASH) < 60) {
+  if (world.wash > 0 && (z.spinning || distance(z, WASH) < 46)) {
     const a = world.age * 5 + (Number.parseInt(z.id.slice(0, 3), 16) / 100);
-    z.x = WASH.x + Math.cos(a) * 26;
-    z.y = WASH.y + Math.sin(a) * 17;
+    z.x = WASH.x + Math.cos(a) * 8;
+    z.y = WASH.y + Math.sin(a) * 12;
     z.angle = a;
     z.spinning = true;
     return;
   }
   z.spinning = false;
+  const { door } = layout(world.stop);
   const closest = outside.reduce((near, p) => !near || distance(z, p) < distance(z, near) ? p : near, null);
-  const target = closest && distance(z, closest) < 230 ? closest : { x: DOOR.x + 4, y: DOOR.y + 34 };
+  const target = closest && distance(z, closest) < 230 ? closest : { x: door.x + 4, y: door.y + 34 };
   const d = distance(z, target);
   z.angle = Math.atan2(target.y - z.y, target.x - z.x);
   z.moving = d > 8;
@@ -186,7 +193,7 @@ function stepZombie(world, z, outside, dt) {
     const y = z.y;
     moveOutside(world, z, Math.cos(angle) * z.speed * dt, Math.sin(angle) * z.speed * dt);
     if (distance(z, { x, y }) < 0.1) {
-      const detourY = y < BUS.y + BUS.h / 2 ? y - 20 : y + 20;
+      const detourY = y < door.y - 28 ? y - 20 : y + 20;
       moveOutside(world, z, Math.sign(target.x - x) * z.speed * dt, Math.sign(detourY - y) * z.speed * dt);
     }
   }
@@ -195,7 +202,8 @@ function stepZombie(world, z, outside, dt) {
   closest.hurt = 1.35;
   if (closest.hp > 0) return;
   drop(world, closest);
-  Object.assign(closest, entry, { inside: true, hp: 3, ammo: Math.max(8, closest.ammo) });
+  placeRider(world, closest);
+  Object.assign(closest, { hp: 3, ammo: Math.max(8, closest.ammo) });
 }
 
 export function tick(world, inputs, dt) {
@@ -210,7 +218,7 @@ export function tick(world, inputs, dt) {
         phase: stop === STOPS.length - 1 ? 'complete' : 'stop'
       }), { players });
       for (const [i, player] of Object.values(players).entries()) {
-        Object.assign(player, entry, { x: entry.x - i * 19, moving: false });
+        placeRider(world, player, i);
       }
       seedHorde(world);
     }

@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { WebSocket, WebSocketServer } from 'ws';
-import { addPlayer, createWorld, depart, MAX_CREW, removePlayer, seedHorde, stand, tick, use } from './simulation.mjs';
+import { addPlayer, createWorld, depart, MAX_CREW, placeRider, removePlayer, seedHorde, stand, tick, use } from './simulation.mjs';
 
 const data = resolve(process.env.ZOMBIEBUS_DATA || 'runtime/zombiebus');
 const origins = new Set((process.env.ZOMBIEBUS_ORIGINS || 'https://geringdigital.de,https://www.geringdigital.de').split(',').map(s => s.trim()));
@@ -92,6 +92,9 @@ function join(ws, msg) {
     return fail('Der gespeicherte Bus ist gerade nicht verfügbar.');
   }
   const previous = [...room.clients.values()].find(peer => peer.tab === msg.tab);
+  if (!previous && Object.values(room.world.players).some(player => player.name === name)) {
+    return fail('Dieser Name ist bereits an Bord. Nach einem Funkloch ist der Platz nach wenigen Sekunden wieder frei.');
+  }
   if (previous) {
     leave(previous);
     previous.close(4001, 'Replaced');
@@ -157,7 +160,8 @@ sockets.on('connection', ws => {
       Object.assign(world, createWorld(), { players: world.players });
       seedHorde(world);
       for (const rider of Object.values(world.players)) {
-        Object.assign(rider, { x: 317, y: 294, hp: 3, ammo: 18, hurt: 0, cargo: null });
+        placeRider(world, rider, rider.color);
+        Object.assign(rider, { hp: 3, ammo: 18, hurt: 0, cargo: null });
       }
     }
     broadcast(ws.room);

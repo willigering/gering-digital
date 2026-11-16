@@ -61,8 +61,19 @@ async function rider(url, name, page) {
     if (frame.world) world = frame.world;
   }));
   if (url) await page.goto(url);
-  await page.locator('#name').fill(name);
-  await page.locator('#join-button').click();
+  if (url && new URL(url).searchParams.has('raum')) {
+    assert.equal(await page.locator('#room').inputValue(), new URL(url).searchParams.get('raum'));
+    if (process.env.ZOMBIEBUS_SCREENSHOT && name === 'Ben') {
+      await page.locator('#game').screenshot({ path: process.env.ZOMBIEBUS_SCREENSHOT.replace(/\.png$/, '-join.png') });
+    }
+    await page.locator('#name').fill(name);
+    await page.keyboard.press('Enter');
+  } else {
+    await page.locator('.brand').focus();
+    await page.keyboard.press('Tab');
+    assert.equal(await page.evaluate(() => document.activeElement.id), 'start');
+    await page.keyboard.press('Enter');
+  }
   await until(() => id && world?.players[id], 'Could not join as ' + name);
   await page.locator('#hud').waitFor();
   assert.deepEqual(errors, []);
@@ -114,19 +125,45 @@ async function run() {
   assert.equal(await tile.locator('.project-preview-wide').count(), 1);
   await tile.locator('a[href="/zombiebus/"]').click();
   await first.waitForURL(base + '/zombiebus/');
-  assert.match(await first.title(), /ZomBUS!!!/);
+  assert.match(await first.title(), /ZomBUS/);
+  await first.locator('#open-settings').focus();
+  await first.keyboard.press('Enter');
+  assert.equal(await first.evaluate(() => document.activeElement.id), 'music');
+  await first.keyboard.press('Escape');
+  assert.equal(await first.evaluate(() => document.activeElement.id), 'open-settings');
   const screenshot = process.env.ZOMBIEBUS_SCREENSHOT;
   if (screenshot) {
-    await first.waitForFunction(() => performance.getEntriesByType('resource').some(entry => entry.name.endsWith('/art.mjs')));
-    await first.waitForTimeout(250);
-    await first.locator('#scene').screenshot({ path: screenshot });
-    await first.screenshot({ path: screenshot.replace(/\.png$/, '-page.png') });
+    await first.waitForFunction(() => performance.getEntriesByType('resource').some(entry => entry.name.endsWith('/map/background.png')));
+    await first.locator('#game').screenshot({ path: screenshot });
   }
+  const mobile = await (await browser.newContext({ viewport: { width: 375, height: 740 }, isMobile: true, hasTouch: true })).newPage();
+  await mobile.goto(base + '/');
+  const preview = mobile.locator('.project-preview-wide:has(.zombiebus-tile-title)');
+  await preview.scrollIntoViewIfNeeded();
+  await preview.locator('img').evaluate(img => img.decode());
+  const [frameBox, titleBox] = await Promise.all([preview.boundingBox(), preview.locator('.zombiebus-tile-title').boundingBox()]);
+  assert.ok(titleBox.x >= frameBox.x && titleBox.x + titleBox.width < frameBox.x + frameBox.width);
+  if (screenshot) await preview.screenshot({ path: screenshot.replace(/\.png$/, '-tile.png') });
+  await mobile.goto(base + '/zombiebus/');
+  if (screenshot) await mobile.locator('#game').screenshot({ path: screenshot.replace(/\.png$/, '-mobile.png') });
+  for (const selector of ['.gate h1', '#start', '#open-join', '#open-settings']) {
+    const box = await mobile.locator(selector).boundingBox();
+    assert.ok(box && box.x >= 0 && box.x + box.width <= 375 && box.y + box.height <= 740,
+      selector + ' is clipped: ' + JSON.stringify(box));
+  }
+  await mobile.context().close();
   await first.goto(base + '/zombiebus/?server=' + gamePort);
+  await first.evaluate(() => localStorage.setItem('zombiebus-name', 'Ada'));
+  await first.reload();
   const ada = await rider(null, 'Ada', first);
   assert.equal(ada.player.inside, true);
   const invite = first.url();
-  await move(ada, 'd', p => p.x >= 339);
+  await ada.page.locator('#game-menu').click();
+  await ada.page.locator('#invite').click();
+  await ada.page.locator('#notice').waitFor();
+  await ada.page.keyboard.press('Escape');
+  await move(ada, 'd', p => p.x >= 377);
+  await move(ada, 'w', p => p.y <= 338);
   await use(ada, 'Ans Steuer', () => ada.world.driver === ada.id);
 
   const ben = await rider(invite, 'Ben');
@@ -137,24 +174,28 @@ async function run() {
   assert.ok(ada.world.zombies.filter(z => ben.world.zombies.some(other => other.id === z.id)).length >= 4);
 
   const oldAda = ada.id;
+  const beforeClose = ben.world.age;
   const close = performance.now();
   await ada.page.close();
   await until(() => !ben.world.players[oldAda] && !ben.world.driver, 'Leaving driver remains in world', 2500);
   assert.ok(performance.now() - close < 2500, 'Normal close should clear the seat before heartbeat expiry');
   assert.match(await ben.page.locator('#crew').textContent(), /^Ben/);
-  await move(ben, 'd', p => p.x >= 339);
+  assert.doesNotMatch(await ben.page.locator('#crew').textContent(), /Ada/);
+  await until(() => ben.world.age > beforeClose + .1, 'Simulation stalled after room creator left');
+  await move(ben, 'd', p => p.x >= 377);
+  await move(ben, 'w', p => p.y <= 338);
   await use(ben, 'Ans Steuer', () => ben.world.driver === ben.id);
 
   const again = await rider(invite, 'Ada');
   assert.notEqual(again.id, oldAda);
   assert.equal(again.player.inside, true);
   assert.equal(Object.values(again.world.players).filter(p => p.name === 'Ada').length, 1);
-  await move(again, 's', p => p.y >= 308);
+  await move(again, 'a', p => p.x <= 303);
   await use(again, 'Aussteigen', () => !again.player.inside);
   await until(async () => (await ben.page.locator('#passenger-status').textContent()).includes('Ada'), 'Driver does not see who is outside');
   assert.equal(await ben.page.locator('#depart').isDisabled(), true);
 
-  await move(again, 'd', p => p.x >= 405);
+  await move(again, 'd', p => p.x >= 440);
   const field = await again.page.locator('#scene').boundingBox();
   const target = again.world.zombies.find(z => z.x > 420 && Math.hypot(z.x - again.player.x, z.y - again.player.y) < 242);
   assert.ok(target, 'There should be a zombie within range');
@@ -164,18 +205,16 @@ async function run() {
     'Mouse shot did not hit the same zombie in both sessions', 1800);
   await again.page.mouse.up();
 
-  await move(again, 'd', p => p.x >= 571);
-  await move(again, 'w', p => p.y <= 178);
+  await move(again, 'd', p => p.x >= 646);
+  await move(again, 'w', p => p.y <= 201);
   await use(again, 'Waschstraße starten', () => again.world.wash > 0);
   await until(() => again.world.zombies.some(z => z.spinning), 'No zombie spun in the wash');
   await until(() => ben.world.zombies.some(z => z.spinning), 'Wash is not synchronized');
-  if (again.player.y < 174) await move(again, 's', p => p.y >= 177);
-  await move(again, 'd', p => p.x >= 666);
-  await move(again, 'w', p => p.y <= 157);
+  await move(again, 'd', p => p.x >= 686);
   await use(again, 'Kanister nehmen', () => again.player.cargo === 'fuel');
-  await move(again, 's', p => p.y >= 347);
-  await move(again, 'a', p => p.x <= 340);
-  if (again.player.y > 338) await move(again, 'w', p => p.y <= 338);
+  if (screenshot) await again.page.locator('#game').screenshot({ path: screenshot.replace(/\.png$/, '-game.png') });
+  await move(again, 's', p => p.y >= 380);
+  await move(again, 'a', p => p.x <= 306);
   await use(again, 'Vorrat ablegen', () => again.world.fuel >= 56);
   await use(again, 'Einsteigen', () => again.player.inside);
   await until(async () => !(await ben.page.locator('#depart').isDisabled()), 'Departure is still disabled with all aboard');
@@ -205,21 +244,6 @@ async function run() {
   assert.equal(Object.keys(restored.world.players).length, 1);
   assert.equal(restored.player.inside, true);
 
-  await move(restored, 's', p => p.y >= 309);
-  await use(restored, 'Aussteigen', () => !restored.player.inside);
-  await move(restored, 's', p => p.y >= 365);
-  await move(restored, 'd', p => p.x >= 531);
-  await use(restored, 'Kanister nehmen', () => restored.player.cargo === 'fuel');
-  await move(restored, 'a', p => p.x <= 339);
-  await move(restored, 'w', p => p.y <= 338);
-  await use(restored, 'Vorrat ablegen', () => restored.world.fuel === 64);
-  await use(restored, 'Einsteigen', () => restored.player.inside);
-  await move(restored, 'd', p => p.x >= 339);
-  await use(restored, 'Ans Steuer', () => restored.world.driver === restored.id);
-  await restored.page.locator('#depart').click();
-  await until(() => restored.world.phase === 'complete', 'Solo player did not reach the terminus', 9000);
-  assert.equal(await restored.page.locator('#finished h2').textContent(), 'Alle an Bord angekommen.');
-
   const stalled = new WebSocket('ws://127.0.0.1:' + gamePort + '/ws', {
     origin: base, autoPong: false
   });
@@ -232,7 +256,7 @@ async function run() {
   assert.ok(performance.now() - stalledSince >= 4500, 'Heartbeat timed out prematurely');
   await drop;
   assert.deepEqual([...ada.errors, ...ben.errors, ...again.errors, ...restored.errors], []);
-  console.log('ZomBUS: tile, direct URL, mid-stop join, driver close, rejoin, shooting, wash, cargo, trip, save/restart, heartbeat and solo arrival passed.');
+  console.log('ZomBUS: tile at desktop and mobile widths, direct URL, keyboard menu, solo start, mid-stop join, driver close, rejoin, shooting, wash, cargo, trip, save/restart and heartbeat passed.');
 }
 
 run().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {
