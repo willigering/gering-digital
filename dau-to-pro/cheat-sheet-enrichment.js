@@ -1,6 +1,62 @@
 /* Vertiefung zu allen elf Fachthemen: zusätzliche Fachabschnitte und praxisnahe Prüfungsaufgaben.
    Bleibt jeweils Bestandteil desselben Spickzettels, keine Unterkarten. */
 globalThis.DTP_CHEAT_ENRICHMENT={
+datenbanken: {
+  "sections": [
+    [
+      "ACID",
+      "Welche Eigenschaften eine Transaktion schützen.",
+      "Atomarität::Eine Transaktion wirkt ganz oder gar nicht.|Konsistenz::Regeln bleiben bei erfolgreicher Übernahme gewahrt.|Isolation::Sichtbarkeit konkurrierender Vorgänge folgt dem Isolationsniveau.|Dauerhaftigkeit::Bestätigte Änderungen überstehen erwartete Ausfälle gemäß Konfiguration.",
+      "BETRIEB"
+    ],
+    [
+      "Betriebsformen",
+      "Modell und Betrieb einzeln auswählen.",
+      "Eingebettet::Engine läuft in der Anwendung.|Client–Server::Anwendungen fragen einen separaten Dienst an.|Managed::Der Anbieter übernimmt vereinbarte Betriebsaufgaben.|Selbst betrieben::Das Team kümmert sich selbst um Service, Updates und Backups.",
+      "BETRIEB"
+    ],
+    [
+      "Wiederherstellung",
+      "Welche Wiederanlaufstrategie zum Ausfall passt.",
+      "Restore-Test::Backup in sichere Umgebung zurückspielen und Daten prüfen.|PITR::Stand zum Zielzeitpunkt aus Basis-Backup und lückenlosen Logs herstellen, sofern vorbereitet.|Replik::Unterstützt Verfügbarkeit. Fehlerhafte Änderungen können mitkopiert werden.",
+      "BETRIEB"
+    ]
+  ],
+  "questions": [
+    [
+      "Was bedeutet Atomarität bei zwei Änderungen in derselben Transaktion?",
+      "Beide werden gemeinsam übernommen oder gemeinsam verworfen."
+    ],
+    [
+      "Ist ein COMMIT mit anschließendem ROLLBACK derselben Transaktion rückgängig zu machen?",
+      "Nein. COMMIT hat die Transaktion bereits beendet."
+    ],
+    [
+      "Welche Suchinformation liefert EXPLAIN in PostgreSQL?",
+      "Den Ausführungsplan, etwa Scan- und Join-Strategien."
+    ],
+    [
+      "Wozu parametrisierst du SQL-Abfragen in Anwendungen?",
+      "Benutzereingaben werden als Datenwerte gebunden. Die SQL-Struktur bleibt vorgegeben."
+    ],
+    [
+      "Wie unterscheiden sich Basis-Backup und Transaktionslog bei PITR?",
+      "Das Backup liefert den Ausgangsstand. Die Logs liefern die Änderungen bis zum Ziel."
+    ],
+    [
+      "Was ist der Unterschied zwischen eingebettetem SQLite und einem typischen PostgreSQL-Dienst?",
+      "SQLite läuft im Anwendungsprozess. PostgreSQL läuft typischerweise als getrennter Datenbankdienst."
+    ],
+    [
+      "Wie bereitest du eine neue NOT-NULL-Spalte für vorhandene Ticketzeilen vor?",
+      "Werte für Altzeilen über einen passenden Default oder eine Migration bereitstellen und die Daten vor der Prüfung kontrollieren."
+    ],
+    [
+      "Wie unterscheidet sich eine Wide-Column-Datenbank von einem spaltenorientierten Analysesystem?",
+      "Wide-Column organisiert Daten über Zeilenschlüssel und Spaltenfamilien. Spaltenorientierte Analyse optimiert die Ablage und Verarbeitung nach Spalten."
+    ]
+  ]
+},
   "zahlen": {
     "sections": [
       [

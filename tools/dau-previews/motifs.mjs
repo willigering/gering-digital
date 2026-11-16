@@ -491,7 +491,25 @@ function csharp(id) {
   <text x="640" y="630" text-anchor="middle" font-family="${SANS}" font-size="44" font-weight="900" fill="${GOLD_LITE}">COMPILER SAGT NEIN.</text>`;
 }
 
+function datenbanken(id) {
+  const table = (x, title, rows) => `
+    <g transform="translate(${x} 225)" font-family="${MONO}" font-weight="800">
+      <rect width="330" height="240" rx="10" fill="#10192b" stroke="${CYAN}" stroke-width="4"/>
+      <path d="M0 66H330M0 124H330M0 182H330M108 66V240" stroke="${CYAN}" opacity=".42" stroke-width="2"/>
+      <text x="165" y="45" text-anchor="middle" font-size="34" fill="${GOLD_LITE}">${title}</text>
+      ${rows.map(([key,label],i)=>`<text x="53" y="${103+i*58}" text-anchor="middle" font-size="28" fill="${GOLD_LITE}">${key}</text><text x="126" y="${103+i*58}" font-size="25" fill="${CREAM}">${label}</text>`).join('')}
+    </g>`;
+  return `
+    <text x="640" y="110" text-anchor="middle" font-family="${SANS}" font-size="40" font-weight="900" letter-spacing="4" fill="${CYAN}">DATENBANKEN &amp; SQL</text>
+    ${table(200,'TEAM', [['ID','NAME'],['10','NETZWERK'],['20','CLIENTS']])}
+    ${table(750,'TICKET', [['TEAM','TITEL'],['10','WLAN'],['10','SWITCH']])}
+    <path d="M530 374H625V374H750M625 374V432H750" fill="none" stroke="${GOLD}" stroke-width="5"/>
+    <circle cx="625" cy="374" r="8" fill="${GOLD_LITE}"/>
+    <text x="640" y="605" text-anchor="middle" font-family="${SANS}" font-size="50" font-weight="900" fill="${GOLD_LITE}">SELECT * FROM DURCHBLICK</text>`;
+}
+
 export const motifs = [
+  { id: 'datenbanken-sql', accent: '#89b4fa', label: 'Datenbanken & SQL', draw: datenbanken, seed: 47, glowX: 640, glowY: 385 },
   { id: 'unternehmen', accent: '#ff9a3c', label: 'Unternehmensformen & Märkte', draw: unternehmen, seed: 43, glowX: 640, glowY: 380 },
   { id: 'csharp', accent: '#b794ff', label: 'Programmieren mit C#', draw: csharp, seed: 37, glowX: 640, glowY: 360 },
   { id: 'kalkulation', accent: '#f6c177', label: 'Kalkulation & Beschaffung', draw: kalkulation, seed: 31, glowX: 640, glowY: 360 },

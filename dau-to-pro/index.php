@@ -239,6 +239,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <p class="bonus-note">Finde den Fehler prüft C# im Browser. XP wird in dieser Fassung nicht gebucht.</p>
 </section>
  <?php $cheatTopics=[
+  ['datenbanken','Datenbanken & SQL','Schlüssel, JOINs und Normalformen','SQL','#89b4fa'],
   ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
   ['osi','OSI-Modell','Schichten, Protokolle und Kapselung','07','#6cdad4'],
   ['subnet','Subnetting','CIDR, Netz-ID, Hosts und VLSM','/24','#89df8a'],
@@ -274,7 +275,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </div>
   <div class="cheat-cta-row">
     <p>Jeder Spickzettel enthält Fachwissen, Rechenwege, typische Prüfungsfragen und Denkfallen.</p>
-    <a class="cheat-all" href="cheat-sheet.html">ALLE ZWÖLF SPICKZETTEL ↗</a>
+    <a class="cheat-all" href="cheat-sheet.html">ALLE SPICKZETTEL ↗</a>
   </div>
   </div><!-- /.cheat-stack-frame -->
   <div class="cheat-stack-runway" aria-hidden="true"></div>

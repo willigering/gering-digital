@@ -2,6 +2,40 @@
    Zusammen mit acht vorhandenen Abschnittsfragen: exakt 40 pro Thema.
    Eigenständige Übungsaufgaben, keine echten Prüfungsaufgaben. */
 globalThis.DTP_CHEAT_EXTRAS={
+datenbanken: `
+Welche Datenstruktur modellierte IMS für Stücklisten?¦Einen hierarchischen Baum.
+Wer veröffentlichte das relationale Modell im Jahr 1970?¦Edgar F. Codd.
+Welche Idee erprobte IBM mit System R?¦Ein praktisches relationales DBMS mit deklarativen Abfragen.
+Was bedeutet OLTP?¦Online Transaction Processing: Verarbeitung vieler kurzer operativer Transaktionen.
+Wofür steht OLAP?¦Online Analytical Processing: analytische Auswertungen.
+Wofür kann Redis bei wiederholt berechneten Ergebnissen eingesetzt werden?¦Als Cache mit Zugriff per Schlüssel.
+Was bildet bei Neo4j die Verbindung zwischen zwei Knoten?¦Eine gerichtete Beziehung, auch Kante genannt.
+Warum ist die Stack-Overflow-Umfrage keine Marktanteilsstatistik?¦Sie zählt Antworten der Befragten. Mehrfachnennungen sind möglich.
+Kann in einem Primärschlüssel eine seiner Spalten NULL sein?¦Nein. Alle beteiligten Spalten müssen einen Wert haben.
+Was erzwingt NOT NULL auf einer Ticket-Spalte?¦Jeder Datensatz braucht für diese Spalte einen Wert.
+Was verhindert der Fremdschlüssel bei team_id = 99, wenn kein Team 99 existiert?¦Die Speicherung dieses ungültigen Verweises.
+Wo steht der Fremdschlüssel, wenn ein Team viele Tickets hat?¦In ticket, der Tabelle auf der n-Seite.
+Was bedeutet 0..n am Ticket-Ende der Beziehung Team–Ticket?¦Ein Team kann kein, ein oder mehrere Tickets haben.
+Was ist die Kombination aus ticket_id und tag_id als Schlüssel?¦Ein zusammengesetzter Primärschlüssel, wenn sie als solcher definiert ist.
+Welche Normalform ist bei durch Komma getrennten Tag-IDs in einer Zelle verletzt?¦1NF im Modell, in dem Tags einzeln bearbeitet werden.
+Warum gehört der Betreff bei einer Ticket-Tag-Tabelle mit zusammengesetztem Schlüssel in ticket?¦Er hängt nur von ticket_id ab.
+Welche Anomalie entsteht bei mehrfach gespeichertem Teamnamen und unvollständiger Umbenennung?¦Änderungsanomalie: Alte und neue Namen stehen gleichzeitig im Bestand.
+Was bringt SELECT * in einer Abfrage zurück?¦Alle Ausgabespalten der angegebenen Quelle.
+Wie sortierst du Minuten von groß nach klein?¦ORDER BY minuten DESC.
+Wie machst du die Reihenfolge bei gleichen Minuten eindeutig?¦Ergänze einen eindeutigen Tie-Breaker, etwa ORDER BY minuten DESC, id ASC.
+Wie viele Werte zählt COUNT(minuten) für 0, 10 und NULL?¦Zwei. 0 ist ein vorhandener Wert.
+Was liefert AVG(minuten) für 10, 30 und NULL?¦20. NULL wird ausgelassen.
+Wann kommt WHERE vor GROUP BY zum Einsatz?¦Wenn Einzelzeilen vor dem Gruppieren eingeschränkt werden sollen.
+Wie wählst du Gruppen mit mehr als drei Zeilen?¦HAVING COUNT(*) > 3.
+Wie viele Zeilen zeigt ein INNER JOIN für ein Team mit zwei passenden Tickets?¦Zwei, je eine pro passendem Paar.
+Welche Werte haben rechte Spalten im LEFT JOIN ohne Treffer?¦NULL.
+Wohin kommt der Filter für offene rechte Tickets, wenn alle linken Teams erhalten bleiben sollen?¦In die ON-Bedingung des LEFT JOIN.
+Welcher Befehl trägt ein neues Ticket ein?¦INSERT.
+Welcher Befehl ändert eine Spaltendefinition einer bestehenden Tabelle?¦ALTER TABLE mit passender Änderungsklausel.
+Welcher Befehl verwirft Änderungen einer noch offenen Transaktion?¦ROLLBACK.
+Was kann ein Index beim Schreiben kosten?¦Zusätzlichen Speicher und Pflegeaufwand bei Änderungen.
+Welches Recht soll eine reine Berichtsrolle auf ticket bekommen?¦SELECT, sofern sie die ganze Tabelle lesen darf.
+`,
 zahlen: `
 Wie viele Bit sind 5 Byte?¦40 Bit.
 Wieviele Byte enthalten 2.048 Bit?¦256 Byte.

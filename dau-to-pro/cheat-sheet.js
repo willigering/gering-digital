@@ -1,4 +1,4 @@
-/* DAU TO PRO – Zwölf THEMEN-Spickzettel, keine 88 Einzelkarten. */
+/* DAU TO PRO – Themen-Spickzettel. */
 (()=>{
   "use strict";
   const groups=globalThis.DTP_CHEAT_GROUPS||[];
@@ -24,6 +24,7 @@
     datenschutz:"DSGVO, Rechtsgrundlagen und TOM",
     rechnung:"Rabatt, Skonto, TCO und Break-even",
     csharp:"Datentypen, Bedingungen und Schleifen",
+    datenbanken:"Schlüssel, JOINs und Normalformen",
     mix:"Hardware, RAID, SQL und Projektplanung",
     support:"Ticketarten, Service Desk, SLA, Eskalation und ITSM"
   };
@@ -40,7 +41,7 @@
     zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
     netzwerk:"cables",ipv6:"circuit-copper",dienste:"network-ports",
     sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
-    csharp:"circuit",mix:"hardware-connectors",support:"server"
+    csharp:"circuit",datenbanken:"server",mix:"hardware-connectors",support:"server"
   };
   const reducedMotion=matchMedia("(prefers-reduced-motion:reduce)");
   const parallaxAllowed=()=>!reducedMotion.matches;

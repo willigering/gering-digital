@@ -2,6 +2,14 @@
   "info": "Mitgelieferte DAU-TO-PRO-Lernmodule. Werden nach vollständigem GitHub-Deployment automatisch veröffentlicht. Admin bleibt für manuelle Änderungen verfügbar. preview = Motiv-ID aus assets/dau-previews/manifest.json.",
   "modules": [
     {
+      "slug": "e2-sql",
+      "preview": "datenbanken-sql",
+      "file": "e2-sql.html",
+      "subject": "Datenbanken & SQL",
+      "title": "SELECT * FROM Durchblick",
+      "description": "Modelliere den Helpdesk, filtere Tickets mit SQL und finde heraus, warum ein DELETE ohne WHERE den Nachmittag ruiniert."
+    },
+    {
       "slug": "a1-zahlensysteme",
       "preview": "zahlensysteme",
       "file": "a1-zahlensysteme.html",
