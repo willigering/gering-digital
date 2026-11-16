@@ -123,6 +123,28 @@ match=[
 ]
 match_js=between((TOOLS/'f2-match.js').read_text(),'const MATCH_BANK=','function matchNew()', 'const MATCH_BANK='+json.dumps(match,ensure_ascii=False)+';')
 html=between(html,'let match=[],','/* ================= Prüfungsmodus',match_js)
+er_slots = [('entity','Entität links'),('relation','Beziehung'),('entity','Entität rechts'),
+            ('key','Schlüssel links'),('key','Schlüssel rechts'),('attribute','Attribut rechts')]
+er_shapes = ''.join(f'<button type="button" class="er-shape er-{shape}" data-slot="{i}"><span>{label}</span></button>'
+                    for i,(shape,label) in enumerate(er_slots))
+er_board = f'''<div id="erBox" hidden>
+  <h3>ER-Diagramm zuordnen</h3>
+  <p id="erCase"></p>
+  <p class="subtle">Wähle zuerst einen Begriff und danach seine Form. Tippe eine belegte Form ohne Auswahl an, um den Begriff zurückzulegen.</p>
+  <div id="erBank" role="group" aria-label="Begriffe"></div>
+  <div id="erBoard" role="group" aria-label="ER-Diagramm in Chen-Notation">
+    <svg viewBox="0 0 600 240" preserveAspectRatio="none" aria-hidden="true"><path d="M100 120H500M100 35V120M500 35V205"/></svg>
+    {er_shapes}
+  </div>
+  <p class="subtle">Rechteck = Entität · Raute = Beziehung · Oval = Attribut · Unterstrichen = Schlüsselattribut</p>
+  <div class="actions"><button type="button" class="btn primary" id="erCheck" disabled>Zuordnung prüfen</button><button type="button" class="btn secondary" id="erNext">Neuer Fall →</button></div>
+  <div id="erFeedback" class="result" role="status" aria-live="polite"></div>
+</div>'''
+html=sub(html,'<div id="sprintEnd"',er_board+'\n        <div id="sprintEnd"')
+html=sub(html,'<button type="button" class="mode-tile" data-mode="sprint"', '<button type="button" class="mode-tile" data-mode="er" aria-pressed="false"><span class="sym">◇</span><b>ER-Diagramm</b><span>Begriffe den Formen im Diagramm zuordnen</span></button>\n      <button type="button" class="mode-tile" data-mode="sprint"')
+html=sub(html,"$('trainTask').hidden=m==='match';","$('trainTask').hidden=m==='match'||m==='er';$('erBox').hidden=m!=='er';")
+html=sub(html,"else if(m==='match')", "else if(m==='er'){$('trainKicker').textContent='ZUORDNEN · ER-DIAGRAMM';erNew()}\n else if(m==='match')")
+html=html.replace('/* ================= Prüfungsmodus', (TOOLS/'e2-er.js').read_text()+'\n/* ================= Prüfungsmodus',1)
 html=re.sub(r"const SPRINT_SUBS=\[.*?\];","const SPRINT_SUBS=SUBS.filter(t=>['word','out','mc'].includes(t.form)).map(t=>t.id);",html)
 html=re.sub(r"\s*window\.dtpMountCalculator\?\.\([^;]*\);","",html)
 for old,new in {
@@ -182,6 +204,28 @@ style='''<style>
 .sql-lab textarea{font-family:var(--mono);background:#0b101c;color:#eee;border:1px solid var(--cyan);padding:8px;resize:vertical}
 .sql-lab .lab-out{margin-top:12px}
 .bitwall{display:block}.bitwall .t{margin-top:8px}
+#erBank{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+#erBank button{min-height:44px}
+#erBank button[aria-pressed="true"]{outline:2px solid var(--cyan);outline-offset:2px}
+#erBoard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,80px);position:relative;align-items:center;justify-items:center;background-color:#101a2c;background-image:linear-gradient(#89b4fa18 1px,transparent 1px),linear-gradient(90deg,#89b4fa18 1px,transparent 1px);background-size:16px 16px;border:1px solid #89b4fa60;border-radius:8px}
+#erBoard svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#erBoard path{fill:none;stroke:#89b4fa;stroke-width:2;vector-effect:non-scaling-stroke}
+.er-shape{position:relative;width:94%;min-height:48px;padding:3px;border:1px solid var(--cyan);background:#172641;color:#f3f6ff;font-family:inherit;font-weight:650;font-size:clamp(12px,2.6vw,15px);line-height:1.15;overflow-wrap:anywhere;cursor:pointer}
+#trainView .mode-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))}
+.er-shape:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.er-shape[data-slot="0"]{grid-area:2/1}.er-shape[data-slot="1"]{grid-area:2/2}.er-shape[data-slot="2"]{grid-area:2/3}
+.er-shape[data-slot="3"]{grid-area:1/1}.er-shape[data-slot="4"]{grid-area:1/3}.er-shape[data-slot="5"]{grid-area:3/3}
+.er-key,.er-attribute{border-radius:50%}
+.er-key span{text-decoration:underline}
+.er-relation{isolation:isolate;border:0;background:transparent;min-height:70px;padding-inline:14%}
+.er-relation:before,.er-relation:after{content:"";position:absolute;inset:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);z-index:-1;background:var(--cyan);pointer-events:none}
+.er-relation:after{inset:2px;background:#172641}
+.er-shape[data-grade="right"]{box-shadow:inset 0 0 0 2px #78dc9a}
+.er-shape[data-grade="wrong"]{box-shadow:inset 0 0 0 2px #ff879b}
+.er-relation[data-grade="right"]:before{background:#78dc9a}
+.er-relation[data-grade="wrong"]:before{background:#ff879b}
+#erFeedback li{padding:3px 0}
+
 </style>'''
 html=html.replace('</head>',style+'</head>',1)
 built = apply_theme(html)
