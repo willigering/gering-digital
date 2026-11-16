@@ -112,8 +112,8 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const rect=preview.getBoundingClientRect();
       return rect.width/rect.height;
     }));
-    assert.equal(landscape.length,3,'Rüdiger, DAU TO PRO and Perlenwahn have shared wide preview frames');
-    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All three preview frames are 16:9');
+    assert.equal(landscape.length,4,'Rüdiger, DAU TO PRO, Perlenwahn and ZomBUS have shared wide preview frames');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All four preview frames are 16:9');
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
     await page.locator('.catalog-filter[data-category="apps"]').click();
