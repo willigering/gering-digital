@@ -156,6 +156,7 @@ main,.dtp-footer{position:relative;z-index:1}
 .module-number{display:inline-grid;place-items:center;min-width:2.2em;aspect-ratio:1;border:1px solid currentColor;border-radius:50%;flex:none;font-size:11px;line-height:1}
 .module-body h2{color:var(--cream);font-size:24px;line-height:1.25;letter-spacing:-.03em;margin:12px 0}
 .module-body p{color:var(--muted);font-size:14px;line-height:1.75;margin:0 0 22px;flex:1}
+.module-body p.module-subtitle{flex:none;margin:0 0 10px;color:var(--cream);font-weight:650;line-height:1.5}
 /* NERD FM: Song auf dieser Karte freischaltbar bzw. freigeschaltet */
 .module-body p.module-song{flex:none;display:flex;align-items:baseline;gap:7px;margin:-8px 0 18px;padding:7px 11px;border:1px solid #ffb22a40;border-radius:10px;background:#ffb22a0f;color:#f2c46b;font-size:12px;line-height:1.45;font-weight:650}
 .module-body p.module-song>span{color:#ffb22a;font-size:14px}
