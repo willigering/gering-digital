@@ -66,10 +66,6 @@ let server,browser;
   await login.locator('[name="username"]').fill('RadioTest');
   await login.locator('[name="password"]').fill('Fixture-radio!982');
   await login.locator('button[type="submit"]').click();
-  const unlock=page.locator('#unterrichtszugang form:has(input[name="action"][value="material_unlock"])');
-  await unlock.locator('[name="material_password"]').fill('DAA');
-  await unlock.locator('button[type="submit"]').click();
-  await unlock.waitFor({state:'detached'});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
@@ -177,18 +173,17 @@ let server,browser;
   await page.locator('[data-module-back]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
 
-  await page.locator('#unterrichtsmaterial summary').click();
+  if (!(await page.locator('#unterrichtsmaterial').evaluate(el=>el.open))) await page.locator('#unterrichtsmaterial summary').click();
   await page.locator('#unterrichtsmaterial a[href="unterricht/csharp-aufgaben.html"]').click();
   await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-aufgaben.html');
   await learningFrame.locator('.dtp-top a[href$="#unterrichtsmaterial"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
 
-  await page.locator('#bonusmodule a.module-card').click();
-  await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-finde-den-fehler.html');
-  await learningFrame.getByRole('link',{name:/DAU TO PRO \/ BONUSMODULE/}).click();
-  await page.locator('[data-module-shell]').waitFor({state:'hidden'});
+  const workshop=page.locator('#werkstatt');
+  assert.ok(await workshop.locator('a[href="unterricht/er-diagramme-bauen.php"]').isVisible());
+  assert.match(await workshop.locator('article.is-coming-soon').innerText(), /Finde den Fehler/);
   const afterLearning=await state();
-  assert.equal(afterLearning.state,'playing','Music survives cheat sheets, classroom materials and bonus modules');
+  assert.equal(afterLearning.state,'playing','Music survives cheat sheets and classroom materials');
   assert.equal(afterLearning.track,before.track);
   assert.equal(afterLearning.contexts,1);
 
