@@ -12,19 +12,22 @@ const THEMES = [
   { item: 'snow', name: 'Eiswerk (rutschig!)', sky: ['#0b2a4a', '#7fc8f8'], far: '#24507a', near: '#163a5c', tile: '#17324f', edge: '#bff4ff', hook: '#ffe66d', ice: true, deco: 'ice', sun: '#f0fbff', fx: 'snow' },
   { item: 'lavaball', name: 'Vulkan', sky: ['#1a0505', '#d1451b'], far: '#4a1208', near: '#2e0a04', tile: '#241008', edge: '#ff7b2e', hook: '#fff3b0', deco: 'lava', sun: '#ff5a1f', fx: 'embers' },
   { rain: true, item: 'banana', name: 'Dschungel', sky: ['#062b1a', '#58a65c'], far: '#0f4a2c', near: '#0a3420', tile: '#13291a', edge: '#c6ff5e', hook: '#ffe66d', deco: 'jungle', sun: '#fff2b0', fx: 'leaves' },
-  { item: 'banana', name: 'Lagerhaus ⇄ (Wasser steigt)', sky: ['#2a160c', '#a5562a'], far: '#4f2c17', near: '#3a2012', tile: '#2b1910', edge: '#ffa53a', hook: '#ffe66d', vert: 11, deco: 'ware', sun: '#ffb04a', fx: 'dust' },
+  { off: true, item: 'banana', name: 'Lagerhaus ⇄ (Wasser steigt)', sky: ['#2a160c', '#a5562a'], far: '#4f2c17', near: '#3a2012', tile: '#2b1910', edge: '#ffa53a', hook: '#ffe66d', vert: 11, deco: 'ware', sun: '#ffb04a', fx: 'dust' },
   { item: 'jammer', name: 'Kristallmine', sky: ['#160a2e', '#7a3fb0'], far: '#2e1755', near: '#1f0f3d', tile: '#1e1038', edge: '#f39cff', hook: '#fff3b0', deco: 'crystal', sun: '#e9c8ff', fx: 'stars' },
   { item: 'banana', name: 'Seilbahn-Werft (Haken!)', sky: ['#0f2f3a', '#e0a35a'], far: '#1f4a55', near: '#15343d', tile: '#1b2e33', edge: '#ffd166', hook: '#ffffff', deco: 'rope', sun: '#ffe2a8', fx: 'flies' },
   // Breite Etagen: lange Strecke nach rechts, Kletterschacht nach oben, oben nach links. Kamera fährt mit.
   { item: 'snow', name: 'Skipiste (Rutschen!)', sky: ['#4f8fd6', '#dff1ff'], far: '#a9cbea', near: '#86aed6', tile: '#2f4d6e', edge: '#ffffff', hook: '#ffe66d', deco: 'ice', sun: '#fff6d5', fx: 'snow' },
   { item: 'lavaball', name: 'Wüste', sky: ['#2d4f7c', '#f4b46a'], far: '#c98b52', near: '#a8683a', tile: '#5a3a22', edge: '#ffd27a', hook: '#fff3d0', deco: 'desert', sun: '#ffe08a', fx: 'sand' },
-  { grav: 0.8, item: 'lavaball', name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
-  { item: 'gravity', name: 'Weltall ⇄ (wenig Schwerkraft)', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars', grav: 0.6 },
-  { grav: 0.5, item: 'gravity', name: 'Mond (halbe Schwerkraft)', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
+  { item: 'lavaball', name: 'Mars', sky: ['#1c0a08', '#b9482a'], far: '#6e2a1a', near: '#4e1c12', tile: '#3a1610', edge: '#ff8a50', hook: '#ffe2c8', deco: 'mars', sun: '#ffe0c0', fx: 'dust' },
+  { off: true, item: 'jammer', name: 'Weltall ⇄', sky: ['#03040c', '#141a3d'], far: '#262e63', near: '#151a3a', tile: '#1e2433', edge: '#8fd3ff', hook: '#ffe66d', vert: 59, cols: 110, fh: 9, rate: 0.55, deco: 'space', sun: '#c9d4ff', fx: 'stars' },
+  { item: 'jammer', name: 'Mond', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
   { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
+const VER = 83; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
 const NMAPS = THEMES.length, ROCKET_V = 1500;
-const DANCES = ['KUSSHAND', 'ZENSIERT', 'PO ZEIGEN'];
+const PLAY = THEMES.map((t, i) => t.off ? -1 : i).filter(i => i >= 0); // spielbare Strecken (die senkrechten Etagen-Strecken sind vorerst aus der Auswahl genommen)
+const randMap = () => PLAY[fl(Math.random() * PLAY.length)];
+const DANCES = ['SALTO', 'RAD', 'WINDMÜHLE', 'KOPFSTAND', 'HAMPELMANN']; // Siegertänze in der Seitenansicht (Namen werden nicht angezeigt)
 const POSES_ON = true; // Siegergesten an
 const DANCE_POSE = [6, 7, 8]; // Gesten (siehe gesture); 0–5 sind die alten Posen, derzeit aus
 const VCOLS = 50, FH = 7, VROWS = FH * 8, VFLOOR = VROWS; // Zickzack-Etagen: 50 Felder breit, 7 Reihen je Etage, Muster wiederholt sich alle 8 Etagen
@@ -118,7 +121,7 @@ const M = {
   },
   flat: (b, x, n = 20) => { if (n > 6 && b.ch(0.6)) b.s(x + b.R(2, n - 3), F - b.R(2, 4), '?'); return n; },
   hurdles: (b, x) => { let c = b.R(3, 6); const n = b.R(2, 4); for (let i = 0; i < n; i++) { const h = b.H(b.R(1, 2)), w = b.R(1, 2); b.r(x + c, F - h, w, h); if (i === 1 && b.ch(0.6)) b.s(x + c, F - h - 4, '?'); c += w + b.R(5, 9); } return c; },
-  gate: (b, x) => { const w = b.R(4, 8), h = Math.min(18, b.H(b.R(4, 7))); b.r(x + 8, F - 1 - h, w, h); b.s(x + 8 + fl(w / 2), F - h - 4, '?'); if (b.ch(0.6)) b.s(x + 9 + w + b.R(0, 2), F - 1, '>'); return 14 + w + b.R(2, 5); },
+  gate: (b, x) => { const w = b.R(4, 8), h = Math.min(18, b.H(b.R(4, 7))); b.r(x + 8, F - 2 - h, w, h); b.s(x + 8 + fl(w / 2), F - h - 5, '?'); if (b.ch(0.6)) b.s(x + 9 + w + b.R(0, 2), F - 1, '>'); return 14 + w + b.R(2, 5); },
   plateau: (b, x) => { const h = b.R(5, 7), w = b.R(8, 14); b.s(x + 2, F - 1, 'T'); b.r(x + 10, F - h, w, h); if (b.ch(0.6)) b.s(x + 12 + b.R(0, w - 4), F - h - 1, '>'); b.s(x + 10 + b.R(1, w - 2), F - h - 3, '?'); return 12 + w + b.R(3, 7); },
   hookpit: (b, x) => {
     const L = b.R(16, 24), hy = F - b.R(11, 13);
@@ -154,7 +157,7 @@ const M = {
     b.s(x + 9 + b.R(2, L - 3), F - h - 3, '?'); let c = 10; while (c < L) { if (b.ch(0.5)) b.r(x + c, F - 1, b.R(1, 3), 1, b.ch(0.5) ? '^' : '#'); c += b.R(5, 8); }
     return L + 14;
   },
-  tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.r(x + 6 + c, F - 3, 2, 2); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
+  tunnel: (b, x) => { const L = b.R(12, 22); b.r(x + 6, F - 12, L, 9); let c = 5; while (c < L - 4) { if (b.ch(0.6)) b.r(x + 6 + c, F - 1, 2, 1); c += b.R(5, 8); } b.s(x + 6 + b.R(2, L - 3), F - 2, '?'); if (b.ch(0.6)) b.s(x + 9 + L, F - 1, '>'); return L + 12; },
   big: (b, x) => { const L = b.R(18, 28), h = b.R(4, 5); b.s(x + 1, F - 1, 'T'); b.r(x + 8, F - h, L, h); const s = b.R(6, L - 6); b.r(x + 8 + s, F - h - 1, b.R(2, 4), 1, '^'); b.r(x + 12, F - 18, L - 8, 2); b.r(x + 12, F - 16, L - 8, 1, 'H'); b.s(x + 8 + b.R(2, L - 2), F - h - 3, '?'); return L + 14; },
   items: (b, x) => { const n = b.R(2, 3), cx = x + b.R(5, 10); for (let i = 0; i < n; i++) b.s(cx + b.R(-1, 1), F - 2 - i * 3, '?'); return b.R(14, 18); },
   boost: (b, x) => { const n = 1; for (let i = 0; i < n; i++) b.s(x + 3 + i * 3, F - 1, '>'); const s = 6 + n * 3, L = b.R(7, 11); b.r(x + s, F - 1, L, 1, '^'); const p = b.R(4, 6); b.r(x + s + fl(L / 2) - fl(p / 2), F - b.R(3, 4), p, 1); b.s(x + s + fl(L / 2), F - 7, '?'); return s + L + b.R(5, 9); },
@@ -202,20 +205,20 @@ const M = {
 // Bausteinvorrat je Welt (Mehrfachnennung = häufiger). Daraus wird eine lange Strecke (~3000 Felder) gewürfelt,
 // fest je Strecke, damit alle Spieler dieselbe bekommen. Keine Fallen mit Takt mehr.
 const SEQS = [
-  ['decks', 'decks', 'tube', 'tube', 'fork', 'hurdles', 'pillars', 'saws', 'upper', 'hookpit', 'gate', 'boost', 'wallshaft', 'hills', 'spikes', 'shortcut', 'tunnel', 'chimney'], // Neonhafen
-  ['decks', 'decks', 'hills', 'hills', 'swing', 'bridge', 'mogul', 'plateau', 'bigslide', 'gate', 'hurdles', 'fork', 'upper', 'pillars', 'trampchain', 'shortcut'], // Dachgarten
-  ['decks', 'decks', 'conveyors', 'conveyors', 'hurdles', 'fork', 'saws', 'pillars', 'gate', 'tunnel', 'big', 'hookchain', 'wallshaft', 'chimneys'], // Schrottplatz
-  ['decks', 'decks', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'pillars', 'fork', 'upper', 'spikes', 'chimney', 'hurdles'], // Eiswerk
-  ['decks', 'decks', 'lava', 'lava', 'spikes', 'fork', 'pillars', 'chimney', 'hurdles', 'trampchain', 'big', 'saws', 'plateau'], // Vulkan
-  ['decks', 'decks', 'swing', 'swing', 'hookforest', 'bridge', 'hills', 'fork', 'descent', 'hookchain', 'trampchain', 'pillars', 'bridge'], // Dschungel
-  null, // Lagerhaus: Etagen, siehe buildV
-  ['decks', 'decks', 'tube', 'bridge', 'fork', 'chimney', 'hookchain', 'pillars', 'wallshaft', 'saws', 'gate', 'tunnel', 'upper'], // Kristallmine
-  ['decks', 'decks', 'gondolas', 'gondolas', 'swing', 'hookforest', 'hookchain', 'fork', 'hookpit', 'upper', 'swing', 'shortcut'], // Seilbahn-Werft
-  ['decks', 'decks', 'hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'descent', 'descent', 'fork', 'spikes', 'hurdles'], // Skipiste
-  ['decks', 'decks', 'hills', 'bridge', 'lava', 'pillars', 'bigslide', 'fork', 'hurdles', 'mogul', 'saws', 'plateau', 'gate'], // Wüste
-  ['decks', 'decks', 'descent', 'lava', 'gravfield', 'pillars', 'chimney', 'fork', 'hills', 'spikes', 'gravfield'], // Mars
-  null, // Weltall: breite Etagen, siehe buildV
-  ['decks', 'decks', 'gravfield', 'gravfield', 'hills', 'pillars', 'chimney', 'descent', 'fork', 'mogul', 'bigslide'], // Mond
+  ['tube', 'tube', 'tube', 'boost', 'boost', 'upper', 'upper', 'shortcut', 'hookpit', 'saws', 'gate', 'hurdles', 'pillars', 'tunnel', 'decks'], // Neonhafen: Röhren, Boost, Tempo
+  ['swing', 'swing', 'bridge', 'bridge', 'mogul', 'hills', 'hills', 'plateau', 'trampchain', 'trampchain', 'bigslide', 'upper', 'hurdles', 'gate'], // Dachgarten: Schaukeln, Brücken, Trampoline
+  ['conveyors', 'conveyors', 'conveyors', 'saws', 'saws', 'hurdles', 'pillars', 'gate', 'big', 'hookchain', 'tunnel', 'decks', 'upper'], // Schrottplatz: Förderbänder und Sägen
+  ['hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'upper', 'pillars', 'hurdles', 'decks'], // Eiswerk: Rutschen und Hügel
+  ['lava', 'lava', 'lava', 'spikes', 'spikes', 'trampchain', 'plateau', 'big', 'pillars', 'saws', 'hurdles', 'hookpit'], // Vulkan: Lavafelder zum Überspringen
+  ['swing', 'swing', 'hookforest', 'hookforest', 'hookchain', 'bridge', 'bridge', 'hills', 'descent', 'trampchain', 'pillars'], // Dschungel: Seile und Haken
+  null, // Lagerhaus: Etagen, siehe buildV (derzeit nicht in der Auswahl)
+  ['tube', 'tube', 'bridge', 'hookchain', 'pillars', 'saws', 'gate', 'tunnel', 'upper', 'stairs', 'stairs', 'decks', 'fork'], // Kristallmine: Röhren und Treppen
+  ['gondolas', 'gondolas', 'gondolas', 'swing', 'swing', 'hookforest', 'hookchain', 'hookpit', 'upper', 'shortcut', 'fork'], // Seilbahn-Werft: Gondeln und Haken
+  ['hills', 'hills', 'bigslide', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'hurdles'], // Skipiste: Abfahrten
+  ['hills', 'hills', 'bridge', 'bridge', 'lava', 'lava', 'pillars', 'bigslide', 'hurdles', 'mogul', 'saws', 'plateau', 'stairs', 'gate'], // Wüste: Dünen, Brücken, Lava
+  ['descent', 'descent', 'lava', 'lava', 'pillars', 'pillars', 'hills', 'spikes', 'stairs', 'big', 'plateau', 'saws', 'hookpit'], // Mars: Krater und Abstiege
+  null, // Weltall: breite Etagen, siehe buildV (derzeit nicht in der Auswahl)
+  ['hills', 'hills', 'hills', 'pillars', 'pillars', 'descent', 'mogul', 'bigslide', 'stairs', 'stairs', 'trampchain', 'plateau', 'big', 'spikes'], // Mond: Krater-Hügel und Treppen
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
 const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
@@ -299,14 +302,14 @@ function longSeq(i) {
 // Feste, handgebaute Rundkurse je Strecke. „MIX“ = Bonus-Zufallsstrecke aus allen Bausteinen, jeden Tag anders.
 function mixSeq(seed) { let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647, pool = Object.keys(M).filter(k => k !== 'flat' && k !== 'items'), out = [['flat', 20]];
   for (let k = 0; k < 26; k++) { out.push(pool[fl(rnd() * pool.length)]); if (rnd() < 0.3) out.push('items'); } out.push(['flat', 10]); return out; }
-const MIXPOOL = ['decks', 'decks', 'hurdles', 'gate', 'plateau', 'hookpit', 'upper', 'tunnel', 'big', 'boost', 'pillars', 'hookchain', 'spikes', 'saws', 'lava', 'trampchain', 'wallshaft', 'swing', 'hookforest', 'hills', 'bigslide', 'mogul', 'descent', 'chimney', 'shortcut', 'fork', 'tube', 'bridge', 'gondolas', 'conveyors', 'gravfield'];
+const MIXPOOL = ['decks', 'hurdles', 'gate', 'plateau', 'hookpit', 'upper', 'tunnel', 'big', 'boost', 'pillars', 'hookchain', 'spikes', 'saws', 'lava', 'trampchain', 'swing', 'hookforest', 'hills', 'bigslide', 'mogul', 'descent', 'shortcut', 'fork', 'tube', 'bridge', 'gondolas', 'conveyors'];
 const buildMap = i => { const th = THEMES[i]; if (th.vert) return buildV(th.vert, th.cols, th.fh, th.deco);
   const day = fl(Date.now() / 864e5), mix = SEQS[i] === 'MIX';
   return build(mapSeq(mix ? MIXPOOL : SEQS[i], mix ? day : i + 1), mix ? day : i + 1, 1 / (th.grav || 1)); }; // wenig Schwerkraft: höhere Hindernisse
 const vFloor = i => (THEMES[i].fh || FH) * (THEMES[i].cols ? 12 : 8); // Bodenreihe einer Etagen-Map
 const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T + 11 : VCOLS * T / 2 + (slot - 9.5) * 40, y: map.floor * T } : { x: START_X - slot * 17, y: F * T };
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
-const progress = (x, y) => map.vert ? zigProg(x, y) : (x - START_X) / T; // Meter (1 Feld = 1 m)
+const progress = (x, y, sx = me.sx) => map.vert ? zigProg(x, y) : (x - (sx == null ? START_X : sx)) / T; // Meter (1 Feld = 1 m)
 function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y) / (map.fh * T) + 0.05)), a = x / T; return k * W + (k % 2 ? W - a : a) - (map.wide ? 3 : W / 2); }
 // Boostfelder entzerren: in jeder Reihe höchstens eins pro 12 Felder (doppelte hintereinander bringen nichts)
 // Flow: Stachel- und Lavareihen nach 4 Feldern immer durch 2 sichere Felder unterbrechen. So kommt man immer raus
@@ -398,7 +401,7 @@ const me = {};
 function resetMe(slot) {
   const s = startPos(slot);
   Object.assign(me, { x: s.x, y: s.y, vx: 0, vy: 0, face: 1, ground: true, wall: 0, slide: false, hook: null,
-    stun: 0, inv: 0, boost: 0, turbo: 0, item: null, jumps: 0, coy: 0, buf: 0, padCd: 0, launch: false, boosting: false, alive: true, miss: 0, drop: 0, coast: false, sc: false });
+    sx: s.x, stun: 0, slipT: 0, slow: 0, inv: 0, boost: 0, turbo: 0, item: null, jumps: 0, coy: 0, buf: 0, padCd: 0, launch: false, boosting: false, alive: true, miss: 0, drop: 0, coast: false, sc: false });
 }
 resetMe(0); me.alive = false;
 
@@ -421,16 +424,40 @@ function beep(f, d = 0.1, type = 'square', v = 0.05, to) {
 const boomSfx = () => { beep(160, 0.35, 'sawtooth', 0.09, 30); beep(90, 0.3, 'square', 0.06, 25); };
 
 // ---------------------------------------------------------------- Eingabe
-const keys = {}, touch = {}, I = { l: 0, r: 0, jump: 0, down: 0, hook: 0, item: 0, boost: 0, jumpP: false, itemP: false, hookP: false };
+const keys = {}, latch = {}, touch = {}, I = { l: 0, r: 0, jump: 0, down: 0, hook: 0, item: 0, boost: 0, jumpP: false, itemP: false, hookP: false };
 const prev = { jump: false, item: false, hook: false };
+// Tastencode: bevorzugt e.code (unabhängig von Layout und Feststelltaste). Fehlt er (virtuelle/Sondertastaturen), wird aus e.key abgeleitet.
+const KEYMAP = { ' ': 'Space', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', Shift: 'ShiftLeft' };
+function codeOf(e) {
+  if (e.code && e.code !== 'Unidentified') return e.code;
+  const k = e.key; if (!k) return '';
+  if (KEYMAP[k]) return KEYMAP[k];
+  return k.length === 1 && /[a-z]/i.test(k) ? 'Key' + k.toUpperCase() : '';
+}
+const GAMEKEY = /^(Space|Arrow|Key[WASDJKLQEXCVHM]|Numpad(Add|Subtract))/;
+const typing = t => !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+function releaseKeys() { for (const k in keys) keys[k] = false; for (const k in latch) delete latch[k]; }
 addEventListener('keydown', e => {
   initAudio();
-  if (e.target.tagName === 'INPUT') return;
-  keys[e.code] = true;
-  if (phase === 'game' && /^(Space|Arrow|Key[WASD]|NumpadAdd|NumpadSubtract)/.test(e.code)) e.preventDefault();
+  const c = codeOf(e);
+  if (c === 'CapsLock') return; // Feststelltaste hat im Spiel keine Funktion und wird nie als gedrückte Taste gespeichert
+  if (typing(e.target)) return;
+  if (!e.shiftKey) keys.ShiftLeft = keys.ShiftRight = false; // hängengebliebenes Shift lösen
+  if (!c) return;
+  keys[c] = true; latch[c] = true; // latch: auch ein sehr kurzer Tastendruck zwischen zwei Bildern geht nicht verloren
+  if (phase === 'game') {
+    if (GAMEKEY.test(c)) e.preventDefault();
+    const a = document.activeElement; if (a && a !== document.body && /^(BUTTON|SELECT|A)$/.test(a.tagName)) a.blur(); // sonst löst die Leertaste einen Button aus
+  }
 });
-addEventListener('keyup', e => { keys[e.code] = false; });
-addEventListener('blur', () => { for (const k in keys) keys[k] = false; });
+addEventListener('keyup', e => {
+  const c = codeOf(e); if (c === 'CapsLock') return;
+  if (c) keys[c] = false;
+  if (!e.shiftKey) keys.ShiftLeft = keys.ShiftRight = false;
+  if (phase === 'game' && GAMEKEY.test(c) && !typing(e.target)) e.preventDefault();
+});
+addEventListener('blur', releaseKeys);
+document.addEventListener('visibilitychange', releaseKeys);
 addEventListener('pointerdown', initAudio);
 addEventListener('click', initAudio);
 addEventListener('touchend', initAudio);
@@ -441,13 +468,15 @@ for (const b of document.querySelectorAll('#touch button')) {
 }
 function readInput() {
   const g = (navigator.getGamepads ? navigator.getGamepads() : [])[0], gb = i => !!(g && g.buttons[i] && g.buttons[i].pressed), ax = g ? g.axes[0] || 0 : 0, ay = g ? g.axes[1] || 0 : 0;
-  I.l = keys.KeyA || keys.ArrowLeft || touch.l || gb(14) || ax < -0.4;
-  I.r = keys.KeyD || keys.ArrowRight || touch.r || gb(15) || ax > 0.4;
-  I.jump = keys.Space || keys.KeyW || keys.ArrowUp || touch.jump || gb(0);
-  I.down = keys.KeyS || keys.ArrowDown || touch.down || gb(13) || ay > 0.6;
-  I.hook = keys.KeyJ || keys.ShiftLeft || keys.ShiftRight || keys.KeyX || touch.hook || gb(2) || gb(4);
-  I.item = keys.KeyK || keys.KeyE || keys.KeyC || keys.NumpadSubtract || touch.item || gb(1) || gb(3);
-  I.boost = keys.KeyL || keys.KeyQ || keys.KeyV || keys.NumpadAdd || touch.boost || gb(5) || gb(7);
+  const K = c => keys[c] || latch[c];
+  I.l = K('KeyA') || K('ArrowLeft') || touch.l || gb(14) || ax < -0.4;
+  I.r = K('KeyD') || K('ArrowRight') || touch.r || gb(15) || ax > 0.4;
+  I.jump = K('Space') || K('KeyW') || K('ArrowUp') || touch.jump || gb(0);
+  I.down = K('KeyS') || K('ArrowDown') || touch.down || gb(13) || ay > 0.6;
+  I.hook = K('KeyJ') || K('KeyX') || K('KeyH') || touch.hook || gb(2) || gb(4); // Shift bewusst nicht mehr: 5× Shift öffnet unter Windows die Einrastfunktion und stiehlt den Fokus
+  I.item = K('KeyK') || K('KeyE') || K('KeyC') || K('NumpadSubtract') || touch.item || gb(1) || gb(3);
+  I.boost = K('KeyL') || K('KeyQ') || K('KeyV') || K('NumpadAdd') || touch.boost || gb(5) || gb(7);
+  for (const k in latch) delete latch[k];
   if (I.jump && !prev.jump) I.jumpP = true;
   if (I.item && !prev.item) I.itemP = true;
   if (I.hook && !prev.hook) I.hookP = true;
@@ -470,6 +499,8 @@ function moverX(m, t, px) { const x = (m.x0 + (m.x1 - m.x0) * (0.5 - 0.5 * Math.
 function moveX(p, dx) {
   p.x += dx; const h = ph(p), lift = p.wasG ? 14 : 0; // am Boden: kleine Stufen (Schrägen-Übergänge) nicht als Wand werten
   if (!hitRect(p.x - 11, p.y - h, 22, h - lift)) return false;
+  // Kantenhilfe: streift man in der Luft knapp die Oberkante eines Blocks, wird man hinaufgeschoben statt abzuprallen
+  if (!p.wasG && !p.hook && p.vy > -500) for (const up of [5, 10, 15]) if (!hitRect(p.x - 11, p.y - up - h, 22, h)) { p.y -= up; return false; }
   if (dx > 0) p.x = fl((p.x + 11) / T) * T - 11 - 0.001; else p.x = fl((p.x - 11) / T) * T + T + 11;
   return true;
 }
@@ -569,14 +600,14 @@ function stepMe(dt, now) {
   const ctrl = p.stun <= 0;
   if (!ctrl) { p.stun -= dt; dir = 0; }
   if (dir && !p.hook && !p.slide) p.face = dir;
-  if (I.jumpP) p.buf = 0.12; else p.buf -= dt;
-  p.coy = p.ground ? 0.1 : p.coy - dt;
+  if (I.jumpP) p.buf = 0.16; else p.buf -= dt;
+  p.coy = p.ground ? 0.13 : p.coy - dt;
   // Grundtempo wie in Version 1; Boost hält ~1,6 s.
   let boosting = false;
   if (ctrl && I.boost && p.boost > 0.02 && dir && !(p.jam > 0)) { boosting = true; p.boost -= dt / 1.6; } else if (!I.boost) p.boost = Math.min(1, p.boost + dt * 0.07);
   if (p.turbo > 0) { p.turbo -= dt; boosting = true; }
   p.boosting = boosting;
-  p.jam = Math.max(0, (p.jam || 0) - dt); p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt);
+  p.slipT = Math.max(0, (p.slipT || 0) - dt); p.jam = Math.max(0, (p.jam || 0) - dt); p.slow = Math.max(0, (p.slow || 0) - dt); p.roll = Math.max(0, (p.roll || 0) - dt);
   const max = (boosting ? 880 : 580) * (p.slow > 0 ? 0.45 : 1) * (p.tube > 0 ? 1.6 : 1); // vom Schneeball getroffen: kurz langsamer
   // Durch eine Plattform nach unten fallen lassen
   if (p.ground && ctrl && I.down && !p.slide && !p.hook && onPlatAt(p) && !hitRect(p.x - 11, p.y, 22, 1)) { p.drop = 0.22; p.ground = false; p.y += 1; }
@@ -599,10 +630,10 @@ function stepMe(dt, now) {
   else if (p.ground) {
     const ia = theme.ice ? 0.45 : 1, ib = theme.ice ? 0.18 : 1; // Eis: träge beim Anlaufen, kaum Bremsen
     const mx = p.onS && dir ? max * (Math.sign(p.slopeK) === dir ? 1 + 0.3 * Math.abs(p.slopeK) : 1 - 0.25 * Math.abs(p.slopeK)) : max; // Schräge: bergab schneller, bergauf langsamer
-    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > mx) p.vx = approach(p.vx, dir * mx, 400 * ib * dt); else p.vx = approach(p.vx, dir * mx, (boosting ? 3200 : 2200) * (Math.sign(p.vx) === -dir ? ib * 2 : ia) * dt); }
+    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > mx) p.vx = approach(p.vx, dir * mx, 400 * ib * dt); else p.vx = approach(p.vx, dir * mx, (boosting ? 4400 : 3600) * (Math.sign(p.vx) === -dir ? ib * 2 : ia) * dt); }
     else p.vx = approach(p.vx, 0, (p.coast ? 380 : ctrl ? 2600 * ib : 900 * ib) * dt); // Sieger läuft langsam aus
   } else {
-    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 100 * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 2200 : 1500) * dt); }
+    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 100 * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 3000 : 2400) * dt); }
     else p.vx = approach(p.vx, 0, 250 * dt);
   }
   // Springen
@@ -649,7 +680,7 @@ function stepMe(dt, now) {
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
     const c = tile(tx, ty);
     if (c === '^') { if (p.y > ty * T + 14) hurt(0.5, 0.3, -380); }
-    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.5; shake = Math.max(shake, 4); dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
+    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.8; shake = Math.max(shake, 4); dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
     else if (c === 'O') { if (Math.hypot(p.x - tx * T - 16, p.y - h / 2 - ty * T - 16) < 26) hurt(0.5, 0.3, -460); }
     else if (c === '<') { if (p.ground && p.padCd <= 0) { p.vx = Math.min(p.vx, -1000); p.boost = Math.min(1, p.boost + 0.25); p.padCd = 0.3; beep(260, 0.25, 'sawtooth', 0.05, 900); } }
     else if (c === '~') { if (p.y > ty * T + 10) hurt(0.5, 0.3, -520); }
@@ -742,9 +773,9 @@ function stepWorld(dt) {
   for (let i = bananas.length - 1; i >= 0; i--) { // Bananen: wer drauftritt, rutscht aus
     const b = bananas[i]; b.t += dt;
     if (!stand(fl(b.x / T), fl((b.y + 1) / T))) b.y += 400 * dt;
-    if (me.alive && me.ground && (b.o !== myId || b.t > 0.8) && Math.abs(me.x - b.x) < 20 && Math.abs(me.y - b.y) < 14 && me.inv <= 0) {
-      me.stun = 0.7; me.vx = -me.face * 260; me.inv = 1.6; shake = 6; send({ t: 'ev', k: 'bx', r: b.id }); bananas.splice(i, 1); beep(700, 0.3, 'triangle', 0.05, 200);
-      banner = { text: 'AUSGERUTSCHT!', sub: 'Banane!', until: performance.now() + 1100, col: '#ffe066' }; continue;
+    if (me.alive && me.ground && (b.o !== myId || b.t > 0.8) && Math.abs(me.x - b.x) < 28 && Math.abs(me.y - b.y) < 16 && me.inv <= 0) {
+      me.stun = 0.9; me.slipT = 0.9; me.slipFace = me.face; me.vx *= 0.55; me.vy = -560; me.ground = false; me.slide = false; me.hook = null; me.turbo = 0; me.slow = Math.max(me.slow || 0, 0.6); me.inv = 1.9; shake = 6; send({ t: 'ev', k: 'bx', r: b.id }); bananas.splice(i, 1); beep(700, 0.3, 'triangle', 0.05, 200);
+      banner = { text: 'AUSGERUTSCHT!', sub: 'Rückwärtssalto!', until: performance.now() + 1100, col: '#ffe066' }; continue;
     }
     if (b.t > 25) bananas.splice(i, 1);
   }
@@ -853,7 +884,7 @@ async function joinLobby(id) {
     link = lk; status('');
     r.onclose = () => { if (link === lk) toMenu('Verbindung zum Host verloren.'); };
     pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed' && link === lk) toMenu('Verbindung zum Host verloren.'); };
-    send({ t: 'join', name });
+    send({ t: 'join', name, v: VER });
   } catch (e) {
     try { if (pc) pc.close(); } catch { }
     history.replaceState(null, '', location.pathname); status(e && e.message ? e.message : 'Verbindung fehlgeschlagen.');
@@ -894,7 +925,7 @@ const Host = (() => {
   const mk = (sendRaw, close) => ({ id: nextId++, name: '', color: 0, score: 0, alive: false, s: null, in: false, sendRaw, close });
   const later = (ms, fn) => { L.at = Date.now() + ms; L.fn = fn; };
   function sendLobby() {
-    bc({ t: 'lobby', id: L.id, name: L.name, state: L.state === 'lobby' ? 'lobby' : 'game', map: L.map, host: L.host.id, ps: L.players.map(p => ({ id: p.id, name: p.name, c: p.color, sc: p.score })) });
+    bc({ t: 'lobby', v: VER, id: L.id, name: L.name, state: L.state === 'lobby' ? 'lobby' : 'game', map: L.map, host: L.host.id, ps: L.players.map(p => ({ id: p.id, name: p.name, c: p.color, sc: p.score })) });
   }
   function join(c, name) {
     if (c.in) return;
@@ -915,7 +946,7 @@ const Host = (() => {
   }
   function startRound() {
     L.fn = null; L.state = 'countdown';
-    if (L.map < 0 && L.round > 0) L.curMap = fl(Math.random() * NMAPS); // „Zufällig“: jede Runde eine neue Strecke
+    if (L.map < 0 && L.round > 0) L.curMap = randMap(); // „Zufällig“: jede Runde eine neue Strecke
     L.round++;
     L.order = L.players.map(p => p.id).sort(() => Math.random() - 0.5);
     for (const p of L.players) { p.alive = true; p.s = null; p.best = 0; }
@@ -980,16 +1011,16 @@ const Host = (() => {
   }
   H.handle = (c, m) => {
     if (!L || !m || typeof m !== 'object') return;
-    if (m.t === 'join') return join(c, m.name);
+    if (m.t === 'join') { if (m.v !== VER) { c.sendRaw(JSON.stringify({ t: 'err', m: 'Dein Spiel hat eine andere Version als der Host. Bitte Seite neu laden (Strg+F5).' })); return c.close(); } return join(c, m.name); }
     if (!c.in) return;
     switch (m.t) {
-      case 's': if (Array.isArray(m.s) && m.s.length <= 9) { c.s = m.s.map(v => +v || 0); if (c.alive && L.state === 'race') c.best = Math.max(c.best || 0, progress(c.s[0], c.s[1])); } break;
+      case 's': if (Array.isArray(m.s) && m.s.length <= 9) { c.s = m.s.map(v => +v || 0); if (c.alive && L.state === 'race') c.best = Math.max(c.best || 0, progress(c.s[0], c.s[1], START_X - Math.max(0, L.order.indexOf(c.id)) * 17)); } break;
       case 'ev': if (c.alive && L.state !== 'lobby') { m.id = c.id; bc(m, c); } break;
       case 'leave': if (c === H.local) H.close(); else { leave(c); c.close(); } break;
-      case 'map': if (c === L.host && L.state === 'lobby') { const i = fl(+m.i); L.map = i >= 0 && i < NMAPS ? i : -1; sendLobby(); } break;
+      case 'map': if (c === L.host && L.state === 'lobby') { const i = fl(+m.i); L.map = i >= 0 && i < NMAPS && !THEMES[i].off ? i : -1; sendLobby(); } break;
       case 'start':
         if (c === L.host && L.state === 'lobby') {
-          L.curMap = L.map < 0 ? fl(Math.random() * NMAPS) : L.map;
+          L.curMap = L.map < 0 ? randMap() : L.map;
           for (const p of L.players) p.score = 0;
           L.round = 0; startRound(); lastPoll = 0;
         }
@@ -1061,6 +1092,7 @@ function onMsg(m) {
     case 'hi': myId = m.id; break;
     case 'err': toMenu(m.m); break;
     case 'lobby': {
+      if (m.v !== VER && !hosting) { toMenu('Der Host spielt eine andere Version. Bitte Seite neu laden (Strg+F5).'); break; }
       lobby = m;
       const ids = new Set();
       for (const p of m.ps) {
@@ -1125,7 +1157,7 @@ function renderLobby() {
   $('lname').textContent = L.name; $('lcode').textContent = L.id; $('err').textContent = '';
   let h = ''; for (let i = 0; i < Math.max(8, Math.min(20, L.ps.length + 2)); i++) { const p = L.ps[i]; h += p ? `<div class="pl"><i style="background:${COLORS[p.c]}"></i>${esc(p.name)}${p.id === L.host ? ' 👑' : ''}${p.id === myId ? ' (du)' : ''}</div>` : '<div class="pl free"><i></i>frei</div>'; }
   $('players').innerHTML = h;
-  $('map').innerHTML = `<option value="-1">Zufällig</option>` + THEMES.map((t, i) => `<option value="${i}">${t.name}</option>`).join('');
+  $('map').innerHTML = `<option value="-1">Zufällig</option>` + THEMES.map((t, i) => t.off ? '' : `<option value="${i}">${t.name}</option>`).join('');
   $('map').value = L.map; $('map').disabled = !host;
   $('start').disabled = !host; $('start').textContent = host ? (L.ps.length > 1 ? 'Start!' : 'Solo-Training starten') : 'Warte auf Host …';
 }
@@ -1367,6 +1399,35 @@ function dancePose(d, t) {
   }
   return P;
 }
+// Siegertänze in der Seitenansicht. Rückgabe wie dancePose: Versatz, Drehung, Streckung und Gliederstellung.
+function winPose(d, t) {
+  const P = { x: 0, y: 0, rot: 0, sx: 1, sy: 1, flip: 1, lf: [-4, -1], rf: [4, -1], fa: [5, -16, 7, -11], ba: [-5, -16, -7, -11] };
+  const ease = u => u * u * (3 - 2 * u);
+  if (d === 0) { // Rückwärtssalto, danach Jubelpose mit gestreckten Armen
+    const c = (t % 1500) / 1500;
+    if (c < 0.6) { const f = c / 0.6; P.rot = -ease(f) * Math.PI * 2; P.y = -Math.sin(f * Math.PI) * 54; P.lf = [-6, -13]; P.rf = [6, -15]; P.fa = [8, -22, 5, -27]; P.ba = [-8, -22, -5, -27]; }
+    else { P.sy = 1 - 0.14 * Math.max(0, 1 - (c - 0.6) / 0.12); P.lf = [-8, -1]; P.rf = [8, -1]; P.fa = [13, -36, 16, -50]; P.ba = [-11, -34, -17, -48]; }
+  } else if (d === 1) { // Rad schlagen: hin und zurück
+    const n = fl(t / 1300), c = (t % 1300) / 1300, dir = n % 2 ? -1 : 1;
+    P.rot = dir * ease(c) * Math.PI * 2; P.x = dir * (c - 0.5) * 90; P.y = -12 - Math.sin(c * Math.PI) * 10;
+    P.lf = [-13, -3]; P.rf = [13, -3]; P.fa = [16, -30, 28, -34]; P.ba = [-16, -30, -30, -34];
+  } else if (d === 2) { // Windmühle: auf dem Rücken, Beine strampeln in der Luft
+    const a = t / 110;
+    P.rot = -Math.PI / 2 + Math.sin(t / 130) * 0.16; P.y = 11 + Math.abs(Math.sin(t / 130)) * 2; P.x = Math.sin(t / 520) * 16;
+    P.lf = [20 + Math.cos(a) * 7, -10 + Math.sin(a) * 10]; P.rf = [20 + Math.cos(a + Math.PI) * 7, -10 + Math.sin(a + Math.PI) * 10];
+    P.fa = [12, -16, 18, -8 + Math.sin(a) * 5]; P.ba = [-10, -18, -16, -10 - Math.sin(a) * 5];
+  } else if (d === 3) { // Kopfstand, Beine wackeln
+    const w = Math.sin(t / 170) * 5, v = Math.sin(t / 110) * 3;
+    P.rot = Math.PI + Math.sin(t / 380) * 0.08; P.y = -2;
+    P.lf = [-9 + w, 4 + v]; P.rf = [9 - w, 4 - v]; P.fa = [9, -50, 11, -65]; P.ba = [-9, -50, -11, -65];
+  } else { // Hampelmann: hüpfen, Arme und Beine auf und zu
+    const b = t / 1000 * Math.PI * 2 * 1.7, o = 0.5 + 0.5 * Math.sin(b);
+    P.y = -Math.abs(Math.sin(b)) * 15;
+    P.lf = [-4 - o * 9, -1 - o * 2]; P.rf = [4 + o * 9, -1 - o * 2];
+    P.fa = [5 + o * 8, -16 - o * 18, 7 + o * 11, -11 - o * 38]; P.ba = [-5 - o * 8, -16 - o * 18, -7 - o * 11, -11 - o * 38];
+  }
+  return P;
+}
 function shade(hex, k) { // Farbe aufhellen (k>0) oder abdunkeln (k<0)
   const n = parseInt(hex.slice(1), 16), f = v => clamp(Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k)), 0, 255);
   return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
@@ -1383,9 +1444,8 @@ function capsule(x, y, w, h, rt, rb) { ctx.beginPath(); if (ctx.roundRect) ctx.r
 // Spielfigur: runder Körper, Auge im Stirnband, Stirnband-Zipfel, schwarze Hose mit Gürtelschnalle, Arme und Füße.
 function drawRunner(x, y, vx, st, face, col, t, blink, boosting, dance = -1) {
   ctx.save(); ctx.translate(x, y);
-  const sp = Math.abs(vx), dz = POSES_ON && dance >= 0 && sp < 70 && st !== 2 && st !== 4;
-  if (dz) { drawFront(col, t, dance % DANCES.length); ctx.restore(); return; } // Sieger schaut frontal in die Kamera
-  const P = dz ? dancePose(DANCE_POSE[dance % DANCES.length], t) : null;
+  const sp = Math.abs(vx), dz = POSES_ON && dance >= 0 && sp < 70 && st !== 2 && st !== 4 && st !== 6;
+  const P = dz ? winPose(dance % DANCES.length, t) : null;
   if (P) { ctx.translate(P.x, P.y); face = (face || 1) * P.flip; }
   if (blink && fl(t / 70) % 2) ctx.globalAlpha = 0.35;
   ctx.scale(face || 1, 1);
@@ -1402,13 +1462,15 @@ function drawRunner(x, y, vx, st, face, col, t, blink, boosting, dance = -1) {
     ctx.restore(); return;
   }
   if (P) { ctx.translate(0, -22); ctx.rotate(P.rot); ctx.scale(P.sx, P.sy); ctx.translate(0, 22); }
+  else if (st === 6) { const k = clamp(slipK, 0, 1), e = k < 0.12 ? 0 : (k - 0.12) / 0.78, sm = e <= 0 ? 0 : e >= 1 ? 1 : e * e * (3 - 2 * e); ctx.translate(0, -22); ctx.rotate(-(k < 0.12 ? k / 0.12 * 0.5 : 0.5) - sm * (Math.PI * 2 - 0.5)); ctx.translate(0, 22); } // erst nach hinten kippen, dann Rückwärtssalto
   else ctx.rotate(st === 4 ? Math.sin(t / 45) * 0.6 : clamp(vx * (face || 1) / 900, -0.2, 0.34));
-  const air = st === 1 || st === 3 || st === 5, a = sp > 40 && !air ? Math.sin(x * 0.07) : 0;
+  const air = st === 1 || st === 3 || st === 5 || st === 6, a = sp > 40 && !air ? Math.sin(x * 0.07) : 0;
   const lf = P ? P.lf : air ? [-9, -4] : [-4 + a * 10, -1 - Math.max(0, -a) * 3], rf = P ? P.rf : air ? [8, -7] : [4 - a * 10, -1 - Math.max(0, a) * 3];
   let fa, ba;
   if (P) { fa = P.fa; ba = P.ba; }
   else if (st === 3) { fa = [10, -34, 12, -50]; ba = [-8, -28, -13, -34]; }                       // Haken: Hand greift nach oben ans Seil
   else if (st === 5) { fa = [12, -27, 15, -34]; ba = [-10, -22, -14, -26]; }                      // an der Wand
+  else if (st === 6) { fa = [13, -34, 18, -46]; ba = [-12, -33, -18, -45]; }                          // Salto: Arme hoch
   else if (st === 4) { const w = Math.sin(t / 40) * 6; fa = [12, -32 + w, 17, -42]; ba = [-12, -30, -18, -40 - w]; } // benommen, fuchtelt
   else if (air) { fa = [11, -30, 15, -39]; ba = [-11, -27, -17, -32]; }                          // Sprung: Arme hoch
   else { fa = [5 + a * 7, -16, 7 + a * 13, -11]; ba = [-5 - a * 7, -16, -7 - a * 13, -11]; }    // Laufen: Arme pendeln gegen die Beine
@@ -1933,6 +1995,22 @@ function goldPill(x, y, w, h) {
   ctx.fillStyle = 'rgba(255,255,255,.45)'; path(x + h / 2, y + 4, w - h, h * 0.22, h * 0.11); ctx.fill();
 }
 let lastCount = 4;
+// Banane: groß, mit dunklem Rand und sanft pulsierendem Leuchtring, damit man sie im Rennen sofort sieht
+function drawBanana(x, y, now, age = 9) {
+  const pop = Math.min(1, age * 5), pulse = 0.5 + 0.5 * Math.sin(now / 160);
+  ctx.save(); ctx.translate(x, y); ctx.scale(0.4 + 0.6 * pop, 0.4 + 0.6 * pop);
+  ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(0, -1, 26, 5, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = `rgba(255,236,120,${0.35 + 0.35 * pulse})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(0, -14, 30 + pulse * 3, 20 + pulse * 2, 0, 0, 7); ctx.stroke();
+  ctx.rotate(-0.12);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(-24, -26); ctx.bezierCurveTo(-26, -6, -8, 2, 14, -3); ctx.bezierCurveTo(24, -5, 29, -12, 29, -22);
+  ctx.bezierCurveTo(22, -14, 12, -13, 2, -15); ctx.bezierCurveTo(-8, -16, -16, -20, -24, -26); ctx.closePath();
+  ctx.fillStyle = '#ffe14d'; ctx.fill(); ctx.strokeStyle = '#3d2a05'; ctx.lineWidth = 3.5; ctx.stroke();
+  ctx.strokeStyle = '#c9a400'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(-16, -17); ctx.bezierCurveTo(-8, -6, 6, -7, 20, -10); ctx.stroke();
+  ctx.strokeStyle = '#fff6a8'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(-14, -23); ctx.bezierCurveTo(-8, -17, 0, -15, 6, -15); ctx.stroke();
+  ctx.fillStyle = '#5a3d0a'; ctx.beginPath(); ctx.arc(-24, -27, 3.6, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(29, -23, 3.2, 0, 7); ctx.fill();
+  ctx.restore();
+}
 function render(now, dt, menu = false) {
   ctx = mainCtx;
   ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
@@ -1956,23 +2034,13 @@ function render(now, dt, menu = false) {
   shake = Math.max(0, shake - dt * 40);
   const sx = (Math.random() - 0.5) * shake, sy = (Math.random() - 0.5) * shake;
   ctx.translate(VW / 2 + sx, VH / 2 + sy); ctx.scale(zoom, zoom); ctx.translate(-camX, -camY);
-  if (dissolve) {
-    // Hintergrund zerbröselt an der Kante über die ganze Bildhöhe
-    const bgc = [theme.far, theme.near, theme.sky[0], theme.sky[1]];
-    for (let i = 0; i < 7; i++) parts.push({ x: kx + Math.random() * 30, y: camY - VH / 2 + Math.random() * VH, vx: -40 - Math.random() * 150, vy: -20 - Math.random() * 90, l: 0.6 + Math.random() * 0.9, c: bgc[fl(Math.random() * 4)], s: 5 + Math.random() * 9 });
-    // Spielfelder zerfallen an der Kante
-    for (let i = 0; i < 6; i++) {
-      const ty = fl(Math.random() * MH), tx = fl((kx + Math.random() * T * 1.5) / T), c = tile(tx, ty);
-      if (c !== ' ' && c !== '?') parts.push({ x: tx * T + Math.random() * T, y: ty * T + Math.random() * T, vx: -60 - Math.random() * 180, vy: -30 - Math.random() * 140, l: 0.5 + Math.random() * 0.8, c: Math.random() < 0.55 ? theme.edge : theme.hook, s: 3 + Math.random() * 6 });
-    }
-  }
   const tx0 = map.vert ? Math.max(0, fl((camX - VW / 2) / T) - 1) : fl((camX - VW / 2) / T) - 1, tx1 = map.vert ? Math.min(map.W - 1, tx0 + VW / T + 3) : tx0 + VW / T + 3;
   const ty0 = map.vert ? fl((camY - VH / 2) / T) - 1 : 0, ty1 = map.vert ? ty0 + VH / T + 3 : MH - 1;
   for (let ty = ty0; ty <= ty1; ty++) for (let tx = tx0; tx <= tx1; tx++) {
     const c = tile(tx, ty); if (c === ' ') continue;
     const x = tx * T, y = ty * T;
     if (x + T <= kx) continue;
-    const fade = x < kx + T * 2; if (fade) { ctx.save(); ctx.globalAlpha = clamp((x + T - kx) / (T * 3), 0.15, 1); ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4); }
+    const fade = x < kx + T * 2; if (fade) { ctx.save(); ctx.globalAlpha = clamp((x + T - kx) / (T * 3), 0.15, 1); }
     drawTile(c, tx, ty, x, y, now);
     if (fade) ctx.restore();
   }
@@ -1995,7 +2063,7 @@ function render(now, dt, menu = false) {
     ctx.fillStyle = '#c0392b'; rr(mx, y, m.w * T, 14, 5); ctx.fillStyle = theme.edge; ctx.fillRect(mx + 2, y, m.w * T - 4, 3); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(mx + 8, y + 5, m.w * T - 16, 4);
     ctx.strokeStyle = 'rgba(30,30,30,.5)'; ctx.beginPath(); ctx.moveTo(mx + m.w * T / 2 - VW, y - 3 * T); ctx.lineTo(mx + m.w * T / 2 + VW, y - 3 * T); ctx.stroke(); }
   // Bananen
-  for (const b of bananas) { ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(b.x, b.y - 5, 10, 5, -0.3, 0, Math.PI); ctx.fill(); ctx.fillStyle = '#7a5a10'; ctx.fillRect(b.x + 7, b.y - 9, 3, 3); }
+  for (const b of bananas) drawBanana(b.x, b.y, now, b.t);
   // Kisten, Raketen
   for (const s of snowballs) { if (s.lv) { ctx.fillStyle = '#ffb347'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#ff5a1f'; ctx.beginPath(); ctx.arc(s.x + 2, s.y + 2, 5, 0, 7); ctx.fill(); continue; } ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.fill(); ctx.fillStyle = '#cfe9f7'; ctx.beginPath(); ctx.arc(s.x + 2.5, s.y + 3, 5, 0, 7); ctx.fill(); ctx.strokeStyle = 'rgba(120,170,200,.6)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(s.x, s.y, 9, 0, 7); ctx.stroke(); }
   if (me.alive && me.slow > 0) { for (let i = 0; i < 6; i++) { const a = performance.now() / 300 + i; ctx.fillStyle = 'rgba(230,245,255,.85)'; ctx.beginPath(); ctx.arc(me.x + Math.cos(a) * 18, me.y - 24 + Math.sin(a * 1.3) * 18, 2.5, 0, 7); ctx.fill(); } }
@@ -2012,7 +2080,9 @@ function render(now, dt, menu = false) {
   for (const [id, r] of remotes) {
     if (!r.alive || menu) continue; const p = interp(r, now); if (!p) continue;
     r.rx = p.x; r.ry = p.y; const s = p.s;
+    { const kx = fl(p.x / T); for (const yy of [p.y - 8, p.y - 28]) { const ky = fl(yy / T); if (tile(kx, ky) === 'K' && crateUp(kx, ky)) { crateBroken.set(kx + ',' + ky, now + 8000); dust(kx * T + 16, ky * T + 16, 14, '#c58a4a', 300); } } } // Kiste, durch die ein Mitspieler läuft, zerbricht auch hier
     if (s[4] === 3) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x, p.y - 24); ctx.lineTo(s[6], s[7]); ctx.stroke(); }
+    if (s[4] === 6) { if (!r.slip0) r.slip0 = now; slipK = (now - r.slip0) / 900; } else r.slip0 = 0;
     drawRunner(p.x, p.y, s[2], s[4], s[5], COLORS[r.color], now, false, s[8], cele && cele.id === id ? cele.dance : -1);
     text(r.name, p.x, p.y - 58, 17, COLORS[r.color]);
   }
@@ -2034,12 +2104,12 @@ function render(now, dt, menu = false) {
     if (me.hook) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(me.x, me.y - 24); ctx.lineTo(me.hook.ax, me.hook.ay); ctx.stroke(); ctx.fillStyle = theme.hook; ctx.beginPath(); ctx.arc(me.hook.ax, me.hook.ay, 6, 0, 7); ctx.fill(); }
     else if (me.miss > 0) { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(me.x, me.y - 24); ctx.lineTo(me.x + me.face * 90, me.y - 114); ctx.stroke(); }
     const mc = lobby ? COLORS[(lobby.ps.find(p => p.id === myId) || { c: 0 }).c] : COLORS[0];
+    slipK = 1 - (me.slipT || 0) / 0.9;
     drawRunner(me.x, me.y, me.vx, myState(), me.face, mc, now, me.inv > 0 && me.stun <= 0, me.boosting, cele && cele.id === myId ? cele.dance : -1);
     ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(me.x - 7, me.y - 62); ctx.lineTo(me.x + 7, me.y - 62); ctx.lineTo(me.x, me.y - 52); ctx.fill();
   }
   // Name des Siegertanzes und Noten
   if (POSES_ON && cele && !menu && now - cele.t0 > 400) { const wp = posOf(cele.id); if (wp) {
-    text('♪ ' + DANCES[cele.dance] + ' ♪', wp.x, wp.y - 84, 15, '#ffd23f');
     for (let i = 0; i < 4; i++) { const k = ((now - cele.t0) / 1400 + i / 4) % 1; ctx.globalAlpha = 1 - k; text(i % 2 ? '♪' : '♫', wp.x + Math.sin(k * 6 + i) * 30 + (i - 1.5) * 16, wp.y - 50 - k * 50, 14, COLORS[(i * 3) % COLORS.length], 'center', false); }
     ctx.globalAlpha = 1; } }
   for (const p of parts) { ctx.globalAlpha = clamp(p.l * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s); }
@@ -2128,17 +2198,21 @@ function render(now, dt, menu = false) {
   }
   ctx.restore();
 }
-const myState = () => me.stun > 0 ? 4 : me.hook ? 3 : me.slide ? 2 : !me.ground ? (me.wall ? 5 : 1) : 0;
+const myState = () => me.slipT > 0 ? 6 : me.stun > 0 ? 4 : me.hook ? 3 : me.slide ? 2 : !me.ground ? (me.wall ? 5 : 1) : 0;
 
 // ---------------------------------------------------------------- Bestzeiten und Geister-Rennen
 // Rekord je Strecke (weiteste Strecke in Metern) und im Solo-Training der beste Lauf als Geist.
 const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } };
+let slipK = 0;
+function mapSig() { let h = 2166136261 >>> 0; const g = map.g; for (let y = 0; y < g.length; y++) { const row = g[y]; for (let x = 0; x < row.length; x++) { h ^= row[x].charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } } return (h >>> 0).toString(36) + ':' + map.W + 'x' + g.length; }
 let curMap = -1, run = null, ghost = null, recordShown = false;
 const bestOf = i => (store.get('hj_best_' + i) || 0);
 function startRun(i) {
   curMap = i; recordShown = false;
   run = { best: 0, solo, frames: [], last: 0 };
-  const gd = solo ? store.get('hj_ghost_' + i) : null; ghost = gd && gd.f && gd.f.length ? gd : null;
+  run.sig = mapSig(); const gd = solo ? store.get('hj_ghost_' + i) : null;
+  ghost = gd && gd.f && gd.f.length && gd.sig === run.sig ? gd : null;
+  if (gd && !ghost) { try { localStorage.removeItem('hj_ghost_' + i); } catch { } } // Geist einer älteren Streckenfassung: entfernen
 }
 function recordRun(now) {
   if (!run || !me.alive || now < goAt) return;
@@ -2151,7 +2225,7 @@ function endRun() {
   if (!run || curMap < 0) return;
   const d = Math.round(run.best);
   if (d > bestOf(curMap)) store.set('hj_best_' + curMap, d);
-  if (run.solo && run.frames.length > 40) { const old = store.get('hj_ghost_' + curMap); if (!old || d > old.d) store.set('hj_ghost_' + curMap, { d, f: run.frames }); }
+  if (run.solo && run.frames.length > 40) { const old = store.get('hj_ghost_' + curMap); if (!old || old.sig !== run.sig || d > old.d) store.set('hj_ghost_' + curMap, { d, f: run.frames, sig: run.sig }); }
   run = null;
 }
 function drawGhost(now) {
@@ -2171,7 +2245,7 @@ function secondChance(now) {
   if (me.sc || !me.alive || solo || cele || now < goAt + 1500) return;
   const danger = map.vert ? kill - me.y < 110 : me.x - (camT - Math.min(kill, 800)) < 130;
   if (!danger) return;
-  me.sc = true; me.turbo = 2.5; me.boost = 1; me.inv = Math.max(me.inv, 1.5); me.stun = 0; me.hook = null;
+  me.sc = true; me.turbo = 2.5; me.boost = 1; me.inv = Math.max(me.inv, 1.5); me.stun = 0; me.slipT = 0; me.hook = null;
   if (map.vert) { me.vy = -1250; me.launch = true; me.ground = false; }
   else { me.face = 1; me.vx = Math.max(me.vx, 1050); me.vy = Math.min(me.vy, -650); me.ground = false; me.launch = true; }
   banner = { text: 'ZWEITE CHANCE!', sub: 'Turbo-Schub – gib Gas!', until: now + 1600, col: '#7df9ff' };
