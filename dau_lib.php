@@ -207,6 +207,9 @@ function dtp_module_card(array $module, string $base='../', bool $link=true, ?ar
         $html.='<span class="module-subtopic">'.e($subject).'</span>';
     }
     $html.='<h2>'.e($title).'</h2>';
+    if (($module['slug']??'')==='e2-sql') {
+        $html.='<p class="module-subtitle">Das Publikum darf helfen. Außer Sven. Sven hat uns hier reingeritten.</p>';
+    }
     $html.='<p>'.e($description).'</p>';
     if ($note!==null && !$comingSoon) $html.=$note;   // z. B. NERD-FM-Song freischaltbar (fertiges, escaptes HTML)
     if ($progress!==null) $html.=dtp_card_progress($progress);
