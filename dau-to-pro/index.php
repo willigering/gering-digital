@@ -289,12 +289,38 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">05 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">07 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <?php if (dtp_material_unlocked($learnerRow)): ?>
     <div class="unterricht-content">
       <div class="unterricht-grid">
+        <a class="module-card unterricht-card" style="--mod:#eac16f" href="unterricht/datenbanken-cap-acid-base.php" aria-label="CAP-Theorem, ACID und BASE interaktiv lernen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">C<span>//</span>A</span>
+            <span class="unterricht-art-label">DATENBANK-LAB <b>06</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · DATENBANKEN</span>
+            <h2>CAP, ACID &amp; BASE.</h2>
+            <p>Was passiert beim Serverausfall? Drei interaktive Labore zu Netzwerkpartitionen, Überweisungen und Replikation – mit Diagrammen und Prüfungsfragen.</p>
+            <div class="module-footer"><span>3 LABORE · 8 FRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#79d6bc" href="unterricht/er-modelle-interaktiv.php" aria-label="ER-Modelle interaktiv verstehen und üben">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">1<span>:</span>n</span>
+            <span class="unterricht-art-label">ER-MODELLE <b>07</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · DATENMODELLIERUNG</span>
+            <h2>Beziehungen statt Bauchgefühl.</h2>
+            <p>Entitytypen, Attribute, 1:1 / 1:n / m:n, Schlüssel und Zwischentabellen. Interaktives ER-Diagramm, Zuordnung und Praxisaufgaben.</p>
+            <div class="module-footer"><span>5 ABSCHNITTE · 5 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
           <div class="module-art unterricht-art">
             <span class="unterricht-art-orbit" aria-hidden="true"></span>
@@ -361,7 +387,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           </div>
         </a>
       </div>
-      <p class="unterricht-account-hint">IT VI.01 und ITIL &amp; IT-Recht nutzen dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar.</p>
+      <p class="unterricht-account-hint">IT VI.01 und ITIL &amp; IT-Recht nutzen dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar. Die neuen Datenbank- und ER-Labore laufen interaktiv ohne personenbezogene Speicherung.</p>
     </div>
     <?php else: ?>
       <div class="unterricht-content">
