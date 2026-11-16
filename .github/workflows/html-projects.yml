@@ -98,6 +98,10 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/geringdigital-v3
         run: node tests/home_v3_browser.cjs
+      - name: Check ZomBUS room, driver disconnect, late join and persistence
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: npm ci --prefix tools/zombiebus && node tests/zombiebus_browser.cjs
       - name: Check wrong-answer feedback in all modules on desktop and mobile
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

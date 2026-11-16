@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101222">
+  <meta name="description" content="Linie 13 fährt auch nach der Apokalypse. Ein Koop-Browserspiel von Gering Digital für 1–4 Fahrgäste.">
+  <title>ZomBUS · Gering Digital</title>
+  <link rel="stylesheet" href="./game.css">
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <a href="/" class="brand"><img src="../assets/gering-digital-logo-icon.png" alt=""> Gering Digital</a>
+      <span class="route"><b>13</b> NACHTLINIE</span>
+    </header>
+    <section id="game" class="game" aria-label="Spielfeld" tabindex="-1">
+      <canvas id="scene" width="800" height="450" aria-label="Pixelart-Spielwelt der Nachtlinie 13"></canvas>
+      <div class="vignette"></div>
+      <div id="hud" class="hud" hidden>
+        <div class="stop"><b class="line">13</b><span><small id="phase">HALTESTELLE 01</small><strong id="stop">Döner-Eck</strong></span></div>
+        <div class="stats">
+          <div><small>LEBEN</small><strong id="health" class="hearts"></strong></div>
+          <div><small>MUNITION</small><strong id="ammo">18</strong></div>
+          <div class="fuel"><small>TANK <span id="fuel"></span></small><meter id="fuel-meter" min="0" max="100" low="32" value="16"></meter></div>
+        </div>
+      </div>
+      <div class="gate" id="gate">
+        <h1>Zom<em>BUS</em></h1>
+        <div class="gate-content">
+          <nav class="menu" id="main-menu" aria-label="Hauptmenü">
+            <button id="start" type="button">Bus starten</button>
+            <button id="open-join" type="button" class="secondary">Einsteigen</button>
+            <button id="open-settings" type="button" class="secondary">Einstellungen</button>
+          </nav>
+          <div id="join-panel" class="menu-panel" role="dialog" aria-labelledby="join-title" hidden>
+            <h2 id="join-title">Einsteigen</h2>
+            <form id="join">
+              <label for="room">Einladungslink oder Raumcode</label>
+              <input id="room" name="room" autocomplete="off" spellcheck="false" required>
+              <label for="name">Anzeigename</label>
+              <input id="name" name="name" placeholder="z. B. Nachteule" autocomplete="nickname" maxlength="18" required>
+              <div class="actions"><button id="join-button">Einsteigen</button><button id="join-back" type="button" class="secondary">Zurück</button></div>
+            </form>
+          </div>
+          <p id="status" role="status" hidden></p>
+          <noscript>Für dieses Spiel wird JavaScript benötigt.</noscript>
+        </div>
+      </div>
+      <button id="game-menu" class="secondary" type="button" aria-expanded="false" hidden>Spielmenü</button>
+      <div id="in-game-menu" class="dialog" role="dialog" aria-labelledby="game-menu-title" hidden>
+        <h2 id="game-menu-title">Spielmenü</h2>
+        <div class="menu">
+          <button id="invite" type="button">Link kopieren</button>
+          <button id="game-settings" type="button" class="secondary">Einstellungen</button>
+          <button id="resume" type="button" class="secondary">Weiterspielen</button>
+        </div>
+        <p id="notice" role="status" hidden></p>
+      </div>
+      <div id="settings" class="dialog" role="dialog" aria-labelledby="settings-title" hidden>
+        <h2 id="settings-title">Einstellungen</h2>
+        <label for="music">Musik</label><input id="music" type="range" min="0" max="100" value="30">
+        <label for="effects">Effekte</label><input id="effects" type="range" min="0" max="100" value="45">
+        <div class="actions"><button id="fullscreen" type="button">Vollbild</button><button id="settings-back" type="button" class="secondary">Zurück</button></div>
+        <p id="settings-status" role="status" hidden></p>
+      </div>
+      <div id="prompt" class="prompt" hidden><kbd>E</kbd><span></span></div>
+      <div id="trip" class="trip" hidden><small>NÄCHSTER HALT</small><strong></strong><progress max="6" value="0"></progress></div>
+      <div id="dispatch" class="dialog" hidden>
+        <h2>Fahrersitz</h2>
+        <p id="passenger-status"></p>
+        <p id="fuel-status"></p>
+        <div class="actions"><button id="depart">Abfahren</button><button id="stand" class="secondary">Sitz freigeben</button></div>
+      </div>
+      <div id="finished" class="dialog" hidden>
+        <small>ENDSTATION</small><h2>Alle an Bord angekommen.</h2>
+        <p id="result"></p><button id="restart">Neue Runde</button>
+      </div>
+      <div id="objective" class="objective" hidden></div>
+    </section>
+    <div class="dashboard">
+      <div class="controls" aria-label="Steuerung"><span><kbd>W A S D</kbd> Laufen</span><span><kbd>Maus</kbd> Zielen / Schießen</span><span><kbd>E</kbd> Interagieren</span></div>
+      <div id="crew-box" hidden><span class="crew-label">FAHRGÄSTE</span><ul id="crew" aria-label="Fahrgäste"></ul></div>
+    </div>
+  </main>
+  <script type="module" src="./client.mjs"></script>
+</body>
+</html>

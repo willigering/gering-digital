@@ -3,7 +3,7 @@ require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
 // DAU-TO-PRO-Lernmodule erscheinen nur auf /dau-to-pro/, hier steht stattdessen die eine DAU-TO-PRO-Karte unter „Sonstiges“.
-$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND slug<>'zombiebus' AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
     $preview=['src'=>$page['preview_image']??'','fit'=>$page['preview_fit']??'cover','x'=>(int)($page['preview_x']??50),'y'=>(int)($page['preview_y']??0)];
     if ($page['slug']==='speed' && $preview['src']==='') {
@@ -27,6 +27,13 @@ if (!in_array('speed', array_column($apps,'slug'), true)) {
         'preview_image'=>'assets/ruediger-vorschau.webp','preview_fit'=>'contain','preview_x'=>50,'preview_y'=>50
     ];
 }
+$apps[]=[
+    'is_html'=>true,'name'=>'ZomBUS',
+    'short_description'=>'Sammelt Vorräte, haltet Zombies auf und bringt die Nachtlinie 13 zur Endstation. Koop für bis zu vier Fahrgäste.',
+    'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+    'play_url'=>'','apple_url'=>'','slug'=>'zombiebus',
+    'preview_image'=>'zombiebus/assets/pixelart/preview.png','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
+];
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
 $categories=project_categories();
 unset($categories['lernen']); // kein eigener Filter mehr: DAU TO PRO läuft unter „Sonstiges“
@@ -159,9 +166,10 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn'],true)?' project-preview-wide':''):''?>">
+          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn','zombiebus'],true)?' project-preview-wide':''):''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
+              <?php if($app['slug']==='zombiebus'): ?><span class="zombiebus-tile-title" aria-hidden="true">Zom<b>BUS</b></span><?php endif; ?>
             <?php elseif(!empty($app['is_html'])): ?>
               <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
             <?php else: ?>

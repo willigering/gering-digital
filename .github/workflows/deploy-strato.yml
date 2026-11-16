@@ -25,6 +25,7 @@ jobs:
       STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
       CF_TURN_ID: ${{ secrets.CF_TURN_ID }}
       CF_TURN_KEY: ${{ secrets.CF_TURN_KEY }}
+      ZOMBIEBUS_WS_URL: ${{ vars.ZOMBIEBUS_WS_URL }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -75,6 +76,7 @@ jobs:
           import os
           import pathlib
           import posixpath
+          import re
           import subprocess
           import tempfile
 
@@ -92,6 +94,9 @@ jobs:
           port = int(os.environ.get('STRATO_PORT') or '22')
           if not 1 <= port <= 65535:
               raise SystemExit('Invalid SFTP port')
+          zombiebus_url = os.environ.get('ZOMBIEBUS_WS_URL', '').strip()
+          if zombiebus_url and not re.fullmatch(r'wss://[A-Za-z0-9.-]+(?::[0-9]+)?/ws', zombiebus_url):
+              raise SystemExit('ZOMBIEBUS_WS_URL must be a public wss:// URL ending in /ws')
 
           # Never upload application-generated content, account data, or secrets.
           blocked_dirs = {'data', 'uploads', 'runtime', 'node_modules', '.git',
@@ -111,6 +116,7 @@ jobs:
               relative = pathlib.PurePosixPath(os.fsdecode(raw))
               parts = relative.parts
               if (relative.is_absolute() or '..' in parts
+                      or parts[:2] == ('tools', 'zombiebus')
                       or any(p in blocked_dirs or p.lower().endswith('uploads') for p in parts[:-1])
                       or any(p.startswith('.') for p in parts[:-1])
                       or parts[-1].startswith('.env')
@@ -138,7 +144,10 @@ jobs:
 
           # Install additive XP dependencies before PHP entry points can reference them.
           # The compatibility guard in xp_lib.php lets old/new achievement code coexist during upload.
-          first = ['module_release_lib.php', 'xp-config.json', 'xp_lib.php', 'lib.php',
+          first = ['zombiebus/.htaccess', 'zombiebus/world.mjs', 'zombiebus/art.mjs',
+                   'zombiebus/client.mjs', 'zombiebus/game.css', 'zombiebus/index.html',
+                   'assets/zombiebus-vorschau.webp',
+                   'module_release_lib.php', 'xp-config.json', 'xp_lib.php', 'lib.php',
                    'dau-to-pro/profiles.js', 'dau-to-pro/progress-panels.php',
                    'dau-to-pro/api/profile.php']
           priority = {name: i for i, name in enumerate(first)}
@@ -185,6 +194,10 @@ jobs:
                                       directories.add(current)
                           sftp.put(str(local), target, confirm=True)
                           print('Uploaded:', relative)
+                          if relative == 'zombiebus/index.html' and zombiebus_url:
+                              config = posixpath.join(parent, 'server-config.json')
+                              sftp.putfo(io.BytesIO(json.dumps({'endpoint': zombiebus_url}).encode()), config + '.tmp', confirm=True)
+                              sftp.posix_rename(config + '.tmp', config)
                       # Publish the activation receipt LAST, atomically. Partial uploads never activate modules.
                       manifest_path = pathlib.Path('lernmodule/manifest.json')
                       manifest = json.loads(manifest_path.read_text())
