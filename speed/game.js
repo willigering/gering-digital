@@ -560,13 +560,13 @@ function releaseHook(p) {
 // Was steckt in der Kiste? Fest je Position (alle Spieler sehen dasselbe). 'q' = Überraschung wie bisher.
 function boxKind(tx, ty) {
   const h = hash(tx * 7.31 + ty * 3.17); if (h < 0.5) return 'q';
-  const pool = ['rocket', 'turbo', 'shock', 'crate', 'lasso', 'ball', theme.item || 'rocket', theme.item || 'turbo'];
+  const pool = ['rocket', 'turbo', 'shock', 'crate', 'lasso', theme.item || 'rocket', theme.item || 'turbo'];
   return pool[fl(hash(tx * 1.9 + ty * 5.3 + 11) * pool.length)];
 }
 function rollItem() {
   let ahead = 0, n = 0; for (const r of remotes.values()) if (r.alive) { n++; if (r.rx > me.x) ahead++; }
   const w = theme.item || 'rocket'; // jede Welt hat ihr eigenes Item, der Schneeball gibt es nur im Schnee
-  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo', w] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', 'ball', w, w];
+  const pool = n && !ahead ? ['crate', 'crate', 'shock', 'turbo', w] : ['rocket', 'rocket', 'lasso', 'turbo', 'shock', 'crate', w, w];
   return pool[fl(Math.random() * pool.length)];
 }
 function nearestAhead(maxD) {
