@@ -169,6 +169,7 @@ async function run() {
   await use(again, 'Waschstraße starten', () => again.world.wash > 0);
   await until(() => again.world.zombies.some(z => z.spinning), 'No zombie spun in the wash');
   await until(() => ben.world.zombies.some(z => z.spinning), 'Wash is not synchronized');
+  if (again.player.y < 174) await move(again, 's', p => p.y >= 177);
   await move(again, 'd', p => p.x >= 666);
   await move(again, 'w', p => p.y <= 157);
   await use(again, 'Kanister nehmen', () => again.player.cargo === 'fuel');
