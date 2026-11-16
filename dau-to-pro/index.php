@@ -282,14 +282,14 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
 </section>
 
 <section class="unterricht-collection" aria-labelledby="unterricht-title">
-  <details id="unterrichtsmaterial" class="unterricht-accordion"<?=isset($_GET['material']) && dtp_material_unlocked($learnerRow) ? ' open' : ''?>>
+  <details id="unterrichtsmaterial" class="unterricht-accordion"<?=(isset($_GET['material']) || $learnerRow !== null) ? ' open' : ''?>>
     <summary>
       <span class="unterricht-summary-copy">
         <span class="unterricht-kicker">EIGENER BEREICH · DEINE LERNUNTERLAGEN</span>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">07 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">08 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <?php if (dtp_material_unlocked($learnerRow)): ?>
@@ -319,6 +319,19 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <h2>Beziehungen statt Bauchgefühl.</h2>
             <p>Entitytypen, Attribute, 1:1 / 1:n / m:n, Schlüssel und Zwischentabellen. Interaktives ER-Diagramm, Zuordnung und Praxisaufgaben.</p>
             <div class="module-footer"><span>5 ABSCHNITTE · 5 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#edbb70" href="unterricht/er-diagramme-bauen.php" aria-label="Eigene ER-Diagramme erstellen und Aufgaben generieren">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">ER<span>↔</span></span>
+            <span class="unterricht-art-label">ZEICHENLABOR <b>08</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · DATENMODELLIERUNG</span>
+            <h2>Begriffe rein. Beziehungen klar.</h2>
+            <p>Begriffe aufs Blatt ziehen, Rechtecke, Rauten oder Ovale setzen, Schlüssel unterstreichen, verbinden und selbst prüfen. Neue Aufgaben auf Knopfdruck.</p>
+            <div class="module-footer"><span>AUFGABENGENERATOR · DRAG &amp; DROP</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
@@ -387,11 +400,11 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           </div>
         </a>
       </div>
-      <p class="unterricht-account-hint">IT VI.01 und ITIL &amp; IT-Recht nutzen dein Lernkonto. Die C#-T05-Übungen speichern den Stand im Browser und können als Datei exportiert werden. C#-Grundlagen und Support-Guide sind ohne Lernkonto direkt lesbar. Die neuen Datenbank- und ER-Labore laufen interaktiv ohne personenbezogene Speicherung.</p>
+      <p class="unterricht-account-hint">Alle Lernkonto-Mitglieder können die Unterrichtsmaterialien ohne zusätzliche Freischaltung öffnen. Einige Übungen speichern Fortschritt im Konto, andere nur lokal im Browser. Das neue ER-Zeichenlabor erstellt Aufgaben auf Knopfdruck.</p>
     </div>
     <?php else: ?>
       <div class="unterricht-content">
-        <a class="secondary-action" href="konto.php?material=1#unterrichtszugang"><?=$learnerRow ? 'Im Konto freischalten' : 'Zum Freischalten anmelden'?> →</a>
+        <p class="unterricht-account-hint">Mit einem kostenlosen Lernkonto stehen dir alle Unterrichtsmaterialien direkt zur Verfügung – kein zusätzliches Passwort.</p><a class="secondary-action" href="konto.php?material=1">Mit Lernkonto anmelden →</a>
       </div>
     <?php endif; ?>
   </details>

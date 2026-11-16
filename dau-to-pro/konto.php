@@ -38,7 +38,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             case 'login':
                 learner_login($username,(string)($_POST['password']??''),!empty($_POST['remember']));
                 // Nach der Anmeldung geht es zurück auf die DAU-TO-PRO-Hauptseite (oder direkt ins gewünschte Modul).
-                header('Location: '.(!empty($_POST['material']) ? 'konto.php?material=1#unterrichtszugang' : ($next!==''?'../'.$next.'/':'./')),true,303);exit;
+                header('Location: '.(!empty($_POST['material']) ? './?material=1#unterrichtsmaterial' : ($next!==''?'../'.$next.'/':'./')),true,303);exit;
             case 'recover':
                 learner_spam_check($_POST);
                 $code=learner_recover($username,(string)($_POST['code']??''),(string)($_POST['password']??''),(string)($_POST['password2']??''));
@@ -69,16 +69,6 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 if(!is_array($slots)) throw new LearnerError('Ungültige Vitrine.');
                 xp_set_showcase($id,$slots);
                 konto_back('',['ok'=>'Vitrine gespeichert.','section'=>'vitrine']);
-            case 'material_unlock':
-                if (learner_rate_count('material_unlock','user:'.$id,900)>=5)
-                    throw new LearnerError('Zu viele Versuche. Bitte warte 15 Minuten.');
-                learner_rate_add('material_unlock','user:'.$id);
-                $materialPassword=getenv('DTP_MATERIAL_PASSWORD');
-                if (!hash_equals($materialPassword !== false && $materialPassword !== '' ? $materialPassword : 'DAA', (string)($_POST['material_password']??'')))
-                    throw new LearnerError('Das Passwort für das Unterrichtsmaterial stimmt nicht.');
-                $_SESSION['dtp_material_learner']=$id;
-                header('Location: ./?material=1#unterrichtsmaterial',true,303);
-                exit;
             case 'highscore':
                 $visible=($_POST['visible']??'')==='1';
                 ach_set_visible($id,$visible,($_POST['public']??'')==='1');
@@ -273,17 +263,10 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
           <button class="secondary-action" type="submit">Neuen Code erzeugen</button>
         </form>
       </details>
-      <details class="settings-item" id="unterrichtszugang"<?=isset($_GET['material'])||($flash['section']??'')==='material_unlock'?' open':''?>>
+      <details class="settings-item" id="unterrichtszugang"<?=isset($_GET['material'])?' open':''?>>
         <summary>Unterrichtsmaterial</summary>
-        <?php if (dtp_material_unlocked($learner)): ?>
-          <a class="secondary-action" href="./#unterrichtsmaterial">Zum Unterrichtsmaterial →</a>
-        <?php else: ?>
-          <form method="post">
-            <?=$hidden('material_unlock')?>
-            <label>Passwort für das Unterrichtsmaterial<input type="password" name="material_password" required maxlength="100" autocomplete="off"></label>
-            <button class="primary-action" type="submit">Freischalten</button>
-          </form>
-        <?php endif; ?>
+        <p class="field-hint">Mit deinem Lernkonto hast du sofort Zugang zum gesamten Unterrichtsmaterial. Kein zusätzliches Passwort erforderlich.</p>
+        <a class="secondary-action" href="./?material=1#unterrichtsmaterial">Zum Unterrichtsmaterial →</a>
       </details>
       <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'?' open':''?>>
         <summary><span><b>Sichtbarkeit im Highscore</b><small><?=$achStats['visible']?'Eingeschaltet: andere Lernende sehen dich im Highscore.':'Ausgeschaltet: du bist im Highscore unsichtbar.'?></small></span></summary>
