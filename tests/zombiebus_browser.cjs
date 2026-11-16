@@ -205,6 +205,21 @@ async function run() {
   assert.equal(Object.keys(restored.world.players).length, 1);
   assert.equal(restored.player.inside, true);
 
+  await move(restored, 's', p => p.y >= 309);
+  await use(restored, 'Aussteigen', () => !restored.player.inside);
+  await move(restored, 's', p => p.y >= 365);
+  await move(restored, 'd', p => p.x >= 531);
+  await use(restored, 'Kanister nehmen', () => restored.player.cargo === 'fuel');
+  await move(restored, 'a', p => p.x <= 339);
+  await move(restored, 'w', p => p.y <= 338);
+  await use(restored, 'Vorrat ablegen', () => restored.world.fuel === 64);
+  await use(restored, 'Einsteigen', () => restored.player.inside);
+  await move(restored, 'd', p => p.x >= 339);
+  await use(restored, 'Ans Steuer', () => restored.world.driver === restored.id);
+  await restored.page.locator('#depart').click();
+  await until(() => restored.world.phase === 'complete', 'Solo player did not reach the terminus', 9000);
+  assert.equal(await restored.page.locator('#finished h2').textContent(), 'Alle an Bord angekommen.');
+
   const stalled = new WebSocket('ws://127.0.0.1:' + gamePort + '/ws', {
     origin: base, autoPong: false
   });
@@ -216,22 +231,6 @@ async function run() {
   await until(() => !Object.values(restored.world.players).some(p => p.name === 'Funkloch'), 'Heartbeat did not remove stale player', 10000);
   assert.ok(performance.now() - stalledSince >= 4500, 'Heartbeat timed out prematurely');
   await drop;
-
-  await move(restored, 's', p => p.y >= 309);
-  await use(restored, 'Aussteigen', () => !restored.player.inside);
-  await move(restored, 'd', p => p.x >= 691);
-  await move(restored, 'w', p => p.y <= 201);
-  await use(restored, 'Kanister nehmen', () => restored.player.cargo === 'fuel');
-  await move(restored, 's', p => p.y >= 338);
-  await move(restored, 'a', p => p.x <= 339);
-  if (restored.player.y > 338) await move(restored, 'w', p => p.y <= 338);
-  await use(restored, 'Vorrat ablegen', () => restored.world.fuel === 64);
-  await use(restored, 'Einsteigen', () => restored.player.inside);
-  await move(restored, 'd', p => p.x >= 339);
-  await use(restored, 'Ans Steuer', () => restored.world.driver === restored.id);
-  await restored.page.locator('#depart').click();
-  await until(() => restored.world.phase === 'complete', 'Solo player did not reach the terminus', 9000);
-  assert.equal(await restored.page.locator('#finished h2').textContent(), 'Alle an Bord angekommen.');
   assert.deepEqual([...ada.errors, ...ben.errors, ...again.errors, ...restored.errors], []);
   console.log('ZomBUS: tile, direct URL, mid-stop join, driver close, rejoin, shooting, wash, cargo, trip, save/restart, heartbeat and solo arrival passed.');
 }
