@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101222">
+  <meta name="description" content="Linie 13 fährt auch nach der Apokalypse. Ein Koop-Browserspiel von Gering Digital für 1–4 Fahrgäste.">
+  <title>ZomBUS!!! · Gering Digital</title>
+  <link rel="stylesheet" href="./game.css">
+</head>
+<body>
+  <main>
+    <header class="masthead">
+      <a href="/" class="brand"><img src="../assets/gering-digital-logo-icon.png" alt=""> Gering Digital</a>
+      <span class="route"><b>13</b> NACHTLINIE</span>
+    </header>
+    <div class="heading">
+      <div><h1>Zom<em>BUS!!!</em></h1><p>Die letzte Linie fährt noch. Steig ein.</p></div>
+      <button id="invite" class="secondary" hidden>Einladungslink kopieren</button>
+    </div>
+    <section id="game" class="game" aria-label="Spielfeld">
+      <canvas id="scene" width="800" height="450" aria-label="Pixelart-Spielwelt der Nachtlinie 13"></canvas>
+      <div class="vignette"></div>
+      <div id="hud" class="hud" hidden>
+        <div class="stop"><b class="line">13</b><span><small id="phase">HALTESTELLE 01</small><strong id="stop">Döner-Eck</strong></span></div>
+        <div class="stats">
+          <div><small>LEBEN</small><strong id="health" class="hearts"></strong></div>
+          <div><small>MUNITION</small><strong id="ammo">18</strong></div>
+          <div class="fuel"><small>TANK <span id="fuel"></span></small><meter id="fuel-meter" min="0" max="100" low="32" value="16"></meter></div>
+        </div>
+      </div>
+      <div class="gate" id="gate">
+        <div class="gate-content">
+          <div class="badge">1–4 FAHRGÄSTE</div>
+          <h2 id="gate-title">Bereit zur Abfahrt?</h2>
+          <p id="gate-copy">Sammle Vorräte, halte die Bustür frei und bring die Nachtlinie zur Endstation.</p>
+          <form id="join">
+            <label for="name">Dein Name</label>
+            <input id="name" name="name" placeholder="z. B. Nachteule" autocomplete="nickname" maxlength="24" required>
+            <button id="join-button">Bus starten <span aria-hidden="true">→</span></button>
+          </form>
+          <p id="status" role="status"></p>
+          <noscript>Für dieses Spiel wird JavaScript benötigt.</noscript>
+        </div>
+      </div>
+      <div id="prompt" class="prompt" hidden><kbd>E</kbd><span></span></div>
+      <div id="trip" class="trip" hidden><small>NÄCHSTER HALT</small><strong></strong><progress max="6" value="0"></progress></div>
+      <div id="dispatch" class="dialog" hidden>
+        <h2>Fahrersitz</h2>
+        <p id="passenger-status"></p>
+        <p id="fuel-status"></p>
+        <div class="actions"><button id="depart">Abfahren</button><button id="stand" class="secondary">Sitz freigeben</button></div>
+      </div>
+      <div id="finished" class="dialog" hidden>
+        <small>ENDSTATION</small><h2>Alle an Bord angekommen.</h2>
+        <p id="result"></p><button id="restart">Neue Runde</button>
+      </div>
+      <div id="objective" class="objective" hidden></div>
+    </section>
+    <div class="dashboard">
+      <div class="controls" aria-label="Steuerung"><span><kbd>W A S D</kbd> Laufen</span><span><kbd>Maus</kbd> Zielen / Schießen</span><span><kbd>E</kbd> Interagieren</span></div>
+      <div id="crew-box" hidden><span class="crew-label">FAHRGÄSTE</span><ul id="crew" aria-label="Fahrgäste"></ul></div>
+    </div>
+    <p id="notice" class="notice" role="status"></p>
+  </main>
+  <script type="module" src="./client.mjs"></script>
+</body>
+</html>
