@@ -123,7 +123,8 @@ async function run() {
         .every(file => resources.some(entry => entry.name.endsWith('/' + file)));
     });
     await first.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-    await first.locator('#scene').screenshot({ path: screenshot });
+    const image = await first.locator('#scene').evaluate(canvas => canvas.toDataURL('image/png').split(',')[1]);
+    fs.writeFileSync(screenshot, Buffer.from(image, 'base64'));
     await first.screenshot({ path: screenshot.replace(/\.png$/, '-page.png') });
   }
   await first.goto(base + '/zombiebus/?server=' + gamePort);
