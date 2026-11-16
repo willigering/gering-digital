@@ -164,6 +164,29 @@ body.game .corner{display:none}
 #touch button.dn{transform:translateY(5px);box-shadow:0 1px 0 #8a5a2c,0 1px 0 4px #2a1206!important;filter:brightness(1.1)}
 @media (pointer:coarse){body.game #touch{display:block}}
 body.game #quit{display:block}
+.feedback-link{
+  position:fixed;
+  left:max(12px,env(safe-area-inset-left));
+  bottom:max(12px,env(safe-area-inset-bottom));
+  z-index:2;
+  display:grid;
+  place-items:center;
+  min-height:44px;
+  padding:0 12px;
+  border:2px solid #a77448;
+  border-radius:12px;
+  background:#341709;
+  color:var(--cream);
+  font-size:14px;
+  font-weight:600;
+  text-decoration:none;
+}
+.feedback-link:hover,.feedback-link:focus-visible{border-color:var(--gold)}
+.feedback-link:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+body.game .feedback-link,
+body.lobbyview .feedback-link,
+#opts.on ~ .feedback-link,
+body:has(#play:not([hidden])) .feedback-link{display:none}
 </style>
 </head>
 <body>
@@ -269,6 +292,8 @@ body.game #quit{display:block}
     <div class="row"><button id="leave" class="gbtn cream" style="flex:0 0 auto;width:260px">Verlassen</button></div>
   </div>
 </div>
+
+<a class="feedback-link" href="mailto:info@geringdigital.de?subject=Feedback%20-%20R%C3%BCdiger">Feedback</a>
 
 <button id="quit">✕ Verlassen</button>
 <div id="touch">
