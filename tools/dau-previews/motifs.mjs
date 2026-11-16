@@ -505,7 +505,8 @@ function datenbanken(id) {
     ${table(750,'TICKET', [['TEAM','TITEL'],['10','WLAN'],['10','SWITCH']])}
     <path d="M530 374H625V374H750M625 374V432H750" fill="none" stroke="${GOLD}" stroke-width="5"/>
     <circle cx="625" cy="374" r="8" fill="${GOLD_LITE}"/>
-    <text x="640" y="605" text-anchor="middle" font-family="${SANS}" font-size="50" font-weight="900" fill="${GOLD_LITE}">SELECT * FROM DURCHBLICK</text>`;
+    <text x="640" y="554" text-anchor="middle" font-family="${SANS}" font-size="39" font-weight="900" fill="${CREAM}">UND JETZT ZUR BLITZRUNDE:</text>
+    <text x="640" y="611" text-anchor="middle" font-family="${SANS}" font-size="49" font-weight="900" fill="${GOLD_LITE}">WER HAT NOCH EIN BACKUP?</text>`;
 }
 
 export const motifs = [

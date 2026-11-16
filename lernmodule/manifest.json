@@ -6,7 +6,7 @@
       "preview": "datenbanken-sql",
       "file": "e2-sql.html",
       "subject": "Datenbanken & SQL",
-      "title": "SELECT * FROM Durchblick",
+      "title": "Und jetzt zur Blitzrunde: Wer hat noch ein Backup?",
       "description": "Modelliere den Helpdesk, filtere Tickets mit SQL und finde heraus, warum ein DELETE ohne WHERE den Nachmittag ruiniert."
     },
     {

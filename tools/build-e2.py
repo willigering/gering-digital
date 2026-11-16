@@ -10,7 +10,7 @@ from module_theme import apply_theme
 
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / 'tools'
-TITLE = 'SELECT * FROM Durchblick'
+TITLE = 'Und jetzt zur Blitzrunde: Wer hat noch ein Backup?'
 DESCRIPTION = 'Modelliere den Helpdesk, filtere Tickets mit SQL und finde heraus, warum ein DELETE ohne WHERE den Nachmittag ruiniert.'
 
 def between(html, start, stop, value):
@@ -127,12 +127,12 @@ html=re.sub(r"const SPRINT_SUBS=\[.*?\];","const SPRINT_SUBS=SUBS.filter(t=>['wo
 html=re.sub(r"\s*window\.dtpMountCalculator\?\.\([^;]*\);","",html)
 for old,new in {
  'WIRTSCHAFT &amp; PROJEKTE <b>//</b> KALKULATION &amp; BESCHAFFUNG <b>//</b> MODUL F2':'GRUNDLAGEN <b>//</b> DATENBANKEN &amp; SQL <b>//</b> MODUL E2',
- 'Rechnet <span>sich das?</span>':'SELECT * FROM <span>Durchblick</span>',
- 'Rabatt, Skonto und eine kleine Rate. Das Angebot sieht gut aus, bis du den Rest der Rechnung liest. Hier rechnest du aus, was wirklich auf dem Konto landet oder davon abgeht.':'Dein Helpdesk hat 400 Tickets und drei Listen mit leicht verschiedenen Zahlen. Bau ein Datenmodell, schreib SQL und finde heraus, welches Team wirklich alles offen hat.',
+ 'Rechnet <span>sich das?</span>':'Und jetzt zur Blitzrunde: <span>Wer hat noch ein Backup?</span>',
+ 'Rabatt, Skonto und eine kleine Rate. Das Angebot sieht gut aus, bis du den Rest der Rechnung liest. Hier rechnest du aus, was wirklich auf dem Konto landet oder davon abgeht.':'Das Publikum darf helfen. Außer Sven. Sven hat uns hier reingeritten.',
  'Rechenwege statt Bauchgefühl':'Daten nach Plan',
  'Vom Preisschild <span>zum Durchblick.</span>':'Vom ersten Ticket <span>zur eigenen Abfrage.</span>',
  'Alles zum Nachrechnen. <span>Cent für Cent.</span>':'Alles zum Nachschlagen. <span>Zeile für Zeile.</span>',
- 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0':'Modul E2 · Datenbanken &amp; SQL · SELECT * FROM Durchblick · v1.0',
+ 'Modul F2 · Kalkulation &amp; Beschaffung · Rechnet sich das? · v1.0':'Modul E2 · Datenbanken &amp; SQL · Und jetzt zur Blitzrunde: Wer hat noch ein Backup? · v1.0',
  'f2-kalk':'e2-sql','F2KALK_TEST':'E2SQL_TEST',
  "if(t.kind==='text')return esc(t.answer);":"if(t.kind!=='mc')return esc(t.answer);",
  "(t.kind==='text'?'text':t.kind==='num'?'decimal':'numeric')":"'text'",
