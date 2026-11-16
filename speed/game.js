@@ -23,6 +23,7 @@ const THEMES = [
   { item: 'jammer', name: 'Mond', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
   { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
+const VER = 82; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const PLAY = THEMES.map((t, i) => t.off ? -1 : i).filter(i => i >= 0); // spielbare Strecken (die senkrechten Etagen-Strecken sind vorerst aus der Auswahl genommen)
 const randMap = () => PLAY[fl(Math.random() * PLAY.length)];
@@ -308,7 +309,7 @@ const buildMap = i => { const th = THEMES[i]; if (th.vert) return buildV(th.vert
 const vFloor = i => (THEMES[i].fh || FH) * (THEMES[i].cols ? 12 : 8); // Bodenreihe einer Etagen-Map
 const startPos = slot => map.vert ? { x: map.wide ? (3 + (slot % 10) * 0.9) * T + 11 : VCOLS * T / 2 + (slot - 9.5) * 40, y: map.floor * T } : { x: START_X - slot * 17, y: F * T };
 // Zickzack: Strecke = Etagen × Breite + Weg auf der aktuellen Etage
-const progress = (x, y) => map.vert ? zigProg(x, y) : (x - START_X) / T; // Meter (1 Feld = 1 m)
+const progress = (x, y, sx = me.sx) => map.vert ? zigProg(x, y) : (x - (sx == null ? START_X : sx)) / T; // Meter (1 Feld = 1 m)
 function zigProg(x, y) { const W = map.W, k = Math.max(0, fl((map.floor * T - y) / (map.fh * T) + 0.05)), a = x / T; return k * W + (k % 2 ? W - a : a) - (map.wide ? 3 : W / 2); }
 // Boostfelder entzerren: in jeder Reihe höchstens eins pro 12 Felder (doppelte hintereinander bringen nichts)
 // Flow: Stachel- und Lavareihen nach 4 Feldern immer durch 2 sichere Felder unterbrechen. So kommt man immer raus
@@ -400,7 +401,7 @@ const me = {};
 function resetMe(slot) {
   const s = startPos(slot);
   Object.assign(me, { x: s.x, y: s.y, vx: 0, vy: 0, face: 1, ground: true, wall: 0, slide: false, hook: null,
-    stun: 0, slipT: 0, slow: 0, inv: 0, boost: 0, turbo: 0, item: null, jumps: 0, coy: 0, buf: 0, padCd: 0, launch: false, boosting: false, alive: true, miss: 0, drop: 0, coast: false, sc: false });
+    sx: s.x, stun: 0, slipT: 0, slow: 0, inv: 0, boost: 0, turbo: 0, item: null, jumps: 0, coy: 0, buf: 0, padCd: 0, launch: false, boosting: false, alive: true, miss: 0, drop: 0, coast: false, sc: false });
 }
 resetMe(0); me.alive = false;
 
@@ -883,7 +884,7 @@ async function joinLobby(id) {
     link = lk; status('');
     r.onclose = () => { if (link === lk) toMenu('Verbindung zum Host verloren.'); };
     pc.onconnectionstatechange = () => { if (pc.connectionState === 'failed' && link === lk) toMenu('Verbindung zum Host verloren.'); };
-    send({ t: 'join', name });
+    send({ t: 'join', name, v: VER });
   } catch (e) {
     try { if (pc) pc.close(); } catch { }
     history.replaceState(null, '', location.pathname); status(e && e.message ? e.message : 'Verbindung fehlgeschlagen.');
@@ -924,7 +925,7 @@ const Host = (() => {
   const mk = (sendRaw, close) => ({ id: nextId++, name: '', color: 0, score: 0, alive: false, s: null, in: false, sendRaw, close });
   const later = (ms, fn) => { L.at = Date.now() + ms; L.fn = fn; };
   function sendLobby() {
-    bc({ t: 'lobby', id: L.id, name: L.name, state: L.state === 'lobby' ? 'lobby' : 'game', map: L.map, host: L.host.id, ps: L.players.map(p => ({ id: p.id, name: p.name, c: p.color, sc: p.score })) });
+    bc({ t: 'lobby', v: VER, id: L.id, name: L.name, state: L.state === 'lobby' ? 'lobby' : 'game', map: L.map, host: L.host.id, ps: L.players.map(p => ({ id: p.id, name: p.name, c: p.color, sc: p.score })) });
   }
   function join(c, name) {
     if (c.in) return;
@@ -1010,10 +1011,10 @@ const Host = (() => {
   }
   H.handle = (c, m) => {
     if (!L || !m || typeof m !== 'object') return;
-    if (m.t === 'join') return join(c, m.name);
+    if (m.t === 'join') { if (m.v !== VER) { c.sendRaw(JSON.stringify({ t: 'err', m: 'Dein Spiel hat eine andere Version als der Host. Bitte Seite neu laden (Strg+F5).' })); return c.close(); } return join(c, m.name); }
     if (!c.in) return;
     switch (m.t) {
-      case 's': if (Array.isArray(m.s) && m.s.length <= 9) { c.s = m.s.map(v => +v || 0); if (c.alive && L.state === 'race') c.best = Math.max(c.best || 0, progress(c.s[0], c.s[1])); } break;
+      case 's': if (Array.isArray(m.s) && m.s.length <= 9) { c.s = m.s.map(v => +v || 0); if (c.alive && L.state === 'race') c.best = Math.max(c.best || 0, progress(c.s[0], c.s[1], START_X - Math.max(0, L.order.indexOf(c.id)) * 17)); } break;
       case 'ev': if (c.alive && L.state !== 'lobby') { m.id = c.id; bc(m, c); } break;
       case 'leave': if (c === H.local) H.close(); else { leave(c); c.close(); } break;
       case 'map': if (c === L.host && L.state === 'lobby') { const i = fl(+m.i); L.map = i >= 0 && i < NMAPS && !THEMES[i].off ? i : -1; sendLobby(); } break;
@@ -1091,6 +1092,7 @@ function onMsg(m) {
     case 'hi': myId = m.id; break;
     case 'err': toMenu(m.m); break;
     case 'lobby': {
+      if (m.v !== VER && !hosting) { toMenu('Der Host spielt eine andere Version. Bitte Seite neu laden (Strg+F5).'); break; }
       lobby = m;
       const ids = new Set();
       for (const p of m.ps) {
@@ -2050,6 +2052,7 @@ function render(now, dt, menu = false) {
   for (const [id, r] of remotes) {
     if (!r.alive || menu) continue; const p = interp(r, now); if (!p) continue;
     r.rx = p.x; r.ry = p.y; const s = p.s;
+    { const kx = fl(p.x / T); for (const yy of [p.y - 8, p.y - 28]) { const ky = fl(yy / T); if (tile(kx, ky) === 'K' && crateUp(kx, ky)) { crateBroken.set(kx + ',' + ky, now + 8000); dust(kx * T + 16, ky * T + 16, 14, '#c58a4a', 300); } } } // Kiste, durch die ein Mitspieler läuft, zerbricht auch hier
     if (s[4] === 3) { ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(p.x, p.y - 24); ctx.lineTo(s[6], s[7]); ctx.stroke(); }
     if (s[4] === 6) { if (!r.slip0) r.slip0 = now; slipK = (now - r.slip0) / 900; } else r.slip0 = 0;
     drawRunner(p.x, p.y, s[2], s[4], s[5], COLORS[r.color], now, false, s[8], cele && cele.id === id ? cele.dance : -1);
@@ -2079,7 +2082,6 @@ function render(now, dt, menu = false) {
   }
   // Name des Siegertanzes und Noten
   if (POSES_ON && cele && !menu && now - cele.t0 > 400) { const wp = posOf(cele.id); if (wp) {
-    text('♪ ' + DANCES[cele.dance] + ' ♪', wp.x, wp.y - 84, 15, '#ffd23f');
     for (let i = 0; i < 4; i++) { const k = ((now - cele.t0) / 1400 + i / 4) % 1; ctx.globalAlpha = 1 - k; text(i % 2 ? '♪' : '♫', wp.x + Math.sin(k * 6 + i) * 30 + (i - 1.5) * 16, wp.y - 50 - k * 50, 14, COLORS[(i * 3) % COLORS.length], 'center', false); }
     ctx.globalAlpha = 1; } }
   for (const p of parts) { ctx.globalAlpha = clamp(p.l * 3, 0, 1); ctx.fillStyle = p.c; ctx.fillRect(p.x - p.s / 2, p.y - p.s / 2, p.s, p.s); }
@@ -2174,12 +2176,15 @@ const myState = () => me.slipT > 0 ? 6 : me.stun > 0 ? 4 : me.hook ? 3 : me.slid
 // Rekord je Strecke (weiteste Strecke in Metern) und im Solo-Training der beste Lauf als Geist.
 const store = { get: k => { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { } } };
 let slipK = 0;
+function mapSig() { let h = 2166136261 >>> 0; const g = map.g; for (let y = 0; y < g.length; y++) { const row = g[y]; for (let x = 0; x < row.length; x++) { h ^= row[x].charCodeAt(0); h = Math.imul(h, 16777619) >>> 0; } } return (h >>> 0).toString(36) + ':' + map.W + 'x' + g.length; }
 let curMap = -1, run = null, ghost = null, recordShown = false;
 const bestOf = i => (store.get('hj_best_' + i) || 0);
 function startRun(i) {
   curMap = i; recordShown = false;
   run = { best: 0, solo, frames: [], last: 0 };
-  const gd = solo ? store.get('hj_ghost_' + i) : null; ghost = gd && gd.f && gd.f.length ? gd : null;
+  run.sig = mapSig(); const gd = solo ? store.get('hj_ghost_' + i) : null;
+  ghost = gd && gd.f && gd.f.length && gd.sig === run.sig ? gd : null;
+  if (gd && !ghost) { try { localStorage.removeItem('hj_ghost_' + i); } catch { } } // Geist einer älteren Streckenfassung: entfernen
 }
 function recordRun(now) {
   if (!run || !me.alive || now < goAt) return;
@@ -2192,7 +2197,7 @@ function endRun() {
   if (!run || curMap < 0) return;
   const d = Math.round(run.best);
   if (d > bestOf(curMap)) store.set('hj_best_' + curMap, d);
-  if (run.solo && run.frames.length > 40) { const old = store.get('hj_ghost_' + curMap); if (!old || d > old.d) store.set('hj_ghost_' + curMap, { d, f: run.frames }); }
+  if (run.solo && run.frames.length > 40) { const old = store.get('hj_ghost_' + curMap); if (!old || old.sig !== run.sig || d > old.d) store.set('hj_ghost_' + curMap, { d, f: run.frames, sig: run.sig }); }
   run = null;
 }
 function drawGhost(now) {
