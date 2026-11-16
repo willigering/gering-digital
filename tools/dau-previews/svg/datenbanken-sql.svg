@@ -62,6 +62,7 @@
     </g>
     <path d="M530 374H625V374H750M625 374V432H750" fill="none" stroke="#eab448" stroke-width="5"/>
     <circle cx="625" cy="374" r="8" fill="#ffd98a"/>
-    <text x="640" y="605" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="50" font-weight="900" fill="#ffd98a">SELECT * FROM DURCHBLICK</text>
+    <text x="640" y="554" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="39" font-weight="900" fill="#f5f0df">UND JETZT ZUR BLITZRUNDE:</text>
+    <text x="640" y="611" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="49" font-weight="900" fill="#ffd98a">WER HAT NOCH EIN BACKUP?</text>
   <rect width="1280" height="720" fill="url(#datenbanken-sql-vignette)" pointer-events="none"/>
 </svg>

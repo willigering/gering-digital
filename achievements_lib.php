@@ -76,7 +76,7 @@ function ach_modules(): array {
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 steht da. Der Internetzugang fehlt. Nicht jede Adresse ist eine Erfolgsmeldung.'],
         ]],
         // CS1 „Compiler sagt nein“ (ab 09.11.2026): Einstieg in die Programmierung. Eigener Präfix, damit alte C#-Lernstände unberührt bleiben.
-        'e2'=>['prefix'=>'e2-sql','subject'=>'Datenbanken & SQL','title'=>'SELECT * FROM Durchblick','motif'=>'datenbanken-sql','slugs'=>['e2-sql'],'stages'=>10,'list'=>[
+        'e2'=>['prefix'=>'e2-sql','subject'=>'Datenbanken & SQL','title'=>'Und jetzt zur Blitzrunde: Wer hat noch ein Backup?','motif'=>'datenbanken-sql','slugs'=>['e2-sql'],'stages'=>10,'list'=>[
             ['e2.start','bronze','Datenbank antwortet','Stufe 1 gemeistert.',['stage',0]],
             ['e2.keys','bronze','Schlüssel gefunden','Stufe 3 gemeistert.',['stage',2]],
             ['e2.normal','silber','Ganz normal hier','Stufe 5 gemeistert.',['stage',4]],

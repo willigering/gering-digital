@@ -187,7 +187,7 @@ Reihenfolge = Bau-Reihenfolge. Titel sind Vorschläge, du darfst witzigere finde
 | 12 | A2 | Hardware & Energie | RAID, aber bitte mit Sinn | a2-hardware.html | a2-hw | #6fe3c1 | hardware-memory |
 | 13 | A3 | Betriebssysteme & Terminal | sudo mach mal | a3-betriebssysteme.html | a3-os | #8bd5ca | circuit-micro |
 | 14 | E1 | Programmierung & Algorithmen | Schleife, bis es klickt | e1-programmierung.html | e1-prog | #a0a8ff | circuit-signal |
-| 15 | E2 | Datenbanken & SQL | SELECT * FROM Durchblick | e2-sql.html | e2-sql | #89b4fa | server |
+| 15 | E2 | Datenbanken & SQL | Und jetzt zur Blitzrunde: Wer hat noch ein Backup? | e2-sql.html | e2-sql | #89b4fa | server |
 | 16 | C1 | Virtualisierung & Cloud | Alles nur geliehen | c1-virtualisierung.html | c1-virt | #74c7ec | cables-fiber |
 | 17 | C2 | Server & Verzeichnisdienste | AGDLP und andere Zaubersprüche | c2-server.html | c2-ad | #94e2d5 | server |
 | 18 | C3 | Backup, Monitoring & Verfügbarkeit | Kein Backup, kein Mitleid | c3-backup.html | c3-backup | #a6e3a1 | hardware-connectors |

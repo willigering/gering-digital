@@ -76,6 +76,8 @@ function module_release_sync(PDO $db, ?string $root=null): void {
                 // Preserve publication, metadata, previews and independent admin drafts.
                 $draft=$page['draft_version']===$page['live_version']?$version:$page['draft_version'];
                 $db->prepare('UPDATE html_pages SET live_version=?,draft_version=?,updated_at=CURRENT_TIMESTAMP WHERE id=?')->execute([$version,$draft,$page['id']]);
+                if ($target==='e2-sql' && ($page['title']??'')==='SELECT * FROM Durchblick')
+                    $db->prepare('UPDATE html_pages SET title=? WHERE id=?')->execute([$m['title'],$page['id']]);
                 // Ersetzte Module: Steht noch der alte Standardtitel, kommen Titel, Fach und Beschreibung einmalig aus dem Manifest,
                 // und das neue Modul wird veröffentlicht. Eigene Admin-Titel bleiben unangetastet.
                 if (in_array((string)$page['title'],MODULE_RELEASE_REPLACED[$target]??[],true))
