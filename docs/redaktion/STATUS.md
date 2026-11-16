@@ -194,3 +194,11 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Ein Playwright/PHP-Test stellt Desktop- und Mobilansichten (1440, 820, 390, 320 px), Filter, 3D-Smartphone, Original-Quellsegment und JS-Fehlerfreiheit sicher.
 - Die parallele Radio-Vorspuländerung aus dem aktuellen Hauptbranch wurde erhalten und das Seek-Verhalten in Chromium abgesichert.
 - Erst erfolgreich geprüfter GitHub-Merge und abgeschlossener STRATO-Upload bestätigen die Live-Auslieferung.
+
+## 16.11.2026 – E2 Datenbanken & SQL
+
+- Zehn neue Lektionen und zehn Nachschlagekapitel mit Fällen aus einer Helpdesk-Datenbank. Historische Eckpunkte und die Nutzungserhebung sind im Modul mit Primärquellen verlinkt.
+- Eigener SQL-Mini-Interpreter für kontrollierte Lese- und Schreibbeispiele. 60 Aufgaben-IDs, davon sechs pro Stufe. Der Spickzettel enthält acht Basisabschnitte, drei Vertiefungen und 48 Fragen.
+- Sprach- und Fachprüfung für Lektionen, Aufgaben, Labore, Spickzettel und Kartenbeschreibung. Beispiel aus dem JOIN-Kapitel: „Ein Team ohne Ticket hätte plötzlich eins. Schöne Statistik, falscher Bericht.“ Die Erklärung benennt davor die ergänzte LEFT-JOIN-Zeile.
+- Lokal geprüft: 1.000 Generierungen pro Typ, 400 Ziehungen je Stufe ohne direkte Typ- oder Formwiederholung, sechs Typen und mindestens vier Formen in jedem Fenster von zehn Aufgaben, häufigste Form höchstens 40 %. Alle drei Prüfungslängen ergeben 100 Punkte. Laborergebnisse, NULL-Vergleiche und lokale Schreibsimulation geprüft.
+- Die DOM-Prüfung deckt Stufenfreigabe, Aufgabenbewertung, Zuordnen und Prüfungsabgabe ab. Das tatsächliche mobile Layout, Anmeldung und Produktionsdeployment stehen in der lokalen Abnahme noch aus.

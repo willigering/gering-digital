@@ -2,6 +2,86 @@
    Keine offiziellen IHK-Fragen. Je Themengebiet EIN zusammenhängender Spickzettel mit acht kompakten Abschnitten. Keine 88 Einzelkarten. */
 globalThis.DTP_CHEAT_GROUPS=[
 {
+  "id": "datenbanken",
+  "name": "Datenbanken & SQL",
+  "symbol": "SQL",
+  "color": "#89b4fa",
+  "sections": [
+    [
+      "Datenbank und DBMS",
+      "Vom Programm zur gespeicherten Zeile.",
+      "Datenbank::Datenbestand mit Struktur.|DBMS::Verwaltet Daten, Abfragen, Regeln und Zugriffe.|SQL::Sprache für Abfragen und Änderungen.",
+      "Was verarbeitet die SQL-Anfrage einer Web-App?",
+      "Das DBMS nimmt sie entgegen, prüft und führt sie aus.",
+      "PostgreSQL ist ein DBMS. SQL ist die Sprache.",
+      "GRUNDLAGEN"
+    ],
+    [
+      "Modelle und Einsatz",
+      "Wähle nach Daten, Regeln und typischen Zugriffen.",
+      "Relational::Tabellen und Beziehungen über Schlüssel.|Dokument::Verschachtelte Datensätze, z. B. MongoDB.|Graph::Knoten und Kanten, z. B. Neo4j.|Schlüssel-Wert::Direkter Zugriff über einen Schlüssel.",
+      "Welches eingebettete SQL-System passt oft zur lokalen Einzelplatz-App?",
+      "SQLite. Die Engine läuft in der App.",
+      "Cloud-Betrieb ist eine Betriebsform. Das Datenmodell ist eine eigene Entscheidung.",
+      "VERGLEICH"
+    ],
+    [
+      "Schlüssel und ER-Modell",
+      "Beziehungen werden aus fachlichen Regeln abgeleitet.",
+      "Primärschlüssel::Eindeutig und ohne NULL.|Fremdschlüssel::Sichert einen zulässigen Verweis.|1:n::Fremdschlüssel auf der n-Seite.|n:m::Zwischentabelle für die Schlüsselpaare.",
+      "Wie setzt du Ticket ↔ Tag bei n:m um?",
+      "Zwischentabelle ticket_tag mit zwei Fremdschlüsseln, z. B. mit dem Paar als Primärschlüssel.",
+      "UNIQUE auf einem Fremdschlüssel begrenzt die Zahl der Zeilen pro Ziel auf höchstens eins.",
+      "MODELLIERUNG"
+    ],
+    [
+      "Normalformen",
+      "Abhängigkeiten bestimmen, wohin ein Feld gehört.",
+      "1NF::Einzelwerte, keine Wiederholungsgruppen.|2NF::Nichtschlüsselfelder hängen vom ganzen Kandidatenschlüssel ab.|3NF::Im einfachen Fall keine transitiven Abhängigkeiten über Nichtschlüsselfelder.",
+      "Was tun, wenn teamname in ticket nur von team_id abhängt?",
+      "Teamname in team pflegen. ticket speichert den Bezug per team_id.",
+      "Eine neue künstliche ID allein beseitigt fachliche Abhängigkeiten nicht.",
+      "ENTWURF"
+    ],
+    [
+      "SELECT und Filter",
+      "Spalten, Zeilen und Reihenfolge getrennt bestimmen.",
+      "SELECT::Ausgabespalten.|WHERE::Zeilenfilter.|ORDER BY::Sortierung, DESC absteigend.|IS NULL::Fehlende Werte erkennen.",
+      "Wie findest du Tickets ohne eingetragene Minuten?",
+      "SELECT id FROM ticket WHERE minuten IS NULL;",
+      "Ohne ORDER BY gibt es keine garantierte Reihenfolge.",
+      "SQL"
+    ],
+    [
+      "Gruppen und JOINs",
+      "Zeilen filtern, kombinieren und zusammenfassen.",
+      "GROUP BY::Bildet Gruppen.|HAVING::Filtert Gruppen.|INNER JOIN::Nur passende Zeilenpaare.|LEFT JOIN::Behält linke Zeilen ohne Treffer.",
+      "Welches COUNT liefert im LEFT JOIN für ein Team ohne Tickets 0?",
+      "COUNT(ticket.id), wenn ticket.id der rechte Primärschlüssel ist.",
+      "COUNT(*) zählt auch die ergänzte Zeile mit NULL rechts mit.",
+      "ABFRAGEN"
+    ],
+    [
+      "Daten und Schema ändern",
+      "Änderungen eingrenzen und vor der Freigabe prüfen.",
+      "INSERT / UPDATE / DELETE::Zeilen einfügen, ändern, löschen.|CREATE / ALTER::Objekte anlegen oder Schema ändern.|COMMIT / ROLLBACK::Offene Transaktion übernehmen oder zurücknehmen.",
+      "Was trifft UPDATE ohne WHERE bei erfolgreicher Ausführung?",
+      "Alle Zeilen der Zieltabelle.",
+      "Vor UPDATE oder DELETE den Filter im passenden SELECT prüfen.",
+      "ÄNDERUNGEN"
+    ],
+    [
+      "Betrieb und Wiederherstellung",
+      "Datenschutzregeln, Performance und Ausfall getrennt betrachten.",
+      "Index::Kann passende Zugriffe beschleunigen.|Rollen::Nur die nötigen Rechte vergeben.|Backup::Wiederherstellung ausprobieren.|Replikation::Weitere Kopie aktuell halten.",
+      "Warum reicht eine aktuelle Replik nach einer versehentlichen Löschung oft nicht?",
+      "Die Löschung kann bereits repliziert worden sein. Eine getrennte Sicherung ermöglicht die Wiederherstellung.",
+      "Ein erfolgreicher Backup-Job beweist noch keinen erfolgreichen Restore.",
+      "BETRIEB"
+    ]
+  ]
+},
+{
  id:"zahlen",name:"Zahlensysteme",symbol:"01",color:"#f4aa5b",sections:[
  ["Bit, Byte & Co.","Die Einheiten entscheiden, ob deine Rechnung stimmt.","Bit::Kleinste Informationseinheit, 0 oder 1.|Byte::1 Byte = 8 Bit.|Größen::kB/MB sind nicht dasselbe wie kbit/Mbit.","Wie viele Bit sind 12 Byte?","12 × 8 = 96 Bit.","Großes B = Byte, kleines b = Bit. Klingt klein, macht Faktor 8.","BASIS"],
  ["Binär → Dezimal","Jedes gesetzte Bit zählt seinen Stellenwert.","Stellenwerte::128 · 64 · 32 · 16 · 8 · 4 · 2 · 1.|Regel::Werte der Einsen addieren.|Beispiel::10101100₂ = 128 + 32 + 8 + 4 = 172.","Welcher Dezimalwert steckt hinter 11001010₂?","128 + 64 + 8 + 2 = 202.","Nicht die Anzahl der Einsen zählen. Die Stellen haben unterschiedliche Gewichte.","RECHNEN"],

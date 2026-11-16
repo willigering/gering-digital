@@ -3,6 +3,20 @@
   "default": "it-grundlagen",
   "motifs": [
     {
+      "id": "datenbanken-sql",
+      "accent": "#89b4fa",
+      "label": "Datenbanken & SQL",
+      "slugs": [
+        "e2-sql"
+      ],
+      "keywords": [
+        "datenbanken",
+        "datenbank",
+        "sql-abfragen"
+      ],
+      "module": "E2"
+    },
+    {
       "id": "unternehmen",
       "accent": "#ff9a3c",
       "label": "Unternehmensformen & Märkte",

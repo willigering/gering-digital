@@ -14,7 +14,7 @@ function dtp_upper(string $s): string {return function_exists('mb_strtoupper')?m
 
 function dtp_topic(array $p): array {
     if (($p['slug']??'')==='a1-zahlensysteme') return ['sonstiges','IT-Grundlagen','05'];
-    if (($p['slug']??'')==='cs1-csharp') return ['sonstiges','IT-Grundlagen','05'];
+    if (in_array(($p['slug']??''),['cs1-csharp','e2-sql'],true)) return ['sonstiges','IT-Grundlagen','05'];
     if (($p['slug']??'')==='netzwerke-sprint') return ['netzwerk','Netzwerktechnik','02'];
     $t=dtp_lower(($p['subject']??'').' '.($p['title']??'').' '.($p['description']??'').' '.($p['slug']??''));
     if (($p['slug']??'')==='w4-unternehmen') return ['wirtschaft','Wirtschaft & Projekte','06'];

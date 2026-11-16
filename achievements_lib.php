@@ -76,6 +76,18 @@ function ach_modules(): array {
             ['b5.urlaub','witzig','DHCP auf Malle','3 × hintereinander falsch bei „DHCP-Server im Urlaub“.',['fails','d_holiday'],'169.254 steht da. Der Internetzugang fehlt. Nicht jede Adresse ist eine Erfolgsmeldung.'],
         ]],
         // CS1 „Compiler sagt nein“ (ab 09.11.2026): Einstieg in die Programmierung. Eigener Präfix, damit alte C#-Lernstände unberührt bleiben.
+        'e2'=>['prefix'=>'e2-sql','subject'=>'Datenbanken & SQL','title'=>'SELECT * FROM Durchblick','motif'=>'datenbanken-sql','slugs'=>['e2-sql'],'stages'=>10,'list'=>[
+            ['e2.start','bronze','Verbindung steht','Stufe 1 gemeistert.',['stage',0]],
+            ['e2.keys','bronze','Schlüssel gefunden','Stufe 3 gemeistert.',['stage',2]],
+            ['e2.normal','silber','Ganz normal hier','Stufe 5 gemeistert.',['stage',4]],
+            ['e2.joins','silber','Passt zusammen','Stufe 8 gemeistert.',['stage',7]],
+            ['e2.lernpfad','gold','Durchblick gespeichert','Alle zehn Stufen gemeistert.',['path']],
+            ['e2.pruefung','gold','Bericht liegt vor','30-Minuten-Prüfung mit mindestens 81 %.',['exam',30,81]],
+            ['e2.marathon','platin','Das Audit kann kommen','90-Minuten-Prüfung mit mindestens 92 %.',['exam',90,92]],
+            ['e2.where','witzig','Mit Filter wär’s weniger Arbeit','3 × in Folge falsch beim Filter für ein UPDATE.',['fails','write_fix'],'Eine Ticket-ID, eine Zeile. Die anderen hatten heute frei.'],
+            ['e2.null','witzig','Hier fehlt was','3 × in Folge falsch bei der NULL-Prüfung.',['fails','sel_null'],'NULL hat sich erfolgreich vor dem Gleichheitszeichen versteckt.'],
+            ['e2.delete','witzig','Wer hat auf Löschen gedrückt?','3 × in Folge falsch bei DELETE ohne Filter.',['fails','write_delete'],'Die Tabelle ist jetzt sehr übersichtlich.'],
+        ]],
         'cs1'=>['prefix'=>'cs1-start','subject'=>'Programmieren mit C#','title'=>'Compiler sagt nein','motif'=>'csharp','slugs'=>['cs1-csharp'],'stages'=>10,'list'=>[
             ['cs1.hallo','bronze','Hallo, Programmierwelt','Stufe 1 „Was ist ein Programm?“ gemeistert.',['stage',0]],
             ['cs1.semikolon','bronze','Semikolon gesetzt','„Zeile reparieren“ 10 × in Folge richtig.',['clean',['g_fix']]],
