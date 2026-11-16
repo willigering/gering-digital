@@ -181,7 +181,7 @@ let server,browser;
 
   const workshop=page.locator('#werkstatt');
   assert.ok(await workshop.locator('a[href="unterricht/er-diagramme-bauen.php"]').isVisible());
-  assert.match(await workshop.locator('article.is-coming-soon').innerText(), /Finde den Fehler/);
+  assert.match(await workshop.locator('article.is-coming-soon').textContent(), /Finde den Fehler/);
   const afterLearning=await state();
   assert.equal(afterLearning.state,'playing','Music survives cheat sheets and classroom materials');
   assert.equal(afterLearning.track,before.track);
@@ -191,6 +191,28 @@ let server,browser;
   await page.goto(base+'/osi/',{waitUntil:'networkidle'});
   assert.ok(await page.locator('dtp-back #back-module').isVisible(),
     'Unframed modules keep their own Modulauswahl link');
+  await page.goto(base+'/dau-to-pro/unterricht/er-diagramme-bauen.php');
+  const board=page.locator('#ew-board');
+  await board.scrollIntoViewIfNeeded();
+  const nodes=board.locator('#ew-nodes [data-id]');
+  assert.ok(await nodes.count() >= 5,'ER terms start on the board');
+  const first=board.locator('[data-id="a"]'), second=board.locator('[data-id="r"]');
+  await first.click();
+  await page.locator('[data-ew-shape="entity"]').click();
+  assert.equal(await first.getAttribute('data-shape'),'entity');
+  await board.scrollIntoViewIfNeeded();
+  const a=await first.boundingBox(), b=await second.boundingBox();
+  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
+  await page.mouse.down();
+  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});
+  await page.mouse.up();
+  await page.locator('[data-ew-card="1"]').click();
+  const midpoint=await board.evaluate(svg=>{
+    const line=svg.querySelector('.ew-link'),badge=svg.querySelector('#ew-labels text');
+    return ['x','y'].every(axis=>Number(badge.getAttribute(axis))===
+      (Number(line.getAttribute(axis+'1'))+Number(line.getAttribute(axis+'2')))/2);
+  });
+  assert.ok(midpoint,'Kardinalität sitzt mittig auf der sichtbaren Verbindung');
   assert.deepEqual(errors,[],'No uncaught browser errors');
   console.log('PASS: NERD FM continues through module entry, switching, pause/resume and back navigation');
 })().catch(err=>{console.error(err);process.exitCode=1}).finally(async()=>{
