@@ -77,7 +77,7 @@ function ach_modules(): array {
         ]],
         // CS1 „Compiler sagt nein“ (ab 09.11.2026): Einstieg in die Programmierung. Eigener Präfix, damit alte C#-Lernstände unberührt bleiben.
         'e2'=>['prefix'=>'e2-sql','subject'=>'Datenbanken & SQL','title'=>'SELECT * FROM Durchblick','motif'=>'datenbanken-sql','slugs'=>['e2-sql'],'stages'=>10,'list'=>[
-            ['e2.start','bronze','Verbindung steht','Stufe 1 gemeistert.',['stage',0]],
+            ['e2.start','bronze','Datenbank antwortet','Stufe 1 gemeistert.',['stage',0]],
             ['e2.keys','bronze','Schlüssel gefunden','Stufe 3 gemeistert.',['stage',2]],
             ['e2.normal','silber','Ganz normal hier','Stufe 5 gemeistert.',['stage',4]],
             ['e2.joins','silber','Passt zusammen','Stufe 8 gemeistert.',['stage',7]],
