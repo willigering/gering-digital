@@ -1,7 +1,10 @@
-# Der Boden ist gekündigt (`/myground`)
+# Du kranst mich mal (`/myground`)
 
-Jeder gegen jeden im Greifkran. Drei verschiedene Stempel holen, dann zum Tor. Jeder Kran kann gelbe
-Bodenplatten greifen, um 90° drehen und woanders ablegen. Wer draufsteht, fährt mit.
+Brückenbau-Rennen im Greifkran, jeder gegen jeden. Die Papp-Inseln sind nicht verbunden: Wer zu den drei Stempeln und danach
+zum Ausgang will, legt sich mit gelben Platten Brücken. Platten sind knapp, jede liegende darf jeder Kran wegheben,
+auch aus fremden Brücken. Wer draufsteht, fährt mit (höchstens sechs Sekunden). Kräne fahren nur auf Boden und bleiben
+an jeder Kante stehen; es gibt kein Runterfallen, keinen Sprung und keine Planken. Wer festsitzt, lässt sich mit R zum
+Start schleppen.
 
 ## Aufbau
 
@@ -77,9 +80,10 @@ RELAY=1 node test/load-host.js            # dasselbe, Host erzwingt das Relay
 
 ### Stand 16.11.2026 (lokal, Windows, alles auf einem Rechner, Anmeldung über lokalen PHP-Server)
 
-- Regeln 14/14: gleichzeitiges Greifen, Mitfahren, Drehen, Ablegen, Ab- und Aufspringen, Absturz und Respawn,
-  Leitplanken, Zeitlimit, Gleichstand, Losentscheid ohne Stempel, Abbruch mit Platte am Haken (beim Ausfahren,
-  Tragen, Ablegen), 48er-Grenze, Bots. Signalisierung 4/4.
+- Regeln 16/16 (Stand Brückenbau-Rennen, nur `node --test test/rules.test.js`): Karte und Lückenlänge, kein Runterfallen,
+  Brücke bauen, gleichzeitiges Greifen, Ablegen, Mitfahren, Tragezeit mit Fahrgast, Zurück zum Start, Stempel und Sieg,
+  Zeitlimit und Los, Abbruch mit Platte am Haken, Plattenmenge je Kranzahl, 48er-Grenze, Bots bauen Brücken.
+  Die folgenden Browser-, Relay- und Lastläufe stammen vom alten Regelstand und sind seit dem Umbau nicht wiederholt.
 - Zwei unabhängige Chrome-Sitzungen (Host und Gast), direkt (host/udp): Eröffnen, Beitritt per Link, Rundenstart,
   Greifen, Drehen, Ablegen, Springen, drei Stempel, Sieg am Tor, Wiedereinstieg, Abbruch des Gasts, Beitritt einer
   dritten Sitzung über die Raumliste, Host weg mit Störungsmeldung beim Gast.

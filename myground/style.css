@@ -1,5 +1,5 @@
 :root {
-  --ink: #10161d; --pit: #18212b; --paper: #f3ecd8; --sign: #ffc21a; --red: #e23d2e; --ok: #37c871;
+  --ink: #10161d; --pit: #27418f; --paper: #f3ecd8; --sign: #ffc21a; --red: #e23d2e; --ok: #37c871;
   --font: "Arial Narrow", "Roboto Condensed", "Helvetica Neue", Arial, sans-serif;
 }
 * { box-sizing: border-box; }

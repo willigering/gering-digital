@@ -1,4 +1,4 @@
-# Spielserver „Der Boden ist gekündigt“. Bauen aus dem Ordner myground/:
+# Spielserver „Du kranst mich mal“. Bauen aus dem Ordner myground/:
 #   docker build -f server/Dockerfile -t myground-server .
 #   docker run -p 8787:8787 -p 40000-40100:40000-40100/udp -e UDP_PORT_MIN=40000 -e UDP_PORT_MAX=40100 myground-server
 FROM node:22-bookworm-slim

@@ -1,12 +1,12 @@
 'use strict';
-// „Der Boden ist gekündigt“ – Browser-Client.
+// „Du kranst mich mal“ – Browser-Client.
 // Standard (wie bei Rüdiger): Der Browser, der eine Baustelle eröffnet, ist der Host. Er rechnet das
 // Spiel mit logic.js, alle anderen verbinden sich per WebRTC nur mit ihm (Stern, kein Vollmesh).
 // Die Anmeldung läuft über api.php. Ist in config.js ein Spielserver eingetragen, übernimmt der die Host-Rolle.
 (() => {
   const $ = id => document.getElementById(id);
   const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
-  const REACH = 0.4, DROP = 0.3, K = 0.76, THICK = 0.2;
+  const REACH = 0.4, DROP = 0.3, K = 0.76, THICK = 0.28;
   const qs = new URLSearchParams(location.search);
   const FORCE_RELAY = qs.get('relay') === '1'; // Diagnose: Verbindung nur über TURN zulassen
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
@@ -83,7 +83,7 @@
     show('join', false); $('hud').hidden = false; $('roster').hidden = false;
     $('roomRow').hidden = !HOSTED; $('roomCode').textContent = room;
     if (matchMedia('(pointer: coarse)').matches) $('touch').hidden = false;
-    try { if (!localStorage.getItem('myground-help')) { show('help', true); localStorage.setItem('myground-help', '1'); } } catch { }
+    try { if (!localStorage.getItem('myground-help2')) { show('help', true); localStorage.setItem('myground-help2', '1'); } } catch { }
   }
   function closeLink() { connected = false; const p = pc; pc = chR = chU = null; if (p) { p.onconnectionstatechange = null; try { p.close(); } catch { } } }
   function lost(why) {
@@ -163,7 +163,7 @@
     onMsg(JSON.parse(JSON.stringify(game.roundMsg()))); onMsg(JSON.parse(JSON.stringify(game.roster())));
     function handle(pid, m) {
       if (m.t === 'in') game.setInput(pid, +m.x, +m.y);
-      else if (m.t === 'act' && ['grab', 'rot', 'jump'].includes(m.k)) game.act(pid, m.k);
+      else if (m.t === 'act' && ['grab', 'home'].includes(m.k)) game.act(pid, m.k);
       else if (m.t === 'start') game.start(pid);
       else if (m.t === 'bots' && game.allowBots) { if (m.n > 0) game.addBots(Math.min(46, m.n | 0)); else for (const p of [...game.players.values()]) if (p.bot) game.removePlayer(p.id); }
     }
@@ -309,7 +309,7 @@
     const me = meta.get(myId), st = me ? me.st : 0;
     document.querySelectorAll('#stamps i').forEach((el, i) => el.classList.toggle('has', !!(st & (1 << i))));
     $('start').disabled = meta.size < 2;
-    $('startHint').textContent = meta.size < 2 ? 'Es fehlt ein zweiter Kran. Allein kündigt sich kein Boden.' : 'Bis dahin: freies Fahren. Die Platten funktionieren schon.';
+    $('startHint').textContent = meta.size < 2 ? 'Es fehlt ein zweiter Kran. Allein ist das kein Rennen.' : 'Bis dahin: freies Fahren. Brücken bauen geht schon.';
     $('botRow').hidden = !botsAllowed;
   }
   function renderResult() {
@@ -327,8 +327,8 @@
     if (KEYMAP[e.code]) { keys.add(KEYMAP[e.code]); e.preventDefault(); }
     if (e.repeat) return;
     if (e.code === 'KeyE' || e.code === 'Enter') act('grab');
-    else if (e.code === 'KeyR' || e.code === 'KeyQ') act('rot');
-    else if (e.code === 'Space') { act('jump'); e.preventDefault(); }
+    else if (e.code === 'Space') { act('grab'); e.preventDefault(); }
+    else if (e.code === 'KeyR') act('home');
     else if (e.code === 'KeyH') show('help', !$('help').classList.contains('on'));
     else if (e.code === 'Escape') show('help', false);
   });
@@ -344,7 +344,7 @@
   $('stick').addEventListener('pointermove', e => { if (stick.on && e.pointerId === stick.id) stickMove(e); });
   const stickEnd = e => { if (e.pointerId !== stick.id) return; stick.on = false; stick.x = stick.y = 0; $('stick').firstElementChild.style.transform = ''; };
   $('stick').addEventListener('pointerup', stickEnd); $('stick').addEventListener('pointercancel', stickEnd);
-  for (const [id, k] of [['tGrab', 'grab'], ['tRot', 'rot'], ['tJump', 'jump']]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); act(k); });
+  for (const [id, k] of [['tGrab', 'grab'], ['tHome', 'home']]) $(id).addEventListener('pointerdown', e => { e.preventDefault(); act(k); });
   addEventListener('touchstart', () => { if (connected) $('touch').hidden = false; }, { passive: true });
   function pumpInput(now) {
     let x = (keys.has('r') ? 1 : 0) - (keys.has('l') ? 1 : 0), y = (keys.has('d') ? 1 : 0) - (keys.has('u') ? 1 : 0);
@@ -388,37 +388,162 @@
   try { $('name').value = localStorage.getItem('myground-name') || ''; } catch { }
 
   // ---------------------------------------------------------------- Zeichnen
-  const cv = $('arena'), g = cv.getContext('2d');
+  const cv = $('arena'), g = cv.getContext('2d'), FONT = getComputedStyle(document.body).fontFamily;
   let cw = 0, ch = 0, T = 40, cam = { x: 10.5, y: 6.5 }, follow = false;
   function fit() {
     const dpr = Math.min(2, devicePixelRatio || 1);
     cw = innerWidth; ch = innerHeight; cv.width = cw * dpr; cv.height = ch * dpr; g.setTransform(dpr, 0, 0, dpr, 0, 0);
     const Wd = map ? map.W : 21, Hd = map ? map.H : 13, side = cw > 900 ? 230 : 0;
     const f = Math.min((cw - side - 16) / (Wd + 1.7), (ch - 70) / ((Hd + 2) * K));
-    follow = f < 30; T = follow ? 36 : Math.min(f, 74);
+    follow = f < 30; T = follow ? 36 : Math.floor(Math.min(f, 74));   // ganze Pixel: Platten schließen sauber aneinander
     if (!follow) cam = { x: Wd / 2 - side / T / 2, y: Hd / 2 - 0.35 / K };
+    DPR = dpr; sprites.clear();
+    vignette = g.createRadialGradient(cw / 2, ch / 2, Math.min(cw, ch) * 0.45, cw / 2, ch / 2, Math.hypot(cw, ch) * 0.62);
+    vignette.addColorStop(0, 'rgba(6,12,48,0)'); vignette.addColorStop(1, 'rgba(6,12,48,.4)');
   }
+  // Platten, Schatten und Muster werden einmal je Größe vorgezeichnet und danach nur noch kopiert.
+  let DPR = 1, vignette = null;
+  const sprites = new Map();
+  function sprite(key, w, h, draw) {
+    let c = sprites.get(key);
+    if (!c) {
+      c = document.createElement('canvas'); c.width = Math.ceil(w * DPR); c.height = Math.ceil(h * DPR);
+      const x = c.getContext('2d'); x.scale(DPR, DPR); draw(x, w, h); c.w = c.width / DPR; c.h = c.height / DPR; sprites.set(key, c);
+    }
+    return c;
+  }
+  const rng = a => () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const snap = v => Math.round(v * DPR) / DPR;
   addEventListener('resize', fit); fit();
   const P = (x, y, z = 0) => [(x - cam.x) * T + cw / 2, (y - cam.y) * T * K + ch / 2 - z * T];
   function rr(x, y, w, h, r) { g.beginPath(); g.roundRect(x, y, w, h, r); }
 
-  function tile(x, y, z, top, edge, front, fixed, hot) {
-    const [sx, sy] = P(x, y, z), w = T, h = T * K, d = THICK * T;
-    g.fillStyle = '#0b0f14'; rr(sx - 1, sy - 1, w + 2, h + d + 2, 5); g.fill();          // dicke dunkle Kante
-    g.fillStyle = front; rr(sx + 1, sy + h - 4, w - 2, d + 3, 4); g.fill();
-    g.fillStyle = edge; rr(sx + 1, sy + 1, w - 2, h - 2, 4); g.fill();
-    g.fillStyle = top; rr(sx + 4, sy + 3, w - 8, h - 8, 3); g.fill();
-    g.fillStyle = 'rgba(255,255,255,.34)'; rr(sx + 6, sy + 5, w - 12, Math.max(2, h * 0.14), 2); g.fill(); // Lackglanz
-    if (fixed) { g.fillStyle = 'rgba(20,28,36,.55)'; for (const [ax, ay] of [[9, 8], [w - 9, 8], [9, h - 9], [w - 9, h - 9]]) { g.beginPath(); g.arc(sx + ax, sy + ay, Math.max(1.4, T * 0.035), 0, 7); g.fill(); } }
-    if (hot) { g.strokeStyle = hot; g.lineWidth = 3; rr(sx + 2, sy + 2, w - 4, h - 4, 4); g.stroke(); }
+  const INK = '#3a2718';
+  // Bastelkarton: feste Platten naturbraun, bewegliche gelb gestrichen mit roten Anschlagpunkten; die Kante zeigt Wellpappe.
+  const PAL = {
+    fix: ['#e0b486', '#d6a878', '#e6bd92', '#cf9f6f'],
+    plate: ['#f6bf3c', '#f1b22c', '#f9c84e'],
+    held: ['#ffd564', '#ffcf54', '#ffdc78'],
+  };
+  // Gemalte Sprites (myground/img). Bis sie geladen sind, gilt die gezeichnete Ersatzdarstellung.
+  const IMG = {}; let imgReady = false;
+  {
+    const names = ['kran_s', 'kran_f', 'kran_b', 'platte_fix', 'platte_gelb', 'planke', 'planke_s', 'tor', 'fahne', 'stempel0', 'stempel1', 'stempel2']; let left = names.length;
+    for (const n of names) { const i = new Image(); i.onload = () => { if (!--left) { imgReady = true; sprites.clear(); } }; i.src = 'img/' + n + '.webp'; IMG[n] = i; }
+  }
+  // Kran-Ansichten: Aufstandspunkt (ax, ay) und Seilpunkt (tx, ty) im Bild; KPPU Bildpunkte entsprechen einer Plattenbreite
+  const KRAN = { s: { img: 'kran_s', ax: 130.8, ay: 264, tx: 307.6, ty: 42 }, f: { img: 'kran_f', ax: 93.2, ay: 282.8, tx: 94.4, ty: 184.8 }, b: { img: 'kran_b', ax: 94.4, ay: 282.8, tx: 94.4, ty: 12.8 } }, KPPU = 226, LIFT = 0.3;
+  function tileSprite(kind, v) {
+    const w = T, h = T * K, d = THICK * T;
+    if (imgReady) return sprite('i' + kind + v, w + 2, h + d + 3, x => {
+      const im = IMG[kind === 'fix' ? 'platte_fix' : 'platte_gelb'];
+      x.translate(1, 1);
+      x.save(); if (v & 1) { x.translate(w, 0); x.scale(-1, 1); } x.drawImage(im, 0, 0, w, h + d); x.restore();   // jede zweite gespiegelt, damit es nicht gestempelt aussieht
+      x.fillStyle = kind === 'held' ? 'rgba(255,255,255,.2)' : ['rgba(255,255,255,.07)', 'rgba(60,30,0,.07)', 'rgba(255,255,255,0)', 'rgba(60,30,0,.04)'][v % 4]; x.fillRect(0, 0, w, h);
+      x.strokeStyle = 'rgba(60,35,15,.45)'; x.lineWidth = 1; x.strokeRect(0.5, 0.5, w - 1, h - 1);                                   // Fuge
+      x.strokeStyle = 'rgba(255,246,228,.35)'; x.beginPath(); x.moveTo(1.5, h - 2); x.lineTo(1.5, 1.5); x.lineTo(w - 2, 1.5); x.stroke();
+    });
+    return sprite(kind + v, w + 2, h + d + 3, x => {
+      const rnd = rng(v * 977 + kind.length * 131 + 7), raw = kind === 'fix', base = PAL[kind][v % PAL[kind].length];
+      const R = (a, b, c, e, r) => { x.beginPath(); x.roundRect(a, b, c, e, r); };
+      x.translate(1, 1); x.lineCap = 'round';
+      // Kante: zwei Lagen Wellpappe mit Welle und Deckpapier
+      x.fillStyle = '#8f5f38'; R(0, h - 5, w, d + 5, 3); x.fill();
+      x.save(); R(0, h - 3, w, d + 3, 3); x.clip();
+      const gr = x.createLinearGradient(0, h, 0, h + d); gr.addColorStop(0, '#c48e5b'); gr.addColorStop(1, '#93613a');
+      x.fillStyle = gr; x.fillRect(0, h - 3, w, d + 3);
+      const lh = d / 2, amp = lh * 0.26, wl = T * 0.12, paper = Math.max(1.5, lh * 0.22);
+      for (let l = 0; l < 2; l++) {
+        const y0 = h + l * lh;
+        x.strokeStyle = 'rgba(74,44,20,.7)'; x.lineWidth = Math.max(1, T * 0.022); x.beginPath();
+        for (let a = 0; a <= w; a++) { const yy = y0 + (lh - paper) * 0.5 + Math.sin(a / wl * Math.PI * 2) * amp; if (a) x.lineTo(a, yy); else x.moveTo(a, yy); }
+        x.stroke();
+        x.fillStyle = l ? '#b98352' : '#dcae7d'; x.fillRect(0, y0 + lh - paper, w, paper);
+      }
+      x.fillStyle = 'rgba(40,20,5,.22)'; x.fillRect(0, h - 3, w, 4);                              // Schatten unter der Deckfläche
+      x.restore();
+      // Deckfläche: Licht von links oben, Papierfasern
+      x.fillStyle = base; R(0, 0, w, h, 3); x.fill();
+      x.save(); R(0, 0, w, h, 3); x.clip();
+      const lg = x.createLinearGradient(0, 0, w, h); lg.addColorStop(0, 'rgba(255,255,255,.18)'); lg.addColorStop(1, 'rgba(90,50,10,.14)');
+      x.fillStyle = lg; x.fillRect(0, 0, w, h);
+      for (let i = 0; i < 80; i++) {
+        const ax = rnd() * w, ay = rnd() * h, l = 1 + rnd() * T * 0.07;
+        x.strokeStyle = rnd() < 0.6 ? 'rgba(110,70,30,' + (0.08 + rnd() * 0.16) + ')' : 'rgba(255,244,222,' + (0.18 + rnd() * 0.28) + ')';
+        x.lineWidth = 0.6 + rnd() * 0.8; x.beginPath(); x.moveTo(ax, ay); x.lineTo(ax + l, ay + (rnd() - 0.5) * 1.6); x.stroke();
+      }
+      if (!raw) {                                                                                  // abgewetzte Farbe: am Rand scheint die Pappe durch
+        x.fillStyle = 'rgba(216,170,122,.8)';
+        for (let i = 0; i < 9; i++) { const e = rnd() * 4 | 0, t = rnd(), ax = e === 1 ? w - 1 : e === 3 ? 1 : t * w, ay = e === 0 ? 1 : e === 2 ? h - 1 : t * h; x.beginPath(); x.ellipse(ax, ay, 1.5 + rnd() * T * 0.07, 1 + rnd() * T * 0.035, 0, 0, 7); x.fill(); }
+      }
+      x.restore();
+      x.strokeStyle = 'rgba(52,62,128,.4)'; x.lineWidth = 1; R(0.5, 0.5, w - 1, h - 1, 3); x.stroke();                           // Bleistiftfuge
+      x.strokeStyle = 'rgba(255,246,228,.6)'; x.lineWidth = 1.2; x.beginPath(); x.moveTo(1.6, h - 3); x.lineTo(1.6, 2.6); x.lineTo(w - 3, 1.6); x.stroke();   // Lichtkante
+      if (!raw) {                                                                                  // rote Anschlagpunkte für die Seile
+        const m = Math.max(5, T * 0.15), r = Math.max(2.5, T * 0.085);
+        for (const [ax, ay] of [[m, m * K], [w - m, m * K], [m, h - m * K], [w - m, h - m * K]]) {
+          x.fillStyle = 'rgba(90,40,10,.35)'; x.beginPath(); x.ellipse(ax + 0.8, ay + 1.4, r, r * K, 0, 0, 7); x.fill();
+          x.fillStyle = '#d8432f'; x.beginPath(); x.ellipse(ax, ay, r, r * K, 0, 0, 7); x.fill();
+          x.fillStyle = 'rgba(255,255,255,.35)'; x.beginPath(); x.ellipse(ax - r * 0.25, ay - r * 0.3, r * 0.4, r * 0.25, 0, 0, 7); x.fill();
+          x.fillStyle = '#7a1f12'; x.beginPath(); x.ellipse(ax, ay, r * 0.36, r * 0.36 * K, 0, 0, 7); x.fill();
+        }
+      }
+    });
+  }
+  function tile(x, y, z, kind, v, hot) {
+    const [px, py] = P(x, y, z), sx = snap(px), sy = snap(py), s = tileSprite(kind, v);
+    g.drawImage(s, sx - 1, sy - 1, s.w, s.h);
+    if (hot) { g.strokeStyle = INK; g.lineWidth = 6; rr(sx + 2, sy + 2, T - 4, T * K - 4, 4); g.stroke(); g.strokeStyle = hot; g.lineWidth = 3; g.stroke(); }
+  }
+  // Blaupause als Untergrund: feines Raster, das mit der Kamera wandert, dazu ein paar Konstruktionslinien
+  function blueprint() {
+    const cell = Math.max(9, Math.round(T / 3)), n = 5, s = sprite('bp', cell * n, cell * n, (x, w) => {
+      x.fillStyle = '#27418f'; x.fillRect(0, 0, w, w);
+      x.strokeStyle = 'rgba(255,255,255,.07)'; x.lineWidth = 1; x.beginPath();
+      for (let i = 1; i < n; i++) { x.moveTo(i * cell + 0.5, 0); x.lineTo(i * cell + 0.5, w); x.moveTo(0, i * cell + 0.5); x.lineTo(w, i * cell + 0.5); }
+      x.stroke();
+      x.strokeStyle = 'rgba(255,255,255,.17)'; x.beginPath(); x.moveTo(0.5, 0); x.lineTo(0.5, w); x.moveTo(0, 0.5); x.lineTo(w, 0.5); x.stroke();
+    });
+    if (!s.pat) s.pat = g.createPattern(s, 'repeat');
+    const [ox, oy] = P(0, 0);
+    s.pat.setTransform(new DOMMatrix().translate(Math.round(ox), Math.round(oy)).scale(1 / DPR));
+    g.fillStyle = s.pat; g.fillRect(0, 0, cw, ch);
+    if (!map) return;
+    g.strokeStyle = 'rgba(255,255,255,.26)'; g.lineWidth = 1.5; g.setLineDash([7, 6]);
+    for (const [wx, wy, r] of [[-2.6, 1.2, 1.7], [map.W + 2.6, 2.4, 1.3], [map.W + 2.2, map.H - 0.5, 2], [-2.2, map.H + 0.4, 1.4]]) {
+      const [sx, sy] = P(wx, wy);
+      g.beginPath(); g.arc(sx, sy, r * T, 0, 7); g.moveTo(sx - r * T * 1.25, sy); g.lineTo(sx + r * T * 1.25, sy); g.moveTo(sx, sy - r * T * 1.25); g.lineTo(sx, sy + r * T * 1.25); g.stroke();
+    }
+    const [x0, y0] = P(-0.45, -0.45), [x1, y1] = P(map.W + 0.45, map.H + 0.45 + THICK / K);
+    g.strokeRect(x0, y0, x1 - x0, y1 - y0); g.setLineDash([]);                                    // Baufeld mit Maßlinie
+    g.beginPath(); g.moveTo(x0, y1 + 14); g.lineTo(x1, y1 + 14); for (const a of [x0, x1]) { g.moveTo(a, y1 + 8); g.lineTo(a, y1 + 20); } g.stroke();
+    g.font = '700 ' + Math.max(10, T * 0.22) + 'px ' + FONT; g.textAlign = 'center'; g.fillStyle = 'rgba(255,255,255,.4)'; g.fillText(map.W + ' × ' + map.H, (x0 + x1) / 2, y1 + 14 + Math.max(13, T * 0.3));
+  }
+  // Weiche Schatten aller liegenden Platten auf dem Papier. Erst in eine eigene Ebene, damit sich Nachbarn nicht doppelt abdunkeln.
+  let shLayer = null;
+  function shadows() {
+    if (!shLayer || shLayer.width !== cv.width || shLayer.height !== cv.height) { shLayer = document.createElement('canvas'); shLayer.width = cv.width; shLayer.height = cv.height; }
+    const c = shLayer.getContext('2d'); c.setTransform(DPR, 0, 0, DPR, 0, 0); c.clearRect(0, 0, cw, ch);
+    const pad = Math.ceil(T * 0.3), s = sprite('sh', T + pad * 2, T * K + pad * 2, x => { x.filter = 'blur(' + (T * 0.08 * DPR).toFixed(1) + 'px)'; x.fillStyle = '#070d33'; x.fillRect(pad, pad, T, T * K); });
+    const ox = T * 0.2 - pad, oy = THICK * T + T * 0.2 - pad;
+    for (let y = 0; y < map.H; y++) for (let x = 0; x < map.W; x++) if (map.fixed[y * map.W + x] || grid[y * map.W + x] >= 0) { const [px, py] = P(x, y); c.drawImage(s, px + ox, py + oy, s.w, s.h); }
+    g.globalAlpha = 0.55; g.drawImage(shLayer, 0, 0, cw, ch); g.globalAlpha = 1;
   }
   function rails(x, y, z, mask) {
     if (!mask) return;
+    if (imgReady) {
+      const [px, py] = P(x, y, z), w = T, h = T * K, a = IMG.planke, bw = w * 0.96, bh = bw * a.height / a.width, q = IMG.planke_s, sh = h + T * 0.3, sw = sh * q.width / q.height;
+      if (mask & 1) g.drawImage(a, px + (w - bw) / 2, py + T * 0.1 - bh, bw, bh);
+      if (mask & 8) g.drawImage(q, px - sw * 0.25, py + h - sh, sw, sh);
+      if (mask & 2) g.drawImage(q, px + w - sw * 0.75, py + h - sh, sw, sh);
+      if (mask & 4) g.drawImage(a, px + (w - bw) / 2, py + h - bh, bw, bh);
+      return;
+    }
     const [sx, sy] = P(x, y, z), w = T, h = T * K, b = Math.max(4, T * 0.12), up = T * 0.16;
     const bar = (x0, y0, x1, y1) => {
       g.lineCap = 'round';
-      g.strokeStyle = '#0b0f14'; g.lineWidth = b + 4; g.beginPath(); g.moveTo(x0, y0 - up); g.lineTo(x1, y1 - up); g.stroke();
-      g.strokeStyle = '#0b0f14'; g.lineWidth = 3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0, y0 - up); g.moveTo(x1, y1); g.lineTo(x1, y1 - up); g.stroke();
+      g.strokeStyle = INK; g.lineWidth = b + 4; g.beginPath(); g.moveTo(x0, y0 - up); g.lineTo(x1, y1 - up); g.stroke();
+      g.strokeStyle = INK; g.lineWidth = 3; g.beginPath(); g.moveTo(x0, y0); g.lineTo(x0, y0 - up); g.moveTo(x1, y1); g.lineTo(x1, y1 - up); g.stroke();
       g.strokeStyle = '#f4f1e8'; g.lineWidth = b; g.beginPath(); g.moveTo(x0, y0 - up); g.lineTo(x1, y1 - up); g.stroke();
       g.strokeStyle = '#e23d2e'; g.setLineDash([b * 1.3, b * 1.3]); g.lineCap = 'butt'; g.beginPath(); g.moveTo(x0, y0 - up); g.lineTo(x1, y1 - up); g.stroke(); g.setLineDash([]);
     };
@@ -434,25 +559,49 @@
     if (i === 0) g.arc(cx, cy, r, 0, 7); else if (i === 1) g.rect(cx - r * 0.85, cy - r * 0.85, r * 1.7, r * 1.7); else { g.moveTo(cx, cy - r); g.lineTo(cx + r, cy + r * 0.8); g.lineTo(cx - r, cy + r * 0.8); g.closePath(); }
   }
   function station(i, s, now) {
-    const [sx, sy] = P(s.x + 0.5, s.y + 0.5), have = (meta.get(myId) || {}).st & (1 << i), r = T * 0.3;
-    g.fillStyle = '#fff'; g.strokeStyle = '#0b0f14'; g.lineWidth = 3; g.beginPath(); g.ellipse(sx, sy, T * 0.4, T * 0.4 * K, 0, 0, 7); g.fill(); g.stroke();
-    g.save(); g.translate(sx, sy); g.scale(1, K); g.fillStyle = STC[i]; g.globalAlpha = have ? 0.3 : 1; stampShape(i, 0, 0, r * 0.8); g.fill(); g.restore();
-    if (have || phase === 'lobby') return;
-    const bob = Math.sin(now / 300 + i * 2) * T * 0.05, y = sy - T * 0.75 + bob;                    // schwebender Stempel
-    g.fillStyle = '#0b0f14'; rr(sx - T * 0.2, y - 2, T * 0.4, T * 0.18 + 4, 4); g.fill();
-    g.fillStyle = STC[i]; rr(sx - T * 0.2 + 2, y, T * 0.4 - 4, T * 0.18, 3); g.fill();
-    g.fillStyle = '#0b0f14'; rr(sx - T * 0.08 - 2, y - T * 0.26, T * 0.16 + 4, T * 0.28, 4); g.fill();
-    g.fillStyle = '#c9905a'; rr(sx - T * 0.08, y - T * 0.26 + 2, T * 0.16, T * 0.24, 3); g.fill();
+    const [sx, sy] = P(s.x + 0.5, s.y + 0.5), have = (meta.get(myId) || {}).st & (1 << i), r = T * 0.3, live = !have && phase !== 'lobby';
+    const ell = (rx, oy = 0) => { g.beginPath(); g.ellipse(sx, sy + oy, rx, rx * K, 0, 0, 7); };
+    if (live) { const q = (now / 1100 + i * 0.33) % 1; g.strokeStyle = STC[i]; g.globalAlpha = 0.7 * (1 - q); g.lineWidth = 3; ell(T * (0.42 + 0.3 * q)); g.stroke(); g.globalAlpha = 1; }   // Signalring
+    if (imgReady) { const im = IMG['stempel' + i], w = T * 0.9, h = w * im.height / im.width; g.globalAlpha = have ? 0.45 : 1; g.drawImage(im, sx - w / 2, sy - h * 0.45, w, h); g.globalAlpha = 1; }
+    else {
+    g.fillStyle = INK; ell(T * 0.44, 2); g.fill();
+    g.fillStyle = '#f7f4ea'; ell(T * 0.4); g.fill();
+    g.strokeStyle = STC[i]; g.globalAlpha = have ? 0.3 : 1; g.lineWidth = Math.max(2, T * 0.055); ell(T * 0.33); g.stroke();
+    g.save(); g.translate(sx, sy); g.scale(1, K); g.fillStyle = STC[i]; stampShape(i, 0, 0, r * 0.62); g.fill(); g.restore(); g.globalAlpha = 1;
+    }
+    if (!live) return;
+    const u = T * 1.3, bob = Math.sin(now / 300 + i * 2) * u * 0.05, y = sy - u * 0.72 + bob;        // schwebender Stempel
+    g.fillStyle = 'rgba(0,0,0,.28)'; ell(T * 0.2 - bob * 0.5); g.fill();
+    g.fillStyle = INK; rr(sx - u * 0.2, y - 2, u * 0.4, u * 0.18 + 4, 5); g.fill();
+    g.fillStyle = STC[i]; rr(sx - u * 0.2 + 2, y, u * 0.4 - 4, u * 0.18, 3); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.35)'; rr(sx - u * 0.2 + 4, y + 2, u * 0.4 - 8, u * 0.045, 2); g.fill();
+    g.fillStyle = INK; rr(sx - u * 0.08 - 2, y - u * 0.26, u * 0.16 + 4, u * 0.28, 5); g.fill();
+    g.fillStyle = '#c9905a'; rr(sx - u * 0.08, y - u * 0.26 + 2, u * 0.16, u * 0.24, 4); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.3)'; rr(sx - u * 0.06, y - u * 0.26 + 4, u * 0.04, u * 0.18, 2); g.fill();
   }
   function gate(s, now) {
-    const [sx, sy] = P(s.x + 0.5, s.y + 0.5), open = (meta.get(myId) || {}).st === 7, w = T * 0.44, h = T * 0.95;
-    g.fillStyle = open ? 'rgba(55,200,113,' + (0.5 + 0.3 * Math.sin(now / 150)) + ')' : 'rgba(16,22,29,.5)'; g.beginPath(); g.ellipse(sx, sy, T * 0.42, T * 0.42 * K, 0, 0, 7); g.fill();
-    for (const k of [-1, 1]) { g.fillStyle = '#0b0f14'; rr(sx + k * w - 5, sy - h, 10, h + 3, 3); g.fill(); g.fillStyle = '#ffc21a'; rr(sx + k * w - 3, sy - h + 2, 6, h - 1, 2); g.fill(); }
-    g.fillStyle = '#0b0f14'; rr(sx - w - 6, sy - h - T * 0.26, w * 2 + 12, T * 0.3, 4); g.fill();
-    const n = 6, bw = (w * 2 + 8) / n;
-    for (let i = 0; i < n; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? '#0b0f14' : '#f4f1e8'; g.fillRect(sx - w - 4 + i * bw, sy - h - T * 0.26 + 2 + j * (T * 0.13 - 2), bw, T * 0.13 - 2); }
-    g.font = '900 ' + Math.max(9, T * 0.2) + 'px ' + getComputedStyle(document.body).fontFamily; g.textAlign = 'center'; g.fillStyle = '#f4f1e8'; g.strokeStyle = '#0b0f14'; g.lineWidth = 3;
-    g.strokeText('AUSGANG', sx, sy - h - T * 0.34); g.fillText('AUSGANG', sx, sy - h - T * 0.34);
+    const [sx, sy] = P(s.x + 0.5, s.y + 0.5), open = (meta.get(myId) || {}).st === 7, w = T * 0.5, h = T * 1.2, pw = Math.max(8, T * 0.16);
+    g.fillStyle = open ? 'rgba(55,200,113,' + (0.5 + 0.3 * Math.sin(now / 150)) + ')' : 'rgba(16,22,29,.5)'; g.beginPath(); g.ellipse(sx, sy, T * 0.46, T * 0.46 * K, 0, 0, 7); g.fill();
+    if (open) { const gr = g.createLinearGradient(0, sy - h, 0, sy); gr.addColorStop(0, 'rgba(55,200,113,0)'); gr.addColorStop(1, 'rgba(55,200,113,.5)'); g.fillStyle = gr; g.fillRect(sx - w, sy - h, w * 2, h); }   // Lichtschleuse
+    if (imgReady) {
+      const im = IMG.tor, iw = T * 1.3, ih = iw * im.height / im.width, top = sy + T * 0.26 - ih;
+      g.drawImage(im, sx - iw / 2, top, iw, ih);
+      g.font = '900 ' + Math.max(10, T * 0.24) + 'px ' + FONT; g.textAlign = 'center'; g.fillStyle = open ? '#7dffb0' : '#f4f1e8'; g.strokeStyle = INK; g.lineWidth = 4; g.lineJoin = 'round';
+      g.strokeText('AUSGANG', sx, top - T * 0.08); g.fillText('AUSGANG', sx, top - T * 0.08);
+      return;
+    }
+    for (const k of [-1, 1]) {
+      g.fillStyle = 'rgba(0,0,0,.3)'; g.beginPath(); g.ellipse(sx + k * w, sy + 2, pw * 0.9, pw * 0.45, 0, 0, 7); g.fill();
+      g.fillStyle = INK; rr(sx + k * w - pw / 2, sy - h, pw, h + 3, 4); g.fill();
+      g.fillStyle = '#ffc21a'; rr(sx + k * w - pw / 2 + 2, sy - h + 2, pw - 4, h - 1, 3); g.fill();
+      g.fillStyle = INK; for (let j = 1; j < 5; j += 2) g.fillRect(sx + k * w - pw / 2 + 2, sy - h + 2 + (h - 1) * j / 5, pw - 4, (h - 1) / 5);
+      g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(sx + k * w - pw / 2 + 3, sy - h + 3, 2, h - 4);
+    }
+    g.fillStyle = INK; rr(sx - w - pw / 2 - 2, sy - h - T * 0.3, w * 2 + pw + 4, T * 0.34, 5); g.fill();
+    const n = 6, bw = (w * 2 + pw) / n, bh = (T * 0.34 - 4) / 2;
+    for (let i = 0; i < n; i++) for (let j = 0; j < 2; j++) { g.fillStyle = (i + j) % 2 ? INK : '#f4f1e8'; g.fillRect(sx - w - pw / 2 + i * bw, sy - h - T * 0.3 + 2 + j * bh, bw, bh); }
+    g.font = '900 ' + Math.max(10, T * 0.24) + 'px ' + FONT; g.textAlign = 'center'; g.fillStyle = open ? '#7dffb0' : '#f4f1e8'; g.strokeStyle = INK; g.lineWidth = 4; g.lineJoin = 'round';
+    g.strokeText('AUSGANG', sx, sy - h - T * 0.4); g.fillText('AUSGANG', sx, sy - h - T * 0.4);
   }
   function crane(id, e, now) {
     const m = meta.get(id) || { name: '?', c: 0 }, mine = id === myId, c = m.c;
@@ -464,55 +613,52 @@
     const [gx, gy] = P(e.x, e.y, Math.max(0, rideZ)), [sx, sy0] = P(e.x, e.y, z);
     if (e.sink >= 1) return;
     g.globalAlpha = 1 - e.sink * 0.7;
-    if (!fallen) { g.fillStyle = 'rgba(0,0,0,.34)'; g.beginPath(); g.ellipse(gx, gy + T * 0.05, T * 0.32 * (1 - jump * 0.4), T * 0.2 * (1 - jump * 0.4), 0, 0, 7); g.fill(); }
-    if (mine && !fallen) { g.strokeStyle = '#fff'; g.lineWidth = 3; g.setLineDash([6, 5]); g.lineDashOffset = -now / 40; g.beginPath(); g.ellipse(gx, gy + T * 0.04, T * 0.43, T * 0.3, 0, 0, 7); g.stroke(); g.setLineDash([]); }
-    if (e.ride >= 0 && plates[e.ride] && meta.get(plates[e.ride].holder)) { g.strokeStyle = col(meta.get(plates[e.ride].holder).c); g.lineWidth = 4; g.beginPath(); g.ellipse(gx, gy + T * 0.04, T * 0.36, T * 0.24, 0, 0, 7); g.stroke(); }
-    g.save(); g.translate(sx, sy0); g.scale(sc, sc);
-    const u = T, wob = Math.sin(now / 55 + id) * Math.min(1, e.wob) * u * 0.035, tilt = Math.sin(now / 80 + id * 2) * Math.min(1, e.wob) * 0.07;
-    g.fillStyle = '#0b0f14';                                                   // dicke Gummiräder
-    for (const [wx, wy] of [[-0.27, -0.1], [0.27, -0.1], [-0.27, 0.14], [0.27, 0.14]]) { rr(wx * u - u * 0.1, wy * u - u * 0.09, u * 0.2, u * 0.2, u * 0.07); g.fill(); }
-    g.fillStyle = '#8b96a1'; for (const [wx, wy] of [[-0.27, 0.14], [0.27, 0.14]]) { g.beginPath(); g.arc(wx * u, wy * u + u * 0.01, u * 0.04, 0, 7); g.fill(); }
-    g.fillStyle = '#0b0f14'; rr(-u * 0.27, -u * 0.26, u * 0.54, u * 0.36, u * 0.07); g.fill();   // Fahrgestell
-    g.fillStyle = col(c, 40); rr(-u * 0.27 + 2, -u * 0.26 + 2, u * 0.54 - 4, u * 0.36 - 4, u * 0.06); g.fill();
-    g.save(); g.translate(wob, -u * 0.3 - Math.abs(wob) * 0.5); g.rotate(tilt);                    // wackelnde Kabine
-    g.fillStyle = '#0b0f14'; rr(-u * 0.2, -u * 0.22, u * 0.4, u * 0.36, u * 0.08); g.fill();
-    g.fillStyle = col(c, 56); rr(-u * 0.2 + 2, -u * 0.22 + 2, u * 0.4 - 4, u * 0.36 - 4, u * 0.07); g.fill();
-    g.fillStyle = 'rgba(255,255,255,.4)'; rr(-u * 0.16, -u * 0.19, u * 0.32, u * 0.06, 2); g.fill();
-    const d = DIRS[e.face || 0];
-    g.fillStyle = '#0b0f14'; rr(-u * 0.12 + d[0] * u * 0.05, -u * 0.12 + (d[1] > 0 ? u * 0.05 : d[1] < 0 ? -u * 0.03 : 0), u * 0.24, u * 0.15, 3); g.fill();
-    g.fillStyle = d[1] < 0 ? col(c, 30) : '#bfe6ff'; rr(-u * 0.12 + d[0] * u * 0.05 + 2, -u * 0.12 + (d[1] > 0 ? u * 0.05 : d[1] < 0 ? -u * 0.03 : 0) + 2, u * 0.24 - 4, u * 0.15 - 4, 2); g.fill();
-    g.fillStyle = '#0b0f14'; g.beginPath(); g.arc(0, -u * 0.24, u * 0.07, 0, 7); g.fill();          // Rundumleuchte
-    g.fillStyle = Math.sin(now / 120 + id) > 0 ? '#fff3a8' : col(c, 62, 95); g.beginPath(); g.arc(0, -u * 0.24, u * 0.045, 0, 7); g.fill();
-    g.restore();
-    g.restore();
-    // Ausleger: zeigt in Blickrichtung, bei gegriffener Platte bis über die Platte
+    const u = T * 1.2, mv = Math.min(1, e.wob);
+    if (!fallen) { g.fillStyle = 'rgba(40,20,5,.38)'; g.beginPath(); g.ellipse(gx, gy + u * 0.07, u * 0.4 * (1 - jump * 0.4), u * 0.24 * (1 - jump * 0.4), 0, 0, 7); g.fill(); }
+    if (mine && !fallen) { g.lineWidth = 5; g.strokeStyle = INK; g.beginPath(); g.ellipse(gx, gy + u * 0.05, u * 0.47, u * 0.32, 0, 0, 7); g.stroke(); g.strokeStyle = '#fff'; g.lineWidth = 3; g.setLineDash([6, 5]); g.lineDashOffset = -now / 40; g.stroke(); g.setLineDash([]); }
+    if (e.ride >= 0 && plates[e.ride] && meta.get(plates[e.ride].holder)) { g.strokeStyle = col(meta.get(plates[e.ride].holder).c); g.lineWidth = 4; g.beginPath(); g.ellipse(gx, gy + u * 0.05, u * 0.4, u * 0.26, 0, 0, 7); g.stroke(); }
+    const d = DIRS[e.face || 0], V = e.face === 0 ? KRAN.b : e.face === 2 ? KRAN.f : KRAN.s, flip = e.face === 3 ? -1 : 1, ks = T / KPPU * 1.05;
+    let tipX = sx + d[0] * T * 0.5, tipY = sy0 - T;
+    if (imgReady) {
+      const im = IMG[V.img], sp = sprite('k' + V.img + c, im.width * ks, im.height * ks, (x, w, h) => {      // weißer Pappkran, in der Spielerfarbe eingefärbt
+        x.drawImage(im, 0, 0, w, h); x.globalCompositeOperation = 'multiply'; x.fillStyle = col(c, 62, 88); x.fillRect(0, 0, w, h);
+        x.globalCompositeOperation = 'destination-in'; x.drawImage(im, 0, 0, w, h);
+      });
+      const hop = Math.abs(Math.sin(now / 70 + id)) * mv * T * 0.025;                                         // rumpelt beim Fahren
+      g.save(); g.translate(sx, sy0 - hop); g.scale(sc * flip, sc); g.rotate(Math.sin(now / 80 + id * 2) * mv * 0.025);
+      g.drawImage(sp, -V.ax * ks, -V.ay * ks, im.width * ks, im.height * ks); g.restore();
+      tipX = sx + flip * (V.tx - V.ax) * ks; tipY = sy0 + (V.ty - V.ay) * ks;
+    }
+    // Seil: hängt vom Ausleger, bei gegriffener Platte an deren vier Ecken
     const pl = e.hold >= 0 ? plates[e.hold] : null;
-    let tipX = sx + d[0] * T * 0.42, tipY = sy0 - T * 0.55 + d[1] * T * 0.42 * K, hookY = tipY + T * 0.16;
-    if (pl && !fallen) { const k = pl.state === 'reach' ? Math.min(1, (now - pl.since) / (REACH * 1000)) : 1, [qx, qy] = P(pl.px, pl.py, pl.z); tipX = sx + (qx - sx) * k; tipY = sy0 - T * 0.55 + (qy - T * 0.55 - (sy0 - T * 0.55)) * k; hookY = tipY + (qy - tipY) * k; }
     if (!fallen) {
       g.lineCap = 'round';
-      g.strokeStyle = '#0b0f14'; g.lineWidth = Math.max(5, T * 0.13); g.beginPath(); g.moveTo(sx, sy0 - T * 0.5); g.lineTo(tipX, tipY); g.stroke();
-      g.strokeStyle = col(c, 62); g.lineWidth = Math.max(2.5, T * 0.07); g.beginPath(); g.moveTo(sx, sy0 - T * 0.5); g.lineTo(tipX, tipY); g.stroke();
-      g.strokeStyle = '#0b0f14'; g.lineWidth = 2; g.beginPath(); g.moveTo(tipX, tipY); g.lineTo(tipX, hookY); g.stroke();
-      if (pl && pl.state !== 'reach') { const [qx, qy] = P(pl.px, pl.py, pl.z); for (const [ox, oy] of [[-0.42, -0.42], [0.42, -0.42], [-0.42, 0.42], [0.42, 0.42]]) { g.beginPath(); g.moveTo(tipX, tipY); g.lineTo(qx + ox * T, qy + oy * T * K); g.stroke(); } }
-      else { g.fillStyle = '#0b0f14'; g.beginPath(); g.arc(tipX, hookY, 3.5, 0, 7); g.fill(); }
+      const rope = (ax, ay, bx, by2) => { g.strokeStyle = INK; g.lineWidth = Math.max(3.5, u * 0.075); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by2); g.stroke(); g.strokeStyle = '#ecdcb4'; g.lineWidth = Math.max(1.8, u * 0.04); g.stroke(); };   // Kordel
+      if (pl) {
+        const [qx, qy] = P(pl.px, pl.py, pl.z);
+        if (pl.state === 'reach') { const k = Math.min(1, (now - pl.since) / (REACH * 1000)); rope(tipX, tipY, tipX + (qx - tipX) * k, tipY + (qy - tipY) * k); }
+        else for (const [ox, oy] of [[-0.38, -0.36], [0.38, -0.36], [-0.38, 0.36], [0.38, 0.36]]) rope(tipX, tipY, qx + ox * T, qy + oy * T * K);
+      } else if (V === KRAN.s) {                                                                              // leerer Haken (Vorder- und Rückansicht bringen ihren mit)
+        const hy = tipY + T * 0.4; rope(tipX, tipY, tipX, hy);
+        g.strokeStyle = INK; g.lineWidth = 5; g.beginPath(); g.arc(tipX, hy + u * 0.05, u * 0.055, -Math.PI / 2, Math.PI); g.stroke(); g.strokeStyle = '#ffc21a'; g.lineWidth = 2.5; g.stroke();
+      }
     }
     g.globalAlpha = 1;
     if (fallen) return;
     const fs = Math.max(10, Math.min(14, T * 0.24)), label = (mine ? '▼ ' : '') + m.name;
-    g.font = '700 ' + fs + 'px ' + getComputedStyle(document.body).fontFamily; g.textAlign = 'center';
-    const tw = g.measureText(label).width + 10, ly = sy0 - T * 0.95;
-    g.fillStyle = mine ? '#fff' : '#0b0f14'; rr(sx - tw / 2, ly - fs, tw, fs + 5, 5); g.fill();
+    g.font = '700 ' + fs + 'px ' + FONT; g.textAlign = 'center';
+    const tw = g.measureText(label).width + 10, ly = sy0 - T * 1.42;
+    g.fillStyle = mine ? '#fff' : INK; rr(sx - tw / 2, ly - fs, tw, fs + 5, 5); g.fill();
     g.fillStyle = col(c, 50); g.fillRect(sx - tw / 2 + 2, ly + 2, tw - 4, 2);
-    g.fillStyle = mine ? '#0b0f14' : '#f4f1e8'; g.fillText(label, sx, ly);
-    if (e.ride >= 0) { g.font = '700 ' + (fs - 1) + 'px sans-serif'; g.fillStyle = '#ffc21a'; g.strokeStyle = '#0b0f14'; g.lineWidth = 3; g.strokeText('fährt mit', sx, ly - fs - 3); g.fillText('fährt mit', sx, ly - fs - 3); }
+    g.fillStyle = mine ? INK : '#f4f1e8'; g.fillText(label, sx, ly);
+    if (e.ride >= 0) { g.font = '700 ' + (fs - 1) + 'px sans-serif'; g.fillStyle = '#ffc21a'; g.strokeStyle = INK; g.lineWidth = 3; g.strokeText('fährt mit', sx, ly - fs - 3); g.fillText('fährt mit', sx, ly - fs - 3); }
   }
 
   let lastFrame = performance.now();
   function frame(now) {
     const dt = Math.min(0.05, (now - lastFrame) / 1000); lastFrame = now;
     pumpInput(now);
-    g.fillStyle = '#18212b'; g.fillRect(0, 0, cw, ch);
+    blueprint();
     if (!map) { requestAnimationFrame(frame); return; }
     const k = 1 - Math.exp(-dt * 16);
     for (const e of ents.values()) { const mv = Math.hypot(e.tx - e.x, e.ty - e.y); e.wob += ((mv > 0.02 ? 1 : 0) - e.wob) * 0.15; e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; }
@@ -521,19 +667,12 @@
     for (const pl of plates) { // Plattenposition aus Zustand ableiten
       let tx = pl.cx + 0.5, ty = pl.cy + 0.5, tz = 0;
       const h = ents.get(pl.holder);
-      if (pl.state === 'held' && h) { tx = h.x + DIRS[h.face][0]; ty = h.y + DIRS[h.face][1]; tz = 0.62; }
-      else if (pl.state === 'drop') { const q = Math.min(1, (now - pl.since) / (DROP * 1000)); tx = pl.fx + (pl.tx + 0.5 - pl.fx) * q; ty = pl.fy + (pl.ty + 0.5 - pl.fy) * q; tz = 0.62 * (1 - q); pl.px = tx; pl.py = ty; }
+      if (pl.state === 'held' && h) { tx = h.x + DIRS[h.face][0]; ty = h.y + DIRS[h.face][1]; tz = LIFT; }
+      else if (pl.state === 'drop') { const q = Math.min(1, (now - pl.since) / (DROP * 1000)); tx = pl.fx + (pl.tx + 0.5 - pl.fx) * q; ty = pl.fy + (pl.ty + 0.5 - pl.fy) * q; tz = LIFT * (1 - q); pl.px = tx; pl.py = ty; }
       const kk = pl.state === 'held' ? 1 - Math.exp(-dt * 22) : 1;
       pl.px += (tx - pl.px) * kk; pl.py += (ty - pl.py) * kk; pl.z += (tz - pl.z) * (1 - Math.exp(-dt * 18)); pl.spin *= Math.exp(-dt * 12);
     }
-    // Baugrube
-    const [x0, y0] = P(-0.6, -0.6), [x1, y1] = P(map.W + 0.6, map.H + 0.9);
-    g.fillStyle = '#0d1319'; rr(x0, y0, x1 - x0, y1 - y0, 18); g.fill();
-    g.strokeStyle = '#ffc21a'; g.lineWidth = 4; g.setLineDash([16, 12]); rr(x0, y0, x1 - x0, y1 - y0, 18); g.stroke(); g.setLineDash([]);
-    g.strokeStyle = 'rgba(255,255,255,.035)'; g.lineWidth = 1; g.beginPath();
-    for (let x = 0; x <= map.W; x++) { const [a, b] = P(x, 0), [c2, d2] = P(x, map.H); g.moveTo(a, b + T * 0.3); g.lineTo(c2, d2 + T * 0.3); }
-    for (let y = 0; y <= map.H; y++) { const [a, b] = P(0, y), [c2, d2] = P(map.W, y); g.moveTo(a, b + T * 0.3); g.lineTo(c2, d2 + T * 0.3); }
-    g.stroke();
+    shadows();
     // Vorschau: welche Platte würde ich greifen, wo würde ich ablegen
     let hot = -1, dropCell = null, dropOk = false;
     if (me && me.st === 0 && me.ride < 0 && (phase === 'play' || phase === 'lobby')) {
@@ -544,10 +683,10 @@
     const myCol = col((meta.get(myId) || { c: 0 }).c, 60);
     for (let y = 0; y < map.H; y++) for (let x = 0; x < map.W; x++) {
       const i = y * map.W + x;
-      if (map.fixed[i]) tile(x, y, 0, '#cfd6dd', '#7d8894', '#4a545e', true);
+      if (map.fixed[i]) { tile(x, y, 0, 'fix', (x * 7 + y * 13) % 4); }
       else if (grid[i] >= 0) {
         const pl = plates[grid[i]], hc = pl.state === 'reach' && meta.get(pl.holder) ? col(meta.get(pl.holder).c, 58) : null;
-        tile(x, y, 0, pl.id % 3 ? '#ffb22e' : '#ffa01a', '#b86a05', '#8f4f00', false, hc || (hot === pl.id ? myCol : null));
+        tile(x, y, 0, 'plate', pl.id % 3, hc || (hot === pl.id ? myCol : null));
         rails(x, y, 0, rotMask(pl.rails, pl.rot));
         if (hc && Math.sin(now / 50) > 0) { const [sx, sy] = P(x, y); g.strokeStyle = '#fff'; g.lineWidth = 2; rr(sx + 5, sy + 5, T - 10, T * K - 10, 3); g.stroke(); }
       }
@@ -560,8 +699,9 @@
       }
     }
     map.stations.forEach((s, i) => station(i, s, now));
+    if (imgReady) for (const fx of [1.4, map.W - 1.6]) { const im = IMG.fahne, [ax, ay] = P(fx, 0.4), fh = T * 0.95, fw = fh * im.width / im.height; g.drawImage(im, ax - fw * 0.08, ay - fh, fw, fh); }
     // markante Schatten unter angehobenen Platten
-    for (const pl of plates) if (pl.z > 0.03) { const [sx, sy] = P(pl.px - 0.5, pl.py - 0.5); g.fillStyle = 'rgba(0,0,0,' + (0.2 + 0.3 * Math.min(1, pl.z / 0.6)) + ')'; rr(sx + 2, sy + T * 0.16, T - 4, T * K - 2, 8); g.fill(); }
+    for (const pl of plates) if (pl.z > 0.03) { const [sx, sy] = P(pl.px - 0.5, pl.py - 0.5); g.fillStyle = 'rgba(7,13,51,' + (0.25 + 0.25 * Math.min(1, pl.z / 0.6)) + ')'; rr(sx + T * 0.2, sy + THICK * T + T * 0.2, T, T * K, 6); g.fill(); }
     const list = [];
     for (const pl of plates) if (pl.state === 'held' || pl.state === 'drop') list.push({ k: pl.py + 0.44, pl });
     for (const [id, e] of ents) list.push({ k: e.ride >= 0 && plates[e.ride] ? plates[e.ride].py + 0.45 + (e.y - plates[e.ride].py) * 0.01 : e.y, id, e });
@@ -573,11 +713,12 @@
         const pl = it.pl, hm = meta.get(pl.holder);
         g.save();
         if (pl.spin > 0.01) { const [mx, my] = P(pl.px, pl.py, pl.z); g.translate(mx, my); g.rotate(-pl.spin * Math.PI / 2); g.translate(-mx, -my); }
-        tile(pl.px - 0.5, pl.py - 0.5, pl.z, '#ffc04d', '#b86a05', '#8f4f00', false, hm ? col(hm.c, 58) : '#fff');
+        tile(pl.px - 0.5, pl.py - 0.5, pl.z, 'held', pl.id % 3, hm ? col(hm.c, 58) : '#fff');
         rails(pl.px - 0.5, pl.py - 0.5, pl.z, rotMask(pl.rails, pl.rot));
         g.restore();
       } else crane(it.id, it.e, now);
     }
+    if (vignette) { g.fillStyle = vignette; g.fillRect(0, 0, cw, ch); }
     // Uhr und Countdown
     const tm = $('timer');
     if (phase === 'play') { const s = Math.max(0, Math.ceil(timeLeft)); tm.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); tm.classList.toggle('late', s <= 30); }

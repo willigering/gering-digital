@@ -2,7 +2,7 @@
   "name": "myground-server",
   "version": "1.0.0",
   "private": true,
-  "description": "Spielserver für „Der Boden ist gekündigt“ (WebRTC-Gegenstelle, autoritative Spiellogik)",
+  "description": "Spielserver für „Du kranst mich mal“ (WebRTC-Gegenstelle, autoritative Spiellogik)",
   "type": "commonjs",
   "main": "server.js",
   "engines": { "node": ">=20" },

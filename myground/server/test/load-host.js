@@ -77,7 +77,7 @@ async function client(i, room, ice) {
         if (c.closed) continue;
         const ch = c.u.isOpen() ? c.u : c.r;
         ch.sendMessage(JSON.stringify({ t: 'in', x: +(Math.random() * 2 - 1).toFixed(2), y: +(Math.random() * 2 - 1).toFixed(2) }));
-        if (Math.random() < 0.25) c.r.sendMessage(JSON.stringify({ t: 'act', k: ['grab', 'grab', 'rot', 'jump'][Math.floor(Math.random() * 4)] }));
+        if (Math.random() < 0.25) c.r.sendMessage(JSON.stringify({ t: 'act', k: ['grab', 'grab', 'grab', 'home'][Math.floor(Math.random() * 4)] }));
       }
     }, 100);
     await sleep(SECS * 1000);

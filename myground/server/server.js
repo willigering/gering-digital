@@ -1,5 +1,5 @@
 'use strict';
-// Spielserver für „Der Boden ist gekündigt“.
+// Spielserver für „Du kranst mich mal“.
 // HTTP: Gastsitzung + ICE-Konfiguration ausgeben, SDP-Angebot annehmen. Danach läuft alles über
 // WebRTC-Datenkanäle zwischen Browser und diesem Server (Stern, kein Vollmesh).
 //
@@ -103,7 +103,7 @@ function onMessage(c, raw) {
   let m; try { m = JSON.parse(raw); } catch { return; }
   c.seen = Date.now();
   if (m.t === 'in') game.setInput(c.pid, +m.x, +m.y);
-  else if (m.t === 'act' && ['grab', 'rot', 'jump'].includes(m.k)) game.act(c.pid, m.k);
+  else if (m.t === 'act' && ['grab', 'home'].includes(m.k)) game.act(c.pid, m.k);
   else if (m.t === 'start') game.start(c.pid);
   else if (m.t === 'bots' && game.allowBots) { if (m.n > 0) game.addBots(Math.min(46, m.n | 0)); else for (const p of [...game.players.values()]) if (p.bot) game.removePlayer(p.id); }
   else if (m.t === 'ping') send(c, 'r', { t: 'pong', n: m.n });

@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
-<title>Der Boden ist gekündigt</title>
+<title>Du kranst mich mal</title>
 <meta name="description" content="Jeder gegen jeden im Greifkran. Sammle drei Stempel, erreiche das Tor. Der Boden ist Verhandlungssache.">
-<meta name="theme-color" content="#18212b">
+<meta name="theme-color" content="#27418f">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2318212b'/%3E%3Crect x='5' y='14' width='22' height='11' rx='2' fill='%23ffb22e' stroke='%23000' stroke-width='2'/%3E%3Cpath d='M16 3v8M11 14l5-4 5 4' stroke='%23fff' stroke-width='2.5' fill='none'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -39,7 +39,7 @@
 <section id="join" class="overlay on">
   <div class="card">
     <p class="stamp">Mitteilung der Bauleitung</p>
-    <h1>Der Boden ist gekündigt</h1>
+    <h1>Du kranst mich mal</h1>
     <p class="lead">Jeder gegen jeden. Jeder im Kran. Drei Stempel holen, dann zum Tor. Der Weg dorthin gehört dem, der ihn gerade trägt.</p>
     <form id="joinForm" autocomplete="off">
       <label for="name">Name am Kran</label>
@@ -77,19 +77,19 @@
     <h1>Bedienung</h1>
     <ul class="keys">
       <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> oder Pfeiltasten <span>fahren</span></li>
-      <li><kbd>E</kbd> <span>Platte vor dir greifen, später ablegen</span></li>
-      <li><kbd>R</kbd> <span>Platte am Haken um 90° drehen</span></li>
-      <li><kbd>Leertaste</kbd> <span>springen, auch von fahrenden Platten</span></li>
+      <li><kbd>E</kbd> oder <kbd>Leertaste</kbd> <span>gelbe Platte vor dir greifen, später vor dir ablegen</span></li>
+      <li><kbd>R</kbd> <span>zurück zum Start schleppen lassen, wenn du festsitzt</span></li>
       <li><kbd>H</kbd> <span>diese Hilfe</span></li>
     </ul>
-    <p>Am Handy: links steuern, rechts die drei Knöpfe.</p>
+    <p>Am Handy: links steuern, rechts die beiden Knöpfe.</p>
     <ul class="rules">
-      <li>Drei verschiedene Stempel holen, dann zum Tor in der Mitte. Reihenfolge egal.</li>
-      <li>Graue Platten sind fest. Gelbe kann jeder Kran umsetzen.</li>
-      <li>Rot-weiße Planken sperren eine Kante. Drehen hilft. Springen auch.</li>
+      <li>Die Inseln sind nicht verbunden. Bau dir mit gelben Platten Brücken zu den drei Stempeln, dann zum Ausgang oben in der Mitte. Reihenfolge egal.</li>
+      <li>Braune Pappplatten sind fest. Gelbe kann jeder Kran umsetzen.</li>
+      <li>Dein Kran fährt nur auf Boden und bleibt an jeder Kante stehen. Runterfallen geht nicht.</li>
+      <li>Platten sind knapp. Jede liegende gelbe Platte darf jeder nehmen, auch aus fremden Brücken.</li>
       <li>Wer auf einer Platte steht, fährt mit. Gewollt oder nicht.</li>
-      <li>Abstürzen kostet Zeit, keine Stempel.</li>
-      <li>Nach vier Minuten gewinnt, wer die meisten Stempel hat.</li>
+      <li>Trägt dich jemand herum, setzt er dich nach spätestens sechs Sekunden ab.</li>
+      <li>Wer zuerst mit drei Stempeln am Ausgang ist, gewinnt. Nach fünf Minuten zählen die meisten Stempel.</li>
     </ul>
     <button id="helpClose" class="big" type="button">Verstanden</button>
   </div>
@@ -107,8 +107,7 @@
 <div id="touch" hidden>
   <div id="stick"><b></b></div>
   <div id="pads">
-    <button id="tRot" type="button">Drehen</button>
-    <button id="tJump" type="button">Sprung</button>
+    <button id="tHome" type="button">Zum Start</button>
     <button id="tGrab" type="button">Greifen</button>
   </div>
 </div>

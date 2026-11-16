@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// „Der Boden ist gekündigt“ – Raumliste und WebRTC-Verbindungsaufbau (Signalisierung).
+// „Du kranst mich mal“ – Raumliste und WebRTC-Verbindungsaufbau (Signalisierung).
 // Gleiches Prinzip wie bei Rüdiger (speed/api.php): Der Browser des Raum-Erstellers ist der Host,
 // die Spieldaten laufen direkt zwischen den Browsern. Hier liegen nur kurzlebige Raumeinträge
 // und die Ausgabe befristeter TURN-Zugangsdaten. Kein Login, keine Cookies, keine Session.
