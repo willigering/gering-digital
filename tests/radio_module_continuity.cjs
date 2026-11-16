@@ -66,10 +66,6 @@ let server,browser;
   await login.locator('[name="username"]').fill('RadioTest');
   await login.locator('[name="password"]').fill('Fixture-radio!982');
   await login.locator('button[type="submit"]').click();
-  const unlock=page.locator('#unterrichtszugang form:has(input[name="action"][value="material_unlock"])');
-  await unlock.locator('[name="material_password"]').fill('DAA');
-  await unlock.locator('button[type="submit"]').click();
-  await unlock.waitFor({state:'detached'});
   const errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
@@ -177,18 +173,17 @@ let server,browser;
   await page.locator('[data-module-back]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
 
-  await page.locator('#unterrichtsmaterial summary').click();
+  if (!(await page.locator('#unterrichtsmaterial').evaluate(el=>el.open))) await page.locator('#unterrichtsmaterial summary').click();
   await page.locator('#unterrichtsmaterial a[href="unterricht/csharp-aufgaben.html"]').click();
   await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-aufgaben.html');
   await learningFrame.locator('.dtp-top a[href$="#unterrichtsmaterial"]').click();
   await page.locator('[data-module-shell]').waitFor({state:'hidden'});
 
-  await page.locator('#bonusmodule a.module-card').click();
-  await page.waitForURL(url=>url.searchParams.get('modul')==='/dau-to-pro/unterricht/csharp-finde-den-fehler.html');
-  await learningFrame.getByRole('link',{name:/DAU TO PRO \/ BONUSMODULE/}).click();
-  await page.locator('[data-module-shell]').waitFor({state:'hidden'});
+  const workshop=page.locator('#werkstatt');
+  assert.ok(await workshop.locator('a[href="unterricht/er-diagramme-bauen.php"]').isVisible());
+  assert.match(await workshop.locator('article.is-coming-soon').textContent(), /Finde den Fehler/);
   const afterLearning=await state();
-  assert.equal(afterLearning.state,'playing','Music survives cheat sheets, classroom materials and bonus modules');
+  assert.equal(afterLearning.state,'playing','Music survives cheat sheets and classroom materials');
   assert.equal(afterLearning.track,before.track);
   assert.equal(afterLearning.contexts,1);
 
@@ -196,6 +191,28 @@ let server,browser;
   await page.goto(base+'/osi/',{waitUntil:'networkidle'});
   assert.ok(await page.locator('dtp-back #back-module').isVisible(),
     'Unframed modules keep their own Modulauswahl link');
+  await page.goto(base+'/dau-to-pro/unterricht/er-diagramme-bauen.php');
+  const board=page.locator('#ew-board');
+  await board.scrollIntoViewIfNeeded();
+  const nodes=board.locator('#ew-nodes [data-id]');
+  assert.ok(await nodes.count() >= 5,'ER terms start on the board');
+  const first=board.locator('[data-id="a"]'), second=board.locator('[data-id="r"]');
+  await first.click();
+  await page.locator('[data-ew-shape="entity"]').click();
+  assert.equal(await first.getAttribute('data-shape'),'entity');
+  await board.scrollIntoViewIfNeeded();
+  const a=await first.boundingBox(), b=await second.boundingBox();
+  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
+  await page.mouse.down();
+  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});
+  await page.mouse.up();
+  await page.locator('[data-ew-card="1"]').click();
+  const midpoint=await board.evaluate(svg=>{
+    const line=svg.querySelector('.ew-link'),badge=svg.querySelector('#ew-labels text');
+    return ['x','y'].every(axis=>Number(badge.getAttribute(axis))===
+      (Number(line.getAttribute(axis+'1'))+Number(line.getAttribute(axis+'2')))/2);
+  });
+  assert.ok(midpoint,'Kardinalität sitzt mittig auf der sichtbaren Verbindung');
   assert.deepEqual(errors,[],'No uncaught browser errors');
   console.log('PASS: NERD FM continues through module entry, switching, pause/resume and back navigation');
 })().catch(err=>{console.error(err);process.exitCode=1}).finally(async()=>{

@@ -251,11 +251,15 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.deepEqual(await gp.locator('.hs-name').allTextContents(),['cleo']);
     await gp.goto(base+'/dau-to-pro/');
     assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
-    const secondPlace=gp.locator('#highscore .rank-2');
-    const rank=secondPlace.locator('.arcade-rank-number');
-    assert.equal(await rank.textContent(),'2','Rang 2 wird auf dem Podium angezeigt');
-    const [numberBox,avatarBox]=await Promise.all([rank.boundingBox(),secondPlace.locator('.arcade-avatar').boundingBox()]);
-    assert.ok(numberBox&&avatarBox&&numberBox.y<avatarBox.y,'Die Rangzahl beginnt oberhalb der Avatarfassung');
+    for (const place of [1,2,3]) {
+      const podium=gp.locator('#highscore .rank-'+place);
+      const numeral=podium.locator('.arcade-rank-number');
+      assert.equal(await numeral.textContent(),String(place));
+      const [number,shield]=await Promise.all([numeral.boundingBox(),podium.boundingBox()]);
+      assert.ok(number&&shield&&number.x>=shield.x&&number.y>=shield.y&&
+        number.x+number.width<=shield.x+shield.width&&number.y+number.height<=shield.y+shield.height,
+        'Rang '+place+' liegt vollständig auf seinem Schild');
+    }
     for(let i=0;i<5;i++){await gp.locator('.fx-shroom-hit').click({force:true});await pause(120);}
     await gp.waitForSelector('.fx-video:not([hidden])',{timeout:8000});
     await gp.keyboard.press('Escape');

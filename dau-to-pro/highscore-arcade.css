@@ -82,7 +82,7 @@
   height: .36em;
   background: linear-gradient(155deg, #fff0ad 18%, #ffcb68 48%, #b96918 91%);
   clip-path: polygon(0 22%, 29% 46%, 50% 0, 71% 46%, 100% 22%, 85% 85%, 83% 100%, 17% 100%, 15% 85%);
-  transform: rotate(-7deg);
+  transform: translateX(50%) rotate(-7deg);
 }
 @supports (background-clip: text) {
   .arcade-heading h2 span {
@@ -192,12 +192,10 @@
 .arcade-rank {
   position: absolute;
   z-index: 2;
-  bottom: calc(100% - 1px);
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 4% 8% auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: .16em;
   font-size: clamp(30px, 4.7vw, 66px);
   line-height: 1.08;
@@ -206,16 +204,6 @@
   color: var(--rank-ink);
   pointer-events: none;
 }
-.arcade-rank::before, .arcade-rank::after {
-  content: "";
-  width: .27em;
-  height: .55em;
-  border-bottom: 2px solid currentColor;
-  border-radius: 55%;
-  background: repeating-linear-gradient(44deg, transparent 0 4px, currentColor 5px 6px);
-  clip-path: polygon(20% 0, 88% 32%, 100% 92%, 53% 100%, 3% 65%);
-}
-.arcade-rank::after { transform: scaleX(-1); }
 .arcade-rank-number {
   position: relative;
   display: block;
@@ -247,7 +235,9 @@
   }
 }
 .arcade-crown {
-  position: relative;
+  position: absolute;
+  right: 50%;
+  bottom: calc(100% + .2em);
   width: .95em;
   height: .68em;
   flex: none;
@@ -272,8 +262,6 @@
   clip-path: polygon(0 0, 50% 13%, 100% 0, 92% 78%, 50% 100%, 8% 78%);
   background: linear-gradient(#643711 7%, #ffdc86 22%, #cb8838 58%, #7c4419 80%, #f3b55b);
 }
-.rank-1 .arcade-rank::before,
-.rank-1 .arcade-rank::after { content: none; }
 .arcade-champion.is-vacant { color: #cad8df; }
 .arcade-champion.is-vacant .arcade-avatar { opacity: .65; }
 .arcade-champion.is-vacant .arcade-name { font-size: clamp(12px, 1.4vw, 17px); cursor: inherit; }
@@ -587,15 +575,10 @@
     padding-top: 1.3cqw;
   }
   .arcade-stage--landing .arcade-rank {
-    font-size: 3.7cqw;
-    bottom: 100%;
-  }
-  .arcade-stage--landing .rank-1 .arcade-rank {
     inset: 1.1cqw 7% auto 7%;
-    justify-content: flex-end;
-    transform: none;
-    font-size: 6.55cqw;
+    font-size: 5.4cqw;
   }
+  .arcade-stage--landing .rank-1 .arcade-rank { font-size: 6.55cqw; }
   .arcade-stage--landing .rank-1 .arcade-crown {
     position: absolute;
     right: 50%;
@@ -740,11 +723,8 @@
     transform:translateX(-50%);width:90px;margin:0;
     filter:drop-shadow(0 3px 5px #000a);
   }
-  .arcade-champion .arcade-rank{bottom:calc(100% + 2px);font-size:38px}
-  .arcade-champion.rank-1 .arcade-rank{
-    bottom:calc(100% + 2px);left:auto;right:9%;
-    transform:none;font-size:47px;
-  }
+  .arcade-champion .arcade-rank{inset:9px 9% auto;transform:none;font-size:38px}
+  .arcade-champion.rank-1 .arcade-rank{font-size:47px}
   .arcade-champion .arcade-name,.arcade-champion.rank-1 .arcade-name{font-size:22px}
   .arcade-champion .arcade-level{font-size:13px}
   .arcade-champion .arcade-score strong,.arcade-champion.rank-1 .arcade-score strong{font-size:40px}
