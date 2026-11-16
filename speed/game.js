@@ -472,7 +472,7 @@ function codeOf(e) {
   if (KEYMAP[k]) return KEYMAP[k];
   return k.length === 1 && /[a-z]/i.test(k) ? 'Key' + k.toUpperCase() : '';
 }
-const GAMEKEY = /^(Space|Arrow|Key[WASDJKLQEXCVHM]|Numpad(Add|Subtract))/;
+const GAMEKEY = /^(Space|Shift|Arrow|Key[WASDJKLQEXCVHM]|Numpad(Add|Subtract))/;
 const typing = t => !!t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
 function releaseKeys() { for (const k in keys) keys[k] = false; for (const k in latch) delete latch[k]; }
 addEventListener('keydown', e => {
@@ -511,7 +511,7 @@ function readInput() {
   I.r = K('KeyD') || K('ArrowRight') || touch.r || gb(15) || ax > 0.4;
   I.jump = K('Space') || K('KeyW') || K('ArrowUp') || touch.jump || gb(0);
   I.down = K('KeyS') || K('ArrowDown') || touch.down || gb(13) || ay > 0.6;
-  I.hook = K('KeyJ') || K('KeyX') || K('KeyH') || touch.hook || gb(2) || gb(4); // Shift bewusst nicht mehr: 5× Shift öffnet unter Windows die Einrastfunktion und stiehlt den Fokus
+  I.hook = K('KeyJ') || K('ShiftLeft') || K('ShiftRight') || K('KeyX') || K('KeyH') || touch.hook || gb(2) || gb(4); // Shift auf Wunsch wieder drin (Hinweis: 5× Shift kann unter Windows die Einrastfunktion öffnen)
   I.item = K('KeyK') || K('KeyE') || K('KeyC') || K('NumpadSubtract') || touch.item || gb(1) || gb(3);
   I.boost = K('KeyL') || K('KeyQ') || K('KeyV') || K('NumpadAdd') || touch.boost || gb(5) || gb(7);
   for (const k in latch) delete latch[k];
