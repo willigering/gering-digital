@@ -9,14 +9,14 @@ $account=(int)(learner_current()['id']??0);
 ?><!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08151a"><title>ER-Werkstatt · Diagramme selber bauen · DAU TO PRO</title>
-<link rel="stylesheet" href="db-material.css"><link rel="stylesheet" href="er-werkstatt.css"></head>
+<link rel="stylesheet" href="db-material.css"><link rel="stylesheet" href="er-werkstatt.css?v=2"></head>
 <body>
 <header class="site-head"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">← UNTERRICHTSMATERIAL</a><strong>DAU <span>TO</span> PRO // ER-WERKSTATT</strong></div></header>
 <div class="wrap"><section class="hero ew-hero">
 <span class="kicker">DATENBANKEN · INTERAKTIVES UNTERRICHTSMATERIAL</span>
 <h1>Begriffe rein.<br><em>Beziehungen klar.</em></h1>
-<p>Deine Aufgabe: Aus einer Beschreibung ein echtes ER-Diagramm bauen. Zieh die Begriffe ins Feld, gib ihnen ihre Form, unterstreiche Schlüssel und verbinde, was zusammengehört.</p>
-<div class="tags"><span>Begriffe ziehen</span><span>Rechteck · Raute · Oval</span><span>Unterstreichen</span><span>Aufgabengenerator</span></div>
+<p>Deine Aufgabe: Aus einer Beschreibung ein echtes ER-Diagramm bauen. Die Begriffe liegen schon auf dem Blatt. Gib ihnen ihre Form, unterstreiche Schlüssel und verbinde, was zusammengehört.</p>
+<div class="tags"><span>Linien ziehen</span><span>Rechteck · Raute · Oval</span><span>Unterstreichen</span><span>Aufgabengenerator</span></div>
 </section>
 <main id="er-training">
 <div class="ew-task part">
@@ -28,12 +28,10 @@ $account=(int)(learner_current()['id']??0);
 <button type="button" class="ew-button ew-gold" id="ew-next">↻ Neue Aufgabe</button>
 </div></div>
 <p id="ew-story" class="ew-story" aria-live="polite"></p>
-<div class="ew-step-hint"><span>1 <b>Begriff ziehen</b></span><i>›</i><span>2 <b>Form geben</b></span><i>›</i><span>3 <b>Verbinden</b></span><i>›</i><span>4 <b>Prüfen</b></span></div>
+<div class="ew-step-hint"><span>1 <b>Form geben</b></span><i>›</i><span>2 <b>Verbinden</b></span><i>›</i><span>3 <b>1 / n / m setzen</b></span><i>›</i><span>4 <b>Prüfen</b></span></div>
 </div>
 <section class="part ew-studio" aria-label="ER-Diagramm erstellen">
-<div class="ew-studio-top"><div><span class="eyebrow">02 · DEIN ZEICHENBLATT</span><h2>Aus Text wird Struktur.</h2></div><p>Tippen funktioniert auch: Einmal auf einen Begriff klicken, um ihn einzusetzen. Formen kannst du danach verschieben.</p></div>
-<div class="ew-bank"><div class="ew-bank-label"><strong>Begriffe</strong><span id="ew-count" aria-live="polite"></span></div>
-<div id="ew-words" class="ew-words" aria-label="Begriffe zum Ziehen oder Antippen"></div></div>
+<div class="ew-studio-top"><div><span class="eyebrow">02 · DEIN ZEICHENBLATT</span><h2>Aus Text wird Struktur.</h2></div><p>Ziehe direkt von einem Begriff zum anderen. Tippe danach auf die Linie, um 1, n oder m zu setzen.</p></div>
 <div class="ew-workspace">
 <div class="ew-toolbar" id="ew-toolbar" aria-label="Werkzeuge für markiertes Element">
 <span class="ew-tool-caption" id="ew-selection-label">Klicke einen Begriff an</span>
@@ -44,14 +42,14 @@ $account=(int)(learner_current()['id']??0);
 </div>
 <button type="button" class="ew-tool ew-underline" id="ew-underline" aria-pressed="false"><span aria-hidden="true"><u>U</u></span>Unterstreichen</button>
 <button type="button" class="ew-tool ew-link-button" id="ew-connect">Verbinden</button>
-<button type="button" class="ew-tool ew-delete" id="ew-delete" aria-label="Markiertes Objekt entfernen">Entfernen</button>
+<button type="button" class="ew-tool ew-delete" id="ew-delete" aria-label="Form des markierten Begriffs entfernen">Form entfernen</button>
 </div>
-<div class="ew-toolbar ew-line-toolbar" id="ew-line-toolbar" hidden><span>Verbindung markiert · Kardinalität am Entitätstyp:</span><div id="ew-card-group" class="ew-cards">
+<div class="ew-toolbar ew-line-toolbar" id="ew-line-toolbar" hidden><span>Kardinalität der markierten Linie</span><div id="ew-card-group" class="ew-cards">
 <button type="button" data-ew-card="">–</button><button type="button" data-ew-card="1">1</button><button type="button" data-ew-card="n">n</button><button type="button" data-ew-card="m">m</button></div><button class="ew-button" type="button" id="ew-delete-line">Linie entfernen</button></div>
-<div id="ew-board-scroller" class="ew-board-scroller"><svg id="ew-board" class="ew-board" viewBox="0 0 900 500" role="group" aria-label="Leere Zeichentafel. Begriffe von oben hierhin ziehen. Markierte Formen können verschoben und verbunden werden."><g id="ew-lines"></g><g id="ew-nodes"></g><text id="ew-empty" x="450" y="226" text-anchor="middle">Zieh einen Begriff hierher.</text><text id="ew-empty-sub" x="450" y="256" text-anchor="middle">Oder tippe oben auf einen Begriff.</text></svg></div>
-<p id="ew-message" class="ew-message" role="status" aria-live="polite">Wähle einen Begriff. Dann zieh ihn in die Zeichenfläche.</p>
+<div id="ew-board-scroller" class="ew-board-scroller"><svg id="ew-board" class="ew-board" viewBox="0 0 900 500" role="group" aria-label="Zeichentafel mit Begriffen zum Formen und Verbinden"><g id="ew-lines"></g><g id="ew-nodes"></g><g id="ew-labels"></g></svg></div>
+<p id="ew-message" class="ew-message" role="status" aria-live="polite">Wähle einen Begriff und gib ihm eine Form.</p>
 </div>
-<div class="ew-actionbar"><button class="ew-button ew-gold" id="ew-check" type="button">Diagramm prüfen</button><button class="ew-button" id="ew-undo" type="button">↶ Rückgängig</button><button class="ew-button ew-quiet" id="ew-clear" type="button">Zeichenblatt leeren</button><button class="ew-button" id="ew-solution-button" type="button" disabled>Lösung ansehen</button></div>
+<div class="ew-actionbar"><button class="ew-button ew-gold" id="ew-check" type="button">Diagramm prüfen</button><button class="ew-button" id="ew-undo" type="button">↶ Rückgängig</button><button class="ew-button ew-quiet" id="ew-clear" type="button">Zurücksetzen</button><button class="ew-button" id="ew-solution-button" type="button" disabled>Lösung ansehen</button></div>
 <div id="ew-feedback" class="ew-feedback" hidden aria-live="polite"></div>
 <div id="ew-solution" class="ew-solution" hidden><h3>Ein mögliches korrektes ER-Diagramm</h3><p>In der Chen-Notation: Rechtecke für Entitätstypen, Rauten für Beziehungen, Ovale für Attribute. Schlüsselattribute sind unterstrichen.</p><svg id="ew-solution-svg" viewBox="0 0 900 500" role="img" aria-label="Korrektes ER-Diagramm für die Aufgabe"></svg></div>
 </section>
@@ -65,5 +63,5 @@ $account=(int)(learner_current()['id']??0);
 </section></main></div>
 <footer class="foot"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">Zurück zum Unterrichtsmaterial</a><a href="er-modelle-interaktiv.php">ER-Modelle nachschlagen</a></div></footer>
 <script>window.__EW_ACCOUNT__=<?=$account?>;</script>
-<script src="er-werkstatt.js" defer></script>
+<script src="er-werkstatt.js?v=2" defer></script>
 </body></html>

@@ -213,30 +213,33 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       </div>
     </div>
   </section>
-<section class="bonus-collection" id="bonusmodule" aria-labelledby="bonus-title">
-  <div class="section-heading">
+<section class="bonus-collection" id="werkstatt" aria-labelledby="werkstatt-title">
+  <div class="section-heading" id="bonusmodule">
     <div>
-      <span class="eyebrow">Neben den Lernmodulen</span>
-      <h2 id="bonus-title">Bonus<span>module</span></h2>
-      <p>Kurze Debugging-Spiele. Ohne Lernpfad, ohne Prüfungsmodus und ohne Nachschlagwerk.</p>
+      <h2 id="werkstatt-title">Werk<span>statt</span></h2>
+      <p>Hier kannst du ausprobieren, zeichnen und Fehler suchen.</p>
     </div>
-    <span class="section-count">01 Modul</span>
   </div>
   <div class="module-grid bonus-grid">
-    <a class="module-card" style="--mod:#e8b84a" href="unterricht/csharp-finde-den-fehler.html" aria-label="Finde den Fehler – C# öffnen">
-      <div class="module-art">
-        <span class="module-art-symbol" aria-hidden="true">C#</span>
-      </div>
+    <a class="module-card" style="--mod:#edbb70" href="unterricht/er-diagramme-bauen.php">
+      <div class="module-art"><span class="module-art-symbol" aria-hidden="true">ER ↔</span></div>
       <div class="module-body">
-        <span class="module-category">Bonusmodul</span>
-        <span class="module-subtopic">C#</span>
-        <h2>Finde den Fehler.</h2>
-        <p>Drei Programme, je ein stiller Fehler. Im Browser ausführen und die Testfälle prüfen.</p>
-        <div class="module-footer"><span>Debugging-Spiel</span><b aria-hidden="true">↗</b></div>
+        <span class="module-subtopic">Datenmodellierung</span>
+        <h2>ER-Diagramme bauen</h2>
+        <p>Formen zuweisen, Begriffe verbinden und Kardinalitäten setzen. Jede neue Aufgabe startet mit einem vorbereiteten Zeichenblatt.</p>
+        <div class="module-footer"><span>Mit Lernkonto öffnen</span><b aria-hidden="true">↗</b></div>
       </div>
     </a>
+    <article class="module-card is-coming-soon" style="--mod:#e8b84a">
+      <div class="module-art"><span class="module-art-symbol" aria-hidden="true">C#</span></div>
+      <div class="module-body">
+        <span class="module-subtopic">C#</span>
+        <h2>Finde den Fehler.</h2>
+        <p>Programme ausführen und mit Testfällen prüfen, wo der Fehler steckt.</p>
+        <div class="module-footer"><span>Bald verfügbar</span></div>
+      </div>
+    </article>
   </div>
-  <p class="bonus-note">Finde den Fehler prüft C# im Browser. XP wird in dieser Fassung nicht gebucht.</p>
 </section>
  <?php $cheatTopics=[
   ['datenbanken','Datenbanken & SQL','Schlüssel, JOINs und Normalformen','SQL','#89b4fa'],
@@ -330,7 +333,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <div class="module-body">
             <span class="module-category">UNTERRICHTSMATERIAL · DATENMODELLIERUNG</span>
             <h2>Begriffe rein. Beziehungen klar.</h2>
-            <p>Begriffe aufs Blatt ziehen, Rechtecke, Rauten oder Ovale setzen, Schlüssel unterstreichen, verbinden und selbst prüfen. Neue Aufgaben auf Knopfdruck.</p>
+            <p>Rechtecke, Rauten oder Ovale zuweisen, Schlüssel unterstreichen, Begriffe verbinden und selbst prüfen. Neue Aufgaben auf Knopfdruck.</p>
             <div class="module-footer"><span>AUFGABENGENERATOR · DRAG &amp; DROP</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>

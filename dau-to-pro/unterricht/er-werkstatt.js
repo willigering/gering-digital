@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
 const board=$('ew-board'), nodesGroup=$('ew-nodes'), linesGroup=$('ew-lines');
-if(!board||!$('ew-words'))return;
+if(!board||!$('ew-labels'))return;
 const scenarios=[
 {id:'kunde-auftrag',level:'easy',title:'Kundenaufträge',a:'Kunde',b:'Auftrag',verb:'erteilt',card:['1','n'],aAttrs:[['KundenNr',1]],bAttrs:[['AuftragsNr',1]],story:'Ein Kunde kann mehrere Aufträge erteilen. Jeder Auftrag gehört genau zu einem Kunden. Beide Entitätstypen besitzen eine eindeutige Nummer.'},
 {id:'abteilung-mitarbeiter',level:'easy',title:'Wer gehört wohin?',a:'Abteilung',b:'Mitarbeiter',verb:'beschäftigt',card:['1','n'],aAttrs:[['AbteilungsID',1]],bAttrs:[['PersonalNr',1]],story:'Eine Abteilung kann viele Mitarbeiter beschäftigen. Jeder Mitarbeiter gehört genau einer Abteilung an. Jede Seite besitzt eine eindeutige Nummer.'},
@@ -20,7 +20,7 @@ const scenarios=[
 {id:'arzt-patient',level:'hard',title:'Behandlungstermine',a:'Arzt',b:'Patient',verb:'behandelt',card:['m','n'],aAttrs:[['ArztNr',1],['Fachrichtung',0]],bAttrs:[['PatientenNr',1],['Geburtsjahr',0]],rAttrs:[['Termin',0],['Behandlungsart',0]],story:'Ein Arzt kann mehrere Patienten behandeln und ein Patient kann mehrere Ärzte aufsuchen. ArztNr und PatientenNr sind Schlüssel. Fachrichtung und Geburtsjahr gehören zu den Entitätstypen. Termin und Behandlungsart gehören zur Beziehung „behandelt“. Vereinfachung: Ein Beziehungseintrag pro Arzt-Patient-Paar.'}
 ];
 const storeKey='dtp-er-werkstatt-v1-'+String(window.__EW_ACCOUNT__||'session');
-let task=null, placed=[], edges=[], picked=null, selectedEdge=null, connectStart=null, history=[], moving=null, chipDrag=null, skipClickUntil=0, validated=false;
+let task=null, placed=[], edges=[], picked=null, selectedEdge=null, connectStart=null, history=[], drag=null, validated=false;
 const currentById=id=>task?.terms.find(t=>t.id===id), nodeById=id=>placed.find(n=>n.id===id);
 const canonical=(a,b)=>[a,b].sort().join('|');
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
@@ -37,62 +37,143 @@ return {...s,terms,required}}
 function persist(){try{localStorage.setItem(storeKey,JSON.stringify({taskId:task.id,level:$('ew-level').value,placed,edges}))}catch(e){}}
 function snapshot(){history.push({placed:structuredClone(placed),edges:structuredClone(edges)});if(history.length>60)history.shift()}
 function change(){validated=false;$('ew-solution-button').disabled=true;$('ew-solution').hidden=true;$('ew-feedback').hidden=true;persist();render()}
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+function seedMissing(){
+ const grid=Array.from({length:9},(_,i)=>({x:150+i%3*300,y:85+Math.floor(i/3)*165}));
+ for(let i=grid.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[grid[i],grid[j]]=[grid[j],grid[i]]}
+ for(const t of task.terms){
+  if(nodeById(t.id))continue;
+  const distance=p=>Math.min(...placed.map(n=>Math.hypot(p.x-n.x,p.y-n.y)));
+  grid.sort((a,b)=>distance(b)-distance(a));
+  const point=grid.shift();
+  placed.push({id:t.id,...point,shape:'none',underline:false});
+ }
+}
 function restore(){try{const val=JSON.parse(localStorage.getItem(storeKey)||'null');if(!val)return false;const s=scenarios.find(x=>x.id===val.taskId);if(!s)return false;task=model(s);$('ew-level').value=s.level;
 if(Array.isArray(val.placed))placed=val.placed.filter(n=>currentById(n.id)&&Number.isFinite(n.x)&&Number.isFinite(n.y)&&['none','entity','relationship','attribute'].includes(n.shape)).slice(0,12).map(n=>({id:n.id,x:Math.max(85,Math.min(815,n.x)),y:Math.max(55,Math.min(445,n.y)),shape:n.shape,underline:!!n.underline}));
+seedMissing();
 if(Array.isArray(val.edges))edges=val.edges.filter(e=>nodeById(e.a)&&nodeById(e.b)&&e.a!==e.b&&['','1','n','m'].includes(e.card)).slice(0,15).map(e=>({a:e.a,b:e.b,card:e.card}));return true}catch(e){return false}}
 function newTask(){let level=$('ew-level').value;let options=scenarios.filter(t=>t.level===level&&(!task||t.id!==task.id));if(!options.length)options=scenarios.filter(t=>t.level===level);const sample=options[Math.floor(Math.random()*options.length)];
-task=model(sample);placed=[];edges=[];picked=null;selectedEdge=null;connectStart=null;history=[];validated=false;$('ew-feedback').hidden=true;$('ew-solution').hidden=true;$('ew-solution-button').disabled=true;render();persist();message('Neue Aufgabe. Zieh die Begriffe ins Feld.')}
-function renderWords(){const area=$('ew-words');area.replaceChildren();for(const word of task.terms.slice().sort((a,b)=>a.label.localeCompare(b.label,'de'))){if(nodeById(word.id))continue;const b=document.createElement('button');b.type='button';b.className='ew-word';b.textContent=word.label;b.dataset.id=word.id;b.setAttribute('aria-label',word.label+' auf die Zeichentafel setzen');
-b.addEventListener('pointerdown',ev=>startChipDrag(ev,b,word.id));b.addEventListener('pointermove',moveChip);b.addEventListener('pointerup',endChip);b.addEventListener('pointercancel',endChip);
-b.addEventListener('click',()=>{if(Date.now()<skipClickUntil)return;addWord(word.id,230+(placed.length%3)*200,145+Math.floor(placed.length/3)*100);message('„'+word.label+'“ eingesetzt. Jetzt Form wählen.');});area.appendChild(b)}
-$('ew-count').textContent=placed.length+' / '+task.terms.length+' platziert'}
-function startChipDrag(ev,el,id){if(ev.button!==undefined&&ev.button!==0)return;chipDrag={id,el,x:ev.clientX,y:ev.clientY,ghost:null,moved:false};try{el.setPointerCapture(ev.pointerId)}catch(e){}}
-function moveChip(ev){if(!chipDrag)return;const d=chipDrag;if(!d.moved&&Math.hypot(ev.clientX-d.x,ev.clientY-d.y)>9){d.moved=true;const ghost=document.createElement('div');ghost.className='ew-ghost';ghost.textContent=currentById(d.id).label;document.body.appendChild(ghost);d.ghost=ghost;d.el.classList.add('ew-dragging')}if(d.ghost){d.ghost.style.left=ev.clientX+'px';d.ghost.style.top=ev.clientY+'px'}}
-function endChip(ev){if(!chipDrag)return;const d=chipDrag;chipDrag=null;if(d.ghost)d.ghost.remove();d.el.classList.remove('ew-dragging');if(!d.moved)return;skipClickUntil=Date.now()+500;const area=board.getBoundingClientRect();if(ev.clientX>=area.left&&ev.clientX<=area.right&&ev.clientY>=area.top&&ev.clientY<=area.bottom){const p=coords(ev);addWord(d.id,p.x,p.y);message('Begriff abgelegt. Klicke auf ihn und wähle Rechteck, Raute oder Oval.')}else message('Zieh den Begriff auf die Zeichenfläche. Alternativ kurz antippen.')}
-function addWord(id,x,y){if(nodeById(id))return;snapshot();placed.push({id,x:Math.max(105,Math.min(795,x)),y:Math.max(54,Math.min(446,y)),shape:'none',underline:false});picked=id;selectedEdge=null;connectStart=null;change()}
+task=model(sample);placed=[];edges=[];seedMissing();picked=null;selectedEdge=null;connectStart=null;history=[];change();message('Wähle einen Begriff und gib ihm eine Form. Ziehe von Begriff zu Begriff, um eine Linie zu setzen.')}
 function coords(ev){const c=board.createSVGPoint();c.x=ev.clientX;c.y=ev.clientY;const m=board.getScreenCTM();return m?c.matrixTransform(m.inverse()):{x:450,y:250}}
-function render(){if(!task)return;$('ew-title').textContent=task.title;$('ew-story').textContent=task.story;renderWords();renderBoard();renderTools();$('ew-undo').disabled=!history.length}
+function render(){if(!task)return;$('ew-title').textContent=task.title;$('ew-story').textContent=task.story;renderBoard();renderTools();$('ew-undo').disabled=!history.length}
 function renderTools(){const n=nodeById(picked);$('ew-toolbar').hidden=!!selectedEdge;$('ew-line-toolbar').hidden=!selectedEdge;
-$('ew-selection-label').textContent=n?'„'+currentById(n.id).label+'“ bearbeiten':'Wähle eine Form aus dem Diagramm';
+$('ew-selection-label').textContent=n?'„'+currentById(n.id).label+'“ bearbeiten':'Wähle einen Begriff auf dem Blatt';
 for(const b of document.querySelectorAll('[data-ew-shape]')){b.disabled=!n;b.setAttribute('aria-pressed',String(!!n&&n.shape===b.dataset.ewShape))}
 $('ew-underline').disabled=!n||n.shape!=='attribute';$('ew-underline').setAttribute('aria-pressed',String(!!n&&n.underline));
 $('ew-connect').disabled=!n;$('ew-connect').classList.toggle('is-active',!!connectStart);$('ew-connect').textContent=connectStart?'Ziel anklicken …':'Verbinden';
-$('ew-delete').disabled=!n;
+$('ew-delete').disabled=!n||n.shape==='none';
 const edge=edges.find(e=>canonical(e.a,e.b)===selectedEdge);
 for(const b of document.querySelectorAll('[data-ew-card]')){b.setAttribute('aria-pressed',String(!!edge&&b.dataset.ewCard===edge.card));b.disabled=!edge} $('ew-delete-line').disabled=!edge}
-function renderBoard(){nodesGroup.replaceChildren();linesGroup.replaceChildren();
-$('ew-empty').style.display=placed.length?'none':'';$('ew-empty-sub').style.display=placed.length?'none':'';
-for(const e of edges){const a=nodeById(e.a),b=nodeById(e.b);if(!a||!b)continue;const group=svgEl('g',{'data-edge':canonical(e.a,e.b),role:'button',tabindex:0,'aria-label':'Verbindung '+currentById(e.a).label+' zu '+currentById(e.b).label});const active=selectedEdge===canonical(e.a,e.b);
-group.appendChild(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,class:'ew-link'+(active?' is-selected':'')}));
-group.appendChild(svgEl('line',{x1:a.x,y1:a.y,x2:b.x,y2:b.y,stroke:'transparent','stroke-width':20}));
-if(e.card){const entity=a.id==='a'||a.id==='b'?a:(b.id==='a'||b.id==='b'?b:a),other=entity===a?b:a;
-group.appendChild(svgEl('text',{x:entity.x+(other.x-entity.x)*.23,y:entity.y+(other.y-entity.y)*.23-9,'text-anchor':'middle',class:'ew-link-label'},e.card))}
-linesGroup.appendChild(group)}
+function edgePoints(a,b){
+ const dx=b.x-a.x,dy=b.y-a.y;
+ const ratio=(n)=>{
+  const d=n.shape==='relationship'?Math.abs(dx)/103+Math.abs(dy)/42:
+   n.shape==='attribute'?Math.hypot(dx/93,dy/34):
+   Math.max(Math.abs(dx)/91,Math.abs(dy)/(n.shape==='none'?31:34));
+  return d?1/d:0;
+ };
+ const ra=ratio(a),rb=ratio(b),visible=ra+rb<1;
+ const start=visible?ra:0,end=visible?1-rb:1;
+ return {x1:a.x+start*dx,y1:a.y+start*dy,x2:a.x+end*dx,y2:a.y+end*dy};
+}
+function cardinality(labelGroup,points,card,edge){
+ if(!card)return;
+ const x=(points.x1+points.x2)/2,y=(points.y1+points.y2)/2;
+ const badge=svgEl('g',edge?{'data-edge':edge,class:'ew-card-badge'}:{class:'ew-card-badge'});
+ badge.append(svgEl('circle',{cx:x,cy:y,r:13,class:'ew-card-bg'}),svgEl('text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'ew-link-label'},card));
+ labelGroup.appendChild(badge);
+}
+function renderBoard(){
+ nodesGroup.replaceChildren();linesGroup.replaceChildren();
+ const labels=$('ew-labels');labels.replaceChildren();
+ for(const e of edges){
+  const a=nodeById(e.a),b=nodeById(e.b);if(!a||!b)continue;
+  const key=canonical(e.a,e.b),active=selectedEdge===key,points=edgePoints(a,b);
+  const group=svgEl('g',{'data-edge':key,role:'button',tabindex:0,'aria-label':'Verbindung '+currentById(e.a).label+' zu '+currentById(e.b).label+(e.card?', '+e.card:'')});
+  group.append(svgEl('line',{...points,class:'ew-link'+(active?' is-selected':'')}),svgEl('line',{...points,stroke:'transparent','stroke-width':20}));
+  group.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();selectEdge(key)}});
+  linesGroup.appendChild(group);
+  cardinality(labels,points,e.card,key);
+ }
+ if(drag?.active){
+  const a=nodeById(drag.id);
+  linesGroup.appendChild(svgEl('line',{x1:a.x,y1:a.y,x2:drag.point.x,y2:drag.point.y,class:'ew-link ew-link-preview'}));
+ }
 for(const n of placed){const word=currentById(n.id);if(!word)continue;const g=svgEl('g',{'data-id':n.id,'data-shape':n.shape,role:'button',tabindex:0,'aria-label':word.label+(n.shape==='none'?' ohne Form':' als '+n.shape)+(n.underline?' unterstrichen':''),class:'ew-node'+(picked===n.id||connectStart===n.id?' is-selected':'')});const shape=n.shape;let geo;
 if(shape==='entity')geo=svgEl('rect',{x:n.x-91,y:n.y-34,width:182,height:68,rx:4,class:'ew-shape'});
 else if(shape==='relationship')geo=svgEl('polygon',{points:(n.x+103)+','+n.y+' '+n.x+','+(n.y+42)+' '+(n.x-103)+','+n.y+' '+n.x+','+(n.y-42),class:'ew-shape'});
 else if(shape==='attribute')geo=svgEl('ellipse',{cx:n.x,cy:n.y,rx:93,ry:34,class:'ew-shape'});
-else geo=svgEl('rect',{x:n.x-91,y:n.y-31,width:182,height:62,rx:9,fill:'#122831',stroke:'#749199','stroke-width':2,'stroke-dasharray':'6 5'});
+else geo=svgEl('rect',{x:n.x-91,y:n.y-31,width:182,height:62,rx:9,class:'ew-shape','stroke-dasharray':'6 5'});
 const label=svgEl('text',{x:n.x,y:n.y+6,'text-anchor':'middle',class:n.underline?'is-underline':''},word.label);
 if(word.label.length>15)label.style.fontSize='13px';else if(word.label.length>11)label.style.fontSize='15px';g.append(geo,label);
 g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();selectNode(n.id)}if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(ev.key)){ev.preventDefault();snapshot();n.x+=ev.key==='ArrowRight'?10:ev.key==='ArrowLeft'?-10:0;n.y+=ev.key==='ArrowDown'?10:ev.key==='ArrowUp'?-10:0;n.x=Math.max(105,Math.min(795,n.x));n.y=Math.max(54,Math.min(446,n.y));change()}});
 nodesGroup.appendChild(g)}
 }
-function selectNode(id){if(connectStart){if(id===connectStart){connectStart=null;render();message('Verbindung abgebrochen.');return}const a=connectStart,b=id;connectStart=null;if(edges.some(e=>canonical(e.a,e.b)===canonical(a,b))){message('Diese Verbindung gibt es schon.');render();return}snapshot();edges.push({a,b,card:''});picked=null;selectedEdge=canonical(a,b);change();message('Verbindung erstellt. Wähle bei Bedarf die Kardinalität 1, n oder m.');return}picked=id;selectedEdge=null;renderTools();renderBoard();message('„'+currentById(id).label+'“ markiert. Wähle nun eine Form oder Verbinden.')}
-board.addEventListener('pointerdown',ev=>{const nodeEl=ev.target.closest('[data-id]');if(nodeEl){const id=nodeEl.getAttribute('data-id');selectNode(id);if(connectStart||selectedEdge)return;const n=nodeById(id);if(n){const p=coords(ev);moving={id,originX:n.x,originY:n.y,startX:p.x,startY:p.y,moved:false};try{board.setPointerCapture(ev.pointerId)}catch(e){}}return}
-const lineEl=ev.target.closest('[data-edge]');if(lineEl){selectedEdge=lineEl.getAttribute('data-edge');picked=null;connectStart=null;renderTools();renderBoard();message('Linie markiert. Gib die Kardinalität an oder entferne die Linie.');return}
-picked=null;selectedEdge=null;connectStart=null;renderTools();renderBoard()});
-board.addEventListener('pointermove',ev=>{if(!moving)return;const n=nodeById(moving.id);if(!n)return;const p=coords(ev),dx=p.x-moving.startX,dy=p.y-moving.startY;if(!moving.moved&&Math.hypot(dx,dy)>5){moving.moved=true;snapshot()}if(moving.moved){n.x=Math.max(105,Math.min(795,moving.originX+dx));n.y=Math.max(54,Math.min(446,moving.originY+dy));renderBoard()}});
-function stopMove(){if(moving?.moved)change();moving=null}
-board.addEventListener('pointerup',stopMove);board.addEventListener('pointercancel',stopMove);
+function selectEdge(key){
+ selectedEdge=key;picked=null;connectStart=null;renderTools();renderBoard();
+ message('Linie markiert. Wähle 1, n oder m, falls die Linie eine Kardinalität braucht.');
+}
+function connectNodes(a,b){
+ if(a===b)return;
+ const key=canonical(a,b);
+ connectStart=null;
+ if(edges.some(e=>canonical(e.a,e.b)===key)){selectEdge(key);return}
+ snapshot();edges.push({a,b,card:''});picked=null;selectedEdge=key;
+ change();message('Verbindung erstellt. Wähle bei Bedarf 1, n oder m.');
+}
+function selectNode(id){
+ if(connectStart){
+  if(id===connectStart){connectStart=null;render();message('Verbindung abgebrochen.');return}
+  connectNodes(connectStart,id);return;
+ }
+ picked=id;selectedEdge=null;renderTools();renderBoard();
+ message('„'+currentById(id).label+'“ markiert. Wähle eine Form.');
+}
+board.addEventListener('pointerdown',ev=>{
+ if(drag||ev.button!==0)return;
+ const edge=ev.target.closest('[data-edge]');
+ if(edge){selectEdge(edge.dataset.edge);return}
+ const node=ev.target.closest('[data-id]');
+ if(node){
+  if(connectStart){selectNode(node.dataset.id);return}
+  const point=coords(ev);
+  drag={id:node.dataset.id,pointerId:ev.pointerId,start:point,point,active:false};
+  selectNode(drag.id);
+  board.setPointerCapture(ev.pointerId);return;
+ }
+ picked=null;selectedEdge=null;connectStart=null;renderTools();renderBoard();
+});
+board.addEventListener('pointermove',ev=>{
+ if(!drag||ev.pointerId!==drag.pointerId)return;
+ drag.point=coords(ev);
+ if(Math.hypot(drag.point.x-drag.start.x,drag.point.y-drag.start.y)>6)drag.active=true;
+ if(drag.active)renderBoard();
+});
+board.addEventListener('pointerup',ev=>{
+ if(!drag||ev.pointerId!==drag.pointerId)return;
+ const started=drag;drag=null;
+ if(!started.active)return;
+ const target=document.elementFromPoint(ev.clientX,ev.clientY)?.closest('#ew-nodes [data-id]');
+ if(target&&target.dataset.id!==started.id){connectNodes(started.id,target.dataset.id);return}
+ if(!target&&board.contains(document.elementFromPoint(ev.clientX,ev.clientY))){
+  const n=nodeById(started.id),p=coords(ev);
+  snapshot();n.x=clamp(n.x+p.x-started.start.x,105,795);n.y=clamp(n.y+p.y-started.start.y,54,446);
+  change();message('Begriff verschoben. Zum Verbinden auf einem anderen Begriff loslassen.');return;
+ }
+ renderBoard();
+});
+function cancelDrag(ev){if(drag?.pointerId===ev.pointerId){drag=null;renderBoard()}}
+board.addEventListener('pointercancel',cancelDrag);
+board.addEventListener('lostpointercapture',cancelDrag);
 for(const b of document.querySelectorAll('[data-ew-shape]'))b.addEventListener('click',()=>{const n=nodeById(picked);if(!n)return;snapshot();n.shape=b.dataset.ewShape;if(n.shape!=='attribute')n.underline=false;change();message('Form gesetzt: '+b.textContent.trim()+'.')});
 $('ew-underline').addEventListener('click',()=>{const n=nodeById(picked);if(!n||n.shape!=='attribute')return;snapshot();n.underline=!n.underline;change();message(n.underline?'Attribut unterstrichen.':'Unterstreichung entfernt.')});
 $('ew-connect').addEventListener('click',()=>{if(!nodeById(picked))return;connectStart=picked;renderTools();renderBoard();message('Klicke auf den zweiten Begriff, um beide zu verbinden.')});
 for(const b of document.querySelectorAll('[data-ew-card]'))b.addEventListener('click',()=>{const e=edges.find(e=>canonical(e.a,e.b)===selectedEdge);if(!e)return;snapshot();e.card=b.dataset.ewCard;change();message('Kardinalität gesetzt.')});
-$('ew-delete').addEventListener('click',()=>{const n=nodeById(picked);if(!n)return;snapshot();placed=placed.filter(x=>x.id!==n.id);edges=edges.filter(e=>e.a!==n.id&&e.b!==n.id);picked=null;connectStart=null;change()});
+$('ew-delete').addEventListener('click',()=>{const n=nodeById(picked);if(!n||n.shape==='none')return;snapshot();n.shape='none';n.underline=false;change()});
 $('ew-delete-line').addEventListener('click',()=>{if(!selectedEdge)return;snapshot();edges=edges.filter(e=>canonical(e.a,e.b)!==selectedEdge);selectedEdge=null;change()});
 $('ew-undo').addEventListener('click',()=>{const old=history.pop();if(!old)return;placed=old.placed;edges=old.edges;picked=null;selectedEdge=null;connectStart=null;change();message('Letzter Schritt rückgängig gemacht.')});
-$('ew-clear').addEventListener('click',()=>{if(placed.length&&!window.confirm('Zeichenblatt wirklich leeren?'))return;snapshot();placed=[];edges=[];picked=null;selectedEdge=null;connectStart=null;change();message('Zeichenblatt geleert.')});
+$('ew-clear').addEventListener('click',()=>{if(!window.confirm('Formen und Verbindungen zurücksetzen?'))return;snapshot();placed=placed.map(n=>({...n,shape:'none',underline:false}));edges=[];picked=null;selectedEdge=null;connectStart=null;change();message('Formen und Verbindungen zurückgesetzt.')});
 $('ew-next').addEventListener('click',newTask);
 $('ew-level').addEventListener('change',newTask);
 function grade(){let done=0,max=0;const hints=[];
@@ -108,15 +189,22 @@ if(hints.length){const ul=document.createElement('ul');for(const hint of [...new
 validated=true;$('ew-solution-button').disabled=false;message('Diagramm geprüft: '+pct+' %. Du kannst weiter korrigieren.')}
 $('ew-check').addEventListener('click',grade);
 function showAnswer(){if(!validated)return;const svg=$('ew-solution-svg');svg.replaceChildren();const loc={a:{x:170,y:255},r:{x:450,y:255},b:{x:730,y:255},a0:{x:100,y:100},a1:{x:100,y:405},b0:{x:800,y:100},b1:{x:800,y:405},r0:{x:390,y:105},r1:{x:510,y:405}};
-for(const [a,b,card]of task.required){const p=loc[a],q=loc[b];if(!p||!q)continue;svg.appendChild(svgEl('line',{x1:p.x,y1:p.y,x2:q.x,y2:q.y,stroke:'#87c9c0','stroke-width':2}));if(card){const entity=(a==='a'||a==='b')?p:((b==='a'||b==='b')?q:p);const other=entity===p?q:p;svg.appendChild(svgEl('text',{x:entity.x+(other.x-entity.x)*.23,y:entity.y+(other.y-entity.y)*.23-10,'text-anchor':'middle',fill:'#eec77a','font-size':22,'font-weight':900},card))}}
+const labels=svgEl('g');
+for(const [a,b,card]of task.required){
+ const p=loc[a],q=loc[b];if(!p||!q)continue;
+ const points=edgePoints({...p,shape:currentById(a).kind},{...q,shape:currentById(b).kind});
+ svg.appendChild(svgEl('line',{...points,stroke:'#87c9c0','stroke-width':2}));
+ cardinality(labels,points,card);
+}
 for(const t of task.terms){const p=loc[t.id];if(!p)continue;let el;if(t.kind==='entity')el=svgEl('rect',{x:p.x-98,y:p.y-38,width:196,height:76,rx:3,fill:'#20464d',stroke:'#8fdfd2','stroke-width':2});
 else if(t.kind==='relationship')el=svgEl('polygon',{points:(p.x+105)+','+p.y+' '+p.x+','+(p.y+45)+' '+(p.x-105)+','+p.y+' '+p.x+','+(p.y-45),fill:'#40382a',stroke:'#eabe77','stroke-width':2});
 else el=svgEl('ellipse',{cx:p.x,cy:p.y,rx:96,ry:34,fill:'#202f43',stroke:'#a9c6dc','stroke-width':2});
 svg.appendChild(el);const label=svgEl('text',{x:p.x,y:p.y+5,fill:'#f5fbf5','text-anchor':'middle','font-size':t.label.length>13?13:16},t.label);if(t.key)label.style.textDecoration='underline';svg.appendChild(label)}
+svg.appendChild(labels);
 $('ew-solution').hidden=false;$('ew-solution-button').disabled=true;message('Musterdiagramm eingeblendet.')}
 $('ew-solution-button').addEventListener('click',showAnswer);
-if(!restore()){const initial=scenarios.find(s=>s.level==='medium');task=model(initial)}render();
-message(placed.length?'Letzte Zeichnung auf diesem Gerät wiederhergestellt.':'Begriffe auf die Fläche ziehen. Danach Form wählen.'); 
+if(!restore()){const initial=scenarios.find(s=>s.level==='medium');task=model(initial);seedMissing();persist()}render();
+message('Wähle einen Begriff und gib ihm eine Form. Ziehe zum Verbinden von Begriff zu Begriff.'); 
 // Hook for deterministic UI regression tests; never contains personally identifying data.
 window.__EW_INSPECT__=()=>({taskId:task.id,placed:placed.map(n=>({...n})),edges:edges.map(e=>({...e})),validated});
 })();
