@@ -61,12 +61,12 @@ meter::-webkit-meter-optimum-value { background: #91e6ae; }
 meter::-webkit-meter-suboptimum-value { background: #ffc475; }
 .prompt { display: flex; align-items: center; gap: 7px; position: absolute; transform: translate(-50%, -100%); padding: 4px 7px; background: #141425f2; border: 1px solid #f6b974; white-space: nowrap; pointer-events: none; font-size: 12px; font-weight: 700; }
 kbd { display: inline-block; padding: 3px 5px; border: 1px solid #69647b; color: #fff0d5; background: #262638; font: bold 11px var(--mono); white-space: nowrap; border-radius: 3px; }
-.dialog, .trip { position: absolute; left: 50%; top: 48%; transform: translate(-50%,-50%); width: min(345px, 92%); background: #17182af7; border: 1px solid #b78960; padding: clamp(10px, 2vw, 22px); box-shadow: 0 0 40px #050610ad; }
-.dialog small, .trip small { color: var(--amber); display: block; margin-bottom: 7px; }
+.dialog { position: absolute; left: 50%; top: 48%; transform: translate(-50%,-50%); width: min(345px, 92%); background: #17182af7; border: 1px solid #b78960; padding: clamp(10px, 2vw, 22px); box-shadow: 0 0 40px #050610ad; }
+.dialog small { color: var(--amber); display: block; margin-bottom: 7px; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.trip { top: 22%; text-align: center; padding: 8px 15px; pointer-events: none; }
-.trip strong { display: block; }
-progress { accent-color: var(--amber); height: 7px; width: 100%; }
+.route-map { position: absolute; top: 13px; left: 50%; transform: translateX(-50%); display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; width: min(295px, 40%); padding: 8px 12px 6px; background: #141425ec; border: 1px solid #706684; color: #e5d9cc; font: bold 10px var(--mono); text-align: center; pointer-events: none; }
+.route-track { grid-column: 1 / -1; position: relative; height: 2px; background: #85798a; margin: 3px 0 4px; }
+.route-track::after { content: ''; position: absolute; left: var(--route-position); top: 50%; width: 8px; height: 8px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 8px #ffae62; transform: translate(-50%, -50%); }
 .objective { position: absolute; bottom: 10px; left: 10px; color: #efe3d4; background: #151626e9; padding: 6px 9px; font-size: 12px; pointer-events: none; }
 .dashboard { align-items: flex-start; flex-wrap: wrap; padding: 12px 0; font-size: 12px; color: var(--muted); }
 .controls, #crew-box, #crew { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
@@ -85,4 +85,5 @@ progress { accent-color: var(--amber); height: 7px; width: 100%; }
   .stats { gap: 4px; }
   .stats > div + div { padding-left: 4px; }
   .objective { font-size: 9px; bottom: 2px; left: 2px; }
+  .route-map { top: 51px; width: 205px; padding: 4px 7px; font-size: 9px; }
 }

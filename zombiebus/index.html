@@ -33,7 +33,7 @@
         <div class="gate-content">
           <div class="badge">1–4 FAHRGÄSTE</div>
           <h2 id="gate-title">Bereit zur Abfahrt?</h2>
-          <p id="gate-copy">Sammle Vorräte, halte die Bustür frei und bring die Nachtlinie zur Endstation.</p>
+          <p id="gate-copy">Fahr selbst durch die verregnete Kleinstadt, halte zum Sammeln und bring die Nachtlinie zum Depot.</p>
           <form id="join">
             <label for="name">Dein Name</label>
             <input id="name" name="name" placeholder="z. B. Nachteule" autocomplete="nickname" maxlength="24" required>
@@ -44,12 +44,14 @@
         </div>
       </div>
       <div id="prompt" class="prompt" hidden><kbd>E</kbd><span></span></div>
-      <div id="trip" class="trip" hidden><small>NÄCHSTER HALT</small><strong></strong><progress max="6" value="0"></progress></div>
+      <div id="route-map" class="route-map" aria-label="Stadtviertel entlang der Nachtlinie" hidden>
+        <span class="route-track" aria-hidden="true"></span><span>Döner-Eck</span><span>Gewerbehof</span><span>Busdepot</span>
+      </div>
       <div id="dispatch" class="dialog" hidden>
         <h2>Fahrersitz</h2>
         <p id="passenger-status"></p>
         <p id="fuel-status"></p>
-        <div class="actions"><button id="depart">Abfahren</button><button id="stand" class="secondary">Sitz freigeben</button></div>
+        <div class="actions"><button id="depart">Losfahren</button><button id="stand" class="secondary">Sitz freigeben</button><button id="finish-route">Im Depot einrücken</button></div>
       </div>
       <div id="finished" class="dialog" hidden>
         <small>ENDSTATION</small><h2>Alle an Bord angekommen.</h2>
@@ -58,7 +60,7 @@
       <div id="objective" class="objective" hidden></div>
     </section>
     <div class="dashboard">
-      <div class="controls" aria-label="Steuerung"><span><kbd>W A S D</kbd> Laufen</span><span><kbd>Maus</kbd> Zielen / Schießen</span><span><kbd>E</kbd> Interagieren</span></div>
+      <div class="controls" aria-label="Steuerung"><span><kbd>W A S D</kbd> Laufen / Fahren</span><span><kbd>Maus</kbd> Zielen / Schießen</span><span><kbd>E</kbd> Interagieren / Anhalten</span></div>
       <div id="crew-box" hidden><span class="crew-label">FAHRGÄSTE</span><ul id="crew" aria-label="Fahrgäste"></ul></div>
     </div>
     <p id="notice" class="notice" role="status"></p>

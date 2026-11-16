@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from '
 import { createServer } from 'node:http';
 import { resolve } from 'node:path';
 import { WebSocket, WebSocketServer } from 'ws';
-import { addPlayer, createWorld, depart, MAX_CREW, removePlayer, seedHorde, stand, tick, use } from './simulation.mjs';
+import { addPlayer, createWorld, depart, finish, MAX_CREW, removePlayer, resetRider, restoreWorld, seedHorde, stand, tick, use } from './simulation.mjs';
 
 const data = resolve(process.env.ZOMBIEBUS_DATA || 'runtime/zombiebus');
 const origins = new Set((process.env.ZOMBIEBUS_ORIGINS || 'https://geringdigital.de,https://www.geringdigital.de').split(',').map(s => s.trim()));
@@ -35,7 +35,7 @@ function loadRoom(code) {
   if (!existsSync(fileFor(code))) return null;
   const { version, world } = JSON.parse(readFileSync(fileFor(code), 'utf8'));
   if (version !== 1 || !world) throw new Error('Unknown save format');
-  const room = { code, world: { ...world, players: {}, driver: null, shots: [] }, clients: new Map(), inputs: new Map() };
+  const room = { code, world: restoreWorld(world), clients: new Map(), inputs: new Map() };
   rooms.set(code, room);
   return room;
 }
@@ -153,11 +153,12 @@ sockets.on('connection', ws => {
     if (msg.type === 'use') use(world, player);
     if (msg.type === 'stand') stand(world, player);
     if (msg.type === 'depart') depart(world, player);
+    if (msg.type === 'finish') finish(world, player);
     if (msg.type === 'restart' && world.phase === 'complete') {
       Object.assign(world, createWorld(), { players: world.players });
       seedHorde(world);
       for (const rider of Object.values(world.players)) {
-        Object.assign(rider, { x: 317, y: 294, hp: 3, ammo: 18, hurt: 0, cargo: null });
+        resetRider(rider);
       }
     }
     broadcast(ws.room);

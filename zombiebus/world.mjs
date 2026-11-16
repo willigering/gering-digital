@@ -1,59 +1,85 @@
 export const WIDTH = 800;
 export const HEIGHT = 450;
-export const DOOR = { x: 332, y: 319 };
-export const SEAT = { x: 353, y: 286 };
-export const BUS = { x: 119, y: 253, w: 250, h: 70 };
-export const TRAVEL = 6;
-export const FARE = 32;
+export const BLOCK = 768;
+export const CITY_WIDTH = BLOCK * 2 + WIDTH;
+export const BUS = { x: 140, y: 258, w: 270, h: 50, face: 1 };
+export const DOOR = { x: 296, y: 302 };
+export const SEAT = { x: 364, y: 279 };
+export const START_FUEL = 38;
+export const DEPOT = { x: BLOCK * 2 + 540, y: 328 };
 
 export const STOPS = [
   {
-    name: 'Döner-Eck', destination: 'Gewerbehof', sign: 'DÖNER', garage: 'WASCHSTRASSE',
-    colors: ['#f77b77', '#54dce4'], wash: true,
-    lots: [[373, 58, 179, 96], [579, 50, 167, 115], [20, 61, 248, 84]],
-    loot: [['fuel', 672, 148], ['ammo', 470, 176], ['aid', 218, 174], ['fuel', 697, 350], ['ammo', 519, 380]]
+    name: 'Döner-Eck', image: 'doener-eck.webp',
+    loot: [['fuel', 744, 162], ['ammo', 499, 197], ['aid', 242, 196], ['fuel', 705, 340], ['ammo', 546, 394]]
   },
   {
-    name: 'Gewerbehof', destination: 'Endstation', sign: 'SPÄTI', garage: 'WERKSTATT',
-    colors: ['#94d388', '#be91ff'], wash: false,
-    lots: [[397, 53, 150, 101], [581, 54, 174, 111], [29, 47, 213, 115]],
-    loot: [['fuel', 698, 191], ['ammo', 406, 177], ['aid', 241, 187], ['fuel', 538, 371], ['ammo', 752, 299]]
+    name: 'Gewerbehof', image: 'gewerbehof.webp',
+    loot: [['fuel', 641, 250], ['ammo', 278, 251], ['aid', 194, 315], ['fuel', 485, 372], ['ammo', 746, 309]]
   },
   {
-    name: 'Endstation', destination: '', sign: 'LINIE 13', garage: 'DEPOT',
-    colors: ['#ffcf88', '#8ebfff'], wash: false,
-    lots: [[390, 53, 171, 106], [595, 44, 176, 113], [20, 43, 250, 104]],
-    loot: []
+    name: 'Busdepot', image: 'busdepot.webp',
+    loot: [['aid', 360, 261], ['ammo', 519, 267]]
   }
 ];
 
-export const WASH = { x: 655, y: 128, panel: { x: 582, y: 158 } };
+export const WASH = { x: 728, y: 159, panel: { x: 645, y: 196 } };
 export const SUPPLIES = { fuel: 'Kanister', ammo: 'Munition', aid: 'Verbandskasten' };
 export const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 export const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+export const districtAt = x => clamp(Math.floor((x - (WIDTH - BLOCK) / 2) / BLOCK), 0, STOPS.length - 1);
+export const busCenter = bus => ({ x: bus.x + BUS.w / 2, y: bus.y + BUS.h / 2 });
+
+export function busPoint(bus, point) {
+  const dx = point.x - BUS.x;
+  return { x: bus.x + (bus.face < 0 ? BUS.w - dx : dx), y: bus.y + point.y - BUS.y };
+}
+
+export function cameraFor(bus, player) {
+  const focus = player && !player.inside ? player : busCenter(bus);
+  return { x: clamp(focus.x - WIDTH / 2, 0, CITY_WIDTH - WIDTH), y: 0 };
+}
 
 export function interaction(world, player) {
   if (world.phase !== 'stop') return null;
-  if (player.id === world.driver) return { action: 'dispatch', point: SEAT };
+  const door = busPoint(world.bus, DOOR);
+  const seat = busPoint(world.bus, SEAT);
+  if (player.id === world.driver) return { action: 'dispatch', point: seat };
   if (player.inside) {
-    if (!world.driver && distance(player, SEAT) < 23) return { action: 'seat', point: SEAT };
-    if (distance(player, DOOR) < 23) return { action: 'exit', point: DOOR };
+    if (!world.driver && distance(player, SEAT) < 25) return { action: 'seat', point: seat };
+    if (distance(player, DOOR) < 26) return { action: 'exit', point: door };
     return null;
   }
-  if (distance(player, DOOR) < 25) return { action: player.cargo ? 'deliver' : 'board', point: DOOR };
-  if (STOPS[world.stop].wash && distance(player, WASH.panel) < 25) return { action: 'wash', point: WASH.panel };
+  if (distance(player, door) < 26) return { action: player.cargo ? 'deliver' : 'board', point: door };
+  if (distance(player, WASH.panel) < 23) return { action: 'wash', point: WASH.panel };
   if (!player.cargo) {
-    const item = world.items.filter(item => distance(player, item) < 22)
+    const item = world.items.filter(item => distance(player, item) < 23)
       .sort((a, b) => distance(player, a) - distance(player, b))[0];
     if (item) return { action: 'pick', point: item };
   }
   return null;
 }
 
-export function blocked(stop, x, y) {
-  if (x > BUS.x - 4 && x < BUS.x + BUS.w + 4 && y > BUS.y - 4 && y < BUS.y + BUS.h + 4) return true;
-  return STOPS[stop].lots.some(([left, top, w, h], index) => {
-    if (STOPS[stop].wash && index === 1 && x > 609 && x < 714 && y > 101) return false;
-    return x > left - 3 && x < left + w + 3 && y > top - 3 && y < top + h + 3;
-  });
+export function terrainBlocked(x, y) {
+  if (x < 10 || x > CITY_WIDTH - 10 || y > HEIGHT - 12) return true;
+  const district = districtAt(x);
+  if (district !== 0) return y < 222;
+  if (x < 144 && y > 228) return true;
+  if (x < 216) return y < 199 - x * 0.17;
+  if (x < 338) return y < 170 - (x - 216) * 0.3;
+  if (x < 432) return y < 116;
+  if (x < 480) return y < 161;
+  if (x < 686) return y < 174 + (x - 480) * .16;
+  if (x >= 699 && x <= 764) return y < 143;
+  return y < 219;
+}
+
+export function blocked(world, x, y) {
+  const bus = world.bus;
+  return terrainBlocked(x, y) || (x > bus.x - 3 && x < bus.x + BUS.w + 3 && y > bus.y - 4 && y < bus.y + BUS.h + 3);
+}
+
+export function canDrive(x, y) {
+  if (x < 137 || x + BUS.w > CITY_WIDTH - 25 || y > 356) return false;
+  return [8, BUS.w / 2, BUS.w - 8].every(dx => !terrainBlocked(x + dx, y + 7) && !terrainBlocked(x + dx, y + BUS.h + 23));
 }

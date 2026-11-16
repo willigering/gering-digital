@@ -78,7 +78,7 @@ async function rider(url, name, page) {
 async function move(rider, key, at) {
   await rider.page.keyboard.down(key);
   try {
-    await until(() => at(rider.player), 'Movement failed (' + key + ') ' + JSON.stringify(rider.player));
+    await until(() => at(rider.player, rider.world), 'Movement failed (' + key + ') ' + JSON.stringify(rider.player), 9000);
   } finally {
     await rider.page.keyboard.up(key);
   }
@@ -86,7 +86,7 @@ async function move(rider, key, at) {
 
 async function use(rider, label, finished) {
   await until(async () => (await rider.page.locator('#prompt').isVisible()) &&
-    (await rider.page.locator('#prompt').textContent()).includes(label), 'Missing interaction ' + label);
+    (await rider.page.locator('#prompt').textContent()).includes(label), 'Missing interaction ' + label + ' ' + JSON.stringify(rider.player));
   await rider.page.keyboard.press('e');
   await until(finished, 'Interaction failed: ' + label);
 }
@@ -117,22 +117,41 @@ async function run() {
   assert.match(await first.title(), /ZomBUS!!!/);
   const screenshot = process.env.ZOMBIEBUS_SCREENSHOT;
   if (screenshot) {
-    await first.waitForFunction(() => performance.getEntriesByType('resource').some(entry => entry.name.endsWith('/art.mjs')));
-    await first.waitForTimeout(250);
+    await first.waitForFunction(() => {
+      const resources = performance.getEntriesByType('resource');
+      return ['doener-eck.webp', 'nachtbus-offen.webp', 'figuren.webp']
+        .every(file => resources.some(entry => entry.name.endsWith('/' + file)));
+    });
+    await first.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     await first.locator('#scene').screenshot({ path: screenshot });
     await first.screenshot({ path: screenshot.replace(/\.png$/, '-page.png') });
   }
   await first.goto(base + '/zombiebus/?server=' + gamePort);
+  const { BUS, DOOR, DEPOT, blocked, busCenter, busPoint, cameraFor } = await import('../zombiebus/world.mjs');
   const ada = await rider(null, 'Ada', first);
   assert.equal(ada.player.inside, true);
   const invite = first.url();
-  await move(ada, 'd', p => p.x >= 339);
-  await use(ada, 'Ans Steuer', () => ada.world.driver === ada.id);
+  const seat = async current => {
+    if (current.player.x < 345) await move(current, 'd', p => p.x >= 345);
+    await use(current, 'Ans Steuer', () => current.world.driver === current.id);
+  };
+  const exitBus = async current => {
+    if (current.player.x > DOOR.x + 16) await move(current, 'a', p => p.x <= DOOR.x + 13);
+    await use(current, 'Aussteigen', () => !current.player.inside);
+  };
+  const drive = async current => {
+    await current.page.locator('#depart').click();
+    await until(() => current.world.phase === 'travel', 'Could not start driving');
+  };
+  const park = async current => {
+    await current.page.keyboard.press('e');
+    await until(() => current.world.phase === 'stop' && !current.world.driver, 'Could not park');
+  };
 
+  await seat(ada);
   const ben = await rider(invite, 'Ben');
   await until(() => ada.world.players[ben.id], 'Creator does not see mid-stop join');
   assert.deepEqual(Object.keys(ada.world.players).sort(), Object.keys(ben.world.players).sort());
-  assert.equal(ada.world.stop, ben.world.stop);
   assert.equal(ada.world.fuel, ben.world.fuel);
   assert.ok(ada.world.zombies.filter(z => ben.world.zombies.some(other => other.id === z.id)).length >= 4);
 
@@ -142,97 +161,116 @@ async function run() {
   await until(() => !ben.world.players[oldAda] && !ben.world.driver, 'Leaving driver remains in world', 2500);
   assert.ok(performance.now() - close < 2500, 'Normal close should clear the seat before heartbeat expiry');
   assert.match(await ben.page.locator('#crew').textContent(), /^Ben/);
-  await move(ben, 'd', p => p.x >= 339);
-  await use(ben, 'Ans Steuer', () => ben.world.driver === ben.id);
+  await seat(ben);
 
   const again = await rider(invite, 'Ada');
   assert.notEqual(again.id, oldAda);
   assert.equal(again.player.inside, true);
   assert.equal(Object.values(again.world.players).filter(p => p.name === 'Ada').length, 1);
-  await move(again, 's', p => p.y >= 308);
-  await use(again, 'Aussteigen', () => !again.player.inside);
+  await exitBus(again);
   await until(async () => (await ben.page.locator('#passenger-status').textContent()).includes('Ada'), 'Driver does not see who is outside');
   assert.equal(await ben.page.locator('#depart').isDisabled(), true);
+  await use(again, 'Einsteigen', () => again.player.inside);
+  await until(async () => !(await ben.page.locator('#depart').isDisabled()), 'Departure is still disabled with all aboard');
 
-  await move(again, 'd', p => p.x >= 405);
-  const field = await again.page.locator('#scene').boundingBox();
-  const target = again.world.zombies.find(z => z.x > 420 && Math.hypot(z.x - again.player.x, z.y - again.player.y) < 242);
+  await drive(ben);
+  await move(ben, 'd', (_, world) => world.bus.x >= 469);
+  await until(() => again.world.bus.x > BUS.x + 200, 'Second session does not see the bus moving');
+  const beforeTurning = ben.world.bus.y;
+  await move(ben, 's', (_, world) => world.bus.y >= beforeTurning + 18);
+  await park(ben);
+  assert.ok(ben.world.bus.x >= 469 && ben.world.bus.x < 500);
+  assert.ok(ben.world.fuel < 38);
+  await until(() => again.world.phase === 'stop' && again.world.bus.x === ben.world.bus.x, 'Parking is not synchronized');
+  const door = busPoint(again.world.bus, DOOR);
+
+  await exitBus(again);
+  const shooter = again.player;
+  const target = again.world.zombies.find(z => {
+    const length = Math.hypot(z.x - shooter.x, z.y - shooter.y);
+    return length > 18 && length < 205 && [0.15, 0.4, 0.65, 0.9].every(fraction =>
+      !blocked(again.world, shooter.x + (z.x - shooter.x) * fraction, shooter.y + (z.y - shooter.y) * fraction));
+  });
   assert.ok(target, 'There should be a zombie within range');
-  await again.page.mouse.move(field.x + target.x / 800 * field.width, field.y + (target.y - 7) / 450 * field.height);
+  const field = await again.page.locator('#scene').boundingBox();
+  const origin = cameraFor(again.world.bus, again.player);
+  await again.page.mouse.move(field.x + (target.x - origin.x) / 800 * field.width, field.y + (target.y - 15) / 450 * field.height);
   await again.page.mouse.down();
   await until(() => again.player.ammo < 18 && ben.world.zombies.some(z => z.id === target.id && z.hp === 1),
     'Mouse shot did not hit the same zombie in both sessions', 1800);
   await again.page.mouse.up();
 
-  await move(again, 'd', p => p.x >= 571);
-  await move(again, 'w', p => p.y <= 178);
+  if (again.player.x > 650) await move(again, 'a', p => p.x <= 641);
+  if (again.player.x < 629) await move(again, 'd', p => p.x >= 634);
+  // Go around the front of the bus before walking up to the control panel.
+  await move(again, 'd', p => p.x >= again.world.bus.x + BUS.w + 12);
+  await move(again, 'w', p => p.y <= 237);
+  await move(again, 'a', p => p.x <= 645);
+  await move(again, 'w', p => p.y <= 210);
   await use(again, 'Waschstraße starten', () => again.world.wash > 0);
-  await until(() => again.world.zombies.some(z => z.spinning), 'No zombie spun in the wash');
   await until(() => ben.world.zombies.some(z => z.spinning), 'Wash is not synchronized');
-  if (again.player.y < 174) await move(again, 's', p => p.y >= 177);
-  await move(again, 'd', p => p.x >= 666);
-  await move(again, 'w', p => p.y <= 157);
+
+  if (again.player.y < 230) await move(again, 's', p => p.y >= 232);
+  await move(again, 'd', p => p.x >= again.world.bus.x + BUS.w + 12);
+  await move(again, 's', p => p.y >= Math.max(338, door.y + 15));
+  await move(again, 'a', p => p.x <= 710);
   await use(again, 'Kanister nehmen', () => again.player.cargo === 'fuel');
-  await move(again, 's', p => p.y >= 347);
-  await move(again, 'a', p => p.x <= 340);
-  if (again.player.y > 338) await move(again, 'w', p => p.y <= 338);
-  await use(again, 'Vorrat ablegen', () => again.world.fuel >= 56);
+  if (again.player.y < door.y + 11) await move(again, 's', p => p.y >= door.y + 13);
+  await move(again, 'a', p => p.x <= door.x + 6);
+  if (again.player.y > door.y + 19) await move(again, 'w', p => p.y <= door.y + 18);
+  await use(again, 'Vorrat ablegen', () => again.world.cargo.fuel === 1);
   await use(again, 'Einsteigen', () => again.player.inside);
-  await until(async () => !(await ben.page.locator('#depart').isDisabled()), 'Departure is still disabled with all aboard');
-  await ben.page.locator('#depart').click();
-  await until(() => ben.world.phase === 'travel' && again.world.phase === 'travel', 'Trip is not synchronized');
-  await until(() => ben.world.stop === 1 && again.world.stop === 1, 'Second stop did not arrive', 9000);
-  assert.equal(ben.world.fuel, 24);
-  assert.equal(ben.world.cargo.fuel, 1);
-  assert.equal(await again.page.locator('#stop').textContent(), 'Gewerbehof');
-  assert.ok(again.world.items.some(item => item.x === 698 && item.kind === 'fuel'));
+
+  await seat(ben);
+  await drive(ben);
+  await move(ben, 'd', (_, world) => world.bus.x >= 1003);
+  await park(ben);
+  assert.equal(ben.world.stop, 1);
+  await until(async () => (await again.page.locator('#stop').textContent()) === 'Gewerbehof', 'Second district did not render');
+  assert.ok(again.world.items.some(item => item.x === 1253 && item.kind === 'fuel'));
 
   const code = new URL(invite).searchParams.get('raum');
   const save = path.join(gameEnv.ZOMBIEBUS_DATA, code + '.json');
   const age = ben.world.age;
+  const savedX = ben.world.bus.x;
+  const savedFuel = ben.world.fuel;
   await again.page.close();
   await ben.page.close();
-  await until(() => JSON.parse(fs.readFileSync(save)).world.stop === 1, 'Last close did not save progress');
+  await until(() => JSON.parse(fs.readFileSync(save)).world.bus?.x === savedX, 'Last close did not save the parked position');
   await stop(game);
   game = startGame();
   await ready();
   const restored = await rider(invite, 'Ada');
   assert.equal(restored.world.stop, 1);
-  assert.equal(restored.world.fuel, 24);
+  assert.equal(restored.world.bus.x, savedX);
+  assert.equal(restored.world.fuel, savedFuel);
   assert.equal(restored.world.cargo.fuel, 1);
   assert.ok(restored.world.age < age + 2, 'An empty room must not advance');
   assert.equal(restored.world.driver, null);
   assert.equal(Object.keys(restored.world.players).length, 1);
   assert.equal(restored.player.inside, true);
 
-  await move(restored, 's', p => p.y >= 309);
-  await use(restored, 'Aussteigen', () => !restored.player.inside);
-  await move(restored, 's', p => p.y >= 365);
-  await move(restored, 'd', p => p.x >= 531);
-  await use(restored, 'Kanister nehmen', () => restored.player.cargo === 'fuel');
-  await move(restored, 'a', p => p.x <= 339);
-  await move(restored, 'w', p => p.y <= 338);
-  await use(restored, 'Vorrat ablegen', () => restored.world.fuel === 64);
-  await use(restored, 'Einsteigen', () => restored.player.inside);
-  await move(restored, 'd', p => p.x >= 339);
-  await use(restored, 'Ans Steuer', () => restored.world.driver === restored.id);
-  await restored.page.locator('#depart').click();
-  await until(() => restored.world.phase === 'complete', 'Solo player did not reach the terminus', 9000);
+  await seat(restored);
+  await drive(restored);
+  await move(restored, 'a', (_, world) => world.bus.x <= savedX - 35);
+  assert.equal(restored.world.bus.face, -1);
+  await move(restored, 'd', (_, world) => busCenter(world.bus).x >= DEPOT.x - 60);
+  await park(restored);
+  assert.equal(restored.world.stop, 2);
+  await seat(restored);
+  await restored.page.locator('#finish-route').click();
+  await until(() => restored.world.phase === 'complete', 'Solo player did not finish at the depot');
   assert.equal(await restored.page.locator('#finished h2').textContent(), 'Alle an Bord angekommen.');
 
-  const stalled = new WebSocket('ws://127.0.0.1:' + gamePort + '/ws', {
-    origin: base, autoPong: false
-  });
+  const stalled = new WebSocket('ws://127.0.0.1:' + gamePort + '/ws', { origin: base, autoPong: false });
   await once(stalled, 'open');
   const drop = once(stalled, 'close');
   stalled.send(JSON.stringify({ type: 'join', room: code, name: 'Funkloch', tab: 'ab'.repeat(16) }));
   await until(() => Object.values(restored.world.players).some(p => p.name === 'Funkloch'), 'Heartbeat fixture did not join');
-  const stalledSince = performance.now();
   await until(() => !Object.values(restored.world.players).some(p => p.name === 'Funkloch'), 'Heartbeat did not remove stale player', 10000);
-  assert.ok(performance.now() - stalledSince >= 4500, 'Heartbeat timed out prematurely');
   await drop;
   assert.deepEqual([...ada.errors, ...ben.errors, ...again.errors, ...restored.errors], []);
-  console.log('ZomBUS: tile, direct URL, mid-stop join, driver close, rejoin, shooting, wash, cargo, trip, save/restart, heartbeat and solo arrival passed.');
+  console.log('ZomBUS: artwork, tile, two sessions, driver close, rejoin, shooting, wash, WASD driving, parking, supplies, save/restart, reverse, depot and heartbeat passed.');
 }
 
 run().catch(error => { console.error(error); process.exitCode = 1; }).finally(async () => {

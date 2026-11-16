@@ -1,5 +1,5 @@
 import { makeRenderer, PALETTES } from './art.mjs';
-import { FARE, HEIGHT, STOPS, SUPPLIES, WIDTH, interaction } from './world.mjs';
+import { BUS, CITY_WIDTH, DEPOT, HEIGHT, STOPS, SUPPLIES, WIDTH, busCenter, cameraFor, distance, districtAt, interaction } from './world.mjs';
 
 const $ = id => document.getElementById(id);
 const scene = $('scene');
@@ -11,9 +11,9 @@ let code = invitation.searchParams.get('raum') || '';
 const isLocal = ['localhost', '127.0.0.1'].includes(location.hostname);
 const tab = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, '0')).join('');
 let world = {
-  phase: 'stop', stop: 0, cargo: {}, players: {}, shots: [], wash: 0,
-  zombies: [[546, 224], [632, 285], [708, 333], [552, 363], [760, 224], [255, 207]]
-    .map(([x, y], kind) => ({ x, y, kind: kind % 5, angle: kind % 2 ? 3 : 0, moving: true })),
+  phase: 'stop', stop: 0, cargo: {}, players: {}, shots: [], wash: 0, bus: { ...BUS },
+  zombies: [[546, 243], [632, 285], [710, 355], [528, 378], [760, 244], [421, 204]]
+    .map(([x, y], kind) => ({ x, y, kind: kind % 4, angle: kind % 2 ? 3 : 0, moving: true })),
   items: STOPS[0].loot.map(([kind, x, y]) => ({ kind, x, y }))
 };
 let previous = world;
@@ -142,7 +142,13 @@ $('invite').addEventListener('click', async () => {
     $('notice').textContent = 'Einladungslink aus der Adressleiste kopieren.';
   }
 });
-$('depart').addEventListener('click', () => send({ type: 'depart' }));
+$('depart').addEventListener('click', () => {
+  $('depart').blur();
+  dispatchOpen = false;
+  resetControls();
+  send({ type: 'depart' });
+});
+$('finish-route').addEventListener('click', () => send({ type: 'finish' }));
 $('stand').addEventListener('click', () => {
   dispatchOpen = false;
   send({ type: 'stand' });
@@ -156,28 +162,31 @@ function updateUI() {
   $('hud').hidden = !player;
   $('crew-box').hidden = !player;
   $('dispatch').hidden = !player || world.driver !== id || !dispatchOpen || world.phase !== 'stop';
-  $('trip').hidden = !player || world.phase !== 'travel';
+  $('route-map').hidden = !player;
   $('finished').hidden = !player || world.phase !== 'complete';
-  $('objective').hidden = !player || world.phase !== 'stop';
+  $('objective').hidden = !player || world.phase === 'complete';
   if (!player) {
     $('prompt').hidden = true;
     return;
   }
-  const stop = STOPS[world.stop];
-  $('phase').textContent = world.phase === 'travel' ? 'UNTERWEGS' : 'HALTESTELLE ' + String(world.stop + 1).padStart(2, '0');
+  const center = busCenter(world.bus);
+  const district = player.inside ? world.stop : districtAt(player.x);
+  const stop = STOPS[district];
+  $('phase').textContent = world.phase === 'travel' ? 'UNTERWEGS' : 'STADTVIERTEL';
   $('stop').textContent = stop.name;
   $('health').textContent = '♥'.repeat(player.hp) + '♡'.repeat(3 - player.hp);
   $('health').setAttribute('aria-label', player.hp + ' von 3 Leben');
   $('ammo').textContent = player.ammo;
-  $('fuel').textContent = world.fuel + ' %';
+  $('fuel').textContent = Math.ceil(world.fuel) + ' %';
   $('fuel-meter').value = world.fuel;
+  $('route-map').style.setProperty('--route-position', 100 * center.x / CITY_WIDTH + '%');
   const players = Object.values(world.players);
   const currentRoster = players.map(rider => [rider.id, rider.inside, rider.id === world.driver].join(' ')).join('|');
   if (currentRoster !== roster) {
     roster = currentRoster;
     $('crew').replaceChildren(...players.map(rider => {
       const li = document.createElement('li');
-      li.style.setProperty('--rider', PALETTES[rider.color][0]);
+      li.style.setProperty('--rider', PALETTES[rider.color]);
       li.textContent = rider.name + (rider.id === world.driver ? ' · am Steuer' : rider.inside ? ' · im Bus' : ' · draußen');
       return li;
     }));
@@ -185,19 +194,18 @@ function updateUI() {
   const outside = players.filter(rider => !rider.inside).map(rider => rider.name);
   if (!$('dispatch').hidden) {
     $('passenger-status').textContent = outside.length ? 'Noch draußen · ' + outside.join(', ') : 'Alle sind an Bord.';
-    $('fuel-status').textContent = world.fuel >= FARE ? 'Nächster Halt · ' + stop.destination : 'Für die Abfahrt braucht ihr ' + FARE + ' % Tankfüllung.';
-    $('depart').disabled = outside.length > 0 || world.fuel < FARE;
-  }
-  if (world.phase === 'travel') {
-    $('trip').querySelector('strong').textContent = stop.destination;
-    $('trip').querySelector('progress').value = world.trip;
+    $('fuel-status').textContent = world.fuel > 0 ? 'Mit WASD lenken · E zum Anhalten.' : 'Tank leer. Bringt einen Kanister zur Bustür.';
+    $('depart').disabled = outside.length > 0 || world.fuel <= 0;
+    $('finish-route').hidden = distance(center, DEPOT) > 112;
+    $('finish-route').disabled = outside.length > 0;
   }
   if (world.phase === 'complete') {
     $('result').textContent = world.kills + ' Zombies erledigt · ' + Object.values(world.cargo).reduce((a, b) => a + b, 0) + ' Vorräte gerettet';
   }
-  $('objective').textContent = player.cargo ? SUPPLIES[player.cargo] + ' zur Bustür bringen' :
-    world.fuel < FARE ? 'Kanister finden und zur Bustür bringen' :
-    'Vorräte sammeln oder nach ' + stop.destination + ' weiterfahren';
+  $('objective').textContent = world.phase === 'travel' ? (world.driver === id ? 'WASD fahren · E anhalten' : 'Der Bus fährt.') :
+    player.cargo ? SUPPLIES[player.cargo] + ' zur Bustür bringen' :
+    world.fuel < 15 ? 'Kanister finden und zur Bustür bringen' :
+    'Halte, wo du Vorräte siehst. Am Depot endet die Runde.';
   const target = interaction(world, player);
   const prompt = $('prompt');
   prompt.hidden = !target || !$('dispatch').hidden;
@@ -205,7 +213,7 @@ function updateUI() {
     const labels = { pick: SUPPLIES[target.point.kind] + ' nehmen', wash: world.wash ? 'Waschstraße stoppen' : 'Waschstraße starten',
       seat: 'Ans Steuer', board: 'Einsteigen', exit: 'Aussteigen', deliver: 'Vorrat ablegen', dispatch: 'Abfahrt prüfen' };
     prompt.querySelector('span').textContent = labels[target.action];
-    prompt.style.left = 100 * target.point.x / WIDTH + '%';
+    prompt.style.left = 100 * (target.point.x - cameraFor(world.bus, player).x) / WIDTH + '%';
     prompt.style.top = 100 * (target.point.y - 30) / HEIGHT + '%';
   }
 }
@@ -226,6 +234,11 @@ function useKey(event) {
   }
   if (event.code !== 'KeyE' || event.repeat) return;
   event.preventDefault();
+  if (world.phase === 'travel' && world.driver === id) {
+    resetControls();
+    send({ type: 'use' });
+    return;
+  }
   if (world.driver === id) {
     dispatchOpen = !dispatchOpen;
     updateUI();
@@ -270,7 +283,7 @@ function sendInput() {
     type: 'input',
     dx: Number(keys.has('KeyD')) - Number(keys.has('KeyA')),
     dy: Number(keys.has('KeyS')) - Number(keys.has('KeyW')),
-    angle: aim ? Math.atan2(aim.y + 7 - p.y, aim.x - p.x) : p.angle,
+    angle: aim ? Math.atan2(aim.y + 15 - p.y, aim.x + cameraFor(world.bus, p).x - p.x) : p.angle,
     fire
   });
 }
@@ -278,7 +291,7 @@ setInterval(sendInput, 1000 / 30);
 
 function frame(now) {
   let display = world;
-  if (id && world.phase === previous.phase && world.stop === previous.stop) {
+  if (id && world.phase === previous.phase) {
     const alpha = Math.min(1, (now - receivedAt) / 55);
     const interpolate = (a, b) => {
       if (!b || a.inside !== b.inside || Math.hypot(a.x - b.x, a.y - b.y) > 25) return a;
@@ -286,7 +299,7 @@ function frame(now) {
     };
     display = {
       ...world,
-      trip: world.trip === undefined ? 0 : (previous.trip ?? world.trip) + (world.trip - (previous.trip ?? world.trip)) * alpha,
+      bus: interpolate(world.bus, previous.bus),
       players: Object.fromEntries(Object.entries(world.players).map(([key, p]) => [key, interpolate(p, previous.players[key])])),
       zombies: world.zombies.map(z => interpolate(z, previous.zombies.find(p => p.id === z.id)))
     };

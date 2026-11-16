@@ -9,6 +9,8 @@ Im Wurzelverzeichnis des Repos mit Node.js ab Version 22 und PHP mit PDO SQLite:
 3. `GD_ROOT="$PWD" GD_LOCAL_PREVIEW=1 php -S 127.0.0.1:8080 -t . tests/support/router.php`
 4. `http://127.0.0.1:8080/zombiebus/` öffnen. Der Link zum Raum lässt sich in einem zweiten Browserprofil öffnen.
 
+Mit **WASD** zur Tür oder zum Fahrersitz laufen und **E** zum Interagieren drücken. Sobald alle an Bord sind, übernimmt der Fahrer mit **Losfahren** die Steuerung. **WASD** lenkt den Bus. Mit **E** lässt sich auf der Straße parken, um die Umgebung zu Fuß zu durchsuchen. Zum Abschluss am Busdepot parken, den Fahrersitz nehmen und **Im Depot einrücken** wählen.
+
 In PowerShell werden die Variablen vor dem jeweiligen Befehl mit `$env:ZOMBIEBUS_LOCAL='1'`, `$env:GD_ROOT=(Get-Location).Path` und `$env:GD_LOCAL_PREVIEW='1'` gesetzt. Für lokale Tests lässt sich die PHP-Datenbank über `GD_DB_PATH` auf eine separate SQLite-Datei legen.
 
 Der Browser-Abnahmetest nutzt Playwright und temporäre Testserver. `node tests/zombiebus_browser.cjs` ausführen, nachdem Playwright und Chromium installiert sind. `ZOMBIEBUS_CHROMIUM` kann auf ein lokal installiertes Chromium oder Chrome zeigen.
