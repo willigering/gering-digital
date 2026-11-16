@@ -357,6 +357,28 @@ body:after{content:"";position:fixed;left:0;right:0;top:0;height:165vh;z-index:-
 .sql-lab textarea{font-family:var(--mono);background:#0b101c;color:#eee;border:1px solid var(--cyan);padding:8px;resize:vertical}
 .sql-lab .lab-out{margin-top:12px}
 .bitwall{display:block}.bitwall .t{margin-top:8px}
+#erBank{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}
+#erBank button{min-height:44px}
+#erBank button[aria-pressed="true"]{outline:2px solid var(--cyan);outline-offset:2px}
+#erBoard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,80px);position:relative;align-items:center;justify-items:center;background-color:#101a2c;background-image:linear-gradient(#89b4fa18 1px,transparent 1px),linear-gradient(90deg,#89b4fa18 1px,transparent 1px);background-size:16px 16px;border:1px solid #89b4fa60;border-radius:8px}
+#erBoard svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+#erBoard path{fill:none;stroke:#89b4fa;stroke-width:2;vector-effect:non-scaling-stroke}
+.er-shape{position:relative;width:94%;min-height:48px;padding:3px;border:1px solid var(--cyan);background:#172641;color:#f3f6ff;font-family:inherit;font-weight:650;font-size:clamp(12px,2.6vw,15px);line-height:1.15;overflow-wrap:anywhere;cursor:pointer}
+#trainView .mode-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))}
+.er-shape:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.er-shape[data-slot="0"]{grid-area:2/1}.er-shape[data-slot="1"]{grid-area:2/2}.er-shape[data-slot="2"]{grid-area:2/3}
+.er-shape[data-slot="3"]{grid-area:1/1}.er-shape[data-slot="4"]{grid-area:1/3}.er-shape[data-slot="5"]{grid-area:3/3}
+.er-key,.er-attribute{border-radius:50%}
+.er-key span{text-decoration:underline}
+.er-relation{isolation:isolate;border:0;background:transparent;min-height:70px;padding-inline:14%}
+.er-relation:before,.er-relation:after{content:"";position:absolute;inset:0;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);z-index:-1;background:var(--cyan);pointer-events:none}
+.er-relation:after{inset:2px;background:#172641}
+.er-shape[data-grade="right"]{box-shadow:inset 0 0 0 2px #78dc9a}
+.er-shape[data-grade="wrong"]{box-shadow:inset 0 0 0 2px #ff879b}
+.er-relation[data-grade="right"]:before{background:#78dc9a}
+.er-relation[data-grade="wrong"]:before{background:#ff879b}
+#erFeedback li{padding:3px 0}
+
 </style><!-- DTP-MODULDESIGN START -->
 <style>
 /* DTP-MODULDESIGN: gemeinsame Gestaltung, inline für die Offline-Datei.
@@ -1504,6 +1526,7 @@ Eigene Varianten der Beispiele sind möglich. Jeder Lauf startet mit denselben B
       <button type="button" class="mode-tile active" data-mode="free" aria-pressed="true"><span class="sym">◎</span><b>Freies Training</b><span>Thema wählen, in Ruhe lösen, Hinweis bei Bedarf</span></button>
       <button type="button" class="mode-tile" data-mode="weak" aria-pressed="false"><span class="sym">⚒</span><b>Baustellen</b><span>Gezielt die Aufgabentypen, die bei dir am häufigsten schiefgehen</span></button>
       <button type="button" class="mode-tile" data-mode="match" aria-pressed="false"><span class="sym">⇄</span><b>Zuordnen</b><span>Begriffe und Aufgaben sicher verbinden</span></button>
+      <button type="button" class="mode-tile" data-mode="er" aria-pressed="false"><span class="sym">◇</span><b>ER-Diagramm</b><span>Begriffe den Formen im Diagramm zuordnen</span></button>
       <button type="button" class="mode-tile" data-mode="sprint" aria-pressed="false"><span class="sym">⚡</span><b>Sprint · 90 s</b><span>SQL und Datenmodelle auf Zeit. Ohne Hilfe, ohne Tab-Wechsel</span></button>
     </div>
     <div class="filterbar" id="catBar" role="group" aria-label="Themenbereich"></div>
@@ -1518,6 +1541,19 @@ Eigene Varianten der Beispiele sind möglich. Jeder Lauf startet mit denselben B
           <div class="actions"><button type="button" class="btn primary" id="matchCheck">Alle prüfen ↗</button><button type="button" class="btn secondary" id="matchNext">Neue Runde →</button></div>
           <div id="matchResult" class="result" role="status" aria-live="polite"></div>
         </div>
+        <div id="erBox" hidden>
+  <h3>ER-Diagramm zuordnen</h3>
+  <p id="erCase"></p>
+  <p class="subtle">Wähle zuerst einen Begriff und danach seine Form. Tippe eine belegte Form ohne Auswahl an, um den Begriff zurückzulegen.</p>
+  <div id="erBank" role="group" aria-label="Begriffe"></div>
+  <div id="erBoard" role="group" aria-label="ER-Diagramm in Chen-Notation">
+    <svg viewBox="0 0 600 240" preserveAspectRatio="none" aria-hidden="true"><path d="M100 120H500M100 35V120M500 35V205"/></svg>
+    <button type="button" class="er-shape er-entity" data-slot="0"><span>Entität links</span></button><button type="button" class="er-shape er-relation" data-slot="1"><span>Beziehung</span></button><button type="button" class="er-shape er-entity" data-slot="2"><span>Entität rechts</span></button><button type="button" class="er-shape er-key" data-slot="3"><span>Schlüssel links</span></button><button type="button" class="er-shape er-key" data-slot="4"><span>Schlüssel rechts</span></button><button type="button" class="er-shape er-attribute" data-slot="5"><span>Attribut rechts</span></button>
+  </div>
+  <p class="subtle">Rechteck = Entität · Raute = Beziehung · Oval = Attribut · Unterstrichen = Schlüsselattribut</p>
+  <div class="actions"><button type="button" class="btn primary" id="erCheck" disabled>Zuordnung prüfen</button><button type="button" class="btn secondary" id="erNext">Neuer Fall →</button></div>
+  <div id="erFeedback" class="result" role="status" aria-live="polite"></div>
+</div>
         <div id="sprintEnd" class="result" role="status" hidden></div>
       </section>
       <aside aria-label="Statistik">
@@ -1902,10 +1938,11 @@ function finishSprint(left){
 function setMode(m){
  if(sprint.running)return;mode=m;
  document.querySelectorAll('[data-mode]').forEach(b=>{const on=b.dataset.mode===m;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on))});
- $('sprintInfo').hidden=m!=='sprint';$('sprintEnd').hidden=true;$('matchBox').hidden=m!=='match';$('trainTask').hidden=m==='match';
+ $('sprintInfo').hidden=m!=='sprint';$('sprintEnd').hidden=true;$('matchBox').hidden=m!=='match';$('trainTask').hidden=m==='match'||m==='er';$('erBox').hidden=m!=='er';
  $('catBar').querySelectorAll('.filter-btn').forEach(b=>b.disabled=m!=='free');
  taskNo=0;trRecent=[];
  if(m==='sprint'){sprint.left=90;renderTimer();$('sprintPts').textContent='0';sprintIntro()}
+ else if(m==='er'){$('trainKicker').textContent='ZUORDNEN · ER-DIAGRAMM';erNew()}
  else if(m==='match'){$('trainKicker').textContent='ZUORDNEN · BEGRIFFE';matchNew()}
  else trNext();
 }
@@ -1927,6 +1964,86 @@ $('matchCheck').addEventListener('click',()=>{
  $('matchResult').innerHTML='<strong>'+c+' von 5 richtig. Jede Zeile einzeln gewertet.</strong>'+lines.join('');$('matchCheck').disabled=true;
 });
 $('matchNext').addEventListener('click',matchNew);
+
+/* Chen-Notation: Entity – relationship – entity, with connected attributes. */
+const ER_CASES=[
+ ['Schule','Dozierende unterrichten Fächer. Die Personalnummer identifiziert den Dozenten, der Fachcode das Fach. Das Fach hat außerdem eine Bezeichnung.',
+  ['Dozent','unterrichtet','Fach','Personalnummer','Fachcode','Fachbezeichnung']],
+ ['Bibliothek','Mitglieder leihen Exemplare aus. Die Mitgliedsnummer identifiziert das Mitglied, der Barcode das Exemplar. Am Exemplar ist der Zustand erfasst.',
+  ['Mitglied','leiht aus','Exemplar','Mitgliedsnummer','Barcode','Zustand']],
+ ['Helpdesk','Teams bearbeiten Tickets. Der Teamcode identifiziert das Team, die Ticketnummer das Ticket. Jedes Ticket hat einen Betreff.',
+  ['Team','bearbeitet','Ticket','Teamcode','Ticketnummer','Betreff']],
+ ['Werkstatt','Mechaniker betreuen Fahrzeuge. Die Personalnummer identifiziert den Mechaniker, die Fahrgestellnummer das Fahrzeug. Beim Fahrzeug wird das Baujahr erfasst.',
+  ['Mechaniker','betreut','Fahrzeug','Personalnummer','Fahrgestellnummer','Baujahr']],
+ ['Musikschule','Schüler belegen Kurse. Die Schülernummer identifiziert den Schüler, die Kursnummer den Kurs. Für den Kurs wird auch der Raum erfasst.',
+  ['Schüler','belegt','Kurs','Schülernummer','Kursnummer','Raum']],
+ ['Gärtnerei','Betriebe liefern Pflanzen. Die Betriebsnummer identifiziert den Betrieb, die Pflanzen-ID die Pflanze. Zu jeder Pflanze wird die Blütezeit erfasst.',
+  ['Betrieb','liefert','Pflanze','Betriebsnummer','Pflanzen-ID','Blütezeit']],
+];
+const ER_SLOTS=[
+ ['entity','Entität links'],['relation','Beziehung'],['entity','Entität rechts'],
+ ['key','Schlüssel links'],['key','Schlüssel rechts'],['attribute','Attribut rechts'],
+];
+let erOrder=[],erCase,erRound=0,erSelected=null,erGiven=[],erDone=false;
+const erBoard=$('erBoard'),erBank=$('erBank'),erFeedback=$('erFeedback');
+function erRender(){
+ const [, , terms]=erCase;
+ erBank.querySelectorAll('button').forEach(b=>{
+  const i=Number(b.dataset.term);
+  b.disabled=erDone||erGiven.includes(i);
+  b.setAttribute('aria-pressed',String(erSelected===i));
+ });
+ erBoard.querySelectorAll('button').forEach((b,i)=>{
+  const word=erGiven[i]!==undefined?terms[erGiven[i]]:'';
+  b.querySelector('span').textContent=word||ER_SLOTS[i][1];
+  b.setAttribute('aria-label',ER_SLOTS[i][1]+(word?', '+word:''));
+  b.disabled=erDone;
+  b.dataset.grade=erDone?(erGiven[i]===i?'right':'wrong'):'';
+ });
+ $('erCheck').disabled=erDone||erGiven.filter(x=>x!==undefined).length!==ER_SLOTS.length;
+}
+function erNew(){
+ if(!erOrder.length){
+  erOrder=shuffle(ER_CASES);
+  if(erOrder[0]===erCase)erOrder.push(erOrder.shift());
+ }
+ erCase=erOrder.shift();
+ erGiven=[];erSelected=null;erDone=false;
+ $('trainNo').textContent='RUNDE '+(++erRound);
+ $('erCase').textContent=erCase[0]+' – '+erCase[1];
+ erFeedback.textContent='';
+ erBank.innerHTML=shuffle(erCase[2].map((_,i)=>i)).map(i=>'<button type="button" class="btn ghost" data-term="'+i+'">'+esc(erCase[2][i])+'</button>').join('');
+ erRender();
+}
+erBank.addEventListener('click',event=>{
+ const b=event.target.closest('[data-term]');if(!b||b.disabled||erDone)return;
+ const index=Number(b.dataset.term);
+ erSelected=erSelected===index?null:index;
+ erFeedback.textContent=erSelected===null?'Auswahl aufgehoben.':'Gewählt: '+erCase[2][erSelected]+'. Wähle jetzt eine Form.';
+ erRender();
+});
+erBoard.addEventListener('click',event=>{
+ const b=event.target.closest('[data-slot]');if(!b||erDone)return;
+ const i=Number(b.dataset.slot);
+ if(erSelected===null){
+  if(erGiven[i]===undefined){erFeedback.textContent='Wähle zuerst einen Begriff.';return;}
+  delete erGiven[i];erFeedback.textContent='Begriff zurückgelegt.';
+ }else{
+  erGiven[i]=erSelected;erSelected=null;
+  erFeedback.textContent='Begriff eingesetzt. Tipp: Antippen legt ihn zurück.';
+ }
+ erRender();
+});
+$('erCheck').addEventListener('click',()=>{
+ if(erDone||$('erCheck').disabled)return;
+ erDone=true;
+ const terms=erCase[2],correct=erGiven.filter((v,i)=>v===i).length;
+ // Diagram slots are a separate practice activity and do not change the scored question pool.
+ const feedback=ER_SLOTS.map(([,label],i)=>'<li><strong>'+esc(label)+'</strong> – '+(erGiven[i]===i?'✓ '+esc(terms[i]):'✗ '+esc(terms[erGiven[i]])+' → '+esc(terms[i]))+'</li>').join('');
+ erFeedback.innerHTML='<strong>'+correct+' von '+terms.length+' richtig.</strong><ul>'+feedback+'</ul>';
+ erRender();
+});
+$('erNext').addEventListener('click',()=>{erNew();erBank.querySelector('button').focus()});
 
 /* ================= Prüfungsmodus ================= */
 const EXAM_PLAN=CATS.map(([c])=>[c,2,5]);
