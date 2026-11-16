@@ -181,6 +181,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'GET' && process.env.SERVE_CLIENT !== '0') {
       let rel = decodeURIComponent(url.pathname).replace(/^\/myground/, '');
       if (rel === '' || rel === '/') rel = '/index.html';
+      if (rel === '/config.js') { res.writeHead(200, { 'Content-Type': MIME['.js'], 'Cache-Control': 'no-store' }); return res.end('window.MYGROUND_SERVER = location.origin;'); } // lokal: dieser Server ist der Host
       const file = path.join(CLIENT, rel);
       if (file.startsWith(CLIENT + path.sep) && !rel.startsWith('/server') && MIME[path.extname(file)] && fs.existsSync(file)) {
         res.writeHead(200, { 'Content-Type': MIME[path.extname(file)], 'Cache-Control': 'no-store' });

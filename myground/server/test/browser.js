@@ -1,26 +1,33 @@
 'use strict';
 // Zwei unabhängige Browsersitzungen spielen eine komplette Runde über echte WebRTC-Datenkanäle.
+// Standard ist das Host-Modell: Sitzung A eröffnet eine Baustelle und rechnet das Spiel, Sitzung B tritt bei.
+//   php -S localhost:8788 -t <Repo-Wurzel>     (liefert /myground/ samt api.php aus)
 //   node test/browser.js              direkte Verbindung
-//   RELAY=1 node test/browser.js      erzwingt iceTransportPolicy "relay" und prüft das ausgewählte ICE-Kandidatenpaar
-// Erwartet einen laufenden Spielserver (URL in MG_URL, Standard http://localhost:8787) und Playwright (NODE_PATH).
+//   RELAY=1 node test/browser.js      Gast erzwingt iceTransportPolicy "relay"; geprüft wird das ausgewählte ICE-Kandidatenpaar
+//   RELAY=2 node test/browser.js      Host und Gast erzwingen das Relay
+//   MODE=server MG_URL=http://localhost:8787 node test/browser.js   gegen den optionalen Node-Spielserver
+// Braucht Playwright (NODE_PATH); PW_CHANNEL=chrome nimmt das installierte Chrome.
 const assert = require('node:assert');
 const { chromium } = require('playwright');
 
-const URL_ = (process.env.MG_URL || 'http://localhost:8787') + '/myground/' + (process.env.RELAY === '1' ? '?relay=1' : '');
-const RELAY = process.env.RELAY === '1';
+const SERVER_MODE = process.env.MODE === 'server', RELAY = +(process.env.RELAY || 0);
+const BASE = (process.env.MG_URL || (SERVER_MODE ? 'http://localhost:8787' : 'http://localhost:8788')) + '/myground/';
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const st = page => page.evaluate(() => window.__mg.state);
 
-async function join(browser, name) {
+// how: 'create' eröffnet eine Baustelle, 'link' kommt über den Einladungslink, 'list' über die Raumliste
+async function join(browser, name, how, room, relay) {
   const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } }); // eigene Sitzung: kein geteilter Speicher
   const page = await ctx.newPage();
   page.on('pageerror', e => { throw e; });
-  await page.goto(URL_);
+  const q = new URLSearchParams(); if (relay) q.set('relay', '1'); if (how === 'link') q.set('raum', room);
+  await page.goto(BASE + (q.size ? '?' + q : ''));
   assert.strictEqual(await page.textContent('#status'), 'Getrennt');
   await page.fill('#name', name);
-  await page.click('#joinBtn');
+  if (how === 'list') await page.click('#roomList button[data-room="' + room + '"]', { timeout: 8000 });
+  else await page.click(how === 'create' ? '#createBtn' : '#joinBtn');
   await page.waitForFunction(() => window.__mg.state.connected, null, { timeout: 30000 });
-  assert.match(await page.textContent('#status'), /^Verbunden/);
+  assert.match(await page.textContent('#status'), how === 'create' ? /^Host/ : /^Verbunden/);
   if (await page.isVisible('#help.on')) await page.click('#helpClose');
   return page;
 }
@@ -50,15 +57,20 @@ async function drive(page, goal, timeoutMs = 60000) {
 
 (async () => {
   const browser = await chromium.launch({ channel: process.env.PW_CHANNEL || undefined });
-  const out = { mode: RELAY ? 'relay (erzwungen)' : 'direkt' };
+  const out = { modell: SERVER_MODE ? 'Node-Spielserver' : 'Browser-Host', mode: RELAY === 2 ? 'relay (Host und Gast erzwungen)' : RELAY ? 'relay (Gast erzwungen)' : 'direkt' };
   try {
-    const a = await join(browser, 'Anke'), b = await join(browser, 'Bernd');
+    const a = await join(browser, 'Anke', SERVER_MODE ? 'server' : 'create', '', RELAY === 2 || (SERVER_MODE && RELAY));
+    const room = (await st(a)).room;
+    if (!SERVER_MODE) { assert.match(room, /^[A-Z]{4}$/); assert.strictEqual((await st(a)).hosting, true); out.raum = room; }
+    const b = await join(browser, 'Bernd', SERVER_MODE ? 'server' : 'link', room, !!RELAY);
     await a.waitForFunction(() => window.__mg.state.players === 2);
-    // Verbindungsart anhand des ausgewählten ICE-Kandidatenpaars
-    for (const [n, p] of [['A', a], ['B', b]]) {
-      const pair = await p.evaluate(() => window.__mg.selectedPair());
-      out['pair' + n] = pair;
-      if (RELAY) { assert.strictEqual(pair.local, 'relay', 'lokaler Kandidat muss relay sein'); assert.ok(pair.bytesSent > 0 && pair.bytesReceived > 0); assert.match(await p.textContent('#status'), /Relay/); }
+    await b.waitForFunction(() => window.__mg.state.players === 2);
+    // Verbindungsart anhand des ausgewählten ICE-Kandidatenpaars (Gast; im Host-Modell zusätzlich die Host-Seite)
+    out.pairB = await b.evaluate(() => window.__mg.selectedPair());
+    out.pairA = SERVER_MODE ? await a.evaluate(() => window.__mg.selectedPair()) : (await a.evaluate(() => window.__mg.hostPairs()))[0];
+    if (RELAY) {
+      assert.strictEqual(out.pairB.local, 'relay', 'lokaler Kandidat des Gasts muss relay sein'); assert.ok(out.pairB.bytesSent > 0 && out.pairB.bytesReceived > 0); assert.match(await b.textContent('#status'), /Relay/);
+      if (RELAY === 2 || SERVER_MODE) assert.strictEqual(out.pairA.local, 'relay', 'lokaler Kandidat von A muss relay sein');
     }
     assert.strictEqual(await a.isDisabled('#start'), false);
     await a.click('#start');                                             // Rundenstart durch Gast A
@@ -109,10 +121,20 @@ async function drive(page, goal, timeoutMs = 60000) {
     out.rejoin = 'Wiedereinstieg: ok';
 
     // Verbindungsabbruch: B verschwindet, A bleibt allein und sieht das sofort
+    if (RELAY) { const pair = await b.evaluate(() => window.__mg.selectedPair()); out.pairBEnd = pair; assert.strictEqual(pair.local, 'relay'); assert.ok(pair.bytesSent > out.pairB.bytesSent + 1000 && pair.bytesReceived > out.pairB.bytesReceived + 20000, 'Spielverkehr lief über das Relay'); }
     await b.context().close();
     await a.waitForFunction(() => window.__mg.state.players === 1, null, { timeout: 20000 });
-    out.disconnect = 'Abbruch erkannt: ok';
-    if (RELAY) { const pair = await a.evaluate(() => window.__mg.selectedPair()); out.pairAEnd = pair; assert.strictEqual(pair.local, 'relay'); assert.ok(pair.bytesSent > out.pairA.bytesSent + 1000, 'Spielverkehr lief über das Relay'); }
+    out.disconnect = 'Abbruch des Gasts erkannt: ok';
+    if (!SERVER_MODE) {
+      // Dritte Sitzung kommt über die Raumliste; danach verschwindet der Host
+      const c = await join(browser, 'Cem', 'list', room, false);
+      await a.waitForFunction(() => window.__mg.state.players === 2);
+      out.liste = 'Beitritt über die Raumliste: ok';
+      await a.context().close();
+      await c.waitForSelector('#lost.on', { timeout: 15000 });
+      assert.match(await c.textContent('#status'), /Getrennt/);
+      out.hostWeg = 'Host weg: Gast bekommt Störungsmeldung mit „Erneut verbinden“: ok';
+    }
     console.log(JSON.stringify(out, null, 1));
     console.log('BROWSERTEST OK');
   } finally { await browser.close(); }

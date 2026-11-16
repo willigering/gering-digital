@@ -17,3 +17,6 @@ tools/__pycache__/
 
 # Lokale Spielstände des Rennspiels (PHP-Testserver)
 speed/data/
+
+# Lokale Raumliste von „Der Boden ist gekündigt“ (PHP-Testserver)
+myground/data/

@@ -1,6 +1,8 @@
 'use strict';
 // „Der Boden ist gekündigt“ – Browser-Client.
-// Der Server entscheidet alles; hier wird nur gezeichnet, eingegeben und verbunden.
+// Standard (wie bei Rüdiger): Der Browser, der eine Baustelle eröffnet, ist der Host. Er rechnet das
+// Spiel mit logic.js, alle anderen verbinden sich per WebRTC nur mit ihm (Stern, kein Vollmesh).
+// Die Anmeldung läuft über api.php. Ist in config.js ein Spielserver eingetragen, übernimmt der die Host-Rolle.
 (() => {
   const $ = id => document.getElementById(id);
   const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
@@ -8,9 +10,15 @@
   const qs = new URLSearchParams(location.search);
   const FORCE_RELAY = qs.get('relay') === '1'; // Diagnose: Verbindung nur über TURN zulassen
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
-  const SERVER = local ? location.origin : String(window.MYGROUND_SERVER || '').replace(/\/+$/, '');
+  const SERVER = String(window.MYGROUND_SERVER || '').replace(/\/+$/, '');
+  const HOSTED = !SERVER;                                  // ein Browser hostet, kein Spielserver
+  const BOTS_OK = local || qs.get('bots') === '1';         // Testbots nur lokal oder ausdrücklich
+  const STUN = [{ urls: ['stun:stun.cloudflare.com:3478'] }];
+  const tok = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
+  let room = /^[A-Za-z]{4}$/.test(qs.get('raum') || '') ? qs.get('raum').toUpperCase() : '';
 
   // ---------------------------------------------------------------- Zustand
+  let host = null, lastSnap = 0;
   let pc = null, chR = null, chU = null, myId = 0, connected = false, connecting = false, route = '';
   let map = null, plates = [], grid = null, phase = 'lobby', timeLeft = 0, botsAllowed = false, result = null;
   const meta = new Map();   // id -> { name, bot, c, st }
@@ -35,30 +43,69 @@
     if (!r.ok) throw new Error(j.err || 'Der Spielserver hat abgelehnt (' + r.status + ').');
     return j;
   };
+  const api = async (a, body) => {
+    let r;
+    try { r = await fetch('api.php?a=' + a, { method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store', body: JSON.stringify({ tok, ...body }) }); }
+    catch { throw new Error('Die Anmeldung ist nicht erreichbar.'); }
+    const j = await r.json().catch(() => null);
+    if (!j) throw new Error('Die Anmeldung antwortet nicht richtig (' + r.status + ').');
+    if (j.err) throw new Error(j.err);
+    return j;
+  };
+  // Befristete TURN-Zugangsdaten von api.php; der dauerhafte Schlüssel bleibt auf dem Server.
+  let iceCache = { t: 0, list: null };
+  async function getIce() {
+    if (iceCache.list && Date.now() - iceCache.t < 30 * 60e3) return iceCache.list;
+    try { const j = await api('ice', {}); if (Array.isArray(j.ice) && j.ice.length) { iceCache = { t: Date.now(), list: STUN.concat(j.ice) }; return iceCache.list; } } catch { }
+    return STUN;
+  }
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // Gast: Angebot beim Host abgeben und auf dessen Antwort warten
+  async function viaHost(sdp) {
+    const gone = () => new Error('Diese Baustelle gibt es nicht mehr.');
+    if ((await api('signal', { id: room, to: 'host', data: { sdp: { type: 'offer', sdp } } })).gone) throw gone();
+    for (const end = Date.now() + 20000; Date.now() < end;) {
+      await sleep(500);
+      const j = await api('poll', { id: room });
+      if (j.gone) throw gone();
+      for (const m of j.msgs || []) if (m.data && m.data.sdp && m.data.sdp.type === 'answer') return m.data.sdp;
+    }
+    throw new Error('Der Host hat nicht geantwortet.');
+  }
   const gathered = (p, ms) => new Promise(res => {
     if (p.iceGatheringState === 'complete') return res();
     const t = setTimeout(res, ms);
     p.addEventListener('icegatheringstatechange', () => { if (p.iceGatheringState === 'complete') { clearTimeout(t); res(); } });
   });
+  function entered(label) {
+    connected = true; lastSnap = performance.now();
+    setStatus(label, 'on'); joinMsg('');
+    show('join', false); $('hud').hidden = false; $('roster').hidden = false;
+    $('roomRow').hidden = !HOSTED; $('roomCode').textContent = room;
+    if (matchMedia('(pointer: coarse)').matches) $('touch').hidden = false;
+    try { if (!localStorage.getItem('myground-help')) { show('help', true); localStorage.setItem('myground-help', '1'); } } catch { }
+  }
   function closeLink() { connected = false; const p = pc; pc = chR = chU = null; if (p) { p.onconnectionstatechange = null; try { p.close(); } catch { } } }
   function lost(why) {
     if (!connected) return;
     closeLink(); setStatus('Getrennt', 'err');
     $('lostWhy').textContent = why; show('result', false); show('lost', true);
   }
+  const busy = on => { connecting = on; for (const b of document.querySelectorAll('#joinBtn, #createBtn, #roomList button')) b.disabled = on; };
+  function myName() { const name = $('name').value.trim(); try { localStorage.setItem('myground-name', name); } catch { } return name; }
   async function connect() {
     if (connecting || connected) return;
-    const name = $('name').value.trim();
-    try { localStorage.setItem('myground-name', name); } catch { }
-    connecting = true; $('joinBtn').disabled = true; $('retry').hidden = true; show('lost', false); show('join', true);
-    setStatus('Verbinde …', 'wait'); joinMsg('Gastsitzung wird angelegt …');
+    if (HOSTED && !room) return createRoom();
+    const name = myName();
+    busy(true); $('retry').hidden = true; show('lost', false); show('join', true);
+    setStatus('Verbinde …', 'wait'); joinMsg(HOSTED ? 'Baustelle ' + room + ' wird gesucht …' : 'Gastsitzung wird angelegt …');
     try {
-      if (!SERVER) throw new Error('Für diese Seite ist noch kein Spielserver eingetragen.');
-      const s = await post('/session', { name });
+      const s = HOSTED ? { iceServers: await getIce() } : await post('/session', { name });
       botsAllowed = !!s.bots;
-      joinMsg(FORCE_RELAY ? 'Verbindung über Relay wird aufgebaut …' : 'Verbindung zum Spielserver wird aufgebaut …');
+      joinMsg(FORCE_RELAY ? 'Verbindung über Relay wird aufgebaut …' : 'Verbindung wird aufgebaut …');
       const p = pc = new RTCPeerConnection({ iceServers: s.iceServers || [], iceTransportPolicy: FORCE_RELAY ? 'relay' : 'all' });
       const r = chR = p.createDataChannel('r');
+      if (HOSTED) r.onopen = () => r.send(JSON.stringify({ t: 'hello', name }));
       const u = chU = p.createDataChannel('u', { ordered: false, maxRetransmits: 0 });
       const welcome = new Promise((res, rej) => {
         const t = setTimeout(() => rej(new Error(FORCE_RELAY ? 'Über das Relay kam keine Verbindung zustande.' : 'Keine Verbindung zustande gekommen. Dein Netz blockiert vermutlich auch den Umweg über das Relay.')), 20000);
@@ -68,35 +115,145 @@
       welcome.catch(() => { });
       await p.setLocalDescription(await p.createOffer());
       await gathered(p, FORCE_RELAY ? 6000 : 2500);
-      const a = await post('/offer', { sid: s.sid, token: s.token, sdp: p.localDescription.sdp });
-      await p.setRemoteDescription(a.answer);
+      await p.setRemoteDescription(HOSTED ? await viaHost(p.localDescription.sdp) : (await post('/offer', { sid: s.sid, token: s.token, sdp: p.localDescription.sdp })).answer);
       const w = await welcome;
-      myId = w.id; connected = true;
-      r.onclose = () => { if (pc === p) lost('Der Spielkanal wurde geschlossen. Dein Kran wurde abgestellt.'); };
-      p.onconnectionstatechange = () => { if (pc === p && (p.connectionState === 'failed' || p.connectionState === 'closed')) lost('Die Verbindung zum Spielserver ist abgerissen.'); };
-      setStatus('Verbunden', 'on'); joinMsg('');
-      show('join', false); $('hud').hidden = false; $('roster').hidden = false;
-      if (matchMedia('(pointer: coarse)').matches) $('touch').hidden = false;
-      try { if (!localStorage.getItem('myground-help')) { show('help', true); localStorage.setItem('myground-help', '1'); } } catch { }
+      myId = w.id;
+      r.onclose = () => { if (pc === p) lost(HOSTED ? 'Der Host hat die Baustelle geschlossen. Dein Kran wurde abgestellt.' : 'Der Spielkanal wurde geschlossen. Dein Kran wurde abgestellt.'); };
+      p.onconnectionstatechange = () => { if (pc === p && (p.connectionState === 'failed' || p.connectionState === 'closed')) lost('Die Verbindung ist abgerissen.'); };
+      entered('Verbunden');
       selectedPair().then(x => { if (x && pc === p) { route = x.local === 'relay' || x.remote === 'relay' ? 'Relay' : 'Direkt'; setStatus('Verbunden · ' + route, 'on'); } });
     } catch (e) {
       closeLink();
       setStatus('Getrennt', 'err'); joinMsg(e.message || 'Verbindung fehlgeschlagen.', true); $('retry').hidden = false;
     }
-    connecting = false; $('joinBtn').disabled = false;
+    busy(false);
+  }
+  // Baustelle eröffnen: dieser Browser wird Host und rechnet das Spiel.
+  async function createRoom() {
+    if (connecting || connected) return;
+    const name = myName();
+    busy(true); $('retry').hidden = true; show('lost', false); show('join', true);
+    setStatus('Eröffne …', 'wait'); joinMsg('Baustelle wird eröffnet …');
+    try {
+      room = (await api('create', { name })).id;
+      getIce();
+      host = startHost(name);
+      entered('Host');
+      route = 'Host';
+    } catch (e) { host = null; setStatus('Getrennt', 'err'); joinMsg(e.message || 'Eröffnen fehlgeschlagen.', true); }
+    busy(false);
+  }
+  setInterval(() => { if (connected && !host && performance.now() - lastSnap > 7000) lost(HOSTED ? 'Der Host antwortet nicht mehr. Vermutlich ist sein Fenster zu.' : 'Der Spielserver antwortet nicht mehr.'); }, 1000);
+
+  // ---------------------------------------------------------------- Host: Spiel rechnen, Gäste annehmen
+  function startHost(name) {
+    const L = window.MGLogic, peers = new Map(), byPlayer = new Map();   // Anmelde-ID -> Verbindung, Spieler-ID -> Verbindung
+    const tx = (c, ch, s) => { const d = c[ch]; try { if (d && d.readyState === 'open' && d.bufferedAmount < 262144) d.send(s); } catch { } };
+    const game = new L.Game({
+      allowBots: BOTS_OK,
+      emit(msg, to) {
+        const s = JSON.stringify(msg);
+        if (to == null) { onMsg(JSON.parse(s)); for (const c of byPlayer.values()) tx(c, 'r', s); }
+        else if (to === myId) onMsg(JSON.parse(s));
+        else if (byPlayer.has(to)) tx(byPlayer.get(to), 'r', s);
+      },
+    });
+    const me = game.addPlayer(name);
+    myId = me.id;
+    onMsg(JSON.parse(JSON.stringify(game.roundMsg()))); onMsg(JSON.parse(JSON.stringify(game.roster())));
+    function handle(pid, m) {
+      if (m.t === 'in') game.setInput(pid, +m.x, +m.y);
+      else if (m.t === 'act' && ['grab', 'rot', 'jump'].includes(m.k)) game.act(pid, m.k);
+      else if (m.t === 'start') game.start(pid);
+      else if (m.t === 'bots' && game.allowBots) { if (m.n > 0) game.addBots(Math.min(46, m.n | 0)); else for (const p of [...game.players.values()]) if (p.bot) game.removePlayer(p.id); }
+    }
+    function drop(c) {
+      if (c.gone) return;
+      c.gone = true;
+      if (peers.get(c.from) === c) peers.delete(c.from);
+      if (c.pid) { byPlayer.delete(c.pid); game.removePlayer(c.pid); }   // legt eine Platte am Haken gültig ab
+      try { c.p.close(); } catch { }
+    }
+    function fromPeer(c, raw) {
+      if (typeof raw !== 'string' || raw.length > 300 || c.gone) return;
+      let m; try { m = JSON.parse(raw); } catch { return; }
+      c.seen = Date.now();
+      if (c.pid) { if (m.t === 'ping') tx(c, 'r', '{"t":"pong"}'); else handle(c.pid, m); return; }
+      if (m.t !== 'hello') return;
+      const p = game.addPlayer(m.name);          // erst jetzt, mit offenem Spielkanal, zählt der Gast als verbunden
+      if (!p) { tx(c, 'r', '{"t":"full"}'); return setTimeout(() => drop(c), 500); }
+      c.pid = p.id; byPlayer.set(p.id, c);
+      for (const o of [{ t: 'welcome', id: p.id, name: p.name, max: L.C.MAX }, game.roundMsg(), game.roster()]) tx(c, 'r', JSON.stringify(o));
+      if (game.result && game.phase === 'result') tx(c, 'r', JSON.stringify(game.result));
+    }
+    async function accept(from, sdp) {
+      const old = peers.get(from); if (old) drop(old);
+      const p = new RTCPeerConnection({ iceServers: await getIce(), iceTransportPolicy: FORCE_RELAY ? 'relay' : 'all' });
+      const c = { from, p, r: null, u: null, pid: 0, seen: Date.now(), gone: false };
+      peers.set(from, c);
+      p.ondatachannel = e => {
+        const dc = e.channel; if (dc.label !== 'r' && dc.label !== 'u') return;
+        c[dc.label] = dc; dc.onmessage = ev => fromPeer(c, ev.data);
+        if (dc.label === 'r') dc.onclose = () => drop(c);
+      };
+      p.onconnectionstatechange = () => { if (p.connectionState === 'failed' || p.connectionState === 'closed') drop(c); };
+      try {
+        await p.setRemoteDescription(sdp);
+        await p.setLocalDescription(await p.createAnswer());
+        await gathered(p, FORCE_RELAY ? 6000 : 2500);
+        await api('signal', { id: room, to: from, data: { sdp: { type: 'answer', sdp: p.localDescription.sdp } } });
+        setTimeout(() => { if (!c.pid) drop(c); }, 25000);
+      } catch { drop(c); }
+    }
+    let polling = false, lastPoll = 0;
+    async function poll() {
+      if (polling) return; polling = true;
+      try {
+        const j = await api('poll', { id: room, n: game.players.size, run: game.phase !== 'lobby' });
+        if (j.gone) { room = (await api('create', { name })).id; $('roomCode').textContent = room; toast('Die Baustelle hat einen neuen Code: ' + room); }
+        for (const m of j.msgs || []) if (m.data && m.data.sdp && m.data.sdp.type === 'offer' && /^[a-f0-9]{12}$/.test(m.from)) accept(m.from, m.data.sdp);
+      } catch { }
+      polling = false;
+    }
+    let last = performance.now(), acc = 0;
+    function tick() {
+      const now = performance.now();
+      acc = Math.min(acc + (now - last) / 1000, 0.25); last = now;
+      let stepped = false;
+      while (acc >= L.C.TICK) { game.step(L.C.TICK); acc -= L.C.TICK; stepped = true; }
+      if (stepped) {
+        const s = JSON.stringify(game.snapshot()), t = Date.now();
+        onMsg(JSON.parse(s));
+        for (const c of [...peers.values()]) {
+          if (c.pid && t - c.seen > 8000) { drop(c); continue; }
+          if (c.pid) tx(c, c.u && c.u.readyState === 'open' ? 'u' : 'r', s);
+        }
+      }
+      if (now - lastPoll > 1000) { lastPoll = now; poll(); }
+    }
+    // Taktgeber im Worker: läuft weiter, wenn das Fenster des Hosts im Hintergrund liegt.
+    let worker = null, timer = 0;
+    try { worker = new Worker('tick.js'); worker.onmessage = tick; worker.onerror = () => { worker = null; timer = setInterval(tick, 50); }; }
+    catch { timer = setInterval(tick, 50); }
+    addEventListener('pagehide', () => {
+      try { navigator.sendBeacon('api.php?a=close', JSON.stringify({ tok, id: room })); } catch { }
+      for (const c of peers.values()) try { c.p.close(); } catch { }
+    });
+    const pairs = () => Promise.all([...byPlayer.values()].map(c => selectedPair(c.p)));
+    return { game, handle, pairs, input: (x, y) => game.setInput(myId, x, y), get peers() { return byPlayer.size; }, stop() { if (worker) worker.terminate(); clearInterval(timer); } };
   }
   // Ausgewähltes ICE-Kandidatenpaar: zeigt, ob wirklich über TURN (relay) gesendet wird
-  async function selectedPair() {
-    if (!pc) return null;
-    const stats = await pc.getStats(); let pair = null;
+  async function selectedPair(conn = pc) {
+    if (!conn) return null;
+    const stats = await conn.getStats(); let pair = null;
     stats.forEach(s => { if (s.type === 'transport' && s.selectedCandidatePairId) pair = stats.get(s.selectedCandidatePairId); });
     if (!pair) stats.forEach(s => { if (s.type === 'candidate-pair' && s.nominated && s.state === 'succeeded') pair = s; });
     if (!pair) return null;
     const l = stats.get(pair.localCandidateId) || {}, r = stats.get(pair.remoteCandidateId) || {};
     return { local: l.candidateType, remote: r.candidateType, protocol: l.protocol, relayProtocol: l.relayProtocol || null, url: l.url || null, bytesSent: pair.bytesSent, bytesReceived: pair.bytesReceived };
   }
-  const sendR = o => { if (chR && chR.readyState === 'open') chR.send(JSON.stringify(o)); };
-  setInterval(() => { if (connected) sendR({ t: 'ping', n: 0 }); }, 2000); // Lebenszeichen, auch wenn der Tab im Hintergrund nicht zeichnet
+  const sendR = o => { if (host) host.handle(myId, o); else if (chR && chR.readyState === 'open') chR.send(JSON.stringify(o)); };
+  setInterval(() => { if (connected && !host) sendR({ t: 'ping', n: 0 }); }, 2000); // Lebenszeichen, auch wenn der Tab im Hintergrund nicht zeichnet
   const act = k => { if (connected && !document.querySelector('.overlay.on')) sendR({ t: 'act', k }); };
 
   // ---------------------------------------------------------------- Nachrichten vom Server
@@ -105,7 +262,7 @@
   function regrid() { grid = new Int16Array(map.W * map.H).fill(-1); for (const pl of plates) if (pl.state === 'ground' || pl.state === 'reach') grid[pl.cy * map.W + pl.cx] = pl.id; }
   function onMsg(m) {
     if (m.t === 's') {
-      timeLeft = m.tl;
+      timeLeft = m.tl; lastSnap = performance.now();
       const seen = new Set();
       for (const a of m.ps) {
         seen.add(a[0]);
@@ -132,6 +289,7 @@
       renderRoster();
     } else if (m.t === 'msg') toast(m.text);
     else if (m.t === 'result') { result = m; renderResult(); }
+    else if (m.t === 'pong') lastSnap = performance.now();
   }
   const col = (c, l = 54, s = 82) => 'hsl(' + ((c * 137.5) % 360).toFixed(0) + ' ' + s + '% ' + l + '%)';
   const stampTxt = st => ['●', '■', '▲'].map((ch, i) => (st & (1 << i) ? ch : '·')).join('');
@@ -196,12 +354,33 @@
     const s = x.toFixed(2) + ',' + y.toFixed(2);
     if (!connected || (s === lastSent && now - lastSentAt < 400) || now - lastSentAt < 45) return;
     lastSent = s; lastSentAt = now;
+    if (host) return host.input(+x.toFixed(2), +y.toFixed(2));
     const msg = JSON.stringify({ t: 'in', x: +x.toFixed(2), y: +y.toFixed(2) });
     if (chU && chU.readyState === 'open') chU.send(msg); else if (chR && chR.readyState === 'open') chR.send(msg);
   }
 
   $('joinForm').addEventListener('submit', e => { e.preventDefault(); connect(); });
   $('retry').onclick = connect; $('reconnect').onclick = connect;
+  $('createBtn').onclick = createRoom;
+  $('copyLink').onclick = async () => { const url = location.origin + location.pathname + '?raum=' + room; try { await navigator.clipboard.writeText(url); toast('Einladungslink kopiert.'); } catch { prompt('Einladungslink:', url); } };
+  // Beitrittsseite: im Host-Modell offene Baustellen zeigen
+  $('createBtn').hidden = !HOSTED; $('rooms').hidden = !HOSTED;
+  $('joinBtn').hidden = HOSTED && !room;
+  if (HOSTED && room) $('joinBtn').textContent = 'Baustelle ' + room + ' beitreten';
+  async function listRooms() {
+    if (!HOSTED || connected || connecting || document.hidden) return;
+    let j; try { j = await api('list', {}); } catch { return; }
+    const ls = j.ls || [];
+    $('noRooms').hidden = ls.length > 0;
+    $('roomList').replaceChildren(...ls.map(l => {
+      const li = document.createElement('li'), s = document.createElement('span'), b = document.createElement('button');
+      s.textContent = l.name + ' · ' + l.id + ' · ' + l.n + '/' + (j.max || 48) + (l.run ? ' · läuft' : '');
+      b.type = 'button'; b.textContent = l.n >= (j.max || 48) ? 'Voll' : 'Beitreten'; b.disabled = l.n >= (j.max || 48); b.dataset.room = l.id;
+      b.onclick = () => { room = l.id; connect(); };
+      li.append(s, b); return li;
+    }));
+  }
+  listRooms(); setInterval(listRooms, 3000);
   $('start').onclick = () => sendR({ t: 'start' }); $('again').onclick = () => sendR({ t: 'start' });
   $('toLobby').onclick = () => show('result', false);
   $('botsAdd').onclick = () => sendR({ t: 'bots', n: 3 }); $('botsOff').onclick = () => sendR({ t: 'bots', n: 0 });
@@ -411,5 +590,5 @@
   requestAnimationFrame(frame);
 
   // Für automatische Tests und Diagnose
-  window.__mg = { get state() { return { connected, myId, phase, timeLeft, route, players: meta.size, me: ents.get(myId) || null, stamps: (meta.get(myId) || {}).st || 0, result, plates: plates.map(p => ({ id: p.id, state: p.state, holder: p.holder, cx: p.cx, cy: p.cy, rot: p.rot })) }; }, selectedPair, map: () => map, ents: () => [...ents].map(([id, e]) => ({ id, x: e.tx, y: e.ty, st: e.st, ride: e.ride, hold: e.hold, face: e.face })) };
+  window.__mg = { hostPairs: () => host ? host.pairs() : Promise.resolve([]), get state() { return { connected, myId, phase, room, hosting: !!host, peers: host ? host.peers : 0, timeLeft, route, players: meta.size, me: ents.get(myId) || null, stamps: (meta.get(myId) || {}).st || 0, result, plates: plates.map(p => ({ id: p.id, state: p.state, holder: p.holder, cx: p.cx, cy: p.cy, rot: p.rot })) }; }, selectedPair, map: () => map, ents: () => [...ents].map(([id, e]) => ({ id, x: e.tx, y: e.ty, st: e.st, ride: e.ride, hold: e.hold, face: e.face })) };
 })();

@@ -8,7 +8,8 @@
   "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test test/rules.test.js",
+    "test": "node --test test/rules.test.js test/api.test.js",
+    "test:load-host": "node test/load-host.js",
     "test:load": "node test/load.js",
     "test:browser": "node test/browser.js"
   },

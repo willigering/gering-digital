@@ -5,71 +5,93 @@ Bodenplatten greifen, um 90° drehen und woanders ablegen. Wer draufsteht, fähr
 
 ## Aufbau
 
-| Teil | Ort | läuft wo |
-| --- | --- | --- |
-| Client (statisch) | `myground/index.html`, `game.js`, `style.css`, `config.js` | STRATO-Webspace, über den normalen Deploy |
-| Spielserver | `myground/server/` (Node, `node-datachannel`) | eigener Host, getrennt start- und deploybar |
+Gleiches Modell wie Rüdiger (`speed/`): Der STRATO-Webspace kann nur PHP, deshalb hostet ein Browser die Runde.
 
-Der Webspace kann nur PHP. Rüdiger (`speed/`) löst das mit einem Browser als Host. Hier entscheidet
-ein zentraler Spielserver über Bewegung, Reichweiten, Plattenbesitz, Mitfahrer, Stempel und Sieg.
-Jeder Browser hält genau eine WebRTC-Verbindung zum Server (Stern, kein Vollmesh).
+| Teil | Dateien | Aufgabe |
+| --- | --- | --- |
+| Client | `index.html`, `game.js`, `style.css`, `config.js`, `tick.js` | Zeichnen, Eingabe, Verbindung; beim Host zusätzlich das Spiel |
+| Spiellogik | `logic.js` | Bewegung, Reichweiten, Plattenbesitz, Mitfahrer, Stempel, Sieg. Läuft im Browser des Hosts, im Node-Server und in den Tests |
+| Anmeldung | `api.php`, `data/` (entsteht zur Laufzeit, gesperrt) | Raumliste, Zustellung von Angebot und Antwort, befristete TURN-Zugangsdaten |
+| Optionaler Spielserver | `server/` (Node, `node-datachannel`) | Übernimmt die Host-Rolle, wenn in `config.js` eine Adresse steht |
+
+Wer „Baustelle eröffnen“ drückt, ist Host. Sein Browser rechnet das Spiel und entscheidet alles; die anderen
+verbinden sich per WebRTC nur mit ihm (Stern, kein Vollmesh). Die Runde hängt damit am Host: Schließt er das
+Fenster, bekommen alle Gäste eine Störungsmeldung. Der Takt des Hosts läuft in einem Worker (`tick.js`),
+damit ein Fenster im Hintergrund das Spiel nicht ausbremst.
 
 ## Verbindungsaufbau
 
-1. `POST /session {name}`: Der Spielserver legt die Gastsitzung an und liefert `iceServers`.
-2. Der Browser baut `RTCPeerConnection(iceServers)` mit zwei Datenkanälen (`r` zuverlässig, `u` für Positionen)
-   und schickt sein Angebot an `POST /offer`. Die Antwort enthält die Kandidaten des Servers.
-3. Erst wenn der Kanal `r` offen ist und der Server `welcome` gesendet hat, zeigt der Client „Verbunden“.
-   Scheitert die direkte Verbindung, nimmt ICE automatisch den TURN-Umweg.
+1. Host: `api.php?a=create` liefert einen Raumcode (vier Buchstaben). Der Host fragt einmal je Sekunde `poll` ab.
+2. Gast: wählt die Baustelle aus der Liste oder kommt über den Einladungslink `?raum=CODE`, holt mit `ice`
+   die ICE-Konfiguration, baut zwei Datenkanäle auf (`r` zuverlässig, `u` für Positionen) und gibt sein Angebot
+   mit `signal` ab. Der Host antwortet auf demselben Weg.
+3. Erst wenn der Kanal `r` offen ist und der Host `welcome` geschickt hat, zeigt der Gast „Verbunden“ und
+   erscheint in der Lobby. Scheitert die direkte Verbindung, nimmt ICE den TURN-Umweg.
+
+Gäste dürfen über `api.php` nur dem Host schreiben, nur der Host den Gästen. Kein Login, keine Cookies.
 
 ### TURN
 
-Es wird der vorhandene Cloudflare-TURN-Dienst benutzt, dieselben kurzlebigen Zugangsdaten wie bei Rüdiger:
+Es wird der vorhandene Cloudflare-TURN-Dienst benutzt. `api.php?a=ice` liest den dauerhaften Schlüssel
+serverseitig aus `speed/data/turn.php` (den schreibt das Deployment aus den Secrets `CF_TURN_ID` und
+`CF_TURN_KEY`; ein eigener `myground/data/turn.php` hätte Vorrang) und gibt nur befristete Zugangsdaten aus
+(6 Stunden gültig, je Satz höchstens 1 Stunde lang weitergegeben). Schlüssel stehen nie im Repo und nie im Client.
 
-- Standard: Der Spielserver holt sie über die bestehende Ausgabestelle `speed/api.php?a=ice`
-  (`ICE_ISSUER_URL`). Dafür braucht der Spielserver kein eigenes Geheimnis.
-- Alternativ `CF_TURN_ID` und `CF_TURN_KEY` als Umgebungsvariablen des Spielservers: dann erzeugt er die
-  Zugangsdaten selbst bei Cloudflare (`ICE_TTL`, Standard 2 Stunden).
-
-Schlüssel stehen nie im Repo und nie im Client. Der Browser bekommt nur befristete Zugangsdaten.
-`?relay=1` an der Adresse erzwingt zur Diagnose eine reine Relay-Verbindung; die Statusanzeige nennt die Art
+`?relay=1` an der Adresse erzwingt zur Diagnose eine reine Relay-Verbindung. Die Statusanzeige nennt die Art
 („Direkt“ oder „Relay“).
 
-## Spielserver starten
+## Lokal starten
 
 ```bash
-cd myground/server
-npm ci
-ALLOW_BOTS=1 npm start        # http://localhost:8787/myground/ liefert lokal auch den Client aus
+php -d extension=openssl -S localhost:8788 -t .      # in der Repo-Wurzel; dann http://localhost:8788/myground/
 ```
 
-Produktion: `server/Dockerfile` oder `npm ci --omit=dev && node server.js` hinter einem HTTPS-Proxy.
-Benötigt werden ein HTTPS-Endpunkt für `/session` und `/offer` sowie eingehendes UDP
-(`UDP_PORT_MIN`/`UDP_PORT_MAX` für die Firewall). Erlaubt der Host kein eingehendes UDP: `SERVER_TURN=1`.
-Danach die Adresse in `myground/config.js` eintragen (`window.MYGROUND_SERVER = 'https://…'`) und nach `main`
-mergen. Weitere Variablen stehen oben in `server/server.js`. Testbots gibt es nur mit `ALLOW_BOTS=1`; sie
-heißen „BOT …“ und tragen in Lobby und Ergebnis das Schild BOT.
+Lokal gibt es keinen TURN-Schlüssel. Für Relay-Tests kann `MYGROUND_ICE_ISSUER` auf eine andere Ausgabestelle
+befristeter Zugangsdaten zeigen (z. B. `https://geringdigital.de/speed/api.php?a=ice`). Testbots gibt es nur
+lokal oder mit `?bots=1` beim Host; sie heißen „BOT …“ und tragen in Lobby und Ergebnis das Schild BOT.
+
+## Optional: eigener Spielserver
+
+Für Runden, die nicht an einem Browser hängen sollen:
+
+```bash
+cd myground/server && npm ci && ALLOW_BOTS=1 npm start     # http://localhost:8787/myground/
+```
+
+Produktion: `server/Dockerfile` oder `node server.js` hinter einem HTTPS-Proxy, dazu eingehendes UDP
+(`UDP_PORT_MIN`/`UDP_PORT_MAX`) oder `SERVER_TURN=1`. Adresse in `config.js` eintragen. Variablen stehen oben in
+`server/server.js`. Der Docker-Build und `SERVER_TURN=1` sind ungetestet.
 
 ## Tests
 
 ```bash
-npm test                                     # Regeln: 14 Tests, ohne Netzwerk
-node test/load.js                            # 48 echte WebRTC-Clients gegen den laufenden Server
-NODE_PATH=<playwright> PW_CHANNEL=chrome node test/browser.js           # 2 Browser, komplette Runde
-NODE_PATH=<playwright> PW_CHANNEL=chrome RELAY=1 node test/browser.js   # dasselbe, nur über TURN-Relay
+cd myground/server
+npm test                                  # Regeln (14) und PHP-Signalisierung (4), ohne Browser
+# mit laufendem PHP-Server auf Port 8788 und Playwright (NODE_PATH), PW_CHANNEL=chrome:
+node test/browser.js                      # Host + Gast, komplette Runde, Raumliste, Host weg
+RELAY=1 node test/browser.js              # Gast nur über TURN; RELAY=2: Host und Gast
+node test/load-host.js                    # 1 Chrome als Host + 47 WebRTC-Gäste = 48 Kräne
+RELAY=1 node test/load-host.js            # dasselbe, Host erzwingt das Relay
+# gegen den optionalen Node-Server: MODE=server node test/browser.js, node test/load.js
 ```
 
-### Stand 16.11.2026 (lokal, Windows, Spielserver auf dem Entwicklungsrechner)
+### Stand 16.11.2026 (lokal, Windows, alles auf einem Rechner, Anmeldung über lokalen PHP-Server)
 
-- Regeln: 14/14. Gleichzeitiges Greifen, Mitfahren, Drehen, Ablegen, Ab- und Aufspringen, Absturz und Respawn,
+- Regeln 14/14: gleichzeitiges Greifen, Mitfahren, Drehen, Ablegen, Ab- und Aufspringen, Absturz und Respawn,
   Leitplanken, Zeitlimit, Gleichstand, Losentscheid ohne Stempel, Abbruch mit Platte am Haken (beim Ausfahren,
-  beim Tragen, beim Ablegen), 48er-Grenze, Bots.
-- Zwei unabhängige Chrome-Sitzungen, direkte Verbindung (host/udp): Gastbeitritt, Rundenstart, Greifen, Drehen,
-  Ablegen, Springen, drei Stempel, Sieg am Tor, Wiedereinstieg, Abbruch.
-- Dieselbe Runde mit erzwungenem Relay: ausgewähltes Kandidatenpaar bei beiden Gästen lokal `relay`
-  über `turn.cloudflare.com:3478` (einmal UDP, einmal TCP zum Relay), Gegenstelle `srflx`.
-  Gast A: rund 40 kB gesendet und 133 kB empfangen über das Relay.
-- Last: 48 gleichzeitige WebRTC-Clients (node-datachannel, direkte Verbindung über Host-Kandidaten auf demselben
-  Rechner). Alle verbunden, Runde gestartet, 16 bis 17 Zustände je Sekunde bei jedem Client, rund 190 kbit/s je Client,
-  der 49. Gast wird mit 503 abgewiesen, harte Trennung von 24 Clients wird sauber verarbeitet.
-- Nicht getestet: 48 Clients über Relay, 48 echte Browser, Betrieb auf einem öffentlichen Host.
+  Tragen, Ablegen), 48er-Grenze, Bots. Signalisierung 4/4.
+- Zwei unabhängige Chrome-Sitzungen (Host und Gast), direkt (host/udp): Eröffnen, Beitritt per Link, Rundenstart,
+  Greifen, Drehen, Ablegen, Springen, drei Stempel, Sieg am Tor, Wiedereinstieg, Abbruch des Gasts, Beitritt einer
+  dritten Sitzung über die Raumliste, Host weg mit Störungsmeldung beim Gast.
+- Dieselbe Runde mit erzwungenem Relay beim Gast: ausgewähltes Kandidatenpaar lokal `relay` über
+  `turn.cloudflare.com:3478` (UDP), Gegenstelle `srflx`; rund 44 kB gesendet und 105 kB empfangen über das Relay.
+  Mit Relay auf beiden Seiten: `relay` zu `relay`, ebenfalls komplette Runde.
+- Last, direkt: 1 Chrome (headless) als Host, 47 Gäste (node-datachannel), also 48 Kräne. Alle verbunden, Runde
+  läuft, 20 Zustände je Sekunde bei jedem Gast, rund 218 kbit/s je Gast, der 49. Kran wird abgewiesen, harte
+  Trennung von 23 Gästen wird sauber verarbeitet.
+- Last, über TURN: dasselbe mit erzwungenem Relay beim Host. Alle 47 Verbindungen des Hosts lokal `relay`
+  (43 UDP, 4 TCP zum Relay), 20 Zustände je Sekunde, Beitritt aller Gäste in 43 Sekunden.
+- Optionaler Node-Server: Zwei-Browser-Runde weiterhin bestanden.
+- Nicht getestet: 48 echte Browser auf getrennten Rechnern und Leitungen, Host auf einem Handy, Host-Fenster
+  wirklich im Hintergrund (das Testwerkzeug hält Seiten immer sichtbar), Upload des Hosts über eine
+  Heimleitung (48 Kräne brauchen rund 10 Mbit/s).

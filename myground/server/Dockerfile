@@ -6,6 +6,7 @@ WORKDIR /app/server
 COPY server/package.json server/package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY server/server.js server/game.js ./
+COPY logic.js ../logic.js
 ENV PORT=8787 SERVE_CLIENT=0 NODE_ENV=production
 EXPOSE 8787
 USER node
