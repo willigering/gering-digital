@@ -23,11 +23,11 @@ const THEMES = [
   { item: 'jammer', name: 'Mond', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
   { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
-const VER = 82; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
+const VER = 83; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const PLAY = THEMES.map((t, i) => t.off ? -1 : i).filter(i => i >= 0); // spielbare Strecken (die senkrechten Etagen-Strecken sind vorerst aus der Auswahl genommen)
 const randMap = () => PLAY[fl(Math.random() * PLAY.length)];
-const DANCES = ['KUSSHAND', 'ZENSIERT', 'PO ZEIGEN'];
+const DANCES = ['SALTO', 'RAD', 'WINDMÜHLE', 'KOPFSTAND', 'HAMPELMANN']; // Siegertänze in der Seitenansicht (Namen werden nicht angezeigt)
 const POSES_ON = true; // Siegergesten an
 const DANCE_POSE = [6, 7, 8]; // Gesten (siehe gesture); 0–5 sind die alten Posen, derzeit aus
 const VCOLS = 50, FH = 7, VROWS = FH * 8, VFLOOR = VROWS; // Zickzack-Etagen: 50 Felder breit, 7 Reihen je Etage, Muster wiederholt sich alle 8 Etagen
@@ -1399,6 +1399,35 @@ function dancePose(d, t) {
   }
   return P;
 }
+// Siegertänze in der Seitenansicht. Rückgabe wie dancePose: Versatz, Drehung, Streckung und Gliederstellung.
+function winPose(d, t) {
+  const P = { x: 0, y: 0, rot: 0, sx: 1, sy: 1, flip: 1, lf: [-4, -1], rf: [4, -1], fa: [5, -16, 7, -11], ba: [-5, -16, -7, -11] };
+  const ease = u => u * u * (3 - 2 * u);
+  if (d === 0) { // Rückwärtssalto, danach Jubelpose mit gestreckten Armen
+    const c = (t % 1500) / 1500;
+    if (c < 0.6) { const f = c / 0.6; P.rot = -ease(f) * Math.PI * 2; P.y = -Math.sin(f * Math.PI) * 54; P.lf = [-6, -13]; P.rf = [6, -15]; P.fa = [8, -22, 5, -27]; P.ba = [-8, -22, -5, -27]; }
+    else { P.sy = 1 - 0.14 * Math.max(0, 1 - (c - 0.6) / 0.12); P.lf = [-8, -1]; P.rf = [8, -1]; P.fa = [13, -36, 16, -50]; P.ba = [-11, -34, -17, -48]; }
+  } else if (d === 1) { // Rad schlagen: hin und zurück
+    const n = fl(t / 1300), c = (t % 1300) / 1300, dir = n % 2 ? -1 : 1;
+    P.rot = dir * ease(c) * Math.PI * 2; P.x = dir * (c - 0.5) * 90; P.y = -12 - Math.sin(c * Math.PI) * 10;
+    P.lf = [-13, -3]; P.rf = [13, -3]; P.fa = [16, -30, 28, -34]; P.ba = [-16, -30, -30, -34];
+  } else if (d === 2) { // Windmühle: auf dem Rücken, Beine strampeln in der Luft
+    const a = t / 110;
+    P.rot = -Math.PI / 2 + Math.sin(t / 130) * 0.16; P.y = 11 + Math.abs(Math.sin(t / 130)) * 2; P.x = Math.sin(t / 520) * 16;
+    P.lf = [20 + Math.cos(a) * 7, -10 + Math.sin(a) * 10]; P.rf = [20 + Math.cos(a + Math.PI) * 7, -10 + Math.sin(a + Math.PI) * 10];
+    P.fa = [12, -16, 18, -8 + Math.sin(a) * 5]; P.ba = [-10, -18, -16, -10 - Math.sin(a) * 5];
+  } else if (d === 3) { // Kopfstand, Beine wackeln
+    const w = Math.sin(t / 170) * 5, v = Math.sin(t / 110) * 3;
+    P.rot = Math.PI + Math.sin(t / 380) * 0.08; P.y = -2;
+    P.lf = [-9 + w, 4 + v]; P.rf = [9 - w, 4 - v]; P.fa = [9, -50, 11, -65]; P.ba = [-9, -50, -11, -65];
+  } else { // Hampelmann: hüpfen, Arme und Beine auf und zu
+    const b = t / 1000 * Math.PI * 2 * 1.7, o = 0.5 + 0.5 * Math.sin(b);
+    P.y = -Math.abs(Math.sin(b)) * 15;
+    P.lf = [-4 - o * 9, -1 - o * 2]; P.rf = [4 + o * 9, -1 - o * 2];
+    P.fa = [5 + o * 8, -16 - o * 18, 7 + o * 11, -11 - o * 38]; P.ba = [-5 - o * 8, -16 - o * 18, -7 - o * 11, -11 - o * 38];
+  }
+  return P;
+}
 function shade(hex, k) { // Farbe aufhellen (k>0) oder abdunkeln (k<0)
   const n = parseInt(hex.slice(1), 16), f = v => clamp(Math.round(k > 0 ? v + (255 - v) * k : v * (1 + k)), 0, 255);
   return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
@@ -1416,8 +1445,7 @@ function capsule(x, y, w, h, rt, rb) { ctx.beginPath(); if (ctx.roundRect) ctx.r
 function drawRunner(x, y, vx, st, face, col, t, blink, boosting, dance = -1) {
   ctx.save(); ctx.translate(x, y);
   const sp = Math.abs(vx), dz = POSES_ON && dance >= 0 && sp < 70 && st !== 2 && st !== 4 && st !== 6;
-  if (dz) { drawFront(col, t, dance % DANCES.length); ctx.restore(); return; } // Sieger schaut frontal in die Kamera
-  const P = dz ? dancePose(DANCE_POSE[dance % DANCES.length], t) : null;
+  const P = dz ? winPose(dance % DANCES.length, t) : null;
   if (P) { ctx.translate(P.x, P.y); face = (face || 1) * P.flip; }
   if (blink && fl(t / 70) % 2) ctx.globalAlpha = 0.35;
   ctx.scale(face || 1, 1);
