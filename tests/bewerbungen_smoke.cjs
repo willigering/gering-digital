@@ -64,7 +64,7 @@ for (const rule of [".data-table tbody tr.row-applied td", ".data-table tbody tr
   assert(theme.includes(rule),"Missing full-row style in DAU theme: "+rule);
 }
 assert(!html.includes("row-open"),"Uncontacted rows must not retain the green state");
-assert(html.includes('href="bewerbungen-theme.css"'),"DAU theme stylesheet must be included");
+assert(html.includes('href="bewerbungen-theme.css'),"DAU theme stylesheet must be included");
 assert(html.includes('id="logoutTop"'),"Topbar logout is present");
 assert(html.includes('$("logoutTop").addEventListener("click",logout)'),"Topbar logout uses the real server-side logout action");
 assert(html.includes('$("logoutTop").classList.toggle("hidden",state.mode!=="ready")'),"Logout only visible in authenticated mode");
@@ -80,6 +80,19 @@ for(const m of match[1].matchAll(/\$\("([^"]+)"\)/g)){
 for(const field of ["company","city","contact","email","phone","status","appliedAt","followUpAt","notes","street","postal","postCity","website","source"]){
   assert(html.includes('name="'+field+'"'),"Editor field missing: "+field);
 }
+// FISI-Ausbildung: Feld, Server-Whitelist, AB-Pill, Filter und CSV-Export.
+for(const field of ["fisi","fisiSource"]){
+  assert(html.includes('name="'+field+'"'),"Editor field missing: "+field);
+  assert(php.includes("'"+field+"'"),"API whitelist missing: "+field);
+}
+assert(php.includes("in_array($fisi, ['ja', 'nein', 'unklar'], true)"),"FISI value must be enum-validated");
+for(const v of ['value=""','value="ja"','value="nein"','value="unklar"'])assert(html.includes('<option '+v),"FISI option missing: "+v);
+assert(html.includes("company-name\">'+e(r.company)+fisiPill(r)"),"AB pill next to company in table");
+assert(html.includes("'</strong>'+fisiPill(r)"),"AB pill next to company in mobile card");
+assert(html.includes('aria-label="Bildet Fachinformatiker Systemintegration aus"'),"AB pill needs accessible label");
+assert(html.includes('data-filter="fisi"')&&html.includes('f==="fisi"'),"AB (FISI) filter chip is wired");
+assert(html.includes('"FISI-Ausbildung","FISI-Quelle"'),"FISI included in CSV export");
+assert(theme.includes(".fisi-pill{")&&theme.includes(".fisi-pill.unklar{")&&theme.includes(".filter-fisi{"),"FISI pill styles exist");
 for(const op of ["setup","login","logout","save","delete","import","state"]){
   assert(php.includes("'"+op+"'"),"API action missing: "+op);
 }
