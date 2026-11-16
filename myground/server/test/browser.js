@@ -66,6 +66,7 @@ async function drive(page, goal, timeoutMs = 60000) {
     await a.waitForFunction(() => window.__mg.state.players === 2);
     await b.waitForFunction(() => window.__mg.state.players === 2);
     // Verbindungsart anhand des ausgewählten ICE-Kandidatenpaars (Gast; im Host-Modell zusätzlich die Host-Seite)
+    await sleep(1500);   // die Zähler des frisch gewählten Kandidatenpaars brauchen einen Moment
     out.pairB = await b.evaluate(() => window.__mg.selectedPair());
     out.pairA = SERVER_MODE ? await a.evaluate(() => window.__mg.selectedPair()) : (await a.evaluate(() => window.__mg.hostPairs()))[0];
     if (RELAY) {
@@ -108,6 +109,7 @@ async function drive(page, goal, timeoutMs = 60000) {
     assert.strictEqual(await a.locator('#stamps i.has').count(), 3);
     await drive(a, m.gate);
     await a.waitForFunction(() => window.__mg.state.phase === 'result', null, { timeout: 5000 });
+    await b.waitForFunction(() => window.__mg.state.result, null, { timeout: 5000 });   // über das Relay kommt das Ergebnis etwas später an
     const ra = (await st(a)).result, rb = (await st(b)).result;
     assert.strictEqual(ra.winner, (await st(a)).myId); assert.strictEqual(ra.reason, 'tor'); assert.strictEqual(rb.winner, ra.winner);
     assert.ok(await b.isVisible('#result.on'));

@@ -95,3 +95,11 @@ RELAY=1 node test/load-host.js            # dasselbe, Host erzwingt das Relay
 - Nicht getestet: 48 echte Browser auf getrennten Rechnern und Leitungen, Host auf einem Handy, Host-Fenster
   wirklich im Hintergrund (das Testwerkzeug hält Seiten immer sichtbar), Upload des Hosts über eine
   Heimleitung (48 Kräne brauchen rund 10 Mbit/s).
+
+### Liveprüfung 16.11.2026 (https://geringdigital.de/myground, Commit f26a725)
+
+- Zwei unabhängige Chrome-Sitzungen, direkt: komplette Runde wie oben, einschließlich Raumliste und Host weg.
+- Dieselbe Runde mit erzwungenem Relay beim Gast: Kandidatenpaar lokal `relay` über `turn.cloudflare.com:3478`
+  (UDP), Gegenstelle `srflx`; rund 31 kB gesendet und 111 kB empfangen über das Relay.
+- `api.php?a=ice` gibt live befristete TURN-Zugangsdaten aus; `server/` und `data/` sind von außen gesperrt.
+- Beide Sitzungen liefen auf demselben Rechner. Die Last mit 48 Kränen wurde nur lokal gemessen.
