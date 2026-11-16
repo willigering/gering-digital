@@ -224,7 +224,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <a class="module-card" style="--mod:#edbb70" href="unterricht/er-diagramme-bauen.php">
       <div class="module-art"><span class="module-art-symbol" aria-hidden="true">ER ↔</span></div>
       <div class="module-body">
-        <span class="module-subtopic">Datenmodellierung</span>
+        <span class="module-category">Datenmodellierung</span>
         <h2>ER-Diagramme bauen</h2>
         <p>Formen zuweisen, Begriffe verbinden und Kardinalitäten setzen. Jede neue Aufgabe startet mit einem vorbereiteten Zeichenblatt.</p>
         <div class="module-footer"><span>Mit Lernkonto öffnen</span><b aria-hidden="true">↗</b></div>
@@ -233,7 +233,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
     <article class="module-card is-coming-soon" style="--mod:#e8b84a">
       <div class="module-art"><span class="module-art-symbol" aria-hidden="true">C#</span></div>
       <div class="module-body">
-        <span class="module-subtopic">C#</span>
+        <span class="module-category">C#</span>
         <h2>Finde den Fehler.</h2>
         <p>Programme ausführen und mit Testfällen prüfen, wo der Fehler steckt.</p>
         <div class="module-footer"><span>Bald verfügbar</span></div>
