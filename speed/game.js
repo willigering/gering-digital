@@ -100,19 +100,20 @@ const M = {
     return 12 + L + 6;
   },
   chimneys: (b, x) => { let c = M.chimney(b, x, b.R(9, 11)); c += M.chimney(b, x + c, b.R(11, 13)); return c; },
-  hills: (b, x) => {
-    let c = 2; const h1 = b.R(2, 4), h2 = b.R(1, 3);
-    c += ramp(b, x + c, 0, h1, b.ch(0.5)); const p = b.R(2, 5); c += plat(b, x + c, h1, p); if (b.ch(0.7)) b.s(x + c - 1 - b.R(0, p - 1), F - h1 - 3, '?');
-    c += ramp(b, x + c, h1, -h1, b.ch(0.6)); c += b.R(2, 6);
-    c += ramp(b, x + c, 0, h2, b.ch(0.5)); c += plat(b, x + c, h2, b.R(1, 4)); c += ramp(b, x + c, h2, -h2, b.ch(0.5)); return c + b.R(2, 4);
+  hills: (b, x) => { // keine Huckel: eine lange Steigung, lange Gerade oben, lange Senkung
+    let c = 2; const h = b.R(3, 5);
+    c += ramp(b, x + c, 0, h, true); const p = b.R(14, 24); c += plat(b, x + c, h, p);
+    let k = c - p + 4; while (k < c - 3) { if (b.ch(0.5)) b.s(x + k, F - h - 1, b.ch(0.6) ? 'K' : '>'); k += b.R(6, 9); }
+    if (b.ch(0.6)) b.s(x + c - b.R(4, p - 2), F - h - 3, '?');
+    c += ramp(b, x + c, h, -h, true); return c + b.R(4, 8);
   },
   bigslide: (b, x) => {
     let c = 2; const h = b.R(6, 9), h2 = b.R(3, 5);
-    c += ramp(b, x + c, 0, h, true); const p = b.R(2, 5); c += plat(b, x + c, h, p); b.s(x + c - 1 - b.R(0, p - 1), F - h - 3, '?');
-    c += ramp(b, x + c, h, -h, true); if (b.ch(0.7)) b.s(x + c, F - 1, '>'); c += b.R(4, 7);
-    c += ramp(b, x + c, 0, h2, b.ch(0.6)); c += plat(b, x + c, h2, b.R(1, 3)); c += ramp(b, x + c, h2, -h2, b.ch(0.4)); return c + b.R(2, 4);
+    c += ramp(b, x + c, 0, h, true); const p = b.R(10, 16); c += plat(b, x + c, h, p); b.s(x + c - 1 - b.R(0, p - 1), F - h - 3, '?');
+    c += ramp(b, x + c, h, -h, true); if (b.ch(0.7)) b.s(x + c, F - 1, '>'); c += b.R(10, 16); void h2;
+    return c;
   },
-  mogul: (b, x) => { let c = 2; const n = b.R(3, 6); for (let i = 0; i < n; i++) { const h = b.R(1, 2); c += ramp(b, x + c, 0, h, true); c += ramp(b, x + c, h, -h, true); if (b.ch(0.4)) { const s = b.R(1, 3); b.r(x + c, F - 1, s, 1, '^'); c += s; } c += b.R(1, 3); } return c + 2; },
+  mogul: (b, x) => { const n = b.R(24, 34); let c = 4; while (c < n - 3) { if (b.ch(0.5)) b.s(x + c, F - 1, b.ch(0.5) ? 'K' : '>'); c += b.R(6, 9); } return n; }, // früher Buckelpiste, jetzt gerade Strecke
   descent: (b, x) => {
     let c = 2; const s2 = b.H(2), st = Math.min(b.R(4, 6), fl(20 / s2)), top = st * s2;
     c += ramp(b, x + c, 0, top, false);                       // Aufstieg als Rampe statt Stufen
@@ -129,35 +130,30 @@ const M = {
     const k = b.R(1, 2); for (let i = 1; i <= k; i++) b.r(x + 8 + fl(L * i / (k + 1)) - 1, F - b.R(3, 5), b.R(2, 3), 1);
     b.s(x + 8 + b.R(4, L - 4), hy + 4, '?'); return L + 16;
   },
-  // Etagen: zwei oder drei Wege übereinander, durch FESTE Decken getrennt (tunnelartig, von unten nicht erreichbar).
-  // Rein kommt man nur am Anfang: unten weiterlaufen, auf die erste Decke springen, oder per Trampolin ganz nach oben.
-  // Wer drin ist, bleibt bis zum Ende in seinem Weg. Jeder Weg bekommt zufällig leicht/mittel/schwer.
+  // Etagen: dicke, dunkle Tunnel übereinander (von unten nicht erreichbar). Anlauf per Rampe auf ein Plateau, dann:
+  // runter = in die Lücke fallen (unterer Tunnel), geradeaus = über die Lücke springen (Mittelweg), hoch = Trampolin (oben).
   decks: (b, x) => {
-    const three = b.ch(0.55), L = b.R(50, 80), end = x + L;
-    const m0 = x + b.R(8, 12), mh = b.R(4, 5);                  // erste Decke: Höhe 4–5, im Lauf erreichbar
-    b.r(m0, F - mh, end - m0, 1);
-    const lanes = [[m0 - 2, end, F - 1, mh - 1]];               // [von, bis, Bodenzeile, Innenhöhe]
-    if (three) {
-      const t0 = m0 + b.R(8, 12), th = mh + b.R(4, 5), tEnd = Math.max(m0 + 30, end - b.R(0, 8));
-      b.r(t0, F - th, tEnd - t0, 1);                            // zweite Decke
-      b.s(t0 - 4, F - mh - 1, 'T');                             // Trampolin im Mittelweg-Eingang: hoch auf den obersten Weg
-      lanes.push([m0, end, F - mh - 1, th - mh - 1], [t0, tEnd, F - th - 1, 9]);
-    } else {
-      if (b.ch(0.5)) b.s(m0 - 3, F - 1, 'T');                   // Trampolin vor dem Eingang als Abkürzung nach oben
-      lanes.push([m0, end, F - mh - 1, 9]);
-    }
+    const L = b.R(48, 72), P = 6, th = b.R(2, 3), top = P + 4 + th;        // Plateau-Höhe, Deckendicke, Höhe oberer Weg
+    let c = 1; c += ramp(b, x + c, 0, P, false);                           // gerade Steigung hoch aufs Plateau
+    const pl = b.R(7, 10); b.r(x + c, F - P, pl, P, 'N'); b.s(x + c + pl - 4, F - P - 1, 'T'); c += pl;
+    const gap = 3, m0 = x + c + gap, end = x + c + L;
+    b.r(m0, F - P, end - m0, 2, 'N');                                       // Decke unterer Tunnel = Boden Mittelweg (Oberkante auf Plateau-Höhe)
+    for (let r = F - P + 2; r < F - 4; r++) b.r(m0, r, end - m0, 1, 'N');   // bis zur Tunnelhöhe 4 auffüllen
+    const t0 = m0 + b.R(8, 12), tEnd = end - b.R(0, 6);
+    b.r(t0, F - top, tEnd - t0, th, 'N');                                   // dicke Decke Mittelweg = Boden oben
+    const lanes = [[x + c, end, F - 1, 4], [m0, end, F - P - 1, 4 + th - th], [t0, tEnd, F - top - 1, 9]];
     for (const [from, to, fy, room] of lanes) {
-      const d = b.R(0, 2); let c = from + b.R(4, 6);
-      while (c < to - 3) {
-        const k = b.rnd();
-        if (d === 0) { if (k < 0.4) b.s(c, fy, '>'); else if (k < 0.55) b.s(c, fy, 'K'); }                     // leicht: viel Boost
-        else if (d === 1) { if (k < 0.45) b.s(c, fy, 'K'); else if (k < 0.65) b.s(c, fy, '#'); else if (k < 0.8) b.s(c, fy, '>'); }
-        else { if (k < 0.5) b.s(c, fy, 'K'); else if (k < 0.8) { b.s(c, fy, '#'); if (room >= 4 && b.ch(0.4)) b.s(c, fy - 1, '#'); } else if (room >= 4) b.s(c, fy - 2, 'O'); } // schwer
-        c += d === 2 ? b.R(4, 6) : b.R(6, 9);
+      const d = b.R(0, 2); let k = from + b.R(5, 7);
+      while (k < to - 3) {
+        const q = b.rnd();
+        if (d === 0) { if (q < 0.4) b.s(k, fy, '>'); else if (q < 0.55) b.s(k, fy, 'K'); }
+        else if (d === 1) { if (q < 0.45) b.s(k, fy, 'K'); else if (q < 0.65) b.s(k, fy, '#'); else if (q < 0.8) b.s(k, fy, '>'); }
+        else { if (q < 0.55) b.s(k, fy, 'K'); else if (q < 0.85) b.s(k, fy, '#'); }
+        k += d === 2 ? b.R(4, 6) : b.R(6, 9);
       }
-      if (b.ch(0.5)) b.s(from + b.R(4, Math.max(5, to - from - 4)), fy - Math.min(2, room - 1), '?');
+      if (b.ch(0.5)) b.s(from + b.R(5, Math.max(6, to - from - 4)), fy - 2, '?');
     }
-    return L + 4;
+    return c + L + 4;
   },
   upper: (b, x) => {
     const L = b.R(18, 28), h = b.R(5, 6); b.r(x + 3, F - 3, 3, 1); b.r(x + 9, F - h, L, 1);
@@ -230,7 +226,7 @@ const SEQS = [
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
 const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
-const TALL = { decks: 1, chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
+const TALL = { decks: 1, hills: 1, chimney: 1, chimneys: 1, descent: 1, bigslide: 1, stairs: 1, big: 1, hookpit: 1, hookchain: 1 }; // brauchen Platz nach oben: nur auf niedrigen Ebenen
 // Lange Strecke würfeln: Bausteine aus dem Vorrat (nie einer der letzten 4), dazwischen Geländewechsel und freie Abschnitte
 function mapSeq(pool, seed, len = 3000) {
   let r = seed * 7907 % 2147483647 || 1; const rnd = () => (r = (r * 16807) % 2147483647) / 2147483647;
@@ -427,7 +423,7 @@ const icicleFall = tx => { const t = ((RT() + tx * 173) % 3600) / 3600; return t
 const gateClosed = tx => { const gu = map.gateUntil; if (!gu) return false; const n = performance.now(), t = mod(tx, map.W); for (const k in gu) if (n < gu[k] && t <= +k + 12 && t >= +k - 60) return true; return false; };
 const brokenNow = (tx, ty) => { const b = map.brk && map.brk[mod(tx, map.W) + ',' + ty]; if (!b) return false; const n = performance.now(); if (n > b.until) { delete map.brk[mod(tx, map.W) + ',' + ty]; return false; } return n >= b.at; };
 const solid = (tx, ty) => { const c = tile(tx, ty);
-  return c === '#' || c === 'H' || c === 'C' || c === 'D' || c === 'M' || c === 'Q' || c === 'P' || (c === 'R' && doorClosed(tx)) || (c === 'Y' && gateClosed(tx)) || (c === 'B' && !brokenNow(tx, ty)); };
+  return c === '#' || c === 'N' || c === 'H' || c === 'C' || c === 'D' || c === 'M' || c === 'Q' || c === 'P' || (c === 'R' && doorClosed(tx)) || (c === 'Y' && gateClosed(tx)) || (c === 'B' && !brokenNow(tx, ty)); };
 const stand = (tx, ty) => solid(tx, ty) || tile(tx, ty) === '=';
 const boxAt = (tx, ty) => map.boxes[map.bi[map.vert ? tx + ',' + mod(ty, map.H) : mod(tx, map.W) + ',' + ty]];
 function onPlat(x, row) { for (let tx = fl((x - 11) / T); tx <= fl((x + 11 - 0.001) / T); tx++) if (tile(tx, row) === '=') return true; return false; }
@@ -1795,6 +1791,14 @@ function strut(sx, sy, tx, ty) {
 function drawTile(c, tx, ty, x, y, now) {
   if (c === 'K') { if (crateUp(tx, ty)) drawCrate(x, y); return; }
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
+  if (c === 'N') { // Tunnelwand: dunkle Fläche mit leuchtender Kante
+    ctx.fillStyle = shade(theme.tile, -0.82); ctx.fillRect(x, y, T + 0.5, T + 0.5);
+    ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8;
+    if (isAir(tx, ty - 1)) ctx.fillRect(x, y, T + 0.5, 3);
+    if (isAir(tx, ty + 1)) ctx.fillRect(x, y + T - 2, T + 0.5, 2);
+    if (isAir(tx - 1, ty)) ctx.fillRect(x, y, 2, T); if (isAir(tx + 1, ty)) ctx.fillRect(x + T - 2, y, 2, T);
+    ctx.globalAlpha = 1; return;
+  }
   if (c === '#' || c === 'H') {
     ctx.fillStyle = theme.tile; ctx.fillRect(x, y, T + 0.5, T + 0.5);
     ctx.fillStyle = `rgba(255,255,255,${0.012 + h1 * 0.03})`; ctx.fillRect(x + 2, y + 2, T - 4, T - 4);
