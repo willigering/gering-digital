@@ -129,26 +129,34 @@ const M = {
     const k = b.R(1, 2); for (let i = 1; i <= k; i++) b.r(x + 8 + fl(L * i / (k + 1)) - 1, F - b.R(3, 5), b.R(2, 3), 1);
     b.s(x + 8 + b.R(4, L - 4), hy + 4, '?'); return L + 16;
   },
-  // Etagen: unten der Boden mit Bremskisten, darüber zwei durchspringbare Ebenen. Jeder Weg führt weiter.
-  // Etagen: drei getrennte Wege übereinander, durch feste Decken abgeschlossen. Unten einfach weiterlaufen,
-  // Mitte per Sprung auf die erste Decke, oben per Trampolin. Jeder Weg bekommt zufällig mehr oder weniger Hindernisse.
+  // Etagen: zwei oder drei Wege übereinander, durch FESTE Decken getrennt (tunnelartig, von unten nicht erreichbar).
+  // Rein kommt man nur am Anfang: unten weiterlaufen, auf die erste Decke springen, oder per Trampolin ganz nach oben.
+  // Wer drin ist, bleibt bis zum Ende in seinem Weg. Jeder Weg bekommt zufällig leicht/mittel/schwer.
   decks: (b, x) => {
-    const L = b.R(46, 66), m0 = x + 10, t0 = x + 20, end = x + L;
-    b.r(m0, F - 5, end - m0, 1, '=');            // Mittelweg: von unten durchspringbar
-    b.r(t0, F - 10, end - 6 - t0, 1, '=');      // oberer Weg
-    b.s(t0 - 4, F - 6, 'T');                    // Trampolin auf dem Mittelweg: hoch nach oben
-    const lane = (from, to, fy, room) => {      // fy = Bodenzeile des Weges (Feld direkt darüber ist frei)
-      const d = b.R(0, 2); let c = from + b.R(3, 5);
+    const three = b.ch(0.55), L = b.R(50, 80), end = x + L;
+    const m0 = x + b.R(8, 12), mh = b.R(4, 5);                  // erste Decke: Höhe 4–5, im Lauf erreichbar
+    b.r(m0, F - mh, end - m0, 1);
+    const lanes = [[m0 - 2, end, F - 1, mh - 1]];               // [von, bis, Bodenzeile, Innenhöhe]
+    if (three) {
+      const t0 = m0 + b.R(8, 12), th = mh + b.R(4, 5), tEnd = Math.max(m0 + 30, end - b.R(0, 8));
+      b.r(t0, F - th, tEnd - t0, 1);                            // zweite Decke
+      b.s(t0 - 4, F - mh - 1, 'T');                             // Trampolin im Mittelweg-Eingang: hoch auf den obersten Weg
+      lanes.push([m0, end, F - mh - 1, th - mh - 1], [t0, tEnd, F - th - 1, 9]);
+    } else {
+      if (b.ch(0.5)) b.s(m0 - 3, F - 1, 'T');                   // Trampolin vor dem Eingang als Abkürzung nach oben
+      lanes.push([m0, end, F - mh - 1, 9]);
+    }
+    for (const [from, to, fy, room] of lanes) {
+      const d = b.R(0, 2); let c = from + b.R(4, 6);
       while (c < to - 3) {
         const k = b.rnd();
-        if (d === 0) { if (k < 0.35) b.s(c, fy, '>'); else if (k < 0.55) b.s(c, fy, 'K'); }                       // leicht: Boost, kaum Kisten
-        else if (d === 1) { if (k < 0.6) b.s(c, fy, 'K'); else if (k < 0.8) b.s(c, fy, '>'); }
-        else { if (k < 0.85) b.s(c, fy, 'K'); } // schwer: viele Kisten
+        if (d === 0) { if (k < 0.4) b.s(c, fy, '>'); else if (k < 0.55) b.s(c, fy, 'K'); }                     // leicht: viel Boost
+        else if (d === 1) { if (k < 0.45) b.s(c, fy, 'K'); else if (k < 0.65) b.s(c, fy, '#'); else if (k < 0.8) b.s(c, fy, '>'); }
+        else { if (k < 0.5) b.s(c, fy, 'K'); else if (k < 0.8) { b.s(c, fy, '#'); if (room >= 4 && b.ch(0.4)) b.s(c, fy - 1, '#'); } else if (room >= 4) b.s(c, fy - 2, 'O'); } // schwer
         c += d === 2 ? b.R(4, 6) : b.R(6, 9);
       }
-      if (b.ch(0.6)) b.s(from + b.R(4, Math.max(5, to - from - 4)), fy - 2, '?');
-    };
-    lane(m0, end, F - 1, 4); lane(m0 + 2, end, F - 6, 4); lane(t0, end - 6, F - 11, 9);
+      if (b.ch(0.5)) b.s(from + b.R(4, Math.max(5, to - from - 4)), fy - Math.min(2, room - 1), '?');
+    }
     return L + 4;
   },
   upper: (b, x) => {
@@ -205,20 +213,20 @@ const M = {
 // Bausteinvorrat je Welt (Mehrfachnennung = häufiger). Daraus wird eine lange Strecke (~3000 Felder) gewürfelt,
 // fest je Strecke, damit alle Spieler dieselbe bekommen. Keine Fallen mit Takt mehr.
 const SEQS = [
-  ['tube', 'tube', 'tube', 'boost', 'boost', 'upper', 'upper', 'shortcut', 'hookpit', 'saws', 'gate', 'hurdles', 'pillars', 'tunnel', 'decks'], // Neonhafen: Röhren, Boost, Tempo
-  ['swing', 'swing', 'bridge', 'bridge', 'mogul', 'hills', 'hills', 'plateau', 'trampchain', 'trampchain', 'bigslide', 'upper', 'hurdles', 'gate'], // Dachgarten: Schaukeln, Brücken, Trampoline
-  ['conveyors', 'conveyors', 'conveyors', 'saws', 'saws', 'hurdles', 'pillars', 'gate', 'big', 'hookchain', 'tunnel', 'decks', 'upper'], // Schrottplatz: Förderbänder und Sägen
-  ['hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'upper', 'pillars', 'hurdles', 'decks'], // Eiswerk: Rutschen und Hügel
-  ['lava', 'lava', 'lava', 'spikes', 'spikes', 'trampchain', 'plateau', 'big', 'pillars', 'saws', 'hurdles', 'hookpit'], // Vulkan: Lavafelder zum Überspringen
-  ['swing', 'swing', 'hookforest', 'hookforest', 'hookchain', 'bridge', 'bridge', 'hills', 'descent', 'trampchain', 'pillars'], // Dschungel: Seile und Haken
+  ['decks', 'tube', 'tube', 'tube', 'boost', 'boost', 'upper', 'upper', 'shortcut', 'hookpit', 'saws', 'gate', 'hurdles', 'pillars', 'tunnel', 'decks'], // Neonhafen: Röhren, Boost, Tempo
+  ['decks', 'decks', 'swing', 'swing', 'bridge', 'bridge', 'mogul', 'hills', 'hills', 'plateau', 'trampchain', 'trampchain', 'bigslide', 'upper', 'hurdles', 'gate'], // Dachgarten: Schaukeln, Brücken, Trampoline
+  ['decks', 'conveyors', 'conveyors', 'conveyors', 'saws', 'saws', 'hurdles', 'pillars', 'gate', 'big', 'hookchain', 'tunnel', 'decks', 'upper'], // Schrottplatz: Förderbänder und Sägen
+  ['decks', 'hills', 'hills', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'upper', 'pillars', 'hurdles', 'decks'], // Eiswerk: Rutschen und Hügel
+  ['decks', 'decks', 'lava', 'lava', 'lava', 'spikes', 'spikes', 'trampchain', 'plateau', 'big', 'pillars', 'saws', 'hurdles', 'hookpit'], // Vulkan: Lavafelder zum Überspringen
+  ['decks', 'decks', 'swing', 'swing', 'hookforest', 'hookforest', 'hookchain', 'bridge', 'bridge', 'hills', 'descent', 'trampchain', 'pillars'], // Dschungel: Seile und Haken
   null, // Lagerhaus: Etagen, siehe buildV (derzeit nicht in der Auswahl)
-  ['tube', 'tube', 'bridge', 'hookchain', 'pillars', 'saws', 'gate', 'tunnel', 'upper', 'stairs', 'stairs', 'decks', 'fork'], // Kristallmine: Röhren und Treppen
-  ['gondolas', 'gondolas', 'gondolas', 'swing', 'swing', 'hookforest', 'hookchain', 'hookpit', 'upper', 'shortcut', 'fork'], // Seilbahn-Werft: Gondeln und Haken
-  ['hills', 'hills', 'bigslide', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'hurdles'], // Skipiste: Abfahrten
-  ['hills', 'hills', 'bridge', 'bridge', 'lava', 'lava', 'pillars', 'bigslide', 'hurdles', 'mogul', 'saws', 'plateau', 'stairs', 'gate'], // Wüste: Dünen, Brücken, Lava
-  ['descent', 'descent', 'lava', 'lava', 'pillars', 'pillars', 'hills', 'spikes', 'stairs', 'big', 'plateau', 'saws', 'hookpit'], // Mars: Krater und Abstiege
+  ['decks', 'tube', 'tube', 'bridge', 'hookchain', 'pillars', 'saws', 'gate', 'tunnel', 'upper', 'stairs', 'stairs', 'decks', 'fork'], // Kristallmine: Röhren und Treppen
+  ['decks', 'decks', 'gondolas', 'gondolas', 'gondolas', 'swing', 'swing', 'hookforest', 'hookchain', 'hookpit', 'upper', 'shortcut', 'fork'], // Seilbahn-Werft: Gondeln und Haken
+  ['decks', 'decks', 'hills', 'hills', 'bigslide', 'bigslide', 'bigslide', 'mogul', 'mogul', 'descent', 'descent', 'spikes', 'hurdles'], // Skipiste: Abfahrten
+  ['decks', 'decks', 'hills', 'hills', 'bridge', 'bridge', 'lava', 'lava', 'pillars', 'bigslide', 'hurdles', 'mogul', 'saws', 'plateau', 'stairs', 'gate'], // Wüste: Dünen, Brücken, Lava
+  ['decks', 'decks', 'descent', 'descent', 'lava', 'lava', 'pillars', 'pillars', 'hills', 'spikes', 'stairs', 'big', 'plateau', 'saws', 'hookpit'], // Mars: Krater und Abstiege
   null, // Weltall: breite Etagen, siehe buildV (derzeit nicht in der Auswahl)
-  ['hills', 'hills', 'hills', 'pillars', 'pillars', 'descent', 'mogul', 'bigslide', 'stairs', 'stairs', 'trampchain', 'plateau', 'big', 'spikes'], // Mond: Krater-Hügel und Treppen
+  ['decks', 'decks', 'hills', 'hills', 'hills', 'pillars', 'pillars', 'descent', 'mogul', 'bigslide', 'stairs', 'stairs', 'trampchain', 'plateau', 'big', 'spikes'], // Mond: Krater-Hügel und Treppen
   'MIX', // Bonus: Zufallsstrecke aus allen Bausteinen, täglich neu
 ];
 const HARD = { hookpit: 1, hookchain: 1, swing: 1, hookforest: 1, chimney: 1, chimneys: 1, wallshaft: 1, gondolas: 1, trampchain: 1, big: 1, fork: 1, shortcut: 1 }; // anspruchsvoll: danach erst etwas Leichtes
