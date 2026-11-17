@@ -198,7 +198,7 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.ok((await page.locator('.hs-hint').textContent()).includes('unsichtbar'),'Highscore: eigenes Konto ist standardmäßig unsichtbar');
     await page.goto(base+'/dau-to-pro/konto.php#highscore');
     assert.ok(await page.$eval('#highscore',d=>d.open),'Link konto.php#highscore klappt die Einstellung auf');
-    await page.check('#highscore input[name=visible]');
+    await page.check('#highscore input[name=scope][value=members]');
     await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
     const highscoreUrl=new URL(page.url());
     assert.equal(highscoreUrl.pathname+highscoreUrl.hash,'/dau-to-pro/#highscore','Opt-in opens the Highscore on the landing page');
@@ -241,16 +241,19 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     // Ohne Konto: Startseiten-Podium und ausdrücklich öffentliche Einträge.
     const guest=await browser.newContext();const gp=await guest.newPage();
     await gp.goto(base+'/dau-to-pro/highscore.php');
-    assert.ok(await gp.getByText('Anonymer Platz', {exact:true}).count() > 0);
+    assert.ok(await gp.getByText('Noch hat niemand einen Eintrag für die öffentliche Rangliste freigegeben.').isVisible());
     assert.equal(await gp.locator('.hs-name').count(),0);
     await gp.goto(base+'/dau-to-pro/',{waitUntil:'networkidle'});
-    assert.ok(await gp.locator('#highscore').getByText('Anonymer Platz', {exact:true}).count() > 0);
+    assert.ok(await gp.locator('#highscore').getByText('Noch keine öffentlich freigegebenen Einträge.').isVisible());
     assert.equal(await gp.locator('#highscore .hs-name').count(),0,'Bisherige Mitgliederfreigabe zeigt Gästen keine Namen');
-    php("$id=(int)learner_find('cleo')['id'];ach_set_visible($id,true,true);");
+    await page.goto(base+'/dau-to-pro/konto.php#highscore');
+    await page.check('#highscore input[name=scope][value=public]');
+    await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
     await gp.locator('#highscore a[href="highscore.php"]').click();
-    assert.deepEqual(await gp.locator('.hs-name').allTextContents(),['cleo']);
+    assert.deepEqual(await gp.locator('.hs-name').allTextContents(),['anna']);
     await gp.goto(base+'/dau-to-pro/');
-    assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['cleo']);
+    assert.deepEqual(await gp.locator('#highscore .hs-name').allTextContents(),['anna']);
+    assert.equal(await gp.locator('#highscore').getByText('Anonymer Platz', {exact:true}).count(),0);
     for (const place of [1,2,3]) {
       const podium=gp.locator('#highscore .rank-'+place);
       const numeral=podium.locator('.arcade-rank-number');

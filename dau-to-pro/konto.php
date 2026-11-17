@@ -70,8 +70,10 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 xp_set_showcase($id,$slots);
                 konto_back('',['ok'=>'Vitrine gespeichert.','section'=>'vitrine']);
             case 'highscore':
-                $visible=($_POST['visible']??'')==='1';
-                ach_set_visible($id,$visible,($_POST['public']??'')==='1');
+                $scope=$_POST['scope']??'';
+                if (!in_array($scope,['public','members','hidden'],true)) throw new LearnerError('Bitte wähle die Sichtbarkeit im Highscore.');
+                $visible=$scope!=='hidden';
+                ach_set_visible($id,$visible,$scope==='public');
                 if ($visible) {
                     $_SESSION['dtp_highscore_reveal']=$id;
                     header('Location: ./#highscore',true,303);
@@ -268,14 +270,16 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <p class="field-hint">Mit deinem Lernkonto hast du sofort Zugang zum gesamten Unterrichtsmaterial. Kein zusätzliches Passwort erforderlich.</p>
         <a class="secondary-action" href="./?material=1#unterrichtsmaterial">Zum Unterrichtsmaterial →</a>
       </details>
+      <?php $highscoreScope=$achStats['visible'] ? (ach_public_highscore_enabled((int)$learner['id']) ? 'public' : 'members') : 'hidden'; ?>
       <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'?' open':''?>>
-        <summary><span><b>Sichtbarkeit im Highscore</b><small><?=$achStats['visible']?'Eingeschaltet: andere Lernende sehen dich im Highscore.':'Ausgeschaltet: du bist im Highscore unsichtbar.'?></small></span></summary>
+        <summary><span><b>Sichtbarkeit im Highscore</b><small><?=match($highscoreScope){'public'=>'Öffentlich, auch ohne Anmeldung','members'=>'Nur für angemeldete Lernende',default=>'Unsichtbar'}?></small></span></summary>
         <form method="post" class="settings-body">
           <?=$hidden('highscore')?>
-          <p class="field-hint">Wenn du das einschaltest, sehen andere angemeldete Lernende im <a href="highscore.php">Highscore</a> deinen Benutzernamen, dein Level, deine XP und deine Achievements. Wenn du zusätzlich die öffentliche Anzeige einschaltest, können auch Gäste auf der DAU-TO-PRO-Startseite und auf der Ranglistenseite deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Achievement-Vitrine sehen. Du kannst beide Einstellungen jederzeit ändern.</p>
+          <p class="field-hint">In der <a href="highscore.php">öffentlichen Rangliste</a> können Gäste deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Vitrine sehen. Wähle aus, wer deinen Eintrag sehen darf.</p>
           <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
-          <label class="confirm-check"><input type="checkbox" name="visible" value="1"<?=$achStats['visible']?' checked':''?>> Ich möchte im Highscore sichtbar sein.</label>
-          <label class="confirm-check"><input type="checkbox" name="public" value="1"<?=$achStats['visible']&&ach_public_highscore_enabled((int)$learner['id'])?' checked':''?>> Meinen Benutzernamen und meinen Eintrag im öffentlichen Highscore auch ohne Anmeldung anzeigen.</label>
+          <label class="confirm-check"><input type="radio" name="scope" value="public"<?=$highscoreScope==='public'?' checked':''?>> Öffentlich – mit meinem Benutzernamen, auch ohne Anmeldung</label>
+          <label class="confirm-check"><input type="radio" name="scope" value="members"<?=$highscoreScope==='members'?' checked':''?>> Nur für angemeldete Lernende</label>
+          <label class="confirm-check"><input type="radio" name="scope" value="hidden"<?=$highscoreScope==='hidden'?' checked':''?>> Unsichtbar</label>
           <button class="secondary-action" type="submit">Speichern</button>
         </form>
       </details>

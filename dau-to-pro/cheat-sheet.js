@@ -9,6 +9,7 @@
   const progress=document.getElementById("stack-progress");
   const intro=document.getElementById("board-intro");
   const empty=document.getElementById("sheet-empty");
+  const backdrop=document.getElementById("sheet-backdrop");
   if(!board||!detail||!groups.length)return;
   const enrichments=globalThis.DTP_CHEAT_ENRICHMENT||{};
   const deepSections=g=>(enrichments[g.id]?.sections||[]);
@@ -40,17 +41,21 @@
   const start=document.title;
   const textureByTopic={
     zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
-    netzwerk:"cables",ipv6:"circuit-copper",dienste:"network-ports",
+    netzwerk:"cables",ipv6:"cables-fiber",dienste:"network-ports",
     sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
-    csharp:"circuit",datenbanken:"server",mix:"hardware-connectors",support:"server","it-vi":"circuit-copper"
+    csharp:"circuit",datenbanken:"hardware-connectors",mix:"klausur-bg",
+    support:"cables-braided","it-vi":"circuit-copper"
   };
-  const reducedMotion=matchMedia("(prefers-reduced-motion:reduce)");
-  const parallaxAllowed=()=>!reducedMotion.matches;
+  const topicImage=(id,size)=>{
+    const texture=textureByTopic[id];
+    const file=texture==="klausur-bg"?texture:texture+"-"+size;
+    return 'url("../assets/dau-backgrounds/'+file+'.webp")';
+  };
   let parallaxFrame=0;
   document.querySelectorAll("[data-cheat-total]").forEach(x=>x.textContent=String(groups.length));
   document.querySelectorAll("[data-cheat-groups]").forEach(x=>x.textContent=String(groups.length));
   function topicLink(g,n){
-    return '<a class="topic-card" href="?thema='+encodeURIComponent(g.id)+'" style="--tone:'+g.color+'" data-id="'+safe(g.id)+'">'
+    return '<a class="topic-card" href="?thema='+encodeURIComponent(g.id)+'" style="--tone:'+g.color+';--topic-image:'+safe(topicImage(g.id,768))+'" data-id="'+safe(g.id)+'">'
       +'<span class="topic-top"><span>POCKET GUIDE // '+String(n+1).padStart(2,"0")+'</span><b>'+safe(g.symbol)+'</b></span>'
       +'<span class="topic-icon" aria-hidden="true">'+safe(g.symbol)+'</span>'
       +'<span class="topic-subtitle">SPICKZETTEL '+String(n+1).padStart(2,"0")+'</span>'
@@ -130,6 +135,7 @@
   function listing(){
     disposeReader();
     document.body.classList.remove("reading-sheet");
+    backdrop.hidden=true;
     document.getElementById("sheet-jump").replaceChildren();
     document.getElementById("swipe-count").hidden=true;
     destroyStack();
@@ -166,33 +172,14 @@
   }
   function refreshParallax(){
     parallaxFrame=0;
-    const sheet=detail.querySelector(".one-sheet");if(!sheet||detail.hidden||!parallaxAllowed())return;
-    const rect=sheet.getBoundingClientRect();
-    if(rect.bottom<0||rect.top>innerHeight)return;
-    const range=Math.max(1,rect.height-innerHeight);
-    const progress=Math.max(0,Math.min(1,-rect.top/range));
-    const shift=(progress-.5)*120;
-    sheet.style.setProperty("--sheet-scroll-back",(-shift*.44).toFixed(2)+"px");
-    sheet.style.setProperty("--sheet-scroll-front",(shift*.85).toFixed(2)+"px");
+    if(backdrop.hidden||calm.matches)return;
+    const scrollRange=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+    const progress=Math.min(1,Math.max(0,scrollY/scrollRange));
+    backdrop.style.setProperty("--sheet-shift",((progress-.5)*Math.min(180,innerHeight*.24)).toFixed(1)+"px");
   }
   function requestParallax(){
-    if(!parallaxFrame&&!detail.hidden&&parallaxAllowed())parallaxFrame=requestAnimationFrame(refreshParallax);
+    if(!parallaxFrame&&!backdrop.hidden&&!calm.matches)parallaxFrame=requestAnimationFrame(refreshParallax);
   }
-  detail.addEventListener("pointermove",e=>{
-    if(e.pointerType!=="mouse"||!parallaxAllowed())return;
-    const sheet=e.target.closest(".one-sheet");
-    if(!sheet)return;
-    const b=sheet.getBoundingClientRect();
-    const x=(e.clientX-b.left)/b.width-.5,y=(e.clientY-b.top)/Math.min(b.height,innerHeight)-.5;
-    sheet.style.setProperty("--parallax-back-x",(-x*7).toFixed(1)+"px");
-    sheet.style.setProperty("--parallax-back-y",(-y*7).toFixed(1)+"px");
-    sheet.style.setProperty("--parallax-front-x",(x*13).toFixed(1)+"px");
-    sheet.style.setProperty("--parallax-front-y",(y*11).toFixed(1)+"px");
-  },{passive:true});
-  detail.addEventListener("pointerleave",()=>{
-    const sheet=detail.querySelector(".one-sheet");if(!sheet)return;
-    for(const key of ["--parallax-back-x","--parallax-back-y","--parallax-front-x","--parallax-front-y"]){sheet.style.setProperty(key,"0px")}
-  });
   function showTopic(id){
     disposeReader();
     document.body.classList.add("reading-sheet");
@@ -203,16 +190,15 @@
     search.closest(".search").hidden=true;
     document.title=g.name+" · Spickzettel · DAU TO PRO";
     document.body.style.setProperty("--sheet-tone",g.color);
-    const questions=getQuestions(g),sections=fullSections(g),texture=textureByTopic[g.id]||"circuit";
-    const imageUrl="../assets/dau-backgrounds/"+texture+"-1536.webp";
-    const images='<div class="sheet-parallax" aria-hidden="true"><div class="sheet-parallax-viewport">'
-      +'<div class="sheet-parallax-back"></div><div class="sheet-parallax-front"></div></div></div>';
+    backdrop.style.setProperty("--sheet-image",topicImage(g.id,1536));
+    backdrop.style.setProperty("--sheet-image-mobile",topicImage(g.id,768));
+    backdrop.hidden=false;
+    const questions=getQuestions(g),sections=fullSections(g);
     const rendered=questions.map((c,i)=>'<div class="exam-qa"><span>'+String(i+1).padStart(2,"0")+'</span>'
       +'<strong>'+safe(c[0])+'</strong><p>'+safe(c[1])+'</p></div>').join("");
     const traps=[0,4,7].filter(n=>n<g.sections.length).map(i=>'<li>'+safe(g.sections[i][5])+'</li>').join("");
     detail.innerHTML='<div class="detail-actions"><a class="detail-back" href="cheat-sheet.html">← ALLE SPICKZETTEL</a><button type="button" class="print-button" id="sheet-print">⎙ ALS PDF DRUCKEN</button></div>'
-      +'<article class="one-sheet" style="--tone:'+g.color+';--sheet-texture:url(&quot;'+safe(imageUrl)+'&quot;)">'
-      +images
+      +'<article class="one-sheet" style="--tone:'+g.color+'">'
       +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // SPICKZETTEL</span><span class="detail-code">'+safe(g.symbol)+'</span>'
       +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigsten Regeln, Zusammenhänge und Beispiele übersichtlich auf einem Themenblatt.</p>'
       +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div>'+(g.id==='csharp'?'<p style="margin:22px 0 0"><a href="csharp-befehle.html" style="display:inline-flex;align-items:center;min-height:46px;padding:11px 19px;border-radius:12px;border:1px solid #e8b84a;color:#f6d688;background:#e8b84a16;text-decoration:none;font-weight:800">C# BEFEHLE &amp; ERKLÄRUNGEN ↗</a></p>':'')+'</div>'

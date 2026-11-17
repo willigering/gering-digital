@@ -43,9 +43,7 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                         <span class="arcade-rank-number" data-rank="<?=$rank?>"><?=$rank?></span>
                     </div>
                     <?=$avatar($row)?>
-                    <?php if (!empty($row['anonymous'])): ?>
-                        <span class="arcade-name">Anonymer Platz</span>
-                    <?php elseif ($row): ?>
+                    <?php if ($row): ?>
                     <div class="arcade-profile">
                         <div class="hs-name"><?=$profile($row)?><?php if ($self): ?> <small class="arcade-you">(du)</small><?php endif; ?></div>
                         <span class="arcade-level">Level <?=(int)$row['level']?> · <?=e($row['title'])?></span>
@@ -73,9 +71,6 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                         <li class="arcade-runner<?=$self ? ' is-self' : ''?>" aria-label="Platz <?=$rank?>"<?=$self && $reveal ? ' data-highscore-reveal' : ''?>>
                             <span class="arcade-runner-rank" aria-hidden="true"><?=$rank?></span>
                             <?=$avatar($row)?>
-                            <?php if (!empty($row['anonymous'])): ?>
-                            <span class="arcade-name">Anonymer Platz</span>
-                            <?php else: ?>
                             <div class="arcade-runner-info">
                                 <div class="hs-name"><?=$profile($row)?><?php if ($self): ?> <small class="arcade-you">(du)</small><?php endif; ?></div>
                                 <span>Level <?=(int)$row['level']?> · <?=e($row['title'])?></span>
@@ -83,7 +78,6 @@ function dtp_highscore_board(array $rows, int $learnerId, bool $reveal, bool $fu
                                 <span><?=(int)$row['achievements']?> Achievements</span>
                             </div>
                             <?php $showcase($row, 'arcade-runner-medals showcase-inline'); ?>
-                            <?php endif; ?>
                         </li>
                     <?php endforeach; ?>
                 </ol>

@@ -556,30 +556,6 @@ function ach_highscore(int $limit=100,bool $publicOnly=false): array {
     }
     return $rows;
 }
-/** Keep the full rank order for guests while masking entries without public consent. */
-function ach_guest_highscore(int $limit=100): array {
-    $query=db()->prepare("SELECT l.id,l.username,s.xp,s.achievements,
-        EXISTS (SELECT 1 FROM learner_prefs p WHERE p.learner_id=l.id AND p.pref_key='highscore_public' AND p.value='1') AS is_public
-        FROM learner_stats s JOIN learners l ON l.id=s.learner_id
-        WHERE s.highscore_visible=1 AND s.highscore_blocked=0
-        ORDER BY s.xp DESC,s.achievements DESC,COALESCE(s.xp_changed_at,'9999') ASC,l.id ASC LIMIT ?");
-    $query->execute([$limit]);
-    $rows=[];
-    foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $i=>$row) {
-        $rank=$i+1;
-        if (!(int)$row['is_public']) {
-            $rows[]=['id'=>0,'rank'=>$rank,'anonymous'=>true];
-            continue;
-        }
-        unset($row['is_public']);
-        $row['rank']=$rank;
-        $row['level']=ach_level((int)$row['xp']);
-        $row['title']=ach_level_title((int)$row['level']);
-        $row['showcase']=xp_showcase((int)$row['id']);
-        $rows[]=$row;
-    }
-    return $rows;
-}
 /** Welcher Platz wäre das eigene Konto (auch wenn unsichtbar)? */
 function ach_would_rank(int $learnerId): int {
     $me=ach_stats_row($learnerId);
