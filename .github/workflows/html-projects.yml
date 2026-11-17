@@ -83,6 +83,10 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
         run: node tests/bewerbungen_browser.cjs
+      - name: Check all cheat sheet wallpapers and mobile navigation
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/cheat_sheet_background_browser.cjs
       - name: Test IT VI.01 second topic tab overlap and external background
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

@@ -19,7 +19,7 @@ if ($learner) {
     $me=ach_stats($id);
     $rank=ach_would_rank($id);
 }
-$rows=$learner ? ach_highscore(100) : ach_guest_highscore();
+$rows=ach_highscore(publicOnly: !$learner);
 ?>
 <!doctype html>
 <html lang="de">
@@ -53,14 +53,14 @@ $rows=$learner ? ach_highscore(100) : ach_guest_highscore();
     </div>
   </section>
 <?php if (!$learner): ?>
-  <p class="hs-public-hint">Platzierungen ohne öffentliche Freigabe werden anonym angezeigt.</p>
+  <p class="hs-public-hint">Die öffentliche Rangliste zeigt alle Lernenden mit öffentlicher Freigabe. <a href="konto.php#highscore">Eigene Sichtbarkeit einstellen</a></p>
 <?php endif; ?>
 <?php if ($me && (!$me['visible'] || $me['blocked'])): ?>
   <div class="konto-alert hs-hint" role="status">Du bist im Highscore <strong>unsichtbar</strong>.<?php if(!$me['blocked']): ?> Mit deinen <?=number_format($me['level']['xp'],0,',','.')?> XP wärst du auf <strong>Platz <?=$rank?></strong>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></div>
   <?php endif; ?>
   <?php if (!$rows): ?>
   <?php if (!$learner): ?>
-  <p class="konto-empty hs-public-empty">Noch keine Platzierungen.</p>
+  <p class="konto-empty hs-public-empty">Noch hat niemand einen Eintrag für die öffentliche Rangliste freigegeben.</p>
   <?php else: ?>
   <p class="konto-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a class="text-link" href="konto.php#highscore">Sichtbarkeit einschalten →</a></p>
   <?php endif; ?>

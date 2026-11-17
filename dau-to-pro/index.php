@@ -15,7 +15,7 @@ $hsRows=[];$hsMe=null;$hsRank=0;
 $cardProgress=[];
 try {
     if ($learnerRow) ach_evaluate((int)$learnerRow['id']);
-    $hsRows=$learnerRow ? ach_highscore(100) : ach_guest_highscore();
+    $hsRows=ach_highscore(publicOnly: !$learnerRow);
     if ($learnerRow) {
         $hsMe=ach_stats((int)$learnerRow['id']);
         $hsRank=ach_would_rank((int)$learnerRow['id']);
@@ -204,7 +204,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <?php require_once __DIR__.'/highscore-board.php'; ?>
           <?php dtp_highscore_board($hsRows, (int)($learnerRow['id']??0), $reveal); ?>
         <?php if (!$hsRows): ?>
-          <p class="hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
+          <p class="hs-public-empty"><?=$learnerRow ? 'Noch keine sichtbaren Einträge im Highscore.' : 'Noch keine öffentlich freigegebenen Einträge.'?></p>
         <?php endif; ?>
         <div class="hs-foot">
           <?php if ($hsMe && (!$hsMe['visible'] || $hsMe['blocked'])): ?><span>Du bist unsichtbar<?php if(!$hsMe['blocked']): ?>, mit <?=number_format($hsMe['level']['xp'],0,',','.')?> XP wärst du auf Platz <?=$hsRank?>. <a href="konto.php#highscore">Sichtbarkeit einschalten</a><?php endif; ?></span><?php elseif($hsMe): ?><span<?=$reveal&&!in_array((int)$learnerRow['id'],array_map('intval',array_column($hsRows,'id')),true)?' data-highscore-reveal':''?>>Dein Platz: <b><?=$hsRank?></b> · <?=number_format($hsMe['level']['xp'],0,',','.')?> XP</span><?php endif; ?>
