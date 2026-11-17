@@ -331,6 +331,20 @@ function spikesToCrates(g) {
       x = e; } }
 }
 // Schlamm- und Ölpfützen auf geraden Bodenstücken verteilen (fest je Strecke)
+function crateGroups(g) {
+  const hv = v => { const s = Math.sin(v * 91.7) * 43758.5453; return s - Math.floor(s); };
+  const floor = c => c === '#' || c === 'N' || c === 'U' || c === 'V' || c === '=';
+  const free = (x, y) => g[y] && g[y][x] === ' ';
+  for (let y = 4; y < g.length - 1; y++) for (let x = 2; x < g[y].length - 3; x++) {
+    if (g[y][x] !== 'K' || !floor(g[y + 1][x])) continue;
+    const r = hv(x * 1.3 + y * 5.7), ok2 = floor(g[y + 1][x + 1]) && free(x + 1, y);
+    if (r < 0.3) { }                                                                           // einzeln
+    else if (r < 0.55 && ok2 && free(x, y - 1) && free(x + 1, y - 1)) { g[y][x + 1] = 'K'; g[y - 1][x] = 'K'; g[y - 1][x + 1] = 'K'; x += 2; } // große Kiste
+    else if (r < 0.75 && free(x, y - 1)) g[y - 1][x] = 'K';                                     // Zweierstapel
+    else if (r < 0.9 && ok2 && floor(g[y + 1][x + 2]) && free(x + 2, y) && free(x + 1, y - 1)) { g[y][x + 1] = 'K'; g[y][x + 2] = 'K'; g[y - 1][x + 1] = 'K'; x += 3; } // Pyramide
+    else if (ok2) { g[y][x + 1] = 'K'; x += 2; }                                                // Paar
+  }
+}
 function puddles(g) {
   const hv = v => { const s = Math.sin(v * 127.1) * 43758.5453; return s - Math.floor(s); };
   for (let y = 4; y < g.length; y++) for (let x = 30; x < g[y].length - 8; x++) {
@@ -416,7 +430,7 @@ function build(seq, seed = 1, hs = 1) {
   }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   for (const [x, y, c] of cells) g[y][x] = c;
-  spikesToCrates(g); thinHazards(g); addDecks(g, rnd); thinPads(g); thinBoxes(g); puddles(g);
+  spikesToCrates(g); thinHazards(g); addDecks(g, rnd); thinPads(g); thinBoxes(g); crateGroups(g); puddles(g);
   const boxes = [], bi = {};
   for (let x = 0; x < W; x++) for (let y = 0; y < MH; y++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W, g, boxes, bi, movers };
@@ -741,7 +755,7 @@ function stepMe(dt, now) {
   for (let ty = y0; ty <= y1; ty++) for (let tx = x0; tx <= x1; tx++) {
     const c = tile(tx, ty);
     if (c === '^') { if (p.y > ty * T + 14) hurt(0.5, 0.3, -380); }
-    else if (c === 'K') { if (crateUp(tx, ty)) { crateBroken.set(tx + ',' + ty, now + 8000); p.vx *= 0.45; p.crate = 0.55; shake = Math.max(shake, 6); /* Kiste: Tempo weg und gut eine halbe Sekunde nur halbes Höchsttempo */ dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
+    else if (c === 'K') { if (crateUp(tx, ty)) { for (const [gx, gy] of crateGroup(tx, ty)) { crateBroken.set(gx + ',' + gy, now + 8000); dust(gx * T + 16, gy * T + 16, 8, '#c58a4a', 320); } p.vx *= 0.45; p.crate = 0.55; shake = Math.max(shake, 6); /* Kiste: Tempo weg und gut eine halbe Sekunde nur halbes Höchsttempo */ dust(tx * T + 16, ty * T + 16, 14, '#c58a4a', 300); beep(140, 0.12, 'square', 0.06, 70); } }
     else if (c === 'O') { if (Math.hypot(p.x - tx * T - 16, p.y - h / 2 - ty * T - 16) < 26) hurt(0.5, 0.3, -460); }
     else if (c === '<') { if (p.ground && p.padCd <= 0) { p.vx = Math.min(p.vx, -1000); p.boost = Math.min(1, p.boost + 0.25); p.padCd = 0.3; beep(260, 0.25, 'sawtooth', 0.05, 900); } }
     else if (c === '~') { if (p.y > ty * T + 10 && !hurt(0.5, 0.3, -520) && p.stun <= 0) p.vy = Math.min(p.vy, -520); } // noch unverwundbar: trotzdem herausfedern, sonst klebt man an der Grubenwand
@@ -1785,14 +1799,24 @@ function drawAmbient(now) {
   ctx.fillStyle = vg; ctx.fillRect(0, 0, VW, VH);
 }
 const crateBroken = new Map();
+function crateGroup(tx, ty) { // zusammenhängende Kisten (max. 6)
+  const out = [[tx, ty]], seen = new Set([tx + ',' + ty]);
+  for (let i = 0; i < out.length && out.length < 6; i++) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const nx = out[i][0] + dx, ny = out[i][1] + dy, k = nx + ',' + ny; if (!seen.has(k) && tile(nx, ny) === 'K' && crateUp(nx, ny)) { seen.add(k); out.push([nx, ny]); } }
+  return out;
+}
 const crateUp = (tx, ty) => !(crateBroken.get(tx + ',' + ty) > performance.now());
 const isAir = (tx, ty) => { const c = tile(tx, ty); return c === ' ' || c === 'K' || c === '?' || c === 'T' || c === '>' || c === '<' || c === 'O' || c === 'F' || c === 'L' || c === 'I' || c === 'W' || c === 'G' || c === 'Z' || c === 'X' || (c === 'Y' && !gateClosed(tx)) || (c === 'R' && !doorClosed(tx)) || (c === 'B' && brokenNow(tx, ty)) || c === '~'; };
-function drawCrate(x, y) {
-  const K = '#141414'; ctx.save(); ctx.lineJoin = 'round'; ctx.lineWidth = 2; ctx.strokeStyle = K;
-  ctx.fillStyle = '#b97a3c'; rr(x + 2, y + 2, T - 4, T - 2, 3); ctx.stroke();
-  ctx.strokeStyle = '#7a4a1e'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x + 6, y + 6); ctx.lineTo(x + T - 6, y + T - 2); ctx.moveTo(x + T - 6, y + 6); ctx.lineTo(x + 6, y + T - 2); ctx.stroke();
-  ctx.strokeStyle = K; ctx.lineWidth = 2; ctx.strokeRect(x + 5, y + 5, T - 10, T - 8);
-  ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x + 6, y + 4, 10, 2); ctx.restore();
+function drawCrate(x, y, s = 1) { // Holzkiste im Comicstil; s = 2 für die große Kiste (2x2 Felder)
+  const K = '#141414', w = T * s, p = 1 + s; ctx.save(); ctx.lineJoin = 'round';
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(x + 3, y + w - 2, w - 2, 3);
+  ctx.fillStyle = '#c4823f'; ctx.strokeStyle = K; ctx.lineWidth = 2 + s; ctx.beginPath(); ctx.roundRect(x + p - 1, y - 2, w - 2 * p + 2, w + 2, 3 * s); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = '#a5672c'; ctx.fillRect(x + p + 3 * s, y + 3 * s, w - 2 * p - 6 * s, w - 6 * s);
+  ctx.strokeStyle = '#7a4a1e'; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.moveTo(x + p + 4 * s, y + 4 * s); ctx.lineTo(x + w - p - 4 * s, y + w - 4 * s); ctx.moveTo(x + w - p - 4 * s, y + 4 * s); ctx.lineTo(x + p + 4 * s, y + w - 4 * s); ctx.stroke();
+  ctx.strokeStyle = K; ctx.lineWidth = 1.5 + s * 0.5; ctx.strokeRect(x + p + 3 * s, y + 3 * s, w - 2 * p - 6 * s, w - 6 * s);
+  ctx.fillStyle = '#e0a868'; ctx.fillRect(x + p + 1, y, w - 2 * p - 2, 2 * s);
+  ctx.fillStyle = '#ffd21f'; for (const [a, b] of [[0, 0], [1, 0], [0, 1], [1, 1]]) ctx.fillRect(x + p + 1 + a * (w - 2 * p - 6), y + b * (w - 5) - 1, 4, 4);
+  ctx.restore();
 }
 // Stütze unter Stegen und Rampen: Pfeiler mit Querstreben bis zum nächsten festen Feld (max. 14 Felder)
 function strut(sx, sy, tx, ty) {
@@ -1805,16 +1829,34 @@ function strut(sx, sy, tx, ty) {
   ctx.stroke(); ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.5; ctx.fillRect(sx - 3, by - 3, 12, 3); ctx.globalAlpha = 1;
 }
 function drawTile(c, tx, ty, x, y, now) {
-  if (c === 'K') { if (crateUp(tx, ty)) drawCrate(x, y); return; }
+  if (c === 'K') { if (!crateUp(tx, ty)) return;
+    const K = (a, b) => tile(a, b) === 'K' && crateUp(a, b);
+    // Teil einer großen 2x2-Kiste? Dann zeichnet nur die Ecke unten links, doppelt so groß
+    for (const [ox, oy] of [[0, 0], [-1, 0], [0, 1], [-1, 1]]) { const bx = tx + ox, by = ty + oy;
+      if (K(bx, by) && K(bx + 1, by) && K(bx, by - 1) && K(bx + 1, by - 1) && !K(bx - 1, by) && !K(bx + 2, by)) { if (ox === 0 && oy === 0) drawCrate(x, y - T, 2); return; } }
+    drawCrate(x - 3, y - 6, 1.2); return; }
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
-  if (c === 'U' || c === 'V') { // Pfütze: Boden wie '#', oben Schlamm bzw. Öl
+  if (c === 'U' || c === 'V') { // Pfütze: eingelassenes Becken im Boden
     drawTile('#', tx, ty, x, y, now);
-    if (c === 'U') { ctx.fillStyle = '#5a3b20'; ctx.fillRect(x, y - 2, T + 0.5, 9); ctx.fillStyle = '#7a5530';
-      for (let i = 0; i < 3; i++) { const bx = x + 5 + i * 10, by = y + 1 + Math.sin(now / 300 + tx + i) * 1.5; ctx.beginPath(); ctx.ellipse(bx, by, 4, 2, 0, 0, 7); ctx.fill(); }
-    } else { ctx.fillStyle = '#121218'; ctx.fillRect(x, y - 1, T + 0.5, 6); const s = (now / 900 + tx * 0.3) % 1;
-      const gr = ctx.createLinearGradient(x, 0, x + T, 0); gr.addColorStop(0, 'rgba(255,80,200,0)'); gr.addColorStop(s, 'rgba(120,200,255,.55)'); gr.addColorStop(Math.min(1, s + 0.2), 'rgba(255,240,120,.4)'); gr.addColorStop(1, 'rgba(255,80,200,0)');
-      ctx.fillStyle = gr; ctx.fillRect(x, y, T + 0.5, 2); }
-    return;
+    const L = tile(tx - 1, ty) !== c, R = tile(tx + 1, ty) !== c, x0 = x + (L ? 3 : 0), x1 = x + T + 0.5 - (R ? 3 : 0), w = x1 - x0;
+    const wave = k => Math.sin(now / 260 + (x + k) / 9) * 1.2;
+    ctx.save(); ctx.translate(0, y - 4); ctx.scale(1, 1.7); ctx.translate(0, -y); // Pfütze kräftiger: höher und leicht über den Boden gewölbt
+    if (c === 'U') {
+      ctx.fillStyle = '#3a2412'; ctx.fillRect(x0, y, w, 13);                                   // Beckenrand
+      const gr = ctx.createLinearGradient(0, y, 0, y + 12); gr.addColorStop(0, '#8a5a2c'); gr.addColorStop(1, '#4a2e16');
+      ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x0, y + 2); for (let k = 0; k <= w; k += 4) ctx.lineTo(x0 + k, y + 2 + wave(k)); ctx.lineTo(x1, y + 11); ctx.lineTo(x0, y + 11); ctx.fill();
+      ctx.fillStyle = 'rgba(255,220,170,.35)'; ctx.fillRect(x0 + 3, y + 3 + wave(3), Math.min(10, w - 6), 1.5);
+      for (let i = 0; i < 2; i++) { const t = (now / 900 + hash(tx * 3 + i)) % 1, bx = x0 + 4 + hash(tx + i * 7) * (w - 8);
+        ctx.strokeStyle = 'rgba(200,150,100,' + (1 - t) + ')'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(bx, y + 4 - t * 6, 1.5 + t * 3, 0, 7); ctx.stroke(); } // Blubberblasen
+    } else {
+      ctx.fillStyle = '#05050a'; ctx.fillRect(x0, y, w, 10);
+      ctx.fillStyle = '#0d0d16'; ctx.beginPath(); ctx.moveTo(x0, y + 2); for (let k = 0; k <= w; k += 4) ctx.lineTo(x0 + k, y + 2 + wave(k) * 0.6); ctx.lineTo(x1, y + 9); ctx.lineTo(x0, y + 9); ctx.fill();
+      const s = (now / 1400 + tx * 0.23) % 1, gr = ctx.createLinearGradient(x - T * s * 2, 0, x + T * 2 - T * s * 2, 0);
+      ['#ff4fd8', '#4fb2ff', '#5ad66f', '#ffe14d', '#ff8a3d', '#ff4fd8'].forEach((col, i) => gr.addColorStop(i / 5, col));
+      ctx.globalAlpha = 0.55; ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(x0 + w / 2, y + 4 + wave(w / 2) * 0.6, w * 0.45, 2.2, 0, 0, 7); ctx.fill();
+      ctx.globalAlpha = 0.8; ctx.fillStyle = '#fff'; if (hash(tx) < 0.5) ctx.fillRect(x0 + 4 + hash(tx * 9) * (w - 10), y + 3, 4, 1.2); ctx.globalAlpha = 1; // Glanzpunkt
+    }
+    ctx.restore(); return;
   }
   if (c === 'N') { // Tunnelwand: dunkle Fläche mit leuchtender Kante
     ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.fillRect(x, y, T + 0.5, T + 0.5);
