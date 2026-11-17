@@ -30,12 +30,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate thirteen complete topic cheat sheets
+      - name: Validate fourteen complete topic cheat sheets
         run: |
           node --check dau-to-pro/cheat-sheet-data.js
           node --check dau-to-pro/cheat-sheet-questions.js
           node --check dau-to-pro/cheat-sheet-enrichment.js
           node --check dau-to-pro/cheat-sheet-support.js
+          node --check dau-to-pro/cheat-sheet-it-vi.js
           node --check dau-to-pro/cheat-sheet.js
           node --check dau-to-pro/cheat-shelf.js
           node <<'JS'
@@ -47,15 +48,16 @@ jobs:
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-questions.js","utf8"),scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-enrichment.js","utf8"),scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-support.js","utf8"),scope);
+          vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-it-vi.js","utf8"),scope);
           const groups=scope.DTP_CHEAT_GROUPS;
-          assert.equal(groups.length,13,'Expected thirteen complete topic sheets');
-          assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),104,'Expected 104 original sections within thirteen sheets');
+          assert.equal(groups.length,14,'Expected fourteen complete topic sheets');
+          assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),112,'Expected 112 original sections within fourteen sheets');
           const extras=scope.DTP_CHEAT_EXTRAS;
           const deep=scope.DTP_CHEAT_ENRICHMENT;
-          assert.equal(Object.keys(deep).length,13,'All thirteen sheets need extended coverage');
+          assert.equal(Object.keys(deep).length,14,'All fourteen sheets need extended coverage');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('Datenschutzbeauftragter')),'DSB section missing');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('ISB')),'ISB section missing');
-          assert.equal(Object.keys(extras).length,13,"One question bank per topic");
+          assert.equal(Object.keys(extras).length,14,"One question bank per topic");
           const seen=new Set();
           for(const g of groups){
             assert.equal(g.sections.length,8,'Expected eight sections in '+g.name);
@@ -83,19 +85,19 @@ jobs:
           const css=fs.readFileSync('dau-to-pro/cheat-sheet.css','utf8');
           const shelf=fs.readFileSync('dau-to-pro/cheat-shelf.css','utf8');
           const index=fs.readFileSync('dau-to-pro/index.php','utf8');
-          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js')&&html.includes('cheat-sheet-support.js'));
+          assert.ok(html.includes('id="sheet-board"')&&html.includes('cheat-sheet-data.js')&&html.includes('cheat-sheet-support.js')&&html.includes('cheat-sheet-it-vi.js'));
           assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
           assert.ok(index.includes('id="cheat-sheets"')&&index.includes('cheat-sheet.html?thema='));
           assert.ok(index.includes('id="cheat-mini-grid"')&&shelf.includes('repeat(5,minmax(0,1fr))'));
-          assert.ok(html.includes('id="sheet-detail"')&&html.includes('13 THEMEN'));
+          assert.ok(html.includes('id="sheet-detail"')&&html.includes('14 THEMEN'));
           assert.ok(html.includes('cheat-sheet-questions.js'),'Question bank script not loaded');
           assert.ok(html.includes('cheat-sheet-enrichment.js'),'Deep-dive content script not loaded');
           assert.ok(!/IHK/i.test(html),'No unwanted IHK reference in sheet page');
           assert.ok(!/IHK-POCKET/i.test(index),'No IHK label in cheat section');
           const sheetJs=fs.readFileSync('dau-to-pro/cheat-sheet.js','utf8');
           assert.ok(sheetJs.includes('assets/dau-backgrounds'),'Must reuse real thematic textures');
-          assert.equal([...index.matchAll(/\['(?:zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix|support|datenbanken)',/g)].length,13,'Landing needs thirteen topic entries');
-          console.log('Verified: 13 complete sheets, 624 Q&A (48 each), IT-Support, DSB/ISB, and 5-column layout.');
+          assert.equal([...index.matchAll(/\['(?:it-vi|zahlen|osi|subnet|netzwerk|ipv6|dienste|sicherheit|datenschutz|rechnung|csharp|mix|support|datenbanken)',/g)].length,14,'Landing needs fourteen topic entries');
+          console.log('Verified: 14 complete sheets, 672 Q&A (48 each), IT.VI, IT-Support, DSB/ISB, and 5-column layout.');
           JS
       - name: Check E2 tasks, exams, and SQL lab
         run: node tests/e2_sql_unit.cjs
