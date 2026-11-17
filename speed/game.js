@@ -560,7 +560,7 @@ function moveY(p, dy) {
     return true;
   }
   // Plattformen '=' tragen nur von oben: Landen, wenn die Füße die Oberkante von oben kreuzen
-  if (dy > 0 && !(p.drop > 0)) { const row = Math.ceil(y0 / T - 1e-6); if (row * T < p.y && onPlat(p.x, row)) { p.y = row * T; return true; } }
+  if (dy > 0 && !(p.drop > 0)) { const row = Math.ceil((y0 - 6) / T - 1e-6); if (row * T < p.y && onPlat(p.x, row)) { p.y = row * T; return true; } } // 6 px Toleranz: von einer Rampe kommend liegen die Füße oft knapp unter der Plattformkante
   return false;
 }
 const onPlatAt = p => !(p.drop > 0) && Math.abs(p.y - Math.round(p.y / T) * T) < 0.01 && onPlat(p.x, Math.round(p.y / T));
