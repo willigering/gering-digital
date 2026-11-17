@@ -330,6 +330,16 @@ function spikesToCrates(g) {
       const hv = Math.sin((x * 3.7 + y * 11.3) * 127.1) * 43758.5453; if (hv - Math.floor(hv) < 0.8) for (let i = x; i < e; i++) row[i] = (i - x) % 5 === 1 ? 'K' : ' ';
       x = e; } }
 }
+// Schlamm- und Ölpfützen auf geraden Bodenstücken verteilen (fest je Strecke)
+function puddles(g) {
+  const hv = v => { const s = Math.sin(v * 127.1) * 43758.5453; return s - Math.floor(s); };
+  for (let y = 4; y < g.length; y++) for (let x = 30; x < g[y].length - 8; x++) {
+    let ok = true; for (let i = 0; i < 6 && ok; i++) ok = g[y][x + i] === '#' && g[y - 1][x + i] === ' ';
+    if (!ok || hv(x * 1.37 + y * 7.1) > 0.03) continue;
+    const n = 3 + fl(hv(x + y * 3.3) * 3), k = hv(x * 0.71 + y) < 0.6 ? 'U' : 'V';
+    for (let i = 0; i < n; i++) g[y][x + i] = k; x += 30;
+  }
+}
 function thinHazards(g) {
   for (let y = 0; y < g.length; y++) { const row = g[y];
     for (let x = 0; x < row.length;) { const c = row[x]; if (c !== '^' && c !== '~') { x++; continue; }
@@ -406,7 +416,7 @@ function build(seq, seed = 1, hs = 1) {
   }
   const g = []; for (let y = 0; y < MH; y++) g.push(new Array(W).fill(y === 0 || y >= F ? '#' : ' '));
   for (const [x, y, c] of cells) g[y][x] = c;
-  spikesToCrates(g); thinHazards(g); addDecks(g, rnd); thinPads(g); thinBoxes(g);
+  spikesToCrates(g); thinHazards(g); addDecks(g, rnd); thinPads(g); thinBoxes(g); puddles(g);
   const boxes = [], bi = {};
   for (let x = 0; x < W; x++) for (let y = 0; y < MH; y++) if (g[y][x] === '?') { bi[x + ',' + y] = boxes.length; boxes.push({ tx: x, ty: y, t: 0 }); }
   return { W, g, boxes, bi, movers };
@@ -427,7 +437,7 @@ const icicleFall = tx => { const t = ((RT() + tx * 173) % 3600) / 3600; return t
 const gateClosed = tx => { const gu = map.gateUntil; if (!gu) return false; const n = performance.now(), t = mod(tx, map.W); for (const k in gu) if (n < gu[k] && t <= +k + 12 && t >= +k - 60) return true; return false; };
 const brokenNow = (tx, ty) => { const b = map.brk && map.brk[mod(tx, map.W) + ',' + ty]; if (!b) return false; const n = performance.now(); if (n > b.until) { delete map.brk[mod(tx, map.W) + ',' + ty]; return false; } return n >= b.at; };
 const solid = (tx, ty) => { const c = tile(tx, ty);
-  return c === '#' || c === 'N' || c === 'H' || c === 'C' || c === 'D' || c === 'M' || c === 'Q' || c === 'P' || (c === 'R' && doorClosed(tx)) || (c === 'Y' && gateClosed(tx)) || (c === 'B' && !brokenNow(tx, ty)); };
+  return c === '#' || c === 'N' || c === 'U' || c === 'V' || c === 'H' || c === 'C' || c === 'D' || c === 'M' || c === 'Q' || c === 'P' || (c === 'R' && doorClosed(tx)) || (c === 'Y' && gateClosed(tx)) || (c === 'B' && !brokenNow(tx, ty)); };
 const stand = (tx, ty) => solid(tx, ty) || tile(tx, ty) === '=';
 const boxAt = (tx, ty) => map.boxes[map.bi[map.vert ? tx + ',' + mod(ty, map.H) : mod(tx, map.W) + ',' + ty]];
 function onPlat(x, row) { for (let tx = fl((x - 11) / T); tx <= fl((x + 11 - 0.001) / T); tx++) if (tile(tx, row) === '=') return true; return false; }
@@ -677,9 +687,11 @@ function stepMe(dt, now) {
     if (dir) p.vx += dir * 200 * dt;
   } else if (p.slide) { if (p.onS) p.vx += Math.sign(p.slopeK) * 1800 * Math.abs(p.slopeK) * dt; else p.vx = approach(p.vx, 0, 220 * dt); } // bergab rutschen: immer schneller
   else if (p.ground) {
-    const ia = theme.ice ? 0.45 : 1, ib = theme.ice ? 0.18 : 1; // Eis: träge beim Anlaufen, kaum Bremsen
-    const mx = p.onS && dir ? max * (Math.sign(p.slopeK) === dir ? 1 + 0.3 * Math.abs(p.slopeK) : 1 - 0.25 * Math.abs(p.slopeK)) : max; // Schräge: bergab schneller, bergauf langsamer
-    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > mx) p.vx = approach(p.vx, dir * mx, 400 * ib * dt); else p.vx = approach(p.vx, dir * mx, (boosting ? 4400 : 3600) * (Math.sign(p.vx) === -dir ? ib * 2 : ia) * dt); }
+    const ut = tile(fl(p.x / T), fl((p.y + 2) / T)), mud = ut === 'U', oil = ut === 'V';
+    const ia = oil ? 0.2 : theme.ice ? 0.45 : 1, ib = oil ? 0.04 : theme.ice ? 0.18 : 1; // Eis/Öl: träge beim Anlaufen, kaum Bremsen
+    if (mud) { p.vx = approach(p.vx, Math.sign(p.vx) * Math.min(Math.abs(p.vx), max * 0.4), 3200 * dt); if (Math.random() < 0.3) parts.push({ x: p.x, y: p.y - 2, vx: -p.vx * 0.2 + (Math.random() - 0.5) * 80, vy: -80 - Math.random() * 120, l: 0.35, c: '#6b4a2b', s: 4 }); } // Schlamm: zäh
+    const mx = (mud ? 0.4 : 1) * (p.onS && dir ? max * (Math.sign(p.slopeK) === dir ? 1 + 0.3 * Math.abs(p.slopeK) : 1 - 0.25 * Math.abs(p.slopeK)) : max); // Schräge: bergab schneller, bergauf langsamer
+    if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > mx) p.vx = approach(p.vx, dir * mx, (mud ? 3200 : 400 * ib) * dt); else p.vx = approach(p.vx, dir * mx, (boosting ? 4400 : 3600) * (Math.sign(p.vx) === -dir ? ib * 2 : ia) * dt); }
     else p.vx = approach(p.vx, 0, (p.coast ? 380 : ctrl ? 2600 * ib : 900 * ib) * dt); // Sieger läuft langsam aus
   } else {
     if (dir) { if (Math.sign(p.vx) === dir && Math.abs(p.vx) > max) p.vx = approach(p.vx, dir * max, 100 * dt); else p.vx = approach(p.vx, dir * max, (boosting ? 3000 : 2400) * dt); }
@@ -1795,6 +1807,15 @@ function strut(sx, sy, tx, ty) {
 function drawTile(c, tx, ty, x, y, now) {
   if (c === 'K') { if (crateUp(tx, ty)) drawCrate(x, y); return; }
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
+  if (c === 'U' || c === 'V') { // Pfütze: Boden wie '#', oben Schlamm bzw. Öl
+    drawTile('#', tx, ty, x, y, now);
+    if (c === 'U') { ctx.fillStyle = '#5a3b20'; ctx.fillRect(x, y - 2, T + 0.5, 9); ctx.fillStyle = '#7a5530';
+      for (let i = 0; i < 3; i++) { const bx = x + 5 + i * 10, by = y + 1 + Math.sin(now / 300 + tx + i) * 1.5; ctx.beginPath(); ctx.ellipse(bx, by, 4, 2, 0, 0, 7); ctx.fill(); }
+    } else { ctx.fillStyle = '#121218'; ctx.fillRect(x, y - 1, T + 0.5, 6); const s = (now / 900 + tx * 0.3) % 1;
+      const gr = ctx.createLinearGradient(x, 0, x + T, 0); gr.addColorStop(0, 'rgba(255,80,200,0)'); gr.addColorStop(s, 'rgba(120,200,255,.55)'); gr.addColorStop(Math.min(1, s + 0.2), 'rgba(255,240,120,.4)'); gr.addColorStop(1, 'rgba(255,80,200,0)');
+      ctx.fillStyle = gr; ctx.fillRect(x, y, T + 0.5, 2); }
+    return;
+  }
   if (c === 'N') { // Tunnelwand: dunkle Fläche mit leuchtender Kante
     ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.fillRect(x, y, T + 0.5, T + 0.5);
     ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8;
