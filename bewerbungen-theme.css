@@ -75,15 +75,21 @@ body::before{opacity:.09;z-index:0;mask-image:linear-gradient(180deg,#0008,trans
 .brand-mark:is(img){display:block;flex:0 0 auto;object-fit:contain;object-position:center;border:0;border-radius:5px;background:transparent;box-shadow:none;padding:0}
 .auth-card .brand-mark:is(img){width:48px;height:48px;margin-bottom:25px}
 
-/* FISI-Ausbildung: „AB“-Pill neben dem Firmennamen + Filter-Chip. */
+/* Ausbildung: grüne „AB FISI“-Pill (ausdrücklich FISI), gelbe „AB“-Pill (Ausbildungsbetrieb ohne FISI) + Filter-Chips. */
 .fisi-pill{display:inline-flex;align-items:center;gap:5px;margin-left:9px;padding:1px 8px 1px 7px;vertical-align:1px;border-radius:999px;font-size:9.5px;line-height:16px;font-weight:880;letter-spacing:.14em;color:#04201b;background:linear-gradient(135deg,#a3f7e4 0%,#62dcbf 55%,#3fbf98 100%);box-shadow:inset 0 0 0 1px #d4fff355,0 0 0 1px #5fdcbf40,0 0 14px #59e0c045;text-shadow:0 1px 0 #ffffff40;white-space:nowrap;cursor:help}
 .fisi-pill::before{content:"";width:5px;height:5px;border-radius:50%;background:#063229;box-shadow:0 0 0 1.5px #e7fff955}
-.fisi-pill.unklar{color:#e7cb8c;background:#e8b84a12;box-shadow:inset 0 0 0 1px #e8b84a52;text-shadow:none}
-.fisi-pill.unklar::before{background:transparent;box-shadow:inset 0 0 0 1.5px #e8b84a99}
+.fisi-pill.ab{color:#2a1a00;background:linear-gradient(135deg,#ffe7a3 0%,#f4c55a 55%,#dba13a 100%);box-shadow:inset 0 0 0 1px #fff3cf55,0 0 0 1px #f0bd5240,0 0 12px #f0bd5235}
+.fisi-pill.ab::before{background:#4a2f00;box-shadow:0 0 0 1.5px #fff6dc55}
 .mobile-card .fisi-pill{margin-left:8px;vertical-align:2px}
-.filter-fisi{display:inline-flex;align-items:center;gap:7px;order:99;margin-left:auto;border-color:#6fdcc33d;color:#a8e9db}
+.filter-ab-group{display:inline-flex;gap:7px;order:99;margin-left:auto;padding-left:6px}
+.filter-fisi{display:inline-flex;align-items:center;gap:7px;border-color:#6fdcc33d;color:#a8e9db}
 .filter-fisi:hover{border-color:#76e0cf80;background:#76e0cf12;color:#dcfff7}
 .filter-fisi.active{border-color:#76e0cfa0;background:linear-gradient(135deg,#76e0cf2a,#3fbf9818);color:#dcfff7;box-shadow:0 0 16px #59e0c026}
 .filter-fisi-dot{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#a3f7e4,#3fbf98);box-shadow:0 0 8px #59e0c0aa}
 .filter-count{min-width:18px;padding:0 5px;border-radius:999px;background:#76e0cf1f;color:#bff5e9;font-size:10.5px;line-height:16px;text-align:center;font-weight:800}
-@media(max-width:760px){.filter-fisi{order:0;margin-left:0}}
+.filter-ab{border-color:#f0bd5240;color:#ecd08f}
+.filter-ab:hover{border-color:#f0bd5285;background:#f0bd5212;color:#fff0c9}
+.filter-ab.active{border-color:#f0bd52a8;background:linear-gradient(135deg,#f0bd522a,#dba13a18);color:#fff0c9;box-shadow:0 0 16px #f0bd5222}
+.filter-ab .filter-fisi-dot{background:linear-gradient(135deg,#ffe7a3,#dba13a);box-shadow:0 0 8px #f0bd52aa}
+.filter-ab .filter-count{background:#f0bd521f;color:#ffe6ad}
+@media(max-width:760px){.filter-ab-group{order:0;margin-left:0;padding-left:0}}
