@@ -26,7 +26,8 @@
     csharp:"Datentypen, Bedingungen und Schleifen",
     datenbanken:"Schlüssel, JOINs und Normalformen",
     mix:"Hardware, RAID, SQL und Projektplanung",
-    support:"Ticketarten, Service Desk, SLA, Eskalation und ITSM"
+    support:"Ticketarten, Service Desk, SLA, Eskalation und ITSM",
+    "it-vi":"Klausurwissen zu ITIL, Support, SLA, Verträgen und Datenschutz"
   };
   const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   let disposeReader=()=>{};
@@ -41,7 +42,7 @@
     zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
     netzwerk:"cables",ipv6:"circuit-copper",dienste:"network-ports",
     sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
-    csharp:"circuit",datenbanken:"server",mix:"hardware-connectors",support:"server"
+    csharp:"circuit",datenbanken:"server",mix:"hardware-connectors",support:"server","it-vi":"circuit-copper"
   };
   const reducedMotion=matchMedia("(prefers-reduced-motion:reduce)");
   const parallaxAllowed=()=>!reducedMotion.matches;

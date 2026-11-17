@@ -242,6 +242,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </div>
 </section>
  <?php $cheatTopics=[
+  ['it-vi','IT.VI – ITIL & IT-Recht','Klausur: Incident, SLA, Verträge und Datenpannen','IT.VI','#f2c984'],
   ['datenbanken','Datenbanken & SQL','Schlüssel, JOINs und Normalformen','SQL','#89b4fa'],
   ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
   ['osi','OSI-Modell','Schichten, Protokolle und Kapselung','07','#6cdad4'],
