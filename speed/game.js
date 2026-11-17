@@ -1782,6 +1782,16 @@ function drawCrate(x, y) {
   ctx.strokeStyle = K; ctx.lineWidth = 2; ctx.strokeRect(x + 5, y + 5, T - 10, T - 8);
   ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x + 6, y + 4, 10, 2); ctx.restore();
 }
+// Stütze unter Stegen und Rampen: Pfeiler mit Querstreben bis zum nächsten festen Feld (max. 14 Felder)
+function strut(sx, sy, tx, ty) {
+  let d = 1; while (d < 14 && isAir(tx, ty + d)) d++; if (d >= 14) return;
+  const by = (ty + d) * T; if (by - sy < 6) return;
+  ctx.fillStyle = shade(theme.tile, -0.25); ctx.fillRect(sx, sy, 6, by - sy);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(sx + 4, sy, 2, by - sy);
+  ctx.strokeStyle = shade(theme.tile, -0.25); ctx.lineWidth = 2; ctx.beginPath();
+  for (let yy = sy + 10; yy < by - 10; yy += 26) { ctx.moveTo(sx - 5, yy); ctx.lineTo(sx + 11, yy + 13); ctx.moveTo(sx + 11, yy); ctx.lineTo(sx - 5, yy + 13); }
+  ctx.stroke(); ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.5; ctx.fillRect(sx - 3, by - 3, 12, 3); ctx.globalAlpha = 1;
+}
 function drawTile(c, tx, ty, x, y, now) {
   if (c === 'K') { if (crateUp(tx, ty)) drawCrate(x, y); return; }
   const d = theme.deco, h1 = hash(tx * 13.7 + ty * 71.3);
@@ -1807,7 +1817,9 @@ function drawTile(c, tx, ty, x, y, now) {
     } else if (dn && isAir(tx, ty + 2)) bottomDeco(d, tx, ty, x, y, h1, now);
   } else if (SLOPE[c]) {
     const f = SLOPE[c];
-    ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill();
+    const air = isAir(tx, ty + 1) && !SLOPE[tile(tx, ty + 1)];
+    if (air) { if (mod(tx, 3) === 0) strut(x + 13, y + Math.max(f(0), f(T)) + 6, tx, ty); ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + f(T) + 12); ctx.lineTo(x, y + f(0) + 12); ctx.fill(); } // freischwebende Rampe: als Steg mit Stütze
+    else { ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill(); }
     ctx.strokeStyle = theme.edge; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 2.5); ctx.lineTo(x + T + 0.5, y + f(T) + 2.5); ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 0.8); ctx.lineTo(x + T + 0.5, y + f(T) + 0.8); ctx.stroke();
   } else if (c === 'F') { // Feuerdüse
@@ -1853,7 +1865,7 @@ function drawTile(c, tx, ty, x, y, now) {
   } else if (c === '=') {
     ctx.fillStyle = theme.tile; ctx.fillRect(x, y, T + 0.5, 12); ctx.fillStyle = theme.edge; ctx.fillRect(x, y, T + 0.5, 4);
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x, y, T, 1.5); ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x + T - 1, y + 4, 1.5, 8);
-    if (mod(tx, 3) === 0) { ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x + 6, y + 12); ctx.lineTo(x + 26, y + 12); ctx.lineTo(x + 16, y + 22); ctx.fill(); }
+    if (mod(tx, 4) === 0) strut(x + 13, y + 12, tx, ty); // Stütze bis zum Boden: Plattformen schweben nicht mehr
   } else if (c === '^') {
     ctx.fillStyle = '#3a3f4a'; ctx.fillRect(x, y + T - 5, T, 5);
     for (let i = 0; i < 2; i++) { const bx = x + i * 16; ctx.fillStyle = '#eef2f7'; ctx.beginPath(); ctx.moveTo(bx, y + T - 4); ctx.lineTo(bx + 8, y + 8); ctx.lineTo(bx + 8, y + T - 4); ctx.fill(); ctx.fillStyle = '#aab3c2'; ctx.beginPath(); ctx.moveTo(bx + 8, y + 8); ctx.lineTo(bx + 16, y + T - 4); ctx.lineTo(bx + 8, y + T - 4); ctx.fill(); }
