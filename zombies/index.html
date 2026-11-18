@@ -569,13 +569,13 @@ const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
 function menuItems(){switch(menu.screen){
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['OPTIONEN',()=>menuGo('options')]];
- case'play':return[['MULTIPLAYER',()=>{if(!needName())menuGo('mp')}],['SOLO',()=>startGame(false,false)],['CHARAKTER:  ◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['ZURÜCK',()=>menuGo('main')]];
+ case'play':return[['MULTIPLAYER',()=>{if(!needName())menuGo('mp')}],['SOLO',()=>startGame(false,false)],['CHARAKTER:  ◀ '+(OPT.char+1)+' / '+CHARS.length+' ▶',()=>cycleChar(1),cycleChar],['ZURÜCK',()=>menuGo('main')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo('play')]];
   return[['NEUES SPIEL HOSTEN',()=>{P.name=OPT.name;rtcHost()}],
    ...NET.lobbies.slice(0,6).map(l=>[(l.n>=MAXP?'VOLL: ':'BEITRETEN: ')+l.name+'   '+l.n+'/'+MAXP+(l.run?' · läuft':''),()=>{if(l.n<MAXP){P.name=OPT.name;rtcJoin(l.id)}}]),
    ['ZURÜCK',()=>menuGo('play')]];
  case'lobby':{const host=NET.hostId===NET.id,wait=NET.lobby.filter(p=>p.id!==NET.hostId&&!p.ready).length;
-  return[['CHARAKTER:  ◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],
+  return[['CHARAKTER:  ◀ '+(OPT.char+1)+' / '+CHARS.length+' ▶',()=>cycleChar(1),cycleChar],
    host?[wait?'RUNDE STARTEN  (warte auf '+wait+')':'RUNDE STARTEN',()=>{if(!wait)netSend({t:'start'})}]:[LREADY?'✔ BEREIT':'BEREIT MELDEN',()=>{LREADY=!LREADY;lobbySet()}],
    ['LOBBY VERLASSEN',()=>location.reload()]]}
  case'scores':return[['ZURÜCK',()=>menuGo('main')]];
@@ -610,7 +610,7 @@ function drawCard(x,y,w,p,status,col,big){const h=w*1.42;
  u.fillStyle='rgba(16,14,20,.86)';u.fillRect(x,y,w,h);u.fillStyle=col;u.fillRect(x,y,w,3);u.fillRect(x,y+h-3,w,3);
  if(p){const spr=charSprite({...charLook(p.char,(p.name||'').length+3),_walk:big}),sc=Math.max(2,Math.floor(w*1.05/40)),sw=40*sc;u.imageSmoothingEnabled=false;
   const sx=x+(w-sw)/2,sy=y+h*.62-sw*.85;u.filter='brightness(0)';for(const [dx,dy] of [[sc,0],[-sc,0],[0,sc],[0,-sc]])u.drawImage(spr,sx+dx,sy+dy,sw,sw);u.filter='none';u.drawImage(spr,sx,sy,sw,sw);
-  MT(p.name,x+w/2,y+h*.74,Math.max(12,w*.1),'#f2ece4','center');MT(CHARS[p.char|0]?CHARS[p.char|0].name:'',x+w/2,y+h*.83,Math.max(10,w*.075),'#a8a098','center','"Pixelify Sans"',500)}
+  MT(p.name,x+w/2,y+h*.74,Math.max(12,w*.1),'#f2ece4','center')}
  else MT('FREI',x+w/2,y+h*.5,Math.max(12,w*.1),'#5a5660','center');
  MT(status,x+w/2,y+h*.93,Math.max(10,w*.08),col,'center')}
 function drawRoster(x,y,w,maxH){const cols=4,g2=Math.max(6,w*.02);let cw=(w-g2*(cols-1))/cols;cw=Math.min(cw,(maxH-g2)/2/1.42);
