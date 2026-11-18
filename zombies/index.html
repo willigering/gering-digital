@@ -396,7 +396,7 @@ function exitCar(pl){const c=CARS[pl.inCar];pl.inCar=-1;if(!c)return;c.driver=nu
  for(const sd of[1,-1,2]){const a=c.a+(sd===2?Math.PI:Math.PI/2*sd),px=c.cx+Math.cos(a)*(sd===2?28:18),py=c.cy+Math.sin(a)*(sd===2?28:18);if(!blocked(px,py,5)){pl.x=px;pl.y=py;break}}
  parkCar(c)}
 function carHit(c){if(c.state!=='ok')return;c.hits++;if(c.hits>=CAR_MAX_HITS)carBreak(c)}
-function carBreak(c){c.state='burning';c.burnT=4.5;c.spd=0;const d=PL.find(p=>p.id===c.driver);if(d)exitCar(d);else parkCar(c);
+function carBreak(c){c.state='burning';c.burnT=4.5;c.burnTick=0;if(!c.driver)parkCar(c);
  if(!c.fire){c.fire={x:c.cx,y:c.cy+4,s:12,ph:0,lift:8};FIRES.push(c.fire)}ftext(c.cx,c.cy-26,'Das Auto brennt!','#ff7a3a',1)}
 function carBlocked(c,x,y,a){for(const t of[-15,0,15]){if(blocked(x+Math.cos(a)*t,y+Math.sin(a)*t,8))return true}return false}
 function driveCar(pl,c,dt){
@@ -513,8 +513,8 @@ function shoot(pl,ang,aimH,vis){const w=curW(pl);
   bullets.push({x:gx,y:gy,vx:Math.cos(a)*w.speed,vy:Math.sin(a)*w.speed,life:.8,dmg:w.dmg,lv:w.lv,h:aimH,d:0,own:pl,vis})}
  evp('sh',pl.id,Math.round(gx),Math.round(gy),+ang.toFixed(3),+aimH.toFixed(1),w.lv,w.pellets,w.spread,w.speed);
  part({x:pl.x,y:pl.y,z:9,vx:-Math.sin(ang)*30+rnd(-10,10),vy:Math.cos(ang)*20,vz:rnd(30,50),g:200,life:1.5,c:'#d8b040',s:1,bounce:1})}
-function hurt(pl,dmg){if(pl.down||pl.dead||pl.inCar>=0)return;pl.hp-=dmg;pl.hurtT=.3;if(pl===P)shake=4;blood(pl.x,pl.y,5);
- if(pl.hp<=0){pl.hp=0;const mates=standing().filter(o=>o!==pl);
+function hurt(pl,dmg,force){if(pl.down||pl.dead||(pl.inCar>=0&&!force))return;pl.hp-=dmg;pl.hurtT=.3;if(pl===P)shake=4;blood(pl.x,pl.y,5);
+ if(pl.hp<=0){pl.hp=0;if(pl.inCar>=0)exitCar(pl);const mates=standing().filter(o=>o!==pl);
   if(mates.length){pl.downs=(pl.downs||0)+1;pl.down=true;pl.bleed=30;pl.revT=0;pl.reloadT=0;ftext(pl.x,pl.y-26,pl.name+' AM BODEN!','#ff5a4a',1)}
   else{for(const o of alive())die(o)}}}
 function die(pl){if(pl.dead)return;pl.dead=true;pl.down=false;addCorpse({x:pl.x,y:pl.y,look:pl.look,face:pl.face,t:0,dir:1});stain(pl.x,pl.y,8);if(pl===P)saveScore()}
@@ -894,7 +894,10 @@ function update(dt){
  for(let i=parts.length-1;i>=0;i--)if(parts[i].life<=0)parts.splice(i,1);
  for(const d of DOORS)if(d.shake>0)d.shake-=dt;
  for(const c of CARS){if(c.blink>0)c.blink-=dt;if(c.fire){c.fire.x=c.cx;c.fire.y=c.cy+4}
-  if(!NET.client&&c.state==='burning'){c.burnT-=dt;if(c.burnT<=0){c.state='wreck';c.burn=1;c.fire.s=8;explode({x:c.cx,y:c.cy,type:'bomb',own:c.lastDriver||P})}}}
+  if(!NET.client&&c.state==='burning'){c.burnT-=dt;const d=c.driver?PL.find(p=>p.id===c.driver):null;
+   if(d){c.burnTick-=dt;if(c.burnTick<=0){c.burnTick=.5;hurt(d,9,true);note(d,'Du verbrennst! [E] Aussteigen!','#ff7a3a')}}
+   if(c.burnT<=0){c.state='wreck';c.burn=1;c.fire.s=8;const d2=c.driver?PL.find(p=>p.id===c.driver):null;if(d2){exitCar(d2);hurt(d2,150,true)}else parkCar(c);
+    explode({x:c.cx,y:c.cy,type:'bomb',own:c.lastDriver||P})}}}
  for(const f of FLASH)f.t-=dt;for(let i=FLASH.length-1;i>=0;i--)if(FLASH[i].t<=0)FLASH.splice(i,1);
  for(const r of RINGS){r.t-=dt;r.r+=(r.max-r.r)*Math.min(1,dt*14)}for(let i=RINGS.length-1;i>=0;i--)if(RINGS[i].t<=0)RINGS.splice(i,1);
  for(const f of FTX)f.t+=dt;for(let i=FTX.length-1;i>=0;i--)if(FTX[i].t>1.4)FTX.splice(i,1);
@@ -958,13 +961,14 @@ function update(dt){
   if(z.climb){const c=z.climb;c.t+=dt;const k=Math.min(1,c.t/.9);z.x=lerp(c.sx,c.tx,k);z.y=lerp(c.sy,c.ty,k);z.hz=Math.sin(k*Math.PI)*7;z.phase+=dt*8;if(k>=1){z.climb=null;z.hz=0}continue}
   if(!st.length){z.phase+=dt*2;continue}
   let tgt=st[0],td=1e9;for(const p of st){const d=Math.hypot(p.x-z.x,p.y-z.y);if(d<td){td=d;tgt=p}}
+  let T=tgt;if(tgt.inCar>=0&&CARS[tgt.inCar]){const c=CARS[tgt.inCar],wa=c.a-Math.PI/2;T={x:c.cx+Math.cos(wa)*15,y:c.cy+Math.sin(wa)*15,car:c};td=Math.hypot(T.x-z.x,T.y-z.y)}
   // Wahrnehmung: Wenn sich Spieler im Gebäude verstecken, müssen Zombies sie erst bemerken
   if(!anyInside)z.aware=true;
   else if(!z.aware&&(td<100||(noise_&&Math.hypot(noise_.x-z.x,noise_.y-z.y)<noise_.r))){z.aware=true;z.alertT=1.2}
-  let tx=tgt.x,ty=tgt.y;let bomb=null;if(td>12)for(const t of THROWN)if(t.type==='bomb'&&t.land&&(!bomb||Math.hypot(t.x-z.x,t.y-z.y)<Math.hypot(bomb.x-z.x,bomb.y-z.y)))bomb=t;
+  let tx=T.x,ty=T.y;let bomb=null;if(td>12)for(const t of THROWN)if(t.type==='bomb'&&t.land&&(!bomb||Math.hypot(t.x-z.x,t.y-z.y)<Math.hypot(bomb.x-z.x,bomb.y-z.y)))bomb=t;
   if(bomb){z.aware=true;const bd=Math.hypot(bomb.x-z.x,bomb.y-z.y);if(bd<20){tx=z.x+Math.cos(now*2+z.look.seed)*4;ty=z.y+Math.sin(now*2+z.look.seed)*4}
    else{tx=bomb.x;ty=bomb.y;if(bd>26||!los(z.x,z.y,bomb.x,bomb.y)){const t=fieldStep(distZ,z);if(t){tx=t.x;ty=t.y}}}}
-  else if(td>28||!los(z.x,z.y,tgt.x,tgt.y)){const t=fieldStep(distZ,z);if(t){tx=t.x;ty=t.y}}
+  else if(td>28||!los(z.x,z.y,T.x,T.y)){const t=fieldStep(distZ,z);if(t){tx=t.x;ty=t.y}}
   let a=Math.atan2(ty-z.y,tx-z.x);z.face=Math.atan2(tgt.y-z.y,tgt.x-z.x);
   const sp=z.sp*(z.aware?(anyInside?1.3:1):.4);if(!z.aware)a+=Math.sin(now*1.3+z.look.seed)*.9;
   let sx=0,sy=0;for(const o of zombies)if(o!==z){const dd=Math.hypot(z.x-o.x,z.y-o.y);if(dd<10&&dd>0){sx+=(z.x-o.x)/dd;sy+=(z.y-o.y)/dd}}
@@ -972,7 +976,7 @@ function update(dt){
    if(Math.hypot(z.x-ox,z.y-oy)<sp*dt*.35){const dd=doorAt(z.x,z.y,9);if(dd){hitDoor(dd,30*dt);if(Math.random()<dt*3)z.lunge=.25}const w=dd?null:nearWindow(z,8);if(w){const c=crossTarget(w,z),r=w.r;
      const goal=w.horiz?Math.sign(ty-(r.y+r.h/2)):Math.sign(tx-(r.x+r.w/2));
      if(goal&&goal!==c.side&&!blocked(c.x,c.y,4)){breakGlass(w);z.climb={t:0,sx:z.x,sy:z.y,tx:c.x,ty:c.y}}}}}
-  else{z.atk-=dt;z.phase+=dt*3;if(z.atk<=0){z.atk=1.1;z.lunge=.3;hurt(tgt,55)}}}
+  else{z.atk-=dt;z.phase+=dt*3;if(z.atk<=0){z.atk=1.1;z.lunge=.3;if(T.car){if(Math.abs(T.car.spd)<25){hurt(tgt,30,true);note(tgt,'Ein Zombie greift durchs Fenster!','#ff5a4a')}}else hurt(tgt,55)}}}
  carImpacts(dt);
  for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0){const z=zombies[i],k=z.last||{own:P,head:false};
   if(k.head){z.look={...z.look,headless:true};for(let j=0;j<16;j++)part({x:z.x,y:z.y,z:17,vx:rnd(-60,60),vy:rnd(-40,40),vz:rnd(30,100),g:220,life:1.5,c:pick(['#7a1010','#9a1a1a',z.look.skin]),s:2,stain:1})}
@@ -1423,6 +1427,7 @@ function hud(cx,cy){
   HT('[Leertaste] Springen   [X] Ablegen   [R] Laden   [E] Aktion   [Tab] Punkte',VW/2,VH-5,12*k,'#7a7470','center','"Pixelify Sans",monospace',500)}
  if(PL.length===1)HT('[B] Test-Mitspieler',VW-28,VH-8,13*k,'#8a8480','right','"Pixelify Sans",monospace',500);
  if(P.inCar>=0&&CARS[P.inCar]){const c=CARS[P.inCar];u.fillStyle='rgba(8,6,10,.94)';u.fillRect(VW-320*k,VH-200*k,320*k,200*k);
+  if(c.state==='burning')HT('AUTO BRENNT!  [E] SOFORT AUSSTEIGEN',VW/2,VH/2-70*k,26*k,(now*3%1<.5)?'#ff3a2a':'#ffb03a','center','"Pixelify Sans",monospace',700);
   HT('AUTO',VW-28,VH-150*k,26*k,'#ffd23a','right');HT(Math.round(Math.abs(c.spd)*.6)+' km/h',VW-28,VH-104*k,40*k,'#ffffff','right');
   HT('SCHADEN '+c.hits+' / '+CAR_MAX_HITS,VW-28,VH-74*k,15*k,c.hits>14?'#ff5a4a':'#c8c0b8','right','"Pixelify Sans",monospace',700);
   bar(VW-208*k,VH-64*k,180*k,9*k,1-c.hits/CAR_MAX_HITS,c.hits>14?'#ff5a4a':'#e8892e');
