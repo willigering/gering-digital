@@ -24,6 +24,7 @@
     sicherheit:"Schutzziele, Hashes, MFA und Backup",
     datenschutz:"DSGVO, Rechtsgrundlagen und TOM",
     rechnung:"Rabatt, Skonto, TCO und Break-even",
+    "csharp-schleifen":"for, while, do … while, foreach, Abbruch und Ablauf",
     csharp:"Datentypen, Bedingungen und Schleifen",
     datenbanken:"Schlüssel, JOINs und Normalformen",
     mix:"Hardware, RAID, SQL und Projektplanung",
@@ -43,7 +44,7 @@
     zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
     netzwerk:"cables",ipv6:"cables-fiber",dienste:"network-ports",
     sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
-    csharp:"circuit",datenbanken:"hardware-connectors",mix:"klausur-bg",
+    csharp:"circuit","csharp-schleifen":"circuit-signal",datenbanken:"hardware-connectors",mix:"klausur-bg",
     support:"cables-braided","it-vi":"circuit-copper"
   };
   const topicImage=(id,size)=>{
@@ -154,7 +155,7 @@
   }
   function sectionHTML(c,i){
     const [heading,lead,lines]=c;
-    const facts=lines.split("|").map(f=>{
+    const facts=lines.split(/(?<!\|)\|(?!\|)/).map(f=>{
       const n=f.indexOf("::");
       return '<div class="fact"><dt>'+safe(n>=0?f.slice(0,n):"Merke")+'</dt><dd>'+safe(n>=0?f.slice(n+2):f)+'</dd></div>';
     }).join("");

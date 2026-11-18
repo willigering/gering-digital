@@ -2,6 +2,77 @@
    Keine offiziellen IHK-Fragen. Je Themengebiet EIN zusammenhängender Spickzettel mit acht kompakten Abschnitten. Keine 88 Einzelkarten. */
 globalThis.DTP_CHEAT_GROUPS=[
 {
+  "id": "csharp-schleifen",
+  "name": "C#-Schleifen",
+  "symbol": "i++",
+  "color": "#79e2ce",
+  "sections": [
+    [
+      "Welche Schleife nehme ich?",
+      "Entscheide zuerst, was sich wiederholt und wodurch der Ablauf endet.",
+      "for::Anzahl, Zahlenfolge oder Index steuern, z. B. zehn Ports aus einem Array anzeigen.|while::Vor jedem Durchlauf prüfen, z. B. solange noch Tickets in der Warteschlange stehen.|do … while::Zuerst ausführen, danach prüfen, z. B. ein Menü mindestens einmal anzeigen.|foreach::Jedes Element einer Sammlung lesen oder bearbeiten, z. B. Geräte aus einer Liste ausgeben.",
+      "Ich will jedes Element einer Liste ausgeben. Welche Schleife ist am direktesten?",
+      "foreach. Du arbeitest unmittelbar mit dem aktuellen Element."
+    ],
+    [
+      "for – Zähler und Index",
+      "Initialisierung einmal → Bedingung → Block → Änderung → erneute Bedingung.",
+      "Syntax::for (int i = 0; i < 3; i++) { Console.WriteLine(i); }|Ablauf::Ausgabe 0, 1, 2. Bei i = 3 schlägt der Test fehl. Der Block kann nullmal laufen.|Schrittweite::i += 2 springt in Zweierschritten. Für einen Countdown z. B. bei 3 starten, i > 0 prüfen und i-- verwenden.|Gültigkeit::Ein im for-Kopf deklariertes i ist nur innerhalb der for-Anweisung sichtbar.",
+      "Welche Werte liefert for (int i = 1; i <= 5; i += 2)?",
+      "1, 3 und 5. Danach ist i = 7 und der Test ist falsch."
+    ],
+    [
+      "while – Bedingung zuerst",
+      "Solange die Bedingung true ist, läuft der Block. Die Entscheidung fällt jedes Mal vorher.",
+      "Syntax::int n = 3; while (n > 0) { Console.WriteLine(n); n--; }|Ablauf::Ausgabe 3, 2, 1. Bei n = 0 endet die Schleife.|Abbruch::Der Block oder ein darin aufgerufener Vorgang muss die Bedingung irgendwann ändern, sofern kein break oder return vorgesehen ist.|Typischer Einsatz::Eine Warteschlange abarbeiten, bis sie leer ist. Eine leere Warteschlange wird sofort erkannt.",
+      "Wie oft läuft der Block, wenn n anfangs 0 ist?",
+      "Nullmal. n > 0 ist schon beim ersten Test falsch."
+    ],
+    [
+      "do … while – Block zuerst",
+      "Der erste Durchlauf findet immer statt. Danach entscheidet die Bedingung über weitere Durchläufe.",
+      "Syntax::int n = 0; do { Console.WriteLine(n); n++; } while (n < 0);|Ablauf::Ausgabe 0. Erst dann wird mit n = 1 geprüft. 1 < 0 ist false.|Syntaxfalle::Das Semikolon nach while (Bedingung) gehört bei do … while dazu.|Typischer Einsatz::Eingabe holen, prüfen und wiederholen, solange sie ungültig ist. Bei Console.ReadLine() das Eingabeende null behandeln.",
+      "Was passiert bei do { Aktion(); } while (false);?",
+      "Aktion() läuft genau einmal. Danach ist die Bedingung false."
+    ],
+    [
+      "foreach – Die Elemente einer Sammlung",
+      "C# holt nacheinander das nächste Element und stoppt nach dem letzten. Das funktioniert z. B. mit Arrays und Listen.",
+      "Syntax::int[] zahlen = { 2, 4, 6 }; foreach (int zahl in zahlen) { Console.WriteLine(zahl); }|Ablauf::Ausgabe 2, 4, 6. Bei einer leeren Sammlung erfolgt keine Ausgabe.|Index::zahl enthält den Wert. Die Position steht nur zur Verfügung, wenn du sie selbst mitzählst oder per for darauf zugreifst.|Änderungen::Bei einem gewöhnlichen foreach kannst du der Iterationsvariablen keinen neuen Wert zuweisen. Eine List<T> während der Iteration zu erweitern oder zu kürzen führt beim weiteren Durchlaufen gewöhnlich zu InvalidOperationException.|Alternative::Für direkte Änderungen eines Arrays über seine Position verwende for und weise array[i] einen Wert zu.",
+      "Wofür steht var in foreach (var item in liste)?",
+      "Der Compiler leitet den Typ von item aus dem Elementtyp der Sammlung ab."
+    ],
+    [
+      "Bedingungen und Änderungen lesen",
+      "Schreib pro Schritt den Wert vor der Prüfung, das Testergebnis, die Ausgabe und den Wert danach auf.",
+      "Vergleich::< schließt den Grenzwert aus, <= schließt ihn ein. == vergleicht, = weist zu.|Logik::&& verlangt zwei wahre Teilausdrücke, || mindestens einen. ! kehrt einen bool-Wert um. C# wertet bei && und || rechts nur aus, wenn es für das Ergebnis nötig ist.|Änderung::i++ erhöht i um 1. i-- senkt i um 1. In Console.WriteLine(i++) wird der alte Wert ausgegeben, bei ++i der bereits erhöhte.|Summe::int summe = 0; vor der Schleife. summe += zahl; im Block. Sonst setzt eine erneute Initialisierung im Block den Zwischenstand zurück.",
+      "i startet bei 0. Was gibt Console.WriteLine(i++) aus, und wie groß ist i danach?",
+      "Die Ausgabe ist 0. Danach ist i gleich 1."
+    ],
+    [
+      "break, continue und return",
+      "Mit diesen Anweisungen kann der normale Weg durch die Schleife vorzeitig abbiegen.",
+      "break::Verlässt die unmittelbar umgebende Schleife oder das unmittelbar umgebende switch.|continue::Überspringt den Rest des aktuellen Schleifendurchlaufs. for führt dann seine Änderung aus, while und do … while prüfen die Bedingung, foreach holt das nächste Element.|return::Beendet die ganze aktuelle Methode. Bei einer Methode mit Rückgabewert gibst du den Wert mit return zurück.|Falle::Liegt bei while das i++ erst hinter einem continue, kann i unverändert bleiben und die Schleife hängen.",
+      "Der innere Block zweier verschachtelter Schleifen enthält break. Welche Schleife endet?",
+      "Die innere Schleife. Die äußere läuft nach dem inneren Block weiter."
+    ],
+    [
+      "Typische Fehler und Grenzfälle",
+      "Prüfe, welche Werte die Schleife erreicht, und teste insbesondere leere Daten und Grenzwerte.",
+      "Array-Grenze::Gültige Indizes reichen von 0 bis Length − 1. Verwende i < array.Length beim Vorwärtslauf. Bei List<T> heißt die Anzahl Count.|Endlosschleife::Fehlendes Update, falsche Zählrichtung oder eine Bedingung, die immer wahr bleibt. for (;;) und while (true) können absichtlich endlos laufen und über break oder return verlassen werden.|Leeranweisung::Ein Semikolon direkt nach for (...) oder while (...) bildet einen leeren Schleifenkörper. Ein nachfolgender Block gehört dann nicht zur Schleife.|Null::Eine leere Sammlung hat null Elemente. Eine Variable mit null verweist auf keine Sammlung. Prüfe die Referenz, bevor du sie durchläufst.|Verschachtelung::Bei drei äußeren und zwei inneren Durchläufen pro Runde läuft der innere Block sechsmal. Bei wechselnden Grenzen die Durchläufe einzeln addieren.",
+      "Warum scheitert ein Array-Zugriff bei i == array.Length?",
+      "Length ist die Anzahl. Der letzte gültige Index ist Length − 1. Der Zugriff wirft IndexOutOfRangeException."
+    ],
+    [
+      "Schleifen in Methoden einsetzen",
+      "Eine Methode bündelt eine Aufgabe. Die Schleife darin wiederholt nur den benötigten Arbeitsschritt.",
+      "Beispiel::static int Summe(int[] zahlen) { int ergebnis = 0; foreach (int zahl in zahlen) { ergebnis += zahl; } return ergebnis; }|Parameter::zahlen ist die Eingabe der Methode. Beim Aufruf Summe(new[] { 2, 4 }) hat der Rückgabewert den Wert 6.|Akkumulator::ergebnis sammelt die Zwischensumme außerhalb des Schleifenblocks. return nach der Schleife liefert das komplette Resultat.|Frühe Rückgabe::Bei einer Suche kannst du innerhalb von foreach direkt true zurückgeben, sobald du einen Treffer findest. Nach der Schleife gibst du false zurück.",
+      "Was liefert die gezeigte Methode mit einem leeren Array?",
+      "0. foreach hat null Durchläufe. ergebnis behält seinen Startwert."
+    ]
+  ]
+},
+{
   "id": "datenbanken",
   "name": "Datenbanken & SQL",
   "symbol": "SQL",

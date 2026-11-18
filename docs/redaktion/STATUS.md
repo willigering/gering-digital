@@ -202,3 +202,7 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 - Sprach- und Fachprüfung für Lektionen, Aufgaben, Labore, Spickzettel und Kartenbeschreibung. Beispiel aus dem JOIN-Kapitel: „Ein Team ohne Ticket hätte plötzlich eins. Schöne Statistik, falscher Bericht.“ Die Erklärung benennt davor die ergänzte LEFT-JOIN-Zeile.
 - Lokal geprüft: 1.000 Generierungen pro Typ, 400 Ziehungen je Stufe ohne direkte Typ- oder Formwiederholung, sechs Typen und mindestens vier Formen in jedem Fenster von zehn Aufgaben, häufigste Form höchstens 40 %. Alle drei Prüfungslängen ergeben 100 Punkte. Laborergebnisse, NULL-Vergleiche und lokale Schreibsimulation geprüft.
 - Die DOM-Prüfung deckt Stufenfreigabe, Aufgabenbewertung, Zuordnen und Prüfungsabgabe ab. Das tatsächliche mobile Layout, Anmeldung und Produktionsdeployment stehen in der lokalen Abnahme noch aus.
+
+### 18.11.2026 – C#-Schleifenlabor und Spickzettel
+
+Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. Der öffentliche Themenzettel erklärt Auswahl, Ablauf, Bedingungen, Methoden und typische Fehler. Beispiele und Lösungen fachlich durchgegangen. Live-Status hängt vom STRATO-Deployment ab.

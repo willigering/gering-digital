@@ -413,3 +413,30 @@ Warum muss eine IT-Dokumentation aktuell sein?¦Sie unterstützt Betrieb, Fehler
 Was ist ein Ticket in einem Supportsystem?¦Dokumentierter Vorgang mit Problem, Status, Bearbeitung und Kommunikation.
 `.trim()
 };
+globalThis.DTP_CHEAT_EXTRAS['csharp-schleifen'] = `
+Muss man for nur verwenden, wenn die Anzahl vorab bekannt ist?¦Nein. Die Bedingung kann von Werten abhängen, die sich während der Schleife ändern. for ist besonders praktisch, wenn ein Zähler oder Index die Wiederholung steuert.
+Kann man eine for-Schleife als while schreiben?¦Ja. Setze den Startwert davor und die Änderung an das Blockende. Achte zusätzlich auf die Variablensichtbarkeit und darauf, dass continue die Änderung in der while nicht versehentlich überspringt.
+Was unterscheidet kopfgesteuert von fußgesteuert?¦for und while prüfen vor dem Block. do … while prüft danach. Daher kann eine kopfgesteuerte Schleife null Durchläufe haben, do … while mindestens einen.
+Wie oft läuft for (int i = 0; i < 10; i++)?¦Zehnmal. Die Werte reichen von 0 bis einschließlich 9.
+Wie oft läuft for (int i = 0; i <= 10; i++)?¦Elfmal. Sowohl 0 als auch 10 sind enthalten.
+Wie liest du ein Array von hinten nach vorne?¦Starte bei i = array.Length - 1. Prüfe i >= 0 und verwende i--. Lies mit array[i].
+Worin unterscheiden sich Durchlaufzahl und letzter Index?¦Bei n Elementen und Startindex 0 sind es n Durchläufe. Der letzte gültige Index lautet n - 1.
+Welche Schleife passt für eine Eingabe, die der Nutzer erst liefern muss?¦Ein do … while passt, wenn du zuerst fragen und danach prüfen willst. Trenne eine ungültige Eingabe vom Eingabeende, damit du bei null beenden kannst.
+Welche Bedingung wiederholt das Einlesen außerhalb des Bereichs 1 bis 10?¦wert < 1 || wert > 10. Außerhalb reicht eine von beiden Verletzungen.
+Welche Bedingung prüft, ob eine Zahl zwischen 1 und 10 liegt, einschließlich der Grenzen?¦wert >= 1 && wert <= 10. Beide Vergleiche müssen wahr sein.
+Wann ist while (i < 5) mit i-- problematisch?¦Wenn i bereits unter 5 startet, bewegt sich i zunächst weiter von der gewünschten Grenze weg. Prüfe die Richtung oder ändere die Bedingung.
+Was passiert nach continue bei for (int i = 0; i < 3; i++)?¦Die restlichen Anweisungen des aktuellen Blocks entfallen. i++ läuft trotzdem, danach folgt der Test i < 3.
+Was passiert nach continue in do … while?¦Die Bedingung am Schleifenende wird sofort geprüft. Ist sie wahr, beginnt der nächste Durchlauf.
+Was gibt for (int i = 0; i < 4; i++) { if (i == 2) break; Console.WriteLine(i); } aus?¦0 und 1. Bei i = 2 endet die Schleife vor der Ausgabe.
+Wie wirkt sich break in einem switch innerhalb einer Schleife aus?¦Dieses break beendet das switch. Danach geht es innerhalb des Schleifendurchlaufs weiter.
+Wann passt foreach für eine Suche?¦Wenn du Elemente direkt vergleichen willst. Bei einem Treffer kannst du per break aufhören oder direkt aus der Methode zurückkehren.
+Wie zählst du gerade Zahlen in einem Array?¦Initialisiere die Trefferzahl vor foreach mit 0. Erhöhe sie im Block genau dann, wenn zahl % 2 == 0.
+Warum braucht eine Summenvariable ihren Startwert vor der Schleife?¦Damit sie ihren Zwischenstand zwischen den Durchläufen behält. Für Addition ist der Startwert üblicherweise 0.
+Was passiert bei foreach mit einer leeren Liste?¦Die Schleife hat null Durchläufe und der Code danach läuft direkt.
+Wieso bedeutet foreach nicht automatisch, dass alle Elemente verarbeitet werden?¦break, return oder eine Ausnahme können den Ablauf vorzeitig beenden.
+Was ist der Unterschied zwischen Console.Write und Console.WriteLine?¦Write lässt den Cursor in derselben Zeile. WriteLine beendet die aktuelle Zeile nach der Ausgabe.
+Wann ist die Schleifenbedingung true?¦Wenn ihr boolescher Ausdruck wahr ist. Dann folgt bei for und while der Körper und bei do … while ein weiterer Durchlauf.
+Wie viele Sternchen entstehen, wenn die innere Schleife pro Runde 1, dann 2, dann 3 ausgibt?¦Sechs. Addiere 1 + 2 + 3, weil die innere Grenze mit der äußeren Runde wächst.
+Was macht ein versehentliches Semikolon nach for (...)?¦Es ist der leere Schleifenblock. Ein danach stehender Block läuft separat und sieht ein im for-Kopf deklariertes i nicht.
+Was gibt eine Treffer-Methode nach erfolgloser Schleife zurück?¦Bei einer bool-Methode gib nach der Schleife false zurück. true gehört an die Stelle, an der der Treffer tatsächlich feststeht.
+`.trim();

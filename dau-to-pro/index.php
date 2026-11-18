@@ -242,6 +242,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   </div>
 </section>
  <?php $cheatTopics=[
+  ['csharp-schleifen','C#-Schleifen','for, while, do … while, foreach und typische Fehler','i++','#79e2ce'],
   ['it-vi','IT.VI – ITIL & IT-Recht','Klausur: Incident, SLA, Verträge und Datenpannen','IT.VI','#f2c984'],
   ['datenbanken','Datenbanken & SQL','Schlüssel, JOINs und Normalformen','SQL','#89b4fa'],
   ['zahlen','Zahlensysteme','Bit, Byte, Hex und Datenraten','01','#f4aa5b'],
@@ -293,12 +294,25 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">08 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">09 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <?php if (dtp_material_unlocked($learnerRow)): ?>
     <div class="unterricht-content">
       <div class="unterricht-grid">
+        <a class="module-card unterricht-card" style="--mod:#79e2ce" href="unterricht/csharp-schleifen.php" aria-label="C# Schleifenlabor öffnen">
+          <div class="module-art unterricht-art">
+            <span class="unterricht-art-orbit" aria-hidden="true"></span>
+            <span class="module-art-symbol" aria-hidden="true">i<span>++</span></span>
+            <span class="unterricht-art-label">SCHLEIFENLABOR <b>09</b></span>
+          </div>
+          <div class="module-body">
+            <span class="module-category">UNTERRICHTSMATERIAL · C#</span>
+            <h2>Schleifenlabor</h2>
+            <p>for, while, do … while und foreach Schritt für Schritt ausführen, Ausgaben vorhersagen und typische Fehler finden.</p>
+            <div class="module-footer"><span>4 SCHLEIFEN · 8 ÜBUNGEN</span><b aria-hidden="true">↗</b></div>
+          </div>
+        </a>
         <a class="module-card unterricht-card" style="--mod:#eac16f" href="unterricht/datenbanken-cap-acid-base.php" aria-label="CAP-Theorem, ACID und BASE interaktiv lernen">
           <div class="module-art unterricht-art">
             <span class="unterricht-art-orbit" aria-hidden="true"></span>
