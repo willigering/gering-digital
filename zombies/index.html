@@ -827,29 +827,40 @@ for(const ev of['pointerdown','keydown'])addEventListener(ev,()=>{loadSfx();if(!
 // ===== Soundeffekte
 let AC=null;
 function ac(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
-const sfxVol=(x,y)=>OPT.svol*clamp(1-Math.hypot(x-P.x,y-P.y)/420,0,1);
+const SFX_MASTER=.55; // insgesamt leiser
+const listener=()=>{const f=P.dead&&typeof specTarget==='function'?specTarget():P;return f};
+// weicher Abfall mit der Entfernung statt hartem Abschneiden
+const distGain=d=>1/(1+Math.pow(d/110,2));
+const sfxVol=(x,y)=>{const L=listener();return OPT.svol*SFX_MASTER*distGain(Math.hypot(x-L.x,y-L.y))};
 const SFX_FILES=['ammo_refill','bat_hit_1','bat_hit_2','door_break','door_hit_1','door_hit_2','door_hit_3','explosion','explosion_2','game_over','glass_break_1','glass_break_2','golf_hit',
  'grenade_throw','headshot','heartbeat_loop','item_drop','item_pickup','knife_hit_1','knife_hit_2','knife_swing','land','loot_found','magnum_shot','no_money','pipe_hit_1','pipe_hit_2',
  'pistol_shot_1','pistol_shot_2','pistol_shot_3','rare_found','reload_pistol','revive_done','revive_zap','rifle_shot_1','rifle_shot_2','round_start','search_loop','shotgun_shot',
  'smg_shot_1','smg_shot_2','smg_shot_3','step_grass_1','step_grass_2','step_grass_3','step_grass_4','swing_whoosh_1','swing_whoosh_2','ui_back','ui_move','ui_select','upgraded_shot',
- 'wave_bell','wave_cleared','weapon_swap','wind_loop','zombie_attack_1','zombie_attack_2','zombie_bang_door_1','zombie_bang_door_2','zombie_hit_1','zombie_hit_2','zombie_hit_3'];
+ 'wave_cleared','weapon_swap','zombie_attack_1','zombie_attack_2','zombie_bang_door_1','zombie_bang_door_2','zombie_hit_1','zombie_hit_2','zombie_hit_3'];
 const SFX_GROUPS={};for(const n of SFX_FILES){const g2=n.replace(/_\d+$/,'');(SFX_GROUPS[g2]=SFX_GROUPS[g2]||[]).push(n)}SFX_GROUPS.explosion=['explosion','explosion_2'];
 const SFXB={},SFXT={};let sfxLoaded=false;
 function loadSfx(){if(sfxLoaded)return;sfxLoaded=true;let c;try{c=ac()}catch{return}
  for(const n of SFX_FILES)fetch('sfx/'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():null).then(b=>b?new Promise((ok,no)=>c.decodeAudioData(b,ok,no)):null).then(buf=>{if(buf)SFXB[n]=buf}).catch(()=>{})}
 // sfx(Gruppe, x, y, Lautstärke, Tonhöhe): ohne x/y = direkt am Ohr (UI, eigene Aktionen)
 function sfx(grp,x,y,vol=1,rate=1,minGap=.03){const list=SFX_GROUPS[grp];if(!list)return null;if(now-(SFXT[grp]||-9)<minGap)return null;
- const n=pick(list),buf=SFXB[n];if(!buf)return null;const v=(x==null?OPT.svol:sfxVol(x,y))*vol;if(v<.012)return null;SFXT[grp]=now;
- try{const c=ac(),src=c.createBufferSource(),gn=c.createGain();src.buffer=buf;src.playbackRate.value=rate*(.96+Math.random()*.08);gn.gain.value=Math.min(1.2,v);src.connect(gn);gn.connect(c.destination);src.start();return{src,gn}}catch{return null}}
+ const n=pick(list),buf=SFXB[n];if(!buf)return null;
+ const L=listener(),world=x!=null,d=world?Math.hypot(x-L.x,y-L.y):0;
+ let v=(world?sfxVol(x,y):OPT.svol*SFX_MASTER)*vol;if(v<.008)return null;SFXT[grp]=now;
+ // Stereo nach Position, Höhen fallen mit der Entfernung ab, hinter Wänden/Türen gedämpft
+ let pan=0,cut=16000;if(world&&d>2){pan=clamp((x-L.x)/180,-1,1)*.85;cut=lerp(16000,2600,clamp(d/420,0,1));
+  if(d>14&&!los(L.x,L.y-6,x,y-6)){cut=Math.min(cut,750);v*=.55}else if(buildingAt(L.x,L.y)!==buildingAt(x,y)){cut=Math.min(cut,1800);v*=.75}}
+ try{const c=ac(),src=c.createBufferSource(),gn=c.createGain(),lp=c.createBiquadFilter();src.buffer=buf;src.playbackRate.value=rate*(.96+Math.random()*.08);
+  lp.type='lowpass';lp.frequency.value=cut;gn.gain.value=Math.min(1,v);let out=gn;
+  src.connect(lp);lp.connect(gn);if(c.createStereoPanner&&pan){const p=c.createStereoPanner();p.pan.value=pan;gn.connect(p);out=p}out.connect(c.destination);src.start();return{src,gn}}catch{return null}}
 const LOOPS={};
-function sfxLoop(name,on,vol=1){const L=LOOPS[name];if(on&&!L&&SFXB[name]){try{const c=ac(),src=c.createBufferSource(),gn=c.createGain();src.buffer=SFXB[name];src.loop=true;gn.gain.value=OPT.svol*vol;src.connect(gn);gn.connect(c.destination);src.start();LOOPS[name]={src,gn}}catch{}}
- else if(!on&&L){try{L.src.stop()}catch{}delete LOOPS[name]}else if(on&&L)L.gn.gain.value=OPT.svol*vol}
+function sfxLoop(name,on,vol=1){const L=LOOPS[name];if(on&&!L&&SFXB[name]){try{const c=ac(),src=c.createBufferSource(),gn=c.createGain();src.buffer=SFXB[name];src.loop=true;gn.gain.value=OPT.svol*SFX_MASTER*vol;src.connect(gn);gn.connect(c.destination);src.start();LOOPS[name]={src,gn}}catch{}}
+ else if(!on&&L){try{L.src.stop()}catch{}delete LOOPS[name]}else if(on&&L)L.gn.gain.value=OPT.svol*SFX_MASTER*vol}
 function playExpl(x,y){sfx('explosion',x,y,1.1,1,0)}
 function beep(x,y){const v=sfxVol(x,y)*.22;if(v<.01)return;try{const c=ac(),t=c.currentTime,o=c.createOscillator(),gn=c.createGain();o.type='square';o.frequency.value=2350;
  gn.gain.setValueAtTime(v,t);gn.gain.exponentialRampToValueAtTime(.0001,t+.07);o.connect(gn);gn.connect(c.destination);o.start(t);o.stop(t+.08)}catch{}}
 // Glocke zum Rundenstart: ein tiefer Schlag – Glocken-Teiltöne (Hum, Prime, Terz, Quinte, Nominal …) jeweils
 // doppelt und leicht verstimmt (Schwebung), metallischer Anschlag, dunkler langer Hall, gedämpft wie aus der Ferne.
-function waveBell(){if(SFXB.wave_bell){sfx('wave_bell',null,null,.9,1,0);return}try{const c=ac(),t=c.currentTime+.05,v=OPT.svol*.6;
+function waveBell(){if(SFXB.wave_bell)sfx('wave_bell',null,null,.9,1,0);return;try{const c=ac(),t=c.currentTime+.05,v=OPT.svol*.6;
  const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1900;lp.Q.value=.4;
  const dry=c.createGain(),wet=c.createGain();dry.gain.value=v*.55;wet.gain.value=v;
  const len=c.sampleRate*7,buf=c.createBuffer(2,len,c.sampleRate);
@@ -1696,7 +1707,7 @@ buildGround();for(const pc of PIECES)if(pc.horiz){if(pc.t==='window'&&pc.side===
 for(const b of BUILD)makeRoof(b);for(const c of CARS)makeCar(c);
 function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
  if(started&&!alive().length&&document.pointerLockElement)document.exitPointerLock();
- if(started){sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('wind_loop',alive().length>0,.18);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);
+ if(started){sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);
   if(!alive().length&&!goPlayed){goPlayed=true;sfx('game_over',null,null,1,1,0)}}
  if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render()}else drawMenu(dt);
  requestAnimationFrame(loop)}
