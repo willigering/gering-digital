@@ -1351,6 +1351,8 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
     if(L.seed%3===0&&k===1){R(g,sx+(sd>0?-5-F:4+F),sy,2,8,C(L.shirt));R(g,sx+(sd>0?-5-F:4+F),sy+7,2,2,C(L.skin));continue}
     const s2=Math.sin(phase+k)*1.5;for(let i=0;i<7;i++)R(g,sx+k*3+fx*i*1.15,sy+fy*i*.7+s2*(i/7)+lu*(i/7),2,2,C(i<3?L.shirt:L.skin));
     R(g,sx+k*3+fx*7.5,sy+fy*5+s2+lu,2,1,C(shade(L.skin,.75)))}}
+  else if(gun&&gun.rumm){for(const o of[-1,1]){const k=(Math.sin(now*16+(o>0?0:Math.PI))+1)/2,rch=3+k*4,hx=sx+o*2+fx*rch,hy=sy+fy*rch*.7+2+(1-k)*1.5;
+    for(let i=0;i<4;i++)R(g,lerp(sx+o*3,hx,i/3),lerp(sy,hy,i/3),2,2,C(i<2?L.shirt:L.skin));R(g,hx-1,hy,3,2,C(L.skin))}}
   else if(gun&&ex.thr>0){const k=1-ex.thr/.35,sx=x+lean,sy=top+3,a=face+(k<.45?-2.5:-2.5+(k-.45)/.55*2.9)*sd,ax=Math.cos(a),ay=Math.sin(a);
    for(let i=0;i<6;i++)R(g,sx+ax*i,sy+ay*i*.7-(k<.45?2:0),2,2,C(i<2?L.shirt:L.skin));
    if(k<.5)R(g,sx+ax*6-1,sy+ay*4.2-3,3,3,'#4a5a2a')}
@@ -1447,6 +1449,7 @@ function drawPlayer(pl){
  else if(pl.jumpT>0){const k=1-pl.jumpT/.42;oy=-Math.round(Math.sin(k*Math.PI)*7)}
  if(pl.reviving){oy=Math.abs(Math.sin(now*18))*-2}
  if(rot){g.save();g.translate(pl.x,pl.y+oy-9);g.rotate(rot);g.translate(-pl.x,-(pl.y-9));if(slide&&slide.on)drawHuman(pl.x,pl.y,pl.look,slide.dir>0?0:Math.PI,0,false,pl.hurtT>.2,null,{sit:'slide'});else drawHuman(pl.x,pl.y,pl.look,slide?(slide.dir>0?0:Math.PI):pl.face,vt!==null?vt*9:pl.phase,vt!==null||pl.moving,pl.hurtT>.2,vt!==null?null:curW(pl));g.restore()}
+ else if(pl.rummF&&now-(pl.rumm||-9)<.25){const f=pl.rummF;drawHuman(pl.x,pl.y+oy+(Math.sin(now*14)>0?1:0),pl.look,Math.atan2(f.y+f.d/2-pl.y,f.x+f.w/2-pl.x),0,false,pl.hurtT>.2,{len:0,rumm:true},{})}
  else drawHuman(pl.x,pl.y+oy,pl.look,pl.reviving?Math.atan2(pl.reviving.y-pl.y,pl.reviving.x-pl.x):pl.face,pl.phase,pl.moving,pl.hurtT>.2,pl.reviving?null:pl.hold==='med'?{len:0,med:true}:pl.hold==='key'?{len:0,med:true,fob:true}:curW(pl),{heal:pl.healT,recoil:pl.recoil,reload:pl.reloadT,swing:pl.swing,swingMax:pl.swingMax||.5,stab:pl.stab,thr:pl.thrT});
  if(pl.reviving){const d=pl.reviving;R(g,pl.x-4,pl.y-9+oy,3,3,'#555');R(g,d.x-8,d.y-6,3,3,'#555'); // Defi-Paddel
   if(d.zapT>.35){g.strokeStyle='#fff36a';g.lineWidth=1;g.beginPath();let x=pl.x,y=pl.y-8;g.moveTo(x,y);for(let i=1;i<=5;i++){x=lerp(pl.x,d.x-6,i/5)+rnd(-3,3);y=lerp(pl.y-8,d.y-5,i/5)+rnd(-3,3);g.lineTo(x,y)}g.stroke()}}}
@@ -1475,10 +1478,15 @@ function drawFurn(f){const x=f.x,y=f.y,w=f.w,d=f.d,h=f.hh;
  if(f.cont){if(!f.searched){if((now*1.5+f.x*.1)%3<.25)R(g,x+w/2,y-h-2,1,1,'#fff'),R(g,x+w/2-1,y-h-1,3,1,'#fff8c0')}
   else R(g,x+1,y+d-h+1,w-2,2,'rgba(0,0,0,.45)')
   const tg=now-(f.act||-9)<.2?1:f.searched?.55:0;f.op=(f.op||0)+(tg-(f.op||0))*.18;const o=f.op;
-  if(o>.03){if(f.t==='crate'||f.t==='bench'||f.t==='counter'||f.t==='register'||f.t==='tdesk'||f.t==='desk'){const dw=Math.round(Math.min(w-4,10+w*.3)),lift=Math.round(o*5);R(g,x+(w-dw)/2,y+d-h+2,dw,4,'#120c08');R(g,x+(w-dw)/2-1,y+d-h+2+lift,dw+2,4,shade(f.front,1.15));R(g,x+(w-dw)/2+dw/2-1,y+d-h+3+lift,2,1,'#c8a040')}
-   else{const ow=Math.round((w-2)*.5*o);R(g,x+1,y+d-h+1,w-2,h-2,'#120c08');R(g,x+2,y+d-h+Math.round(h*.45),w-4,1,shade(f.front,.6));
-    if(now-(f.act||-9)<.2){const sh=Math.sin(now*30)*1.5;R(g,x+w/2-2+sh,y+d-h+4,3,3,'#d8c8a0');R(g,x+w/2+2-sh,y+d-h+h*.6,3,2,'#8a5a5a')}
-    R(g,x-ow+1,y+d-h,ow,h,shade(f.front,1.12));R(g,x-ow+1,y+d-h,1,h,shade(f.front,.7));R(g,x+w-1,y+d-h,ow,h,shade(f.front,1.12));R(g,x+w+ow-2,y+d-h,1,h,shade(f.front,.7))}}}}
+  if(o>.03){const sd=f.side||'S',drawer=f.t==='crate'||f.t==='bench'||f.t==='counter'||f.t==='register'||f.t==='tdesk'||f.t==='desk',act=now-(f.act||-9)<.2;
+   if(sd==='S'){if(drawer){const dw=Math.round(Math.min(w-4,10+w*.3)),lift=Math.round(o*5);R(g,x+(w-dw)/2,y+d-h+2,dw,4,'#120c08');R(g,x+(w-dw)/2-1,y+d-h+2+lift,dw+2,4,shade(f.front,1.15));R(g,x+(w-dw)/2+dw/2-1,y+d-h+3+lift,2,1,'#c8a040')}
+    else{const ow=Math.round((w-2)*.5*o);R(g,x+1,y+d-h+1,w-2,h-2,'#120c08');R(g,x+2,y+d-h+Math.round(h*.45),w-4,1,shade(f.front,.6));
+     if(act){const sh=Math.sin(now*30)*1.5;R(g,x+w/2-2+sh,y+d-h+4,3,3,'#d8c8a0');R(g,x+w/2+2-sh,y+d-h+h*.6,3,2,'#8a5a5a')}
+     R(g,x-ow+1,y+d-h,ow,h,shade(f.front,1.12));R(g,x-ow+1,y+d-h,1,h,shade(f.front,.7));R(g,x+w-1,y+d-h,ow,h,shade(f.front,1.12));R(g,x+w+ow-2,y+d-h,1,h,shade(f.front,.7))}}
+   else if(sd==='N'){const lh=Math.round(Math.min(10,h*.6)*o);R(g,x+1,y-h,w-2,Math.max(2,d-2),'#120c08');R(g,x,y-h-lh,w,lh+1,shade(f.top,1.12));R(g,x,y-h-lh,w,1,shade(f.top,1.3));
+    if(act){const sh=Math.sin(now*30);R(g,x+w/2-2+sh,y-h+1,3,2,'#d8c8a0')}}
+   else{const e=sd==='E',ow=Math.round(Math.min(10,w*.6)*o),ex=e?x+w-1:x-ow+1;R(g,e?x+w-3:x+1,y-h+1,2,d+h-3,'#120c08');R(g,ex,y-h+1,ow,d+h-2,shade(f.front,1.12));R(g,e?ex+ow-1:ex,y-h+1,1,d+h-2,shade(f.front,.65));
+    if(act){const sh=Math.sin(now*30);R(g,e?x+w-3:x+1,y-h+3+sh,2,2,'#d8c8a0')}}}}}
 function drawDoorLeaf(pc,cut){const d=pc.door,r=pc.r,h=cut?9:18,y0=r.y+WT-h;
  // Rahmen immer sichtbar: dunkle Pfosten + Sturz
  R(g,r.x-1,y0-1,2,h+1,'#2a1a10');R(g,r.x+r.w-1,y0-1,2,h+1,'#2a1a10');R(g,r.x-1,y0-2,r.w+2,2,'#2a1a10');
@@ -1608,7 +1616,7 @@ function render(){
    g.globalAlpha=1}})}}
  for(const c of VCHUNKS){const b=c.b;if(b.roofSpr&&b.cut<.05&&c.side==='I')continue;if(!vis(c.r.x,c.r.y-b.z,4,8+b.z))continue;const zz=c.side==='N'?b.z:lerp(b.z,9,b.cut);L.push({y:c.r.y+c.r.h,f:()=>drawPiece(c,zz,1)})}
  for(const pl of PL){let sf=pl.search&&pl.search.f;if(!sf&&pl.sp>0){let bd=40;for(const c of FURN){if(!c.cont)continue;const dd=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(dd<bd){bd=dd;sf=c}}}
-  if(sf){if(!(now-(sf.act||-9)<.3))sfx('container_open',sf.x+sf.w/2,sf.y,.7,.9+Math.random()*.2,.2);sf.act=now;pl.rumm=now;
+  if(sf){if(!(now-(sf.act||-9)<.3))sfx('container_open',sf.x+sf.w/2,sf.y,.7,.9+Math.random()*.2,.2);sf.act=now;pl.rumm=now;pl.rummF=sf;{const dx=pl.x-(sf.x+sf.w/2),dy=pl.y-(sf.y+sf.d/2);sf.side=Math.abs(dx)/(sf.w/2+4)>Math.abs(dy)/(sf.d/2+4)?(dx>0?'E':'W'):(dy>0?'S':'N')}
    if(Math.random()<.35)part({x:sf.x+sf.w/2+rnd(-sf.w/3,sf.w/3),y:sf.y+sf.d,z:sf.hh*.5,vx:rnd(-30,30),vy:rnd(5,25),vz:rnd(25,60),g:160,life:.7,c:pick(['#e8e4d8','#c8b890','#8a6a4a','#d0d0d8','#a04040']),s:1})}}
  for(const f of FURN)if(!(f.b.roofSpr&&f.b.cut<.05)&&vis(f.x,f.y-30,f.w,40))L.push({y:f.y+f.d,f:()=>drawFurn(f)});
  for(const s of STATIONS)if(vis(s.x-20,s.y-40,40,50))L.push({y:s.y,f:()=>drawStation(s)});
