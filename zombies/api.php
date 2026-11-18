@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// Dead Either Way (Zombies) – Lobby-Liste und WebRTC-Verbindungsaufbau (Signalisierung).
+// Are You Dead Yet? (Zombies) – Lobby-Liste und WebRTC-Verbindungsaufbau (Signalisierung).
 // Abgeleitet von speed/api.php; ohne Bestenliste.
 // Die eigentlichen Spieldaten laufen direkt zwischen den Browsern; hier liegen nur
 // kurzlebige Lobby-Einträge. Kein Login, keine Cookies, keine Session.

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><title>Dead Either Way</title>
+<html lang="de"><head><meta charset="utf-8"><title>Are You Dead Yet?</title>
 <style>
 @font-face{font-family:'Jersey 10';src:url(fonts/jersey10.woff2) format('woff2');font-weight:400;font-display:swap}
 @font-face{font-family:'Pixelify Sans';src:url(fonts/pixelify.woff2) format('woff2');font-weight:400 700;font-display:swap}
@@ -654,7 +654,7 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
  const vg=u.createRadialGradient(VW/2,VH/2,VH*.4,VW/2,VH/2,VH*1.1);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.6)');u.fillStyle=vg;u.fillRect(0,0,VW,VH);
  // Titel
  const L=Math.max(24,VW*.07),ts=Math.min(VH*.13,VW*.085);u.globalAlpha=menu.fade;
- MT('DEAD EITHER WAY',L,VH*.2,ts,'#ece4d4','left','"Jersey 10"',400);
+ MT('ARE YOU DEAD YET?',L,VH*.2,ts,'#ece4d4','left','"Jersey 10"',400);
  // Menüpunkte
  const it=menuItems(),bw=Math.min(420,VW-L*2),bh=Math.max(46,VH*.065),gap=bh*.28;let y=VH*.38;menuRects=[];
  if(menu.screen==='lobby'){const wide=VW>=1000,rx=wide?L+bw+L*.6:L,rw=wide?VW-rx-L*.6:VW-L*2;let ry=wide?VH*.3:VH*.27;
@@ -1108,7 +1108,7 @@ function scoreboard(VW,VH,k,over){
  u.fillStyle='rgba(0,0,0,'+(over?.7:.45)+')';u.fillRect(0,0,VW,VH);
  const cols=[['SPIELER',0,'left'],['PUNKTE',.42,'right'],['KILLS',.56,'right'],['KÖPFE',.72,'right'],['RETTUNGEN',.87,'right'],['AM BODEN',1,'right']];
  const tw=Math.min(860,VW-40),x0=(VW-tw)/2,rh=40*k;let y=VH*.22;
- HT(over?(PL.length>1?'ALLE SIND TOT':'DU BIST GESTORBEN'):'DEAD EITHER WAY',VW/2,y-50*k,(over?54:40)*k,over?'#e0302a':'#ece4d4','center');
+ HT(over?(PL.length>1?'ALLE SIND TOT':'DU BIST GESTORBEN'):'ARE YOU DEAD YET?',VW/2,y-50*k,(over?54:40)*k,over?'#e0302a':'#ece4d4','center');
  HT('WELLE '+wave+(over?'  ·  ÜBERLEBT: '+Math.max(0,wave-1):''),VW/2,y-14*k,22*k,'#c0201a','center');
  u.fillStyle='rgba(20,16,22,.92)';u.fillRect(x0,y,tw,rh);u.fillStyle='#c8561e';u.fillRect(x0,y+rh-3,tw,3);
  for(const [t,f,al] of cols)HT(t,al==='left'?x0+16:x0+tw*f-16*(f===1?1:0)-(f===1?0:0),y+rh*.68,15*k,'#e8dcc8',al,'"Pixelify Sans",monospace',700);
