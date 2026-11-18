@@ -85,14 +85,18 @@ for(const field of ["fisi","fisiSource"]){
   assert(html.includes('name="'+field+'"'),"Editor field missing: "+field);
   assert(php.includes("'"+field+"'"),"API whitelist missing: "+field);
 }
-assert(php.includes("in_array($fisi, ['ja', 'nein', 'unklar'], true)"),"FISI value must be enum-validated");
-for(const v of ['value=""','value="ja"','value="nein"','value="unklar"'])assert(html.includes('<option '+v),"FISI option missing: "+v);
+assert(php.includes("in_array($fisi, ['ja', 'ab', 'nein', 'unklar'], true)"),"FISI value must be enum-validated (incl. ab)");
+for(const v of ['value=""','value="ja"','value="ab"','value="nein"','value="unklar"'])assert(html.includes('<option '+v),"FISI option missing: "+v);
 assert(html.includes("company-name\">'+e(r.company)+fisiPill(r)"),"AB pill next to company in table");
 assert(html.includes("'</strong>'+fisiPill(r)"),"AB pill next to company in mobile card");
-assert(html.includes('aria-label="Bildet Fachinformatiker Systemintegration aus"'),"AB pill needs accessible label");
-assert(html.includes('data-filter="fisi"')&&html.includes('f==="fisi"'),"AB (FISI) filter chip is wired");
+assert(html.includes('aria-label="Bildet ausdrücklich Fachinformatiker Systemintegration aus">AB FISI<'),"Green AB FISI pill needs accessible label");
+assert(html.includes('class="fisi-pill ab"')&&html.includes('>AB</span>'),"Yellow AB pill for Ausbildungsbetrieb ohne FISI");
+assert(!html.includes('fisi-pill unklar'),"Unklar must not show a pill");
+assert(html.includes('data-filter="fisi"')&&html.includes('data-filter="ab"')&&html.includes('f==="ab"'),"AB FISI and AB filter chips are wired");
+assert(html.includes('ab:"Ausbildungsbetrieb (ohne FISI)"'),"CSV label for ab");
+assert(html.includes('bewerbungen-theme.css?v=ab-gelb-20261117'),"CSS cache tag bumped");
 assert(html.includes('"FISI-Ausbildung","FISI-Quelle"'),"FISI included in CSV export");
-assert(theme.includes(".fisi-pill{")&&theme.includes(".fisi-pill.unklar{")&&theme.includes(".filter-fisi{"),"FISI pill styles exist");
+assert(theme.includes(".fisi-pill{")&&theme.includes(".fisi-pill.ab{")&&theme.includes(".filter-ab{")&&theme.includes(".filter-fisi{"),"FISI pill styles exist");
 for(const op of ["setup","login","logout","save","delete","import","state"]){
   assert(php.includes("'"+op+"'"),"API action missing: "+op);
 }

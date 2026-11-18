@@ -144,10 +144,11 @@ function validatedItem(array $item): array
     foreach ($limits as $key => $max) $out[$key] = field($item, $key, $max);
     $status = field($item, 'status', 40);
     $out['status'] = in_array($status, APP_STATUSES, true) ? $status : 'nicht_beworben';
-    // FISI-Ausbildung (Fachinformatiker Systemintegration): '' = ungeprüft.
+    // FISI-Ausbildung (Fachinformatiker Systemintegration): '' = ungeprüft,
+    // 'ja' = bildet ausdrücklich FISI aus, 'ab' = Ausbildungsbetrieb ohne FISI.
     // Unbekannte Werte werden still zu '' statt den ganzen Import abzubrechen.
     $fisi = is_string($item['fisi'] ?? null) ? strtolower(trim($item['fisi'])) : '';
-    $out['fisi'] = in_array($fisi, ['ja', 'nein', 'unklar'], true) ? $fisi : '';
+    $out['fisi'] = in_array($fisi, ['ja', 'ab', 'nein', 'unklar'], true) ? $fisi : '';
     foreach (['appliedAt', 'followUpAt'] as $key) {
         if ($out[$key] !== '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $out[$key])) {
             fail('Ungültiges Datumsformat für ' . $key);
