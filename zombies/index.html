@@ -643,8 +643,8 @@ function localControl(pl,dt){const wx=mouse.x+cam.x,wy=mouse.y+cam.y;pl.playCd=(
  if(pl.play){updPlay(pl,dt);return}
  if(pl.inCar>=0){const c=CARS[pl.inCar];if(c)driveCar(pl,c,dt);if(ePress){if(NET.client)NET.out.xc=true;else exitCar(pl)}return}
  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
- const l=Math.hypot(dx,dy)||1,sp=pl.down?14:keys.shift?95:62;pl.moving=!!(dx||dy);
- if(!pl.search&&!pl.reviving&&!pl.sp){move(pl,dx/l*sp*dt,dy/l*sp*dt);if(pl.moving)pl.phase+=dt*(pl.down?5:keys.shift?16:11)}
+ const l=Math.hypot(dx,dy)||1,sp=pl.down?6.5:keys.shift?95:62;pl.moving=!!(dx||dy);
+ if(!pl.search&&!pl.reviving&&!pl.sp){move(pl,dx/l*sp*dt,dy/l*sp*dt);if(pl.moving)pl.phase+=dt*(pl.down?3.2:keys.shift?16:11)}
  let aimH=9,ang=Math.atan2(wy+9-pl.y,wx-pl.x),tz=null;
  for(const z of zombies)if(z.hp>0&&Math.abs(wx-z.x)<5&&wy<z.y+1&&wy>z.y-21&&(!tz||Math.hypot(z.x-pl.x,z.y-pl.y)<Math.hypot(tz.x-pl.x,tz.y-pl.y)))tz=z;
  if(tz){aimH=clamp(tz.y-wy,2,19);ang=Math.atan2(tz.y-pl.y,tz.x-pl.x)}
@@ -1025,6 +1025,9 @@ function update(dt){
   if(!NET.client&&pl.healT>0)healTick(pl,dt);
   if(!NET.client){if(pl.stabHitT>0){pl.stabHitT-=dt;if(pl.stabHitT<=0)knifeHit(pl)}if(pl.bluntHitT>0){pl.bluntHitT-=dt;if(pl.bluntHitT<=0)bluntHit(pl)}}
   if(pl.moving&&!pl.down&&!(pl.inCar>=0))for(const b of BLOODSPOTS)if(Math.abs(b.x-pl.x)<b.r+2&&Math.abs(b.y-pl.y)<b.r*.6+2){pl.bloody=8;break}
+  if(pl.down&&!pl.dead){const lt=pl.trail||(pl.trail={x:pl.x,y:pl.y}),mx=pl.x-lt.x,my=pl.y-lt.y,md=Math.hypot(mx,my);
+   if(md>.4)pl.crawlDir=Math.atan2(my,mx);if(md>2.5){for(let i=0;i<3;i++)R(gc,pl.x-mx*i/3+rnd(-1.5,1.5),pl.y-my*i/3+rnd(-1,1),rnd(1,3),rnd(1,2),Math.random()<.5?'#5e1010':'#4a0c0c');
+    BLOODSPOTS.push({x:pl.x,y:pl.y,r:2});if(BLOODSPOTS.length>400)BLOODSPOTS.shift();lt.x=pl.x;lt.y=pl.y}}else pl.trail=null;
   if(pl.smokeT>0){pl.smokeT-=dt;if(Math.random()<dt*14*Math.min(1,pl.smokeT)){const w=curW(pl),L2=(w.len||5)+6;
    part({x:pl.x+Math.cos(pl.face)*L2,y:pl.y+Math.sin(pl.face)*L2*.8,z:12,vx:rnd(-3,3)+8,vy:rnd(-2,2),vz:rnd(6,14),life:rnd(.6,1.2),c:'#b8b8c0',s:1,grow:5,smoke:1})}}
   const step=Math.floor(pl.phase/Math.PI);if(pl.moving&&!pl.down&&step!==pl.lastStep){pl.lastStep=step;if(pl===P||Math.hypot(pl.x-P.x,pl.y-P.y)<120)sfx('step_grass',pl.x,pl.y,pl===P?.28:.2,1,.08);
@@ -1282,9 +1285,20 @@ function drawPlayer(pl){
  if(!pl.down&&(pl.play||pl.hz>0)){const sl=pl.play&&pl.play.type==='slide';
   const climb=sl&&(pl.play.t<.9)&&pl.face<0;
   drawHuman(pl.x,Math.round(pl.y-(pl.hz||0)+(sl?0:6)),pl.look,pl.face,climb?now*9:pl.phase,climb,pl.hurtT>.2,null,{sit:climb?null:sl?'slide':'swing',climb,kick:Math.cos(now*2.4)});return}
- if(pl.down){g.save();g.translate(Math.round(pl.x),Math.round(pl.y));const jolt=pl.zapT>.4?-3:0;g.translate(0,jolt);g.rotate(-1.3);
-  drawHuman(0,0,pl.look,-1.6+Math.sin(pl.phase)*.3,pl.phase,false,pl.zapT>.45,curW(pl));g.restore();
-  for(let i=0;i<3;i++){const a=now*4+i*2.1;R(g,pl.x-15+Math.cos(a)*6,pl.y-6+Math.sin(a)*2+jolt,2,2,i%2?'#ffe94a':'#fff')} // Sternchen
+ if(pl.down){const L=pl.look,fl=pl.zapT>.45,C=c=>fl?'#fff':c,dir=pl.crawlDir??pl.face,jolt=pl.zapT>.4?-3:0,cyc=pl.phase,pull=Math.sin(cyc),body=Math.max(0,-pull)*1.2;
+  g.save();g.translate(Math.round(pl.x),Math.round(pl.y-3+jolt));g.rotate(dir);
+  const F=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
+  F(-12+body,-3,4,2,C('#1c1a18'));F(-12+body,1,4,2,C('#1c1a18'));            // Schuhe
+  F(-9+body,-3,7,3,C(L.pants));F(-9+body+Math.round(pull),0,7,3,C(shade(L.pants,.75))); // Beine (eins zieht nach)
+  F(-2+body,-4,8,8,C(L.shirt));F(-2+body,2,8,2,C(shade(L.shirt,.72)));        // Rumpf
+  if(L.pack){F(-1+body,-3,5,6,C('#5a4430'));F(-1+body,-3,5,1,C('#7a6048'))}  // Rucksack oben auf
+  // Arme: abwechselnd weit nach vorn greifen und den Körper nachziehen
+  const reach=a=>6+a*6;const aL=reach(Math.max(0,pull)),aR=reach(Math.max(0,-pull));
+  F(5+body,-6,aL,2,C(L.shirt));F(5+body+aL,-6,2,2,C(L.skin));
+  F(5+body,4,aR,2,C(L.shirt));F(5+body+aR,4,2,2,C(L.skin));
+  F(6+body,-3,6,6,C(L.skin));F(6+body,-3,6,4,C(L.hs===1?L.cap:L.hair));         // Kopf von oben/hinten
+  g.restore();
+  for(let i=0;i<3;i++){const a=now*4+i*2.1;R(g,pl.x+Math.cos(dir)*10+Math.cos(a)*5,pl.y-9+Math.sin(a)*2+jolt,2,2,i%2?'#ffe94a':'#fff')} // Sternchen
   return}
  let oy=0,rot=0;
  let vt=null;
