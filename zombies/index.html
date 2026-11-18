@@ -77,7 +77,7 @@ const BUILD=[
  {x:790,y:180,w:150,h:110,z:36,wall:'#cfc7aa',rc:'#6a3d32',roof:'gable',kind:'siding',floor:'wood',inner:'#d8c8a8',
   N:[[30,16,'w'],[100,16,'w']],S:[[14,16,'w'],[48,18,'d'],[112,16,'w']],W:[[45,16,'w']],E:[[22,16,'w'],[75,16,'w']],
   inner:[[80,0,80,110,[[60,18,'d']]],[80,55,150,55,[[30,18,'d']]]],rooms:[[80,0,70,55,'tile'],[80,55,70,55,'carpet']],
-  furn:[['sofa',10,34],['tv',14,8],['table',15,72],['cabinet',56,6],['fridge',132,6],['counter',86,6],['table',96,30],['bed',118,62],['wardrobe',86,96]]},
+  furn:[['sofa',10,34],['tv',14,8],['table',15,72],['cabinet',56,6],['fridge',132,6],['counter',86,6],['table',84,28],['bed',126,72],['wardrobe',86,96]]},
  {x:1000,y:200,w:140,h:100,z:34,wall:'#8fa3ad',rc:'#3e4752',roof:'gable',kind:'siding',floor:'wood',inner:'#c8d0b8',
   N:[[40,16,'w'],[90,16,'w']],S:[[10,16,'w'],[40,18,'d'],[106,16,'w']],W:[[40,16,'w']],E:[[40,16,'w']],
   inner:[[70,0,70,100,[[56,18,'d']]],[70,50,140,50,[[20,18,'d']]]],rooms:[[70,50,70,50,'tile'],[70,0,70,50,'carpet']],
@@ -87,11 +87,11 @@ const BUILD=[
  {x:110,y:620,w:170,h:90,z:34,wall:'#ddd8cb',rc:'#c9c4b8',roof:'flat',kind:'shop',floor:'tile',inner:'#e0dcd0',
   N:[],S:[[12,26,'w'],[42,26,'w'],[77,18,'d'],[112,26,'w'],[140,22,'w']],W:[[20,14,'w']],E:[[66,18,'d']],
   inner:[[0,60,170,60,[[130,18,'d']]]],rooms:[[0,60,170,30,'concrete']],
-  furn:[['shelf',14,14],['shelf',70,14],['shelf',14,36],['register',118,20],['vending',152,30],['crate',10,68],['crate',30,68],['crate',152,68]]},
+  furn:[['shelf',14,14],['shelf',70,14],['shelf',14,36],['register',118,20],['vending',152,30],['crate',10,68],['crate',96,40]]},
  {x:1060,y:610,w:150,h:110,z:66,wall:'#6e3d33',rc:'#7a746a',roof:'flat',kind:'brick',floor:'carpet',inner:'#b0aa9a',damaged:true,
   N:[[20,16,'w'],[60,16,'w'],[100,16,'w']],S:[[14,16,'w'],[40,16,'w'],[66,18,'d'],[100,16,'w'],[124,16,'w']],W:[[50,16,'w']],E:[[40,22,'d']],
   inner:[[0,60,150,60,[[30,18,'d'],[100,18,'d']]],[75,0,75,60,[[20,18,'d']]]],rooms:[[0,60,150,50,'concrete']],
-  furn:[['desk',10,10],['desk',35,10],['desk',10,35],['desk',90,10],['desk',115,10],['desk',90,35],['cabinet',55,6],['cabinet',132,40],['counter',18,80],['crate',120,80]]},
+  furn:[['desk',10,10],['desk',35,10],['desk',10,35],['desk',90,10],['desk',115,10],['desk',90,35],['cabinet',55,6],['cabinet',134,6],['counter',18,80],['crate',120,80]]},
  {x:830,y:640,w:180,h:110,z:18,wall:'#7d6a5c',rc:'#5a5048',roof:'none',kind:'ruin',floor:'dirt',inner:'#7d6a5c',
   N:[[30,16,'w'],[100,26,'d']],S:[[30,30,'d'],[80,16,'w'],[120,24,'d']],W:[[40,24,'d']],E:[[50,16,'w']],
   inner:[[90,0,90,110,[[40,30,'d']]]],furn:[['crate',20,20],['crate',140,80],['crate',110,20]]},
@@ -215,7 +215,9 @@ function buildGround(){
  // Innenböden + Fußmatten vor Türen
  for(const b of BUILD){floorTex(b,b.floor);for(const r of b.rooms||[])floorTex({x:b.x+r[0],y:b.y+r[1],w:r[2],h:r[3]},r[4]);
   R(gc,b.x+3,b.y+3,b.w-6,2,'rgba(0,0,0,.25)');
-  for(const pc of b.pieces)if(pc.t==='door'&&pc.side==='S'){R(gc,pc.r.x+2,pc.r.y+WT,pc.r.w-4,5,'#5a3a2a');R(gc,pc.r.x+4,pc.r.y+WT+5,pc.r.w-8,14,'#8f8c84')}}
+  for(const pc of b.pieces)if(pc.t==='door'&&pc.side==='S'){R(gc,pc.r.x+2,pc.r.y+WT,pc.r.w-4,5,'#5a3a2a');R(gc,pc.r.x+4,pc.r.y+WT+5,pc.r.w-8,14,'#8f8c84')}
+  for(const pc of b.pieces)if(pc.t==='door'&&(pc.side==='E'||pc.side==='W')){const r=pc.r,e=pc.side==='E',x0=e?r.x+r.w:r.x-5;R(gc,x0,r.y+2,5,r.h-4,'#5a3a2a');R(gc,e?x0+5:x0-14,r.y+3,14,r.h-6,'#8f8c84');R(gc,e?x0+5:x0-14,r.y+3,14,1,'#a8a59c');
+   R(gc,e?x0+1:x0+1,r.y+4,3,r.h-8,'#7a5038')}}
  for(let i=0;i<25;i++)stain(srnd(80,1300),srnd(80,920),srnd(3,9),true);
 }
 
@@ -293,10 +295,10 @@ const [grainT,grc]=mk(128,128);for(let i=0;i<5000;i++){const v=Math.random()*255
 // =====================================================================
 const WEAPONS={
  pistol:{name:'Pistole',dmg:28,rate:.26,mag:12,reload:1.1,spread:.03,pellets:1,speed:460,cost:0,len:5},
- smg:{name:'MP',dmg:22,rate:.075,mag:32,reload:1.6,spread:.08,pellets:1,speed:480,cost:900,len:8},
- shotgun:{name:'Schrotflinte',dmg:24,rate:.7,mag:6,reload:2,spread:.22,pellets:7,speed:400,cost:1300,len:11},
- rifle:{name:'Sturmgewehr',dmg:36,rate:.11,mag:30,reload:1.8,spread:.035,pellets:1,speed:560,cost:1600,len:10},
- magnum:{name:'Magnum',dmg:95,rate:.42,mag:6,reload:1.5,spread:.01,pellets:1,speed:600,cost:1100,len:6},
+ smg:{name:'MP',dmg:22,rate:.075,mag:32,reload:1.6,spread:.08,pellets:1,speed:480,cost:1600,len:8},
+ shotgun:{name:'Schrotflinte',dmg:24,rate:.7,mag:6,reload:2,spread:.22,pellets:7,speed:400,cost:2200,len:11},
+ rifle:{name:'Sturmgewehr',dmg:36,rate:.11,mag:30,reload:1.8,spread:.035,pellets:1,speed:560,cost:2800,len:10},
+ magnum:{name:'Magnum',dmg:95,rate:.42,mag:6,reload:1.5,spread:.01,pellets:1,speed:600,cost:1900,len:6},
  // Stumpfe Waffen: ein Schlag = halber Pistolentreffer (14), dafür Bogen-Treffer und Rückstoß
  bat:{name:'Baseballschläger',melee:true,dmg:14,rate:.55,reach:22,arc:1.5,knock:10,mag:0,reload:0,cost:0,len:9,col:'#a8743c'},
  golf:{name:'Golfschläger',melee:true,dmg:14,rate:.45,reach:24,arc:1.3,knock:7,mag:0,reload:0,cost:0,len:10,col:'#c8ccd0'},
@@ -364,7 +366,7 @@ function knifeHit(pl){
  let t=null,td=19;for(const z of zombies){if(z.hp<=0||z.rise>0)continue;const d=Math.hypot(z.x-pl.x,z.y-pl.y),a=Math.abs(((Math.atan2(z.y-pl.y,z.x-pl.x)-pl.face+Math.PI*3)%(Math.PI*2))-Math.PI);
   if(d<td&&(a<1.3||d<9)){td=d;t=z}}
  if(t){t.hp-=150;t.hit=.1;t.stag=.2;t.aware=true;const a=Math.atan2(t.y-pl.y,t.x-pl.x);move(t,Math.cos(a)*7,Math.sin(a)*7);t.last={own:pl,head:false,melee:true};
-  blood(t.x,t.y,8,1,11);sfx('knife_hit',t.x,t.y);pl.money+=10;if(pl===P)shake=Math.max(shake,2.5)}
+  blood(t.x,t.y,8,1,11);sfx('knife_hit',t.x,t.y);pl.money+=5;if(pl===P)shake=Math.max(shake,2.5)}
  for(const o of PL)if(o.zombie&&o!==pl&&Math.hypot(o.x-pl.x,o.y-pl.y)<19)hitPZ(o,150,pl);
  meleeObj(pl,35)}
 function bluntSwing(pl){const w=curW(pl);pl.cd=Math.max(w.rate,.55);pl.swing=.5;pl.swingMax=.5;setTimeout(()=>sfx('swing_whoosh',pl.x,pl.y,.8),170);if(NET.client&&pl===P)return;pl.bluntHitT=.24}
@@ -372,7 +374,7 @@ function bluntHit(pl){const w=curW(pl);if(!w.melee)return;
  let n=0;for(const z of [...zombies].sort((a,b)=>Math.hypot(a.x-pl.x,a.y-pl.y)-Math.hypot(b.x-pl.x,b.y-pl.y))){if(n>=3)break;if(z.hp<=0||z.rise>0)continue;
   const d=Math.hypot(z.x-pl.x,z.y-pl.y),a=Math.abs(((Math.atan2(z.y-pl.y,z.x-pl.x)-pl.face+Math.PI*3)%(Math.PI*2))-Math.PI);if(d>w.reach||(a>w.arc&&d>9))continue;
   n++;z.hp-=w.dmg;z.hit=.1;z.stag=.25;z.aware=true;const an=Math.atan2(z.y-pl.y,z.x-pl.x);move(z,Math.cos(an)*w.knock,Math.sin(an)*w.knock);z.last={own:pl,head:false,melee:true};
-  blood(z.x,z.y,4,1,11);sfx(w.k==='golf'?'golf_hit':w.k==='pipe'?'pipe_hit':'bat_hit',z.x,z.y);pl.money+=10}
+  blood(z.x,z.y,4,1,11);sfx(w.k==='golf'?'golf_hit':w.k==='pipe'?'pipe_hit':'bat_hit',z.x,z.y);pl.money+=5}
  for(const o of PL)if(o.zombie&&o!==pl&&Math.hypot(o.x-pl.x,o.y-pl.y)<w.reach)hitPZ(o,w.dmg,pl);
  if(n&&pl===P)shake=Math.max(shake,2);meleeObj(pl,w.dmg*2.5)}
 const THROWN=[],FLASH=[],RINGS=[];let thid=1;
@@ -558,7 +560,7 @@ function note(pl,s,c){const key=(pl.id||'')+s;if(now-(NOTE[key]||-9)<1.5)return;
 const FTX=[];function ftext(x,y,s,c='#fff',big,forPl){if(!forPl||forPl===P)FTX.push({x,y,s,c,t:0,big});evp('ft',Math.round(x),Math.round(y),s,c,big?1:0,forPl?forPl.id:null)}
 function buy(k){const w=WEAPONS[k],own=P.slots.some(s=>s&&s.k===k),c=own?Math.round(w.cost/2):w.cost;
  if(P.money<c)return say('Zu wenig Geld ($'+c+')');P.money-=c;say(own?'Munition gekauft':giveWeapon(P,k).replace('gefunden!','gekauft'))}
-function upgrade(){const k=P.slots[P.cur].k,lv=P.pap[k]||0,c=2000*(lv+1);if(P.money<c)return say('Upgrade kostet $'+c);
+function upgrade(){const k=P.slots[P.cur].k,lv=P.pap[k]||0,c=3500*(lv+1);if(P.money<c)return say('Upgrade kostet $'+c);
  P.money-=c;P.pap[k]=lv+1;const s=P.slots[P.cur];s.ammo=curW(P).mag;s.res+=s.ammo*2;say(WEAPONS[k].name+' aufgerüstet → Stufe '+(lv+1))}
 const BOTNAMES=['Kalle','Mira','Jonas'],BOTSHIRT=['#a05a2a','#5a8a3a','#8a3a7a'];
 function addBot(){const n=PL.length-1;if(n>=3)return say('Maximal 3 Bots');
@@ -748,6 +750,7 @@ function applySnap(s){wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=n
   case'msg':if(String(e[1]).includes('SELTEN')||String(e[1]).includes('Autoschlüssel'))sfx('rare_found');say(e[1]);if(String(e[1]).startsWith('WELLE'))waveBell();break;
   case'bl':blood(e[1],e[2],e[3],e[4],e[5]);break;
   case'gl':if(WINDOWS[e[1]])breakGlass(WINDOWS[e[1]]);break;
+  case'rf':rareSnd(e[1][0],e[1][1],e[1][2]);break;
   case'se':if(FURN[e[1]]){FURN[e[1]].searched=true;sfx('loot_found',FURN[e[1]].x,FURN[e[1]].y,.8)}break;
   case'ex':explodeFx(e[1],e[2],e[3]);break;
   case'wc':sfx('wave_cleared');break;
@@ -1137,7 +1140,7 @@ function update(dt){
    if(b.life<=0)break;
    for(const z of zombies){if(z.hp>0&&z.rise<=0&&Math.hypot(z.x-b.x,z.y-b.y)<6){const head=b.h>=13.5;
      z.hp-=b.dmg*(head?2.2:1);z.hit=.08;z.stag=.15;z.aware=true;b.life=0;z.x+=b.vx*.012;z.y+=b.vy*.012;z.last={own:b.own,head};
-     blood(b.x,b.y,head?9:6,1,head?16:9);b.own.money+=head?20:10;break}}}
+     blood(b.x,b.y,head?9:6,1,head?16:9);b.own.money+=head?10:5;break}}}
   b.life-=dt}
  for(let i=bullets.length-1;i>=0;i--)if(bullets[i].life<=0)bullets.splice(i,1);
  updThrown(dt,true);updPowerups(dt);updPap(dt);
@@ -1177,7 +1180,7 @@ function update(dt){
   if(k.head){z.look={...z.look,headless:true};for(let j=0;j<16;j++)part({x:z.x,y:z.y,z:17,vx:rnd(-60,60),vy:rnd(-40,40),vz:rnd(30,100),g:220,life:1.5,c:pick(['#7a1010','#9a1a1a',z.look.skin]),s:2,stain:1})}
   if(!NET.client&&Math.random()<.025)dropPowerup(z.x,z.y);
   addCorpse({x:z.x,y:z.y,look:z.look,face:z.face,t:0,dir:Math.cos(z.face)>0?-1:1},k.head);stain(z.x,z.y+2,rnd(4,7));
-  const m=k.run?80:k.melee?130:k.head?110:60;k.own.money+=m;k.own.kills++;if(k.head)k.own.heads++;if(k.melee)k.own.knifes=(k.own.knifes||0)+1;
+  const m=k.run?40:k.melee?70:k.head?60:30;k.own.money+=m;k.own.kills++;if(k.head)k.own.heads++;if(k.melee)k.own.knifes=(k.own.knifes||0)+1;
   ftext(z.x,z.y-24,k.run?'ÜBERFAHREN +$'+m:k.expl?'BOOM +$'+m:k.melee?'NAHKAMPF +$'+m:k.head?'KOPFSCHUSS +$'+m:'+$'+m,k.head?'#ffd23a':'#cfe8a0',k.head,k.own);zombies.splice(i,1)}
  for(let i=PL.length-1;i>0;i--)if(PL[i].dead&&PL[i].ai)PL.splice(i,1);
  cameraUpdate(dt);
@@ -1209,7 +1212,7 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
    txt='Munition auffüllen';act=()=>{refillAmmo(pl);return'Munition aufgefüllt'}}
   else if(isMelee(s.k)){if(me)prompt={x:st.x,y:st.y-34,s:'Nahkampfwaffen lassen sich nicht aufrüsten',c:'#c8c0b8'};return}
   else{if(st.job){if(me)prompt={x:st.x,y:st.y-34,s:st.job.pl===pl?'Aufrüstung läuft …':'Maschine ist belegt',p:1-st.job.t/st.job.T,c:'#e0b0ff'};return}
-   cost=2000*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{st.job={pl,k:s.k,lv:lv+1,t:6,T:6};pl.papK=s.k;sfx('revive_zap',st.x,st.y,1,.6,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
+   cost=3500*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{st.job={pl,k:s.k,lv:lv+1,t:6,T:6};pl.papK=s.k;sfx('revive_zap',st.x,st.y,1,.6,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
   if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+txt+' – $'+cost,c:pl.money>=cost?'#fff2a8':'#ff8a7a'};
   if(EP&&auth){if(pl.money<cost)note(pl,'Zu wenig Geld','#ff8a7a'),me&&sfx('no_money');else{pl.money-=cost;const r=act();sfx(st.t==='ammo'?'ammo_refill':'item_pickup',st.x,st.y);ftext(st.x,st.y-30,r.replace('gefunden!','gekauft'),'#9fff9f',1)}}return}
  {let gi=null,gd=14;for(const it of GROUND){const d=Math.hypot(it.x-pl.x,it.y-pl.y);if(d<gd){gd=d;gi=it}}
@@ -1222,7 +1225,7 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
     else{const nw={k:gi.k,r:gi.r||0,ammo:gi.ammo,res:gi.res};if(!pl.slots[1]){pl.slots[1]=nw;pl.cur=1}
      else{const old=pl.slots[pl.cur];pl.slots[pl.cur]=nw;GROUND.push({id:gid++,kind:'w',k:old.k,r:old.r||0,ammo:old.ammo,res:old.res,x:pl.x,y:pl.y+3})}pl.hold=null;pl.reloadT=0}}
    return}}
- let f=null,fd=16;const myB=buildingAt(pl.x,pl.y);for(const c of FURN){if(!c.cont||c.searched||c.b!==myB)continue;const d=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(d<fd+Math.max(c.w,c.d)/2){fd=d-Math.max(c.w,c.d)/2;f=c}}
+ let f=null,fd=16;const myB=buildingAt(pl.x,pl.y);for(const c of FURN){if(!c.cont||c.searched||c.b!==myB)continue;const d=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(d<fd+Math.max(c.w,c.d)/2&&los(pl.x,pl.y,Math.max(c.x+1,Math.min(c.x+c.w-1,pl.x)),Math.max(c.y+1,Math.min(c.y+c.d-1,pl.y)))){fd=d-Math.max(c.w,c.d)/2;f=c}}
  if(f){if(E&&auth){if(!pl.search||pl.search.f!==f)pl.search={f,t:0};pl.search.t+=dt;
    if(pl.search.t>=1.2){f.searched=true;evp('se',FURN.indexOf(f));pl.search=null;loot(pl,f)}}else if(!E)pl.search=null;
   if(me)prompt={x:f.x+f.w/2,y:f.y-f.hh-8,s:'[E] halten: Durchsuchen',p:auth?(pl.search?pl.search.t/1.2:0):(pl.sp||0)};return}
@@ -1230,17 +1233,19 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
 }
 const LOOT={locker:['pistol','smg','magnum','bat'],wardrobe:['shotgun','magnum','rifle','golf','bat'],bench:['rifle','shotgun','pipe','golf'],cabinet:['smg','magnum','pipe'],crate:['rifle','shotgun','smg','pipe','bat'],
  tdesk:['magnum','pistol','golf'],fridge:[],counter:['shotgun','bat'],shelf:['smg','pipe'],register:[],vending:[]};
+function rareSnd(rr,x,y){sfx('rare_found',x,y,rr>=3?1:rr===2?.8:.55,rr>=3?1:rr===2?1.12:1.25,0);if(rr>=2)sfx('loot_found',x,y,.6,.8,0)}
 function loot(pl,f){sfx('loot_found',f.x,f.y,.8);const r=Math.random(),pool=LOOT[f.t]||[];let s,col='#fff2a8';
  const cand=pl.key<0?CARS.filter(c=>c.state==='ok'&&!c.unlocked&&!PL.some(p=>p.key===c.i)):[];
  if(cand.length&&Math.random()<.008){pl.key=pick(cand).i;sfx('rare_found');s='SELTEN! Autoschlüssel gefunden [4]';col='#ffb020';say(pl.name+' hat einen Autoschlüssel gefunden!');evp('msg',pl.name+' hat einen Autoschlüssel gefunden!')}
- else if(f.t==='register'){const m=150+(Math.random()*250|0);pl.money+=m;s='+$'+m+' aus der Kasse'}
+ else if(f.t==='register'){const m=80+(Math.random()*120|0);pl.money+=m;s='+$'+m+' aus der Kasse'}
  else if(r<.33&&pool.some(k=>!pl.slots.some(x=>x&&x.k===k))){const wk=pick(pool.filter(k=>!pl.slots.some(x=>x&&x.k===k))),rr=rollRar();if(pl.slots[1]){GROUND.push({id:gid++,kind:'w',k:wk,r:rr,ammo:Math.round(WEAPONS[wk].mag*RAR[rr].m),res:Math.round(WEAPONS[wk].mag*RAR[rr].m)*3,x:f.x+f.w/2,y:f.y+f.d+6})}else giveWeapon(pl,wk,rr);
+  if(rr>=1&&rr<3){rareSnd(rr,f.x+f.w/2,f.y);evp('rf',[rr,Math.round(f.x+f.w/2),Math.round(f.y)])}
   s=(rr?RAR[rr].n+': ':'')+WEAPONS[wk].name+(pl.slots[1]&&pl.slots[1].k!==wk&&pl.slots[0].k!==wk?' (liegt am Boden)':'!');col=RAR[rr].c;
   if(rr===3){sfx('rare_found');say(pl.name+' hat eine SELTENE Waffe gefunden!');evp('msg',pl.name+' hat eine SELTENE Waffe gefunden!')}}
  else if(r<.45&&(pl.bomb||0)<3){pl.bomb=(pl.bomb||0)+1;s='Rohrbombe gefunden! [F]'}
  else if(r<.53&&(pl.gren||0)<4){pl.gren=(pl.gren||0)+1;s='Granate gefunden [G]'}
- else if(r<.62){const m=40+(Math.random()*180|0);pl.money+=m;s='+$'+m}
- else if(r<.82){const m=60+(Math.random()*120|0);pl.money+=m;s='+$'+m}
+ else if(r<.62){const m=20+(Math.random()*70|0);pl.money+=m;s='+$'+m}
+ else if(r<.82){const m=30+(Math.random()*60|0);pl.money+=m;s='+$'+m}
  else if(r<.93&&(pl.med||0)<3){pl.med=(pl.med||0)+1;s='Verbandskasten gefunden [3]';col='#9fffb0'}else s='Nichts gefunden…';
  ftext(f.x+f.w/2,f.y-f.hh-6,s,col,1);for(let i=0;i<8;i++)part({x:f.x+f.w/2,y:f.y+f.d/2,z:f.hh,vx:rnd(-20,20),vy:rnd(-10,10),vz:rnd(20,50),g:120,life:.6,c:'#ccc',s:1})}
 // Bot-KI (Test-Mitspieler, später durch echte Netzwerk-Spieler ersetzt)
@@ -1412,7 +1417,12 @@ function drawFurn(f){const x=f.x,y=f.y,w=f.w,d=f.d,h=f.hh;
  case'bench':R(g,x+3,y-h-3,4,3,'#888');R(g,x+12,y-h-2,8,2,'#a33');break;
  case'desk':case'tdesk':if(f.t==='tdesk')R(g,x+4,y-h+2,6,4,'#eee');break}
  if(f.cont){if(!f.searched){if((now*1.5+f.x*.1)%3<.25)R(g,x+w/2,y-h-2,1,1,'#fff'),R(g,x+w/2-1,y-h-1,3,1,'#fff8c0')}
-  else R(g,x+1,y+d-h+1,w-2,2,'rgba(0,0,0,.45)')}}
+  else R(g,x+1,y+d-h+1,w-2,2,'rgba(0,0,0,.45)')
+  const tg=now-(f.act||-9)<.2?1:f.searched?.55:0;f.op=(f.op||0)+(tg-(f.op||0))*.18;const o=f.op;
+  if(o>.03){if(f.t==='crate'||f.t==='bench'||f.t==='counter'||f.t==='register'||f.t==='tdesk'||f.t==='desk'){const dw=Math.round(Math.min(w-4,10+w*.3)),lift=Math.round(o*5);R(g,x+(w-dw)/2,y+d-h+2,dw,4,'#120c08');R(g,x+(w-dw)/2-1,y+d-h+2+lift,dw+2,4,shade(f.front,1.15));R(g,x+(w-dw)/2+dw/2-1,y+d-h+3+lift,2,1,'#c8a040')}
+   else{const ow=Math.round((w-2)*.5*o);R(g,x+1,y+d-h+1,w-2,h-2,'#120c08');R(g,x+2,y+d-h+Math.round(h*.45),w-4,1,shade(f.front,.6));
+    if(now-(f.act||-9)<.2){const sh=Math.sin(now*30)*1.5;R(g,x+w/2-2+sh,y+d-h+4,3,3,'#d8c8a0');R(g,x+w/2+2-sh,y+d-h+h*.6,3,2,'#8a5a5a')}
+    R(g,x-ow+1,y+d-h,ow,h,shade(f.front,1.12));R(g,x-ow+1,y+d-h,1,h,shade(f.front,.7));R(g,x+w-1,y+d-h,ow,h,shade(f.front,1.12));R(g,x+w+ow-2,y+d-h,1,h,shade(f.front,.7))}}}}
 function drawDoorLeaf(pc,cut){const d=pc.door,r=pc.r;
  if(d.broken){for(let i=0;i<r.w;i+=4)R(g,r.x+i,r.y+WT-2-(i%3),2,2+(i%3),'#5a3e26');return}
  const h=cut?9:18,sh=d.shake>0?Math.round(rnd(-1,1)):0,x=r.x+1+sh,y=r.y+WT-h;
@@ -1425,7 +1435,10 @@ function drawPiece(pc,zz,alpha){const r=pc.r,b=pc.b,cut=zz<b.z-.5;g.globalAlpha=
   else{const z=Math.round(zz);if(pc.t!=='door'){g.drawImage(pc.spr,0,WT+b.z-z,r.w,z,r.x,r.y+WT-z,r.w,z);R(g,r.x,r.y-z,r.w,WT,pc.t==='window'?(pc.broken?'#3a4a56':'#8fb0c4'):CAP);R(g,r.x,r.y-z,r.w,1,'#5a4e46')}
    else R(g,r.x,r.y,r.w,WT,'#4a3a2a')}
   if(pc.door)drawDoorLeaf(pc,cut)}
- else{if(pc.t==='door'){if(cut)R(g,r.x,r.y,WT,r.h,'#4a3a2a');if(pc.door&&!pc.door.broken){const h=cut?9:18;R(g,r.x,r.y-h,WT,r.h,'#6a4a2e');R(g,r.x,r.y+r.h-h,WT,h,'#553a22');R(g,r.x,r.y-h,1,r.h,'#8a6440')}g.globalAlpha=1;return}
+ else{if(pc.t==='door'){if(cut)R(g,r.x,r.y,WT,r.h,'#4a3a2a');{const h=cut?9:18,d=pc.door;R(g,r.x-2,r.y-h-1,WT+4,2,'#2a1a10');R(g,r.x-2,r.y+r.h-h-1,WT+4,2,'#2a1a10');
+   if(d&&!d.broken){const sh=d.shake>0?Math.round(rnd(-1,1)):0,x=r.x+sh;R(g,x,r.y-h+1,WT,r.h-2,'#8a5a32');for(let i=r.y-h+4;i<r.y+r.h-h-2;i+=4)R(g,x,i,WT,1,'#6a4224');R(g,x,r.y-h+1,1,r.h-2,'#c08a54');R(g,x+WT-1,r.y-h+1,1,r.h-2,'#4a2c16');
+    R(g,x+r.h-h>0?x:x,r.y-h+r.h*.6,WT,2,'#e0b040');R(g,x,r.y+r.h-h+1,WT,h-1,'#4a2e18');for(let i=0;i<h-1;i+=3)R(g,x,r.y+r.h-h+1+i,WT,1,'#5e3c20');
+    if(d.hp<70)R(g,x+1,r.y-h+4,1,r.h-8,'#1a100a')}else if(d){for(let i=0;i<r.h;i+=4)R(g,r.x+(i%3),r.y+i-2,2,2,'#5a3e26')}}g.globalAlpha=1;return}
   const z=Math.round(zz),col=pc.t==='window'?(pc.broken?'#3a4a56':'#8fb0c4'):CAP;
   R(g,r.x,r.y-z,WT,r.h,col);R(g,r.x,r.y-z,1,r.h,'#5a4e46');if(pc.t==='window'){R(g,r.x,r.y-z,WT,1,CAP);R(g,r.x,r.y+r.h-z-1,WT,1,CAP)}
   if(pc.end)R(g,r.x,r.y+r.h-z,WT,z,pc.ext&&pc.side!=='I'?shade(b.wall,.75):shade(b.inner,.7))}
@@ -1529,6 +1542,9 @@ function render(){
     gr.addColorStop(0,'rgba(0,0,0,.9)');gr.addColorStop(.55,'rgba(0,0,0,.7)');gr.addColorStop(1,'rgba(0,0,0,0)');rtx.globalCompositeOperation='destination-out';rtx.fillStyle=gr;rtx.fillRect(hx-26,hy-26,52,52);rtx.globalCompositeOperation='source-over';g.drawImage(rtc,b.rx,b.ry)}
    g.globalAlpha=1}})}}
  for(const c of VCHUNKS){const b=c.b;if(b.roofSpr&&b.cut<.05&&c.side==='I')continue;if(!vis(c.r.x,c.r.y-b.z,4,8+b.z))continue;const zz=c.side==='N'?b.z:lerp(b.z,9,b.cut);L.push({y:c.r.y+c.r.h,f:()=>drawPiece(c,zz,1)})}
+ for(const pl of PL){let sf=pl.search&&pl.search.f;if(!sf&&pl.sp>0){let bd=40;for(const c of FURN){if(!c.cont)continue;const dd=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(dd<bd){bd=dd;sf=c}}}
+  if(sf){if(!(now-(sf.act||-9)<.3))sfx('container_open',sf.x+sf.w/2,sf.y,.7,.9+Math.random()*.2,.2);sf.act=now;pl.rumm=now;
+   if(Math.random()<.35)part({x:sf.x+sf.w/2+rnd(-sf.w/3,sf.w/3),y:sf.y+sf.d,z:sf.hh*.5,vx:rnd(-30,30),vy:rnd(5,25),vz:rnd(25,60),g:160,life:.7,c:pick(['#e8e4d8','#c8b890','#8a6a4a','#d0d0d8','#a04040']),s:1})}}
  for(const f of FURN)if(!(f.b.roofSpr&&f.b.cut<.05)&&vis(f.x,f.y-30,f.w,40))L.push({y:f.y+f.d,f:()=>drawFurn(f)});
  for(const s of STATIONS)if(vis(s.x-20,s.y-40,40,50))L.push({y:s.y,f:()=>drawStation(s)});
  for(const c of CARS)if(vis(c.cx-30,c.cy-40,60,60))L.push({y:c.cy+10,f:()=>drawCarDyn(c)});
