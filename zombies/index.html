@@ -157,7 +157,7 @@ const windAt=(x,y)=>{const w=Math.sin(x*.011+y*.006-now*1.6);return gustG()*(.35
 const GRASS=[];{const GC=['#5e8238','#6e9444','#4f7232','#82a64e'];
  for(let i=0;i<9000&&GRASS.length<3400;i++){const x=srnd(BL.l+4,BL.r-4),y=srnd(BL.t+8,BL.b-4);
   if(paved(x,y,3)||BUILD.some(b=>inR(b,x,y,6))||solids.some(o=>inR(o,x,y,3)))continue;
-  GRASS.push({x:Math.round(x),y:Math.round(y),h:2+(sr()*3|0),n:2+(sr()*2|0),c:GC[sr()*4|0],ph:sr()*6,b:0})}}
+  GRASS.push({x:Math.round(x),y:Math.round(y),h:3+(sr()*3|0),n:2+(sr()*2|0),c:GC[sr()*4|0],ph:sr()*6,b:0})}}
 const FOREST=[];for(let y=20;y<MH;y+=14)for(let k=0;k<3;k++)FOREST.push({x:MW-62+k*22+srnd(-6,6),y:y+srnd(-5,5),v:4+(sr()*2|0),ph:sr()*6});
 const FIRES=[];for(let y=40;y<MH;y+=38)FIRES.push({x:MW-60+srnd(-4,10),y:y+srnd(-8,8),s:srnd(9,15),ph:sr()*9});
 for(const c of CARS)if(c.burn)FIRES.push({x:c.x+c.w/2,y:c.y+c.h-4,s:10,ph:sr()*9,lift:12});
@@ -1599,7 +1599,7 @@ function render(){
  {const ents=[];for(const o of PL)if(!o.dead)ents.push(o);for(const z of zombies)if(z.hp>0)ents.push(z);
   for(const t of GRASS){if(!vis(t.x-3,t.y-6,6,7))continue;let push=0;
    for(const e of ents){const dx=t.x-e.x,dy=t.y-e.y;if(dx*dx+dy*dy<64){push=dx>=0?2:-2;t.b=.35;break}}
-   if(t.b>0&&!push)t.b-=.016;const lean=Math.round(Math.sin(now*2.4+t.ph)*.5+windAt(t.x,t.y)*2+(push||(t.b>0?Math.sign(Math.sin(t.ph))*t.b*3:0)));
+   if(t.b>0&&!push)t.b-=.016;const lean=Math.round(Math.sin(now*2.4+t.ph)*.9+windAt(t.x,t.y)*3.2+(push||(t.b>0?Math.sign(Math.sin(t.ph))*t.b*3:0)));
    g.fillStyle=t.c;for(let k=0;k<t.n;k++){const bx=t.x+k*2-t.n,hh=t.h-(k&1);g.fillRect(bx,t.y-1,1,1);g.fillRect(bx+(lean>>1),t.y-2,1,1);if(hh>2)g.fillRect(bx+lean,t.y-hh,1,hh-2)}}}
  L.sort((a,b)=>a.y-b.y);for(const o of L)o.f();
  drawRainWorld();drawBirds();
