@@ -1736,7 +1736,7 @@ const ICONS={carkey:[[-7,-2,6,5,'#1a1a1c'],[-6,-1,2,2,'#d83030'],[-1,0,8,2,'#c8c
 function drawIcon(k,cx,cy,s,dim){const p=Math.max(1,Math.floor(s/22));u.globalAlpha=dim?.3:1;for(const [x,y,w,h,c] of ICONS[k]||[]){u.fillStyle=c;u.fillRect(Math.round(cx+x*p),Math.round(cy+y*p),w*p,h*p)}u.globalAlpha=1}
 function scoreboard(VW,VH,k,over){
  u.fillStyle='rgba(0,0,0,'+(over?.7:.45)+')';u.fillRect(0,0,VW,VH);
- const cols=[['SPIELER',0,'left'],['PUNKTE',.42,'right'],['KILLS',.56,'right'],['KÖPFE',.72,'right'],['RETTUNGEN',.87,'right'],['AM BODEN',1,'right']];
+ const cols=[['SPIELER',0,'left'],['PUNKTE',.42,'right'],['KILLS',.56,'right'],['HEADSHOTS',.72,'right'],['RETTUNGEN',.87,'right'],['AM BODEN',1,'right']];
  const tw=Math.min(860,VW-40),x0=(VW-tw)/2,rh=40*k;let y=VH*.22;
  HT(over?(PL.length>1?'ALLE SIND TOT':'DU BIST GESTORBEN'):'ARE YOU DEAD YET?',VW/2,y-50*k,(over?54:40)*k,over?'#e0302a':'#ece4d4','center');
  HT('WELLE '+wave+(over?'  ·  ÜBERLEBT: '+Math.max(0,wave-1):''),VW/2,y-14*k,22*k,'#c0201a','center');
