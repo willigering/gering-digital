@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate fourteen complete topic cheat sheets
+      - name: Validate all topic cheat sheets
         run: |
           node --check dau-to-pro/cheat-sheet-data.js
           node --check dau-to-pro/cheat-sheet-questions.js
@@ -49,7 +49,13 @@ jobs:
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-enrichment.js","utf8"),scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-support.js","utf8"),scope);
           vm.runInNewContext(fs.readFileSync("dau-to-pro/cheat-sheet-it-vi.js","utf8"),scope);
-          const groups=scope.DTP_CHEAT_GROUPS;
+          const allGroups=scope.DTP_CHEAT_GROUPS;
+          assert.equal(allGroups.length,15);
+          const loops=allGroups.find(g=>g.id==='csharp-schleifen');
+          assert.equal(loops.sections.length,9);
+          assert.ok(loops.sections.every(c=>c.length===5&&c.every(Boolean)));
+          assert.ok(loops.sections.some(c=>c[2].includes('||')));
+          const groups=allGroups.filter(g=>g!==loops);
           assert.equal(groups.length,14,'Expected fourteen complete topic sheets');
           assert.equal(groups.reduce((n,g)=>n+g.sections.length,0),112,'Expected 112 original sections within fourteen sheets');
           const extras=scope.DTP_CHEAT_EXTRAS;
@@ -57,7 +63,7 @@ jobs:
           assert.equal(Object.keys(deep).length,14,'All fourteen sheets need extended coverage');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('Datenschutzbeauftragter')),'DSB section missing');
           assert.ok(deep.datenschutz.sections.some(s=>s[0].includes('ISB')),'ISB section missing');
-          assert.equal(Object.keys(extras).length,14,"One question bank per topic");
+          assert.equal(Object.keys(extras).length,15,"One question bank per topic");
           const seen=new Set();
           for(const g of groups){
             assert.equal(g.sections.length,8,'Expected eight sections in '+g.name);
@@ -89,7 +95,7 @@ jobs:
           assert.ok(css.includes('grid-template-columns:repeat(5,minmax(0,1fr))'));
           assert.ok(index.includes('id="cheat-sheets"')&&index.includes('cheat-sheet.html?thema='));
           assert.ok(index.includes('id="cheat-mini-grid"')&&shelf.includes('repeat(5,minmax(0,1fr))'));
-          assert.ok(html.includes('id="sheet-detail"')&&html.includes('14 THEMEN'));
+          assert.ok(html.includes('id="sheet-detail"')&&html.includes('15 THEMEN'));
           assert.ok(html.includes('cheat-sheet-questions.js'),'Question bank script not loaded');
           assert.ok(html.includes('cheat-sheet-enrichment.js'),'Deep-dive content script not loaded');
           assert.ok(!/IHK/i.test(html),'No unwanted IHK reference in sheet page');
@@ -106,6 +112,8 @@ jobs:
       - name: Validate Unterrichtsmaterial and learner account endpoint
         run: |
           php -l dau-to-pro/unterricht/it-vi-01.php
+          php -l dau-to-pro/unterricht/csharp-schleifen.php
+          node --check dau-to-pro/unterricht/csharp-schleifen.js
           node --check dau-to-pro/unterricht/it-vi-01-parallax.js
           node <<'JS'
           const fs=require('node:fs'),assert=require('node:assert/strict'),vm=require('node:vm');

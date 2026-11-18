@@ -16,7 +16,7 @@ async function run() {
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(sheet);
     const topics = await page.locator('.topic-card').evaluateAll(cards => cards.map(card => card.href));
-    assert.equal(topics.length, 14);
+    assert.equal(topics.length, 15);
     const assets = new Set();
     for (const url of topics) {
       await page.goto(url);
