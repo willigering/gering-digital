@@ -1296,7 +1296,10 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
  R(g,x-3,y-9,3,4,C(L.pants));R(g,x+1,y-9,3,4,C(ps));
  R(g,x-3+o1,y-6-l1,3,5,C(L.pants));R(g,x+1+o2,y-6-l2,3,5,C(ps));
  R(g,x-3+o1+(sd<0?-1:0),y-2-l1,4,2,C(shoe));R(g,x+1+o2+(sd<0?-1:0),y-2-l2,4,2,C(shoe));
- if(!Z){R(g,x-3+o1+(sd>0?3:-1),y-2-l1,1,1,'#5a5450');R(g,x+1+o2+(sd>0?3:-1),y-2-l2,1,1,'#5a5450')}}
+ if(!Z){R(g,x-3+o1+(sd>0?3:-1),y-2-l1,1,1,'#5a5450');R(g,x+1+o2+(sd>0?3:-1),y-2-l2,1,1,'#5a5450')}
+ R(g,x-3,y-9,1,4,C(shade(L.pants,1.18)));R(g,x-3+o1,y-6-l1,1,4,C(shade(L.pants,1.12)));R(g,x+3+o2,y-6-l2,1,4,C(shade(ps,.8)));
+ R(g,x-2+o1,y-4-l1,1,1,C(shade(L.pants,.8)));R(g,x+2+o2,y-4-l2,1,1,C(shade(ps,.75)));R(g,x-3+o1+(sd<0?-1:0),y-l1-1,4,1,C('#0c0a08'));R(g,x+1+o2+(sd<0?-1:0),y-l2-1,4,1,C('#0c0a08'));
+ if(Z){R(g,x-3+o1,y-3-l1,1,1,C(L.skin));R(g,x+3+o2,y-3-l2,1,2,C(L.skin));if(L.seed%2)R(g,x-1+o1,y-5-l1,1,1,'#5e1414')}}
  const tw=8+F*2,tx=x-4-F+lean,sh=L.shirt;
  const arms=()=>{const sx=x+lean,sy=top+3;
   if(ex.sit==='swing'){for(const o of[-1,1])for(let i=0;i<5;i++)R(g,sx+o*3,sy-i*2,2,2,C(i<2?L.shirt:L.skin))} // Hände an den Ketten
@@ -1344,18 +1347,27 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
  if(L.pack&&(back||Math.abs(fx)>.3)){const px=back?tx+1:(sd>0?tx-3:tx+tw-1);R(g,px,top+1,back?6:3,8,C('#5a4430'));R(g,px,top+1,back?6:3,1,C('#7a6048'));if(back)R(g,px+1,top+4,4,1,C('#3a2a1e'))}
  R(g,tx,top,tw,9,C(sh));R(g,tx+(sd>0?tw-2:0),top,2,9,C(shade(sh,.72)));R(g,tx,top,tw,1,C(shade(sh,1.18)));
  if(!Z&&!back){R(g,tx+tw/2-1,top,2,2,C(L.skin));if(L.jacket){R(g,tx+tw/2-2,top+2,1,6,C(L.jacket));R(g,tx+tw/2+1,top+2,1,6,C(L.jacket))}}
+ R(g,tx,top+7,tw,1,C(shade(sh,.86)));R(g,tx+1,top+1,1,6,C(shade(sh,1.1)));R(g,tx+(sd>0?1:tw-2),top+3,1,3,C(shade(sh,.8)));R(g,tx+(sd>0?tw-3:2),top+2,1,4,C(shade(sh,.85)));
+ if(!back){R(g,tx+tw/2-2,top+1,1,1,C(shade(sh,.6)));R(g,tx+tw/2+1,top+1,1,1,C(shade(sh,.6)));if(!Z){R(g,tx+(sd>0?1:tw-3),top+4,2,2,C(shade(sh,.78)));R(g,tx+(sd>0?1:tw-3),top+4,2,1,C(shade(sh,1.15)))}
+  if(L.jacket&&!Z)for(let i=3;i<7;i+=2)R(g,tx+tw/2,top+i,1,1,C('#b8b8b8'))}
+ else{R(g,tx+2,top+2,tw-4,1,C(shade(sh,.82)));R(g,tx+tw/2,top+3,1,4,C(shade(sh,.85)))}
  R(g,tx,top+8,tw,1,C(Z?shade(sh,.6):'#3a2a20'));if(!Z&&!back)R(g,tx+tw/2-1,top+8,2,1,'#c8a040');
  if(Z){const s=L.seed;R(g,tx+1+s%5,top+1+s%4,2,3,'#5e1414');R(g,tx+(s>>2)%6,top+6,3,2,shade(sh,.55));R(g,tx+tw-2,top+7,1,3,C(sh));
-  if(s%5===0){R(g,tx+2,top+3,4,1,'#c8b8a8');R(g,tx+2,top+5,4,1,'#c8b8a8')}}
+  if(s%5===0){R(g,tx+2,top+3,4,1,'#c8b8a8');R(g,tx+2,top+5,4,1,'#c8b8a8')}
+  R(g,tx+(s*3)%(tw-2),top+2+(s%3),2,2,C(L.skin));R(g,tx+(s*7)%(tw-1),top+5,1,2,'#8a1c1c');R(g,tx+tw-1-(s%3),top+8,1,2,C(sh));R(g,tx+(s%4),top+8,1,1,'#4a0c0c')}
  if(!L.headless){const tilt=Z?Math.round(Math.sin(phase*.7)):0,hx=x-3+lean+tilt,hy=top-7;
-  R(g,hx,hy,6,7,C(L.skin));R(g,hx+(sd>0?5:0),hy+1,1,6,C(shade(L.skin,.82)));R(g,hx,hy+6,6,1,C(shade(L.skin,.85)));
+  R(g,hx+2,hy+7,2,1,C(shade(L.skin,.7)));R(g,hx,hy,6,7,C(L.skin));R(g,hx+(sd>0?5:0),hy+1,1,6,C(shade(L.skin,.82)));R(g,hx,hy+6,6,1,C(shade(L.skin,.85)));R(g,hx+(sd>0?0:5),hy+1,1,4,C(shade(L.skin,1.08)));
+  if(Z){const s=L.seed;R(g,hx+s%4,hy+1+s%3,2,1,'#5a7a4a');R(g,hx+(s>>1)%5,hy+5,1,1,'#3a1010')}
   const hs=L.hs||0,hc=L.hair;
   if(hs===1){R(g,hx-1,hy-1,8,3,C(L.cap));R(g,hx,hy-2,6,1,C(shade(L.cap,1.2)));if(!back)R(g,sd>0?hx+4:hx-2,hy+1,4,1,C(shade(L.cap,.65)));if(back)R(g,hx,hy+2,6,3,C(hc))}
   else if(hs===2){R(g,hx,hy-1,6,3,C(hc));R(g,hx-1,hy,1,7,C(hc));R(g,hx+6,hy,1,7,C(hc));if(back)R(g,hx,hy,6,7,C(hc))}
   else if(hs===3){R(g,hx+1,hy-1,2,1,C(hc));R(g,hx+4,hy,2,1,C(hc));if(back)R(g,hx+1,hy+1,4,2,C(shade(L.skin,.8)))}
   else{R(g,hx,hy-1,6,2,C(hc));R(g,sd>0?hx:hx+5,hy,1,4,C(hc));if(back)R(g,hx,hy,6,5,C(hc))}
+  if(hs!==1&&hs!==3){R(g,hx+1,hy-1,2,1,C(shade(hc,1.35)));if(back)R(g,hx+2,hy+2,1,2,C(shade(hc,.7)))}
+  if(hs===1&&!back)R(g,hx+(sd>0?1:2),hy-1,3,1,C(shade(L.cap,1.35)));
   if(!back){const ey=hy+3,e=Z?'#ff3030':'#1a1a1a';
-   if(Math.abs(fx)>.35){R(g,sd>0?hx+4:hx+1,ey,1,1,e);R(g,sd>0?hx+6:hx-1,ey+1,1,1,C(L.skin))}else{R(g,hx+1,ey,1,1,e);R(g,hx+4,ey,1,1,e)}
+   if(Math.abs(fx)>.35){R(g,sd>0?hx+4:hx+1,ey,1,1,e);R(g,sd>0?hx+6:hx-1,ey+1,1,1,C(L.skin));if(!Z)R(g,sd>0?hx+3:hx+1,ey-1,2,1,C(shade(L.hair,.9)))}
+   else{R(g,hx+1,ey,1,1,e);R(g,hx+4,ey,1,1,e);if(!Z){R(g,hx+1,ey-1,2,1,C(shade(L.hair,.9)));R(g,hx+3,ey-1,2,1,C(shade(L.hair,.9)));R(g,hx+2,ey+1,2,1,C(shade(L.skin,.85)))}else{R(g,hx,ey,2,1,'rgba(40,0,0,.5)');R(g,hx+4,ey,2,1,'rgba(40,0,0,.5)');R(g,hx+1,ey,1,1,e);R(g,hx+4,ey,1,1,e)}}
    if(Z){R(g,hx+(sd>0?3:1),hy+5,2,2,'#3a0808');R(g,hx+(sd>0?2:1),ey-1,2,1,'#3a4a2a')}else R(g,hx+(Math.abs(fx)>.35?(sd>0?3:2):2),hy+5,2,1,C(shade(L.skin,.68)))}
   if(!back&&!Z&&hs!==1)R(g,sd>0?hx-1:hx+6,hy+3,1,2,C(shade(L.skin,.85)))}
  else{R(g,x-2+lean,top-2,4,2,'#7a1010');R(g,x-1+lean,top-3,2,1,'#c8b8a8')}
