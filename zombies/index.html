@@ -955,6 +955,8 @@ const OPT=Object.assign({name:'',char:0,addr:location.protocol.startsWith('http'
 let scoreSaved=false;
 function saveScore(){if(scoreSaved)return;scoreSaved=true;const l=store.get('scores',[]);
  const d=new Date();l.push({n:P.name||'Du',w:Math.max(0,wave-1),k:P.kills,h:P.heads,mp:PL.length>1,d:d.getDate()+'.'+(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2),me:1});l.sort((a,b)=>b.w-a.w||b.k-a.k);store.set('scores',l.slice(0,100))}
+let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamSent=true;const ps=PL.filter(o=>!o.ai).map(o=>({n:o.name||'Spieler',k:o.kills|0,h:o.heads|0}));
+ const gid=[...crypto.getRandomValues(new Uint8Array(6))].map(b=>b.toString(16).padStart(2,'0')).join('');api('score',{gid,w:Math.max(0,wave-1),p:ps}).catch(()=>{})}
 
 // =====================================================================
 // Hauptmenü (gezeichnet – keine Browser-Bedienelemente)
@@ -1003,7 +1005,7 @@ async function sendFeedback(){const msg=$fb('fbt').value.trim(),m=$fb('fbm');if(
 document.addEventListener('DOMContentLoaded',()=>{});
 setTimeout(()=>{$fb('fbx').onclick=closeFeedback;$fb('fbs').onclick=sendFeedback;$fb('fbt').oninput=()=>{$fb('fbc').textContent=$fb('fbt').value.length+' / 2000'};
  $fb('fbt').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeFeedback();if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))sendFeedback()})},0);
-function menuGo(s){menu.screen=s;menu.sel=0;menu.edit=null;menu.fade=0;if(s==='mp')refreshLobbies()}
+function menuGo(s){menu.screen=s;menu.sel=0;menu.edit=null;menu.fade=0;if(s==='mp')refreshLobbies();if(s==='scores'){menu.onReq=0;menu.scroll=0}}
 function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo('play');else if(menu.screen!=='main')menuGo('main')}
 function menuKey(e){const k=e.key,it=menuItems();if(menu.screen==='scores'&&(k==='ArrowDown'||k==='ArrowUp'||k==='PageDown'||k==='PageUp')){menu.scroll=(menu.scroll||0)+(k==='ArrowDown'?1:k==='ArrowUp'?-1:k==='PageDown'?8:-8);e.preventDefault();return}
  if(!menu.edit){if(['ArrowDown','ArrowUp','s','S','w','W','ArrowLeft','ArrowRight','a','A','d','D'].includes(k))sfx('ui_move',null,null,.6);else if(k==='Enter'||k===' ')sfx('ui_select',null,null,.7);else if(k==='Escape')sfx('ui_back',null,null,.7)}
@@ -1066,7 +1068,7 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
   const cw=(VW-L*2)/cols-24,rh=Math.max(18,Math.min(38,avail/per)),{fs,off}=fitKeys(K,cw,rh);
   K.forEach(([k2,v],i)=>{const c=i/per|0,xx=L+c*(cw+24),yy=y+(i%per)*rh;
    MT(k2,xx,yy,fs,'#ffd76a');MT(v,xx+off,yy,fs,'#f0ebe4','left','"VT323"',500)});y+=per*rh+rh*.4}
- if(menu.screen==='scores'){const l=store.get('scores',[]);MT('BESTENLISTE',L,y,Math.max(30,bh*.75),'#ffb040','left','"Jersey 10"',400);y+=bh*1.0;
+ if(menu.screen==='scores'){if(!menu.onReq){menu.onReq=1;menu.online=null;api('scores').then(r=>{if(r&&Array.isArray(r.l))menu.online=r.l}).catch(()=>{})}const l=menu.online||store.get('scores',[]);MT('BESTENLISTE',L,y,Math.max(30,bh*.75),'#ffb040','left','"Jersey 10"',400);MT(menu.online?'ONLINE · alle Spieler':'nur dieser Rechner',L+Math.max(260,bh*4.6),y+4,Math.max(14,bh*.3),menu.online?'#7aff9a':'#8a8290');y+=bh*1.0;
   const tw2=Math.min(VW-L*2,980),rh=Math.max(26,Math.min(36,bh*.56)),fs=rh*.7,top=y+rh*.9,bot=VH*.9-bh*1.5,vis=Math.max(3,Math.floor((bot-top)/rh));
   const nd=tw2<640,HX=nd?1:.86,cols=[['#',0,'left'],['NAME',.08,'left'],['WELLEN',nd?.62:.56,'right'],['KILLS',nd?.8:.71,'right'],['HEADSHOTS',HX,'right'],...(nd?[]:[['DATUM',1,'right']])];
   cols.forEach(([t,f,al])=>MT(t,L+tw2*f,y,fs*.8,'#8a8290',al));u.fillStyle='rgba(255,176,64,.5)';u.fillRect(L,y+rh*.45,tw2,2);
@@ -1864,6 +1866,7 @@ function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
   else{tz=1;rate=camZoom<.98?3.5:4}                                                                                  // wiederbelebt: schnelle Rückfahrt
   camZoom+=(tz-camZoom)*Math.min(1,dt*rate);const ns=Math.round(BASE_SCALE*camZoom*20)/20;if(Math.abs(ns-SCALE)>.001){SCALE=ns;resize()}}
  else if(SCALE!==BASE_SCALE){camZoom=1;SCALE=BASE_SCALE;resize()}
+ if(started&&!NET.client&&!alive().length)sendTeamScore();
  if(started){sfxLoop('rain_loop',OPT.rain!==false,.35);sfxLoop('wind_loop',true,.25);if(LOOPS.wind_loop)LOOPS.wind_loop.gn.gain.value=OPT.svol*SFX_MASTER*.25*(.45+gustG()*.9);
   if(Math.random()<dt*1.2){const vt=TREES.filter(t=>t.v<4&&Math.abs(t.x-cam.x-W/2)<W/2+20&&Math.abs(t.y-cam.y-H/2)<H/2+40);if(vt.length){const t=pick(vt),w=windAt(t.x,t.y);part({x:t.x+rnd(-8,8),y:t.y,z:rnd(22,34),vx:20+w*40,vy:rnd(-4,6),vz:rnd(-2,4),g:9,life:rnd(3,5),c:pick(['#8a6a2a','#a0602a','#6a7a2a','#7a4a20']),s:1})}}sfxLoop('ambient_loop',true,.5);sfxLoop('aerial_loop',true,.4);
   {let fd=1e9;for(const f of FIRES){const dd=Math.hypot(f.x-P.x,f.y-P.y);if(dd<fd)fd=dd}const fv=clamp(1-fd/160,0,1);sfxLoop('fire_loop',fv>0,0);if(LOOPS.fire_loop)LOOPS.fire_loop.gn.gain.value=OPT.svol*SFX_MASTER*fv*fv*.9}

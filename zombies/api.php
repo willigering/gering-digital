@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // Are You Dead Yet? (Zombies) – Lobby-Liste und WebRTC-Verbindungsaufbau (Signalisierung).
-// Abgeleitet von speed/api.php; ohne Bestenliste.
+// Abgeleitet von speed/api.php; dazu eine gemeinsame Online-Bestenliste.
 // Die eigentlichen Spieldaten laufen direkt zwischen den Browsern; hier liegen nur
 // kurzlebige Lobby-Einträge. Kein Login, keine Cookies, keine Session.
 
@@ -75,7 +75,7 @@ if (!is_array($in)) {
     hj_out(['err' => 'Ungültige Anfrage.'], 400);
 }
 $action = isset($_GET['a']) && is_string($_GET['a']) ? $_GET['a'] : '';
-if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'ice', 'feedback'], true)) {
+if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'ice', 'feedback', 'score', 'scores'], true)) {
     hj_out(['err' => 'Unbekannte Aktion.'], 400);
 }
 
@@ -181,6 +181,63 @@ if ($action === 'feedback') {
         hj_out(['ok' => true]);
     }
     hj_out(['err' => 'Das Feedback konnte gerade nicht gesendet werden. Bitte später noch einmal versuchen.'], 503);
+}
+// Gemeinsame Bestenliste: Der Host meldet am Rundenende alle Spieler auf einmal.
+if ($action === 'score' || $action === 'scores') {
+    $ddir = __DIR__ . '/data';
+    if (!is_dir($ddir)) {
+        @mkdir($ddir, 0700, true);
+    }
+    if (!is_file($ddir . '/.htaccess')) {
+        @file_put_contents($ddir . '/.htaccess', "Require all denied\n");
+    }
+    [$sfh, $db] = hj_open($ddir . '/scores.php');
+    if ($sfh === null) {
+        hj_out(['err' => 'Bestenliste ist gerade nicht verfügbar.'], 500);
+    }
+    $list = array_values(array_filter((array) ($db['l'] ?? []), 'is_array'));
+    if ($action === 'scores') {
+        flock($sfh, LOCK_UN);
+        fclose($sfh);
+        $out = array_map(static function (array $e): array {
+            return ['n' => (string) ($e['n'] ?? ''), 'w' => (int) ($e['w'] ?? 0), 'k' => (int) ($e['k'] ?? 0), 'h' => (int) ($e['h'] ?? 0), 'mp' => !empty($e['mp']), 'd' => (string) ($e['d'] ?? '')];
+        }, array_slice($list, 0, 100));
+        hj_out(['l' => $out]);
+    }
+    $now = time();
+    $who = substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|zscore'), 0, 16);
+    $rate = array_values(array_filter((array) ($db['r'] ?? []), static function ($e) use ($now): bool {
+        return is_array($e) && $now - (int) ($e[1] ?? 0) < 3600;
+    }));
+    $mine = count(array_filter($rate, static function ($e) use ($who): bool { return ($e[0] ?? '') === $who; }));
+    $gid = isset($in['gid']) && is_string($in['gid']) && preg_match('/^[a-f0-9]{12}$/', $in['gid']) === 1 ? $in['gid'] : '';
+    $seen = array_values(array_filter((array) ($db['g'] ?? []), static function ($e) use ($now): bool {
+        return is_array($e) && $now - (int) ($e[1] ?? 0) < 86400;
+    }));
+    $dupe = $gid === '' || count(array_filter($seen, static function ($e) use ($gid): bool { return ($e[0] ?? '') === $gid; })) > 0;
+    if ($mine >= 15 || $dupe) {
+        hj_save($sfh, ['l' => $list, 'r' => $rate, 'g' => $seen]);
+        hj_out(['ok' => false]);
+    }
+    $wave = max(0, min(999, (int) ($in['w'] ?? 0)));
+    $pls = is_array($in['p'] ?? null) ? array_slice($in['p'], 0, 8) : [];
+    $mp = count($pls) > 1;
+    $d = date('j.n.y', $now);
+    foreach ($pls as $p) {
+        if (!is_array($p)) {
+            continue;
+        }
+        $k = max(0, min(99999, (int) ($p['k'] ?? 0)));
+        $h = max(0, min($k, (int) ($p['h'] ?? 0)));
+        $list[] = ['n' => hj_name($p['n'] ?? ''), 'w' => $wave, 'k' => $k, 'h' => $h, 'mp' => $mp, 'd' => $d];
+    }
+    usort($list, static function (array $a, array $b): int {
+        return [(int) ($b['w'] ?? 0), (int) ($b['k'] ?? 0)] <=> [(int) ($a['w'] ?? 0), (int) ($a['k'] ?? 0)];
+    });
+    $rate[] = [$who, $now];
+    $seen[] = [$gid, $now];
+    hj_save($sfh, ['l' => array_slice($list, 0, 300), 'r' => $rate, 'g' => $seen]);
+    hj_out(['ok' => true]);
 }
 $id = isset($in['id']) && is_string($in['id']) ? strtoupper($in['id']) : '';
 if (in_array($action, ['poll', 'signal', 'close'], true) && preg_match('/^[A-Z]{4}$/', $id) !== 1) {
