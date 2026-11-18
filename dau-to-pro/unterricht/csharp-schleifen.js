@@ -82,7 +82,7 @@
   get('start-practice').onclick = () => { panel.hidden = get('practiceTask').hidden = false; paintTask(); };
   get('backToLesson').onclick = () => { get('practiceTask').hidden = true; };
   const home = panel.parentElement;
-  new MutationObserver(() => { if (panel.parentElement === home && get('practiceTask').hidden) panel.hidden = true; }).observe(home, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  new MutationObserver(() => { if (panel.parentElement === home && !panel.hidden && get('practiceTask').hidden) panel.hidden = true; }).observe(home, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
   get('practice-next').onclick = () => { current = (current + 1) % tasks.length; paintTask(); };
   get('practiceTask').addEventListener('submit', event => {
     event.preventDefault();
