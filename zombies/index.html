@@ -92,7 +92,7 @@ function wallLine(b,horiz,fixed,from,to,opens,ext,side){
  let cur=from;const add=(a,c,t)=>{if(c-a<1)return;const r=horiz?{x:a,y:fixed,w:c-a,h:WT}:{x:fixed,y:a,w:WT,h:c-a};
   const pc={b,r,horiz,t,ext,side,broken:false,lit:false};PIECES.push(pc);(b.pieces||(b.pieces=[])).push(pc);
   if(t==='wall')solids.push(r);else if(t==='window')WINDOWS.push(pc);
-  else if(t==='door'&&ext){const open=b.kind==='ruin'||(b.damaged&&side==='E');const d={pc,r,hp:open?0:100,broken:open,shake:0};pc.door=d;DOORS.push(d)}};
+  else if(t==='door'&&b.kind!=='ruin'){const d={pc,r,hp:ext?100:70,broken:false,shake:0};pc.door=d;DOORS.push(d)}};
  for(const [o,w,t] of [...opens].sort((a,c)=>a[0]-c[0])){add(cur,from+o,'wall');add(from+o,from+o+w,t==='d'?'door':'window');cur=from+o+w}
  add(cur,to,'wall')}
 const FT={desk:[14,8,8,'#8a6a4a','#6a4e36'],tdesk:[26,12,9,'#7a5a3a','#5a3e26',1],locker:[10,6,22,'#5a7a9a','#46607a',1],table:[24,14,8,'#9a7a5a','#7a5a40'],
@@ -326,7 +326,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=false}
 cv.addEventListener('mousemove',e=>{if(started&&document.pointerLockElement===cv){mouse.x=clamp(mouse.x+e.movementX*OPT.sens/SCALE,0,W);mouse.y=clamp(mouse.y+e.movementY*OPT.sens/SCALE,0,H)}
  else{mouse.x=e.clientX/SCALE;mouse.y=e.clientY/SCALE}});
 cv.addEventListener('mousedown',()=>{if(started&&alive().length&&document.pointerLockElement!==cv)try{const p=cv.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch{}});
-cv.addEventListener('mousedown',()=>mouse.down=true);addEventListener('mouseup',()=>mouse.down=false);
+cv.addEventListener('mousedown',e=>{if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
 cv.addEventListener('wheel',()=>{if(!started)return;if(P.hold){P.hold=null;if(NET.client)NET.out.hd='-'}swap(P);if(NET.client)NET.out.sw=true});cv.addEventListener('contextmenu',e=>e.preventDefault());
 // Nahkampf (Messer): kurze Reichweite, wirkt immer – auch ohne Munition
 function melee(pl){if(pl.meleeT>0||pl.down||pl.dead||pl.reviving)return false;pl.meleeT=.55;pl.stab=.32;
@@ -382,12 +382,14 @@ function tryVault(pl,w){const c=crossTarget(w,pl);if(blocked(c.x,c.y,4,'bullet')
  const dmg=w.broken?0:18,wi=WINDOWS.indexOf(w);breakGlass(w);pl.vault={t:0,sx:pl.x,sy:pl.y,tx:c.x,ty:c.y,d:w.fence?.65:.55,fence:!!w.fence};pl.hop=pl.vault.d;
  if(dmg){if(!NET.client)hurt(pl,dmg);else NET.out.vault=[wi,dmg]}return true}
 function doJump(pl){if(pl.down||pl.dead||pl.vault||pl.jumpT>0)return;const w=nearWindow(pl,10);if(w&&tryVault(pl,w))return;pl.jumpT=.42}
-function startHeal(pl){if((pl.med||0)<=0||pl.healT>0||pl.down||pl.dead)return;let tgt=null,td=22;
- for(const o of PL)if(o!==pl&&!o.dead&&!o.down&&o.hp<o.max){const d=Math.hypot(o.x-pl.x,o.y-pl.y);if(d<td){td=d;tgt=o}}
- if(!tgt){if(pl.hp>=pl.max){ftext(pl.x,pl.y-26,'Volle Gesundheit','#c8c0b8',0,pl);return}tgt=pl}
+// mode 1 = sich selbst (linke Maustaste), 2 = Mitspieler (rechte Maustaste)
+function startHeal(pl,mode=1){if((pl.med||0)<=0||pl.healT>0||pl.down||pl.dead)return;let tgt=null;
+ if(mode===2){let td=24;for(const o of PL)if(o!==pl&&!o.dead&&!o.down&&o.hp<o.max){const d=Math.hypot(o.x-pl.x,o.y-pl.y);if(d<td){td=d;tgt=o}}
+  if(!tgt)return note(pl,'Kein verletzter Mitspieler in der Nähe','#c8c0b8')}
+ else{if(pl.hp>=pl.max)return note(pl,'Gesundheit ist voll','#c8c0b8');tgt=pl}
  pl.healT=3;pl.healTgt=tgt}
 function healTick(pl,dt){const t=pl.healTgt;
- if(!t||t.dead||t.down||pl.down||pl.hold!=='med'||Math.hypot(t.x-pl.x,t.y-pl.y)>30){pl.healT=0;pl.healTgt=null;ftext(pl.x,pl.y-26,'Heilen abgebrochen','#ff8a7a',0,pl);return}
+ if(!t||t.dead||t.down||pl.down||pl.hold!=='med'||Math.hypot(t.x-pl.x,t.y-pl.y)>30){pl.healT=0;pl.healTgt=null;note(pl,'Heilen abgebrochen','#ff8a7a');return}
  if(t!==pl&&Math.random()<dt*7)part({x:t.x+rnd(-5,5),y:t.y,z:rnd(8,18),vx:0,vy:0,vz:14,life:.8,c:'#5aff7a',s:2,ember:1});
  pl.healT-=dt;if(pl.healT>0)return;
  pl.med--;t.hp=Math.min(t.max,t.hp+60);t.hurtT=-5;
@@ -397,10 +399,13 @@ const GROUND=[];let gid=1;
 function dropItem(pl){if(pl.down||pl.dead)return;const x=pl.x+Math.cos(pl.face)*8,y=pl.y+Math.sin(pl.face)*5+2;
  if(pl.hold==='med'){if(pl.med>0){pl.med--;GROUND.push({id:gid++,kind:'med',x,y});if(pl.med<=0)pl.hold=null}return}
  const s=pl.slots[pl.cur],o=pl.slots[1-pl.cur];if(!s)return;
- if(!o){ftext(pl.x,pl.y-26,'Die letzte Waffe kannst du nicht ablegen','#ff8a7a',0,pl);return}
+ if(!o){note(pl,'Die letzte Waffe kannst du nicht ablegen','#ff8a7a');return}
  GROUND.push({id:gid++,kind:'w',k:s.k,r:s.r||0,ammo:s.ammo,res:s.res,x,y});pl.slots=[o,null];pl.cur=0;pl.reloadT=0}
 function swap(pl){if(pl.slots[1-pl.cur]){pl.cur=1-pl.cur;pl.reloadT=0}}
 let msg='',msgT=0;function say(t){msg=t;msgT=2.5}
+const NOTE={};
+// Hinweis-Meldungen höchstens alle 1,5 s pro Spieler und Text
+function note(pl,s,c){const key=(pl.id||'')+s;if(now-(NOTE[key]||-9)<1.5)return;NOTE[key]=now;ftext(pl.x,pl.y-26,s,c,0,pl)}
 const FTX=[];function ftext(x,y,s,c='#fff',big,forPl){if(!forPl||forPl===P)FTX.push({x,y,s,c,t:0,big});evp('ft',Math.round(x),Math.round(y),s,c,big?1:0,forPl?forPl.id:null)}
 function buy(k){const w=WEAPONS[k],own=P.slots.some(s=>s&&s.k===k),c=own?Math.round(w.cost/2):w.cost;
  if(P.money<c)return say('Zu wenig Geld ($'+c+')');P.money-=c;say(own?'Munition gekauft':giveWeapon(P,k).replace('gefunden!','gekauft'))}
@@ -485,13 +490,13 @@ const RLOOKS=[{shirt:'#4a7a3a',jacket:'#2a3a24',hs:0,cap:'#3a5a3a',hair:'#2a1a10
 function addRemote(id,name,i,ch){
  const p=newPlayer({id,name,net:true,x:P.x+10*i,y:P.y+6,look:charLook(ch??i,i*5+2)});
  p.inp=null;p.shots=[];PL.push(p);return p}
-function recvInput(pl,m){const old=pl.inp;pl.inp=m;m.ep=m.ep||(old&&old.ep);pl.shots.push(...(m.shots||[]));if(m.ml)pl.wantMl=true;if(m.th)pl.wantTh=m.th;if(m.hl)pl.wantHl=true;if(m.dp)pl.wantDp=true;if(m.hd)pl.hold=m.hd==='med'&&pl.med>0?'med':null;if(m.bl)pl.wantBl=true;
+function recvInput(pl,m){const old=pl.inp;pl.inp=m;m.ep=m.ep||(old&&old.ep);pl.shots.push(...(m.shots||[]));if(m.ml)pl.wantMl=true;if(m.th)pl.wantTh=m.th;if(m.hl)pl.wantHl=m.hl===2?2:1;if(m.dp)pl.wantDp=true;if(m.hd)pl.hold=m.hd==='med'&&pl.med>0?'med':null;if(m.bl)pl.wantBl=true;
  if(m.rl)pl.wantRl=true;if(m.sw)pl.wantSw=true;if(m.vault)pl.wantVault=m.vault}
 function remoteThink(pl,dt){const i=pl.inp;if(!i)return;
  pl.x=i.x;pl.y=i.y;pl.face=i.f;pl.phase=i.ph;pl.moving=i.mv;if(i.hop>(pl.hop||0))pl.hop=i.hop;
  for(const [a,h] of pl.shots){const w=curW(pl);if(w.s.ammo>0&&pl.reloadT<=0&&!pl.reviving)shoot(pl,a,h)}pl.shots.length=0;
  if(pl.wantMl){melee(pl);pl.wantMl=false}
- if(pl.wantHl){startHeal(pl);pl.wantHl=false}if(pl.wantDp){dropItem(pl);pl.wantDp=false}
+ if(pl.wantHl){startHeal(pl,pl.wantHl);pl.wantHl=false}if(pl.wantDp){dropItem(pl);pl.wantDp=false}
  if(pl.wantTh){const [ty,tx,tyy]=pl.wantTh;if(ty==='gren'||ty==='bomb')throwItem(pl,ty,+tx||pl.x,+tyy||pl.y);pl.wantTh=null}
  if(pl.wantBl){if(curW(pl).melee)bluntSwing(pl);pl.wantBl=false}
  if(pl.wantRl){startReload(pl);pl.wantRl=false}if(pl.wantSw){swap(pl);pl.wantSw=false}
@@ -506,7 +511,7 @@ function localControl(pl,dt){const wx=mouse.x+cam.x,wy=mouse.y+cam.y;
  for(const z of zombies)if(z.hp>0&&Math.abs(wx-z.x)<5&&wy<z.y+1&&wy>z.y-21&&(!tz||Math.hypot(z.x-pl.x,z.y-pl.y)<Math.hypot(tz.x-pl.x,tz.y-pl.y)))tz=z;
  if(tz){aimH=clamp(tz.y-wy,2,19);ang=Math.atan2(tz.y-pl.y,tz.x-pl.x)}
  pl.face=Math.atan2(wy-(pl.y-9),wx-pl.x);pl.aimHead=tz&&aimH>=13.5;
- if(pl.hold==='med'){if(mouse.down&&!(pl.healT>0)){if(NET.client){if(!(pl.healReq>0)){NET.out.hl=true;pl.healReq=.5}}else startHeal(pl)}}
+ if(pl.hold==='med'){const hm=mouse.down?1:mouse.rdown?2:0;if(hm&&!(pl.healT>0)){if(NET.client){if(!(pl.healReq>0)){NET.out.hl=hm;pl.healReq=.5}}else startHeal(pl,hm)}}
  else if(mouse.down&&pl.cd<=0&&pl.reloadT<=0&&!pl.search&&!pl.reviving){const w=curW(pl);
   if(w.melee){if(!pl.down){bluntSwing(pl);if(NET.client)NET.out.bl=true}}
   else if(w.s.ammo<=0){startReload(pl);if(NET.client)NET.out.rl=true}
@@ -522,7 +527,7 @@ function clientRest(dt){
  cameraUpdate(dt);
  NET.sendT-=dt;if(NET.sendT<=0){NET.sendT=1/30;
   netSend({t:'in',x:Math.round(P.x*10)/10,y:Math.round(P.y*10)/10,f:+P.face.toFixed(2),ph:+P.phase.toFixed(2),mv:P.moving,hop:+(P.hop||0).toFixed(2),e:!!keys.e,...NET.out});
-  NET.out={shots:[],rl:false,sw:false,vault:null,ep:false,ml:false,bl:false,th:null,hl:false,hd:null,dp:false}}}
+  NET.out={shots:[],rl:false,sw:false,vault:null,ep:false,ml:false,bl:false,th:null,hl:0,hd:null,dp:false}}}
 function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
  netSend({t:'snap',wave,toSpawn,breakT:+breakT.toFixed(1),
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
@@ -847,7 +852,6 @@ function update(dt){
    if(k>=1){pl.vault=null;for(let i=0;i<6;i++)part({x:pl.x+rnd(-3,3),y:pl.y,z:0,vx:rnd(-12,12),vy:rnd(-4,4),life:.5,c:'#8a8478',s:2,grow:6,smoke:1})}continue}
   if(pl.down&&!NET.client){pl.bleed-=dt;if(pl.bleed<=0){die(pl);ftext(pl.x,pl.y-20,pl.name+' ist verblutet','#ff5a4a',1);continue}}
   if(pl.reloadT>0){pl.reloadT-=dt;if(pl.reloadT<=0){const w=curW(pl),take=Math.min(w.mag-w.s.ammo,w.s.res);w.s.ammo+=take;w.s.res-=take}}
-  if(!NET.client&&!pl.down&&pl.hp<pl.max&&pl.hurtT<-3)pl.hp=Math.min(pl.max,pl.hp+8*dt);
   if(pl.ai){botThink(pl,dt);continue}
   if(pl.net){remoteThink(pl,dt);continue}
   localControl(pl,dt);
@@ -929,7 +933,7 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
   else{cost=2000*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{pl.pap[s.k]=lv+1;s.ammo=curW(pl).mag;s.res+=s.ammo*3;
    for(let i=0;i<30;i++)part({x:st.x,y:st.y,z:20,vx:rnd(-50,50),vy:rnd(-30,30),vz:rnd(20,80),g:150,life:1,c:pick(['#c86bff','#ff6bff','#fff']),s:1});return WEAPONS[s.k].name+' ist jetzt ÜBERMÄCHTIG!'}}
   if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+txt+' – $'+cost,c:pl.money>=cost?'#fff2a8':'#ff8a7a'};
-  if(EP&&auth){if(pl.money<cost)ftext(st.x,st.y-30,'Zu wenig Geld','#ff8a7a',1,pl);else{pl.money-=cost;const r=act();ftext(st.x,st.y-30,r.replace('gefunden!','gekauft'),'#9fff9f',1)}}return}
+  if(EP&&auth){if(pl.money<cost)note(pl,'Zu wenig Geld','#ff8a7a');else{pl.money-=cost;const r=act();ftext(st.x,st.y-30,r.replace('gefunden!','gekauft'),'#9fff9f',1)}}return}
  {let gi=null,gd=14;for(const it of GROUND){const d=Math.hypot(it.x-pl.x,it.y-pl.y);if(d<gd){gd=d;gi=it}}
   if(gi){const nm=gi.kind==='med'?'Verbandskasten':WEAPONS[gi.k].name+((gi.r||0)>0?' ('+RAR[gi.r].n+')':'');
    if(me)prompt={x:gi.x,y:gi.y-16,s:'[E] Aufheben: '+nm,c:gi.kind==='med'?'#9fffb0':RAR[gi.r||0].c};
@@ -1004,6 +1008,9 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
     if(L.seed%3===0&&k===1){R(g,sx+(sd>0?-5-F:4+F),sy,2,8,C(L.shirt));R(g,sx+(sd>0?-5-F:4+F),sy+7,2,2,C(L.skin));continue}
     const s2=Math.sin(phase+k)*1.5;for(let i=0;i<7;i++)R(g,sx+k*3+fx*i*1.15,sy+fy*i*.7+s2*(i/7)+lu*(i/7),2,2,C(i<3?L.shirt:L.skin));
     R(g,sx+k*3+fx*7.5,sy+fy*5+s2+lu,2,1,C(shade(L.skin,.75)))}}
+  else if(gun&&ex.thr>0){const k=1-ex.thr/.35,sx=x+lean,sy=top+3,a=face+(k<.45?-2.5:-2.5+(k-.45)/.55*2.9)*sd,ax=Math.cos(a),ay=Math.sin(a);
+   for(let i=0;i<6;i++)R(g,sx+ax*i,sy+ay*i*.7-(k<.45?2:0),2,2,C(i<2?L.shirt:L.skin));
+   if(k<.5)R(g,sx+ax*6-1,sy+ay*4.2-3,3,3,'#4a5a2a')}
   else if(gun&&gun.med){const sx=x+lean,sy=top+3;
    if(ex.heal>0){const a=now*12;for(const o of[-1,1]){const hx=sx+sd*4+Math.cos(a+o*1.6)*2,hy=sy+3+Math.sin(a+o*1.6)*1.5;for(let i=0;i<4;i++)R(g,lerp(sx+o*2,hx,i/3),lerp(sy,hy,i/3),2,2,C(i<2?L.shirt:L.skin))}
     R(g,sx+sd*4-2,sy+2,4,3,'#f2f2ee');R(g,sx+sd*4-1+Math.round(Math.sin(a)),sy+1,1,4,'#ffffff')}
@@ -1014,9 +1021,7 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
    const hx=sx+sd+ax*rch,hy=sy+ay*rch*.75;R(g,hx-1,hy,3,2,C(L.skin));R(g,hx-ax*2,hy-ay*1.6,2,2,'#3a2a1e');
    for(let i=1;i<6;i++)R(g,hx+ax*i,hy+ay*i*.8,i<5?2:1,1,i<5?'#dfe3e8':'#ffffff');
    if(k>.38&&k<.62)for(let i=0;i<3;i++)R(g,hx+ax*(7+i*2),hy+ay*(6+i*1.6),2,1,'rgba(255,255,255,'+(.6-i*.2)+')')}
-  else if(gun&&ex.thr>0){const k=1-ex.thr/.35,sx=x+lean,sy=top+3,a=face+(k<.45?-2.5:-2.5+(k-.45)/.55*2.9)*sd,ax=Math.cos(a),ay=Math.sin(a);
-   for(let i=0;i<6;i++)R(g,sx+ax*i,sy+ay*i*.7-(k<.45?2:0),2,2,C(i<2?L.shirt:L.skin));
-   if(k<.5)R(g,sx+ax*6-1,sy+ay*4.2-3,3,3,'#4a5a2a')}
+
   else if(gun&&gun.melee){const sx=x+lean,sy=top+3,a=mA,ax=Math.cos(a),ay=Math.sin(a),gx=mK<0?sx+sd*3:sx+ax*3,gy=mK<0?sy+4:sy+ay*2+2;
    // beide Hände am Griff (wie ein Baseballspieler)
    for(const o of[-2,2])for(let i=0;i<5;i++){const px=lerp(sx+o,gx,i/4),py=lerp(sy,gy,i/4);R(g,px,py,2,2,C(i<2?L.shirt:L.skin))}
@@ -1277,7 +1282,7 @@ function hud(cx,cy){
  // --- Waffe & Munition (unten rechts)
  const w=curW(P),R0=VW-28,hm=P.hold==='med';
  if(hm){HT('VERBANDSKASTEN',R0,VH-112*k,24*k,'#9fffb0','right');HT('×'+(P.med||0),R0,VH-34*k,52*k,'#ffffff','right');
-  HT('[Klick] heilen · neben verletztem Mitspieler: +$50',R0,VH-140*k,14*k,'#8a8480','right','"Pixelify Sans",monospace',700)}
+  HT('[Links] dich heilen   [Rechts] Mitspieler heilen (+$50)',R0,VH-140*k,14*k,'#8a8480','right','"Pixelify Sans",monospace',700)}
  else{HT(w.name.toUpperCase()+(w.lv?'  +'+w.lv:''),R0,VH-112*k,24*k,w.lv?'#d79bff':RAR[w.r||0].c,'right');
   if((w.r||0)>0)HT(RAR[w.r].n,R0,VH-138*k,14*k,RAR[w.r].c,'right','"Pixelify Sans",monospace',700)}
  if(P.healT>0){HT('HEILEN …',VW/2,VH/2+62*k,20*k,'#9fffb0','center','"Pixelify Sans",monospace',700);bar(VW/2-80,VH/2+72*k,160,8,1-P.healT/3,'#5aff7a')}
