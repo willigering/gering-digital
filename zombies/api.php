@@ -75,7 +75,7 @@ if (!is_array($in)) {
     hj_out(['err' => 'Ungültige Anfrage.'], 400);
 }
 $action = isset($_GET['a']) && is_string($_GET['a']) ? $_GET['a'] : '';
-if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'ice'], true)) {
+if (!in_array($action, ['list', 'create', 'poll', 'signal', 'close', 'ice', 'feedback'], true)) {
     hj_out(['err' => 'Unbekannte Aktion.'], 400);
 }
 
@@ -135,6 +135,52 @@ if ($action === 'ice') {
         @file_put_contents($cache, HJ_GUARD . json_encode(['t' => time(), 's' => $servers]), LOCK_EX);
     }
     hj_out(['ice' => $servers]);
+}
+// Feedback aus dem Spiel: per STRATO-Mailversand an info@geringdigital.de (ohne Mailprogramm beim Spieler)
+if ($action === 'feedback') {
+    if (!empty($in['website'])) {
+        hj_out(['ok' => true]); // Bot-Falle
+    }
+    $msg = isset($in['msg']) && is_string($in['msg']) ? trim($in['msg']) : '';
+    if ($msg === '' || preg_match('//u', $msg) !== 1 || preg_match_all('/./us', $msg) > 2000 || strpos($msg, "\0") !== false) {
+        hj_out(['err' => 'Bitte schreib eine Nachricht (höchstens 2000 Zeichen).'], 422);
+    }
+    $from = hj_name($in['name'] ?? '');
+    $ddir = __DIR__ . '/data';
+    if (!is_dir($ddir)) {
+        @mkdir($ddir, 0700, true);
+    }
+    if (!is_file($ddir . '/.htaccess')) {
+        @file_put_contents($ddir . '/.htaccess', "Require all denied\n");
+    }
+    [$rfh, $rl] = hj_open($ddir . '/feedback_rate.php');
+    if ($rfh === null) {
+        hj_out(['err' => 'Feedback ist gerade nicht verfügbar.'], 500);
+    }
+    $now = time();
+    $who = substr(hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . '|zombies'), 0, 16);
+    $list = array_values(array_filter((array) ($rl['t'] ?? []), static function ($e) use ($now): bool {
+        return is_array($e) && $now - (int) ($e[1] ?? 0) < 3600;
+    }));
+    $mine = count(array_filter($list, static function ($e) use ($who): bool { return ($e[0] ?? '') === $who; }));
+    if ($mine >= 5 || count($list) >= 60) {
+        hj_save($rfh, ['t' => $list]);
+        hj_out(['err' => 'Du hast gerade schon viel Feedback geschickt – versuch es später noch einmal.'], 429);
+    }
+    $list[] = [$who, $now];
+    hj_save($rfh, ['t' => $list]);
+    $to = 'info@geringdigital.de';
+    $subject = '=?UTF-8?B?' . base64_encode('Are You Dead Yet?') . '?=';
+    $body = "Feedback zu „Are You Dead Yet?“\n\nSpieler: " . $from . "\nWelle: " . max(0, min(9999, (int) ($in['wave'] ?? 0))) . "\n\n" . $msg . "\n";
+    $sent = function_exists('mail') && @mail($to, $subject, $body, [
+        'From' => 'Are You Dead Yet? <' . $to . '>',
+        'MIME-Version' => '1.0',
+        'Content-Type' => 'text/plain; charset=UTF-8',
+    ]);
+    if ($sent) {
+        hj_out(['ok' => true]);
+    }
+    hj_out(['err' => 'Das Feedback konnte gerade nicht gesendet werden. Bitte später noch einmal versuchen.'], 503);
 }
 $id = isset($in['id']) && is_string($in['id']) ? strtoupper($in['id']) : '';
 if (in_array($action, ['poll', 'signal', 'close'], true) && preg_match('/^[A-Z]{4}$/', $id) !== 1) {

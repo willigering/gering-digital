@@ -8,7 +8,20 @@ html,body{margin:0;height:100%;background:#0e0c10;overflow:hidden}
 canvas{display:block;position:absolute;left:0;top:0}
 #c{image-rendering:pixelated;cursor:none}
 #ui{pointer-events:none}
+#fb{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,4,10,.78);z-index:9;font-family:'Pixelify Sans',monospace}
+#fb .p{width:min(560px,calc(100vw - 32px));background:#120f17;border:3px solid #c8561e;box-shadow:0 0 0 3px #000,0 20px 60px #000;padding:22px}
+#fb h2{margin:0 0 4px;font:400 42px 'Jersey 10',monospace;color:#ece4d4;letter-spacing:1px}
+#fb .s{margin:0 0 14px;color:#b8b0a8;font-size:15px}
+#fb textarea{width:100%;box-sizing:border-box;height:180px;resize:vertical;background:#07060a;color:#f2ece4;border:2px solid #3a3440;padding:10px;font:500 17px 'Pixelify Sans',monospace;outline:none}
+#fb textarea:focus{border-color:#e8892e}
+#fb .r{display:flex;gap:10px;margin-top:14px}#fb button{flex:1;padding:12px;font:700 18px 'Pixelify Sans',monospace;border:0;cursor:pointer;background:#1c1822;color:#f0ebe4}
+#fb button.go{background:linear-gradient(90deg,#d6621e,#a84a14);color:#fff}#fb button:hover{filter:brightness(1.2)}#fb button:disabled{opacity:.5;cursor:default}
+#fb .m{min-height:20px;margin-top:10px;font-size:15px;font-weight:700}#fb .c{color:#8a8290;font-size:13px;text-align:right;margin-top:4px}
 </style></head><body><canvas id="c"></canvas><canvas id="ui"></canvas>
+<div id="fb"><div class="p"><h2>FEEDBACK</h2><p class="s">Was gefällt dir, was nervt, was fehlt? Deine Nachricht geht direkt an den Entwickler.</p>
+<textarea id="fbt" maxlength="2000" placeholder="Schreib hier …"></textarea><div class="c" id="fbc">0 / 2000</div>
+<input id="fbw" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+<div class="r"><button id="fbx">ABBRECHEN</button><button id="fbs" class="go">SENDEN</button></div><div class="m" id="fbm"></div></div></div>
 
 <script>
 // =====================================================================
@@ -319,7 +332,7 @@ const PAUSE={on:false,sel:0,rects:[]};const isSolo=()=>!NET.host&&!NET.client;
 const PAUSE_ITEMS=()=>[['WEITERKÄMPFEN',()=>{PAUSE.on=false}],['FEEDBACK SENDEN',openFeedback],['SPIEL VERLASSEN',()=>location.reload()]];
 // Mauszeiger-Fang verloren (Esc im Vollbild-Zielmodus) → Pausenmenü öffnen
 document.addEventListener('pointerlockchange',()=>{if(started&&!document.pointerLockElement&&!PAUSE.on&&!P.dead&&alive().length){PAUSE.on=true;PAUSE.t=now;PAUSE.sel=0;for(const q in keys)keys[q]=false;mouse.down=mouse.rdown=false}});
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(!keys[k]&&k==='e')ePress=true;keys[k]=true;
+addEventListener('keydown',e=>{if(FB.open){if(e.key==='Escape')closeFeedback();return}const k=e.key.toLowerCase();if(!keys[k]&&k==='e')ePress=true;keys[k]=true;
  if(!started){menuKey(e);return}
  if(k==='escape'){if(PAUSE.on&&now-(PAUSE.t||0)<.35){e.preventDefault();return}PAUSE.on=!PAUSE.on;PAUSE.t=now;PAUSE.sel=0;if(PAUSE.on){for(const q in keys)keys[q]=false;mouse.down=mouse.rdown=false;if(document.pointerLockElement)document.exitPointerLock()}e.preventDefault();return}
  if(PAUSE.on){const n=PAUSE_ITEMS().length;if(k==='arrowdown'||k==='s')PAUSE.sel=(PAUSE.sel+1)%n;else if(k==='arrowup'||k==='w')PAUSE.sel=(PAUSE.sel+n-1)%n;else if(k==='enter'||k===' ')PAUSE_ITEMS()[PAUSE.sel][1]();
@@ -932,7 +945,20 @@ function lobbySet(){const me=NET.lobby.find(p=>p.id===NET.id);if(me){me.char=OPT
  if(MODE==='rtc'&&NET.id==='h')rhLobby();else netSend({t:'set',char:OPT.char,ready:LREADY})}
 function setOpt(k,d){if(k==='sens')OPT.sens=Math.round(clamp(OPT.sens+d*.1,.3,3)*10)/10;
  else{let v=Math.round((OPT[k]+d*.05)*100)/100;if(v>1.001)v=0;if(v<-.001)v=1;OPT[k]=clamp(v,0,1)}store.set('opt',OPT);musApply()}
-function openFeedback(){location.href='mailto:info@geringdigital.de?subject='+encodeURIComponent('Are You Dead Yet?')}
+const FB={open:false};const $fb=id=>document.getElementById(id);
+function openFeedback(){FB.open=true;for(const q in keys)keys[q]=false;mouse.down=mouse.rdown=false;if(document.pointerLockElement)document.exitPointerLock();
+ $fb('fb').style.display='flex';$fb('fbm').textContent='';$fb('fbs').disabled=false;setTimeout(()=>$fb('fbt').focus(),30)}
+function closeFeedback(){FB.open=false;$fb('fb').style.display='none'}
+async function sendFeedback(){const msg=$fb('fbt').value.trim(),m=$fb('fbm');if(!msg){m.style.color='#ff8a7a';m.textContent='Bitte zuerst etwas schreiben.';return}
+ if(MODE!=='rtc'){m.style.color='#ff8a7a';m.textContent='Feedback senden geht nur in der Online-Version (geringdigital.de).';return}
+ $fb('fbs').disabled=true;m.style.color='#d8d2c8';m.textContent='Wird gesendet …';
+ try{const r=await api('feedback',{msg,name:OPT.name||P.name||'',wave,website:$fb('fbw').value});
+  if(r&&r.ok){m.style.color='#7aff7a';m.textContent='Danke! Dein Feedback ist angekommen.';$fb('fbt').value='';$fb('fbc').textContent='0 / 2000';setTimeout(closeFeedback,1600)}
+  else{m.style.color='#ff8a7a';m.textContent=(r&&r.err)||'Senden fehlgeschlagen.';$fb('fbs').disabled=false}}
+ catch{m.style.color='#ff8a7a';m.textContent='Keine Verbindung – bitte später noch einmal versuchen.';$fb('fbs').disabled=false}}
+document.addEventListener('DOMContentLoaded',()=>{});
+setTimeout(()=>{$fb('fbx').onclick=closeFeedback;$fb('fbs').onclick=sendFeedback;$fb('fbt').oninput=()=>{$fb('fbc').textContent=$fb('fbt').value.length+' / 2000'};
+ $fb('fbt').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeFeedback();if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))sendFeedback()})},0);
 function menuGo(s){menu.screen=s;menu.sel=0;menu.edit=null;menu.fade=0;if(s==='mp')refreshLobbies()}
 function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo('play');else if(menu.screen!=='main')menuGo('main')}
 function menuKey(e){const k=e.key,it=menuItems();
