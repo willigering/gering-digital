@@ -493,6 +493,7 @@ function addRemote(id,name,i,ch){
 function recvInput(pl,m){const old=pl.inp;pl.inp=m;m.ep=m.ep||(old&&old.ep);pl.shots.push(...(m.shots||[]));if(m.ml)pl.wantMl=true;if(m.th)pl.wantTh=m.th;if(m.hl)pl.wantHl=m.hl===2?2:1;if(m.dp)pl.wantDp=true;if(m.hd)pl.hold=m.hd==='med'&&pl.med>0?'med':null;if(m.bl)pl.wantBl=true;
  if(m.rl)pl.wantRl=true;if(m.sw)pl.wantSw=true;if(m.vault)pl.wantVault=m.vault}
 function remoteThink(pl,dt){const i=pl.inp;if(!i)return;
+ pl.hz=i.pz||0;pl.play=i.pt?{type:i.pt[0]==='w'?'swing':'slide',seat:+i.pt[1]||0,t:1}:null;
  pl.x=i.x;pl.y=i.y;pl.face=i.f;pl.phase=i.ph;pl.moving=i.mv;if(i.hop>(pl.hop||0))pl.hop=i.hop;
  for(const [a,h] of pl.shots){const w=curW(pl);if(w.s.ammo>0&&pl.reloadT<=0&&!pl.reviving)shoot(pl,a,h)}pl.shots.length=0;
  if(pl.wantMl){melee(pl);pl.wantMl=false}
@@ -503,7 +504,20 @@ function remoteThink(pl,dt){const i=pl.inp;if(!i)return;
  if(pl.wantVault){const w=WINDOWS[pl.wantVault[0]];if(w)breakGlass(w);hurt(pl,pl.wantVault[1]);pl.wantVault=null}
  interact(pl,dt);i.ep=false}
 // Steuerung des eigenen Spielers (Host, Solo und Client gleich)
-function localControl(pl,dt){const wx=mouse.x+cam.x,wy=mouse.y+cam.y;
+// Spielplatz: Schaukeln und Rutschen
+const playCode=pl=>pl.play?(pl.play.type==='swing'?'w'+pl.play.seat:'r'):'';
+function startPlay(pl,type,p,seat=0){pl.play={type,p,seat,t:0};pl.hold=null;pl.healT=0}
+function updPlay(pl,dt){const q=pl.play;q.t+=dt;
+ if(q.type==='swing'){const amp=Math.min(.85,.15+q.t*.22),a=amp*Math.sin(q.t*2.4);
+  pl.x=q.p.x+(q.seat?6:-7)+2;pl.y=q.p.y+Math.sin(a)*12;pl.hz=9+(1-Math.cos(a))*14;pl.face=Math.PI/2;pl.moving=false;
+  const mv=keys.w||keys.a||keys.s||keys.d||keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright;
+  if((ePress&&q.t>.3)||mv){pl.play=null;pl.hz=0;pl.y=q.p.y+12;pl.jumpT=.3;pl.playCd=.5}}
+ else{const x0=q.p.x,y0=q.p.y+2;
+  if(q.t<.9){pl.x=x0;pl.y=y0;pl.hz=q.t/.9*22;pl.face=-Math.PI/2;pl.phase+=dt*8;pl.moving=true}
+  else{const k=Math.min(1,(q.t-.9)/.6),e=k*k;pl.x=x0+4+e*20;pl.y=y0;pl.hz=22*(1-e);pl.face=0;pl.moving=false;
+   if(k>=1){pl.play=null;pl.hz=0;pl.x=x0+27;pl.playCd=.5;ftext(pl.x,pl.y-26,'Wiiiii!','#9fd0ff',1)}}}}
+function localControl(pl,dt){const wx=mouse.x+cam.x,wy=mouse.y+cam.y;pl.playCd=(pl.playCd||0)-dt;
+ if(pl.play){updPlay(pl,dt);return}
  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);
  const l=Math.hypot(dx,dy)||1,sp=pl.down?14:keys.shift?95:62;pl.moving=!!(dx||dy);
  if(!pl.search&&!pl.reviving&&!pl.sp){move(pl,dx/l*sp*dt,dy/l*sp*dt);if(pl.moving)pl.phase+=dt*(pl.down?5:keys.shift?16:11)}
@@ -526,12 +540,12 @@ function clientRest(dt){
  const k=Math.min(1,dt*12);for(const z of zombies){z.x+=(z.tx-z.x)*k;z.y+=(z.ty-z.y)*k;z.hit-=dt}
  cameraUpdate(dt);
  NET.sendT-=dt;if(NET.sendT<=0){NET.sendT=1/30;
-  netSend({t:'in',x:Math.round(P.x*10)/10,y:Math.round(P.y*10)/10,f:+P.face.toFixed(2),ph:+P.phase.toFixed(2),mv:P.moving,hop:+(P.hop||0).toFixed(2),e:!!keys.e,...NET.out});
+  netSend({t:'in',pz:+(P.hz||0).toFixed(1),pt:playCode(P),x:Math.round(P.x*10)/10,y:Math.round(P.y*10)/10,f:+P.face.toFixed(2),ph:+P.phase.toFixed(2),mv:P.moving,hop:+(P.hop||0).toFixed(2),e:!!keys.e,...NET.out});
   NET.out={shots:[],rl:false,sw:false,vault:null,ep:false,ml:false,bl:false,th:null,hl:0,hd:null,dp:false}}}
 function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
  netSend({t:'snap',wave,toSpawn,breakT:+breakT.toFixed(1),
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
-   bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
+   bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
    hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0})),
   dr:DOORS.map((d,i)=>d.broken?i:-1).filter(i=>i>=0),
   gi:GROUND.map(i=>[i.id,i.kind==='med'?1:0,i.k||'',i.r||0,Math.round(i.x),Math.round(i.y)]),
@@ -544,7 +558,7 @@ function applySnap(s){wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=n
   if(!p){p=newPlayer({id:d.id,name:d.n,net:true,x:d.x,y:d.y});PL.push(p)}
   if(p===P){if(d.hp<P.hp-1&&!d.dn){P.hurtT=.3;shake=4}if((P.dead&&!d.dd)||(P.down!==d.dn)){P.x=d.x;P.y=d.y}}
   else{p.tx=d.x;p.ty=d.y;p.face=d.f;p.phase=d.ph;p.moving=d.mv;if(d.hop>(p.hop||0))p.hop=d.hop}
-  if(p!==P){if(d.sg>0)p.swing=d.sg;if(d.st>0)p.stab=d.st;if(d.tr>0)p.thrT=d.tr}p.gren=d.gr;p.bomb=d.bo;p.med=d.md;p.healT=d.hT;if(p!==P){p.hold=d.ho;if(d.jp>0)p.jumpT=d.jp}else if(!d.md)P.hold=null;Object.assign(p,{revives:d.rvs,downs:d.dns,knifes:d.kn,name:d.n,ai:d.ai,hp:d.hp,down:d.dn,bleed:d.bl,revT:d.rv,dead:d.dd,money:d.m,kills:d.k,heads:d.hd,slots:d.sl,cur:d.cu,pap:d.pp,zapT:d.zp,sp:d.sp,look:d.lk,rg:d.rg});
+  if(p!==P){if(d.sg>0)p.swing=d.sg;if(d.st>0)p.stab=d.st;if(d.tr>0)p.thrT=d.tr}p.gren=d.gr;p.bomb=d.bo;p.med=d.md;p.healT=d.hT;if(p!==P){p.hold=d.ho;p.hz=d.pz||0;p.play=d.pt?{type:d.pt[0]==='w'?'swing':'slide',seat:+d.pt[1]||0,t:1}:null;if(d.jp>0)p.jumpT=d.jp}else if(!d.md)P.hold=null;Object.assign(p,{revives:d.rvs,downs:d.dns,knifes:d.kn,name:d.n,ai:d.ai,hp:d.hp,down:d.dn,bleed:d.bl,revT:d.rv,dead:d.dd,money:d.m,kills:d.k,heads:d.hd,slots:d.sl,cur:d.cu,pap:d.pp,zapT:d.zp,sp:d.sp,look:d.lk,rg:d.rg});
   if(p!==P||d.rl>0||P.reloadT<=0)p.reloadT=d.rl}
  for(let i=PL.length-1;i>=0;i--)if(!seen.has(PL[i].id))PL.splice(i,1);
  for(const p of PL)p.reviving=p.rg?PL.find(q=>q.id===p.rg)||null:null;
@@ -921,6 +935,10 @@ function cameraUpdate(dt){const f=P.dead?(alive()[0]||P):P,me=f===P;
 let prompt=null;
 function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&&pl.inp.e),EP=me?ePress:!!(pl.inp&&pl.inp.ep);
  if(me)prompt=null;if(pl.down){pl.search=null;return}
+ if(me&&!pl.play&&!(pl.playCd>0))for(const p of PROPS){
+  if(p.t==='swing'){for(const [si,k] of [[0,-7],[1,6]]){const sx=p.x+k+2;if(PL.some(o=>o!==pl&&o.play&&o.play.type==='swing'&&o.play.seat===si))continue;
+    if(Math.hypot(sx-pl.x,p.y+4-pl.y)<10){prompt={x:sx,y:p.y-36,s:'[E] Schaukeln'};if(EP)startPlay(pl,'swing',p,si);return}}}
+  else if(p.t==='slide'&&Math.hypot(p.x-pl.x,p.y+4-pl.y)<12){prompt={x:p.x,y:p.y-34,s:'[E] Rutschen'};if(EP)startPlay(pl,'slide',p);return}}
  const downed=PL.find(o=>o!==pl&&o.down&&!o.dead&&Math.hypot(o.x-pl.x,o.y-pl.y)<16);
  if(downed){if(me)prompt={x:downed.x,y:downed.y-30,s:'[E] halten: '+downed.name+' wiederbeleben',p:downed.revT/3};pl.search=null;return}
  const st=STATIONS.find(s=>Math.hypot(s.x-pl.x,s.y-pl.y)<20);
@@ -1061,6 +1079,8 @@ function drawHuman(x,y,L,face,phase,moving,flash,gun,ex={}){
 function drawCorpse(c){const k=Math.min(1,c.t/.35),e=1-Math.pow(1-k,3);
  g.save();g.translate(Math.round(c.x),Math.round(c.y));g.rotate(c.dir*e*1.45);drawHuman(0,0,c.look,c.face,0,false,0,null);g.restore()}
 function drawPlayer(pl){
+ if(!pl.down&&(pl.play||pl.hz>0)){const sl=pl.play&&pl.play.type==='slide';
+  drawHuman(pl.x,Math.round(pl.y-(pl.hz||0)+(sl?0:6)),pl.look,pl.face,pl.phase,!!(sl&&pl.moving),pl.hurtT>.2,null);return}
  if(pl.down){g.save();g.translate(Math.round(pl.x),Math.round(pl.y));const jolt=pl.zapT>.4?-3:0;g.translate(0,jolt);g.rotate(-1.3);
   drawHuman(0,0,pl.look,-1.6+Math.sin(pl.phase)*.3,pl.phase,false,pl.zapT>.45,curW(pl));g.restore();
   for(let i=0;i<3;i++){const a=now*4+i*2.1;R(g,pl.x-15+Math.cos(a)*6,pl.y-6+Math.sin(a)*2+jolt,2,2,i%2?'#ffe94a':'#fff')} // Sternchen
@@ -1126,7 +1146,9 @@ function drawProp(p){const x=Math.round(p.x),y=Math.round(p.y);
  case'picket':R(g,x,y-10,3,10,'#d8d2c2');R(g,x,y-11,3,1,'#bcb6a6');if(p.x%16<8){R(g,x-5,y-8,8,1,'#bcb6a6');R(g,x-5,y-4,8,1,'#bcb6a6')}break;
  case'bench':R(g,x-14,y-8,28,3,'#8a5a3a');R(g,x-14,y-12,28,2,'#7a4a2e');R(g,x-12,y-5,2,5,'#333');R(g,x+10,y-5,2,5,'#333');break;
  case'swing':R(g,x-16,y-30,2,30,'#c9452e');R(g,x+14,y-30,2,30,'#c9452e');R(g,x-16,y-31,32,2,'#a0352a');
-  for(const k of[-7,6]){const sw=Math.sin(now*1.3+k)*3;R(g,x+k+sw*.3,y-29,1,20,'#999');R(g,x+k+sw*.3+3,y-29,1,20,'#999');R(g,x+k-1+sw,y-10,6,2,'#3a3a3a')}break;
+  for(const [si,k] of [[0,-7],[1,6]]){const o=PL.find(q=>!q.dead&&q.play&&q.play.type==='swing'&&q.play.seat===si);
+   if(o){const sx=Math.round(o.x-3),sy=Math.round(o.y-(o.hz||0));g.strokeStyle='#9a9a9a';g.lineWidth=1;g.beginPath();g.moveTo(x+k+.5,y-29);g.lineTo(sx+.5,sy);g.moveTo(x+k+3.5,y-29);g.lineTo(sx+5.5,sy);g.stroke();R(g,sx-1,sy,7,2,'#3a3a3a')}
+   else{const sw=Math.sin(now*1.3+k)*3;R(g,x+k+sw*.3,y-29,1,20,'#999');R(g,x+k+sw*.3+3,y-29,1,20,'#999');R(g,x+k-1+sw,y-10,6,2,'#3a3a3a')}}break;
  case'slide':R(g,x-4,y-26,2,26,'#d8c040');R(g,x+2,y-26,2,26,'#d8c040');R(g,x-4,y-26,8,3,'#3b6db3');for(let i=0;i<18;i++)R(g,x+4+i,y-24+i*1.3,4,2,'#3b6db3');break;
  case'rubble':R(g,x,y-p.s,p.s,p.s,'#6a625a');R(g,x,y-p.s,p.s,2,'#8a8278');R(g,x+2,y-p.s-3,3,4,'#7a4a3a');break;
  case'hydrant':R(g,x-3,y-9,6,9,'#c8302a');R(g,x-4,y-7,8,2,'#a02420');R(g,x-2,y-11,4,2,'#e04a3a');break;
