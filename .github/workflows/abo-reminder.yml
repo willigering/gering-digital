@@ -1,0 +1,52 @@
+name: Abo-Erinnerungen
+
+# Stößt einmal täglich die Abo-Prüfung auf geringdigital.de an.
+# Dieser Workflow deployt NICHTS und checkt keinen Code aus. Er schickt nur einen
+# POST mit dem Cron-Token (GitHub-Secret ABO_NOTIFY_TOKEN) an /abo/notify.php.
+# Den Token erzeugt Willi auf geringdigital.de/abo („Cron-Token erzeugen“).
+# Fehlt das Secret, endet der Lauf ohne Fehler.
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC = 07:00 Uhr Berlin (Winterzeit) bzw. 08:00 Uhr (Sommerzeit)
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: abo-reminder
+  cancel-in-progress: false
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Abo-Prüfung auslösen
+        env:
+          ABO_NOTIFY_TOKEN: ${{ secrets.ABO_NOTIFY_TOKEN }}
+        shell: bash
+        run: |
+          if [ -z "${ABO_NOTIFY_TOKEN}" ]; then
+            echo "::notice::Secret ABO_NOTIFY_TOKEN ist nicht gesetzt – nichts zu tun."
+            exit 0
+          fi
+          response="$(mktemp)"
+          status="$(curl -sS -o "$response" -w '%{http_code}' --max-time 90 \
+            --retry 2 --retry-delay 30 --retry-connrefused \
+            -X POST -H "X-Abo-Token: ${ABO_NOTIFY_TOKEN}" \
+            -H 'Content-Type: application/json' -H 'Accept: application/json' --data '{}' \
+            https://geringdigital.de/abo/notify.php)" || status="000"
+          # Nur Zahlen ausgeben: Logs dieses öffentlichen Repos sind öffentlich.
+          python3 - "$response" "$status" <<'PY'
+          import json, sys
+          try:
+              data = json.load(open(sys.argv[1], encoding='utf-8'))
+          except Exception:
+              data = {}
+          print(f"HTTP {sys.argv[2]} · fällig: {data.get('due', '?')} · verschickt: {data.get('sent', '?')} · Fehler: {data.get('errors', '?')}")
+          PY
+          rm -f "$response"
+          if [ "$status" != "200" ]; then
+            echo "::error::Abo-Prüfung fehlgeschlagen (HTTP ${status}). Details auf geringdigital.de/abo unter „Benachrichtigungen“."
+            exit 1
+          fi

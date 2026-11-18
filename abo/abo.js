@@ -91,7 +91,7 @@ if (typeof document === "undefined") return;
 
 /* ---------- Oberfläche ---------- */
 var API = "api.php";
-var state = { mode: "loading", rows: [], csrf: "", filter: "all", editing: null };
+var state = { mode: "loading", rows: [], csrf: "", filter: "all", editing: null, notify: null };
 var $ = function (id) { return document.getElementById(id); };
 var INTERVAL_LABEL = { monatlich: "Monatlich", jaehrlich: "Jährlich" };
 
@@ -296,6 +296,131 @@ $("importFile").addEventListener("change", async function () {
   } catch (err) { toast(err.message || "Import fehlgeschlagen.", true); }
 });
 
+/* ---------- Benachrichtigungen ---------- */
+function stamp(isoStr) {
+  var d = new Date(isoStr); if (isNaN(d)) return "";
+  return d.toLocaleString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" }) + " Uhr";
+}
+var CH_LABEL = { email: "E-Mail", whatsapp: "WhatsApp" };
+function previewText() {
+  var lead = Math.min(60, Math.max(1, Number($("nLead").value) || 7)), today = new Date();
+  var d = new Date(today.getFullYear(), today.getMonth(), today.getDate() + lead);
+  var next = summary(state.rows, today).next, pick = next ? next.item : null;
+  var it = pick || { name: "Claude", intervall: "jaehrlich", preis: 214.2 }, facts = [];
+  if (it.intervall) facts.push(it.intervall === "jaehrlich" ? "jährlich" : "monatlich");
+  if (typeof it.preis === "number") facts.push(euro(it.preis));
+  $("nPreview").textContent = "⏰ Abo-Erinnerung: " + it.name + (facts.length ? " (" + facts.join(", ") + ")" : "") + " läuft am " + dateDe(iso(d)) +
+    " ab – " + (lead === 1 ? "morgen" : "in " + lead + " Tagen") + ". Kündigen/verwalten: " + (safeUrl(it.kuendigungslink) || "geringdigital.de/abo");
+}
+function syncPanels() {
+  previewText();
+  $("nEmailPanel").classList.toggle("on", $("nEmailOn").checked);
+  $("nWaPanel").classList.toggle("on", $("nWaOn").checked);
+}
+function fillNotify(n) {
+  if (!n) return;
+  state.notify = n;
+  $("nEmailOn").checked = !!n.emailOn; $("nEmail").value = n.email || "";
+  $("nWaOn").checked = !!n.whatsappOn; $("nPhone").value = n.phone || "";
+  $("nApikey").value = "";
+  $("nApikey").placeholder = n.hasApikey ? "gespeichert " + n.apikeyHint + " · leer = behalten" : "z. B. 123456";
+  $("nKeyState").textContent = n.hasApikey ? "✓ gespeichert" : "";
+  $("nClearKey").classList.toggle("hidden", !n.hasApikey);
+  $("nLead").value = String(n.leadDays || 7);
+  syncPanels();
+  var chans = [];
+  if (n.emailOn) chans.push("E-Mail"); if (n.whatsappOn) chans.push("WhatsApp");
+  var st = $("nStatus");
+  st.textContent = chans.length ? "● An · " + chans.join(" + ") + " · " + n.leadDays + " Tage vorher" : "○ Aus · keine Erinnerungen";
+  st.className = "head-note " + (chans.length ? "on" : "off");
+  var cs = $("nCronState");
+  cs.textContent = n.hasToken ? "✓ Verbunden – Token vom " + stamp(n.tokenCreatedAt).replace(/,.*$/, "")
+    : "Noch nicht verbunden: Token erzeugen und als GitHub-Secret ABO_NOTIFY_TOKEN hinterlegen.";
+  cs.classList.toggle("on", !!n.hasToken);
+  $("nToken").textContent = n.hasToken ? "Neuen Token erzeugen" : "Cron-Token erzeugen";
+  var lr = $("nLastRun"), run = n.lastRun;
+  lr.className = "";
+  if (!run || !run.at) lr.textContent = "noch nie";
+  else {
+    var parts = [stamp(run.at)], sent = Array.isArray(run.sent) ? run.sent.length : 0;
+    parts.push(sent ? sent + (sent === 1 ? " Erinnerung" : " Erinnerungen") + " verschickt" : "nichts fällig");
+    if (Array.isArray(run.errors) && run.errors.length) { parts.push(run.errors.join(" · ")); lr.className = "bad"; }
+    lr.textContent = parts.join(" · ");
+  }
+  var ul = $("nLog"); ul.textContent = "";
+  (n.log || []).forEach(function (e) {
+    var li = el("li");
+    li.appendChild(el("span", "ch " + e.channel, CH_LABEL[e.channel] || e.channel));
+    li.appendChild(el("span", "what", e.name + " · Ablauf " + dateDe(e.ablaufdatum)));
+    var t = el("time", "", stamp(e.sentAt).replace(/ Uhr$/, "")); t.dateTime = e.sentAt;
+    li.appendChild(t); ul.appendChild(li);
+  });
+  if (!ul.children.length) ul.appendChild(el("li", "empty-log", "Noch keine Erinnerung verschickt."));
+}
+function notifyPayload(extra) {
+  return Object.assign({ emailOn: $("nEmailOn").checked, email: $("nEmail").value.trim(), whatsappOn: $("nWaOn").checked,
+    phone: $("nPhone").value.trim(), apikey: $("nApikey").value.trim(), leadDays: Number($("nLead").value) }, extra || {});
+}
+function checkNotify(p) {
+  if (p.email && !/^[^\s@,;<>]+@[^\s@,;<>]+\.[^\s@,;<>]+$/.test(p.email)) return ["nEmail", "Bitte eine gültige E-Mail-Adresse eintragen."];
+  if (p.emailOn && !p.email) return ["nEmail", "Für E-Mail-Erinnerungen fehlt die Empfänger-Adresse."];
+  if (p.phone && !/^(\+|00)[1-9][\d\s\-\/().]{6,22}$/.test(p.phone)) return ["nPhone", "Telefonnummer bitte international, z. B. +49 170 1234567."];
+  if (p.whatsappOn && (!p.phone || (!p.apikey && !(state.notify && state.notify.hasApikey)))) return [p.phone ? "nApikey" : "nPhone", "Für WhatsApp fehlen Telefonnummer oder CallMeBot-Schlüssel."];
+  if (!Number.isInteger(p.leadDays) || p.leadDays < 1 || p.leadDays > 60) return ["nLead", "Vorlauf bitte zwischen 1 und 60 Tagen."];
+  return null;
+}
+async function saveNotify(extra) {
+  var p = notifyPayload(extra), bad = checkNotify(p);
+  $("nError").textContent = "";
+  if (bad) { $("nError").textContent = bad[1]; $(bad[0]).focus(); throw new Error(bad[1]); }
+  var r = await request("notify_save", { settings: p });
+  fillNotify(r.notify); return r;
+}
+async function loadNotify() {
+  try { var r = await request("notify_get", {}); fillNotify(r.notify); } catch (err) { /* Abschnitt bleibt leer */ }
+}
+$("notifyForm").addEventListener("submit", async function (ev) {
+  ev.preventDefault();
+  try { $("nSave").disabled = true; await saveNotify(); toast("Benachrichtigungen gespeichert."); }
+  catch (err) { $("nError").textContent = err.message; }
+  finally { $("nSave").disabled = false; }
+});
+["nEmailOn", "nWaOn"].forEach(function (id) { $(id).addEventListener("change", syncPanels); });
+function stepLead(d) { var v = Number($("nLead").value) || 7; $("nLead").value = String(Math.min(60, Math.max(1, v + d))); previewText(); }
+$("nLead").addEventListener("input", previewText);
+$("nLeadMinus").addEventListener("click", function () { stepLead(-1); });
+$("nLeadPlus").addEventListener("click", function () { stepLead(1); });
+async function testChannel(channel, btn) {
+  try {
+    btn.disabled = true;
+    await saveNotify();
+    await request("notify_test", { channel: channel });
+    toast(channel === "email" ? "Test-E-Mail ist unterwegs." : "Test-WhatsApp ist unterwegs.");
+  } catch (err) { $("nError").textContent = err.message; toast(err.message, true); }
+  finally { btn.disabled = false; }
+}
+$("nTestEmail").addEventListener("click", function () { testChannel("email", this); });
+$("nTestWa").addEventListener("click", function () { testChannel("whatsapp", this); });
+$("nClearKey").addEventListener("click", async function () {
+  if (!confirm("Gespeicherten CallMeBot-Schlüssel entfernen? WhatsApp-Erinnerungen werden dabei ausgeschaltet.")) return;
+  $("nWaOn").checked = false; $("nApikey").value = "";
+  try { await saveNotify({ clearApikey: true }); toast("Schlüssel entfernt."); } catch (err) { $("nError").textContent = err.message; }
+});
+$("nToken").addEventListener("click", async function () {
+  if (state.notify && state.notify.hasToken && !confirm("Neuen Token erzeugen? Der alte funktioniert danach nicht mehr, das GitHub-Secret muss dann ersetzt werden.")) return;
+  try {
+    this.disabled = true;
+    var r = await request("notify_token", {});
+    fillNotify(r.notify);
+    $("nTokenValue").textContent = r.token; $("nTokenBox").classList.remove("hidden");
+  } catch (err) { toast(err.message, true); }
+  finally { this.disabled = false; }
+});
+$("nTokenCopy").addEventListener("click", async function () {
+  try { await navigator.clipboard.writeText($("nTokenValue").textContent); toast("Token kopiert."); }
+  catch (err) { toast("Kopieren nicht möglich – bitte markieren und kopieren.", true); }
+});
+
 /* ---------- Anmeldung ---------- */
 function showAuth(mode) {
   state.mode = mode;
@@ -317,13 +442,13 @@ $("authForm").addEventListener("submit", async function (ev) {
     $("authSubmit").disabled = true; $("authError").textContent = "";
     var r = await request("login", { password: $("authPassword").value });
     if (r.mode !== "ready") throw new Error("Anmeldung fehlgeschlagen.");
-    $("authPassword").value = ""; hideAuth(); setRows(r.items);
+    $("authPassword").value = ""; hideAuth(); setRows(r.items); loadNotify();
   } catch (err) { $("authError").textContent = err.message; }
   finally { $("authSubmit").disabled = false; }
 });
 async function logout() {
   try { await request("logout", {}); } catch (err) { /* Sitzung ist ohnehin weg */ }
-  state.rows = []; render(); showAuth("login"); toast("Abgemeldet.");
+  state.rows = []; render(); $("nTokenBox").classList.add("hidden"); $("nTokenValue").textContent = ""; showAuth("login"); toast("Abgemeldet.");
 }
 $("logoutTop").addEventListener("click", logout);
 
@@ -333,7 +458,7 @@ async function boot() {
     var r = await fetch(API + "?action=state", { credentials: "same-origin", cache: "no-store", headers: { "Accept": "application/json" } });
     var data = await r.json();
     state.csrf = data.csrf || "";
-    if (data.mode === "ready") { hideAuth(); setRows(data.items); }
+    if (data.mode === "ready") { hideAuth(); setRows(data.items); loadNotify(); }
     else if (data.mode === "login" || data.mode === "nosetup") showAuth(data.mode);
     else throw new Error(data.error || "Unbekannter Serverstatus");
   } catch (err) { showAuth("offline"); }

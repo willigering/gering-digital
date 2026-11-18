@@ -9,7 +9,7 @@
 <title>Abos · Gering Digital</title>
 <meta name="description" content="Private Abo-Übersicht.">
 <link rel="icon" href="../assets/favicon-64.png">
-<link rel="stylesheet" href="abo.css?v=abo-1">
+<link rel="stylesheet" href="abo.css?v=abo-2">
 </head>
 <body>
 <div class="backdrop" aria-hidden="true"></div>
@@ -52,7 +52,76 @@
   <section class="grid" id="list" aria-label="Abos"></section>
   <div class="empty hidden" id="empty"><p class="eyebrow">Leer</p><h3>Hier ist noch nichts.</h3><p>Trag dein erstes Abo ein oder spiel eine Sicherung ein.</p><button class="btn primary" type="button" id="emptyNew">＋ Abo eintragen</button></div>
 
-  <section class="section-head"><div><p class="eyebrow">02 / Daten &amp; Sicherung</p><h2>Backup</h2></div></section>
+  <section class="section-head"><div><p class="eyebrow">02 / Erinnerungen</p><h2>Benach&shy;richti&shy;gungen</h2></div><p class="head-note" id="nStatus">&nbsp;</p></section>
+  <form class="notify" id="notifyForm" novalidate>
+    <article class="npanel" id="nEmailPanel">
+      <span class="ghost-num">01</span>
+      <header class="npanel-head">
+        <div><p class="eyebrow">Kanal 01</p><h3>E-Mail</h3></div>
+        <label class="switch"><input type="checkbox" id="nEmailOn"><b aria-hidden="true"></b><span class="sr">E-Mail-Erinnerungen an</span></label>
+      </header>
+      <label class="field"><span>Empfänger-Adresse</span><input id="nEmail" type="email" maxlength="254" autocomplete="email" placeholder="du@beispiel.de"></label>
+      <p class="nhint">Absender ist deine Website (info@geringdigital.de). Landet die erste Mail im Spam-Ordner, markiere sie als „Kein Spam“.</p>
+      <div class="msg-preview"><p class="eyebrow">So sieht die Erinnerung aus</p><p id="nPreview">⏰ Abo-Erinnerung: …</p></div>
+      <footer class="npanel-foot"><button class="btn small" type="button" id="nTestEmail">✉ Test-E-Mail senden</button></footer>
+    </article>
+
+    <article class="npanel" id="nWaPanel">
+      <span class="ghost-num">02</span>
+      <header class="npanel-head">
+        <div><p class="eyebrow">Kanal 02</p><h3>WhatsApp</h3></div>
+        <label class="switch"><input type="checkbox" id="nWaOn"><b aria-hidden="true"></b><span class="sr">WhatsApp-Erinnerungen an</span></label>
+      </header>
+      <label class="field"><span>Deine Nummer (international)</span><input id="nPhone" type="tel" maxlength="24" autocomplete="tel" inputmode="tel" placeholder="+49 170 1234567"></label>
+      <label class="field"><span>CallMeBot-Schlüssel <em id="nKeyState"></em></span><input id="nApikey" maxlength="64" autocomplete="off" spellcheck="false" placeholder="z. B. 123456"></label>
+      <button class="linkish hidden" type="button" id="nClearKey">Gespeicherten Schlüssel entfernen</button>
+      <details class="help">
+        <summary>So bekommst du den Schlüssel (2 Minuten)</summary>
+        <ol>
+          <li>Speichere die Nummer von CallMeBot als Kontakt: <b>+34 644 41 87 20</b> (aktuelle Nummer auf <a href="https://www.callmebot.com/blog/free-api-whatsapp-messages/" target="_blank" rel="noopener noreferrer">callmebot.com</a>).</li>
+          <li>Schick ihr per WhatsApp genau: <code>I allow callmebot to send me messages</code></li>
+          <li>Nach kurzer Zeit antwortet der Bot mit „Your APIKEY is …“. Diese Zahl hier eintragen und speichern.</li>
+        </ol>
+        <p>Kostenloser Dienst für private Nachrichten, ohne Garantie. Kommt keine Antwort, nach 24 Stunden erneut versuchen.</p>
+      </details>
+      <footer class="npanel-foot"><button class="btn small" type="button" id="nTestWa">✆ Test-WhatsApp senden</button></footer>
+    </article>
+
+    <article class="npanel plan">
+      <span class="ghost-num">03</span>
+      <header class="npanel-head"><div><p class="eyebrow">Zeitplan</p><h3>Vorlauf</h3></div></header>
+      <div class="lead-row">
+        <button class="stepper" type="button" id="nLeadMinus" aria-label="Einen Tag weniger">−</button>
+        <label class="lead-box"><input id="nLead" type="number" min="1" max="60" step="1" inputmode="numeric" aria-label="Vorlauf in Tagen"><span>Tage vorher</span></label>
+        <button class="stepper" type="button" id="nLeadPlus" aria-label="Einen Tag mehr">＋</button>
+      </div>
+      <p class="nhint">Jeden Morgen gegen 7 Uhr prüft deine Website alle aktiven Abos. Jeder Ablauf wird pro Kanal nur einmal gemeldet; gekündigte Abos werden übersprungen.</p>
+      <div class="cron" id="nCron">
+        <p class="eyebrow">Tägliche Prüfung</p>
+        <p class="cron-state" id="nCronState">–</p>
+        <button class="btn small ghost" type="button" id="nToken">Cron-Token erzeugen</button>
+        <div class="token hidden" id="nTokenBox">
+          <p>Neuer Token – wird nur <b>jetzt</b> angezeigt:</p>
+          <code id="nTokenValue"></code>
+          <button class="btn small" type="button" id="nTokenCopy">Kopieren</button>
+        </div>
+      </div>
+    </article>
+
+    <article class="npanel log">
+      <span class="ghost-num">04</span>
+      <header class="npanel-head"><div><p class="eyebrow">Protokoll</p><h3>Zuletzt</h3></div></header>
+      <dl class="runinfo"><dt>Letzte Prüfung</dt><dd id="nLastRun">noch nie</dd></dl>
+      <ul class="sentlist" id="nLog"></ul>
+    </article>
+
+    <footer class="notify-foot">
+      <p class="form-error" id="nError" role="alert"></p>
+      <button class="btn primary" type="submit" id="nSave">Einstellungen speichern</button>
+    </footer>
+  </form>
+
+  <section class="section-head"><div><p class="eyebrow">03 / Daten &amp; Sicherung</p><h2>Backup</h2></div></section>
   <section class="backup">
     <div><h3>JSON-Sicherung</h3><p>Exportiert alle Abos als Datei. Beim Import werden Abos mit derselben ID ersetzt, alle anderen bleiben erhalten.</p></div>
     <div class="backup-actions">
@@ -113,6 +182,6 @@
 </section>
 
 <div class="toast" id="toast" role="status" hidden></div>
-<script src="abo.js?v=abo-1"></script>
+<script src="abo.js?v=abo-2"></script>
 </body>
 </html>
