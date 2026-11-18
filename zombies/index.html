@@ -640,7 +640,7 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
  // Menüpunkte
  const it=menuItems(),bw=Math.min(420,VW-L*2),bh=Math.max(46,VH*.065),gap=bh*.28;let y=VH*.38;menuRects=[];
  if(menu.screen==='lobby'){const wide=VW>=1000,rx=wide?L+bw+L*.6:L,rw=wide?VW-rx-L*.6:VW-L*2;let ry=wide?VH*.3:VH*.27;
-  MT('LOBBY'+(NET.code?'  ·  CODE '+NET.code:'')+'   '+NET.lobby.length+'/'+MAXP,rx,ry,bh*.46,'#e8892e');ry+=bh*.7;
+  MT('LOBBY   '+NET.lobby.length+'/'+MAXP,rx,ry,bh*.46,'#e8892e');ry+=bh*.7;
   const ch=drawRoster(rx,ry,rw,wide?VH*.52:VH*.3);if(!wide)y=ry+ch+gap;}
  if(menu.screen==='play'){const sx=L+bw+L*.4;if(VW>=900)drawCard(sx,VH*.38,Math.min(180,VW*.14),{name:OPT.name||'—',char:OPT.char},'DEIN CHARAKTER','#e8892e',true)}
  if(menu.screen==='mp'&&MODE==='rtc'){MT(NET.lobbies.length?'OFFENE LOBBYS':'Keine offene Lobby – hoste ein neues Spiel!',L,y,bh*.36,'#b8b0a8');y+=bh*.6}
