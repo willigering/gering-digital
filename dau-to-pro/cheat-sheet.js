@@ -44,7 +44,7 @@
     zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
     netzwerk:"cables",ipv6:"cables-fiber",dienste:"network-ports",
     sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
-    csharp:"circuit","csharp-schleifen":"circuit-signal",datenbanken:"hardware-connectors",mix:"klausur-bg",
+    csharp:"circuit","csharp-schleifen":"csharp-loops",datenbanken:"hardware-connectors",mix:"klausur-bg",
     support:"cables-braided","it-vi":"circuit-copper"
   };
   const topicImage=(id,size)=>{

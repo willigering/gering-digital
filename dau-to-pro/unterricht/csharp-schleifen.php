@@ -9,7 +9,7 @@ header('Cache-Control: no-store, private');
 <link rel="stylesheet" href="db-material.css">
 <link rel="stylesheet" href="../../tools/module-focus.css">
 <style>
-body{background:#08151a url("../../assets/dau-backgrounds/circuit-1536.webp") center top/cover fixed}
+body{background:#08151a url("../../assets/dau-backgrounds/csharp-loops-1536.webp") center top/cover fixed}
 main{padding-bottom:3rem}
 .hero,.part{background:#0d1c23f5}
 .links,.controls{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center}
@@ -19,7 +19,7 @@ pre{overflow:auto;background:#08151a;border-radius:.5rem;padding:1rem;color:#c0f
 table{width:100%;border-collapse:collapse;text-align:left} th,td{padding:.45rem;border-bottom:1px solid #35515a}
 td:first-child{width:4ch} input{font:inherit;max-width:100%;padding:.5rem}
 #practicePanel{color:#e6f3f3;padding:1rem} [hidden]{display:none!important}
-@media(max-width:600px),(prefers-reduced-motion:reduce){body{background-attachment:scroll}}
+@media(max-width:600px),(prefers-reduced-motion:reduce){body{background-attachment:scroll;background-image:url("../../assets/dau-backgrounds/csharp-loops-768.webp")}}
 </style>
 <script src="../../tools/module-focus.js" defer></script>
 <script src="csharp-schleifen.js?v=1" defer></script>
