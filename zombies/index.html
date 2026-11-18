@@ -722,7 +722,7 @@ async function rtcJoin(code){if(busy)return;busy=true;NET.status='Verbinde mit L
  busy=false}
 
 // ===== Musik: Main Theme im Menü/Lobby, im Spiel zufällige Tracks (nie zweimal hintereinander)
-const MUS={menu:new Audio('music/menu.mp3'),game:new Audio(),list:[1,2,3,4,5,6,7,8].map(i=>'music/groove'+i+'.mp3'),last:-1,mode:'menu',on:false};
+const MUS={menu:new Audio('music/menu.mp3'),game:new Audio(),list:[1,2,3,4,5,6,7,8,9,10].map(i=>'music/slow'+i+'.mp3') /* Disco-Grooves (music/groove1-8) vorerst ausgeschlossen */,last:-1,mode:'menu',on:false};
 MUS.menu.loop=true;MUS.menu.preload='auto';MUS.game.addEventListener('ended',()=>musNext());
 const gameVol=()=>OPT.gvol*OPT.gvol*.8; // wahrnehmungsgerecht: 30 % klingt jetzt wirklich leise
 function musNext(){let i;do i=Math.random()*MUS.list.length|0;while(i===MUS.last&&MUS.list.length>1);MUS.last=i;MUS.game.src=MUS.list[i];MUS.game.volume=gameVol();if(MUS.mode==='game')MUS.game.play().catch(()=>{})}
