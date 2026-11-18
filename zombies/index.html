@@ -29,7 +29,7 @@ canvas{display:block;position:absolute;left:0;top:0}
 // =====================================================================
 const cv=document.getElementById('c');let g=cv.getContext('2d');
 const uc=document.getElementById('ui'),u=uc.getContext('2d');
-const SCALE=3;let W,H,DPR=1;
+let SCALE=3;let W,H,DPR=1;const BASE_SCALE=3;let camZoom=1;
 function mk(w,h){const c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(w));c.height=Math.max(1,Math.ceil(h));const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x]}
 const [light,lg]=mk(1,1),[bloomC,bc]=mk(1,1);
 function resize(){W=Math.ceil(innerWidth/SCALE);H=Math.ceil(innerHeight/SCALE);DPR=devicePixelRatio||1;
@@ -612,7 +612,7 @@ function zombieDie(pl,killer){pl.zombie=false;pl.dead=true;pl.hp=0;addCorpse({x:
  if(killer){killer.money+=200;ftext(pl.x,pl.y-26,'ZOMBIE-'+pl.name.toUpperCase()+' ERLEDIGT +$200','#ffd23a',1,killer)}evp('msg',pl.name+' ist endgültig erledigt');say(pl.name+' ist endgültig erledigt')}
 function hitPZ(pl,dmg,by){if(!pl.zombie||NET.client)return;pl.hp-=dmg;pl.hurtT=.25;blood(pl.x,pl.y,6);if(by)by.money+=10;if(pl.hp<=0)zombieDie(pl,by)}
 function die(pl){if(pl.dead)return;
- if(!pl.ai&&!pl.wasZombie&&PL.some(o=>o!==pl&&!o.ai&&!o.dead&&!o.zombie)&&alive().filter(o=>o!==pl).length){becomeZombie(pl);return}pl.dead=true;pl.down=false;addCorpse({x:pl.x,y:pl.y,look:pl.look,face:pl.face,t:0,dir:1});stain(pl.x,pl.y,8);if(pl===P)saveScore()}
+ if(!pl.ai&&!pl.wasZombie&&PL.some(o=>o!==pl&&!o.ai&&!o.dead&&!o.zombie)&&alive().filter(o=>o!==pl).length){if(!(pl.turnT>0)){pl.turnT=18;pl.down=true;pl.bleed=0;pl.revT=0;ftext(pl.x,pl.y-26,pl.name+' ist tot …','#ff5a4a',1)}return}pl.dead=true;pl.down=false;addCorpse({x:pl.x,y:pl.y,look:pl.look,face:pl.face,t:0,dir:1});stain(pl.x,pl.y,8);if(pl===P)saveScore()}
 function addCorpse(c,head){corpses.push(c);evp('co',Math.round(c.x),Math.round(c.y),c.look,+c.face.toFixed(2),c.dir,head?1:0)}
 
 // =====================================================================
@@ -659,7 +659,7 @@ function updPlay(pl,dt){const q=pl.play;q.t+=dt;
 function clawAttack(pl){if(!pl.zombie||pl.clawT>0)return;pl.clawT=.7;pl.lunge=.3;if(NET.client&&pl===P)return;
  let t=null,td=16;for(const o of PL){if(o===pl||o.dead||o.zombie)continue;const d=Math.hypot(o.x-pl.x,o.y-pl.y);if(d<td){td=d;t=o}}
  if(t){hurt(t,40,true);ftext(t.x,t.y-24,'Gekratzt!','#ff5a4a',0,t)}else meleeObj(pl,30)}
-function localControl(pl,dt){const wx=mouse.x+cam.x,wy=mouse.y+cam.y;pl.playCd=(pl.playCd||0)-dt;pl.clawT=(pl.clawT||0)-dt;pl.lunge=(pl.lunge||0)-dt;
+function localControl(pl,dt){if(pl.turnT>0){pl.moving=false;return}const wx=mouse.x+cam.x,wy=mouse.y+cam.y;pl.playCd=(pl.playCd||0)-dt;pl.clawT=(pl.clawT||0)-dt;pl.lunge=(pl.lunge||0)-dt;
  if(pl.zombie){let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0),dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0);const l=Math.hypot(dx,dy)||1;
   pl.moving=!!(dx||dy);move(pl,dx/l*93*dt,dy/l*93*dt);if(pl.moving)pl.phase+=dt*13;pl.face=Math.atan2(wy-(pl.y-9),wx-pl.x);
   if(mouse.down&&!(pl.clawT>0)){if(NET.client){NET.out.cl=true;pl.clawT=.7;pl.lunge=.3}else clawAttack(pl)}return}
@@ -693,7 +693,7 @@ function clientRest(dt){
 function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
  netSend({t:'snap',wave,toSpawn,breakT:+breakT.toFixed(1),
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
-   bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),ic:p.inCar,ky:p.key,zb:p.zombie?1:0,mx:p.max,sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
+   bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),ic:p.inCar,ky:p.key,tn:+(p.turnT||0).toFixed(1),zb:p.zombie?1:0,mx:p.max,sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
    hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0})),
   cars:CARS.filter(c=>c.dyn||c.unlocked||c.blink>0||c.state==='burning').map(c=>[c.i,Math.round(c.cx),Math.round(c.cy),+c.a.toFixed(3),Math.round(c.spd),c.hits,c.state[0],c.driver||'',c.unlocked?1:0,+Math.max(0,c.blink).toFixed(1)]),
   pu:PUPS.map(p=>[p.id,p.type[0],Math.round(p.x),Math.round(p.y),+p.t.toFixed(1)]),
@@ -708,7 +708,7 @@ function applySnap(s){wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=n
   if(!p){p=newPlayer({id:d.id,name:d.n,net:true,x:d.x,y:d.y});PL.push(p)}
   if(p===P){if(d.hp<P.hp-1&&!d.dn){P.hurtT=.3;shake=4;sfx('zombie_attack',null,null,.8)}if(P.zapT<d.zp-.2)sfx('revive_zap',null,null,.7);if(P.down&&!d.dn&&!d.dd)sfx('revive_done');if((P.dead&&!d.dd)||(P.down!==d.dn)){P.x=d.x;P.y=d.y}}
   else{p.tx=d.x;p.ty=d.y;p.face=d.f;p.phase=d.ph;p.moving=d.mv;if(d.hop>(p.hop||0))p.hop=d.hop}
-  if(p!==P){if(d.sg>0)p.swing=d.sg;if(d.st>0)p.stab=d.st;if(d.tr>0)p.thrT=d.tr}p.gren=d.gr;p.bomb=d.bo;p.med=d.md;p.healT=d.hT;if(p===P&&P.inCar>=0&&d.ic<0){P.x=d.x;P.y=d.y}p.inCar=d.ic;p.key=d.ky;p.zombie=!!d.zb;p.max=d.mx||100;if(p===P&&P.key<0&&P.hold==='key')P.hold=null;
+  if(p!==P){if(d.sg>0)p.swing=d.sg;if(d.st>0)p.stab=d.st;if(d.tr>0)p.thrT=d.tr}p.gren=d.gr;p.bomb=d.bo;p.med=d.md;p.healT=d.hT;if(p===P&&P.inCar>=0&&d.ic<0){P.x=d.x;P.y=d.y}p.inCar=d.ic;p.key=d.ky;p.turnT=d.tn||0;p.zombie=!!d.zb;p.max=d.mx||100;if(p===P&&P.key<0&&P.hold==='key')P.hold=null;
   if(p!==P){p.hold=d.ho;p.hz=d.pz||0;p.play=d.pt?{type:d.pt[0]==='w'?'swing':'slide',seat:+d.pt[1]||0,t:1}:null;if(d.jp>0)p.jumpT=d.jp}else if(!d.md)P.hold=null;Object.assign(p,{revives:d.rvs,downs:d.dns,knifes:d.kn,name:d.n,ai:d.ai,hp:d.hp,down:d.dn,bleed:d.bl,revT:d.rv,dead:d.dd,money:d.m,kills:d.k,heads:d.hd,slots:d.sl,cur:d.cu,pap:d.pp,zapT:d.zp,sp:d.sp,look:d.lk,rg:d.rg});
   if(p!==P||d.rl>0||P.reloadT<=0)p.reloadT=d.rl}
  for(let i=PL.length-1;i>=0;i--)if(!seen.has(PL[i].id))PL.splice(i,1);
@@ -1085,6 +1085,9 @@ function update(dt){
   if(NET.client&&pl!==P){const k=Math.min(1,dt*12);pl.x+=((pl.tx??pl.x)-pl.x)*k;pl.y+=((pl.ty??pl.y)-pl.y)*k;continue}
   if(pl.vault){const v=pl.vault;v.t+=dt;const k=Math.min(1,v.t/(v.d||.5)),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;pl.x=lerp(v.sx,v.tx,e);pl.y=lerp(v.sy,v.ty,e);
    if(k>=1){pl.vault=null;sfx('land',pl.x,pl.y,.7);for(let i=0;i<6;i++)part({x:pl.x+rnd(-3,3),y:pl.y,z:0,vx:rnd(-12,12),vy:rnd(-4,4),life:.5,c:'#8a8478',s:2,grow:6,smoke:1})}continue}
+  if(pl.turnT>0&&!NET.client){pl.turnT-=dt;
+   if(!standing().some(o=>o!==pl&&!o.ai)){pl.turnT=0;pl.wasZombie=true;pl.down=false;die(pl);continue}
+   if(pl.turnT<=0){pl.turnT=0;pl.down=false;becomeZombie(pl)}continue}
   if(pl.down&&!NET.client){pl.bleed-=dt;if(pl.bleed<=0){die(pl);ftext(pl.x,pl.y-20,pl.name+' ist verblutet','#ff5a4a',1);continue}}
   if(pl.reloadT>0){pl.reloadT-=dt;if(pl.reloadT<=0){const w=curW(pl),take=Math.min(w.mag-w.s.ammo,w.s.res);w.s.ammo+=take;w.s.res-=take}}
   if(pl.ai){botThink(pl,dt);continue}
@@ -1096,7 +1099,7 @@ function update(dt){
  ePress=false;
  if(NET.client){clientRest(dt);return}
  // Wiederbeleben
- for(const d of PL){if(!d.down||d.dead)continue;
+ for(const d of PL){if(!d.down||d.dead||d.turnT>0)continue;
   const r=standing().find(o=>o!==d&&Math.hypot(o.x-d.x,o.y-d.y)<16&&(o.ai||(o===P?keys.e:!!(o.inp&&o.inp.e))));
   if(r){r.reviving=d;d.revT+=dt;if(d.zapT<=0){d.zapT=.55;sfx('revive_zap',d.x,d.y,.8);ftext(d.x+rnd(-6,6),d.y-16,pick(['BZZT!','ZAP!','KLONK!','WUMM!']),'#ffe94a');
     for(let i=0;i<6;i++)part({x:d.x,y:d.y,z:6,vx:rnd(-50,50),vy:rnd(-30,30),vz:rnd(20,60),g:200,life:.4,c:'#fff36a',s:1})}
@@ -1337,7 +1340,7 @@ function drawPlayer(pl){
  if(!pl.down&&(pl.play||pl.hz>0)){const sl=pl.play&&pl.play.type==='slide';
   const climb=sl&&(pl.play.t<.9)&&pl.face<0;
   drawHuman(pl.x,Math.round(pl.y-(pl.hz||0)+(sl?0:6)),pl.look,pl.face,climb?now*9:pl.phase,climb,pl.hurtT>.2,null,{sit:climb?null:sl?'slide':'swing',climb,kick:Math.cos(now*2.4)});return}
- if(pl.down){const L=pl.look,fl=pl.zapT>.45,C=c=>fl?'#fff':c,dir=pl.crawlDir??pl.face,jolt=pl.zapT>.4?-3:0,cyc=pl.phase,pull=Math.sin(cyc),body=Math.max(0,-pull)*1.2;
+ if(pl.down){const tn=pl.turnT||0,L=tn>0&&tn<3?{...pl.look,skin:'#8aa070'}:pl.look,fl=pl.zapT>.45||(tn>0&&tn<3&&Math.random()<.15),C=c=>fl?'#fff':c,dir=pl.crawlDir??pl.face,jolt=pl.zapT>.4?-3:tn>0&&tn<3?Math.round(rnd(-2,1)):0,cyc=pl.phase,pull=Math.sin(cyc),body=Math.max(0,-pull)*1.2;
   g.save();g.translate(Math.round(pl.x),Math.round(pl.y-3+jolt));g.rotate(dir);
   const F=(x,y,w,h,c)=>{g.fillStyle=c;g.fillRect(x,y,w,h)};
   F(-12+body,-3,4,2,C('#1c1a18'));F(-12+body,1,4,2,C('#1c1a18'));            // Schuhe
@@ -1676,15 +1679,17 @@ function hud(cx,cy){
    u.fillStyle='#ff3a2a';u.strokeStyle='#000';u.lineWidth=3;u.beginPath();u.moveTo(22,0);u.lineTo(-10,-14);u.lineTo(-4,0);u.lineTo(-10,14);u.closePath();u.stroke();u.fill();u.restore();
    T(pl.name+' '+Math.ceil(pl.bleed)+'s',ax-Math.cos(a)*34,ay-Math.sin(a)*34+5,{size:15,align:'center',color:'#ff6a5a'})}
   else{const b=Math.abs(Math.sin(now*6))*8;u.fillStyle='#ff3a2a';u.strokeStyle='#000';u.lineWidth=3;u.beginPath();u.moveTo(x,y-28+b);u.lineTo(x-12,y-48+b);u.lineTo(x+12,y-48+b);u.closePath();u.stroke();u.fill()}}
- for(const pl of PL)if(pl.down&&!pl.dead){const [x,y]=ws(pl.x-8,pl.y-20);u.beginPath();u.lineWidth=5;u.strokeStyle='rgba(0,0,0,.6)';u.arc(x,y,16,0,7);u.stroke();
+ for(const pl of PL)if(pl.down&&!pl.dead&&!(pl.turnT>0)){const [x,y]=ws(pl.x-8,pl.y-20);u.beginPath();u.lineWidth=5;u.strokeStyle='rgba(0,0,0,.6)';u.arc(x,y,16,0,7);u.stroke();
   u.beginPath();u.strokeStyle='#ff3a2a';u.arc(x,y,16,-Math.PI/2,-Math.PI/2+Math.PI*2*pl.bleed/30);u.stroke();
   if(pl.revT>0){u.beginPath();u.strokeStyle='#4af06a';u.arc(x,y,10,-Math.PI/2,-Math.PI/2+Math.PI*2*pl.revT/3);u.stroke()}
   T(Math.ceil(pl.bleed)+'',x,y+6,{size:15,align:'center'})}
  if(prompt&&!P.down){const [x,y]=ws(prompt.x,prompt.y);T(prompt.s,x,y,{size:17,align:'center',color:prompt.c||'#fff2a8'});if(prompt.p>0)bar(x-50,y+8,100,7,prompt.p,'#fff2a8')}
  for(const pl of PL)if(pl!==P&&!pl.dead){const [x,y]=ws(pl.x,pl.y-24);T(pl.zombie?'ZOMBIE '+pl.name:pl.name,x,y,{size:13,align:'center',weight:700,color:pl.zombie?'#8aff6a':pcol(pl)})}
- if(!keys.tab&&toSpawn===0&&zombies.length===0&&!P.dead)T('Nächste Welle in '+Math.ceil(breakT),VW/2,100,{size:24,align:'center',color:'#ffd76a'});
+ if(!keys.tab&&toSpawn===0&&zombies.length===0&&!P.dead&&!P.down)T('Nächste Welle in '+Math.ceil(breakT),VW/2,100,{size:24,align:'center',color:'#ffd76a'});
  if(msgT>0&&!keys.tab){u.globalAlpha=clamp(msgT,0,1);T(msg,VW/2,140,{size:Math.min(28,VW/msg.length*1.7),align:'center'});u.globalAlpha=1}
- if(P.down)T('AM BODEN! Ein Mitspieler muss dich wiederbeleben – '+Math.ceil(P.bleed)+'s',VW/2,VH/2-80,{size:24,align:'center',color:'#ff6a5a'});
+ if(P.turnT>0){const tn=P.turnT;T(tn>3?'DU BIST TOT …':'DU VERWANDELST DICH!',VW/2,VH/2-80,{size:tn>3?28:34,align:'center',color:tn>3?'#ff5a4a':'#8aff6a'});
+  if(tn>3)T('Gleich geht es weiter – als Zombie',VW/2,VH/2-50,{size:16,align:'center',color:'#d8d0c8'})}
+ else if(P.down)T('AM BODEN! Ein Mitspieler muss dich wiederbeleben – '+Math.ceil(P.bleed)+'s',VW/2,VH/2-80,{size:24,align:'center',color:'#ff6a5a'});
  if(P.dead&&alive().length){const f=specTarget();T('DU BIST TOT',VW/2,70,{size:30,align:'center',color:'#ff4a3a'});
   T('Zuschauer: '+(f.zombie?'ZOMBIE ':'')+f.name+'   ·   [Linksklick] nächster  [Rechtsklick] vorheriger',VW/2,98,{size:16,align:'center',color:'#e8e0d4'})}
  // --- Punktetafel (Tab halten) oder Endbildschirm
@@ -1733,6 +1738,13 @@ buildGround();for(const pc of PIECES)if(pc.horiz){if(pc.t==='window'&&pc.side===
 for(const b of BUILD)makeRoof(b);for(const c of CARS)makeCar(c);
 function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
  if(started&&!alive().length&&document.pointerLockElement)document.exitPointerLock();
+ if(started){let tz=1,rate=4;const tn=P.turnT||0;
+  if(tn>0){if(tn>3){tz=.42;rate=.6}else if(tn>1.5){tz=.42;rate=1;shake=Math.max(shake,3.5)}else{tz=1.35;rate=1.2}}  // liegen → ruckeln → langsam ganz nah ran
+  else if(P.down){tz=Math.max(.42,1-(30-P.bleed)/30*.58);rate=.5}                                                   // Bleed-out: Kamera zieht langsam nach oben
+  else if(P.zombie&&camZoom>1.05){tz=1;rate=1.6}                                                                    // nach der Verwandlung zurück
+  else{tz=1;rate=camZoom<.98?3.5:4}                                                                                  // wiederbelebt: schnelle Rückfahrt
+  camZoom+=(tz-camZoom)*Math.min(1,dt*rate);const ns=Math.round(BASE_SCALE*camZoom*20)/20;if(Math.abs(ns-SCALE)>.001){SCALE=ns;resize()}}
+ else if(SCALE!==BASE_SCALE){camZoom=1;SCALE=BASE_SCALE;resize()}
  if(started){sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);
   if(!alive().length&&!goPlayed){goPlayed=true;sfx('game_over',null,null,1,1,0)}}
  if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render()}else drawMenu(dt);
