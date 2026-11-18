@@ -467,16 +467,16 @@ const BIRDS=[],SPLASH=[],RIPPLES=[],LEAVES=[];let flockT=12,boltT=25,bolt=0,thun
 for(let i=0;i<5;i++)BIRDS.push({x:800+i*85+Math.random()*30,y:410,z:11,perch:true,ph:Math.random()*6});
 for(let i=0;i<4;i++)BIRDS.push({x:140+i*90+Math.random()*30,y:153,z:52,perch:true,ph:Math.random()*6});
 for(const c of CARS)if(Math.random()<.35)BIRDS.push({x:c.x+c.w/2,y:c.y+c.h/2,z:13,perch:true,ph:Math.random()*6,car:c});
-function scareBirds(x,y,r){for(const b of BIRDS)if(b.perch&&Math.hypot(b.x-x,b.y-y)<r){b.perch=false;const a=Math.random()*6.3;b.vx=Math.cos(a)*70;b.vy=Math.sin(a)*35-10;b.vz=60+Math.random()*30}}
+function scareBirds(x,y,r){for(const b of BIRDS)if(b.perch&&Math.hypot(b.x-x,b.y-y)<r){b.perch=false;const a=Math.random()*6.3;b.vx=Math.cos(a)*150;b.vy=Math.sin(a)*70-20;b.vz=90+Math.random()*40}}
 function updAtmos(dt){
  for(const gl of GULLIS)if(Math.abs(gl.x-cam.x-W/2)<W&&Math.abs(gl.y-cam.y-H/2)<H&&Math.random()<dt*4)part({x:gl.x+rnd(-4,4),y:gl.y,z:1,vx:rnd(2,7),vy:rnd(-1,1),vz:rnd(5,10),life:rnd(1.6,2.8),c:'#c8ccd4',s:3,grow:7,smoke:1});
  // Krähen
  for(const p of PL)if(!p.dead)scareBirds(p.x,p.y,55);if(noise_)scareBirds(noise_.x,noise_.y,noise_.r*.8);
- for(const b of BIRDS){b.ph+=dt*(b.perch?2:14);if(b.perch){if(b.car&&b.car.dyn)scareBirds(b.x,b.y,1e9*0+1);continue}
+ for(const b of BIRDS){b.ph+=dt*(b.perch?2:22);if(b.zig)b.y+=Math.sin(b.ph*.5)*40*dt;if(b.perch){if(b.car&&b.car.dyn)scareBirds(b.x,b.y,1e9*0+1);continue}
   b.x+=b.vx*dt;b.y+=b.vy*dt;if(b.vz!==undefined){b.z+=b.vz*dt;b.vz=Math.max(0,b.vz-25*dt);if(b.z>120)b.vz=0}}
  for(let i=BIRDS.length-1;i>=0;i--){const b=BIRDS[i];if(!b.perch&&(b.x<-200||b.x>MW+200||b.y<-200||b.y>MH+200))BIRDS.splice(i,1)}
  flockT-=dt;if(flockT<=0){flockT=20+Math.random()*30;const L=Math.random()<.5,y0=cam.y+Math.random()*H,n=3+Math.random()*5|0;
-  for(let i=0;i<n;i++)BIRDS.push({x:(L?cam.x-40:cam.x+W+40)-(L?1:-1)*i*14+Math.random()*8,y:y0+Math.random()*40-20+i*5,z:90+Math.random()*40,vx:(L?1:-1)*(55+Math.random()*15),vy:Math.random()*10-5,ph:Math.random()*6})}
+  for(let i=0;i<n;i++)BIRDS.push({x:(L?cam.x-40:cam.x+W+40)-(L?1:-1)*i*14+Math.random()*8,y:y0+Math.random()*40-20+i*5,z:90+Math.random()*40,vx:(L?1:-1)*(190+Math.random()*60),vy:Math.random()*30-15,ph:Math.random()*6,zig:1})}
  // Regen-Spritzer und Pfützenringe
  if(OPT.rain!==false){for(let i=0;i<10;i++)if(Math.random()<dt*60/10)SPLASH.push({x:cam.x+Math.random()*W,y:cam.y+Math.random()*H,t:0});
   for(const p of PUDDLES)if(Math.random()<dt*2.5&&Math.abs(p.x-cam.x-W/2)<W)RIPPLES.push({x:p.x+(Math.random()-.5)*p.w*1.4,y:p.y+(Math.random()-.5)*p.w*.5,t:0})}
