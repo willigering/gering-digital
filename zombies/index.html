@@ -328,7 +328,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=false}
 cv.addEventListener('mousemove',e=>{if(started&&document.pointerLockElement===cv){mouse.x=clamp(mouse.x+e.movementX*OPT.sens/SCALE,0,W);mouse.y=clamp(mouse.y+e.movementY*OPT.sens/SCALE,0,H)}
  else{mouse.x=e.clientX/SCALE;mouse.y=e.clientY/SCALE}});
 cv.addEventListener('mousedown',()=>{if(started&&alive().length&&document.pointerLockElement!==cv)try{const p=cv.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch{}});
-cv.addEventListener('mousedown',e=>{if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
+cv.addEventListener('mousedown',e=>{if(started&&P.dead){P.spec=(P.spec||0)+(e.button===2?-1:1);return}if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
 cv.addEventListener('wheel',()=>{if(!started)return;if(P.hold){P.hold=null;if(NET.client)NET.out.hd='-'}swap(P);if(NET.client)NET.out.sw=true});cv.addEventListener('contextmenu',e=>e.preventDefault());
 // Nahkampf (Messer): kurze Reichweite, wirkt immer – auch ohne Munition
 function melee(pl){if(pl.meleeT>0||pl.down||pl.dead||pl.reviving)return false;pl.meleeT=.55;pl.stab=.32;
@@ -481,9 +481,7 @@ const zombies=[],bullets=[],parts=[],corpses=[];
 let wave=0,toSpawn=0,spawnT=0,breakT=4,noise_=null;
 const SPAWNS=[{x:400,y:60},{x:1000,y:60},{x:50,y:520},{x:MW-90,y:520},{x:MW-90,y:850},{x:600,y:MH-75},{x:60,y:920},{x:1250,y:120}];
 const alive=()=>PL.filter(p=>!p.dead&&!p.zombie),standing=()=>PL.filter(p=>!p.dead&&!p.down&&!p.zombie);
-function nextWave(){wave++;toSpawn=Math.round((6+wave*4)*(1+.6*(alive().length-1)));say('WELLE '+wave);evp('msg','WELLE '+wave);waveBell();for(const p of PL)if(!p.dead)p.gren=Math.min(4,(p.gren||0)+2);
- for(const p of PL)if(p.dead&&!p.ai){const a=alive()[0];p.dead=false;p.down=false;p.zombie=false;p.wasZombie=false;p.max=100;p.hp=100;p.slots=[mkW('pistol'),null];p.cur=0;p.reloadT=0;
-  if(a){p.x=a.x;p.y=a.y}ftext(p.x,p.y-26,p.name+' ist zurück!','#7aff7a',1)}}
+function nextWave(){wave++;toSpawn=Math.round((6+wave*4)*(1+.6*(alive().length-1)));say('WELLE '+wave);evp('msg','WELLE '+wave);waveBell();for(const p of PL)if(!p.dead)p.gren=Math.min(4,(p.gren||0)+2);}
 const ZSKIN=['#8aa070','#9aa88a','#7f9468','#a3a68a'],ZSHIRT=['#4a6b3a','#6b3a3a','#3a4f6b','#6b5d3a','#5a5a5a','#7a6a5a','#3a3a3a'];
 function spawnZombie(){
  for(let tries=0;tries<12;tries++){const s=pick(SPAWNS),x=s.x+rnd(-14,14),y=s.y+rnd(-14,14);
@@ -1021,7 +1019,9 @@ function update(dt){
  for(let i=PL.length-1;i>0;i--)if(PL[i].dead&&PL[i].ai)PL.splice(i,1);
  cameraUpdate(dt);
 }
-function cameraUpdate(dt){const f=P.dead?(alive()[0]||P):P,me=f===P;
+const specList=()=>PL.filter(p=>p!==P&&!p.dead);
+function specTarget(){const l=specList();if(!l.length)return P;P.spec=((P.spec||0)%l.length+l.length)%l.length;return l[P.spec]}
+function cameraUpdate(dt){const f=P.dead?specTarget():P,me=f===P;
  const tx=f.x-W/2+(me?(mouse.x-W/2)*.18:0),ty=f.y-10-H/2+(me?(mouse.y-H/2)*.18:0);
  cam.x+=(tx-cam.x)*Math.min(1,dt*8);cam.y+=(ty-cam.y)*Math.min(1,dt*8);
  cam.x=clamp(cam.x,-20,MW-W+20);cam.y=clamp(cam.y,-60,MH-H+20)}
@@ -1500,7 +1500,8 @@ function hud(cx,cy){
  if(!keys.tab&&toSpawn===0&&zombies.length===0&&!P.dead)T('Nächste Welle in '+Math.ceil(breakT),VW/2,100,{size:24,align:'center',color:'#ffd76a'});
  if(msgT>0&&!keys.tab){u.globalAlpha=clamp(msgT,0,1);T(msg,VW/2,140,{size:Math.min(28,VW/msg.length*1.7),align:'center'});u.globalAlpha=1}
  if(P.down)T('AM BODEN! Ein Mitspieler muss dich wiederbeleben – '+Math.ceil(P.bleed)+'s',VW/2,VH/2-80,{size:24,align:'center',color:'#ff6a5a'});
- if(P.dead&&alive().length)T('DU BIST TOT – Respawn in der nächsten Welle',VW/2,VH/2-80,{size:24,align:'center',color:'#ff6a5a'});
+ if(P.dead&&alive().length){const f=specTarget();T('DU BIST TOT',VW/2,70,{size:30,align:'center',color:'#ff4a3a'});
+  T('Zuschauer: '+(f.zombie?'ZOMBIE ':'')+f.name+'   ·   [Linksklick] nächster  [Rechtsklick] vorheriger',VW/2,98,{size:16,align:'center',color:'#e8e0d4'})}
  // --- Punktetafel (Tab halten) oder Endbildschirm
  const over=!alive().length;
  if(keys.tab||over)scoreboard(VW,VH,k,over);
