@@ -324,7 +324,7 @@ function curW(pl){const s=pl.slots[pl.cur],w=WEAPONS[s.k],lv=pl.pap[s.k]||0;
  return{...w,k:s.k,r:s.r||0,dmg:w.dmg*Math.pow(2,lv)*ra.d,mag:Math.round(w.mag*(1+lv*.5)*ra.m),rate:w.rate*Math.pow(.8,lv),lv,s}}
 let waveDone=false,goPlayed=false;
 const SHOT_SND={pistol:'pistol_shot',smg:'smg_shot',shotgun:'shotgun_shot',rifle:'rifle_shot',magnum:'magnum_shot'};
-function startReload(pl){const w=curW(pl);if(!w.melee&&pl.reloadT<=0&&w.s.ammo<w.mag&&w.s.res>0){pl.reloadT=w.reload;sfx(w.k==='shotgun'?'reload_shotgun':w.k==='pistol'||w.k==='magnum'?'reload_pistol':'reload_rifle',pl.x,pl.y,.8)}}
+function startReload(pl){const w=curW(pl);if(!w.melee&&pl.reloadT<=0&&w.s.ammo<w.mag&&w.s.res>0){pl.reloadT=w.reload;sfx('reload_pistol',pl.x,pl.y,.8,w.k==='pistol'||w.k==='magnum'?1:.85)}}
 function giveWeapon(pl,k,r=0){const have=pl.slots.findIndex(s=>s&&s.k===k);
  if(have>=0)return WEAPONS[k].name+' hast du schon';
  pl.hold=null;if(!pl.slots[1]){pl.slots[1]=mkW(k,r);pl.cur=1}else pl.slots[pl.cur]=mkW(k,r);pl.reloadT=0;return WEAPONS[k].name+' gefunden!'}
@@ -861,7 +861,7 @@ const SFX_FILES=['ammo_refill','bat_hit_1','bat_hit_2','door_break','door_hit_1'
  'grenade_throw','headshot','heartbeat_loop','item_drop','item_pickup','knife_hit_1','knife_hit_2','knife_swing','land','loot_found','magnum_shot','no_money','pipe_hit_1','pipe_hit_2',
  'pistol_shot_1','pistol_shot_2','pistol_shot_3','rare_found','reload_pistol','revive_done','revive_zap','rifle_shot_1','rifle_shot_2','round_start','search_loop','shotgun_shot',
  'smg_shot_1','smg_shot_2','smg_shot_3','step_grass_1','step_grass_2','step_grass_3','step_grass_4','swing_whoosh_1','swing_whoosh_2','ui_back','ui_move','ui_select','upgraded_shot',
- 'wave_cleared','weapon_swap','rifle_shot_3','gun_empty','reload_rifle','reload_shotgun','ricochet_1','ricochet_2','ricochet_3','wood_impact_1','wood_impact_2','window_smash','thunder_1','thunder_2','thunder_3','thunder_4','container_open','rain_loop','fire_loop','zombie_attack_1','zombie_attack_2','zombie_bang_door_1','zombie_bang_door_2','zombie_hit_1','zombie_hit_2','zombie_hit_3'];
+ 'wave_cleared','weapon_swap','ricochet_1','ricochet_2','ricochet_3','wood_impact_1','wood_impact_2','window_smash','thunder_1','thunder_2','thunder_3','thunder_4','container_open','rain_loop','fire_loop','zombie_attack_1','zombie_attack_2','zombie_bang_door_1','zombie_bang_door_2','zombie_hit_1','zombie_hit_2','zombie_hit_3'];
 const SFX_GROUPS={};for(const n of SFX_FILES){const g2=n.replace(/_\d+$/,'');(SFX_GROUPS[g2]=SFX_GROUPS[g2]||[]).push(n)}SFX_GROUPS.explosion=['explosion','explosion_2'];
 const SFXB={},SFXT={};let sfxLoaded=false;
 function loadSfx(){if(sfxLoaded)return;sfxLoaded=true;let c;try{c=ac()}catch{return}
