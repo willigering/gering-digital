@@ -943,7 +943,7 @@ for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.
 function menuItems(){switch(menu.screen){
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['STEUERUNG',()=>menuGo('keys')],['OPTIONEN',()=>menuGo('options')],['FEEDBACK',openFeedback]];
  case'keys':return[['ZURÜCK',()=>menuGo('main')]];
- case'play':return[['MULTIPLAYER',()=>{if(!needName())menuGo('mp')}],['SOLO',()=>startGame(false,false)],['◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['ZURÜCK',()=>menuGo('main')]];
+ case'play':return[['SOLO',()=>startGame(false,false)],['MULTIPLAYER',()=>{if(!needName())menuGo('mp')}],['◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['ZURÜCK',()=>menuGo('main')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo('play')]];
   return[['NEUES SPIEL HOSTEN',()=>{P.name=OPT.name;rtcHost()}],
    ...NET.lobbies.slice(0,6).map(l=>[(l.n>=MAXP?'VOLL: ':'BEITRETEN: ')+l.name+'   '+l.n+'/'+MAXP+(l.run?' · läuft':''),()=>{if(l.n<MAXP){P.name=OPT.name;rtcJoin(l.id)}}]),
