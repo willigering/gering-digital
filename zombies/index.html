@@ -341,20 +341,21 @@ addEventListener('keydown',e=>{if(FB.open){if(e.key==='Escape')closeFeedback();r
  if(k==='r'){startReload(P);if(NET.client)NET.out.rl=true}
  if(k==='q'){if(melee(P)&&NET.client)NET.out.ml=true}
  if(k===' '){e.preventDefault();doJump(P)}
- if((k==='g'||k==='f')&&!e.repeat){const ty=k==='g'?'gren':'bomb';if((P[ty]||0)>0&&!P.down&&!P.dead){P.aimT=ty;sfx('weapon_swap',P.x,P.y,.5,1.3)}else say('Keine '+(ty==='gren'?'Granaten':'Rohrbomben')+' mehr')}
+ if((k==='g'||k==='f')&&!e.repeat){const ty=k==='g'?'gren':'bomb';if(P.aimT===ty){P.aimT=null;sfx('weapon_swap',P.x,P.y,.4,.9)}else if((P[ty]||0)>0&&!P.down&&!P.dead){P.aimT=ty;sfx('weapon_swap',P.x,P.y,.5,1.3)}else say('Keine '+(ty==='gren'?'Granaten':'Rohrbomben')+' mehr')}
  if(k==='4'&&P.key>=0){P.hold=P.hold==='key'?null:'key';if(NET.client)NET.out.hd=P.hold||'-'}
  if(k==='3'&&(P.med>0||P.hold==='med')){P.hold=P.hold==='med'?null:'med';if(NET.client)NET.out.hd=P.hold||'-'}
  if(k==='x'){if(NET.client)NET.out.dp=true;else dropItem(P)}
  if((k==='1'||k==='2')&&P.hold){P.hold=null;if(NET.client)NET.out.hd='-'}
  if((k==='1'&&P.cur!==0)||(k==='2'&&P.cur!==1&&P.slots[1])){swap(P);if(NET.client)NET.out.sw=true}
  if(k==='tab')e.preventDefault();if(k==='b'&&!NET.client)addBot();if(e.key==='Enter'&&!alive().length)location.reload()});
-addEventListener('keyup',e=>{const k=e.key.toLowerCase();keys[k]=false;if(P&&P.aimT&&((k==='g'&&P.aimT==='gren')||(k==='f'&&P.aimT==='bomb'))){const ty=P.aimT,tx=mouse.x+cam.x,tyy=mouse.y+cam.y+9;P.aimT=null;if(started&&throwItem(P,ty,tx,tyy)&&NET.client)NET.out.th=[ty,Math.round(tx),Math.round(tyy)]}});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=false});
 cv.addEventListener('mousemove',e=>{if(started&&PAUSE.on){const x=e.clientX,y=e.clientY;PAUSE.rects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3])PAUSE.sel=i})}if(started&&document.pointerLockElement===cv){mouse.x=clamp(mouse.x+e.movementX*OPT.sens/SCALE,0,W);mouse.y=clamp(mouse.y+e.movementY*OPT.sens/SCALE,0,H)}
  else{mouse.x=e.clientX/SCALE;mouse.y=e.clientY/SCALE}});
 cv.addEventListener('mousedown',()=>{if(started&&!PAUSE.on&&alive().length&&document.pointerLockElement!==cv)try{const p=cv.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch{}});
 cv.addEventListener('mousedown',e=>{if(started&&PAUSE.on){const x=e.clientX,y=e.clientY;PAUSE.rects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3])PAUSE_ITEMS()[i][1]()});return}
- if(started&&P.dead){P.spec=(P.spec||0)+(e.button===2?-1:1);return}if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
+ if(started&&P.dead){P.spec=(P.spec||0)+(e.button===2?-1:1);return}
+ if(started&&P.aimT){if(e.button===2){P.aimT=null;return}const ty=P.aimT,tx=mouse.x+cam.x,tyy=mouse.y+cam.y+9;if(throwItem(P,ty,tx,tyy)){if(NET.client)NET.out.th=[ty,Math.round(tx),Math.round(tyy)];if(!(P[ty]>0))P.aimT=null}return}if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
 cv.addEventListener('wheel',()=>{if(!started)return;if(P.hold){P.hold=null;if(NET.client)NET.out.hd='-'}swap(P);if(NET.client)NET.out.sw=true});cv.addEventListener('contextmenu',e=>e.preventDefault());
 // Nahkampf (Messer): kurze Reichweite, wirkt immer – auch ohne Munition
 function melee(pl){if(pl.meleeT>0||pl.down||pl.dead||pl.reviving)return false;pl.meleeT=.55;pl.stab=.32;sfx('knife_swing',pl.x,pl.y,.8);
@@ -549,7 +550,7 @@ const RAIN=[];for(let i=0;i<260;i++)RAIN.push({x:Math.random(),y:Math.random(),s
 function drawRainScreen(dt){if(OPT.rain===false)return;g.strokeStyle='rgba(170,190,225,.32)';g.lineWidth=1;g.beginPath();
  for(const r of RAIN){r.y+=dt*1.5*r.s;r.x-=dt*.18*r.s;if(r.y>1){r.y-=1;r.x=Math.random()*1.2}if(r.x<0)r.x+=1;const x=r.x*W,y=r.y*H;g.moveTo(x,y);g.lineTo(x-2*r.s,y+7*r.s)}g.stroke()}
 function drawMoths(){for(const p of PROPS)if(p.t==='lamp'){const lx=p.x+7,ly=p.y-38;for(let i=0;i<3;i++){const a=now*(3+i)+i*2.1+p.x;R(g,lx+Math.cos(a)*(4+i*2),ly+Math.sin(a*1.3)*(3+i),1,1,'rgba(255,245,200,.9)')}}}
-function swap(pl){if(pl.slots[1-pl.cur]){pl.cur=1-pl.cur;pl.reloadT=0;sfx('weapon_swap',pl.x,pl.y,.7)}}
+function swap(pl){if(pl.aimT)pl.aimT=null;if(pl.slots[1-pl.cur]){pl.cur=1-pl.cur;pl.reloadT=0;sfx('weapon_swap',pl.x,pl.y,.7)}}
 let msg='',msgT=0;function say(t){msg=t;msgT=2.5}
 const NOTE={};
 // Hinweis-Meldungen höchstens alle 1,5 s pro Spieler und Text
@@ -1637,7 +1638,7 @@ function hud(cx,cy){
  u.setTransform(DPR,0,0,DPR,0,0);u.clearRect(0,0,innerWidth,innerHeight);const S=SCALE,VW=innerWidth,VH=innerHeight,k=Math.min(1.25,Math.max(.75,VH/900));
  const ws=(x,y)=>[(x-cx)*S,(y-cy)*S];
  if(started&&P.stam!=null&&P.stam<.999&&!P.down&&!P.dead&&!P.zombie&&P.inCar<0){const[sx,sy]=ws(P.x,P.y+5),bw=16*S,bh=Math.max(3,S*1.2);u.fillStyle='rgba(0,0,0,.6)';u.fillRect(sx-bw/2-1,sy-1,bw+2,bh+2);u.fillStyle=P.exh?'#d0503a':'#e8d06a';u.fillRect(sx-bw/2,sy,bw*P.stam,bh)}
- if(started&&P.aimT){const[ax,ay]=ws(P.x,P.y-12),tx=mouse.x+cam.x,ty=mouse.y+cam.y+9,dx=tx-P.x,dy=ty-P.y,d=Math.min(150,Math.max(20,Math.hypot(dx,dy))),a=Math.atan2(dy,dx),ex=P.x+Math.cos(a)*d,ey=P.y+Math.sin(a)*d;
+ if(started&&P.aimT&&(P.down||P.dead))P.aimT=null;if(started&&P.aimT){const[ax,ay]=ws(P.x,P.y-12),tx=mouse.x+cam.x,ty=mouse.y+cam.y+9,dx=tx-P.x,dy=ty-P.y,d=Math.min(150,Math.max(20,Math.hypot(dx,dy))),a=Math.atan2(dy,dx),ex=P.x+Math.cos(a)*d,ey=P.y+Math.sin(a)*d;
   u.save();u.setLineDash([4,5]);u.lineWidth=2;u.strokeStyle=P.aimT==='bomb'?'rgba(255,120,90,.85)':'rgba(255,230,140,.85)';u.beginPath();for(let i=0;i<=20;i++){const t=i/20,[px,py]=ws(lerp(P.x,ex,t),lerp(P.y,ey,t)-Math.sin(t*Math.PI)*d*.28-12*(1-t));i?u.lineTo(px,py):u.moveTo(px,py)}u.stroke();u.setLineDash([]);
   const[cx2,cy2]=ws(ex,ey);u.beginPath();u.ellipse(cx2,cy2,(P.aimT==='bomb'?40:30)*S/3,(P.aimT==='bomb'?20:15)*S/3,0,0,7);u.stroke();u.restore()}
  // --- Welle (oben links, rote Zählung)
