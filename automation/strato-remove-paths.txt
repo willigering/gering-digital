@@ -8,3 +8,12 @@ dau-to-pro/avatar.css
 dau-to-pro/avatar-editor.js
 dau-to-pro/api/avatar.php
 tools/avatar-pipeline
+# Ungenutzte Disco-Grooves aus „Are You Dead Yet?“ (aus dem Repo entfernt).
+zombies/music/groove1.mp3
+zombies/music/groove2.mp3
+zombies/music/groove3.mp3
+zombies/music/groove4.mp3
+zombies/music/groove5.mp3
+zombies/music/groove6.mp3
+zombies/music/groove7.mp3
+zombies/music/groove8.mp3
