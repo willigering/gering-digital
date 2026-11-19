@@ -24,6 +24,7 @@ run(part('function menuItems()', 'function needName()'));
 run(part('function setOpt(', 'const FB='));
 run(part('let menuRects=[];', 'function MT('));
 assert.ok(!run('menuItems().some(item => /HD-EFFEKTE/.test(item[0]))'));
+assert.ok(!run('menuItems().some(item => /^REGEN:/.test(item[0]))'));
 // Exercise the actual registered mouse handlers, including release (no double-step).
 run('menuRects=menuItems().map((_,i)=>[50,100+i*60,360,45]);');
 for (const [index, key, initial] of [[1, 'mvol', .75], [2, 'gvol', .3], [3, 'svol', .7]]) {
@@ -54,4 +55,34 @@ for (const [flags, expected] of [[{},50],[{head:true},100],[{melee:true},130],[{
   vm.runInContext(deathLoop, ctx);
   assert.equal(player.money, 500+expected, 'No duplicate reward after death');
 }
-console.log('Zombies: syntax, saved HD setting, mouse volume controls, bounds, persistence and kill rewards passed.');
+// Weather belongs to a match and is sent by the host, including to late joiners.
+let packet;
+let random = .1;
+const weather = vm.createContext({
+  Math: Object.assign(Object.create(Math), {random: () => random}),
+  SPLASH: [], RIPPLES: [], bolt: 0, thunderAt: -1, boltT: 25,
+  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0,
+  PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
+  P: {id: 'client'}, netSend: data => {packet = data;},
+});
+const wrun = code => vm.runInContext(code, weather);
+wrun(part('const WEATHER=', '// sitzende Krähen'));
+wrun(part('function hostNet(dt)', 'function applySnap(s)'));
+wrun(part('function applySnap(s)', 'let zid=1;'));
+wrun('startWeather(false)');
+assert.equal(wrun('WEATHER.rain'), true, 'Low roll selects rain');
+random = .9;
+wrun('startWeather(false)');
+assert.equal(wrun('WEATHER.rain'), false, 'High roll selects dry weather');
+for (const rain of [true, false]) {
+  wrun(`startWeather(false,${rain});NET.snapT=0;hostNet(.05)`);
+  assert.equal(packet.rain, rain, 'Host includes weather in snapshots');
+  wrun('startWeather(true)');
+  weather.snapshot = packet;
+  wrun('applySnap(snapshot)');
+  assert.equal(wrun('WEATHER.rain'), rain, 'Late joiner receives host weather');
+}
+wrun('SPLASH.push({});RIPPLES.push({});bolt=.5;thunderAt=10;applyWeather(false)');
+assert.equal(wrun('SPLASH.length+RIPPLES.length+bolt'), 0, 'Dry match has no residual rain or lightning');
+assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
+console.log('Zombies: syntax, HD, mouse volume, bounds, persistence, kill rewards and multiplayer weather passed.');
