@@ -992,6 +992,7 @@ addEventListener('pagehide',()=>{if(started&&alive().length){if(!P.dead)saveScor
 // =====================================================================
 // Hauptmenü (gezeichnet – keine Browser-Bedienelemente)
 // =====================================================================
+const GAME_VERSION='1.4.0';
 const MENU_BG=new Image();MENU_BG.src='menu_bg.png';
 const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
@@ -1076,14 +1077,14 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
  u.setTransform(DPR,0,0,DPR,0,0);const VW=innerWidth,VH=innerHeight;u.clearRect(0,0,VW,VH);
  // Hintergrund (Key-Art mit langsamem Kamera-Drift)
  if(MENU_BG.complete&&MENU_BG.naturalWidth){const iw=MENU_BG.naturalWidth,ih=MENU_BG.naturalHeight,z=1.06+Math.sin(menu.t*.05)*.02;
-  const sc=Math.max(VW/iw,VH/ih)*z,dw=iw*sc,dh=ih*sc,ox=(VW-dw)*.6+Math.sin(menu.t*.07)*VW*.012,oy=(VH-dh)/2+Math.cos(menu.t*.05)*VH*.01;
+  const sc=Math.max(VW/iw,VH/ih)*z,dw=iw*sc,dh=ih*sc,ox=(VW-dw)*.5+Math.sin(menu.t*.07)*VW*.012,oy=(VH-dh)/2+Math.cos(menu.t*.05)*VH*.01;
   u.imageSmoothingEnabled=false;u.drawImage(MENU_BG,ox,oy,dw,dh)}
  else{const gr=u.createLinearGradient(0,0,0,VH);gr.addColorStop(0,'#141a2a');gr.addColorStop(1,'#0a0a10');u.fillStyle=gr;u.fillRect(0,0,VW,VH)}
  // Feuerflackern + Regen + Abdunklung links
  u.globalCompositeOperation='lighter';u.fillStyle=`rgba(255,110,30,${.025+Math.random()*.03})`;u.fillRect(0,0,VW,VH);u.globalCompositeOperation='source-over';
  u.strokeStyle='rgba(170,190,230,.28)';u.lineWidth=1.2;u.beginPath();
  for(const r of menu.rain){r.y+=dt*1.6*r.s;r.x-=dt*.12*r.s;if(r.y>1){r.y-=1.05;r.x=Math.random()*1.2}const x=r.x*VW,y=r.y*VH;u.moveTo(x,y);u.lineTo(x-4*r.s,y+16*r.s)}u.stroke();
- const sh=u.createLinearGradient(0,0,VW*.55,0);sh.addColorStop(0,'rgba(5,4,8,.88)');sh.addColorStop(1,'rgba(5,4,8,0)');u.fillStyle=sh;u.fillRect(0,0,VW,VH);
+ const sh=u.createLinearGradient(0,0,VW*.4,0);sh.addColorStop(0,'rgba(5,4,8,.5)');sh.addColorStop(1,'rgba(5,4,8,0)');u.fillStyle=sh;u.fillRect(0,0,VW,VH);
  const vg=u.createRadialGradient(VW/2,VH/2,VH*.4,VW/2,VH/2,VH*1.1);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.6)');u.fillStyle=vg;u.fillRect(0,0,VW,VH);
  // Titel
  const L=Math.max(24,VW*.07),ts=Math.min(VH*.13,VW*.085);u.globalAlpha=menu.fade;
@@ -1121,6 +1122,7 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
  // Fußleiste
  u.fillStyle='rgba(230,225,215,.35)';u.fillRect(L*.6,VH*.92,VW-L*1.2,1);
  MT(menu.edit?'Tippen  Eingabe     Enter  Fertig':(menuItems()[menu.sel]&&menuItems()[menu.sel][2]?'←→  Ändern     ':'')+'Enter  Auswählen     Esc  Zurück     ↑↓  Navigieren',L*.6+4,VH*.955,Math.max(15,VH*.026),'#f0ebe4','left','"VT323"',700);
+ if(menu.screen==='main')MT('Version '+GAME_VERSION,VW-L*.6-4,VH*.955,Math.max(15,VH*.026),'rgba(240,235,228,.6)','right','"VT323"',700);
  u.globalAlpha=1}
 
 // =====================================================================
