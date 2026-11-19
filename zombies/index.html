@@ -98,7 +98,7 @@ const WALKS=FAIR?[]:[{x:0,y:466,w:MW,h:14},{x:0,y:550,w:MW,h:14},{x:646,y:0,w:14
 const LOTS=FAIR?[]:[{x:290,y:310,w:340,h:150,c:'#8d8a82'},{x:90,y:600,w:490,h:140,c:'#55555a'},{x:90,y:740,w:490,h:150,c:'#4c4c50'},
  {x:1172,y:300,w:52,h:166,c:'#7c7a74'},{x:800,y:600,w:450,h:220,c:'#6b6258'}];
 const SAND={x:300,y:330,w:110,h:110};
-const BL=FAIR?{l:40,t:40,r:2600,b:1800}:{l:36,t:46,r:MW-74,b:MH-58};
+const BL=FAIR?{l:40,t:40,r:2600,b:1200}:{l:36,t:46,r:MW-74,b:MH-58};
 const inR=(r,x,y,m=0)=>x>r.x-m&&x<r.x+r.w+m&&y>r.y-m&&y<r.y+r.h+m;
 const paved=(x,y,m=0)=>[...ROADS,...WALKS,...LOTS].some(r=>inR(r,x,y,m));
 

@@ -63,13 +63,11 @@ function bwGround(){const c=gc;
  // Beton (Kraftwerkshof)
  for(const r of BWG.conc){R(c,...r,'#3e3e44');bwNoise(c,r,['#46464c','#36363c','#4a4a50'],4);for(let x=r[0];x<r[0]+r[2];x+=48)R(c,x,r[1],1,r[3],'rgba(0,0,0,.25)');for(let y=r[1];y<r[1]+r[3];y+=48)R(c,r[0],y,r[2],1,'rgba(0,0,0,.25)');
   for(let i=0;i<14;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];bwEll(c,x,y,srnd(6,16),srnd(3,6),'rgba(10,10,14,.45)')}}
- for(let x=1610;x<1712;x+=8){R(c,x,1274,4,4,'#c8a020');R(c,x+4,1274,4,4,'#1a1a1a')}
  // Felsküste, Terrassen, Strand
  for(const r of BWG.rock){R(c,...r,'#302e36');bwNoise(c,r,['#3a3842','#28262e','#45424c','#34323a'],2)}
  for(const r of BWG.mid){R(c,...r,'#3a3742');bwNoise(c,r,['#433f4c','#33303a','#4a4654'],2.5)}
  for(const r of BWG.plat){R(c,...r,'#45414e');bwNoise(c,r,['#4e4a58','#3c3846','#55505e','#2e3a28'],2.5)}
  for(const r of BWG.shore){R(c,...r,'#3e382f');bwNoise(c,r,['#4a4238','#352f28','#57503f','#2e2a24','#6a6252'],2)}
- for(let i=0;i<700;i++){const x=srnd(1750,2555),y=srnd(1550,1698);R(c,x,y,2,1,spick(['#7a7262','#5e5848','#8a8070']))}
  // Felsfelder (unbegehbar)
  for(const r of BWG.rocks){for(let i=0;i<r[2]*r[3]/40;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3],rr=srnd(3,8)|0;bwCirc(c,x,y,rr,spick(['#3a3640','#2e2b34','#45414c']));R(c,x-rr*.5,y-rr*.6,rr*.6,1,'#5a5662')}}
  // Klippenkanten mit Felswand
@@ -80,7 +78,7 @@ function bwGround(){const c=gc;
  for(const r of BWG.water){R(c,...r,'#0c1a30');for(let i=0;i<r[2]*r[3]/60;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];R(c,x,y,srnd(3,9),1,spick(['#10223e','#0a1628','#142a48']))}}
  // Ufersäume: helleres Flachwasser + Schaum
  const shore=(x,y,w,h)=>{R(c,x,y,w,h,'#183656');for(let i=0;i<(w+h)*1.2;i++)R(c,x+sr()*w,y+sr()*h,1+(sr()*2|0),1,spick(['#6a8aa8','#9ab4c8','#2a4a6a']))};
- shore(40,1190,520,5);shore(624,1190,326,5);shore(880,700,4,490);shore(946,700,4,180);shore(946,940,4,250);shore(556,1190,4,440);shore(624,1190,4,440);shore(560,1700,1130,4);shore(1750,1700,810,4);shore(2560,1212,4,488);shore(950,1626,740,4);
+ shore(40,682,910,5);shore(946,1212,1694,5);shore(2568,40,4,1172);shore(36,40,4,628);
  // Felsen am Buchtende und Strand
  // Pfützen & Gullis (Regenringe, Dampf)
  for(let i=0;i<34;i++){const r=spick([...BWG.asph,...BWG.pave]),x=r[0]+20+sr()*(r[2]-40),y=r[1]+20+sr()*(r[3]-40),w=srnd(8,24);PUDDLES.push({x,y,w});bwEll(c,x,y,w|0,Math.max(2,w*.35|0),'#161a2a');bwEll(c,x-w*.2,y-1,Math.max(2,w*.4|0),1,'#2a3048')}
@@ -94,11 +92,9 @@ function bwGround(){const c=gc;
 function bwGroundPost(){const c=gc;
  // Becken im Kraftwerk + Gitterrost-Steg
  for(const o of FSOL)if(o.pool){R(c,o.x,o.y,o.w,o.h,'#0e2238');for(let i=0;i<o.w*o.h/30;i++)R(c,o.x+sr()*o.w,o.y+sr()*o.h,srnd(2,6),1,spick(['#163050','#0a1a2c','#1e3a5a']));R(c,o.x,o.y,o.w,1,'#5a7a90');R(c,o.x,o.y+o.h-1,o.w,1,'#2a3a4a')}
- R(c,1170,1330,40,110,'#2a2c30');for(let y=1330;y<1440;y+=3)R(c,1170,y,40,1,'#4a4e54');R(c,1170,1330,2,110,'#c8a020');R(c,1208,1330,2,110,'#c8a020');
  // Löcher im Bohlenweg
  for(const o of FSOL)if(o.hole){R(c,o.x-2,o.y-1,o.w+4,o.h+2,'#2a1e14');R(c,o.x,o.y,o.w,o.h,'#0a1424');R(c,o.x+2,o.y+o.h-3,o.w-4,1,'#1e3a5a');for(let i=0;i<4;i++)R(c,o.x+sr()*o.w,o.y-1+(sr()<.5?0:o.h),2,2,'#6a5038')}
  // Wasser im überfluteten Generatorraum (flache Pfützen, begehbar)
- for(let i=0;i<10;i++){const x=srnd(1390,1550),y=srnd(1390,1510);bwEll(c,x,y,srnd(6,18)|0,srnd(2,5)|0,'rgba(20,50,80,.55)')}
 }
 // Böden in Gebäuden
 function bwFloor(r,type){const c=gc;

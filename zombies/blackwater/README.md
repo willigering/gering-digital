@@ -1,6 +1,6 @@
 # Blackwater Fair – neue Karte für „Are You Dead Yet?“
 
-Verlassener Freizeitpark an einer felsigen Küste bei Nacht. Die Karte ist etwa 3× so groß wie die Kleinstadt (2640 × 1840 px statt 1400 × 1000). Sie wird nur geladen, wenn sie ausgewählt ist. Die Kleinstadt läuft unverändert weiter.
+Verlassener Freizeitpark an einer felsigen Küste bei Nacht. Die Karte ist etwa doppelt so groß wie die Kleinstadt (2640 × 1300 px statt 1400 × 1000) und hat vier Bereiche. Küstenpromenade, Kraftwerk und Leuchtturm sind vorerst gestrichen (Willi, 19.11.2026); das Meer liegt jetzt südlich von Eingang und Spielhalle.
 
 ## Starten
 
@@ -22,27 +22,22 @@ Danach `http://localhost:8000/index.html?map=fair` öffnen. Für Online-Multipla
 |---|---|---|---|
 | A | Eingang & Parkplatz | Start | – |
 | B | Festzelt & Imbissmeile | A→B verschütteter Durchgang (Schutt) | 750 |
-| C | Küstenpromenade | A→C rostiges Sicherheitstor | 1.000 |
 | D | Spielhalle (Upgrade-Automat) | B→D Metallrolltor | 1.250 |
-| E | Riesenrad & Achterbahn | B→E Wartungszugang | 1.500 |
-| F | Kraftwerk (Hauptschalter) | D→F Wartungstür | 1.500 |
-| G | Leuchtturm | F→G Felsentor | 1.750 |
-| – | Brücke Promenade ↔ Spielhalle | C↔D | 1.800 |
-| – | Wartungspassage Achterbahn ↔ Kraftwerk | E↔F | 2.000 |
-| – | Holzsteg Leuchtturm ↔ Promenade | C↔G | 2.000 |
+| E | Riesenrad & Achterbahn (Generator-Hof mit Hauptschalter) | B→E Wartungszugang | 1.500 |
+| – | Servicetor Spielhalle ↔ Achterbahn | D↔E | 1.750 |
 
-Wenn alles offen ist, gibt es drei große Rundwege: A-B-D-C-A, B-E-F-D-B und C-Steg-G-F-D-C. Es gibt keine feste Reihenfolge, und jeder Bereich hat mindestens zwei Zugänge.
+Mit dem Servicetor entsteht der große Rundweg B-D-E-B. Es gibt keine feste Reihenfolge: E ist über B oder über D erreichbar.
 
 **Alle Preise stehen zentral in `data.js` → `BW_PRICES`.** Dort stehen auch der Upgrade-Preis (5000 × Stufe) und die Perk-Preise (2500 + 500 je Perk).
 
 ## Spielmechanik
 
 * **Zugänge:** Der Text lautet z. B. `CLEAR DEBRIS – 750 POINTS [E]`. Jeder Zugang wird einmal bezahlt und bleibt für alle Spieler bis zum Ende der Sitzung offen. Jeder Typ hat einen eigenen Effekt: Schutt fliegt mit Staub weg, ein Tor schwingt auf, das Rolltor rattert hoch, eine Brücke wird Brett für Brett repariert, die Wartungstür fährt mit Funken auf. Kollision und Zombie-Wegfindung (`rebuildArea`) werden sofort aktualisiert. Unsichtbare Wände gibt es nicht.
-* **Strom:** Der Park startet ohne Strom. Perk-Automaten und der Upgrade-Automat sind sichtbar, aber dunkel, und zeigen „OFF“ bzw. „NO POWER“. Viele Lampen und Neonschilder sind aus. Der Hauptschalter steht im Kraftwerk (F). Beim Umlegen fährt der Generator hörbar hoch, danach gehen die Lichter wellenförmig vom Kraftwerk aus an, die Schilder flackern an, und zum Schluss ertönt ein Signal. Der Strom gilt für alle. Spätere Spieler bekommen ihn ohne Animation.
-* **Perks (vorhandenes System):** Thicc Biscuit (Imbissmeile), Panic Popcorn (Promenade), Trigger Twixx (Achterbahn), Reload Ravioli (Spielhalle), Brain Crunch (Leuchtturm). Jeder Kauf hat eine Animation: Der Automat blitzt auf und eine Dose fällt heraus.
+* **Strom:** Der Park startet ohne Strom. Perk-Automaten und der Upgrade-Automat sind sichtbar, aber dunkel, und zeigen „OFF“ bzw. „NO POWER“. Viele Lampen und Neonschilder sind aus. Der Hauptschalter steht im Generator-Hof ganz im Osten von Bereich E (zwischen zwei Trafos, Schild „BLACKWATER POWER CO.“). Beim Umlegen fährt der Generator hörbar hoch, danach gehen die Lichter wellenförmig vom Generator aus an, die Schilder flackern an, und zum Schluss ertönt ein Signal. Der Strom gilt für alle. Spätere Spieler bekommen ihn ohne Animation.
+* **Perks (vorhandenes System):** Thicc Biscuit (Imbissmeile), Panic Popcorn (Vorplatz am Eingang), Trigger Twixx (Achterbahn), Reload Ravioli (Spielhalle), Brain Crunch (neben der Geisterbahn). Jeder Kauf hat eine Animation: Der Automat blitzt auf und eine Dose fällt heraus.
 * **Upgrade-Automat** in der Spielhalle, eine Mischung aus Arcade- und Industriegerät. Er nutzt die vorhandene Pack-a-Punch-Logik und kostet 5000 × Stufe. Er braucht Strom. Während des Upgrades drehen sich die Zahnräder und die Waffe schwebt im Bildschirm.
-* **Spawns:** Zombies erscheinen nur in Bereichen, die schon geöffnet sind, bevorzugt 150–650 px von den Spielern entfernt und nie näher als 120 px. Am Wasser steigen sie mit einem Platschen aus dem Meer.
-* **Endlos:** Der Leuchtturm ist kein Ende, die Wellen laufen einfach weiter.
+* **Spawns:** Zombies erscheinen nur in Bereichen, die schon geöffnet sind, bevorzugt 150–650 px von den Spielern entfernt und nie näher als 120 px.
+* **Endlos:** Es gibt kein Ende, die Wellen laufen einfach weiter.
 * **[M]** blendet eine Minikarte ein: Bereiche (offen oder gesperrt), Zugänge (grün offen, rot zu), Automaten und Spieler.
 
 ## Dateien
@@ -55,8 +50,9 @@ Wenn alles offen ist, gibt es drei große Rundwege: A-B-D-C-A, B-E-F-D-B und C-S
 ## Technik
 
 * Host-autoritativ wie bisher. Der Snapshot enthält zusätzlich `mp` (Karten-ID) und `bw` (`{o:[offene Zugänge], p:Strom}`), also nur ein paar Bytes.
-* Kollision: Mauern und Tore blocken auch Kugeln. Wasser, Zäune und die Lücken unter den Brücken blocken nur Bewegung.
-* Die Zombie-Wegfindung ist geprüft (Test mit Playwright): Vor dem ersten Kauf ist nur A erreichbar. Wenn alles offen ist, sind alle begehbaren Zellen aller 7 Bereiche erreichbar. Alle Spawns und Stationen sind erreichbar, und es gibt keine Sackgassen.
+* Kollision: Mauern und Tore blocken auch Kugeln. Wasser und Zäune blocken nur Bewegung.
+* Der Code für Brücken/Stege (`bwDrawBridge`, Zugangstyp `bridge`) ist noch vorhanden, falls Promenade oder Leuchtturm später zurückkommen.
+* Die Zombie-Wegfindung ist geprüft (Test mit Playwright): Vor dem ersten Kauf ist nur A erreichbar. Wenn alles offen ist, sind alle begehbaren Zellen aller 4 Bereiche erreichbar. Alle Spawns und Stationen sind erreichbar, und es gibt keine Sackgassen.
 * Leistung: Die Mauern und die Achterbahn werden einmal vorgerendert, alles wird außerhalb des Bildes ausgeblendet, und es entstehen keine DOM-Objekte. Headless Chromium läuft mit 60 fps.
 
 ## Was fehlt / Ideen
