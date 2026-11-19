@@ -377,7 +377,7 @@ addEventListener('blur',()=>{for(const k in keys)keys[k]=false;mouse.down=false}
 cv.addEventListener('mousemove',e=>{if(started&&PAUSE.on){const x=e.clientX,y=e.clientY;PAUSE.rects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3])PAUSE.sel=i})}if(started&&document.pointerLockElement===cv){mouse.x=clamp(mouse.x+e.movementX*OPT.sens/SCALE,0,W);mouse.y=clamp(mouse.y+e.movementY*OPT.sens/SCALE,0,H)}
  else{mouse.x=e.clientX/SCALE;mouse.y=e.clientY/SCALE}});
 cv.addEventListener('mousedown',()=>{if(started&&!PAUSE.on&&alive().length&&document.pointerLockElement!==cv)try{const p=cv.requestPointerLock();if(p&&p.catch)p.catch(()=>{})}catch{}});
-cv.addEventListener('mousedown',e=>{if(started&&PAUSE.on){const x=e.clientX,y=e.clientY;PAUSE.rects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3]){const it=PAUSE_ITEMS()[i];PAUSE.sel=i;if(it[2])it[2](x<r[0]+r[2]*.5?-1:1);else it[1]()}});return}
+cv.addEventListener('mousedown',e=>{if(started&&PAUSE.on){const x=e.clientX,y=e.clientY;PAUSE.rects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3]){const it=PAUSE_ITEMS()[i];PAUSE.sel=i;if(it[2])it[2](x<(r[4]??r[0]+r[2]*.5)?-1:1);else it[1]()}});return}
  if(started&&P.dead){P.spec=(P.spec||0)+(e.button===2?-1:1);return}
  if(started&&P.aimT){if(e.button===2){P.aimT=null;return}const ty=P.aimT,tx=mouse.x+cam.x,tyy=mouse.y+cam.y+9;if(throwItem(P,ty,tx,tyy)){if(NET.client)NET.out.th=[ty,Math.round(tx),Math.round(tyy)];if(!(P[ty]>0))P.aimT=null}return}if(e.button===2)mouse.rdown=true;else mouse.down=true});addEventListener('mouseup',e=>{if(e.button===2)mouse.rdown=false;else mouse.down=false});
 cv.addEventListener('wheel',e=>{if(!started){if(menu.screen==='scores')menu.scroll=(menu.scroll||0)+Math.sign(e.deltaY)*2;return}if(P.hold){P.hold=null;if(NET.client)NET.out.hd='-'}swap(P);if(NET.client)NET.out.sw=true});cv.addEventListener('contextmenu',e=>e.preventDefault());
@@ -1050,7 +1050,8 @@ function menuKey(e){const k=e.key,it=menuItems();if(menu.screen==='scores'&&(k==
  else if(k==='Escape')menuBack();e.preventDefault()}
 let menuRects=[];
 cv.addEventListener('mousemove',e=>{if(started)return;const x=e.clientX,y=e.clientY;menuRects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3])menu.sel=i})});
-cv.addEventListener('click',e=>{if(started)return;const x=e.clientX,y=e.clientY;menuRects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3]){menu.sel=i;const it=menuItems()[i];if(it[2])it[2](x<r[0]+r[2]*.5?-1:1);else it[1]()}})});
+cv.addEventListener('click',e=>{if(started)return;const x=e.clientX,y=e.clientY;menuRects.forEach((r,i)=>{if(x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3]){menu.sel=i;const it=menuItems()[i];if(it[2])it[2](x<(r[4]??r[0]+r[2]*.5)?-1:1);else it[1]()}})});
+function splitX(lab,tx,fb){const a=lab.indexOf('◀'),b=lab.indexOf('▶');if(a<0||b<0)return fb;return tx+(u.measureText(lab.slice(0,a+1)).width+u.measureText(lab.slice(0,b)).width)/2}
 function MT(s,x,y,sz,col,al='left',font='"VT323"',w=700){u.font=w+' '+sz+'px '+font+',monospace';u.textAlign=al;u.textBaseline='middle';u.lineJoin='round';u.lineWidth=Math.max(3,sz/5);u.strokeStyle='rgba(0,0,0,.92)';u.strokeText(s,x,y);u.fillStyle='rgba(0,0,0,.5)';u.fillText(s,x+1,y+3);u.fillStyle=col;u.fillText(s,x,y)}
 // Figur-Vorschau (gleiche Zeichenroutine wie im Spiel, vergrößert)
 const [pc_,pcx]=mk(40,40);
@@ -1115,7 +1116,7 @@ function drawMenu(dt){menu.t+=dt;menu.fade=Math.min(1,menu.fade+dt*4);
  it.forEach(([label],i)=>{const sel=i===menu.sel,x=L+(sel?8:0)*menu.fade,fs=Math.max(16,bh*.52);u.font='700 '+fs+'px "VT323",monospace';const tw=Math.min(bw,u.measureText(label).width+bh*1.1);
   if(sel){const gr=u.createLinearGradient(x,0,x+tw,0);gr.addColorStop(0,'rgba(214,98,30,.95)');gr.addColorStop(.7,'rgba(170,70,20,.75)');gr.addColorStop(1,'rgba(150,60,18,.6)');u.fillStyle=gr;u.fillRect(x,y,tw,bh);u.fillStyle='#ffb070';u.fillRect(x,y,5,bh)}
   else{u.fillStyle='rgba(14,12,18,.9)';u.fillRect(x,y,tw,bh);u.fillStyle='rgba(255,255,255,.08)';u.fillRect(x,y,tw,1)}
-  MT(label,x+bh*.5,y+bh/2+1,fs,sel?'#ffffff':'#f0ebe4');menuRects.push([x,y,tw,bh]);y+=bh+gap});
+  MT(label,x+bh*.5,y+bh/2+1,fs,sel?'#ffffff':'#f0ebe4');menuRects.push([x,y,tw,bh,splitX(label,x+bh*.5,x+tw*.5)]);y+=bh+gap});
  if(NET.status)MT(NET.status,L,y+bh*.3,Math.max(14,bh*.34),'#ff9a7a');
  // Fußleiste
  u.fillStyle='rgba(230,225,215,.35)';u.fillRect(L*.6,VH*.92,VW-L*1.2,1);
@@ -1885,7 +1886,7 @@ function hud(cx,cy){
   if(PAUSE.keys){const K=KEYLIST,cols=VW>900?2:1,per=Math.ceil(K.length/cols),rh=Math.max(18,Math.min(36,(VH*.8-y-bh*1.6)/per)),cw=(VW-L*2)/cols-24,{fs,off}=fitKeys(K,cw,rh);
    K.forEach(([a,b],i)=>{const c=i/per|0,xx=L+c*(cw+24),yy=y+(i%per)*rh+rh/2;MT(a,xx,yy,fs,'#ffd76a');MT(b,xx+off,yy,fs,'#e8e2d8')});y+=per*rh+bh*.4}
   PAUSE.rects=[];PAUSE_ITEMS().forEach(([lab],i)=>{const sel=i===PAUSE.sel;if(sel){const gr=u.createLinearGradient(L,0,L+bw,0);gr.addColorStop(0,'rgba(214,98,30,.95)');gr.addColorStop(1,'rgba(120,50,15,0)');u.fillStyle=gr;u.fillRect(L,y,bw,bh);u.fillStyle='#ffb070';u.fillRect(L,y,5,bh)}
-   else{u.fillStyle='rgba(14,12,18,.9)';u.fillRect(L,y,bw*.9,bh)}MT(lab,L+bh*.5,y+bh/2+1,Math.max(18,bh*.5),'#ffffff');PAUSE.rects.push([L,y,bw,bh]);y+=bh*1.28});
+   else{u.fillStyle='rgba(14,12,18,.9)';u.fillRect(L,y,bw*.9,bh)}MT(lab,L+bh*.5,y+bh/2+1,Math.max(18,bh*.5),'#ffffff');PAUSE.rects.push([L,y,bw,bh,splitX(lab,L+bh*.5,L+bw*.5)]);y+=bh*1.28});
   MT('Esc  Zurück zum Spiel     ↑↓  Auswählen     Enter  Bestätigen',L,VH*.93,Math.max(14,VH*.024),'#d8d2c8','left','"VT323"',600)}
 }
 // Pixel-Icons für die Inventarleiste (16er-Raster)
