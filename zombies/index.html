@@ -172,8 +172,8 @@ for(const [x,y] of [[690,470],[700,560],[760,520],[560,500]])prop({t:'cone',x,y}
 prop({t:'stop',x:644,y:470});prop({t:'stop',x:748,y:566});
 for(const [x,y] of [[560,250],[600,700],[1000,450],[260,560],[820,560]])prop({t:'trash',x,y});
 
-// Kaufstationen: Waffenstände, Munitionskisten, Upgrade-Maschine
-const STATIONS=[{t:'perk',k:'thicc',x:540,y:380},{t:'perk',k:'popcorn',x:284,y:316},{t:'perk',k:'twixx',x:1060,y:180},{t:'perk',k:'ravioli',x:240,y:760},{t:'perk',k:'brain',x:920,y:880},
+// Kaufstationen (Snack-Automaten stehen bündig an Gebäudewänden, zwischen Türen und Fenstern): Waffenstände, Munitionskisten, Upgrade-Maschine
+const STATIONS=[{t:'perk',k:'thicc',x:408,y:309},{t:'perk',k:'popcorn',x:236,y:399},{t:'perk',k:'twixx',x:1082,y:309},{t:'perk',k:'ravioli',x:879,y:299},{t:'perk',k:'brain',x:938,y:759},
  {t:'wall',k:'smg',x:470,y:452},{t:'wall',k:'shotgun',x:1010,y:444},{t:'wall',k:'rifle',x:560,y:712},{t:'wall',k:'magnum',x:1030,y:596},
  {t:'ammo',x:610,y:334},{t:'ammo',x:300,y:900},{t:'pap',x:1135,y:792}];
 for(const s of STATIONS){if(s.t==='ammo')solids.push({x:s.x-11,y:s.y-8,w:22,h:8});if(s.t==='pap')FSOL.push({x:s.x-8,y:s.y-10,w:16,h:10});if(s.t==='perk')solids.push({x:s.x-10,y:s.y-9,w:20,h:9})}
