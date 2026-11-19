@@ -420,7 +420,8 @@ function updThrown(dt,sim){
 function explode(t){const R=t.type==='gas'?80:t.type==='bomb'?60:48,dm=t.type==='gas'?800:t.type==='bomb'?650:480;
  // Kettenreaktion: andere explosive Objekte in Reichweite gehen kurz danach hoch
  for(const p of PROPS)if(p.expl&&!p.broken&&p!==t.src&&Math.hypot(p.x-t.x,p.y-t.y)<R*.9)setTimeout(()=>hitExplosive(p,999,t.own),180+Math.random()*250);
- if(t.type==='gas')for(const o of alive())if(!o.down&&!(o.inCar>=0)){const d=Math.hypot(o.x-t.x,o.y-t.y);if(d<R*.8)hurt(o,Math.round(70*(1-d/(R*.8))+15),true)}
+ // Kein Teambeschuss: Explosionen verletzen nur den Verursacher selbst
+ {const o='self' in t?t.self:t.own;if(o&&!o.zombie&&!o.down&&!o.dead&&!(o.inCar>=0)){const d=Math.hypot(o.x-t.x,o.y-t.y),mx=t.type==='gas'?70:t.type==='bomb'?60:45;if(d<R*.8&&(t.type==='gas'||los(t.x,t.y,o.x,o.y)))hurt(o,Math.round(mx*(1-d/(R*.8))+15),true)}}
  for(const z of zombies){if(z.hp<=0)continue;const d=Math.hypot(z.x-t.x,z.y-t.y);if(d>R||(t.type!=='gas'&&!los(t.x,t.y,z.x,z.y)))continue;
   z.hp-=dm*(1-d/R*.6);z.hit=.1;z.stag=.3;z.aware=true;z.last={own:t.own,head:false,expl:true};if(!z.crawl&&(z.hp>0||(d>R*.4&&Math.random()<.5))){z.crawl=true;z.hp=Math.max(z.hp,Math.round(z.max*.35));z.stag=0;z.lunge=0;z.climb=null;blood(z.x,z.y,12,2,6);for(let i=0;i<2;i++)part({x:z.x+rnd(-3,3),y:z.y,z:4,vx:rnd(-50,50),vy:rnd(-30,30),vz:rnd(40,80),g:220,life:2,c:z.look.pants,s:3,bounce:1});continue}const a=Math.atan2(z.y-t.y,z.x-t.x);move(z,Math.cos(a)*14,Math.sin(a)*14)}
  for(const o of PL)if(o.zombie&&Math.hypot(o.x-t.x,o.y-t.y)<R)hitPZ(o,dm*.5,t.own);
@@ -444,7 +445,7 @@ function explosiveAt(x,y,m=2){return PROPS.find(p=>p.expl&&!p.broken&&p.sref&&in
 function hitExplosive(p,dmg,own){if(!p||p.broken||NET.client)return;p.hp-=dmg;p.hitT=.12;p.lastOwn=own||p.lastOwn;
  for(let i=0;i<3;i++)part({x:p.x+rnd(-4,4),y:p.y-6,z:rnd(4,12),vx:rnd(-40,40),vy:rnd(-30,30),vz:rnd(10,40),g:200,life:.4,c:pick(['#ffe08a','#ffb030','#ccc']),s:1});
  if(p.hp<=0)blowProp(p)}
-function blowProp(p){if(p.broken)return;p.broken=true;p.burning=0;evp('pb',PROPS.indexOf(p));propWreck(p);explode({x:p.x,y:p.y-4,type:'gas',own:p.lastOwn||P,src:p})}
+function blowProp(p){if(p.broken)return;p.broken=true;p.burning=0;evp('pb',PROPS.indexOf(p));propWreck(p);explode({x:p.x,y:p.y-4,type:'gas',own:p.lastOwn||P,self:p.lastOwn||null,src:p})}
 function propWreck(p){p.broken=true;FIRES.push({x:p.x,y:p.y,s:p.t==='pump'?13:8,ph:Math.random()*6});stain(p.x,p.y,7,false)}
 function meleeObj(pl,dmg){const px=pl.x+Math.cos(pl.face)*9,py=pl.y+Math.sin(pl.face)*7;hitExplosive(explosiveAt(px,py,5),dmg,pl);const d=doorAt(px,py,5);if(d)hitDoor(d,dmg);
  const w=WINDOWS.find(w=>!w.broken&&!w.fence&&inR(w.r,px,py,5));if(w)breakGlass(w)}
@@ -488,7 +489,7 @@ function useKey(pl){const c=CARS[pl.key];if(!c||c.state!=='ok'){note(pl,'Das Aut
 function carImpacts(dt){for(const c of CARS){if(!c.driver||c.state!=='ok'||Math.abs(c.spd)<25)continue;const drv=PL.find(p=>p.id===c.driver)||P,ca=Math.cos(c.a),sa=Math.sin(c.a);
   const inBox=(x,y)=>{const dx=x-c.cx,dy=y-c.cy;return Math.abs(dx*ca+dy*sa)<23&&Math.abs(-dx*sa+dy*ca)<13};
   for(const z of zombies)if(z.hp>0&&z.rise<=0&&inBox(z.x,z.y)){z.hp=0;z.last={own:drv,head:false,run:true};blood(z.x,z.y,14,2.2,6);shake=Math.max(shake,drv===P?2:0);carHit(c);if(c.state!=='ok')break}
-  for(const o of PL)if(o.id!==c.driver&&!o.dead&&!o.down&&!(o.inCar>=0)&&!(o.carHitT>0)&&inBox(o.x,o.y)){o.carHitT=1;hurt(o,45);carHit(c)}}}
+  for(const o of PL)if(o.zombie&&o.id!==c.driver&&!o.dead&&!(o.carHitT>0)&&inBox(o.x,o.y)){o.carHitT=1;hitPZ(o,120,drv);carHit(c)}}}
 function doJump(pl){if(pl.down||pl.dead||pl.vault||pl.jumpT>0||pl.inCar>=0)return;
  // über die Motorhaube rutschen
  for(const c of CARS){if(c.driver||c.state==='burning')continue;const nx=clamp(pl.x,c.x,c.x+c.w),ny=clamp(pl.y,c.y,c.y+c.h);if(Math.hypot(pl.x-nx,pl.y-ny)>9)continue;
@@ -1110,7 +1111,7 @@ function update(dt){
   if(!NET.client&&c.state==='burning'){c.burnT-=dt;const d=c.driver?PL.find(p=>p.id===c.driver):null;
    if(d){c.burnTick-=dt;if(c.burnTick<=0){c.burnTick=.5;hurt(d,9,true);note(d,'Du verbrennst! [E] Aussteigen!','#ff7a3a')}}
    if(c.burnT<=0){c.state='wreck';c.burn=1;c.fire.s=8;const d2=c.driver?PL.find(p=>p.id===c.driver):null;if(d2){exitCar(d2);hurt(d2,150,true)}else parkCar(c);
-    explode({x:c.cx,y:c.cy,type:'bomb',own:c.lastDriver||P})}}}
+    explode({x:c.cx,y:c.cy,type:'bomb',own:c.lastDriver||P,self:c.lastDriver||null})}}}
  for(const f of FLASH)f.t-=dt;for(let i=FLASH.length-1;i>=0;i--)if(FLASH[i].t<=0)FLASH.splice(i,1);
  for(const r of RINGS){r.t-=dt;r.r+=(r.max-r.r)*Math.min(1,dt*14)}for(let i=RINGS.length-1;i>=0;i--)if(RINGS[i].t<=0)RINGS.splice(i,1);
  for(const f of FTX)f.t+=dt;for(let i=FTX.length-1;i>=0;i--)if(FTX[i].t>1.4)FTX.splice(i,1);
