@@ -58,7 +58,7 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
  await saveHighscoreScope('members');
  await checkGuestRanking(false);
  await saveHighscoreScope('public');
- await page.waitForURL('**/highscore.php?ansicht=gast');
+ assert.equal(page.url(), base+'/dau-to-pro/highscore.php?ansicht=gast');
  assert.ok(await page.getByText('Gästeansicht.',{exact:true}).isVisible());
  assert.ok(await page.locator('.arcade-name').getByText('Willi',{exact:true}).isVisible());
  await checkGuestRanking(true);
