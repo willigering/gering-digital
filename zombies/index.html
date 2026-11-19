@@ -1868,7 +1868,8 @@ function hud(cx,cy){
   if(pl.revT>0){u.beginPath();u.strokeStyle='#4af06a';u.arc(x,y,10,-Math.PI/2,-Math.PI/2+Math.PI*2*pl.revT/3);u.stroke()}
   T(Math.ceil(pl.bleed)+'',x,y+6,{size:15,align:'center'})}
  if(prompt&&!P.down){const [x,y]=ws(prompt.x,prompt.y);T(prompt.s,x,y,{size:17,align:'center',color:prompt.c||'#fff2a8'});if(prompt.p>0)bar(x-50,y+8,100,7,prompt.p,'#fff2a8');if(prompt.cmp){const up=prompt.cmp>0,ay=y-30;u.fillStyle='rgba(0,0,0,.6)';u.beginPath();u.arc(x,ay,11,0,7);u.fill();u.fillStyle=up?'#4aff5a':'#ff4a3a';u.beginPath();if(up){u.moveTo(x,ay-7);u.lineTo(x+7,ay+1);u.lineTo(x+3,ay+1);u.lineTo(x+3,ay+7);u.lineTo(x-3,ay+7);u.lineTo(x-3,ay+1);u.lineTo(x-7,ay+1)}else{u.moveTo(x,ay+7);u.lineTo(x+7,ay-1);u.lineTo(x+3,ay-1);u.lineTo(x+3,ay-7);u.lineTo(x-3,ay-7);u.lineTo(x-3,ay-1);u.lineTo(x-7,ay-1)}u.closePath();u.fill()}}
- for(const pl of PL)if(pl!==P&&!pl.dead){const [x,y]=ws(pl.x,pl.y-24);T(pl.zombie?'ZOMBIE '+pl.name:pl.name,x,y,{size:13,align:'center',weight:700,color:pl.zombie?'#8aff6a':pcol(pl)})}
+ for(const pl of PL)if(pl!==P&&!pl.dead){const [x,y]=ws(pl.x,pl.y-24);T(pl.zombie?'ZOMBIE '+pl.name:pl.name,x,y,{size:13,align:'center',weight:700,color:pl.zombie?'#8aff6a':pcol(pl)});
+  if(!pl.zombie&&!pl.down&&pl.hp<pl.max){const bw=30,bh=4,f=clamp(pl.hp/pl.max,0,1);u.fillStyle='rgba(0,0,0,.65)';u.fillRect(x-bw/2-1,y+5,bw+2,bh+2);u.fillStyle=f>.6?'#5ad05a':f>.3?'#e8c040':'#e04a3a';u.fillRect(x-bw/2,y+6,Math.round(bw*f),bh)}}
  if(!keys.tab&&toSpawn===0&&zombies.length===0&&!P.dead&&!P.down)T('Nächste Welle in '+Math.ceil(breakT),VW/2,100,{size:24,align:'center',color:'#ffd76a'});
  if(msgT>0&&!keys.tab){u.globalAlpha=clamp(msgT,0,1);T(msg,VW/2,140,{size:Math.min(28,VW/msg.length*1.7),align:'center'});u.globalAlpha=1}
  if(P.turnT>0){const tn=P.turnT;T(tn>3?'DU BIST TOT …':'DU VERWANDELST DICH!',VW/2,VH/2-80,{size:tn>3?28:34,align:'center',color:tn>3?'#ff5a4a':'#8aff6a'});
