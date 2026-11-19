@@ -35,7 +35,36 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
  }
  // Private profile authorization is checked on every fetch, not cached into the highscore HTML.
  php(`ach_set_visible(${id},false);`);const response=await page.request.get(base+'/dau-to-pro/api/profile.php?id='+id);assert.equal(response.status(),404);
- const anonymous=await browser.newContext();assert.equal((await anonymous.request.get(base+'/dau-to-pro/api/profile.php?id='+id)).status(),401);
+ const anonymous = await browser.newContext();
+ assert.equal((await anonymous.request.get(base+'/dau-to-pro/api/profile.php?id='+id)).status(),401);
+ await page.setViewportSize({width:1440,height:900});
+ const guest = await anonymous.newPage();
+ async function saveHighscoreScope(scope) {
+   await page.goto(base+'/dau-to-pro/konto.php?einstellung=highscore#highscore');
+   const settings = page.locator('details#highscore');
+   assert.equal(await settings.getAttribute('open'), '');
+   await settings.locator(`[name="scope"][value="${scope}"]`).check();
+   await Promise.all([page.waitForNavigation(), settings.getByRole('button',{name:'Speichern',exact:true}).click()]);
+ }
+ async function checkGuestRanking(visible) {
+   for (const route of ['/dau-to-pro/#highscore', '/dau-to-pro/highscore.php']) {
+     assert.equal((await guest.goto(base+route)).status(), 200);
+     const entry = guest.locator('.arcade-champion .arcade-name').getByText('Willi',{exact:true});
+     assert.equal(await entry.isVisible(), visible, route);
+     assert.equal(await guest.locator('.showcase-inline img').count(), visible ? 3 : 0, route);
+     assert.equal(await guest.locator('[data-profile]').count(), 0, route);
+   }
+ }
+ await saveHighscoreScope('members');
+ await checkGuestRanking(false);
+ await saveHighscoreScope('public');
+ assert.equal(page.url(), base+'/dau-to-pro/highscore.php?ansicht=gast#inhalt');
+ assert.ok(await page.getByText('Gästeansicht.',{exact:true}).isVisible());
+ assert.ok(await page.locator('.arcade-name').getByText('Willi',{exact:true}).isVisible());
+ await checkGuestRanking(true);
+ await saveHighscoreScope('members');
+ await checkGuestRanking(false);
+ await anonymous.close();
  // The calculator is positioned in the viewport in the same click that opens it.
  await page.setViewportSize({width:390,height:640});
  await page.setContent('<dialog style="height:400px"><div style="height:600px"></div><div id="task"></div></dialog>');
