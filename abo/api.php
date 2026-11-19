@@ -11,6 +11,7 @@
  * - Keine Abo-Daten, Passwörter oder Tokens im Repository.
  */
 declare(strict_types=1);
+require __DIR__ . '/notify-lib.php';
 
 const ABO_MAX_REQUEST_BYTES = 400000;
 const ABO_MAX_ITEMS = 300;
@@ -80,6 +81,7 @@ function database(): PDO
     $db->exec('CREATE TABLE IF NOT EXISTS entries (id TEXT PRIMARY KEY NOT NULL, payload TEXT NOT NULL, updated_at TEXT NOT NULL)');
     $db->exec('CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)');
     $db->exec('CREATE TABLE IF NOT EXISTS login_failures (at INTEGER NOT NULL)');
+    abo_notify_schema($db);
     seedOnce($db);
     return $db;
 }
@@ -300,6 +302,35 @@ try {
             throw $ex;
         }
         ready($db);
+    }
+    if ($action === 'notify_get') {
+        respond(['notify' => abo_notify_public($db)]);
+    }
+    if ($action === 'notify_save') {
+        try {
+            abo_notify_save($db, is_array($body['settings'] ?? null) ? $body['settings'] : []);
+        } catch (InvalidArgumentException $ex) {
+            fail($ex->getMessage());
+        }
+        respond(['notify' => abo_notify_public($db)]);
+    }
+    if ($action === 'notify_test') {
+        $channel = (string)($body['channel'] ?? '');
+        if (!in_array($channel, ABO_NOTIFY_CHANNELS, true)) fail('Unbekannter Kanal.');
+        $s = abo_notify_settings($db);
+        if ($channel === 'email' && $s['email'] === '') fail('Bitte zuerst eine E-Mail-Adresse speichern.');
+        if ($channel === 'whatsapp' && ($s['phone'] === '' || $s['apikey'] === '')) fail('Bitte zuerst Telefonnummer und CallMeBot-Schlüssel speichern.');
+        $limit = abo_notify_test_allowed($db, $channel);
+        if ($limit !== '') fail($limit, 429);
+        $text = "✅ Test von deiner Abo-Übersicht: " . ($channel === 'email' ? 'E-Mail' : 'WhatsApp')
+            . "-Erinnerungen kommen an. Du wirst " . $s['leadDays'] . " Tage vor Ablauf eines Abos benachrichtigt.\n\nÜbersicht: " . ABO_NOTIFY_URL;
+        $r = abo_send($channel, $s, 'Test: Abo-Erinnerung von Gering Digital', $text);
+        if (!$r['ok']) fail($r['error'], 502);
+        respond(['ok' => true, 'notify' => abo_notify_public($db)]);
+    }
+    if ($action === 'notify_token') {
+        $token = abo_notify_new_token($db);
+        respond(['token' => $token, 'notify' => abo_notify_public($db)]);
     }
     fail('Unbekannte Aktion.', 404);
 } catch (PDOException $e) {

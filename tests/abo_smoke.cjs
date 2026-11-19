@@ -12,7 +12,10 @@ const htaccess=fs.readFileSync(".htaccess","utf8");
 const deploy=fs.readFileSync(".github/workflows/deploy-strato.yml","utf8");
 
 // Seite lädt nur eigene Styles/Skripte – keine gemeinsamen Haupt-/Smartphone-Dateien.
-const refs=[...html.matchAll(/(?:href|src)="([^"]+)"/g)].map(m=>m[1]);
+// Externe <a>-Links (z. B. CallMeBot-Anleitung) sind erlaubt, solange sie mit noopener öffnen.
+const anchors=[...html.matchAll(/<a\b[^>]*>/g)].map(m=>m[0]);
+for(const a of anchors){if(/href="https?:/.test(a))assert.ok(/rel="noopener noreferrer"/.test(a)&&/target="_blank"/.test(a),"Externer Link ohne noopener: "+a);}
+const refs=[...html.replace(/<a\b[^>]*>/g,"").matchAll(/(?:href|src)="([^"]+)"/g)].map(m=>m[1]);
 for(const r of refs){
   assert.ok(/^(abo\.(css|js)\?v=|\.\.\/assets\/(gering-digital-logo-icon-312\.webp|favicon-64\.png)$|\.\/$)/.test(r),"Unerwartete Ressource auf /abo: "+r);
 }
@@ -36,6 +39,24 @@ for(const a of ["login","logout","save","delete","import"])assert.ok(php.include
 assert.ok(/'ChatGPT'[\s\S]*'Claude'[\s\S]*'Suno'[\s\S]*'Higgsfield'[\s\S]*'Grok'/.test(php),"Startliste mit den fünf Abos");
 assert.ok(php.includes("'preis' => null, 'intervall' => ''")&&php.includes("'ablaufdatum' => ''"),"Startliste ohne erfundene Werte");
 assert.ok(!js.includes("innerHTML"),"Kein innerHTML (Schutz vor eingeschleustem HTML)");
+
+// Benachrichtigungen.
+const lib=fs.readFileSync("abo/notify-lib.php","utf8");
+const notify=fs.readFileSync("abo/notify.php","utf8");
+const wf=fs.readFileSync(".github/workflows/abo-reminder.yml","utf8");
+for(const id of ["notifyForm","nEmailOn","nEmail","nWaOn","nPhone","nApikey","nLead","nTestEmail","nTestWa","nToken","nLastRun","nLog"])assert.ok(html.includes('id="'+id+'"'),"Benachrichtigungs-Element fehlt: "+id);
+assert.ok(html.includes("I allow callmebot to send me messages"),"Anleitung für den CallMeBot-Schlüssel");
+for(const a of ["notify_get","notify_save","notify_test","notify_token"])assert.ok(php.includes("$action === '"+a+"'"),"API-Aktion fehlt: "+a);
+assert.ok(php.indexOf("$action === 'notify_get'")>php.indexOf("if (!isLoggedIn()) fail('Nicht angemeldet.', 401);"),"Benachrichtigungs-Aktionen nur angemeldet");
+assert.ok(lib.includes("hash_equals(")&&lib.includes("hash('sha256', $token)"),"Cron-Token nur als Hash, Vergleich in konstanter Zeit");
+assert.ok(lib.includes("'apikeyHint'")&&!/'apikey' => \$s\['apikey'\],\s*'leadDays'/.test(lib.slice(lib.indexOf("function abo_notify_public"),lib.indexOf("function abo_notify_save"))),"Schlüssel nie im Klartext an den Browser");
+assert.ok(lib.includes("CURLOPT_TIMEOUT")&&lib.includes("'timeout' => 25"),"WhatsApp-Aufruf mit Timeouts");
+assert.ok(lib.includes("getenv('GD_ABO_OUTBOX')"),"Test-Transport statt echtem Versand");
+assert.ok(notify.includes("REQUEST_METHOD")&&notify.includes("HTTP_X_ABO_TOKEN")&&notify.includes("LOCK_EX"),"notify.php: POST, Token-Header, Sperre gegen Doppellauf");
+assert.ok(!/CREATE TABLE IF NOT EXISTS (entries|account)/.test(lib),"Bestehende Tabellen bleiben unverändert");
+assert.ok(/cron: '0 6 \* \* \*'/.test(wf)&&wf.includes("workflow_dispatch")&&wf.includes("secrets.ABO_NOTIFY_TOKEN"),"Täglicher Workflow mit Secret");
+assert.ok(!/deploy-strato|actions\/checkout|sftp|STRATO_/i.test(wf.replace(/^#.*$/gm,"")),"Erinnerungs-Workflow deployt nichts");
+assert.ok(wf.includes("exit 0"),"Fehlendes Secret: Lauf endet ohne Fehler");
 
 // Reine Logik.
 const sandbox={Intl,Date,Math,Number,String,Object,Array,isFinite};sandbox.globalThis=sandbox;

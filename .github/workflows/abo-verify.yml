@@ -8,6 +8,7 @@ on:
       - 'abo/**'
       - 'tests/abo_*'
       - '.github/workflows/abo-verify.yml'
+      - '.github/workflows/abo-reminder.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,4 +26,6 @@ jobs:
       - name: PHP-Syntax und API-Test (temporäre Datenbanken)
         run: |
           php -l abo/api.php
+          php -l abo/notify.php
+          php -l abo/notify-lib.php
           php tests/abo_api_test.php
