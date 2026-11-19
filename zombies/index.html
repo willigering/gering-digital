@@ -354,7 +354,7 @@ const KEYLIST=[['W A S D / Pfeile','Laufen'],['Shift','Sprinten'],['Maus','Ziele
    ['Rechtsklick','Mitspieler heilen (mit Verbandskasten)'],['Leertaste','Springen · über Zaun, Fenster, Motorhaube'],['E','Aktion: kaufen, durchsuchen (halten), aufheben, einsteigen'],['E halten','Mitspieler wiederbeleben'],
    ['R','Nachladen'],['Q','Messer'],['1 / 2 / Mausrad','Waffe wechseln'],['3','Verbandskasten ausrüsten'],['4','Autoschlüssel ausrüsten'],['G / F','Granate / Rohrbombe ausrüsten · Linksklick werfen'],['Esc','Spielmenü (Pause, Lautstärke)'],
    ['X','Ausgerüsteten Gegenstand ablegen'],['Tab (halten)','Punktetafel'],['Im Auto','W/S Gas/Bremse · A/D Lenken · E Aussteigen'],['Als Zombie','Linksklick kratzen'],['Tot (Zuschauer)','Links-/Rechtsklick: Spieler wechseln']];
-const PAUSE_ITEMS=()=>PAUSE.keys?[['ZURÜCK',()=>{PAUSE.keys=false;PAUSE.sel=0}]]:[['WEITERKÄMPFEN',()=>{PAUSE.on=false}],['MUSIK:  ◀ '+Math.round(OPT.gvol*100)+'% ▶',()=>setOpt('gvol',1),d=>setOpt('gvol',d)],['EFFEKTE:  ◀ '+Math.round(OPT.svol*100)+'% ▶',()=>setOpt('svol',1),d=>setOpt('svol',d)],['STEUERUNG',()=>{PAUSE.keys=true;PAUSE.sel=0}],['FEEDBACK SENDEN',openFeedback],['SPIEL VERLASSEN',()=>location.reload()]];
+const PAUSE_ITEMS=()=>PAUSE.keys?[['ZURÜCK',()=>{PAUSE.keys=false;PAUSE.sel=0}]]:[['WEITERKÄMPFEN',()=>{PAUSE.on=false}],['MUSIK:  ◀ '+Math.round(OPT.gvol*100)+'% ▶',()=>setOpt('gvol',1),d=>setOpt('gvol',d)],['EFFEKTE:  ◀ '+Math.round(OPT.svol*100)+'% ▶',()=>setOpt('svol',1),d=>setOpt('svol',d)],['STEUERUNG',()=>{PAUSE.keys=true;PAUSE.sel=0}],['FEEDBACK SENDEN',openFeedback],['SPIEL VERLASSEN',()=>{if(started&&alive().length){saveScore();sendTeamScore(true)}location.reload()}]];
 // Mauszeiger-Fang verloren (Esc im Vollbild-Zielmodus) → Pausenmenü öffnen
 document.addEventListener('pointerlockchange',()=>{if(started&&!document.pointerLockElement&&!PAUSE.on&&!P.dead&&alive().length){PAUSE.on=true;PAUSE.t=now;PAUSE.sel=0;for(const q in keys)keys[q]=false;mouse.down=mouse.rdown=false}});
 addEventListener('keydown',e=>{if(FB.open){if(e.key==='Escape')closeFeedback();return}const k=e.key.toLowerCase();if(!keys[k]&&k==='e')ePress=true;keys[k]=true;
@@ -985,8 +985,9 @@ const OPT=Object.assign({name:'',char:0,addr:location.protocol.startsWith('http'
 let scoreSaved=false;
 function saveScore(){if(scoreSaved)return;scoreSaved=true;const l=store.get('scores',[]);
  const d=new Date();l.push({n:P.name||'Du',w:Math.max(0,wave-1),k:P.kills,h:P.heads,mp:PL.length>1,d:d.getDate()+'.'+(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2),me:1});l.sort((a,b)=>b.w-a.w||b.k-a.k);store.set('scores',l.slice(0,100))}
-let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamSent=true;const ps=PL.filter(o=>!o.ai).map(o=>({n:o.name||'Spieler',k:o.kills|0,h:o.heads|0}));
- const gid=[...crypto.getRandomValues(new Uint8Array(6))].map(b=>b.toString(16).padStart(2,'0')).join('');api('score',{gid,w:Math.max(0,wave-1),p:ps}).catch(()=>{})}
+let teamSent=false;function sendTeamScore(keep){if(teamSent||!started||(keep&&wave<1&&!P.kills))return;teamSent=true;const ps=(NET.client?[P]:PL.filter(o=>!o.ai)).map(o=>({n:o.name||'Spieler',k:o.kills|0,h:o.heads|0}));
+ const gid=[...crypto.getRandomValues(new Uint8Array(6))].map(b=>b.toString(16).padStart(2,'0')).join('');const body={gid,w:Math.max(0,wave-1),p:ps};if(keep){try{fetch('api.php?a=score',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({tok},body))})}catch{}}else api('score',body).catch(()=>{})}
+addEventListener('pagehide',()=>{if(started&&alive().length){if(!P.dead)saveScore();sendTeamScore(true)}});
 
 // =====================================================================
 // Hauptmenü (gezeichnet – keine Browser-Bedienelemente)
