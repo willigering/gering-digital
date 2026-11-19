@@ -5,7 +5,7 @@
 @font-face{font-family:'VT323';src:url(fonts/vt323.ttf) format('truetype');font-weight:400;font-display:swap}
 
 html,body{margin:0;height:100%;background:#0e0c10;overflow:hidden}
-canvas{display:block;position:absolute;left:0;top:0}#fx,#gl{pointer-events:none}
+canvas{display:block;position:absolute;left:0;top:0}#fx{pointer-events:none}
 #c{image-rendering:pixelated;cursor:none}
 #ui{pointer-events:none}
 #fb{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,4,10,.78);z-index:9;font-family:'VT323',monospace}
@@ -17,7 +17,7 @@ canvas{display:block;position:absolute;left:0;top:0}#fx,#gl{pointer-events:none}
 #fb .r{display:flex;gap:10px;margin-top:14px}#fb button{flex:1;padding:12px;font:700 18px 'VT323',monospace;border:0;cursor:pointer;background:#1c1822;color:#f0ebe4}
 #fb button.go{background:linear-gradient(90deg,#d6621e,#a84a14);color:#fff}#fb button:hover{filter:brightness(1.2)}#fb button:disabled{opacity:.5;cursor:default}
 #fb .m{min-height:20px;margin-top:10px;font-size:15px;font-weight:700}#fb .c{color:#8a8290;font-size:13px;text-align:right;margin-top:4px}
-</style></head><body><canvas id="gl"></canvas><canvas id="c"></canvas><canvas id="fx"></canvas><canvas id="ui"></canvas>
+</style></head><body><canvas id="c"></canvas><canvas id="fx"></canvas><canvas id="ui"></canvas>
 <div id="fb"><div class="p"><h2>FEEDBACK</h2><p class="s">Was gefällt dir, was nervt, was fehlt? Deine Nachricht geht direkt an den Entwickler.</p>
 <textarea id="fbt" maxlength="2000" placeholder="Schreib hier …"></textarea><div class="c" id="fbc">0 / 2000</div>
 <input id="fbw" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
@@ -29,24 +29,6 @@ canvas{display:block;position:absolute;left:0;top:0}#fx,#gl{pointer-events:none}
 // =====================================================================
 const cv=document.getElementById('c');let g=cv.getContext('2d');
 const uc=document.getElementById('ui'),u=uc.getContext('2d');
-// ===== Glättung: die Pixelwelt wird per WebGL weich hochskaliert (0 = scharfe Pixel, 1 = ganz weich)
-const SM={c:document.getElementById('gl'),gl:null,tex:null,ok:false};
-(()=>{try{const gl=SM.c.getContext('webgl',{alpha:false,antialias:false,preserveDrawingBuffer:false});if(!gl)return;
- const sh=(t,src)=>{const o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);return o};
- const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,'attribute vec2 p;varying vec2 v;void main(){v=vec2(p.x*.5+.5,.5-p.y*.5);gl_Position=vec4(p,0.,1.);}'));
- gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,'precision mediump float;varying vec2 v;uniform sampler2D t;uniform vec2 ts;uniform vec2 sc;uniform float s;'+
-  'void main(){vec2 px=v*sc-.5;vec2 i=floor(px);vec2 f=px-i;float w=mix(.02,.5,s);f=smoothstep(.5-w,.5+w,f);vec2 uv=(i+f+.5)/ts;'+
-  'vec3 c=texture2D(t,uv).rgb;if(s>.0){vec3 b=(texture2D(t,uv+vec2(1.,0.)/ts).rgb+texture2D(t,uv-vec2(1.,0.)/ts).rgb+texture2D(t,uv+vec2(0.,1.)/ts).rgb+texture2D(t,uv-vec2(0.,1.)/ts).rgb)*.25;c=mix(c,b,s*.18);}gl_FragColor=vec4(c,1.);}'));
- gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))return;gl.useProgram(pr);
- const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);
- const loc=gl.getAttribLocation(pr,'p');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);
- SM.tex=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,SM.tex);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
- gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
- SM.u={ts:gl.getUniformLocation(pr,'ts'),sc:gl.getUniformLocation(pr,'sc'),s:gl.getUniformLocation(pr,'s')};SM.gl=gl;SM.ok=true}catch{}})();
-function smoothFrame(){const on=started&&SM.ok&&(OPT.smooth??.35)>0.001;cv.style.opacity=on?'0':'1';SM.c.style.display=on?'block':'none';if(!on)return;const gl=SM.gl;
- const dw=Math.round(innerWidth*Math.min(2,DPR)),dh=Math.round(innerHeight*Math.min(2,DPR));if(SM.c.width!==dw||SM.c.height!==dh){SM.c.width=dw;SM.c.height=dh;SM.c.style.width=innerWidth+'px';SM.c.style.height=innerHeight+'px'}
- gl.viewport(0,0,dw,dh);gl.bindTexture(gl.TEXTURE_2D,SM.tex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,cv);
- gl.uniform2f(SM.u.ts,cv.width,cv.height);gl.uniform2f(SM.u.sc,cv.width,cv.height);gl.uniform1f(SM.u.s,OPT.smooth??.35);gl.drawArrays(gl.TRIANGLE_STRIP,0,4)}
 const fxc=document.getElementById('fx'),fxg=fxc.getContext('2d'),fxl=document.createElement('canvas'),fxlg=fxl.getContext('2d');const FXR=.6;const HD=()=>OPT.hd!==false;
 let SCALE=3;let W,H,DPR=1;const BASE_SCALE=3;let camZoom=1;
 function mk(w,h){const c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(w));c.height=Math.max(1,Math.ceil(h));const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x]}
@@ -1038,7 +1020,7 @@ function menuItems(){switch(menu.screen){
   ['INGAME-MUSIK:  ◀ '+Math.round(OPT.gvol*100)+'% ▶',()=>setOpt('gvol',1),d=>setOpt('gvol',d)],
   ['EFFEKTE:  ◀ '+Math.round(OPT.svol*100)+'% ▶',()=>setOpt('svol',1),d=>setOpt('svol',d)],
   ['MAUS-EMPFINDLICHKEIT:  ◀ '+OPT.sens.toFixed(1)+' ▶',()=>setOpt('sens',1),d=>setOpt('sens',d)],
-  ['GLÄTTUNG:  ◀ '+Math.round((OPT.smooth??.35)*100)+'% ▶',()=>{OPT.smooth=OPT.smooth??.35;setOpt('smooth',1)},d=>{OPT.smooth=OPT.smooth??.35;setOpt('smooth',d)}],['HD-EFFEKTE: '+(OPT.hd!==false?'AN':'AUS'),()=>{OPT.hd=OPT.hd===false;store.set('opt',OPT)}],['BLOOM: '+(OPT.bloom?'AN':'AUS'),()=>{OPT.bloom=!OPT.bloom;store.set('opt',OPT)}],['NEBEL: '+(OPT.fog?'AN':'AUS'),()=>{OPT.fog=!OPT.fog;store.set('opt',OPT)}],['REGEN: '+(OPT.rain!==false?'AN':'AUS'),()=>{OPT.rain=OPT.rain===false;store.set('opt',OPT)}],
+  ['HD-EFFEKTE: '+(OPT.hd!==false?'AN':'AUS'),()=>{OPT.hd=OPT.hd===false;store.set('opt',OPT)}],['BLOOM: '+(OPT.bloom?'AN':'AUS'),()=>{OPT.bloom=!OPT.bloom;store.set('opt',OPT)}],['NEBEL: '+(OPT.fog?'AN':'AUS'),()=>{OPT.fog=!OPT.fog;store.set('opt',OPT)}],['REGEN: '+(OPT.rain!==false?'AN':'AUS'),()=>{OPT.rain=OPT.rain===false;store.set('opt',OPT)}],
   ['ZURÜCK',()=>{menu.edit=null;store.set('opt',OPT);menuGo('main')}]]}}
 function needName(){if(OPT.name)return false;menuGo('options');menu.sel=0;menu.edit='name';NET.status='Bitte zuerst einen Namen eingeben';return true}
 function cycleChar(d){OPT.char=(OPT.char+d+CHARS.length)%CHARS.length;store.set('opt',OPT);if(menu.screen==='lobby')lobbySet()}
@@ -1938,7 +1920,7 @@ function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
   {let fd=1e9;for(const f of FIRES){const dd=Math.hypot(f.x-P.x,f.y-P.y);if(dd<fd)fd=dd}const fv=clamp(1-fd/160,0,1);sfxLoop('fire_loop',fv>0,0);if(LOOPS.fire_loop)LOOPS.fire_loop.gn.gain.value=OPT.svol*SFX_MASTER*fv*fv*.9}
   for(const z of zombies)if(z.hp>0&&!(z.rise>0)&&Math.random()<dt*.05&&Math.hypot(z.x-P.x,z.y-P.y)<200)sfx('zombie_groan',z.x,z.y,.55,.85+Math.random()*.3,.5);sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);
   if(!alive().length&&!goPlayed){goPlayed=true;sfx('game_over',null,null,1,1,0)}}
- if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render();smoothFrame();drawFX()}else{drawMenu(dt);if(SM.ok)smoothFrame();if(fxc.dataset.on){fxg.clearRect(0,0,fxc.width,fxc.height);delete fxc.dataset.on}}
+ if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render();drawFX()}else{drawMenu(dt);if(fxc.dataset.on){fxg.clearRect(0,0,fxc.width,fxc.height);delete fxc.dataset.on}}
  requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 </script></body></html>
