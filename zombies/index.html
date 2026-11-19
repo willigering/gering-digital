@@ -1047,6 +1047,8 @@ let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamS
 // =====================================================================
 // Touch-Geräte ohne feinen Zeiger: Hinweis im Hauptmenü
 const TOUCH_ONLY=(matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0)&&!matchMedia('(any-pointer: fine)').matches;
+// Versionsanzeige: Stand der hochgeladenen Datei (vom Server gemeldet), automatisch bei jedem Deploy aktuell
+const GAME_VERSION=(()=>{const d=new Date(document.lastModified);if(isNaN(d))return'';const p=n=>String(n).padStart(2,'0');return'Version '+String(d.getFullYear()).slice(2)+'.'+p(d.getMonth()+1)+'.'+p(d.getDate())+'-'+p(d.getHours())+p(d.getMinutes())})();
 const MENU_BG=new Image();MENU_BG.onerror=()=>{MENU_BG.onerror=null;MENU_BG.src='menu_bg.png'};MENU_BG.src='menu_bg.webp';
 const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
@@ -1175,6 +1177,7 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
  if(NET.status)MT(NET.status,L,y+bh*.3,Math.max(14,bh*.34),'#ff9a7a');
  // Fußleiste
  u.fillStyle='rgba(230,225,215,.35)';u.fillRect(L*.6,VH*.92,VW-L*1.2,1);
+ MT(GAME_VERSION,VW-L*.6-4,VH*.955,Math.max(13,VH*.022),'#8a8290','right','"VT323"',400);
  MT(menu.edit?'Tippen  Eingabe     Enter  Fertig':(menuItems()[menu.sel]&&menuItems()[menu.sel][2]?'←→  Ändern     ':'')+'Enter  Auswählen     Esc  Zurück     ↑↓  Navigieren',L*.6+4,VH*.955,Math.max(15,VH*.026),'#f0ebe4','left','"VT323"',700);
  u.globalAlpha=1}
 
