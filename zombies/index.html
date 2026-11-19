@@ -404,11 +404,32 @@ function throwItem(pl,type,tx,ty){if((pl[type]||0)<=0||pl.down||pl.dead||pl.thrT
  if(NET.client&&pl===P)return true;
  const dx=tx-pl.x,dy=ty-pl.y,d=Math.min(150,Math.max(20,Math.hypot(dx,dy))),a=Math.atan2(dy,dx),T=.62;
  THROWN.push({id:thid++,type,x:pl.x+Math.cos(a)*6,y:pl.y+Math.sin(a)*4,z:13,vx:Math.cos(a)*d/T,vy:Math.sin(a)*d/T,vz:68,t:type==='bomb'?10:2.4,own:pl,land:false,spin:0,nb:0});return true}
-function updPap(dt){for(const st of STATIONS){const j=st.job;if(!j)continue;j.t-=dt;
+function updPap(dt){for(const st of STATIONS){const j=st.job;if(!j)continue;
+ if(!j.pl||j.pl.dead||j.pl.zombie||!PL.includes(j.pl)){if(j.pl)j.pl.papK=null;st.job=null;continue}
+ if(j.ready){if(Math.random()<dt*6)part({x:st.x+rnd(-5,5),y:st.y-4,z:rnd(20,30),vx:rnd(-6,6),vy:rnd(-4,4),vz:rnd(5,15),g:20,life:.6,c:'#7aff7a',s:1});continue}
+ j.t-=dt;
  if(Math.random()<dt*25)part({x:st.x+rnd(-7,7),y:st.y-4,z:rnd(8,22),vx:rnd(-20,20),vy:rnd(-10,10),vz:rnd(10,50),g:60,life:.6,c:pick(['#c86bff','#ff6bff','#fff','#8ae0ff']),s:1});
- if(j.t<=0){const pl=j.pl;st.job=null;pl.papK=null;const sl=pl.slots.find(x=>x&&x.k===j.k);if(sl){pl.pap[j.k]=j.lv;sl.ammo=wStats(pl,j.k).mag;sl.res+=sl.ammo*3}
+ if(j.t<=0){j.t=0;j.ready=true;
   for(let i=0;i<40;i++)part({x:st.x,y:st.y,z:20,vx:rnd(-60,60),vy:rnd(-35,35),vz:rnd(20,90),g:150,life:1,c:pick(['#c86bff','#ff6bff','#fff']),s:1});
-  sfx('rare_found',st.x,st.y,1,1,0);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist jetzt ÜBERMÄCHTIG!','#e0b0ff',1)}}}
+  sfx('rare_found',st.x,st.y,1,1,0);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist fertig – abholen!','#7aff7a',1,j.pl)}}}
+const rearPt=c=>({x:c.cx-Math.cos(c.a)*25,y:c.cy-Math.sin(c.a)*25});
+function updTrunks(dt){for(const c of CARS){if(c.trunkBusy>0){c.trunkBusy-=dt;continue}if(c.trunk>0){c.trunk=Math.max(0,c.trunk-dt/.45);if(c.trunk<=0){const r=rearPt(c);sfx('door_hit_1',r.x,r.y,.5,1.3,.1)}}}}
+function trunkLoot(pl,c,r){const x=r.x,y=r.y-12;let s,col='#fff2a8';const q=Math.random();
+ if(q<.45&&(pl.med||0)<3){pl.med=(pl.med||0)+1;s='Verbandskasten im Kofferraum! [3]';col='#9fffb0';sfx('loot_found',x,y,.8)}
+ else if(q<.6&&(pl.bomb||0)<3){pl.bomb=(pl.bomb||0)+1;s='Rohrbombe gefunden! [F]'}
+ else if(q<.8){const w=pl.slots.find(z=>z&&!isMelee(z.k)&&z.k!==pl.papK);if(w){const add=Math.round(WEAPONS[w.k].mag*RAR[w.r||0].m);w.res+=add;s='+'+add+' Schuss '+WEAPONS[w.k].name}else{const m=60+(Math.random()*90|0);pl.money+=m;s='+$'+m+' im Handschuhfach'}}
+ else if(q<.93){const m=60+(Math.random()*90|0);pl.money+=m;s='+$'+m+' im Kofferraum'}
+ else s='Nur alte Zeitungen …';
+ ftext(x,y,s,col,0,pl)}
+function papCollect(pl,st){const j=st.job;st.job=null;pl.papK=null;const sl=pl.slots.find(x=>x&&x.k===j.k);
+ if(sl){pl.pap[j.k]=j.lv;sl.ammo=wStats(pl,j.k).mag;sl.res+=sl.ammo*3;pl.cur=pl.slots.indexOf(sl);pl.reloadT=0}
+ sfx('item_pickup',st.x,st.y);sfx('rare_found',st.x,st.y,.6,1.2,0);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist jetzt ÜBERMÄCHTIG!','#e0b0ff',1)}
+function drawPapJob(s){const j=s.job,x=Math.round(s.x),y=Math.round(s.y-30+Math.sin(now*3)*2),rd=j.ready;
+ g.save();g.globalAlpha=.3+Math.sin(now*8)*.12;g.fillStyle=rd?'#7aff7a':'#c86bff';g.beginPath();g.arc(x,y,10,0,7);g.fill();g.restore();
+ for(const [ix,iy,w,h,c] of ICONS[j.k]||[])R(g,x+ix*.8,y+iy*.8,Math.max(1,w*.8),Math.max(1,h*.8),c);
+ if(!rd){g.lineWidth=1;for(let n=0;n<3;n++)if(Math.random()<.75){g.strokeStyle=pick(['#e0b0ff','#ffffff','#8ae0ff','#ff6bff']);g.beginPath();let bx=s.x+rnd(-8,8),by=s.y-12;g.moveTo(bx,by);for(let i=1;i<=4;i++){bx=lerp(bx,x+rnd(-4,4),.5)+rnd(-3,3);by=lerp(by,y,.5)+rnd(-2,2);g.lineTo(bx,by)}g.stroke()}
+  for(let i=0;i<3;i++){const a=now*5+i*2.1;R(g,x+Math.cos(a)*12,y+Math.sin(a)*5,1,1,'#fff')}}
+ else{const a=now*4;R(g,x+Math.cos(a)*11,y+Math.sin(a)*4,2,2,'#7aff7a')}}
 function updThrown(dt,sim){
  for(const t of THROWN){
   if(sim){const nx=t.x+t.vx*dt,ny=t.y+t.vy*dt;if(blocked(nx,t.y,1,'bullet'))t.vx*=-.4;else t.x=nx;if(blocked(t.x,ny,1,'bullet'))t.vy*=-.4;else t.y=ny;
@@ -513,7 +534,7 @@ function healTick(pl,dt){const t=pl.healTgt;
 const GROUND=[];let gid=1;
 function dropItem(pl){if(pl.down||pl.dead)return;sfx('item_drop',pl.x,pl.y,.8);const x=pl.x+Math.cos(pl.face)*8,y=pl.y+Math.sin(pl.face)*5+2;
  if(pl.hold==='med'){if(pl.med>0){pl.med--;GROUND.push({id:gid++,kind:'med',x,y});if(pl.med<=0)pl.hold=null}return}
- const s=pl.slots[pl.cur],o=pl.slots[1-pl.cur];if(!s)return;
+ const s=pl.slots[pl.cur],o=pl.slots[1-pl.cur];if(!s)return;if(s.k===pl.papK){note(pl,'Die Waffe ist noch in der Maschine','#ff8a7a');return}
  if(!o){note(pl,'Die letzte Waffe kannst du nicht ablegen','#ff8a7a');return}
  GROUND.push({id:gid++,kind:'w',k:s.k,r:s.r||0,ammo:s.ammo,res:s.res,x,y});pl.slots=[o,null];pl.cur=0;pl.reloadT=0}
 const PUPS=[];let puid=1;
@@ -603,7 +624,7 @@ const zombies=[],bullets=[],parts=[],corpses=[];
 let wave=0,toSpawn=0,spawnT=0,breakT=4,noise_=null;
 const SPAWNS=[{x:400,y:60},{x:1000,y:60},{x:50,y:520},{x:MW-90,y:520},{x:MW-90,y:850},{x:600,y:MH-75},{x:60,y:920},{x:1250,y:120}];
 const alive=()=>PL.filter(p=>!p.dead&&!p.zombie),standing=()=>PL.filter(p=>!p.dead&&!p.down&&!p.zombie);
-function nextWave(){wave++;toSpawn=Math.round((6+wave*4)*(1+.6*(alive().length-1)));say('WELLE '+wave);evp('msg','WELLE '+wave);waveBell();for(const p of PL)if(!p.dead)p.gren=Math.min(4,(p.gren||0)+2);}
+function nextWave(){wave++;toSpawn=Math.round((6+wave*4)*(1+.6*(alive().length-1)));say('WELLE '+wave);evp('msg','WELLE '+wave);waveBell();for(const p of PL)if(!p.dead)p.gren=Math.min(4,(p.gren||0)+2);if(wave>1&&wave%4===0){for(const p of alive())p.med=Math.min(3,(p.med||0)+1);say('Nachschub: +1 Verbandskasten für alle!');evp('msg','Nachschub: +1 Verbandskasten für alle!')}}
 const ZSKIN=['#8aa070','#9aa88a','#7f9468','#a3a68a'],ZSHIRT=['#4a6b3a','#6b3a3a','#3a4f6b','#6b5d3a','#5a5a5a','#7a6a5a','#3a3a3a'];
 function spawnZombie(){
  for(let tries=0;tries<12;tries++){const s=pick(SPAWNS),x=s.x+rnd(-14,14),y=s.y+rnd(-14,14);
@@ -743,7 +764,9 @@ function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
  netSend({t:'snap',wave,toSpawn,breakT:+breakT.toFixed(1),
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
    bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,pk:p.papK||0,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),ic:p.inCar,ky:p.key,tn:+(p.turnT||0).toFixed(1),tw:p.turnWait?1:0,sw:+(p.slowT||0).toFixed(2),zb:p.zombie?1:0,mx:p.max,sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
-   hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0})),
+   hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0,ts:p.tsearch?+(p.tsearch.t/1.8).toFixed(2):0})),
+  tk:CARS.filter(c=>c.trunk>0||c.looted).map(c=>[c.i,+(c.trunk||0).toFixed(2),c.looted?1:0]),
+  pj:STATIONS.filter(t=>t.t==='pap').map(t=>t.job?[t.job.k,+t.job.t.toFixed(1),t.job.T,t.job.ready?1:0,t.job.pl.id,t.job.lv]:0),
   cars:CARS.filter(c=>c.dyn||c.unlocked||c.blink>0||c.state==='burning').map(c=>[c.i,Math.round(c.cx),Math.round(c.cy),+c.a.toFixed(3),Math.round(c.spd),c.hits,c.state[0],c.driver||'',c.unlocked?1:0,+Math.max(0,c.blink).toFixed(1)]),
   pu:PUPS.map(p=>[p.id,p.type[0],Math.round(p.x),Math.round(p.y),+p.t.toFixed(1)]),
   pb:PROPS.map((p,i)=>p.broken&&p.expl?i:-1).filter(i=>i>=0),
@@ -759,10 +782,12 @@ function applySnap(s){wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=n
   if(p===P){if(d.hp<P.hp-1&&!d.dn){P.hurtT=.3;shake=4;sfx('zombie_attack',null,null,.8);sfx('player_hurt',null,null,.75,1,.35)}if(P.zapT<d.zp-.2)sfx('revive_zap',null,null,.7);if(P.down&&!d.dn&&!d.dd)sfx('revive_done');if((P.dead&&!d.dd)||(P.down!==d.dn)){P.x=d.x;P.y=d.y}}
   else{p.tx=d.x;p.ty=d.y;p.face=d.f;p.phase=d.ph;p.moving=d.mv;if(d.hop>(p.hop||0))p.hop=d.hop}
   if(p!==P){if(d.sg>0)p.swing=d.sg;if(d.st>0)p.stab=d.st;if(d.tr>0)p.thrT=d.tr}p.gren=d.gr;p.bomb=d.bo;p.med=d.md;p.healT=d.hT;if(p===P&&P.inCar>=0&&d.ic<0){P.x=d.x;P.y=d.y}p.inCar=d.ic;p.key=d.ky;p.turnT=d.tn||0;p.turnWait=!!d.tw;if(p===P)P.slowT=Math.max(P.slowT||0,d.sw||0);p.zombie=!!d.zb;p.max=d.mx||100;if(p===P&&P.key<0&&P.hold==='key')P.hold=null;
-  if(p!==P){p.hold=d.ho;p.hz=d.pz||0;p.play=d.pt?{type:d.pt[0]==='w'?'swing':'slide',seat:+d.pt[1]||0,t:1}:null;if(d.jp>0)p.jumpT=d.jp}else if(!d.md)P.hold=null;Object.assign(p,{revives:d.rvs,downs:d.dns,knifes:d.kn,name:d.n,ai:d.ai,hp:d.hp,down:d.dn,bleed:d.bl,revT:d.rv,dead:d.dd,money:d.m,kills:d.k,heads:d.hd,papK:d.pk,slots:d.sl,cur:d.cu,pap:d.pp,zapT:d.zp,sp:d.sp,look:d.lk,rg:d.rg});
+  if(p!==P){p.hold=d.ho;p.hz=d.pz||0;p.play=d.pt?{type:d.pt[0]==='w'?'swing':'slide',seat:+d.pt[1]||0,t:1}:null;if(d.jp>0)p.jumpT=d.jp}else if(!d.md)P.hold=null;Object.assign(p,{revives:d.rvs,downs:d.dns,knifes:d.kn,name:d.n,ai:d.ai,hp:d.hp,down:d.dn,bleed:d.bl,revT:d.rv,dead:d.dd,money:d.m,kills:d.k,heads:d.hd,papK:d.pk,slots:d.sl,cur:d.cu,pap:d.pp,zapT:d.zp,sp:d.sp,look:d.lk,rg:d.rg,ts:d.ts||0});
   if(p!==P||d.rl>0||P.reloadT<=0)p.reloadT=d.rl}
  for(let i=PL.length-1;i>=0;i--)if(!seen.has(PL[i].id))PL.splice(i,1);
  for(const p of PL)p.reviving=p.rg?PL.find(q=>q.id===p.rg)||null:null;
+ for(const a of s.tk||[]){const c=CARS[a[0]];if(c){c.trunk=a[1];c.looted=!!a[2]}}
+ {const ps=STATIONS.filter(t=>t.t==='pap');(s.pj||[]).forEach((a,i)=>{const t=ps[i];if(!t)return;t.job=a?{k:a[0],t:a[1],T:a[2],ready:!!a[3],pl:PL.find(q=>q.id===a[4])||null,lv:a[5]}:null})}
  for(const a of s.cars||[]){const c=CARS[a[0]];if(!c)continue;const mine=P.inCar===c.i;
   if(!mine){c.cx=a[1];c.cy=a[2];c.a=a[3];c.spd=a[4]}c.hits=a[5];c.driver=a[7]||null;c.unlocked=!!a[8];c.blink=a[9];c.dyn=true;
   if(c.driver)unparkCar(c,true);else parkCar(c,true);
@@ -1178,7 +1203,7 @@ function update(dt){
      blood(b.x,b.y,head?9:6,1,head?16:9);b.own.money+=head?10:5;break}}}
   b.life-=dt}
  for(let i=bullets.length-1;i>=0;i--)if(bullets[i].life<=0)bullets.splice(i,1);
- updThrown(dt,true);updPowerups(dt);updPap(dt);
+ updThrown(dt,true);updPowerups(dt);updPap(dt);updTrunks(dt);
  // Wellen
  if(toSpawn===0&&zombies.length===0&&wave>0&&!waveDone){waveDone=true;sfx('wave_cleared');evp('wc')}if(zombies.length||toSpawn)waveDone=false;
  if(toSpawn===0&&zombies.length===0){breakT-=dt;if(breakT<=0){nextWave();breakT=6}}
@@ -1221,7 +1246,7 @@ function update(dt){
  carImpacts(dt);
  for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0){const z=zombies[i],k=z.last||{own:P,head:false};
   if(k.head){z.look={...z.look,headless:true};for(let j=0;j<16;j++)part({x:z.x,y:z.y,z:17,vx:rnd(-60,60),vy:rnd(-40,40),vz:rnd(30,100),g:220,life:1.5,c:pick(['#7a1010','#9a1a1a',z.look.skin]),s:2,stain:1})}
-  if(!NET.client&&Math.random()<.025)dropPowerup(z.x,z.y);
+  if(!NET.client&&Math.random()<.025)dropPowerup(z.x,z.y);else if(!NET.client&&Math.random()<.012)GROUND.push({id:gid++,kind:'med',x:z.x,y:z.y});
   addCorpse({x:z.x,y:z.y,look:z.look,face:z.face,t:0,dir:Math.cos(z.face)>0?-1:1},k.head);stain(z.x,z.y+2,rnd(4,7));
   const m=k.run?40:k.melee?70:k.head?60:30;sfx('zombie_die',z.x,z.y,.75,.9+Math.random()*.2,.12);k.own.money+=m;k.own.kills++;if(k.head)k.own.heads++;if(k.melee)k.own.knifes=(k.own.knifes||0)+1;
   ftext(z.x,z.y-24,k.run?'ÜBERFAHREN +$'+m:k.expl?'BOOM +$'+m:k.melee?'NAHKAMPF +$'+m:k.head?'KOPFSCHUSS +$'+m:'+$'+m,k.head?'#ffd23a':'#cfe8a0',k.head,k.own);zombies.splice(i,1)}
@@ -1250,13 +1275,17 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
  const st=STATIONS.find(s=>Math.hypot(s.x-pl.x,s.y-pl.y)<20);
  if(st){const s=pl.slots[pl.cur],lv=pl.pap[s.k]||0;let txt,cost,act;
   if(st.t==='wall'){const w=WEAPONS[st.k];if(pl.slots.some(x=>x&&x.k===st.k)){if(me)prompt={x:st.x,y:st.y-34,s:w.name+' hast du schon – Munition gibt es an der Munitionskiste',c:'#c8c0b8'};return}
+   if(pl.slots[1]&&s.k===pl.papK){if(me)prompt={x:st.x,y:st.y-34,s:'Wechsle zuerst die Waffe – deine ist in der Maschine',c:'#c8c0b8'};return}
    cost=w.cost;txt=w.name+' kaufen';act=()=>giveWeapon(pl,st.k)}
   else if(st.t==='ammo'){cost=ammoCost(pl);if(!cost){if(me)prompt={x:st.x,y:st.y-34,s:'Munition ist voll',c:'#9fff9f'};return}
    txt='Munition auffüllen';act=()=>{refillAmmo(pl);return'Munition aufgefüllt'}}
+  else if(st.t==='pap'&&st.job){const j=st.job;if(j.pl!==pl){if(me)prompt={x:st.x,y:st.y-34,s:'Maschine ist belegt',c:'#e0b0ff'};return}
+   if(!j.ready){if(me)prompt={x:st.x,y:st.y-34,s:'Aufrüstung läuft …',p:1-j.t/j.T,c:'#e0b0ff'};return}
+   if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+WEAPONS[j.k].name+' abholen',c:'#7aff7a'};if(EP&&auth)papCollect(pl,st);return}
   else if(isMelee(s.k)){if(me)prompt={x:st.x,y:st.y-34,s:'Nahkampfwaffen lassen sich nicht aufrüsten',c:'#c8c0b8'};return}
   else if(lv>=3){if(me)prompt={x:st.x,y:st.y-34,s:WEAPONS[s.k].name+' ist bereits voll aufgerüstet (max. 3)',c:'#c8c0b8'};return}
   else{if(st.job){if(me)prompt={x:st.x,y:st.y-34,s:st.job.pl===pl?'Aufrüstung läuft …':'Maschine ist belegt',p:1-st.job.t/st.job.T,c:'#e0b0ff'};return}
-   cost=3500*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{st.job={pl,k:s.k,lv:lv+1,t:6.5,T:6.5};pl.papK=s.k;sfx('pap_upgrade',st.x,st.y,1,1,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
+   cost=3500*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{st.job={pl,k:s.k,lv:lv+1,t:6.5,T:6.5};pl.papK=s.k;if(pl.slots[1-pl.cur])pl.cur=1-pl.cur;pl.reloadT=0;sfx('pap_upgrade',st.x,st.y,1,1,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
   if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+txt+' – $'+cost,c:pl.money>=cost?'#fff2a8':'#ff8a7a'};
   if(EP&&auth){if(pl.money<cost)note(pl,'Zu wenig Geld','#ff8a7a'),me&&sfx('no_money');else{pl.money-=cost;const r=act();sfx('cash_register',st.x,st.y,.8,1,0);sfx(st.t==='ammo'?'ammo_refill':'item_pickup',st.x,st.y);ftext(st.x,st.y-30,r.replace('gefunden!','gekauft'),'#9fff9f',1)}}return}
  {let gi=null,gd=14;for(const it of GROUND){const d=Math.hypot(it.x-pl.x,it.y-pl.y);if(d<gd){gd=d;gi=it}}
@@ -1264,12 +1293,19 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
    const cur=pl.slots[pl.cur],better=gi.kind==='w'&&pl.slots[1]&&cur&&((cur.r||0)>(gi.r||0)||(pl.pap[cur.k]||0)>0),conf=pl.swapC&&pl.swapC.id===gi.id&&pl.swapC.t>0;
    const cmp=gi.kind==='w'&&cur?Math.sign(Math.round(wDps(gi.k,gi.r,0)-wDps(cur.k,cur.r,pl.pap[cur.k]||0))):0;
    if(me)prompt=better?{x:gi.x,y:gi.y-16,s:conf?'[E] JA, wirklich tauschen! ('+WEAPONS[cur.k].name+' wird abgelegt)':'[E] Aufheben: '+nm+' – ersetzt deine VERBESSERTE Waffe!',c:'#ff8a5a'}:{x:gi.x,y:gi.y-16,s:'[E] Aufheben: '+nm,c:gi.kind==='med'?'#9fffb0':RAR[gi.r||0].c};if(me&&prompt)prompt.cmp=cmp;
+   if(gi.kind==='w'&&pl.slots[1]&&cur&&cur.k===pl.papK){if(me)prompt={x:gi.x,y:gi.y-16,s:'Wechsle zuerst die Waffe – deine ist in der Maschine',c:'#c8c0b8'};return}
    if(EP&&better&&!conf){pl.swapC={id:gi.id,t:3};note(pl,'Wirklich tauschen? Nochmal [E] drücken','#ff8a5a');return}
    if(EP&&auth){pl.swapC=null;sfx('item_pickup',pl.x,pl.y);GROUND.splice(GROUND.indexOf(gi),1);
     if(gi.kind==='med')pl.med=(pl.med||0)+1;
     else{const nw={k:gi.k,r:gi.r||0,ammo:gi.ammo,res:gi.res};if(!pl.slots[1]){pl.slots[1]=nw;pl.cur=1}
      else{const old=pl.slots[pl.cur];pl.slots[pl.cur]=nw;GROUND.push({id:gid++,kind:'w',k:old.k,r:old.r||0,ammo:old.ammo,res:old.res,x:pl.x,y:pl.y+3})}pl.hold=null;pl.reloadT=0}}
    return}}
+ {let tc=null,td=13;for(const c of CARS){if(c.state!=='ok'||c.driver||c.looted)continue;const rp=rearPt(c),d=Math.hypot(rp.x-pl.x,rp.y-pl.y);if(d<td){td=d;tc=c}}
+  if(tc){const rp=rearPt(tc);
+   if(E&&auth){if(!pl.tsearch||pl.tsearch.c!==tc){pl.tsearch={c:tc,t:0};sfx('container_open',rp.x,rp.y,.8,.8,.1)}pl.tsearch.t+=dt;tc.trunkBusy=.15;tc.trunk=Math.min(1,pl.tsearch.t/.4);
+    if(pl.tsearch.t>=1.8){tc.looted=true;pl.tsearch=null;tc.trunkBusy=.35;trunkLoot(pl,tc,rp)}}else if(!E)pl.tsearch=null;
+   if(me)prompt={x:rp.x,y:rp.y-16,s:'[E] halten: Kofferraum durchsuchen',p:auth?(pl.tsearch?pl.tsearch.t/1.8:0):(pl.ts||0)};return}
+  pl.tsearch=null}
  let f=null,fd=16;const myB=buildingAt(pl.x,pl.y);for(const c of FURN){if(!c.cont||c.searched||c.b!==myB)continue;const d=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(d<fd+Math.max(c.w,c.d)/2&&los(pl.x,pl.y,Math.max(c.x+1,Math.min(c.x+c.w-1,pl.x)),Math.max(c.y+1,Math.min(c.y+c.d-1,pl.y)))){fd=d-Math.max(c.w,c.d)/2;f=c}}
  if(f){if(E&&auth){if(!pl.search||pl.search.f!==f)pl.search={f,t:0};pl.search.t+=dt;
    if(pl.search.t>=1.2){f.searched=true;evp('se',FURN.indexOf(f));pl.search=null;loot(pl,f)}}else if(!E)pl.search=null;
@@ -1467,7 +1503,7 @@ function drawPlayer(pl){
  if(pl.reviving){oy=0}
  if(rot){g.save();g.translate(pl.x,pl.y+oy-9);g.rotate(rot);g.translate(-pl.x,-(pl.y-9));if(slide&&slide.on)drawHuman(pl.x,pl.y,pl.look,slide.dir>0?0:Math.PI,0,false,pl.hurtT>.2,null,{sit:'slide'});else drawHuman(pl.x,pl.y,pl.look,slide?(slide.dir>0?0:Math.PI):pl.face,vt!==null?vt*9:pl.phase,vt!==null||pl.moving,pl.hurtT>.2,vt!==null?null:curW(pl));g.restore()}
  else if(pl.rummF&&now-(pl.rumm||-9)<.25){const f=pl.rummF;drawHuman(pl.x,pl.y+oy+(Math.sin(now*14)>0?1:0),pl.look,Math.atan2(f.y+f.d/2-pl.y,f.x+f.w/2-pl.x),0,false,pl.hurtT>.2,{len:0,rumm:true},{})}
- else drawHuman(pl.x,pl.y+oy,pl.look,pl.reviving?Math.atan2(pl.reviving.y-pl.y,pl.reviving.x-pl.x):pl.face,pl.phase,pl.moving,pl.hurtT>.2,pl.reviving?null:pl.hold==='med'?{len:0,med:true}:pl.hold==='key'?{len:0,med:true,fob:true}:curW(pl),{kneel:pl.reviving?(revMode(pl.reviving.revT)==='up'?'up':'cpr'):null,heal:pl.healT,recoil:pl.recoil,reload:pl.reloadT,swing:pl.swing,swingMax:pl.swingMax||.5,stab:pl.stab,thr:pl.thrT});
+ else drawHuman(pl.x,pl.y+oy,pl.look,pl.reviving?Math.atan2(pl.reviving.y-pl.y,pl.reviving.x-pl.x):pl.face,pl.phase,pl.moving,pl.hurtT>.2,pl.reviving?null:pl.hold==='med'?{len:0,med:true}:pl.hold==='key'?{len:0,med:true,fob:true}:pl.papK&&pl.papK===pl.slots[pl.cur].k?null:curW(pl),{kneel:pl.reviving?(revMode(pl.reviving.revT)==='up'?'up':'cpr'):null,heal:pl.healT,recoil:pl.recoil,reload:pl.reloadT,swing:pl.swing,swingMax:pl.swingMax||.5,stab:pl.stab,thr:pl.thrT});
  if(pl.reviving&&revMode(pl.reviving.revT)!=='up'&&Math.sin(now*16)>.8){const d=pl.reviving;R(g,d.x-1,d.y-7,3,1,'#ff6a8a')}}
 
 // =====================================================================
@@ -1604,6 +1640,8 @@ function drawCarDyn(c){const ok=c.state==='ok',col=ok?c.c:'#2e2a26',dk=shade(col
  F(19,-9,2,4,hl);F(19,5,2,4,hl);if(bl){F(-21,-8,2,3,'#ffb020');F(-21,5,2,3,'#ffb020')}
  for(let i=0;i<c.hits;i++){const px=((i*37)%34)-17,py=((i*23)%16)-8;F(px,py,3,2,'rgba(20,16,12,.55)')}
  if(!ok){for(let i=0;i<16;i++)F(((i*29)%36)-18,((i*17)%18)-9,3,2,'#1a1614');F(4,-8,5,16,'#0e0e10');F(-12,-8,4,16,'#0e0e10')}
+ if(ok&&c.trunk>0){const k=c.trunk,lw=Math.max(1,Math.round(k*8));F(-20,-9,7,16,'#141110');F(-19,-7,5,12,'#2a231e');if(k>.6){F(-18,-5,2,2,'#f2f2ee');F(-17,-4,1,1,'#d83030');F(-15,1,2,3,'#5a4430')}
+  F(-20-lw,-10,lw,18,shade(col,1.1));F(-20-lw,-10,lw,1,lt);F(-20-lw,-10,1,18,dk);F(-20-lw,-8,1,3,'#a01818');F(-20-lw,5,1,3,'#a01818')}
  g.restore()}
 function fadeIf(sx,sy,sw,sh,base){const py=P.y-8;return(P.x>sx&&P.x<sx+sw&&py>sy&&py<sy+sh&&P.y<base)?.4:1}
 // Vertikale Wandstücke in 8px-Abschnitte zerlegen (für korrekte Tiefensortierung)
@@ -1631,11 +1669,12 @@ function render(){
     gr.addColorStop(0,'rgba(0,0,0,.9)');gr.addColorStop(.55,'rgba(0,0,0,.7)');gr.addColorStop(1,'rgba(0,0,0,0)');rtx.globalCompositeOperation='destination-out';rtx.fillStyle=gr;rtx.fillRect(hx-26,hy-26,52,52);rtx.globalCompositeOperation='source-over';g.drawImage(rtc,b.rx,b.ry)}
    g.globalAlpha=1}})}}
  for(const c of VCHUNKS){const b=c.b;if(b.roofSpr&&b.cut<.05&&c.side==='I')continue;if(!vis(c.r.x,c.r.y-b.z,4,8+b.z))continue;const zz=c.side==='N'?b.z:lerp(b.z,9,b.cut);L.push({y:c.r.y+c.r.h,f:()=>drawPiece(c,zz,1)})}
+ for(const pl of PL)if(pl.tsearch||pl.ts>0){for(const c of CARS)if(c.trunk>0){const rp=rearPt(c);if(Math.hypot(rp.x-pl.x,rp.y-pl.y)<16){pl.rumm=now;pl.rummF={x:c.cx-3,y:c.cy-3,w:6,d:6};break}}}
  for(const pl of PL){let sf=pl.search&&pl.search.f;if(!sf&&pl.sp>0){let bd=40;for(const c of FURN){if(!c.cont)continue;const dd=Math.hypot(c.x+c.w/2-pl.x,c.y+c.d/2-pl.y);if(dd<bd){bd=dd;sf=c}}}
   if(sf){if(!(now-(sf.act||-9)<.3))sfx('container_open',sf.x+sf.w/2,sf.y,.7,.9+Math.random()*.2,.2);sf.act=now;pl.rumm=now;pl.rummF=sf;{const dx=pl.x-(sf.x+sf.w/2),dy=pl.y-(sf.y+sf.d/2);sf.side=Math.abs(dx)/(sf.w/2+4)>Math.abs(dy)/(sf.d/2+4)?(dx>0?'E':'W'):(dy>0?'S':'N')}
    if(Math.random()<.35)part({x:sf.x+sf.w/2+rnd(-sf.w/3,sf.w/3),y:sf.y+sf.d,z:sf.hh*.5,vx:rnd(-30,30),vy:rnd(5,25),vz:rnd(25,60),g:160,life:.7,c:pick(['#e8e4d8','#c8b890','#8a6a4a','#d0d0d8','#a04040']),s:1})}}
  for(const f of FURN)if(!(f.b.roofSpr&&f.b.cut<.05)&&vis(f.x,f.y-30,f.w,40))L.push({y:f.y+f.d,f:()=>drawFurn(f)});
- for(const s of STATIONS)if(vis(s.x-20,s.y-40,40,50))L.push({y:s.y,f:()=>drawStation(s)});
+ for(const s of STATIONS)if(vis(s.x-20,s.y-40,40,50))L.push({y:s.y,f:()=>{drawStation(s);if(s.t==='pap'&&s.job)drawPapJob(s)}});
  for(const c of CARS)if(vis(c.cx-30,c.cy-40,60,60))L.push({y:c.cy+10,f:()=>drawCarDyn(c)});
  for(const p of PROPS)if(vis(p.x-30,p.y-60,(p.w||0)+60,(p.h||0)+70))L.push({y:p.t==='canopy'?p.y+p.h:p.y,f:()=>{if(p.t==='canopy')g.globalAlpha=fadeIf(p.x,p.y-p.z,p.w,p.h+p.z,p.y+p.h);drawProp(p);g.globalAlpha=1}});
  const tree=(t,spr)=>{const s=spr.cn,r=spr.r,sw=t.v>=4?0:Math.round(Math.sin(now*1.2+t.ph)*.6+windAt(t.x,t.y)*1.8);
