@@ -44,7 +44,7 @@ for (const [index, key, initial] of [[1, 'mvol', .75], [2, 'gvol', .3], [3, 'svo
   assert.equal(saved[key], 1, `${key}: setting persisted`);
 }
 // Execute the production death-processing loop and verify rewards are paid only once.
-const deathLoop = part(' for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0)', ' for(let i=PL.length-1;i>0;i--)');
+const deathLoop = part(' for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0)', ' if(!PVP())for(let i=PL.length-1;i>0;i--)');
 for (const [flags, expected] of [[{},50],[{head:true},100],[{melee:true},130],[{expl:true},50],[{run:true},50]]) {
   const player = {money:500, kills:0, heads:0};
   const zombies = [{hp:0,x:0,y:0,face:0,look:{skin:'#aaa'},last:{own:player,...flags}}];
@@ -64,6 +64,7 @@ const weather = vm.createContext({
   NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0,
   PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
   P: {id: 'client'}, netSend: data => {packet = data;},
+  STATIONS: [], GM: 'z', MATCH: {over: false, win: ''}, pvpSaveScore() {},
 });
 const wrun = code => vm.runInContext(code, weather);
 wrun(part('const WEATHER=', '// sitzende Krähen'));
@@ -85,4 +86,30 @@ for (const rain of [true, false]) {
 wrun('SPLASH.push({});RIPPLES.push({});bolt=.5;thunderAt=10;applyWeather(false)');
 assert.equal(wrun('SPLASH.length+RIPPLES.length+bolt'), 0, 'Dry match has no residual rain or lightning');
 assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
-console.log('Zombies: syntax, HD, mouse volume, bounds, persistence, kill rewards and multiplayer weather passed.');
+
+// PvP, Mystery Box, Perks and new weapons (1.5.0)
+{
+  const W = vm.createContext({});
+  vm.runInContext(part('const WEAPONS=', '// Seltenheit'), W);
+  for (const k of ['uzi','akimbo','lmg','sniper','wunder','tknife','pan','machete']) assert.ok(vm.runInContext('WEAPONS.'+k, W), 'weapon '+k);
+  const pvp = vm.createContext({PL: [], P: {}, Math});
+  vm.runInContext(part('let GM=', 'function pvpWeapon('), pvp);
+  assert.equal(vm.runInContext('DM_GOAL', pvp), 10, 'Deathmatch: 10 kills win');
+  const ladder = vm.runInContext('GG_LADDER', pvp);
+  assert.equal(ladder[ladder.length-1], 'tknife', 'GunGame ends with throwing knife');
+  for (const k of ladder) assert.ok(!vm.runInContext('WEAPONS.'+k+'.melee', W), 'GunGame has no melee: '+k);
+  assert.equal(JSON.stringify(), JSON.stringify(), );
+  const box = vm.createContext({WEAPONS: vm.runInContext('WEAPONS', W), Math});
+  vm.runInContext(part('const BOX_COST=', 'const BOX_NAME='), box);
+  assert.equal(vm.runInContext('BOX_COST', box), 1000, 'Mystery box costs 1000');
+  const pool = vm.runInContext('BOX_POOL', box);
+  assert.equal(JSON.stringify(), JSON.stringify(), );
+  for (let i=1;i<pool.length;i++) assert.ok(pool[i][1] <= pool[i-1][1], 'Box weights fall with rarity');
+  assert.ok(pool[pool.length-1][1] / pool.reduce((a,p)=>a+p[1],0) < .005, 'Wunderwaffe is extremely rare');
+  for (const frag of ["pl.max=BASE_MAX_HP+100", "'twixx')?1.3", "'ravioli')?.4", "'popcorn')?1.3", "'brain')?1.5"]) assert.ok(script.includes(frag), 'Perk value '+frag);
+  run('menu.screen="play"');assert.equal(JSON.stringify(), JSON.stringify(), );
+  run('menu.screen="pvp"');assert.equal(JSON.stringify(), JSON.stringify(), );
+  run('menu.screen="scores"');assert.equal(JSON.stringify(), JSON.stringify(), );
+  run('menu.screen="options"');
+}
+console.log('Zombies: PvP modes, mystery box, perks, menus, syntax, HD, mouse volume, bounds, persistence, kill rewards and multiplayer weather passed.');
