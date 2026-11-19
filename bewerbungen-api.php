@@ -94,8 +94,72 @@ function allItems(PDO $db): array
     }
     return $items;
 }
+function importNovemberListings(PDO $db): void
+{
+    $migration = '2026-11-19-listings';
+    $db->exec('CREATE TABLE IF NOT EXISTS entry_migrations (id TEXT PRIMARY KEY)');
+    $claim = $db->prepare('INSERT OR IGNORE INTO entry_migrations (id) VALUES (?)');
+    $seen = $db->prepare('SELECT 1 FROM entry_migrations WHERE id = ?');
+    $seen->execute([$migration]);
+    $applied = $seen->fetchColumn();
+    $seen->closeCursor();
+    if ($applied) return;
+
+    $listings = [
+        ['weinrich', 'Ludwig Weinrich GmbH & Co. KG', 'Herford', 'ja', 'Ausbildung Fachinformatik Systemintegration.', 'https://weinrich-schokolade.onapply.de/details/299347.html'],
+        ['netzwerklippe', 'Netzwerk Lippe gGmbH', 'Detmold', 'ja', 'Ausbildung Fachinformatik Systemintegration ab 01.08.2027.', 'https://www.arbeitsagentur.de/jobsuche/jobdetail/10001-1003988737-S'],
+        ['tricept', 'TRICEPT AG', 'Detmold', 'ab', 'Ausbildung Fachinformatik Anwendungsentwicklung ab 01.09.2027 am Standort Detmold.', ''],
+        ['gsrventiltechnik', 'GSR Ventiltechnik GmbH & Co. KG', 'Vlotho', 'ja', 'Ausbildung Fachinformatik Systemintegration ab 01.08.2027. Laut Anzeige ist ein Praktikum möglich. Dauer und Verfügbarkeit für das Umschulungspraktikum vom 09.08.2027 bis 24.03.2028 sind offen.', 'https://www.arbeitsagentur.de/jobsuche/jobdetail/10000-1208459053-S'],
+        ['thowl', 'Technische Hochschule Ostwestfalen-Lippe', 'Lemgo', 'ja', 'Ausbildung Fachinformatik Systemintegration ab 01.08.2027 im Fachbereich Informatik und Automation.', 'https://www.arbeitsagentur.de/jobsuche/jobdetail/10001-1003923316-S'],
+        ['8mylez', '8mylez', '', '', 'Allgemeine Karriereseite der Shopware-Agentur.', 'https://www.8mylez.com/karriere/'],
+        ['comrce', 'comrce', 'Remote', '', 'Senior IT Operations Engineer (w/m/d), Festanstellung.', 'https://comrce.jobs.personio.de/job/2706614?language=de'],
+        ['stockmeier', 'STOCKMEIER Chemicals GmbH & Co. KG', 'Bielefeld', 'ja', 'Ausbildung Fachinformatik Systemintegration mit Schwerpunkt IT Security ab 01.08.2027.', ''],
+    ];
+    $db->beginTransaction();
+    try {
+        $claim->execute([$migration]);
+        if ($claim->rowCount() === 0) {
+            $db->commit();
+            return;
+        }
+        $existing = allItems($db);
+        $save = $db->prepare('INSERT INTO entries (id, payload, updated_at) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updated_at = excluded.updated_at');
+        foreach ($listings as [$key, $company, $city, $fisi, $notes, $website]) {
+            $id = $migration . '-' . $key;
+            $found = false;
+            foreach ($existing as $item) {
+                $name = preg_replace('/[^a-z0-9]/', '', strtolower($item['company'] ?? ''));
+                if ($item['id'] !== $id && strpos($name, $key) === false &&
+                    !($key === 'thowl' && strpos($name, 'technischehochschuleostwestfalenlippe') !== false)) continue;
+                $found = true;
+                if ($key === 'gsrventiltechnik' && empty($item['internship'])) {
+                    $item['internship'] = 'ja';
+                    $save->execute([$item['id'], json_encode($item, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), gmdate('c')]);
+                }
+                break;
+            }
+            if ($found) continue;
+            $item = validatedItem([
+                'id' => $id, 'company' => $company, 'city' => $city,
+                'fisi' => $fisi, 'notes' => $notes, 'website' => $website,
+                'fisiSource' => $fisi !== '' ? ($website ?: 'Fotografierte Anzeige') : '',
+                'source' => 'Fotografierte Anzeige oder Karriereseite',
+                'internship' => $key === 'gsrventiltechnik' ? 'ja' : '',
+                'street' => $key === 'stockmeier' ? 'Am Stadtholz 37' : '',
+                'postal' => $key === 'stockmeier' ? '33609' : '',
+            ]);
+            $save->execute([$id, json_encode($item, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR), gmdate('c')]);
+        }
+        $db->commit();
+    } catch (Throwable $e) {
+        $db->rollBack();
+        throw $e;
+    }
+}
+
 function ready(PDO $db): void
 {
+    importNovemberListings($db);
     respond(['mode' => 'ready', 'items' => allItems($db)]);
 }
 function input(): array
@@ -142,6 +206,7 @@ function validatedItem(array $item): array
         'fisiSource' => 600,
     ];
     foreach ($limits as $key => $max) $out[$key] = field($item, $key, $max);
+    $out['internship'] = ($item['internship'] ?? '') === 'ja' ? 'ja' : '';
     $status = field($item, 'status', 40);
     $out['status'] = in_array($status, APP_STATUSES, true) ? $status : 'nicht_beworben';
     // FISI-Ausbildung (Fachinformatiker Systemintegration): '' = ungeprüft,
