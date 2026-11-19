@@ -76,7 +76,7 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 ach_set_visible($id,$visible,$scope==='public');
                 if ($scope==='public') {
                     unset($_SESSION['dtp_highscore_reveal']);
-                    header('Location: highscore.php?ansicht=gast',true,303);
+                    header('Location: highscore.php?ansicht=gast#inhalt',true,303);
                     exit;
                 }
                 if ($visible) {
