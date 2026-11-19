@@ -2,6 +2,7 @@
 require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$zombieDescription='Retro-Zombie-Survival im Koop: Runde für Runde überleben, Waffen verbessern und gemeinsam möglichst spät sterben.';
 // DAU-TO-PRO-Lernmodule erscheinen nur auf /dau-to-pro/, hier steht stattdessen die eine DAU-TO-PRO-Karte unter „Sonstiges“.
 $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
@@ -9,12 +10,16 @@ foreach ($webPages as $page) {
     if ($page['slug']==='speed' && $preview['src']==='') {
         $preview=['src'=>'assets/ruediger-vorschau.webp','fit'=>'contain','x'=>50,'y'=>50];
     }
+    if ($page['slug']==='zombies') {
+        $preview=['src'=>'zombies/menu_bg.webp','fit'=>'cover','x'=>50,'y'=>50];
+    }
     if ($page['slug']==='perlenwahn') {
         $preview['fit']='contain';
         $preview['x']=$preview['y']=50;
     }
-    $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
-       'category'=>$page['slug']==='speed'?'spiele':$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+    $apps[]=['is_html'=>true,'name'=>$page['slug']==='zombies'?'Are You Dead Yet?':$page['title'],
+       'short_description'=>$page['slug']==='zombies'?$zombieDescription:$page['description'],
+       'category'=>in_array($page['slug'],['speed','zombies'],true)?'spiele':$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
        'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
        'preview_fit'=>$preview['fit']==='contain'?'contain':'cover','preview_x'=>$preview['x'],'preview_y'=>$preview['y']];
 }
@@ -25,6 +30,15 @@ if (!in_array('speed', array_column($apps,'slug'), true)) {
         'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
         'play_url'=>'','apple_url'=>'','slug'=>'speed',
         'preview_image'=>'assets/ruediger-vorschau.webp','preview_fit'=>'contain','preview_x'=>50,'preview_y'=>50
+    ];
+}
+if (!in_array('zombies', array_column($apps,'slug'), true)) {
+    $apps[]=[
+        'is_html'=>true,'name'=>'Are You Dead Yet?',
+        'short_description'=>$zombieDescription,
+        'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+        'play_url'=>'','apple_url'=>'','slug'=>'zombies',
+        'preview_image'=>'zombies/menu_bg.webp','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
     ];
 }
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
@@ -159,7 +173,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
         <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn'],true)?' project-preview-wide':''):''?>">
+          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn','zombies'],true)?' project-preview-wide':''):''?>">
             <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
             <?php elseif(!empty($app['is_html'])): ?>
