@@ -102,15 +102,27 @@ require_once __DIR__ . '/lib.php';
           <p style="margin-top:12px"><strong>Speicherdauer und Löschung:</strong> Die Daten bleiben gespeichert, bis du dein Konto löschst. Unter „Mein Fortschritt“ kannst du jederzeit alle gespeicherten Daten als Datei herunterladen, den Fortschritt einzelner Module löschen oder dein Konto vollständig und sofort löschen. Konten ohne gespeicherten Fortschritt, die länger als 30 Tage nicht genutzt wurden, können gelöscht werden. Die Daten liegen in der Website-Datenbank bei STRATO (siehe Abschnitt 2).</p>
         </section>
 
+        <section class="legal-block legal-block-wide" id="zombies">
+          <div class="legal-label">9 · SPIEL „ARE YOU DEAD YET?“</div>
+          <h2>Browserspiel „Are You Dead Yet?“</h2>
+          <p>Das Spiel läuft ohne Konto, Login und Cookies. Name und Einstellungen bleiben im Speicher deines Browsers (localStorage).</p>
+          <p style="margin-top:12px"><strong>Mehrspieler:</strong> Gemeinsame Runden laufen per WebRTC direkt zwischen den Browsern der Mitspielenden. Dabei werden die IP-Adressen der beteiligten Geräte untereinander sichtbar. Für den Verbindungsaufbau speichert unser Server kurzlebige Lobby-Daten (Lobby-Code, Lobby-Name, Spielerzahl, Verbindungsbeschreibungen); sie werden nach weniger als einer Minute ohne Lebenszeichen automatisch gelöscht.</p>
+          <p style="margin-top:12px"><strong>TURN-Server:</strong> Ist keine Direktverbindung möglich, wird die Verbindung über den TURN-Dienst von Cloudflare, Inc. als Dienstleister weitergeleitet. Cloudflare verarbeitet dabei deine IP-Adresse und die verschlüsselten Spieldaten.</p>
+          <p style="margin-top:12px"><strong>Bestenliste:</strong> Am Rundenende werden Spielername, erreichte Welle und Kills in eine öffentliche Bestenliste eingetragen. Wähle bitte keinen echten Namen.</p>
+          <p style="margin-top:12px"><strong>Feedback:</strong> Feedback aus dem Spiel wird mit deinem Spielernamen und der aktuellen Welle per E-Mail an uns gesendet.</p>
+          <p style="margin-top:12px"><strong>Missbrauchsschutz:</strong> Für Rate-Limits bei Feedback und Bestenliste speichern wir nur einen nicht umkehrbaren Hashwert deiner IP-Adresse, höchstens für eine Stunde.</p>
+          <p style="margin-top:12px"><strong>Rechtsgrundlage:</strong> Bereitstellung des von dir gewünschten Spiels (Art. 6 Abs. 1 lit. b DSGVO) und unser berechtigtes Interesse an einem sicheren Betrieb (Art. 6 Abs. 1 lit. f DSGVO).</p>
+        </section>
+
         <section class="legal-block legal-block-wide">
-          <div class="legal-label">9 · DEINE RECHTE</div>
+          <div class="legal-label">10 · DEINE RECHTE</div>
           <h2>Auskunft, Berichtigung, Löschung und Widerspruch</h2>
           <p>Du hast im Rahmen der gesetzlichen Voraussetzungen insbesondere das Recht auf Auskunft über deine personenbezogenen Daten, Berichtigung unrichtiger Daten, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit sowie Widerspruch gegen bestimmte Verarbeitungen. Erteilte Einwilligungen kannst du mit Wirkung für die Zukunft widerrufen.</p>
           <p style="margin-top:12px">Zur Ausübung deiner Rechte genügt eine Nachricht an <a href="mailto:info@geringdigital.de">info@geringdigital.de</a>.</p>
         </section>
 
         <section class="legal-block legal-block-wide">
-          <div class="legal-label">10 · BESCHWERDERECHT</div>
+          <div class="legal-label">11 · BESCHWERDERECHT</div>
           <h2>Datenschutzaufsicht</h2>
           <p>Wenn du der Auffassung bist, dass die Verarbeitung deiner personenbezogenen Daten gegen Datenschutzrecht verstößt, kannst du dich bei einer Datenschutzaufsichtsbehörde beschweren. Für Gering Digital ist insbesondere die Landesbeauftragte für Datenschutz und Informationsfreiheit Nordrhein-Westfalen zuständig.</p>
           <p class="legal-contact"><a href="https://www.ldi.nrw.de/kontakt/ihre-beschwerde" target="_blank" rel="noopener">Zur Beschwerdestelle der LDI NRW ↗</a></p>

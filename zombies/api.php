@@ -40,6 +40,26 @@ function hj_name($value): string
     return $s !== '' ? $s : 'Spieler' . random_int(10, 99);
 }
 
+// Kleine Schimpfwortliste für Namen in der Bestenliste (Vergleich ohne Leerzeichen/Sonderzeichen).
+function hj_clean_name(string $n): string
+{
+    $flat = strtr(strtolower($n), ['Ä' => 'ae', 'Ö' => 'oe', 'Ü' => 'ue', '0' => 'o', '1' => 'i', '3' => 'e', '4' => 'a', '5' => 's', '@' => 'a', '$' => 's', 'ä' => 'ae', 'ö' => 'oe', 'ü' => 'ue', 'ß' => 'ss']);
+    $flat = (string) preg_replace('/[^a-z]/', '', $flat);
+    $bad = ['fick', 'fuck', 'ficken', 'hure', 'nutte', 'fotze', 'wichser', 'arschloch', 'hurensohn', 'schlampe', 'missgeburt', 'spast', 'nigger', 'neger', 'nazi', 'hitler', 'schwuchtel', 'kanake', 'bitch', 'cunt', 'whore', 'faggot', 'retard', 'penis', 'vagina', 'porn'];
+    foreach ($bad as $w) {
+        if (strpos($flat, $w) !== false) {
+            return 'Spieler' . random_int(10, 99);
+        }
+    }
+    return $n;
+}
+
+function hj_lobby_name(string $n): string
+{
+    // Deutscher Genitiv: „Annas Lobby“, aber „Max’ Lobby“ bzw. bei s/x/z/ß nur Apostroph.
+    return preg_match('/[sxzß]$/iu', $n) === 1 ? $n . '’ Lobby' : $n . 's Lobby';
+}
+
 function hj_save($fh, array $db): void
 {
     ftruncate($fh, 0);
@@ -103,6 +123,10 @@ if ($action === 'ice') {
         if (is_array($c) && time() - (int) ($c['t'] ?? 0) < 43200 && !empty($c['s'])) {
             hj_out(['ice' => $c['s']]);
         }
+        // Fehlschlag kurz merken, damit nicht jeder Beitritt erneut 5 s auf Cloudflare wartet.
+        if (is_array($c) && !empty($c['fail']) && time() - (int) ($c['t'] ?? 0) < 60) {
+            hj_out(['ice' => []]);
+        }
     }
     // TURN-Zugang teilt sich das Spiel mit speed/ (wird beim Deploy dort hinterlegt).
     $cfgTxt = @file_get_contents($ddir . '/turn.php');
@@ -133,6 +157,8 @@ if ($action === 'ice') {
     }
     if ($servers) {
         @file_put_contents($cache, HJ_GUARD . json_encode(['t' => time(), 's' => $servers]), LOCK_EX);
+    } else {
+        @file_put_contents($cache, HJ_GUARD . json_encode(['t' => time(), 's' => [], 'fail' => true]), LOCK_EX);
     }
     hj_out(['ice' => $servers]);
 }
@@ -221,6 +247,17 @@ if ($action === 'score' || $action === 'scores') {
     }
     $wave = max(0, min(999, (int) ($in['w'] ?? 0)));
     $pls = is_array($in['p'] ?? null) ? array_slice($in['p'], 0, 8) : [];
+    // Plausibilität: höchstens Welle 60, je Spieler höchstens Welle × 150 Kills.
+    $implausible = $wave > 60;
+    foreach ($pls as $p) {
+        if (is_array($p) && (int) ($p['k'] ?? 0) > $wave * 150) {
+            $implausible = true;
+        }
+    }
+    if ($implausible) {
+        hj_save($sfh, ['l' => $list, 'r' => $rate, 'g' => $seen]);
+        hj_out(['ok' => false, 'err' => 'Ergebnis nicht plausibel.'], 422);
+    }
     $mp = count($pls) > 1;
     $d = date('j.n.y', $now);
     foreach ($pls as $p) {
@@ -229,7 +266,7 @@ if ($action === 'score' || $action === 'scores') {
         }
         $k = max(0, min(99999, (int) ($p['k'] ?? 0)));
         $h = max(0, min($k, (int) ($p['h'] ?? 0)));
-        $list[] = ['n' => hj_name($p['n'] ?? ''), 'w' => $wave, 'k' => $k, 'h' => $h, 'mp' => $mp, 'd' => $d];
+        $list[] = ['n' => hj_clean_name(hj_name($p['n'] ?? '')), 'w' => $wave, 'k' => $k, 'h' => $h, 'mp' => $mp, 'd' => $d];
     }
     usort($list, static function (array $a, array $b): int {
         return [(int) ($b['w'] ?? 0), (int) ($b['k'] ?? 0)] <=> [(int) ($a['w'] ?? 0), (int) ($a['k'] ?? 0)];
@@ -302,7 +339,7 @@ if ($action === 'list') {
                 $new .= 'ABCDEFGHJKLMNPQRSTUVWXYZ'[random_int(0, 23)];
             }
         } while (isset($db['l'][$new]));
-        $name = hj_name($in['name'] ?? '') . 's Lobby';
+        $name = hj_lobby_name(hj_name($in['name'] ?? ''));
         $db['l'][$new] = ['id' => $new, 'name' => $name, 'host' => $pid, 'n' => 1, 'run' => false, 'seen' => $now, 'q' => []];
         $res = ['id' => $new, 'name' => $name];
     }
