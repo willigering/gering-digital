@@ -74,6 +74,11 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
                 if (!in_array($scope,['public','members','hidden'],true)) throw new LearnerError('Bitte wähle die Sichtbarkeit im Highscore.');
                 $visible=$scope!=='hidden';
                 ach_set_visible($id,$visible,$scope==='public');
+                if ($scope==='public') {
+                    unset($_SESSION['dtp_highscore_reveal']);
+                    header('Location: highscore.php?ansicht=gast',true,303);
+                    exit;
+                }
                 if ($visible) {
                     $_SESSION['dtp_highscore_reveal']=$id;
                     header('Location: ./#highscore',true,303);
@@ -271,7 +276,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <a class="secondary-action" href="./?material=1#unterrichtsmaterial">Zum Unterrichtsmaterial →</a>
       </details>
       <?php $highscoreScope=$achStats['visible'] ? (ach_public_highscore_enabled((int)$learner['id']) ? 'public' : 'members') : 'hidden'; ?>
-      <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'?' open':''?>>
+      <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'||($_GET['einstellung']??'')==='highscore'?' open':''?>>
         <summary><span><b>Sichtbarkeit im Highscore</b><small><?=match($highscoreScope){'public'=>'Öffentlich, auch ohne Anmeldung','members'=>'Nur für angemeldete Lernende',default=>'Unsichtbar'}?></small></span></summary>
         <form method="post" class="settings-body">
           <?=$hidden('highscore')?>
