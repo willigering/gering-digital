@@ -30,7 +30,8 @@ try{
   if($action==='state'&&$_SERVER['REQUEST_METHOD']==='GET'){
     if(empty($_SESSION['hw_login']))output(['mode'=>passwordHash()?'login':'nosetup']);
     $q=db()->query('SELECT value,updated FROM homework WHERE id="lf-vi-03"')->fetch(PDO::FETCH_ASSOC);
-    output(['mode'=>'ready','value'=>$q['value']??'','updated'=>$q['updated']??null]);
+    $st=db()->query("SELECT value FROM homework WHERE id='status:lf-vi-03'")->fetchColumn();
+    output(['mode'=>'ready','value'=>$q['value']??'','updated'=>$q['updated']??null,'moduleStatus'=>in_array($st,['offen','bearbeitung','fertig'],true)?$st:'offen']);
   }
   if($_SERVER['REQUEST_METHOD']!=='POST')fail('Methode nicht erlaubt.',405);
   if((int)($_SERVER['CONTENT_LENGTH']??0)>200000)fail('Anfrage zu groß.',413);
@@ -54,6 +55,13 @@ try{
     unset($_SESSION['hw_login']);output(['ok'=>true]);
   }
   if(empty($_SESSION['hw_login']))fail('Nicht angemeldet.',401);
+  if($action==='save-status'){
+    $status=$body['status']??'';
+    if(!is_string($status)||!in_array($status,['offen','bearbeitung','fertig'],true))fail('Ungültiger Bearbeitungsstatus.');
+    $stmt=db()->prepare('INSERT INTO homework(id,value,updated) VALUES(?,?,?) ON CONFLICT(id) DO UPDATE SET value=excluded.value,updated=excluded.updated');
+    $stmt->execute(['status:lf-vi-03',$status,gmdate('c')]);
+    output(['ok'=>true,'moduleStatus'=>$status]);
+  }
   if($action==='save'){
     $value=$body['value']??null;
     if(!is_string($value)||strlen($value)>100000)fail('Text darf höchstens 100 KB groß sein.');
