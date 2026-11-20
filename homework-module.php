@@ -20,6 +20,31 @@ $file=$base.'/lf-vi-03.html';
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $csrf=$_POST['csrf']??'';
   if(!is_string($csrf)||empty($_SESSION['hw_csrf'])||!hash_equals($_SESSION['hw_csrf'],$csrf))stop('Ungültige Sitzung.',403);
+  if(isset($_POST['chunkIndex'])){
+    $index=filter_var($_POST['chunkIndex'],FILTER_VALIDATE_INT,['options'=>['min_range'=>0,'max_range'=>99]]);
+    $total=filter_var($_POST['chunkTotal']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1,'max_range'=>100]]);
+    if($index===false||$total===false||$index>=$total)stop('Ungültiger Dateiteil.',400);
+    if(!isset($_FILES['lesson'])||!is_uploaded_file($_FILES['lesson']['tmp_name']??''))stop('Dateiteil fehlt.',400);
+    if(($_FILES['lesson']['error']??1)!==UPLOAD_ERR_OK||($_FILES['lesson']['size']??0)>1048576)stop('Dateiteil fehlerhaft oder zu groß.',413);
+    if(!is_dir($base)&&!mkdir($base,0700,true)&&!is_dir($base))stop('Privater Ordner kann nicht erstellt werden.',503);
+    if(!is_file($base.'/.htaccess')&&file_put_contents($base.'/.htaccess',"Require all denied\n")===false)stop('Schutzregel fehlt.',503);
+    $partFile=$base.'/upload-'.hash('sha256',session_id()).'.partial';
+    if($index===0){if(file_put_contents($partFile,'',LOCK_EX)===false)stop('Upload konnte nicht beginnen.',500);}
+    if(!is_file($partFile))stop('Upload-Sitzung fehlt. Bitte erneut starten.',409);
+    $current=filesize($partFile);
+    if($current>12582912)stop('Upload zu groß.',413);
+    $bytes=file_get_contents($_FILES['lesson']['tmp_name']);
+    if($bytes===false||file_put_contents($partFile,$bytes,FILE_APPEND|LOCK_EX)===false)stop('Dateiteil konnte nicht gespeichert werden.',500);
+    if($index===$total-1){
+      if(filesize($partFile)>12582912){@unlink($partFile);stop('Datei zu groß.',413);}
+      $head=file_get_contents($partFile,false,null,0,4096);
+      if(!is_string($head)||stripos($head,'<!doctype html')===false&&stripos($head,'<html')===false){@unlink($partFile);stop('Keine vollständige HTML-Datei.',415);}
+      chmod($partFile,0600);
+      if(!rename($partFile,$file))stop('Aktivierung fehlgeschlagen.',500);
+    }
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['ok'=>true,'part'=>$index+1,'total'=>$total]);exit;
+  }
   if(!isset($_FILES['lesson'])||!is_array($_FILES['lesson']))stop('Keine Datei empfangen.',400);
   $f=$_FILES['lesson'];
   if(($f['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK){
