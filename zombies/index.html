@@ -1186,7 +1186,7 @@ function menuItems(){switch(menu.screen){
   ['BLOOM: '+(OPT.bloom?'AN':'AUS'),()=>{OPT.bloom=!OPT.bloom;store.set('opt',OPT)}],['NEBEL: '+(OPT.fog?'AN':'AUS'),()=>{OPT.fog=!OPT.fog;store.set('opt',OPT)}],
   ['ZURÜCK',()=>{menu.edit=null;store.set('opt',OPT);menuGo('main')}]]}}
 const mpBack=()=>NET.want&&NET.want!=='z'?'pvp':'play';
-function needName(next){if(OPT.name)return false;menuGo('options');menu.sel=0;menu.edit='name';menu.after=next||null;NET.status='Bitte zuerst einen Namen eingeben, dann Enter';return true}
+function needName(){const next=arguments[0];if(OPT.name)return false;menuGo('options');menu.sel=0;menu.edit='name';menu.after=next||null;NET.status='Bitte zuerst einen Namen eingeben, dann Enter';return true}
 function nameDone(){const n=menu.after;menu.after=null;OPT.name=(OPT.name||'').trim().slice(0,16);store.set('opt',OPT);if(OPT.name&&NET.status&&NET.status.startsWith('Bitte zuerst einen Namen'))NET.status='';if(n&&OPT.name)n()}
 function cycleChar(d){OPT.char=(OPT.char+d+CHARS.length)%CHARS.length;store.set('opt',OPT);if(menu.screen==='lobby')lobbySet()}
 function nameChanged(){if(menu.screen!=='lobby')return;OPT.name=(OPT.name||'').trim().slice(0,16);if(OPT.name)P.name=OPT.name;lobbySet()}
