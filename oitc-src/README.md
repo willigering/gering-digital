@@ -17,6 +17,7 @@ Aktueller Stand: spielbarer Prototyp gegen 3 Bots (kein Multiplayer, keine eigen
 | Linksklick | schießen |
 | Rechtsklick halten | Kimme & Korn (Zoom, langsamer, ruhiger) |
 | `Q` (oder `V`) | Nahkampf |
+| `T` | Waffe prüfen (Inspect) |
 | `M` | Maus-Modus umschalten: Erfassung (Pointer-Lock) ↔ freier Cursor |
 | `P` | Schatten an/aus (bei Ruckeln) |
 | Pfeiltasten | Umsehen (alternativ) |
