@@ -151,7 +151,7 @@ $year=(int)date('Y');
       <span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span>
     </a>
     <div><a href="../impressum.php">Impressum</a> · <a href="../datenschutz.php#sharplab">Datenschutz</a></div>
-    <small>© <?=$year?> Gering Digital</small>
+    <small>© <?=$year?> Willi Gering, Gering Digital</small>
   </div>
 </footer>
 <script src="../assets/sharplab-matrix.js?v=<?=filemtime(__DIR__.'/../assets/sharplab-matrix.js')?>" defer></script>
