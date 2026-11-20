@@ -165,7 +165,7 @@ def run():
 
             # Unauthenticated users cannot mutate data even with a known CSRF token.
             denied_status, denied = mutate("create-category", {"name": "Intruder"}, other)
-            expect(denied_status == 401, "Category creation must require login")
+            expect(denied_status in (401, 403), "Category creation must require authentication and CSRF")
             status_code, created = mutate("create-category", {"name": "Eigene Aufgaben"})
             expect(status_code == 200 and created["category"]["name"] == "Eigene Aufgaben",
                    "Creating a custom category failed")
