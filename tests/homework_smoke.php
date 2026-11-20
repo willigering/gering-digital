@@ -23,4 +23,7 @@ if ($html === false || !str_contains($html, "a.href='homework-module.php?id='") 
     str_contains($html, "a.target='_blank'")) {
   throw new RuntimeException('HomeWork navigation must open within the same tab.');
 }
+if (!str_contains($html, 'result.moduleId!==id') || !str_contains($module, "'moduleId'")) {
+  throw new RuntimeException('HomeWork uploader must verify final server confirmation.');
+}
 echo "HomeWork smoke checks passed.\n";

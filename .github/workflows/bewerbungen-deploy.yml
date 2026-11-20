@@ -39,6 +39,8 @@ jobs:
           php -l homework-module.php
           php tests/bewerbungen_mail_test.php
           php tests/homework_smoke.php
+      - name: Test HomeWork login, chunk upload, reload, status and return link over HTTP
+        run: python3 tests/homework_integration.py
 
   deploy:
     needs: verify

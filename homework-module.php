@@ -47,8 +47,10 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $d=new PDO('sqlite:'.__DIR__.'/data/homework-private.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
         $d->exec("CREATE TABLE IF NOT EXISTS modules (id TEXT PRIMARY KEY, title TEXT NOT NULL, topic TEXT NOT NULL, date TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'offen', filename TEXT NOT NULL, created TEXT NOT NULL)");
         $title=trim((string)($_POST['title']??''));$topic=trim((string)($_POST['topic']??''));$date=(string)($_POST['date']??'');
-        if($title===''||mb_strlen($title)>140)$title='HTML-Modul';
-        if($topic===''||mb_strlen($topic)>100)$topic='Unterrichtsmaterial';
+        // mbstring is optional on some shared-hosting PHP installations.
+        $textLength=static fn(string $v):int=>function_exists('mb_strlen')?mb_strlen($v,'UTF-8'):strlen($v);
+        if($title===''||$textLength($title)>140)$title='HTML-Modul';
+        if($topic===''||$textLength($topic)>100)$topic='Unterrichtsmaterial';
         if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$date))$date=gmdate('Y-m-d');
         $q=$d->prepare("INSERT INTO modules(id,title,topic,date,status,filename,created) VALUES(?,?,? ,?,'offen',?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, topic=excluded.topic, date=excluded.date");
         $q->execute([$id,$title,$topic,$date,$id.'.html',gmdate('c')]);
@@ -56,7 +58,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
 
     }
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode(['ok'=>true,'part'=>$index+1,'total'=>$total]);exit;
+    echo json_encode(['ok'=>true,'part'=>$index+1,'total'=>$total,'moduleId'=>$index===$total-1?$id:null]);exit;
   }
   if(!isset($_FILES['lesson'])||!is_array($_FILES['lesson']))stop('Keine Datei empfangen.',400);
   $f=$_FILES['lesson'];
