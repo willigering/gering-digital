@@ -341,7 +341,7 @@ if ($action === 'list') {
         } while (isset($db['l'][$new]));
         $name = hj_lobby_name(hj_name($in['name'] ?? ''));
         // Spielmodus der Lobby: z = Zombies (Koop), dm = Deathmatch, gg = GunGame
-        $gm = isset($in['gm']) && in_array($in['gm'], ['z', 'dm', 'gg'], true) ? $in['gm'] : 'z';
+        $gm = isset($in['gm']) && in_array($in['gm'], ['z', 'dm', 'gg', 'oc'], true) ? $in['gm'] : 'z';
         $db['l'][$new] = ['id' => $new, 'name' => $name, 'host' => $pid, 'n' => 1, 'run' => false, 'seen' => $now, 'q' => [], 'gm' => $gm];
         $res = ['id' => $new, 'name' => $name];
     }

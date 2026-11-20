@@ -64,7 +64,7 @@ const weather = vm.createContext({
   NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0,
   PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
   P: {id: 'client'}, netSend: data => {packet = data;},
-  STATIONS: [], GM: 'z', MATCH: {over: false, win: ''}, pvpSaveScore() {},
+  STATIONS: [], GM: 'z', PVP: () => false, pick: a => a[0], MATCH: {over: false, win: ''}, pvpSaveScore() {},
 });
 const wrun = code => vm.runInContext(code, weather);
 wrun(part('const WEATHER=', '// sitzende Krähen'));
@@ -95,21 +95,23 @@ assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
   const pvp = vm.createContext({PL: [], P: {}, Math});
   vm.runInContext(part('let GM=', 'function pvpWeapon('), pvp);
   assert.equal(vm.runInContext('DM_GOAL', pvp), 10, 'Deathmatch: 10 kills win');
+  assert.equal(vm.runInContext('GM_NAME.oc', pvp), 'ONE IN THE CHAMBER', 'OITC mode exists');
+  for (const frag of ["if(GM==='oc'){w.ammo=1;w.res=0}", "if(GM==='oc')dmg=9999", "'+1 PATRONE'", "function pvpClearStations()", "if(PVP())pvpClearStations()", "WX_KINDS=['sun','fog','rain','dusk']"]) assert.ok(script.includes(frag), 'VS feature '+frag);
   const ladder = vm.runInContext('GG_LADDER', pvp);
   assert.equal(ladder[ladder.length-1], 'tknife', 'GunGame ends with throwing knife');
   for (const k of ladder) assert.ok(!vm.runInContext('WEAPONS.'+k+'.melee', W), 'GunGame has no melee: '+k);
-  assert.equal(JSON.stringify(), JSON.stringify(), );
+  assert.equal(JSON.stringify(ladder), JSON.stringify(['pistol','akimbo','uzi','smg','magnum','shotgun','rifle','lmg','sniper','tknife']), 'GunGame ladder without Wunderwaffe');
   const box = vm.createContext({WEAPONS: vm.runInContext('WEAPONS', W), Math});
   vm.runInContext(part('const BOX_COST=', 'const BOX_NAME='), box);
   assert.equal(vm.runInContext('BOX_COST', box), 1000, 'Mystery box costs 1000');
   const pool = vm.runInContext('BOX_POOL', box);
-  assert.equal(JSON.stringify(), JSON.stringify(), );
+  assert.equal(JSON.stringify(pool.map(p=>p[0])), JSON.stringify(['pan','machete','pistol','uzi','akimbo','smg','bomb','rifle','lmg','sniper','wunder']), 'Box rarity order');
   for (let i=1;i<pool.length;i++) assert.ok(pool[i][1] <= pool[i-1][1], 'Box weights fall with rarity');
   assert.ok(pool[pool.length-1][1] / pool.reduce((a,p)=>a+p[1],0) < .005, 'Wunderwaffe is extremely rare');
   for (const frag of ["pl.max=BASE_MAX_HP+100", "'twixx')?1.3", "'ravioli')?.4", "'popcorn')?1.3", "'brain')?1.5"]) assert.ok(script.includes(frag), 'Perk value '+frag);
-  run('menu.screen="play"');assert.equal(JSON.stringify(), JSON.stringify(), );
-  run('menu.screen="pvp"');assert.equal(JSON.stringify(), JSON.stringify(), );
-  run('menu.screen="scores"');assert.equal(JSON.stringify(), JSON.stringify(), );
+  run('menu.screen="play"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['SOLO','KOOP','MULTIPLAYER','ZURÜCK']), 'Play menu');
+  run('menu.screen="pvp"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['DEATHMATCH','GUNGAME','ONE IN THE CHAMBER','ZURÜCK']), 'PvP menu');
+  run('menu.screen="scores"');{const sc=JSON.stringify(run('menuItems().map(i=>i[0])'));assert.ok(/SOLO/.test(sc)&&/MULTIPLAYER/.test(sc), 'Leaderboard tabs '+sc)}
   run('menu.screen="options"');
 }
 console.log('Zombies: PvP modes, mystery box, perks, menus, syntax, HD, mouse volume, bounds, persistence, kill rewards and multiplayer weather passed.');
