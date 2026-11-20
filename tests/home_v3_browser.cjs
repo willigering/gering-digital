@@ -112,8 +112,9 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const rect=preview.getBoundingClientRect();
       return rect.width/rect.height;
     }));
-    assert.equal(landscape.length,4,'Rüdiger, DAU TO PRO, Perlenwahn and Are You Dead Yet? have shared wide preview frames');
-    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All four preview frames are 16:9');
+    assert.equal(landscape.length,5,'Rüdiger, DAU TO PRO, Perlenwahn, Are You Dead Yet? and SharpLab have shared wide preview frames');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All five preview frames are 16:9');
+    assert.equal(await page.locator('#apps .sharplab-portal-card .project-preview-wide').count(),1,'SharpLab uses the same wide 16:9 preview frame');
     const perlenwahnFit=await page.locator('a.html-card-link[href="/perlenwahn/"] + .project-preview-wide > .html-preview-image')
       .evaluate(image=>getComputedStyle(image).objectFit);
     assert.equal(perlenwahnFit,'contain','Perlenwahn preview must keep its entire headline, cat and CTA visible');
