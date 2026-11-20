@@ -1155,7 +1155,7 @@ let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamS
 // Touch-Geräte ohne feinen Zeiger: Hinweis im Hauptmenü
 const TOUCH_ONLY=(matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0)&&!matchMedia('(any-pointer: fine)').matches;
 // Spielversion: bei einer Veröffentlichung bewusst erhöhen.
-const GAME_VERSION='1.6.0';
+const GAME_VERSION='1.7.0';
 const MENU_BG=new Image();MENU_BG.onerror=()=>{MENU_BG.onerror=null;MENU_BG.src='menu_bg.png'};MENU_BG.src='menu_bg.webp';
 const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 // Maus-/Animationszustand des Menüs: hov = Platte unter dem Zeiger, down = gedrückte Platte, anim[i] = {h:Hover,p:Druck,f:Blitz,s:Wackeln,e:Impuls}
@@ -1166,6 +1166,7 @@ for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.
 function menuItems(){switch(menu.screen){
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['STEUERUNG',()=>menuGo('keys')],['OPTIONEN',()=>menuGo('options')],['FEEDBACK',openFeedback]];
  case'keys':return[['ZURÜCK',()=>menuGo('main')]];
+ case'name':return[['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;nameDone()}else menu.edit='name'}],['WEITER ▶',()=>{menu.edit=null;if(!(OPT.name||'').trim()){menu.edit='name';NET.status='Bitte zuerst einen Namen eingeben';return}nameDone()}],['ZURÜCK',()=>{menu.edit=null;menu.after=null;NET.status='';menuGo('play')}]];
  case'play':return[['SOLO',()=>startGame(false,false)],['KOOP',()=>{if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}}],['MULTIPLAYER',()=>{if(!needName(()=>menuGo('pvp')))menuGo('pvp')}],['ZURÜCK',()=>menuGo('main')]];
  case'pvp':return[['DEATHMATCH',()=>{NET.want='dm';menuGo('mp')}],['GUNGAME',()=>{NET.want='gg';menuGo('mp')}],['ONE IN THE CHAMBER',()=>{NET.want='oc';menuGo('mp')}],['ZURÜCK',()=>menuGo('play')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo(mpBack())]];
@@ -1186,7 +1187,7 @@ function menuItems(){switch(menu.screen){
   ['BLOOM: '+(OPT.bloom?'AN':'AUS'),()=>{OPT.bloom=!OPT.bloom;store.set('opt',OPT)}],['NEBEL: '+(OPT.fog?'AN':'AUS'),()=>{OPT.fog=!OPT.fog;store.set('opt',OPT)}],
   ['ZURÜCK',()=>{menu.edit=null;store.set('opt',OPT);menuGo('main')}]]}}
 const mpBack=()=>NET.want&&NET.want!=='z'?'pvp':'play';
-function needName(){const next=arguments[0];if(OPT.name)return false;menuGo('options');menu.sel=0;menu.edit='name';menu.after=next||null;NET.status='Bitte zuerst einen Namen eingeben, dann Enter';return true}
+function needName(){const next=arguments[0];if(OPT.name)return false;menuGo('name');menu.sel=0;menu.edit='name';menu.after=next||null;NET.status='Bitte zuerst einen Namen eingeben, dann Enter';return true}
 function nameDone(){const n=menu.after;menu.after=null;OPT.name=(OPT.name||'').trim().slice(0,16);store.set('opt',OPT);if(OPT.name&&NET.status&&NET.status.startsWith('Bitte zuerst einen Namen'))NET.status='';if(n&&OPT.name)n()}
 function cycleChar(d){OPT.char=(OPT.char+d+CHARS.length)%CHARS.length;store.set('opt',OPT);if(menu.screen==='lobby')lobbySet()}
 function nameChanged(){if(menu.screen!=='lobby')return;OPT.name=(OPT.name||'').trim().slice(0,16);if(OPT.name)P.name=OPT.name;lobbySet()}
@@ -1210,12 +1211,12 @@ setTimeout(()=>{$fb('fbx').onclick=closeFeedback;$fb('fbs').onclick=sendFeedback
  $fb('fbt').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeFeedback();if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))sendFeedback()})},0);
 function setLb(v){if((menu.lb||'solo')===v)return;menu.lb=v;menu.scroll=0;sfx('ui_move',null,null,.6,1.1,.03)}
 function menuGo(s){menu.screen=s;menu.sel=s==='scores'?-1:0;menu.edit=null;menu.fade=0;MUI.anim=[];MUI.down=null;MUI.drag=null;MUI.sb=null;if(s==='mp')refreshLobbies();if(s==='scores'){menu.onReq=0;menu.scroll=0}}
-function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo(mpBack());else if(menu.screen==='pvp')menuGo('play');else if(menu.screen!=='main')menuGo('main')}
+function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo(mpBack());else if(menu.screen==='pvp'||menu.screen==='name'){menu.after=null;menuGo('play')}else if(menu.screen!=='main')menuGo('main')}
 function menuKey(e){const NAV={KeyW:'w',KeyA:'a',KeyS:'s',KeyD:'d',Space:' '},k=!menu.edit&&NAV[e.code]?NAV[e.code]:e.key,it=menuItems();
  if(menu.screen==='scores'&&!menu.edit){if(k==='ArrowLeft'||k==='ArrowRight'||k==='a'||k==='d'||k==='A'||k==='D'){const T3=['solo','team','pvp'],ci=T3.indexOf(menu.lb||'solo'),dl=k==='ArrowLeft'||k==='a'||k==='A'?-1:1;setLb(T3[clamp(ci+dl,0,2)]);e.preventDefault();return}
   if(k==='Enter'||k===' '){menuAct(3,1,true);e.preventDefault();return}}if(menu.screen==='scores'&&(k==='ArrowDown'||k==='ArrowUp'||k==='PageDown'||k==='PageUp')){menu.scroll=(menu.scroll||0)+(k==='ArrowDown'?1:k==='ArrowUp'?-1:k==='PageDown'?8:-8);e.preventDefault();return}
  if(!menu.edit){if(['ArrowDown','ArrowUp','s','S','w','W','ArrowLeft','ArrowRight','a','A','d','D'].includes(k))sfx('ui_move',null,null,.6);else if(k==='Enter'||k===' ')sfx('ui_select',null,null,.7);else if(k==='Escape')sfx('ui_back',null,null,.7)}
- if(menu.edit){if(k==='Enter'||k==='Escape'){const wasName=menu.edit==='name';menu.edit=null;store.set('opt',OPT);nameChanged();if(wasName&&k==='Enter'&&menu.screen==='options')nameDone();else if(k==='Escape')menu.after=null}else if(k==='Backspace')OPT[menu.edit]=OPT[menu.edit].slice(0,-1);
+ if(menu.edit){if(k==='Enter'||k==='Escape'){const wasName=menu.edit==='name';menu.edit=null;store.set('opt',OPT);nameChanged();if(wasName&&k==='Enter'&&(menu.screen==='options'||menu.screen==='name'))nameDone();else if(k==='Escape')menu.after=null}else if(k==='Backspace')OPT[menu.edit]=OPT[menu.edit].slice(0,-1);
   else if(k.length===1&&OPT[menu.edit].length<(menu.edit==='name'?16:40))OPT[menu.edit]+=k;e.preventDefault();return}
  if(k==='ArrowDown'||k==='s'||k==='S')menu.sel=(menu.sel+1)%it.length;
  else if(k==='ArrowUp'||k==='w'||k==='W')menu.sel=(menu.sel+it.length-1)%it.length;
