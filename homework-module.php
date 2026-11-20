@@ -99,6 +99,6 @@ $navigation=<<<'HTML'
 <a id="hw-return" href="/HA.html" aria-label="Zur HomeWork-Übersicht zurückkehren">← Zu den Hausaufgaben</a>
 HTML;
 if(preg_match('~</body\s*>~i',$markup)){
-  echo preg_replace('~</body\s*>~i',static fn($match)=>$navigation."\\n".$match[0],$markup,1);
+  echo preg_replace_callback('~</body\s*>~i',static fn(array $match):string=>$navigation."\n".$match[0],$markup,1);
 }else{echo $markup.$navigation;}
 
