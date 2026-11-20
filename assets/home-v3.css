@@ -480,12 +480,45 @@ body{
   object-fit:contain;
 }
 
-/* The Perlenwahn thumbnail contains a headline and CTA close to the edges.
-   Keep the entire screenshot visible instead of cutting off its left-hand copy. */
-#apps .gdv3-project-grid .app-card:has(> .html-card-link[href="/perlenwahn/"]) .project-preview-wide {
-  background:#fff7fa;
+/* Perlenwahn gets the same edge-to-edge 16:9 cover as the game cards.
+   The original screenshot stays fully visible: no cut-off text, cat or CTA.
+   A soft, pastel-colored copy fills spare space instead of black bars. */
+#apps .gdv3-project-grid .perlenwahn-project-card .project-preview-wide {
+  isolation:isolate;
+  background:linear-gradient(125deg,#f8ddeb 0%,#feeef4 47%,#d8e5f3 100%);
 }
-#apps .gdv3-project-grid .app-card:has(> .html-card-link[href="/perlenwahn/"]) .project-preview-wide > .html-preview-image {
+#apps .gdv3-project-grid .perlenwahn-project-card .project-preview-wide > .perlenwahn-preview-fill {
+  position:absolute;
+  z-index:0;
+  inset:-9%;
+  width:118%;
+  height:118%;
+  max-width:none;
+  max-height:none;
+  padding:0;
+  border:0;
+  transform:none;
+  object-fit:cover;
+  object-position:center;
+  filter:blur(18px) saturate(1.3) brightness(1.55);
+  opacity:.44;
+  pointer-events:none;
+}
+#apps .gdv3-project-grid .perlenwahn-project-card .project-preview-wide::after {
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:0;
+  background:linear-gradient(135deg,rgba(255,231,242,.32),rgba(252,224,239,.16) 55%,rgba(216,233,255,.28));
+  pointer-events:none;
+}
+#apps .gdv3-project-grid .perlenwahn-project-card .project-preview-wide > .html-preview-image {
+  position:absolute;
+  z-index:2;
+  inset:0;
+  width:100%;
+  height:100%;
   object-fit:contain;
   object-position:center;
+  background:transparent;
 }
