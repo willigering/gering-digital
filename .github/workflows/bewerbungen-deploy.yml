@@ -13,6 +13,7 @@ on:
       - 'bewerbungen-*.css'
       - 'tests/bewerbungen_*.cjs'
       - 'tests/bewerbungen_*.php'
+      - 'tests/homework_smoke.php'
       - '.github/workflows/bewerbungen-deploy.yml'
   workflow_dispatch:
 
@@ -37,6 +38,7 @@ jobs:
           php -l homework-api.php
           php -l homework-module.php
           php tests/bewerbungen_mail_test.php
+          php tests/homework_smoke.php
 
   deploy:
     needs: verify
