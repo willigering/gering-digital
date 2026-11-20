@@ -35,6 +35,21 @@ input[type=file]{cursor:pointer}
 .login h2{font-size:28px;margin:6px 0}.login button{width:100%;margin-top:12px}
 @media(min-width:950px){.module-grid.stacked{display:flex;flex-wrap:wrap;gap:0;padding:10px 10px 35px}.module-grid.stacked .module-card{width:315px;min-height:300px;margin-right:-45px;position:relative}.module-grid.stacked .module-card:hover,.module-grid.stacked .module-card:focus-within{transform:translateY(-12px);z-index:5}.module-grid.stacked .module-card:last-child{margin-right:0}}
 @media(max-width:680px){.fields{grid-template-columns:1fr}main{padding:20px 16px}h1{margin-top:30px}}
+
+/* DAU-to-Pro inspired module cards: artwork banner, compact category and clean footer. */
+.module-grid{gap:24px}
+.module-card{padding:0;overflow:hidden;gap:0;background:#111b22;border-width:2px;border-radius:14px;box-shadow:0 13px 30px #0004}
+.module-card:hover{box-shadow:0 20px 40px #0007}
+.module-art{aspect-ratio:16/9;display:grid;place-items:center;position:relative;overflow:hidden;border-bottom:1px solid #ffffff1b;background:radial-gradient(ellipse at 40% 35%,#24414a,#101c25 68%,#0b121a)}
+.module-art:before{content:"";position:absolute;inset:0;opacity:.24;background:linear-gradient(90deg,transparent 49.5%,#ffffff16 50%,transparent 50.5%),linear-gradient(transparent 49.5%,#ffffff16 50%,transparent 50.5%);background-size:34px 34px;mask-image:linear-gradient(130deg,#000,transparent)}
+.module-art-symbol{position:relative;z-index:1;font:800 clamp(40px,5vw,64px)/1 Consolas,monospace;letter-spacing:-.1em;color:#96e6d6;text-shadow:0 8px 26px #0006}
+.module-body{display:flex;flex-direction:column;gap:12px;padding:23px;flex:1}
+.module-body h2{margin:3px 0 5px;font-size:24px;letter-spacing:-.035em}
+.module-body .eyebrow{font-size:10px;letter-spacing:.11em}
+.module-body .status{border-bottom:1px solid #ffffff1a;padding-bottom:13px}
+.module-body .actions{margin-top:0}
+.module-body .openlink{margin-top:auto}
+@media(min-width:950px){.module-grid.stacked .module-card{min-height:440px;margin-right:-50px;overflow:hidden}.module-grid.stacked .module-card:hover,.module-grid.stacked .module-card:focus-within{z-index:10}.module-grid.stacked .module-art{aspect-ratio:16/9}}
 </style></head><body>
 <main id="app" class="hidden"><header><strong>GERING DIGITAL <span style="color:#91a3b2">/ PRIVAT</span></strong><button id="logout" class="secondary">Abmelden</button></header>
 <h1>Home<span>Work.</span></h1><p>Dein privater Parkplatz für HTML-Unterrichtsmaterialien. Originaldateien bleiben unverändert.</p>
@@ -60,11 +75,12 @@ async function api(action,data){const isGet=action==='state';const r=await fetch
 function tag(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 function render(){const grid=$('modules');grid.replaceChildren();modules.forEach(m=>{
 const card=tag('article','module-card');card.dataset.status=m.status||'offen';
-const top=tag('div','row');top.append(tag('span','eyebrow',m.topic),tag('small','',new Date(m.date+'T12:00:00').toLocaleDateString('de-DE')));card.append(top,tag('h2','',m.title));
-const status=tag('div','status',statuses[m.status]||'Offen');card.append(status);
+const art=tag('div','module-art');const artIcon=tag('span','module-art-symbol','</>');art.append(artIcon);card.append(art);
+const body=tag('div','module-body');const top=tag('div','row');top.append(tag('span','eyebrow',m.topic),tag('small','',new Date(m.date+'T12:00:00').toLocaleDateString('de-DE')));body.append(top,tag('h2','',m.title));
+const status=tag('div','status',statuses[m.status]||'Offen');body.append(status);
 const actions=tag('div','actions');actions.setAttribute('role','group');actions.setAttribute('aria-label','Status für '+m.title);
-Object.entries(statuses).forEach(([value,label])=>{const b=tag('button','',label);b.type='button';b.setAttribute('aria-pressed',String(m.status===value));b.addEventListener('click',async()=>{b.disabled=true;try{await api('save-status',{id:m.id,status:value});m.status=value;render()}catch(e){alert(e.message);b.disabled=false}});actions.append(b)});card.append(actions);
-const a=tag('a','openlink','HTML öffnen');a.href='homework-module.php?id='+encodeURIComponent(m.id);a.target='_blank';a.rel='noopener';card.append(a);grid.append(card);
+Object.entries(statuses).forEach(([value,label])=>{const b=tag('button','',label);b.type='button';b.setAttribute('aria-pressed',String(m.status===value));b.addEventListener('click',async()=>{b.disabled=true;try{await api('save-status',{id:m.id,status:value});m.status=value;render()}catch(e){alert(e.message);b.disabled=false}});actions.append(b)});body.append(actions);
+const a=tag('a','openlink','HTML öffnen');a.href='homework-module.php?id='+encodeURIComponent(m.id);body.append(a);card.append(body);grid.append(card);
 });grid.classList.toggle('stacked',modules.length>=4);$('count').textContent=modules.length+' Module';
 if(!modules.length)grid.append(tag('p','', 'Noch keine HTML-Dateien abgelegt.'));
 }
