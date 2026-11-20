@@ -31,7 +31,7 @@ if(!str_contains($js,'result.moduleId!==id')||!str_contains($module,"'moduleId'"
   throw new RuntimeException('Uploader completion must be verified.');
 }
 if (!str_contains($storage,"['I','II','III','IV','V','VI']") ||
-    !str_contains($storage,"'IT '.$roman")) {
+    !str_contains($storage,"'IT '.\$roman")) {
   throw new RuntimeException('Missing default IT I–VI category seeding.');
 }
 foreach(['create-category','rename-module','set-category','delete-module'] as $action){
