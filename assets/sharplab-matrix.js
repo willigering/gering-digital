@@ -114,121 +114,171 @@
   }
 
 
-  // The SharpLab detail page uses document-space coordinates: the rain continues
-  // from the very top of the document to its footer, even while scrolling.
-  // Only the visible viewport is painted, avoiding a giant page-height canvas.
+  // Detail page: characters are DRAWN at fixed document positions, one after
+  // another. Older characters fade out; streams end and disappear completely.
+  // The canvas itself stays viewport-sized for smooth scrolling and performance.
   function bootPageRain(canvas) {
     const ctx = canvas.getContext('2d', { alpha: true });
     if (!ctx) return;
-    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let width = 1;
-    let height = 1;
-    let pageHeight = 1;
-    let cellSize = 19;
-    let streams = [];
-    let running = false;
-    let frameId = 0;
-    let lastTime = 0;
-    let lastPaint = 0;
 
-    function measure(resetColumns = false) {
-      const nextWidth = Math.max(1, Math.round(window.innerWidth || canvas.clientWidth));
-      const nextHeight = Math.max(1, Math.round(window.innerHeight || canvas.clientHeight));
-      const nextPageHeight = Math.max(
-        nextHeight,
-        document.documentElement.scrollHeight,
-        document.body ? document.body.scrollHeight : 0
-      );
-      const sizeChanged = resetColumns || nextWidth !== width || nextHeight !== height;
+    const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let width = 0, height = 0, pageHeight = 0, cell = 28;
+    let streams = [], running = false, frameId = 0, last = 0, lastPaint = 0;
+
+    const documentHeight = () => Math.max(
+      window.innerHeight, document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    );
+
+    // Each stream is an independent line, not a moving block of text.
+    function newStream(column, segment = -1, segmentCount = 1) {
+      const totalRows = Math.max(1, Math.ceil(pageHeight / cell));
+      const row = segment < 0
+        // Each new stream starts ABOVE the page and writes down to its end.
+        ? -Math.floor(rand(3, 14))
+        // Seed initial streams at staggered document depths so all sections
+        // already show code when the page first opens.
+        : Math.floor(((segment + rand(-0.12, 0.62)) / segmentCount) * totalRows);
+      const startRow = Math.max(-7, Math.min(row, totalRows - 1));
+      return {
+        column, startRow, nextRow: startRow, glyphs: [],
+        target: Math.max(1, totalRows - startRow + 1),
+        delay: rand(0.075, 0.155),
+        elapsed: 0, count: 0,
+        phase: 'drawing', cooldown: rand(0.1, 1.1)
+      };
+    }
+
+    function writeGlyph(stream, age = 0) {
+      stream.glyphs.push({
+        row: stream.nextRow++, ch: glyph(), age,
+        lifetime: rand(1.6, 3.25)
+      });
+      stream.count++;
+      if (stream.count >= stream.target || stream.nextRow * cell > pageHeight) {
+        stream.phase = 'fading';
+      }
+    }
+
+    function seedStreams() {
+      streams = [];
+      const columns = Math.ceil(width / cell);
+      const segments = Math.max(2, Math.min(5, Math.ceil(pageHeight / 920)));
+      for (let col = 0; col < columns; col++) {
+        if (Math.random() < 0.22) continue;
+        for (let segment = 0; segment < segments; segment++) {
+          // Staggered rows leave quiet spaces between the coded columns.
+          if (Math.random() < 0.18) continue;
+          const stream = newStream(col, segment, segments);
+          const initial = Math.floor(rand(0, Math.min(stream.target, 14)));
+          for (let i = 0; i < initial && stream.phase === 'drawing'; i++) {
+            writeGlyph(stream, (initial - i) * stream.delay);
+          }
+          streams.push(stream);
+        }
+      }
+    }
+
+    function resize() {
+      const nextWidth = Math.max(1, window.innerWidth || canvas.clientWidth);
+      const nextHeight = Math.max(1, window.innerHeight || canvas.clientHeight);
+      const changed = nextWidth !== width || nextHeight !== height;
+      const widthChanged = nextWidth !== width;
       width = nextWidth;
       height = nextHeight;
-      pageHeight = nextPageHeight;
-
-      if (sizeChanged) {
+      pageHeight = documentHeight();
+      cell = width < 700 ? 23 : 29;
+      if (changed) {
         const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
         canvas.width = Math.round(width * dpr);
         canvas.height = Math.round(height * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        cellSize = width < 600 ? 17 : 20;
-        streams = [];
-        const columns = Math.ceil(width / cellSize);
-        const streamsPerColumn = Math.max(2, Math.min(5, Math.ceil(pageHeight / 1000)));
+      }
+      if (widthChanged || streams.length === 0) seedStreams();
+      if (motion.matches) paint();
+    }
 
-        for (let column = 0; column < columns; column++) {
-          if (Math.random() < 0.16) continue;
-          for (let n = 0; n < streamsPerColumn; n++) {
-            const length = Math.floor(rand(11, 25));
-            streams.push({
-              x: (column + 0.5) * cellSize + rand(-2, 2),
-              y: ((n + Math.random()) / streamsPerColumn) * pageHeight,
-              speed: rand(75, 165),
-              length,
-              chars: Array.from({ length }, glyph)
-            });
+    function advance(stream, dt) {
+      if (stream.phase === 'cooldown') {
+        stream.cooldown -= dt;
+        if (stream.cooldown <= 0) Object.assign(stream, newStream(stream.column));
+        return;
+      }
+
+      if (stream.phase === 'drawing') {
+        stream.cooldown -= dt;
+        if (stream.cooldown <= 0) {
+          stream.elapsed += dt;
+          while (stream.elapsed >= stream.delay && stream.phase === 'drawing') {
+            stream.elapsed -= stream.delay;
+            writeGlyph(stream);
           }
         }
       }
-      paint();
+
+      // The tail darkens naturally, as each character ages in its own cell.
+      for (const character of stream.glyphs) {
+        character.age += dt;
+        if (Math.random() < dt * 0.45) character.ch = glyph();
+      }
+      stream.glyphs = stream.glyphs.filter(c => c.age < c.lifetime);
+      if (stream.phase === 'fading' && stream.glyphs.length === 0) {
+        stream.phase = 'cooldown';
+        stream.cooldown = rand(0.3, 1.8);
+      }
     }
 
     function paint() {
       ctx.clearRect(0, 0, width, height);
-      const scrollTop = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
-      ctx.font = '600 ' + Math.round(cellSize * 0.78) + 'px ui-monospace, Consolas, monospace';
+      const scroll = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+      ctx.font = '700 ' + Math.round(cell * 0.91) + 'px ui-monospace, Consolas, monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
+      ctx.shadowBlur = 0;
 
       for (const stream of streams) {
-        const head = stream.y - scrollTop;
-        if (head < -cellSize || head - stream.length * cellSize > height + cellSize) continue;
-
-        for (let step = 0; step < stream.length; step++) {
-          const y = head - step * cellSize;
-          if (y < -cellSize || y > height + cellSize) continue;
-          const trail = Math.pow(1 - step / stream.length, 1.25);
-          const opacity = Math.max(0.06, trail * 0.68).toFixed(3);
-          ctx.fillStyle = step === 0
-            ? 'rgba(220,255,231,0.92)'
-            : 'rgba(' + COLOR[0] + ',' + COLOR[1] + ',' + COLOR[2] + ',' + opacity + ')';
-          ctx.fillText(stream.chars[step], stream.x, y);
+        const x = (stream.column + 0.5) * cell;
+        for (let i = 0; i < stream.glyphs.length; i++) {
+          const character = stream.glyphs[i];
+          const y = (character.row + 0.5) * cell - scroll;
+          if (y < -cell || y > height + cell) continue;
+          const life = Math.max(0, 1 - character.age / character.lifetime);
+          const head = stream.phase === 'drawing' &&
+            i === stream.glyphs.length - 1 && character.age < 0.22;
+          const alpha = Math.min(1, Math.pow(life, 1.55) * (head ? 1 : 0.74));
+          if (alpha < 0.012) continue;
+          ctx.fillStyle = head
+            ? 'rgba(225,255,231,' + alpha.toFixed(3) + ')'
+            : 'rgba(63,203,110,' + alpha.toFixed(3) + ')';
+          if (head) {
+            ctx.shadowColor = 'rgba(90,255,145,0.85)';
+            ctx.shadowBlur = 12;
+          }
+          ctx.fillText(character.ch, x, y);
+          if (head) ctx.shadowBlur = 0;
         }
       }
     }
 
-    function frame(timestamp) {
+    function frame(time) {
       if (!running) return;
-      if (!lastTime) lastTime = timestamp;
-      const dt = Math.min(0.08, (timestamp - lastTime) / 1000);
-      lastTime = timestamp;
-
-      for (const stream of streams) {
-        stream.y += stream.speed * dt;
-        if (stream.y - stream.length * cellSize > pageHeight + cellSize) {
-          // Restart above the document rather than at the viewport boundary.
-          stream.y = -rand(0, height);
-          stream.speed = rand(75, 165);
-        }
-        if (Math.random() < dt * 5) {
-          stream.chars[(Math.random() * stream.length) | 0] = glyph();
-        }
-      }
-
-      if (timestamp - lastPaint >= 32) {
+      const dt = last ? Math.min(0.065, (time - last) / 1000) : 0.016;
+      last = time;
+      for (const stream of streams) advance(stream, dt);
+      if (time - lastPaint >= 33) {
         paint();
-        lastPaint = timestamp;
+        lastPaint = time;
       }
       frameId = requestAnimationFrame(frame);
     }
 
     function start() {
-      if (running) return;
-      if (motionPreference.matches) {
-        paint();
+      if (running || motion.matches || document.hidden) {
+        if (motion.matches) paint();
         return;
       }
       running = true;
-      lastTime = 0;
-      lastPaint = 0;
+      last = lastPaint = 0;
       frameId = requestAnimationFrame(frame);
     }
 
@@ -237,26 +287,26 @@
       cancelAnimationFrame(frameId);
     }
 
-    measure(true);
-    window.addEventListener('resize', () => measure(true), { passive: true });
-    window.addEventListener('load', () => measure(false), { once: true });
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+    window.addEventListener('load', resize, { once: true });
     window.addEventListener('scroll', () => {
-      if (motionPreference.matches) paint();
+      if (motion.matches) paint();
     }, { passive: true });
     if (typeof ResizeObserver !== 'undefined' && document.body) {
-      const observer = new ResizeObserver(() => measure(false));
-      observer.observe(document.body);
+      new ResizeObserver(() => {
+        const next = documentHeight();
+        if (next !== pageHeight) pageHeight = next;
+      }).observe(document.body);
     }
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();
       else start();
     });
-    if (motionPreference.addEventListener) {
-      motionPreference.addEventListener('change', () => {
-        stop();
-        start();
-      });
-    }
+    if (motion.addEventListener) motion.addEventListener('change', () => {
+      stop();
+      start();
+    });
     start();
   }
 

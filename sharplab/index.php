@@ -36,7 +36,7 @@ $year=(int)date('Y');
       <a href="../#ueber-mich">Über mich</a>
       <a href="#download">Download</a>
     </nav>
-    <a class="btn small desktop-cta" href="<?=e($download)?>">Installer <b>↓</b></a>
+    <a class="btn small desktop-cta sl-nav-installer" href="<?=e($download)?>">Installer <b aria-hidden="true">↓</b></a>
   </div>
 </header>
 
@@ -50,9 +50,9 @@ $year=(int)date('Y');
         <p class="hero-lead">Lerne C# von null an – von den Basics bis zum Profi. Aufgaben, Quiz und ein eingebauter Compiler laufen direkt im Programm, mit Autovervollständigung wie in Visual Studio. Dein Lernstand bleibt erhalten, auch auf mehreren Rechnern.</p>
         <div class="hero-actions">
           <a class="primary-action" href="<?=e($download)?>" id="download">Installer herunterladen <span aria-hidden="true">↓</span></a>
+          <a class="portable-action" href="<?=e($portable)?>">Portable Version (ZIP) <span aria-hidden="true">↓</span></a>
           <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">Quellcode auf GitHub <span aria-hidden="true">↗</span></a>
         </div>
-        <p class="sl-portable"><a href="<?=e($portable)?>">Portable Version (ZIP)</a></p>
         <div class="hero-meta"><span><b>27</b> Lektionen</span><span>Kostenlos unter MIT</span><span>Windows 10/11</span></div>
       </div>
       <div class="hero-visual">
@@ -92,10 +92,15 @@ $year=(int)date('Y');
         <h2 id="install-title">Systemanforderungen</h2>
         <ul>
           <li>Windows 10 oder Windows 11</li>
-          <li>.NET 8 Desktop Runtime oder neuer. <a href="<?=e($runtime)?>" target="_blank" rel="noopener">Kostenlos bei Microsoft laden ↗</a></li>
+          <li>.NET 8 Desktop Runtime oder neuer.</li>
         </ul>
+        <a class="sl-runtime-action" href="<?=e($runtime)?>" target="_blank" rel="noopener">.NET Desktop Runtime bei Microsoft laden <span aria-hidden="true">↗</span></a>
         <p>Der Installer <strong>SharpLab-Setup.exe</strong> braucht keine Administratorrechte. Er legt Verknüpfungen im Startmenü und auf dem Desktop an, und SharpLab kann sich danach per Auto-Update selbst aktualisieren.</p>
-        <p>Wer kein Installationsprogramm möchte, lädt die <a href="<?=e($portable)?>">portable ZIP-Version</a>, entpackt sie und startet <strong>SharpLab.exe</strong>.</p>
+        <p>Wer kein Installationsprogramm möchte, lädt die portable ZIP-Version, entpackt sie und startet <strong>SharpLab.exe</strong>.</p>
+        <div class="hero-actions sl-install-actions">
+          <a class="primary-action" href="<?=e($download)?>">Installer herunterladen <span aria-hidden="true">↓</span></a>
+          <a class="portable-action" href="<?=e($portable)?>">Portable Version (ZIP) <span aria-hidden="true">↓</span></a>
+        </div>
       </div>
       <div>
         <span class="eyebrow">HINWEIS</span>
@@ -132,19 +137,9 @@ $year=(int)date('Y');
     </div>
   </section>
 
-  <section class="sl-section sl-credits" id="lizenz">
-    <div class="section-shell">
-      <span class="eyebrow">LIZENZ</span>
-      <h2>Open Source unter <span>MIT</span></h2>
-      <p><strong>Sicherheitshinweis:</strong> Im Editor ausgeführter C#-Code läuft innerhalb der Anwendung und nicht in einer vollständig isolierten Sandbox. Führe daher nur eigenen oder vertrauenswürdigen Code aus. Die Auto-Update-Funktion prüft beim Installieren neuer Versionen eine veröffentlichte SHA-256-Prüfsumme; diese ersetzt keine digitale Signatur.</p>
-      <p><strong>Datenschutz:</strong> Feedback wird nur auf deine ausdrückliche Aktion gesendet. Ein optionales Fehlerprotokoll kann personenbezogene Informationen enthalten. <a href="../datenschutz.php#sharplab">Details zu Feedback und Updateprüfung in der Datenschutzerklärung</a>.</p>
-      <p>Der Quellcode von SharpLab steht unter der MIT-Lizenz und liegt öffentlich auf GitHub. Idee, Texte und Programm: <strong>Willi Gering, Gering Digital</strong>.</p>
-      <div class="hero-actions">
-        <a class="primary-action" href="<?=e($download)?>">Installer herunterladen <span aria-hidden="true">↓</span></a>
-        <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">github.com/willigering/SharpLab <span aria-hidden="true">↗</span></a>
-        <a class="sl-back" href="../#apps">← Zurück zu den Projekten</a>
-      </div>
-      <p class="sl-portable"><a href="<?=e($portable)?>">Portable Version (ZIP)</a></p>
+  <section class="sl-back-section" aria-label="Zurück zur Projektübersicht">
+    <div class="section-shell sl-back-wrap">
+      <a class="sl-back-button" href="../#apps">← Zurück</a>
     </div>
   </section>
 </main>
@@ -155,8 +150,8 @@ $year=(int)date('Y');
       <picture><source media="(max-width:800px)" type="image/webp" srcset="../assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="../assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
       <span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span>
     </a>
-    <div><a href="../impressum.php">Impressum</a> · <a href="../datenschutz.php">Datenschutz</a></div>
-    <small>© <?=$year?> Gering Digital</small>
+    <div><a href="../impressum.php">Impressum</a> · <a href="../datenschutz.php#sharplab">Datenschutz</a></div>
+    <small>© <?=$year?> Willi Gering, Gering Digital</small>
   </div>
 </footer>
 <script src="../assets/sharplab-matrix.js?v=<?=filemtime(__DIR__.'/../assets/sharplab-matrix.js')?>" defer></script>
