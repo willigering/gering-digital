@@ -17,6 +17,9 @@ check((int)($app['published']??0)===1,'SharpLab ist veröffentlicht');
 check(is_file(__DIR__.'/../assets/uploads/sharplab.png'),'Kachel-PNG liegt unter assets/uploads/sharplab.png');
 check(is_file(__DIR__.'/../assets/app-previews/sharplab.png.webp'),'WebP-Vorschau liegt unter assets/app-previews/sharplab.png.webp');
 check(is_file(__DIR__.'/../sharplab/index.php'),'Detailseite sharplab/index.php ist vorhanden');
+check(is_file(__DIR__.'/../assets/sharplab-page-preview.webp'),'Die Kachel nutzt ein 16:9-Vorschaubild wie DAU TO PRO');
+check(is_file(__DIR__.'/../assets/sharplab-matrix.js'),'Matrixcode-Skript ist vorhanden');
+check(is_file(__DIR__.'/../sharplab/feedback.php'),'Feedback-Endpunkt sharplab/feedback.php ist vorhanden');
 
 $flag=(string)db()->query("SELECT value FROM settings WHERE key='catalog_sync_sharplab'")->fetchColumn();
 check($flag==='1','Sync-Merker ist gesetzt');
@@ -32,7 +35,8 @@ check((int)$after[1]===1,'SharpLab wird nicht doppelt angelegt');
 
 $html=file_get_contents(__DIR__.'/../index.php');
 check(str_contains($html,"'download'=>'Kostenloser Download'"),'Startseite kennt den Download-Status');
-check(str_contains($html,'Download für Windows'),'Startseite enthält den Download-Button');
+check(str_contains($html,'Download für Windows'),'Startseite enthält weiterhin den Download-Status');
+check(str_contains($html,'sharplab-portal-card') && str_contains($html,'Windows-App öffnen'),'SharpLab-Kachel folgt dem Lernplattform-Layout mit CTA');
 $detail=file_get_contents(__DIR__.'/../sharplab/index.php');
 check(str_contains($detail,'PLATZHALTER'),'Detailseite markiert Virenscan und SHA-256 als Platzhalter');
 check(str_contains($detail,'Weitere Informationen'),'Detailseite erklärt den SmartScreen-Hinweis');

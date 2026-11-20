@@ -20,7 +20,7 @@ function catalog_sync(PDO $db): void {
         );
         $insert->execute([
             'SharpLab',
-            'Der interaktive C#-Trainer. Von Basics bis Profi: lerne C# von null an – 27 Lektionen, 216 Übungen, Quiz, eingebauter Compiler und Autovervollständigung wie in Visual Studio.',
+            'Der interaktive C#-Trainer. Von Basics bis Profi – 27 Lektionen, 216 Übungen, Quiz und eingebauter Compiler.',
             'https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Windows.zip',
             '',
             'https://github.com/willigering/SharpLab',

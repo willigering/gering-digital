@@ -22,6 +22,7 @@ $year=(int)date('Y');
 <a class="skip-link" href="#inhalt">Zum Inhalt</a>
 <div class="ambient ambient-1" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
+<canvas class="sharplab-matrix sl-page-matrix" width="1440" height="900" aria-hidden="true"></canvas>
 
 <header class="nav glass-nav">
   <div class="wrap navin">
@@ -39,47 +40,54 @@ $year=(int)date('Y');
 </header>
 
 <main id="inhalt">
-  <section class="sl-hero">
-    <div class="wrap sl-hero-grid">
-      <div class="sl-hero-copy">
-        <p class="eyebrow">WINDOWS-APP · OPEN SOURCE</p>
-        <div class="sl-kicker"><img src="../assets/app-previews/sharplab.png.webp" width="72" height="72" alt=""> <span>Windows-App</span></div>
-        <h1>SharpLab</h1>
-        <p class="sl-subtitle">Der interaktive C#-Trainer.<br><em>Von Basics bis Profi.</em></p>
-        <p class="sl-lead">Lerne C# von null an – direkt im Programm, mit eingebautem Compiler, Aufgaben, Quiz und einer Autovervollständigung wie in Visual Studio. Dein Lernstand bleibt erhalten, auch auf mehreren Rechnern.</p>
-        <div class="sl-actions">
-          <a class="btn" href="<?=e($download)?>" id="download">Download für Windows <b>↓</b></a>
-          <a class="btn ghost" href="<?=e($source)?>" target="_blank" rel="noopener">Quellcode auf GitHub <b>↗</b></a>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <div class="kicker"><span class="live-dot" aria-hidden="true"></span> SHARPLAB // der interaktive C#-Trainer</div>
+        <h1 id="hero-title">Der interaktive <span>C#-Trainer.</span></h1>
+        <div class="hero-strip"><span>27 LEKTIONEN</span><i aria-hidden="true"></i><span>216 ÜBUNGEN</span><i aria-hidden="true"></i><span>QUIZ</span><i aria-hidden="true"></i><span>COMPILER</span></div>
+        <p class="hero-lead">Lerne C# von null an – von den Basics bis zum Profi. Aufgaben, Quiz und ein eingebauter Compiler laufen direkt im Programm, mit Autovervollständigung wie in Visual Studio. Dein Lernstand bleibt erhalten, auch auf mehreren Rechnern.</p>
+        <div class="hero-actions">
+          <a class="primary-action" href="<?=e($download)?>" id="download">Download für Windows <span aria-hidden="true">↓</span></a>
+          <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">Quellcode auf GitHub <span aria-hidden="true">↗</span></a>
         </div>
-        <p class="sl-meta">Kostenlos · MIT-Lizenz · Willi Gering, Gering Digital</p>
+        <div class="hero-meta"><span><b>27</b> Lektionen</span><span>Kostenlos unter MIT</span><span>Windows 10/11</span></div>
       </div>
-      <figure class="sl-shot">
-        <img src="../assets/sharplab-screenshot.webp" width="1600" height="900" alt="SharpLab im Überblick: Lernpfad, Lektionstext und Code-Editor mit Ausgabe">
-        <figcaption>Ein Nachbau der Oberfläche – Lernpfad, Lektion und Editor in einem Fenster.</figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <section class="sl-section">
-    <div class="wrap">
-      <p class="eyebrow">WAS DRINSTECKT</p>
-      <h2>Lernen, üben, ausführen –<br><em>ohne Setup-Chaos.</em></h2>
-      <div class="sl-features">
-        <article><h3>Von null an</h3><p>27 Lektionen führen dich Schritt für Schritt von den Grundlagen bis zu anspruchsvolleren Themen.</p></article>
-        <article><h3>216 Übungen und Quiz</h3><p>Jede Lektion hat Aufgaben und Fragen. Du siehst sofort, ob deine Lösung stimmt.</p></article>
-        <article><h3>Eingebauter Compiler</h3><p>Dein Code wird mit Roslyn übersetzt, dem Compiler, den auch Visual Studio nutzt – direkt in SharpLab.</p></article>
-        <article><h3>Autovervollständigung</h3><p>Vorschläge wie in Visual Studio, inklusive deiner eigenen Variablen und bekannter Kürzel wie <code>cw</code>.</p></article>
-        <article><h3>Lernstand überall</h3><p>Den Speicherort kannst du selbst wählen, zum Beispiel einen OneDrive-Ordner, und so auf mehreren Rechnern weitermachen.</p></article>
-        <article><h3>Auto-Update</h3><p>SharpLab prüft auf Wunsch bei GitHub nach neuen Versionen und hilft beim Aktualisieren.</p></article>
+      <div class="hero-visual">
+        <div class="hero-art-wrap">
+          <img src="../assets/sharplab-screenshot.webp" width="1600" height="900" alt="SharpLab im Überblick: Lernpfad, Lektionstext und Code-Editor mit Ausgabe">
+        </div>
+        <p class="hero-caption">Ein Nachbau der Oberfläche – Lernpfad, Lektion und Editor in einem Fenster.</p>
       </div>
     </div>
   </section>
 
-  <section class="sl-section sl-facts">
-    <div class="wrap sl-facts-grid">
+  <section class="sl-section" id="funktionen" aria-labelledby="features-title">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">WAS DRINSTECKT</span>
+          <h2 id="features-title">Lernen, üben, ausführen – <span>ohne Setup-Chaos.</span></h2>
+          <p>Alles, was du zum Einstieg in C# brauchst, steckt in einem Fenster.</p>
+        </div>
+        <span class="section-count">6 Punkte</span>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step-no">01</span><h3>Von null an</h3><p>27 Lektionen führen dich Schritt für Schritt von den Grundlagen bis zu anspruchsvolleren Themen.</p></article>
+        <article class="step"><span class="step-no">02</span><h3>216 Übungen und Quiz</h3><p>Jede Lektion hat Aufgaben und Fragen. Du siehst sofort, ob deine Lösung stimmt.</p></article>
+        <article class="step"><span class="step-no">03</span><h3>Eingebauter Compiler</h3><p>Dein Code wird mit Roslyn übersetzt, dem Compiler, den auch Visual Studio nutzt – direkt in SharpLab.</p></article>
+        <article class="step"><span class="step-no">04</span><h3>Autovervollständigung</h3><p>Vorschläge wie in Visual Studio, inklusive deiner eigenen Variablen und bekannter Kürzel wie <code>cw</code>.</p></article>
+        <article class="step"><span class="step-no">05</span><h3>Lernstand überall</h3><p>Den Speicherort kannst du selbst wählen, zum Beispiel einen OneDrive-Ordner, und so auf mehreren Rechnern weitermachen.</p></article>
+        <article class="step"><span class="step-no">06</span><h3>Auto-Update</h3><p>SharpLab prüft auf Wunsch bei GitHub nach neuen Versionen und hilft beim Aktualisieren.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sl-section sl-facts" id="installation" aria-labelledby="install-title">
+    <div class="section-shell sl-facts-grid">
       <div>
-        <p class="eyebrow">INSTALLATION</p>
-        <h2>Systemanforderungen</h2>
+        <span class="eyebrow">INSTALLATION</span>
+        <h2 id="install-title">Systemanforderungen</h2>
         <ul>
           <li>Windows 10 oder Windows 11</li>
           <li>.NET 8 Desktop Runtime oder neuer. <a href="<?=e($runtime)?>" target="_blank" rel="noopener">Kostenlos bei Microsoft laden ↗</a></li>
@@ -87,7 +95,7 @@ $year=(int)date('Y');
         <p>Die ZIP-Datei entpacken und <strong>SharpLab.exe</strong> starten. Eine Installation ist nicht nötig.</p>
       </div>
       <div>
-        <p class="eyebrow">HINWEIS</p>
+        <span class="eyebrow">HINWEIS</span>
         <h2>SmartScreen</h2>
         <p>SharpLab ist derzeit nicht digital signiert. Windows kann deshalb beim ersten Start SmartScreen anzeigen. Das ist normal.</p>
         <p>Klicke auf <strong>Weitere Informationen</strong> und danach auf <strong>Trotzdem ausführen</strong>.</p>
@@ -95,10 +103,14 @@ $year=(int)date('Y');
     </div>
   </section>
 
-  <section class="sl-section">
-    <div class="wrap">
-      <p class="eyebrow">PRÜFSUMME UND SCAN</p>
-      <h2>Virenscan-Nachweis</h2>
+  <section class="sl-section" id="scan" aria-labelledby="scan-title">
+    <div class="section-shell">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">PRÜFSUMME UND SCAN</span>
+          <h2 id="scan-title">Virenscan-Nachweis</h2>
+        </div>
+      </div>
       <div class="sl-placeholder" role="note">
         <span class="sl-badge">PLATZHALTER</span>
         <p>Link zum Virenscan und die SHA-256-Prüfsumme der Release-Datei werden eingetragen, sobald Version 1.0.5 auf GitHub veröffentlicht ist.</p>
@@ -108,14 +120,14 @@ $year=(int)date('Y');
     </div>
   </section>
 
-  <section class="sl-section sl-credits">
-    <div class="wrap">
-      <p class="eyebrow">LIZENZ</p>
-      <h2>Open Source unter MIT</h2>
+  <section class="sl-section sl-credits" id="lizenz">
+    <div class="section-shell">
+      <span class="eyebrow">LIZENZ</span>
+      <h2>Open Source unter <span>MIT</span></h2>
       <p>Der Quellcode von SharpLab steht unter der MIT-Lizenz und liegt öffentlich auf GitHub. Idee, Texte und Programm: <strong>Willi Gering, Gering Digital</strong>.</p>
-      <div class="sl-actions">
-        <a class="btn" href="<?=e($download)?>">Download für Windows <b>↓</b></a>
-        <a class="btn ghost" href="<?=e($source)?>" target="_blank" rel="noopener">github.com/willigering/SharpLab <b>↗</b></a>
+      <div class="hero-actions">
+        <a class="primary-action" href="<?=e($download)?>">Download für Windows <span aria-hidden="true">↓</span></a>
+        <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">github.com/willigering/SharpLab <span aria-hidden="true">↗</span></a>
         <a class="sl-back" href="../#apps">← Zurück zu den Projekten</a>
       </div>
     </div>
@@ -132,5 +144,6 @@ $year=(int)date('Y');
     <small>© <?=$year?> Gering Digital</small>
   </div>
 </footer>
+<script src="../assets/sharplab-matrix.js?v=<?=filemtime(__DIR__.'/../assets/sharplab-matrix.js')?>" defer></script>
 </body>
 </html>

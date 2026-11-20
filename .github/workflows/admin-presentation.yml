@@ -16,3 +16,4 @@ jobs:
           php tests/dau_lib_test.php
           php tests/dau_presentation_test.php
           php tests/sharplab_catalog_test.php
+          php tests/sharplab_feedback_test.php
