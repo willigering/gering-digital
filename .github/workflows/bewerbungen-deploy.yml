@@ -33,6 +33,7 @@ jobs:
           php -l bewerbungen-mail.php
           php -l bewerbungen-mail-lib.php
           php -l bewerbungen-api.php
+          php -l homework-api.php
           php tests/bewerbungen_mail_test.php
 
   deploy:
