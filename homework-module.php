@@ -16,7 +16,9 @@ function stop(string $message,int $status):never{
 }
 if(empty($_SESSION['hw_login']))stop('Bitte erst bei HomeWork anmelden.',401);
 $base=__DIR__.'/data/homework';
-$file=$base.'/lf-vi-03.html';
+$id=(string)($_POST['id']??$_GET['id']??'');
+if(!preg_match('/\\A[a-z0-9-]{3,80}\\z/D',$id))stop('Ungültige Modul-ID.',400);
+$file=$base.'/'.$id.'.html';
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $csrf=$_POST['csrf']??'';
   if(!is_string($csrf)||empty($_SESSION['hw_csrf'])||!hash_equals($_SESSION['hw_csrf'],$csrf))stop('Ungültige Sitzung.',403);
@@ -28,7 +30,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     if(($_FILES['lesson']['error']??1)!==UPLOAD_ERR_OK||($_FILES['lesson']['size']??0)>1048576)stop('Dateiteil fehlerhaft oder zu groß.',413);
     if(!is_dir($base)&&!mkdir($base,0700,true)&&!is_dir($base))stop('Privater Ordner kann nicht erstellt werden.',503);
     if(!is_file($base.'/.htaccess')&&file_put_contents($base.'/.htaccess',"Require all denied\n")===false)stop('Schutzregel fehlt.',503);
-    $partFile=$base.'/upload-'.hash('sha256',session_id()).'.partial';
+    $partFile=$base.'/upload-'.hash('sha256',session_id().':'.$id).'.partial';
     if($index===0){if(file_put_contents($partFile,'',LOCK_EX)===false)stop('Upload konnte nicht beginnen.',500);}
     if(!is_file($partFile))stop('Upload-Sitzung fehlt. Bitte erneut starten.',409);
     $current=filesize($partFile);
@@ -41,6 +43,17 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
       if(!is_string($head)||stripos($head,'<!doctype html')===false&&stripos($head,'<html')===false){@unlink($partFile);stop('Keine vollständige HTML-Datei.',415);}
       chmod($partFile,0600);
       if(!rename($partFile,$file))stop('Aktivierung fehlgeschlagen.',500);
+      try{
+        $d=new PDO('sqlite:'.__DIR__.'/data/homework-private.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+        $d->exec("CREATE TABLE IF NOT EXISTS modules (id TEXT PRIMARY KEY, title TEXT NOT NULL, topic TEXT NOT NULL, date TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'offen', filename TEXT NOT NULL, created TEXT NOT NULL)");
+        $title=trim((string)($_POST['title']??''));$topic=trim((string)($_POST['topic']??''));$date=(string)($_POST['date']??'');
+        if($title===''||mb_strlen($title)>140)$title='HTML-Modul';
+        if($topic===''||mb_strlen($topic)>100)$topic='Unterrichtsmaterial';
+        if(!preg_match('/^\\d{4}-\\d{2}-\\d{2}$/',$date))$date=gmdate('Y-m-d');
+        $q=$d->prepare("INSERT INTO modules(id,title,topic,date,status,filename,created) VALUES(?,?,? ,?,'offen',?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, topic=excluded.topic, date=excluded.date");
+        $q->execute([$id,$title,$topic,$date,$id.'.html',gmdate('c')]);
+      }catch(Throwable $e){error_log('HomeWork module: '.$e->getMessage());stop('Moduldaten konnten nicht gespeichert werden.',500);}
+
     }
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['ok'=>true,'part'=>$index+1,'total'=>$total]);exit;
@@ -68,7 +81,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
   exit;
 }
 if($_SERVER['REQUEST_METHOD']!=='GET')stop('Methode nicht erlaubt.',405);
-if(!is_file($file))stop('Unterrichtsdatei noch nicht hochgeladen.',404);
+if(!is_file($file))stop('Unterrichtsdatei nicht gefunden.',404);
 header('Content-Type: text/html; charset=utf-8');
 header('Content-Security-Policy: frame-ancestors \'self\'');
 readfile($file);
