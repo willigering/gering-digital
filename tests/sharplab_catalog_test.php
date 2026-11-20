@@ -41,7 +41,13 @@ $detail=file_get_contents(__DIR__.'/../sharplab/index.php');
 check(str_contains($detail,'Installer herunterladen') && str_contains($detail,'SharpLab-Setup.exe'),'Detailseite bietet den Installer als Hauptdownload');
 check(str_contains($detail,'Portable Version (ZIP)') && str_contains($detail,'SharpLab-Windows.zip'),'Detailseite bietet die portable ZIP als zweiten Link');
 check(str_contains($detail,'keine Administratorrechte') && str_contains($detail,'Startmenü') && str_contains($detail,'Auto-Update'),'Installationshinweis nennt Rechte, Verknüpfungen und Auto-Update');
-check(str_contains($detail,'PLATZHALTER') && str_contains($detail,'SHA-256') && str_contains($detail,'SharpLab-Setup.exe'),'SHA-256-Platzhalter bezieht sich auf SharpLab-Setup.exe');
+check(!str_contains($detail,'PLATZHALTER'),'Detailseite enthält keinen Platzhalter-Text');
+check(str_contains($detail,'15b3cf6764902aa141cf30825403c1025faa9afc3e842cc5510e842701d15f1e'),'SHA-256 des Installers steht auf der Detailseite');
+check(str_contains($detail,'152839c07bcb6413712435d7e258ca4db22f9c7916dcc177ac16bb959a61b28f'),'SHA-256 der portablen ZIP steht auf der Detailseite');
+check(str_contains($detail,'virustotal.com/gui/file/15b3cf6764902aa141cf30825403c1025faa9afc3e842cc5510e842701d15f1e'),'Virenscan-Link des Installers ist gesetzt');
+check(str_contains($detail,'virustotal.com/gui/file/152839c07bcb6413712435d7e258ca4db22f9c7916dcc177ac16bb959a61b28f'),'Virenscan-Link der ZIP ist gesetzt');
+check(str_contains($detail,'69 von 70') && str_contains($detail,'Heuristik-Meldung') && str_contains($detail,'Kein Befund'),'Virenscan-Ergebnisse sind ehrlich beschrieben');
+check(str_contains($detail,'für Version 1.0.5') && str_contains($detail,'7,8'),'Angaben gelten ausdrücklich für Version 1.0.5 und nennen die Installer-Größe');
 check(str_contains($detail,'Weitere Informationen'),'Detailseite erklärt den SmartScreen-Hinweis');
 check(str_contains($detail,'Willi Gering, Gering Digital'),'Detailseite nennt Willi Gering, Gering Digital');
 

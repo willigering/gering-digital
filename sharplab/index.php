@@ -114,11 +114,20 @@ $year=(int)date('Y');
           <h2 id="scan-title">Virenscan-Nachweis</h2>
         </div>
       </div>
-      <div class="sl-placeholder" role="note">
-        <span class="sl-badge">PLATZHALTER</span>
-        <p>Link zum Virenscan und die SHA-256-Prüfsumme von <strong>SharpLab-Setup.exe</strong> werden eingetragen, sobald Version 1.0.5 auf GitHub veröffentlicht ist.</p>
-        <p class="sl-hash"><span>SHA-256</span> <code>PLATZHALTER — SharpLab-Setup.exe, wird nach dem Release eingetragen</code></p>
-        <p class="sl-placeholder-link">Virenscan: <em>Link folgt nach dem Release</em></p>
+      <p class="sl-scan-intro">Die folgenden Angaben gelten für Version 1.0.5 (Installer ca. 7,8&nbsp;MB). Bei späteren Updates können sich Prüfsumme und Scan-Ergebnis ändern.</p>
+      <div class="sl-scan-grid">
+        <article class="sl-scan-card">
+          <h3>SharpLab-Setup.exe</h3>
+          <p class="sl-scan-meta">Version 1.0.5 · ca. 7,8&nbsp;MB</p>
+          <p>Virenscan (VirusTotal, 20.11.2026): 69 von 70 Scannern ohne Befund – 1 Heuristik-Meldung (Fehlalarm bei neuen, unsignierten Programmen). <a href="https://www.virustotal.com/gui/file/15b3cf6764902aa141cf30825403c1025faa9afc3e842cc5510e842701d15f1e" target="_blank" rel="noopener">Bericht ansehen ↗</a></p>
+          <p class="sl-hash"><span>SHA-256 für Version 1.0.5</span> <code>15b3cf6764902aa141cf30825403c1025faa9afc3e842cc5510e842701d15f1e</code></p>
+        </article>
+        <article class="sl-scan-card">
+          <h3>SharpLab-Windows.zip</h3>
+          <p class="sl-scan-meta">Portable Version · Version 1.0.5</p>
+          <p>Virenscan (VirusTotal, 20.11.2026): Kein Befund. <a href="https://www.virustotal.com/gui/file/152839c07bcb6413712435d7e258ca4db22f9c7916dcc177ac16bb959a61b28f" target="_blank" rel="noopener">Bericht ansehen ↗</a></p>
+          <p class="sl-hash"><span>SHA-256 für Version 1.0.5</span> <code>152839c07bcb6413712435d7e258ca4db22f9c7916dcc177ac16bb959a61b28f</code></p>
+        </article>
       </div>
     </div>
   </section>
