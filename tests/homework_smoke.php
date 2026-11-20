@@ -30,8 +30,9 @@ if(!str_contains($js,"a.href='homework-module.php?id='") || str_contains($js, "a
 if(!str_contains($js,'result.moduleId!==id')||!str_contains($module,"'moduleId'")){
   throw new RuntimeException('Uploader completion must be verified.');
 }
-foreach(['IT I','IT II','IT III','IT IV','IT V','IT VI'] as $name){
-  if(!str_contains($storage,"'".$name."'"))throw new RuntimeException('Missing default category '.$name);
+if (!str_contains($storage,"['I','II','III','IV','V','VI']") ||
+    !str_contains($storage,"'IT '.$roman")) {
+  throw new RuntimeException('Missing default IT I–VI category seeding.');
 }
 foreach(['create-category','rename-module','set-category','delete-module'] as $action){
   if(!str_contains($api,"'".$action."'"))throw new RuntimeException('Missing API action '.$action);
