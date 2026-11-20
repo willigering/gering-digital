@@ -48,7 +48,7 @@ const deathLoop = part(' for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0
 for (const [flags, expected] of [[{},50],[{head:true},100],[{melee:true},130],[{expl:true},50],[{run:true},50]]) {
   const player = {money:500, kills:0, heads:0};
   const zombies = [{hp:0,x:0,y:0,face:0,look:{skin:'#aaa'},last:{own:player,...flags}}];
-  const ctx = vm.createContext({zombies,P:player,NET:{client:false},part(){},rnd:()=>1,pick:a=>a[0],dropPowerup(){},addCorpse(){},stain(){},sfx(){},ftext(){}});
+  const ctx = vm.createContext({zombies,P:player,NET:{client:false},GROUND:[],gid:1,part(){},rnd:()=>1,pick:a=>a[0],dropPowerup(){},addCorpse(){},stain(){},sfx(){},ftext(){}});
   vm.runInContext(deathLoop, ctx);
   assert.equal(player.money, 500+expected);
   assert.equal(player.kills, 1);
