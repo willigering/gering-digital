@@ -101,7 +101,7 @@ $year=(int)date('Y');
         <span class="eyebrow">HINWEIS</span>
         <h2>SmartScreen</h2>
         <p>SharpLab ist derzeit nicht digital signiert. Windows kann deshalb beim ersten Start SmartScreen anzeigen. Das ist normal.</p>
-        <p>Klicke auf <strong>Weitere Informationen</strong> und danach auf <strong>Trotzdem ausführen</strong>.</p>
+        <p>Wenn SmartScreen warnt, prüfe bitte zuerst die Downloadquelle und die veröffentlichte SHA-256-Prüfsumme. Sicherheitswarnungen sollten nicht ungeprüft umgangen werden.</p>
       </div>
     </div>
   </section>
@@ -136,6 +136,8 @@ $year=(int)date('Y');
     <div class="section-shell">
       <span class="eyebrow">LIZENZ</span>
       <h2>Open Source unter <span>MIT</span></h2>
+      <p><strong>Sicherheitshinweis:</strong> Im Editor ausgeführter C#-Code läuft innerhalb der Anwendung und nicht in einer vollständig isolierten Sandbox. Führe daher nur eigenen oder vertrauenswürdigen Code aus. Die Auto-Update-Funktion prüft beim Installieren neuer Versionen eine veröffentlichte SHA-256-Prüfsumme; diese ersetzt keine digitale Signatur.</p>
+      <p><strong>Datenschutz:</strong> Feedback wird nur auf deine ausdrückliche Aktion gesendet. Ein optionales Fehlerprotokoll kann personenbezogene Informationen enthalten. <a href="../datenschutz.php#sharplab">Details zu Feedback und Updateprüfung in der Datenschutzerklärung</a>.</p>
       <p>Der Quellcode von SharpLab steht unter der MIT-Lizenz und liegt öffentlich auf GitHub. Idee, Texte und Programm: <strong>Willi Gering, Gering Digital</strong>.</p>
       <div class="hero-actions">
         <a class="primary-action" href="<?=e($download)?>">Installer herunterladen <span aria-hidden="true">↓</span></a>
