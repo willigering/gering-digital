@@ -69,8 +69,8 @@ $year=(int)date('Y');
       <div class="section-heading">
         <div>
           <span class="eyebrow">WAS DRINSTECKT</span>
-          <h2 id="features-title">Lernen, üben, ausführen – <span>ohne Setup-Chaos.</span></h2>
-          <p>Alles, was du zum Einstieg in C# brauchst, steckt in einem Fenster.</p>
+          <h2 id="features-title">Lernen, üben, ausführen</h2>
+          <p>Alles, was du zum Einstieg in C# brauchst.</p>
         </div>
         <span class="section-count">6 Punkte</span>
       </div>

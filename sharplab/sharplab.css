@@ -1,7 +1,7 @@
 /* Detailseite folgt der Lernplattform-Struktur (DAU TO PRO): Hero zweispaltig, Kicker, Strip, Meta, Sections. */
 .sharplab-page{--sl-green:#3FCB6E;--sl-green-dim:#17532E;--content:1200px;position:relative;}
 .sharplab-page main{overflow:visible;position:relative;z-index:1;}
-.sl-page-matrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.18;mix-blend-mode:screen;}
+.sl-page-matrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.28;mix-blend-mode:screen;}
 .sharplab-page .nav{position:relative;z-index:5;}
 .section-shell{width:min(100%,var(--content));margin-inline:auto;padding-inline:32px;}
 .sharplab-page .hero{padding:64px 0 56px;position:relative;z-index:1;}
