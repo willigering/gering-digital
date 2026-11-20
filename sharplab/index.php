@@ -25,21 +25,6 @@ $year=(int)date('Y');
 <div class="grain" aria-hidden="true"></div>
 <canvas class="sharplab-matrix sl-page-matrix" width="1440" height="900" aria-hidden="true"></canvas>
 
-<header class="nav glass-nav">
-  <div class="wrap navin">
-    <a class="brand" href="../#apps" aria-label="Gering Digital Startseite">
-      <picture><source media="(max-width:800px)" type="image/webp" srcset="../assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="../assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
-      <span><strong>GERING <em>DIGITAL</em></strong><small>EIGENE IDEEN · EIGENE APPS</small></span>
-    </a>
-    <nav class="desktop-nav" aria-label="Hauptnavigation">
-      <a href="../#apps">Projekte</a>
-      <a href="../#ueber-mich">Über mich</a>
-      <a href="#download">Download</a>
-    </nav>
-    <a class="btn small desktop-cta sl-nav-installer" href="<?=e($download)?>">Installer <b aria-hidden="true">↓</b></a>
-  </div>
-</header>
-
 <main id="inhalt">
   <section class="hero" aria-labelledby="hero-title">
     <div class="hero-inner">
@@ -56,10 +41,10 @@ $year=(int)date('Y');
         <div class="hero-meta"><span><b>27</b> Lektionen</span><span>Kostenlos unter MIT</span><span>Windows 10/11</span></div>
       </div>
       <div class="hero-visual">
-        <div class="hero-art-wrap">
+        <a class="hero-art-wrap" href="../assets/sharplab-screenshot.webp" target="_blank" rel="noopener" aria-label="SharpLab-Vorschau in voller Größe öffnen">
           <img src="../assets/sharplab-screenshot.webp" width="1600" height="900" alt="SharpLab im Überblick: Lernpfad, Lektionstext und Code-Editor mit Ausgabe">
-        </div>
-        <p class="hero-caption">Ein Nachbau der Oberfläche – Lernpfad, Lektion und Editor in einem Fenster.</p>
+        </a>
+        <p class="hero-caption">Ein Nachbau der Oberfläche – Lernpfad, Lektion und Editor in einem Fenster. Klicke auf das Bild für die volle Größe.</p>
       </div>
     </div>
   </section>
