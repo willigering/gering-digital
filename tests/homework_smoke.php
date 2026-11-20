@@ -23,4 +23,7 @@ if ($html === false || !str_contains($html, "a.href='homework-module.php?id='") 
     str_contains($html, "a.target='_blank'")) {
   throw new RuntimeException('HomeWork navigation must open within the same tab.');
 }
+if (str_contains($module, 'preg_replace(') && str_contains($module, 'static fn($match)')) {
+  throw new RuntimeException('preg_replace must not be given a closure (fatal error when opening a module).');
+}
 echo "HomeWork smoke checks passed.\n";

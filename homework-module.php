@@ -96,7 +96,9 @@ $navigation=<<<'HTML'
 </style>
 <a id="hw-return" href="/HA.html" aria-label="Zur HomeWork-Übersicht zurückkehren">← Zu den Hausaufgaben</a>
 HTML;
-if(preg_match('~</body\s*>~i',$markup)){
-  echo preg_replace('~</body\s*>~i',static fn($match)=>$navigation."\\n".$match[0],$markup,1);
-}else{echo $markup.$navigation;}
+// Insert before the LAST </body> so a "</body>" inside a script string is not hit.
+$pos=strripos($markup,'</body');
+if($pos!==false){
+  echo substr($markup,0,$pos).$navigation."\n".substr($markup,$pos);
+}else{echo $markup."\n".$navigation;}
 
