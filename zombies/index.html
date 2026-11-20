@@ -1003,7 +1003,7 @@ const iceDone=pc=>new Promise(res=>{if(pc.iceGatheringState==='complete')return 
 const plainSdp=d=>({sdp:{type:d.type,sdp:d.sdp}});
 NET.lobbies=[];NET.code=null;let busy=false;
 function refreshLobbies(){if(MODE!=='rtc')return;api('list').then(r=>{NET.lobbies=r.ls||[];if(NET.status.startsWith('Keine Verbindung'))NET.status=''}).catch(()=>{NET.status='Keine Verbindung zum Server'})}
-setInterval(()=>{if(!started&&menu.screen==='mp'&&!document.hidden&&!busy)refreshLobbies()},3000);
+setInterval(()=>{if(!started&&['mp','play','pvp'].includes(menu.screen)&&!document.hidden&&!busy)refreshLobbies()},3000);
 // ---- Host
 const RH={peers:new Map(),n:1,lastPoll:0};
 async function rtcHost(){if(busy)return;busy=true;NET.status='Erstelle Lobby …';loadIce();
@@ -1163,15 +1163,15 @@ const MUI={mx:-1,my:-1,hov:-1,down:null,drag:null,sb:null,anim:[]};
 const mAn=i=>MUI.anim[i]||(MUI.anim[i]={h:0,p:0,f:0,s:0,e:0});
 try{document.fonts.load('400 40px "Jersey 10"');document.fonts.load('700 20px "VT323"')}catch{}
 for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
-function menuItems(){switch(menu.screen){
+function menuItems(){const openN=f=>((NET&&NET.lobbies)||[]).filter(l=>f(l.gm||'z')&&!(l.n>=MAXP)).length;switch(menu.screen){
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['STEUERUNG',()=>menuGo('keys')],['OPTIONEN',()=>menuGo('options')],['FEEDBACK',openFeedback]];
  case'keys':return[['ZURÜCK',()=>menuGo('main')]];
  case'name':return[['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;nameDone()}else menu.edit='name'}],['WEITER ▶',()=>{menu.edit=null;if(!(OPT.name||'').trim()){menu.edit='name';NET.status='Bitte zuerst einen Namen eingeben';return}nameDone()}],['ZURÜCK',()=>{menu.edit=null;menu.after=null;NET.status='';menuGo('play')}]];
- case'play':return[['SOLO',()=>startGame(false,false)],['KOOP',()=>{if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}}],['MULTIPLAYER',()=>{if(!needName(()=>menuGo('pvp')))menuGo('pvp')}],['ZURÜCK',()=>menuGo('main')]];
- case'pvp':return[['DEATHMATCH',()=>{NET.want='dm';menuGo('mp')}],['GUNGAME',()=>{NET.want='gg';menuGo('mp')}],['ONE IN THE CHAMBER',()=>{NET.want='oc';menuGo('mp')}],['ZURÜCK',()=>menuGo('play')]];
+ case'play':return[['SOLO',()=>startGame(false,false)],['KOOP',()=>{if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}},null,{badge:openN(g=>g==='z')}],['MULTIPLAYER',()=>{if(!needName(()=>menuGo('pvp')))menuGo('pvp')},null,{badge:openN(g=>g!=='z')}],['ZURÜCK',()=>menuGo('main')]];
+ case'pvp':return[['DEATHMATCH',()=>{NET.want='dm';menuGo('mp')},null,{badge:openN(g=>g==='dm')}],['GUNGAME',()=>{NET.want='gg';menuGo('mp')},null,{badge:openN(g=>g==='gg')}],['ONE IN THE CHAMBER',()=>{NET.want='oc';menuGo('mp')},null,{badge:openN(g=>g==='oc')}],['ZURÜCK',()=>menuGo('play')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo(mpBack())]];
   return[['NEUES SPIEL HOSTEN',()=>{P.name=OPT.name;rtcHost()}],
-   ...NET.lobbies.filter(l=>(l.gm||'z')===(NET.want||'z')).slice(0,6).map(l=>[(l.n>=MAXP?'VOLL: ':'BEITRETEN: ')+l.name+'   '+l.n+'/'+MAXP+(l.run?' · läuft':''),()=>{if(l.n<MAXP){P.name=OPT.name;rtcJoin(l.id)}}]),
+   ...(()=>{const ls=NET.lobbies.filter(l=>(l.gm||'z')===(NET.want||'z')).slice(0,6);return ls.length?ls.map(l=>[(l.n>=MAXP?'VOLL: ':'BEITRETEN: ')+l.name+'   '+l.n+'/'+MAXP+(l.run?' · läuft':''),()=>{if(l.n<MAXP){P.name=OPT.name;rtcJoin(l.id)}},null,l.n>=MAXP?{dis:1}:null]):[['KEINE OFFENEN LOBBYS',()=>{},null,{dis:1}]]})(),
    ['ZURÜCK',()=>menuGo(mpBack())]];
  case'lobby':{const host=NET.hostId===NET.id,wait=NET.lobby.filter(p=>p.id!==NET.hostId&&!p.ready).length;
   return[['◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;store.set('opt',OPT);nameChanged()}else menu.edit='name'}],
@@ -1210,7 +1210,7 @@ document.addEventListener('DOMContentLoaded',()=>{});
 setTimeout(()=>{$fb('fbx').onclick=closeFeedback;$fb('fbs').onclick=sendFeedback;$fb('fbt').oninput=()=>{$fb('fbc').textContent=$fb('fbt').value.length+' / 2000'};
  $fb('fbt').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeFeedback();if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))sendFeedback()})},0);
 function setLb(v){if((menu.lb||'solo')===v)return;menu.lb=v;menu.scroll=0;sfx('ui_move',null,null,.6,1.1,.03)}
-function menuGo(s){menu.screen=s;menu.sel=s==='scores'?-1:0;menu.edit=null;menu.fade=0;MUI.anim=[];MUI.down=null;MUI.drag=null;MUI.sb=null;if(s==='mp')refreshLobbies();if(s==='scores'){menu.onReq=0;menu.scroll=0}}
+function menuGo(s){menu.screen=s;menu.sel=s==='scores'?-1:0;menu.edit=null;menu.fade=0;MUI.anim=[];MUI.down=null;MUI.drag=null;MUI.sb=null;if(s==='mp'||s==='play'||s==='pvp')refreshLobbies();if(s==='scores'){menu.onReq=0;menu.scroll=0}}
 function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo(mpBack());else if(menu.screen==='pvp'||menu.screen==='name'){menu.after=null;menuGo('play')}else if(menu.screen!=='main')menuGo('main')}
 function menuKey(e){const NAV={KeyW:'w',KeyA:'a',KeyS:'s',KeyD:'d',Space:' '},k=!menu.edit&&NAV[e.code]?NAV[e.code]:e.key,it=menuItems();
  if(menu.screen==='scores'&&!menu.edit){if(k==='ArrowLeft'||k==='ArrowRight'||k==='a'||k==='d'||k==='A'||k==='D'){const T3=['solo','team','pvp'],ci=T3.indexOf(menu.lb||'solo'),dl=k==='ArrowLeft'||k==='a'||k==='A'?-1:1;setLb(T3[clamp(ci+dl,0,2)]);e.preventDefault();return}
@@ -1229,7 +1229,7 @@ function menuHit(x,y){for(let i=0;i<menuRects.length;i++){const r=menuRects[i];i
 function menuStep(i,side){const it=menuItems()[i];if(!it||!it[2])return false;it[2](side);sfx('ui_move',null,null,.55,side>0?1.08:.94,.03);return true}
 // Aktivieren: Blitz + Druck-Impuls + Ton (+ Vibration, wo vorhanden). Nicht verfügbare Platten wackeln nur.
 function menuAct(i,side,key){const it=menuItems()[i];if(!it)return;const a=mAn(i),lab=String(it[0]);
- if(/^VOLL:|warte auf/.test(lab)){a.s=1;return}
+ if(/^VOLL:|warte auf/.test(lab)||(it[3]&&it[3].dis)){a.s=1;return}
  a.f=1;a.e=1;sfx(/^(ZURÜCK|LOBBY VERLASSEN|SPIEL VERLASSEN)/.test(lab)?'ui_back':'ui_select',null,null,.75);
  try{navigator.vibrate&&navigator.vibrate(8)}catch{}
  if(it[2]&&!key)it[2](side);else it[1]()}
@@ -1332,7 +1332,6 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
  if(scr==='lobby'){const wide=VW>=1000,rx=wide?L+pw+L*.6:L,rw=wide?VW-rx-L*.6:VW-L*2;let ry=VH*.255;
   MT('SPIELER   '+NET.lobby.length+'/'+MAXP,rx,ry,bh*.46,'#e8892e');ry+=bh*.7;
   const ch=drawRoster(rx,ry,rw,wide?VH*.58:VH*.3);if(!wide)y=ry+ch+gap}
- if(scr==='mp'&&MODE==='rtc'){MT(NET.lobbies.length?'OFFENE LOBBYS':'Keine offene Lobby – hoste ein neues Spiel!',L,y,bh*.36,'#b8b0a8');y+=bh*.6}
  if(scr==='keys'){const K=KEYLIST,avail=lim-y-bh*1.3,cols=avail/(K.length)<26&&VW>900?2:1,per=Math.ceil(K.length/cols);
   const cw=(VW-L*2)/cols-24,rh=Math.max(18,Math.min(38,avail/per)),{fs,off}=fitKeys(K,cw,rh);
   K.forEach(([k2,v],i)=>{const c=i/per|0,xx=L+c*(cw+24),yy=y+(i%per)*rh;MT(k2,xx,yy,fs,'#ffd76a');MT(v,xx+off,yy,fs,'#f0ebe4','left','"VT323"',500)});y+=per*rh+rh*.4}
@@ -1383,9 +1382,11 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
   const a=mAn(i),dn=MUI.down&&MUI.down.i===i&&!MUI.down.slider?1:0;
   a.h+=((i===menu.sel?1:0)-a.h)*Math.min(1,dt*18);a.p+=(dn-a.p)*Math.min(1,dt*32);a.e=Math.max(0,a.e-dt*7);a.f=Math.max(0,a.f-dt*5);a.s=Math.max(0,a.s-dt*4.5);
   const dl=Math.min(.6,i*.06),st=clamp01((menu.fade-dl)/(1-dl)),ex=(1-st)*-28+(kd==='big'||kd==='small'?a.h*6:0);
-  menuRects[i]=[x,yy,w,h];u.globalAlpha=menu.fade*st;
+  menuRects[i]=[x,yy,w,h];u.globalAlpha=menu.fade*st*(q[3]&&q[3].dis?.4:1);
   plate(x+ex,yy,w,h,{a,label:lab,kind:kd,slider:sl,back:/^(ZURÜCK|LOBBY VERLASSEN)$/.test(q[0]),sel:i===menu.sel,active:scr==='scores'&&i<3&&['solo','team','pvp'][i]===(menu.lb||'solo'),
-   hoverSide:sl&&hovI===i?(MUI.mx<x+w/2?-1:1):0,pressSide:MUI.down&&MUI.down.slider&&MUI.down.i===i?MUI.down.side:0})});
+   hoverSide:sl&&hovI===i?(MUI.mx<x+w/2?-1:1):0,pressSide:MUI.down&&MUI.down.slider&&MUI.down.i===i?MUI.down.side:0});
+  if(q[3]&&q[3].badge){const n=q[3].badge,tx=n+(n===1?' OFFENE LOBBY':' OFFENE LOBBYS'),fs=Math.max(14,h*.34),bx2=x+ex+w+h*.35,by2=yy+h/2;u.font='400 '+fs+'px "Jersey 10",monospace';const tw=u.measureText(tx).width,pu=.75+Math.sin(menu.t*5)*.25;
+   u.fillStyle='rgba(10,30,12,.85)';u.fillRect(bx2,by2-fs*.75,tw+fs*1.8,fs*1.5);u.fillStyle='rgba(90,208,90,'+pu+')';u.beginPath();u.arc(bx2+fs*.6,by2,fs*.28,0,7);u.fill();PT(tx,bx2+fs*1.1,by2+1,fs,'#9fff9f','left')}});
  u.globalAlpha=menu.fade;
  if(NET.status)MT(NET.status,L,y+bh*.3,Math.max(14,bh*.34),'#ff9a7a');
  // Fußleiste: Tastenhinweise links, Version rechts
