@@ -10,7 +10,7 @@ $app=db()->query("SELECT * FROM apps WHERE name='SharpLab'")->fetch(PDO::FETCH_A
 check(is_array($app),'SharpLab wird in den Katalog übernommen');
 check(($app['category']??'')==='windows','Kategorie ist Windows-Apps');
 check(($app['status']??'')==='download','Status ist Download');
-check(($app['play_url']??'')==='https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Windows.zip','Download-Link zeigt auf das neueste Release');
+check(($app['play_url']??'')==='https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Setup.exe','Haupt-Download zeigt auf den Installer');
 check(($app['source_url']??'')==='https://github.com/willigering/SharpLab','Quellcode-Link zeigt auf das Repo');
 check(($app['details_url']??'')==='/sharplab/','Detailseite ist /sharplab/');
 check((int)($app['published']??0)===1,'SharpLab ist veröffentlicht');
@@ -38,7 +38,10 @@ check(str_contains($html,"'download'=>'Kostenloser Download'"),'Startseite kennt
 check(str_contains($html,'Download für Windows'),'Startseite enthält weiterhin den Download-Status');
 check(str_contains($html,'sharplab-portal-card') && str_contains($html,'Windows-App öffnen'),'SharpLab-Kachel folgt dem Lernplattform-Layout mit CTA');
 $detail=file_get_contents(__DIR__.'/../sharplab/index.php');
-check(str_contains($detail,'PLATZHALTER'),'Detailseite markiert Virenscan und SHA-256 als Platzhalter');
+check(str_contains($detail,'Installer herunterladen') && str_contains($detail,'SharpLab-Setup.exe'),'Detailseite bietet den Installer als Hauptdownload');
+check(str_contains($detail,'Portable Version (ZIP)') && str_contains($detail,'SharpLab-Windows.zip'),'Detailseite bietet die portable ZIP als zweiten Link');
+check(str_contains($detail,'keine Administratorrechte') && str_contains($detail,'Startmenü') && str_contains($detail,'Auto-Update'),'Installationshinweis nennt Rechte, Verknüpfungen und Auto-Update');
+check(str_contains($detail,'PLATZHALTER') && str_contains($detail,'SHA-256') && str_contains($detail,'SharpLab-Setup.exe'),'SHA-256-Platzhalter bezieht sich auf SharpLab-Setup.exe');
 check(str_contains($detail,'Weitere Informationen'),'Detailseite erklärt den SmartScreen-Hinweis');
 check(str_contains($detail,'Willi Gering, Gering Digital'),'Detailseite nennt Willi Gering, Gering Digital');
 

@@ -68,3 +68,8 @@
 @media (max-width:600px){
   .sharplab-page .hero-actions .primary-action,.sharplab-page .hero-actions .secondary-action{width:100%;}
 }
+
+.sl-portable{margin:12px 0 0;font-size:13px;color:#95abb4;}
+.sl-portable a{color:var(--gold);text-decoration:underline;text-underline-offset:3px;}
+.sl-portable a:hover{color:var(--gold2);}
+.sl-credits .sl-portable{margin-top:16px;}

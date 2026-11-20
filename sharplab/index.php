@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/../lib.php';
-$download='https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Windows.zip';
+$download='https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Setup.exe';
+$portable='https://github.com/willigering/SharpLab/releases/latest/download/SharpLab-Windows.zip';
 $source='https://github.com/willigering/SharpLab';
 $runtime='https://dotnet.microsoft.com/download/dotnet/8.0';
 $year=(int)date('Y');
@@ -35,7 +36,7 @@ $year=(int)date('Y');
       <a href="../#ueber-mich">Über mich</a>
       <a href="#download">Download</a>
     </nav>
-    <a class="btn small desktop-cta" href="<?=e($download)?>">Download <b>↓</b></a>
+    <a class="btn small desktop-cta" href="<?=e($download)?>">Installer <b>↓</b></a>
   </div>
 </header>
 
@@ -48,9 +49,10 @@ $year=(int)date('Y');
         <div class="hero-strip"><span>27 LEKTIONEN</span><i aria-hidden="true"></i><span>216 ÜBUNGEN</span><i aria-hidden="true"></i><span>QUIZ</span><i aria-hidden="true"></i><span>COMPILER</span></div>
         <p class="hero-lead">Lerne C# von null an – von den Basics bis zum Profi. Aufgaben, Quiz und ein eingebauter Compiler laufen direkt im Programm, mit Autovervollständigung wie in Visual Studio. Dein Lernstand bleibt erhalten, auch auf mehreren Rechnern.</p>
         <div class="hero-actions">
-          <a class="primary-action" href="<?=e($download)?>" id="download">Download für Windows <span aria-hidden="true">↓</span></a>
+          <a class="primary-action" href="<?=e($download)?>" id="download">Installer herunterladen <span aria-hidden="true">↓</span></a>
           <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">Quellcode auf GitHub <span aria-hidden="true">↗</span></a>
         </div>
+        <p class="sl-portable"><a href="<?=e($portable)?>">Portable Version (ZIP)</a></p>
         <div class="hero-meta"><span><b>27</b> Lektionen</span><span>Kostenlos unter MIT</span><span>Windows 10/11</span></div>
       </div>
       <div class="hero-visual">
@@ -92,7 +94,8 @@ $year=(int)date('Y');
           <li>Windows 10 oder Windows 11</li>
           <li>.NET 8 Desktop Runtime oder neuer. <a href="<?=e($runtime)?>" target="_blank" rel="noopener">Kostenlos bei Microsoft laden ↗</a></li>
         </ul>
-        <p>Die ZIP-Datei entpacken und <strong>SharpLab.exe</strong> starten. Eine Installation ist nicht nötig.</p>
+        <p>Der Installer <strong>SharpLab-Setup.exe</strong> braucht keine Administratorrechte. Er legt Verknüpfungen im Startmenü und auf dem Desktop an, und SharpLab kann sich danach per Auto-Update selbst aktualisieren.</p>
+        <p>Wer kein Installationsprogramm möchte, lädt die <a href="<?=e($portable)?>">portable ZIP-Version</a>, entpackt sie und startet <strong>SharpLab.exe</strong>.</p>
       </div>
       <div>
         <span class="eyebrow">HINWEIS</span>
@@ -113,8 +116,8 @@ $year=(int)date('Y');
       </div>
       <div class="sl-placeholder" role="note">
         <span class="sl-badge">PLATZHALTER</span>
-        <p>Link zum Virenscan und die SHA-256-Prüfsumme der Release-Datei werden eingetragen, sobald Version 1.0.5 auf GitHub veröffentlicht ist.</p>
-        <p class="sl-hash"><span>SHA-256</span> <code>PLATZHALTER — wird nach dem Release eingetragen</code></p>
+        <p>Link zum Virenscan und die SHA-256-Prüfsumme von <strong>SharpLab-Setup.exe</strong> werden eingetragen, sobald Version 1.0.5 auf GitHub veröffentlicht ist.</p>
+        <p class="sl-hash"><span>SHA-256</span> <code>PLATZHALTER — SharpLab-Setup.exe, wird nach dem Release eingetragen</code></p>
         <p class="sl-placeholder-link">Virenscan: <em>Link folgt nach dem Release</em></p>
       </div>
     </div>
@@ -126,10 +129,11 @@ $year=(int)date('Y');
       <h2>Open Source unter <span>MIT</span></h2>
       <p>Der Quellcode von SharpLab steht unter der MIT-Lizenz und liegt öffentlich auf GitHub. Idee, Texte und Programm: <strong>Willi Gering, Gering Digital</strong>.</p>
       <div class="hero-actions">
-        <a class="primary-action" href="<?=e($download)?>">Download für Windows <span aria-hidden="true">↓</span></a>
+        <a class="primary-action" href="<?=e($download)?>">Installer herunterladen <span aria-hidden="true">↓</span></a>
         <a class="secondary-action" href="<?=e($source)?>" target="_blank" rel="noopener">github.com/willigering/SharpLab <span aria-hidden="true">↗</span></a>
         <a class="sl-back" href="../#apps">← Zurück zu den Projekten</a>
       </div>
+      <p class="sl-portable"><a href="<?=e($portable)?>">Portable Version (ZIP)</a></p>
     </div>
   </section>
 </main>
