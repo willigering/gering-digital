@@ -150,7 +150,7 @@ $year=(int)date('Y');
       <picture><source media="(max-width:800px)" type="image/webp" srcset="../assets/gering-digital-logo-icon-312.webp"><img class="brand-logo" src="../assets/gering-digital-logo-icon.png" alt="Gering Digital Logo"></picture>
       <span><strong>GERING <em>DIGITAL</em></strong><small>Eigene Ideen. Echte Probleme. Digitale Lösungen.</small></span>
     </a>
-    <div><a href="../impressum.php">Impressum</a> · <a href="../datenschutz.php">Datenschutz</a></div>
+    <div><a href="../impressum.php">Impressum</a> · <a href="../datenschutz.php#sharplab">Datenschutz</a></div>
     <small>© <?=$year?> Gering Digital</small>
   </div>
 </footer>
