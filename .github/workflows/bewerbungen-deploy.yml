@@ -8,6 +8,10 @@ on:
       - 'HA.html'
       - 'homework-api.php'
       - 'homework-module.php'
+      - 'homework-storage.php'
+      - 'assets/homework.js'
+      - 'assets/homework.css'
+      - 'tests/homework_integration.py'
       - 'bewerbungen-*.js'
       - 'bewerbungen-*.php'
       - 'bewerbungen-*.css'
@@ -37,6 +41,8 @@ jobs:
           php -l bewerbungen-api.php
           php -l homework-api.php
           php -l homework-module.php
+          php -l homework-storage.php
+          node --check assets/homework.js
           php tests/bewerbungen_mail_test.php
           php tests/homework_smoke.php
       - name: Test HomeWork login, chunk upload, reload, status and return link over HTTP

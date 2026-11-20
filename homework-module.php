@@ -9,6 +9,7 @@ $secure=(!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS'])!=='o
 session_name('GD_HomeWork');
 session_set_cookie_params(['lifetime'=>0,'path'=>'/','secure'=>$secure,'httponly'=>true,'samesite'=>'Strict']);
 session_start();
+require_once __DIR__.'/homework-storage.php';
 function stop(string $message,int $status):never{
   http_response_code($status);
   header('Content-Type: text/plain; charset=utf-8');
@@ -41,19 +42,20 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
       if(filesize($partFile)>12582912){@unlink($partFile);stop('Datei zu groß.',413);}
       $head=file_get_contents($partFile,false,null,0,4096);
       if(!is_string($head)||stripos($head,'<!doctype html')===false&&stripos($head,'<html')===false){@unlink($partFile);stop('Keine vollständige HTML-Datei.',415);}
-      chmod($partFile,0600);
-      if(!rename($partFile,$file))stop('Aktivierung fehlgeschlagen.',500);
       try{
-        $d=new PDO('sqlite:'.__DIR__.'/data/homework-private.sqlite',null,null,[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
-        $d->exec("CREATE TABLE IF NOT EXISTS modules (id TEXT PRIMARY KEY, title TEXT NOT NULL, topic TEXT NOT NULL, date TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'offen', filename TEXT NOT NULL, created TEXT NOT NULL)");
+        $d=hw_db();
+        $categoryId=(string)($_POST['categoryId']??'');
+        if(!hw_category_exists($d,$categoryId))stop('Oberkategorie nicht gefunden.',400);
         $title=trim((string)($_POST['title']??''));$topic=trim((string)($_POST['topic']??''));$date=(string)($_POST['date']??'');
-        // mbstring is optional on some shared-hosting PHP installations.
-        $textLength=static fn(string $v):int=>function_exists('mb_strlen')?mb_strlen($v,'UTF-8'):strlen($v);
-        if($title===''||$textLength($title)>140)$title='HTML-Modul';
-        if($topic===''||$textLength($topic)>100)$topic='Unterrichtsmaterial';
+        if($title===''||hw_length($title)>140)$title='HTML-Modul';
+        if($topic===''||hw_length($topic)>100)$topic='Unterrichtsmaterial';
         if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$date))$date=gmdate('Y-m-d');
-        $q=$d->prepare("INSERT INTO modules(id,title,topic,date,status,filename,created) VALUES(?,?,? ,?,'offen',?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, topic=excluded.topic, date=excluded.date");
-        $q->execute([$id,$title,$topic,$date,$id.'.html',gmdate('c')]);
+        chmod($partFile,0600);
+        if(!rename($partFile,$file))stop('Aktivierung fehlgeschlagen.',500);
+        $q=$d->prepare("INSERT INTO modules(id,title,topic,date,status,filename,created,category_id)
+                        VALUES(?,?,?,?,'offen',?,?,?)
+                        ON CONFLICT(id) DO UPDATE SET title=excluded.title, topic=excluded.topic, date=excluded.date, category_id=excluded.category_id");
+        $q->execute([$id,$title,$topic,$date,$id.'.html',gmdate('c'),$categoryId]);
       }catch(Throwable $e){error_log('HomeWork module: '.$e->getMessage());stop('Moduldaten konnten nicht gespeichert werden.',500);}
 
     }
