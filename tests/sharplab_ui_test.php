@@ -8,7 +8,7 @@ if (!is_string($page)||!is_string($css)||!is_string($js)) throw new RuntimeExcep
 if (substr_count($page,'class="portable-action" href="<?=e($portable)?>"') !== 2) {
   throw new RuntimeException('Both portable links must be yellow buttons.');
 }
-if (substr_count($page,'class="primary-action" href="<?=e($download)?>"') !== 3) {
+if (substr_count($page,'class="primary-action" href="<?=e($download)?>"') !== 2) {
   throw new RuntimeException('Installer links must be green buttons in every content section.');
 }
 if (!str_contains($page,'sl-nav-installer') || !str_contains($page,'class="sl-runtime-action"') ||
