@@ -31,7 +31,7 @@ try{
     if(empty($_SESSION['hw_login']))output(['mode'=>passwordHash()?'login':'nosetup']);
     $q=db()->query('SELECT value,updated FROM homework WHERE id="lf-vi-03"')->fetch(PDO::FETCH_ASSOC);
     $st=db()->query("SELECT value FROM homework WHERE id='status:lf-vi-03'")->fetchColumn();
-    output(['mode'=>'ready','value'=>$q['value']??'','updated'=>$q['updated']??null,'moduleStatus'=>in_array($st,['offen','bearbeitung','fertig'],true)?$st:'offen']);
+    output(['mode'=>'ready','value'=>$q['value']??'','updated'=>$q['updated']??null,'moduleStatus'=>in_array($st,['offen','bearbeitung','fertig'],true)?$st:'offen','lessonAvailable'=>is_file(__DIR__.'/data/homework/lf-vi-03.html')]);
   }
   if($_SERVER['REQUEST_METHOD']!=='POST')fail('Methode nicht erlaubt.',405);
   if((int)($_SERVER['CONTENT_LENGTH']??0)>200000)fail('Anfrage zu groß.',413);
