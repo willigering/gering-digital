@@ -41,7 +41,7 @@ if (!in_array('zombies', array_column($apps,'slug'), true)) {
         'preview_image'=>'zombies/menu_bg.webp','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
     ];
 }
-$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
+$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','download'=>'Kostenloser Download','web'=>'Online im Browser'];
 $categories=project_categories();
 unset($categories['lernen']); // kein eigener Filter mehr: DAU TO PRO läuft unter „Sonstiges“
 $categoryCounts=array_fill_keys(array_keys($categories),0);
@@ -192,6 +192,9 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
           <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['apple','both'],true) && !empty($app['apple_url'])): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
+          <?php if($st==='download' && !empty($app['play_url'])): ?><a class="store" href="<?=e($app['play_url'])?>">Download für Windows <b>↓</b></a><?php endif; ?>
+          <?php if(!empty($app['source_url'])): ?><a class="store" href="<?=e($app['source_url'])?>" target="_blank" rel="noopener">Quellcode <b>↗</b></a><?php endif; ?>
+          <?php if(!empty($app['details_url'])): ?><a class="store" href="<?=e($app['details_url'])?>">Mehr erfahren</a><?php endif; ?>
           <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
           <?php if($st==='entwicklung'): ?><span class="store muted">In Entwicklung</span><?php endif; ?>
           </div>

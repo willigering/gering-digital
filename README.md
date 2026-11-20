@@ -22,6 +22,8 @@ Keine Datenbank, Zugangsdaten, lokale Laufzeit oder start.bat enthalten.
 ## Projektkategorien
 Der öffentliche Katalog enthält die Filter **Alle**, **Apps**, **DAU to Pro**, **Windows-Apps**, **Spiele** und **Sonstiges**. Die Kategorien erscheinen unabhängig davon, ob bereits Projekte vorhanden sind. Die Auswahl filtert direkt in der Seite; bei leeren Rubriken erscheint ein Hinweis.
 
+Windows-Apps werden wie die übrigen Katalogkarten aus der Tabelle `apps` gerendert. Ein zusätzlicher Status `download` zeigt einen direkten Download-Link (plus optionale Felder `source_url` und `details_url`). SharpLab wird beim ersten Aufruf einmalig in die Datenbank übernommen, sofern noch kein Eintrag dieses Namens existiert; danach bleiben Admin-Änderungen erhalten. Die Detailseite liegt unter `/sharplab/`.
+
 Im Admin-Dashboard können Kategorien beim Anlegen und Bearbeiten von Projekten gesetzt werden. Die Datenbankmigration ergänzt beim nächsten Aufruf nur die Spalte `apps.category` mit dem Standardwert `apps`; bestehende Produkte, Reihenfolge, Uploads und die produktive SQLite-Datei bleiben erhalten. Die übrigen Status- und Store-Link-Funktionen sind unverändert.
 
 

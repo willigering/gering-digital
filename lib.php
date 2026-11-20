@@ -40,6 +40,8 @@ function db(){
     if (!in_array('apple_url', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN apple_url TEXT NOT NULL DEFAULT ''");
     // Add categories without replacing or reassigning any existing production records.
     if (!in_array('category', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN category TEXT NOT NULL DEFAULT 'apps'");
+    if (!in_array('source_url', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN source_url TEXT NOT NULL DEFAULT ''");
+    if (!in_array('details_url', $names, true)) $db->exec("ALTER TABLE apps ADD COLUMN details_url TEXT NOT NULL DEFAULT ''");
 
     // DAU TO PRO learner accounts (username + password, no e-mail). New tables only; nothing existing changes.
     $db->exec("CREATE TABLE IF NOT EXISTS learners(id INTEGER PRIMARY KEY, username TEXT NOT NULL UNIQUE COLLATE NOCASE, password_hash TEXT NOT NULL, recovery_hash TEXT NOT NULL DEFAULT '', session_version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP, last_login_at TEXT, last_seen_at TEXT)");
@@ -71,6 +73,13 @@ function db(){
         ];
         $stmt = $db->prepare("INSERT INTO apps(name, short_description, play_url, icon, sort_order, status) VALUES(?,?,?,?,?,?)");
         foreach ($seed as $a) { $status = $a[2] ? 'google' : 'bald_verfuegbar'; $stmt->execute([$a[0],$a[1],$a[2],$a[3],$a[4],$status]); }
+    }
+
+    // Insert repo-tracked catalogue entries once (e.g. SharpLab). Admin can still edit or unpublish afterwards.
+    if (is_file(__DIR__.'/catalog_lib.php')) {
+        require_once __DIR__.'/catalog_lib.php';
+        try { catalog_sync($db); }
+        catch (Throwable $error) { error_log('Catalogue sync: '.$error->getMessage()); }
     }
 
     // Reconcile a completed repository release once; admin remains available for overrides.
