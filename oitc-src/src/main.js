@@ -400,28 +400,154 @@ function makeBotMesh(color) {
   const torso = part(new THREE.CapsuleGeometry(0.19, 0.36, 4, 10), cloth, 0, 1.15, 0); torso.scale.set(1.15, 1, 0.75);
   part(new THREE.BoxGeometry(0.5, 0.42, 0.3), col, 0, 1.2, 0);
   part(new THREE.BoxGeometry(0.34, 0.4, 0.14), dark, 0, 1.16, 0.2);
-  part(new THREE.SphereGeometry(0.135, 14, 12), skin, 0, 1.62, 0);
-  part(new THREE.SphereGeometry(0.175, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), col, 0, 1.64, 0);
-  part(new THREE.BoxGeometry(0.24, 0.07, 0.06), visor, 0, 1.63, -0.13);
-  const legs = [-1, 1].map((s) => {
-    const p = new THREE.Group(); p.position.set(s * 0.12, 0.86, 0); root.add(p);
-    part(new THREE.CapsuleGeometry(0.085, 0.55, 4, 8), dark, 0, -0.4, 0, p);
-    part(new THREE.BoxGeometry(0.16, 0.1, 0.26), dark, 0, -0.82, -0.04, p);
-    return p;
+  part(new THREE.BoxGeometry(0.34, 0.2, 0.22), dark, 0, 0.95, 0);
+  part(new THREE.SphereGeometry(0.135, 14, 12), skin, 0, 1.66, 0);
+  part(new THREE.SphereGeometry(0.175, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), col, 0, 1.68, 0);
+  part(new THREE.BoxGeometry(0.24, 0.07, 0.06), visor, 0, 1.67, -0.13);
+  const thighs = [], shins = [];
+  [-1, 1].forEach((s) => {
+    const hip = new THREE.Group(); hip.position.set(s * 0.12, 0.92, 0); root.add(hip);
+    part(new THREE.CapsuleGeometry(0.08, 0.27, 4, 8), dark, 0, -0.215, 0, hip);
+    const knee = new THREE.Group(); knee.position.set(0, -0.43, 0); hip.add(knee);
+    part(new THREE.CapsuleGeometry(0.065, 0.31, 4, 8), dark, 0, -0.22, 0, knee);
+    part(new THREE.BoxGeometry(0.15, 0.09, 0.27), dark, 0, -0.46, -0.05, knee);
+    thighs.push(hip); shins.push(knee);
   });
-  const arms = [-1, 1].map((s) => {
-    const p = new THREE.Group(); p.position.set(s * 0.3, 1.38, 0); root.add(p);
-    part(new THREE.CapsuleGeometry(0.065, 0.4, 4, 8), col, 0, -0.28, 0, p);
-    part(new THREE.SphereGeometry(0.06, 8, 8), skin, 0, -0.55, 0, p);
-    return p;
+  const arms = [], fores = [];
+  [-1, 1].forEach((s) => {
+    const sh = new THREE.Group(); sh.position.set(s * 0.3, 1.38, 0); root.add(sh);
+    part(new THREE.CapsuleGeometry(0.052, 0.2, 4, 8), col, 0, -0.15, 0, sh);
+    const el = new THREE.Group(); el.position.set(0, -0.3, 0); sh.add(el);
+    part(new THREE.CapsuleGeometry(0.044, 0.18, 4, 8), cloth, 0, -0.135, 0, el);
+    part(new THREE.SphereGeometry(0.05, 8, 8), skin, 0, -0.29, 0, el);
+    arms.push(sh); fores.push(el);
   });
-  // Pistole in der rechten Hand (zeigt entlang des Arms nach vorn)
-  part(new THREE.BoxGeometry(0.05, 0.22, 0.08), dark, 0, -0.68, 0, arms[1]);
-  arms[0].rotation.set(1.35, 0.35, 0);
-  arms[1].rotation.set(1.45, -0.12, 0);
+  // Pistole in der rechten Hand (zeigt entlang des Unterarms)
+  part(new THREE.BoxGeometry(0.04, 0.2, 0.07), dark, 0, -0.39, 0, fores[1]);
+  part(new THREE.BoxGeometry(0.036, 0.18, 0.05), new THREE.MeshStandardMaterial({ color: 0x8c929c, metalness: 0.8, roughness: 0.35 }), 0, -0.4, -0.012, fores[1]);
   root.rotation.order = 'YXZ';
-  root.userData = { legs, torso, arms };
+  root.userData = { thighs, shins, torso, arms, fores };
   return root;
+}
+
+// ---------- Ragdoll (Verlet-Physik) ----------
+// Gelenkpunkte in lokaler Ruhepose (x rechts, y hoch, -z vorn)
+const REST = [
+  [0, 0.95, 0], [0, 1.40, 0], [0, 1.66, 0],             // 0 Becken, 1 Hals, 2 Kopf
+  [-0.3, 1.38, 0], [0.3, 1.38, 0],                      // 3/4 Schultern
+  [-0.3, 1.14, -0.18], [0.3, 1.14, -0.18],             // 5/6 Ellbogen
+  [-0.246, 1.14, -0.445], [0.246, 1.14, -0.445],       // 7/8 Hände
+  [-0.12, 0.92, 0], [0.12, 0.92, 0],                    // 9/10 Hüften
+  [-0.12, 0.49, -0.04], [0.12, 0.49, -0.04],           // 11/12 Knie
+  [-0.12, 0.06, -0.06], [0.12, 0.06, -0.06],           // 13/14 Füße
+].map((a) => new V3(...a));
+const PR = [0.1, 0.08, 0.12, 0.07, 0.07, 0.055, 0.055, 0.05, 0.05, 0.09, 0.09, 0.07, 0.07, 0.07, 0.07];
+const RLINKS = [
+  [0, 1], [1, 2], [1, 3], [1, 4], [3, 4], [0, 9], [0, 10], [9, 10], [3, 0], [4, 0], [3, 10], [4, 9], [1, 9], [1, 10], [2, 3], [2, 4],
+  [3, 5], [5, 7], [4, 6], [6, 8], [9, 11], [11, 13], [10, 12], [12, 14],
+  [3, 7, 1], [4, 8, 1], [9, 13, 1], [10, 14, 1],       // Mindestabstand: Arme/Beine knicken nicht ein
+].map(([a, b, min]) => ({ a, b, min: !!min, len: REST[a].distanceTo(REST[b]) * (min ? 0.5 : 1) }));
+const RH = 1 / 60, RG = -16;
+
+function makeRagdoll(color) {
+  const root = new THREE.Group(); root.visible = false;
+  const col = new THREE.MeshStandardMaterial({ color, roughness: 0.6 });
+  const dark = new THREE.MeshStandardMaterial({ color: 0x2b2d33, roughness: 0.7 });
+  const cloth = new THREE.MeshStandardMaterial({ color: 0x3d4350, roughness: 0.8 });
+  const skin = new THREE.MeshStandardMaterial({ color: 0xe0b89a, roughness: 0.7 });
+  const visor = new THREE.MeshStandardMaterial({ color: 0x0c0f14, roughness: 0.15, metalness: 0.8 });
+  const mesh = (geo, mat, par = root) => { const m = new THREE.Mesh(geo, mat); m.castShadow = true; par.add(m); return m; };
+  const segs = [];
+  const seg = (a, b, r, mat) => { const len = REST[a].distanceTo(REST[b]); const m = mesh(new THREE.CapsuleGeometry(r, Math.max(0.01, len - 2 * r), 4, 8), mat); segs.push({ a, b, m }); return { m, len }; };
+  seg(3, 5, 0.052, col); seg(4, 6, 0.052, col);
+  seg(5, 7, 0.044, cloth); const foreR = seg(6, 8, 0.044, cloth);
+  seg(9, 11, 0.08, dark); seg(10, 12, 0.08, dark); seg(11, 13, 0.065, dark); seg(12, 14, 0.065, dark);
+  // Pistole am rechten Unterarm
+  const g1 = mesh(new THREE.BoxGeometry(0.04, 0.2, 0.07), dark, foreR.m); g1.position.y = foreR.len / 2 + 0.07;
+  const torsoG = new THREE.Group(); root.add(torsoG);
+  const t1 = mesh(new THREE.CapsuleGeometry(0.19, 0.36, 4, 10), cloth, torsoG); t1.position.y = 0.2; t1.scale.set(1.15, 1, 0.75);
+  mesh(new THREE.BoxGeometry(0.5, 0.42, 0.3), col, torsoG).position.y = 0.25;
+  mesh(new THREE.BoxGeometry(0.34, 0.4, 0.14), dark, torsoG).position.set(0, 0.21, 0.2);
+  mesh(new THREE.BoxGeometry(0.34, 0.2, 0.22), dark, torsoG);
+  const headG = new THREE.Group(); root.add(headG);
+  mesh(new THREE.SphereGeometry(0.135, 14, 12), skin, headG);
+  mesh(new THREE.SphereGeometry(0.175, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), col, headG).position.y = 0.02;
+  mesh(new THREE.BoxGeometry(0.24, 0.07, 0.06), visor, headG).position.set(0, 0.01, -0.13);
+  const hands = [0, 1].map(() => mesh(new THREE.SphereGeometry(0.05, 8, 8), skin));
+  const feet = [0, 1].map(() => mesh(new THREE.BoxGeometry(0.15, 0.09, 0.27), dark));
+  scene.add(root);
+  return { root, segs, torsoG, headG, hands, feet, p: REST.map((v, i) => ({ x: new V3(), o: new V3(), r: PR[i] })), active: false, asleep: false, still: 0 };
+}
+
+const _ru = new V3(), _rr = new V3(), _rz = new V3(), _rd = new V3(), _rm = new THREE.Matrix4(), _rq = new THREE.Quaternion(), UPV = new V3(0, 1, 0);
+function ragPose(rd) {
+  const P = rd.p;
+  for (const s of rd.segs) {
+    const A = P[s.a].x, B = P[s.b].x;
+    _rd.subVectors(B, A); const l = _rd.length() || 1e-4; _rd.divideScalar(l);
+    s.m.position.addVectors(A, B).multiplyScalar(0.5); s.m.quaternion.setFromUnitVectors(UPV, _rd);
+  }
+  _ru.subVectors(P[1].x, P[0].x).normalize();
+  _rr.subVectors(P[4].x, P[3].x); _rr.addScaledVector(_ru, -_rr.dot(_ru)).normalize();
+  _rz.crossVectors(_rr, _ru);
+  _rm.makeBasis(_rr, _ru, _rz); _rq.setFromRotationMatrix(_rm);
+  rd.torsoG.position.copy(P[0].x); rd.torsoG.quaternion.copy(_rq);
+  rd.headG.position.copy(P[2].x); rd.headG.quaternion.copy(_rq);
+  rd.hands[0].position.copy(P[7].x); rd.hands[1].position.copy(P[8].x);
+  rd.feet[0].position.copy(P[13].x); rd.feet[0].quaternion.copy(_rq);
+  rd.feet[1].position.copy(P[14].x); rd.feet[1].quaternion.copy(_rq);
+}
+function ragCollide(P) {
+  for (const q of P) {
+    const p = q.x, r = q.r;
+    for (const b of boxes) {
+      if (p.y > b.top + r) continue;
+      const dx = p.x - b.x, dz = p.z - b.z;
+      const px = b.hw + r - Math.abs(dx), pz = b.hd + r - Math.abs(dz);
+      if (px <= 0 || pz <= 0) continue;
+      const py = b.top + r - p.y;
+      if (py <= 0) continue;
+      if (py < px && py < pz) { p.y += py; q.o.y = p.y; q.o.x += (p.x - q.o.x) * 0.35; q.o.z += (p.z - q.o.z) * 0.35; }
+      else if (px < pz) p.x += Math.sign(dx || 1) * px;
+      else p.z += Math.sign(dz || 1) * pz;
+    }
+    if (p.y < r) { p.y = r; q.o.y = r; q.o.x += (p.x - q.o.x) * 0.4; q.o.z += (p.z - q.o.z) * 0.4; }
+    p.x = clamp(p.x, -HALF + r, HALF - r); p.z = clamp(p.z, -HALF + r, HALF - r);
+  }
+}
+function ragStep(rd) {
+  const P = rd.p; let ke = 0;
+  for (const q of P) {
+    const vx = (q.x.x - q.o.x) * 0.993, vy = (q.x.y - q.o.y) * 0.993, vz = (q.x.z - q.o.z) * 0.993;
+    q.o.copy(q.x); q.x.x += vx; q.x.y += vy + RG * RH * RH; q.x.z += vz; ke += vx * vx + vy * vy + vz * vz;
+  }
+  for (let it = 0; it < 7; it++) {
+    for (const L of RLINKS) {
+      const A = P[L.a].x, B = P[L.b].x;
+      const dx = B.x - A.x, dy = B.y - A.y, dz = B.z - A.z, d = Math.hypot(dx, dy, dz);
+      if (d < 1e-6 || (L.min && d >= L.len)) continue;
+      const k = ((d - L.len) / d) * 0.5;
+      A.x += dx * k; A.y += dy * k; A.z += dz * k; B.x -= dx * k; B.y -= dy * k; B.z -= dz * k;
+    }
+    if (it % 3 === 0) ragCollide(P);
+  }
+  return ke;
+}
+function startRagdoll(e, dir, hit, strength) {
+  const rd = e.rag; if (!rd) return;
+  const c = Math.cos(e.yaw), s = Math.sin(e.yaw);
+  const vx = e.vel.x * 0.9, vz = e.vel.z * 0.9;
+  for (let i = 0; i < REST.length; i++) {
+    const l = REST[i], q = rd.p[i];
+    const wx = e.pos.x + l.x * c + l.z * s + rnd(-0.01, 0.01), wy = e.pos.y + l.y, wz = e.pos.z - l.x * s + l.z * c + rnd(-0.01, 0.01);
+    q.x.set(wx, wy, wz);
+    let w = 0.3;
+    if (hit) { const d2 = (wx - hit.x) ** 2 + (wy - hit.y) ** 2 + (wz - hit.z) ** 2; w = 0.25 + 0.75 * Math.exp(-d2 / 0.2); }
+    const ivx = vx + dir.x * strength * w, ivz = vz + dir.z * strength * w, ivy = dir.y * strength * w + 1.2 + 2.2 * w;
+    q.o.set(wx - ivx * RH, wy - ivy * RH, wz - ivz * RH);
+  }
+  rd.active = true; rd.asleep = false; rd.still = 0; rd.root.visible = true; e.mesh.visible = false;
+  ragPose(rd);
 }
 
 // ---------- Entitäten ----------
@@ -435,7 +561,7 @@ function makeEntity(name, isPlayer, color) {
     kills: 0, respawn: 0, mesh: null, meleeCd: 0, aim: 0, aimTime: rnd(0.7, 1.5), meleeWind: 0,
     stuckT: 0, lastPos: new V3(), avoid: 0, avoidDir: 1, id: ents.length, walk: 0, speed: 0, deadT: 0,
   };
-  if (!isPlayer) { e.mesh = makeBotMesh(color); scene.add(e.mesh); }
+  if (!isPlayer) { e.mesh = makeBotMesh(color); scene.add(e.mesh); e.rag = makeRagdoll(color); }
   ents.push(e);
   return e;
 }
@@ -457,7 +583,8 @@ function placeEntity(e, s) {
   e.yaw = Math.atan2(s.x, s.z); e.ammo = 1; e.alive = true; e.meleeCd = 0.6; e.aim = 0; e.meleeWind = 0; e.deadT = 0;
   e.lastPos.copy(e.pos); e.avoid = 0;
   if (e.mesh) { e.mesh.rotation.x = 0; e.mesh.visible = true; }
-  if (e.isPlayer) { pitch = 0; kick = 0; }
+  if (e.rag) { e.rag.active = false; e.rag.root.visible = false; }
+  if (e.isPlayer) { pitch = 0; kick = 0; drawT = 0; inspectT = -1; }
 }
 
 // ---------- Effekte ----------
@@ -492,32 +619,87 @@ function tracer(from, to, color) {
 }
 const shells = [];
 function ejectShell() {
-  const g = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.04, 6), new THREE.MeshStandardMaterial({ color: 0xd9a93a, metalness: 0.9, roughness: 0.3 }));
-  const p = new V3(0.2, -0.12, -0.55).applyMatrix4(camera.matrixWorld);
-  g.position.copy(p); scene.add(g);
-  const right = new V3(1, 0, 0).applyQuaternion(camera.quaternion), up = new V3(0, 1, 0);
-  shells.push({ m: g, v: right.multiplyScalar(rnd(1.5, 2.5)).add(up.multiplyScalar(rnd(1.5, 2.5))), life: 3 });
+  const g = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.026, 8), new THREE.MeshStandardMaterial({ color: 0xd9a93a, metalness: 0.9, roughness: 0.3 }));
+  gun.updateWorldMatrix(true, false);
+  g.position.copy(gun.localToWorld(new V3(0.018, 0.014, -0.02))); scene.add(g);
+  const right = new V3(1, 0, 0).applyQuaternion(camera.quaternion), up = new V3(0, 1, 0), back = new V3(0, 0, 1).applyQuaternion(camera.quaternion);
+  shells.push({ m: g, v: right.multiplyScalar(rnd(1.6, 2.6)).add(up.multiplyScalar(rnd(1.4, 2.4))).add(back.multiplyScalar(rnd(0.2, 0.8))), life: 3 });
 }
 
 // ---------- Waffe (Ansicht) ----------
 const gun = new THREE.Group();
-let slide;
+let slide, hammer, trigger, chamberBrass;
 {
-  const polymer = new THREE.MeshStandardMaterial({ color: 0x1d1f24, roughness: 0.55, metalness: 0.2 });
-  const metal = new THREE.MeshStandardMaterial({ color: 0x8c929c, roughness: 0.28, metalness: 0.9 });
-  const glove = new THREE.MeshStandardMaterial({ color: 0x20242b, roughness: 0.85 });
-  const add = (geo, mat, x, y, z, par = gun) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); par.add(m); return m; };
-  add(new THREE.BoxGeometry(0.055, 0.05, 0.3), polymer, 0, -0.045, -0.06);          // Rahmen
-  add(new THREE.BoxGeometry(0.052, 0.14, 0.075), polymer, 0, -0.12, 0.07).rotation.x = 0.22; // Griff
-  add(new THREE.BoxGeometry(0.02, 0.012, 0.07), polymer, 0, -0.075, -0.02);          // Abzugsbügel
+  const gtex = (canvas, rep) => { const t = tex(canvas); t.repeat.set(rep, rep); return t; };
+  const polyC = mkCanvas(128, (g, s) => { g.fillStyle = '#1d1f23'; g.fillRect(0, 0, s, s); speckle(g, s, 1800, 0, 110, 0.35); });
+  const steelC = mkCanvas(128, (g, s) => { g.fillStyle = '#6f757e'; g.fillRect(0, 0, s, s); for (let y = 0; y < s; y++) { g.fillStyle = `rgba(255,255,255,${rnd(0, 0.07)})`; g.fillRect(0, y, s, 1); } speckle(g, s, 500, 0, 90, 0.2); });
+  const woodC = mkCanvas(128, (g, s) => {
+    g.fillStyle = '#5b3b24'; g.fillRect(0, 0, s, s); speckle(g, s, 1200, 0, 120, 0.25);
+    g.strokeStyle = 'rgba(15,8,4,.75)'; g.lineWidth = 2;
+    for (let i = -s; i < s * 2; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i + s, s); g.moveTo(i, s); g.lineTo(i + s, 0); g.stroke(); }
+  });
+  const polymer = new THREE.MeshStandardMaterial({ map: gtex(polyC, 30), roughness: 0.6, metalness: 0.1 });
+  const steel = new THREE.MeshStandardMaterial({ map: gtex(steelC, 20), roughness: 0.3, metalness: 0.85 });
+  const darkSteel = new THREE.MeshStandardMaterial({ color: 0x17191c, roughness: 0.4, metalness: 0.8 });
+  const wood = new THREE.MeshStandardMaterial({ map: gtex(woodC, 45), roughness: 0.55 });
+  const glove = new THREE.MeshStandardMaterial({ color: 0x1f2329, roughness: 0.9 });
+  const sleeve = new THREE.MeshStandardMaterial({ color: 0x3b4636, roughness: 0.9 });
+  const dotMat = new THREE.MeshBasicMaterial({ color: 0xf5f5e8 });
+  const brassMat = new THREE.MeshStandardMaterial({ color: 0xd9a93a, metalness: 0.9, roughness: 0.25 });
+  // Hilfen: Form (x vorwärts, y hoch) extrudieren, Breite zentrieren, Vorderseite nach -z drehen
+  const ex = (shape, depth, bev = 0.0015) => {
+    const dd = depth - bev * 2;
+    const g = new THREE.ExtrudeGeometry(shape, { depth: dd, bevelEnabled: true, bevelThickness: bev, bevelSize: bev, bevelSegments: 2, curveSegments: 10 });
+    g.translate(0, 0, -dd / 2); g.rotateY(Math.PI / 2); return g;
+  };
+  const L = (sx, sy, sw = 0) => new V3(sw, sy, -sx);
+  const add = (geo, mat, pos, par = gun) => { const m = new THREE.Mesh(geo, mat); m.position.copy(pos); par.add(m); return m; };
+
+  // Rahmen mit Abzugsbügel (Loch) und Griff
+  const fr = new THREE.Shape();
+  fr.moveTo(-0.075, -0.022); fr.lineTo(0.2, -0.022); fr.lineTo(0.235, -0.035); fr.lineTo(0.235, -0.052); fr.lineTo(0.112, -0.052);
+  fr.quadraticCurveTo(0.108, -0.09, 0.07, -0.09); fr.lineTo(0.038, -0.09); fr.quadraticCurveTo(0.018, -0.09, 0.014, -0.07);
+  fr.lineTo(-0.005, -0.176); fr.lineTo(-0.092, -0.178); fr.lineTo(-0.105, -0.04); fr.quadraticCurveTo(-0.108, -0.022, -0.075, -0.022);
+  const hole = new THREE.Path();
+  hole.moveTo(0.04, -0.056); hole.lineTo(0.098, -0.056); hole.quadraticCurveTo(0.098, -0.078, 0.07, -0.08); hole.lineTo(0.046, -0.08); hole.quadraticCurveTo(0.036, -0.078, 0.036, -0.066); hole.closePath();
+  fr.holes.push(hole);
+  add(ex(fr, 0.03), polymer, new V3());
+  // Griffschalen mit Rautenmuster
+  const gp = new THREE.Shape();
+  gp.moveTo(-0.098, -0.045); gp.lineTo(-0.012, -0.075); gp.lineTo(-0.013, -0.168); gp.lineTo(-0.09, -0.17); gp.closePath();
+  for (const sw of [-0.0165, 0.0165]) add(ex(gp, 0.004, 0.0008), wood, L(0, 0, sw));
+  add(new THREE.BoxGeometry(0.03, 0.012, 0.07), darkSteel, L(-0.049, -0.184));      // Magazinboden
+  trigger = add(new THREE.BoxGeometry(0.006, 0.022, 0.008), darkSteel, L(0.058, -0.066)); trigger.rotation.x = -0.35;
+
+  // Schlitten (Metall) mit Visier, Rillen, Auswurffenster
   slide = new THREE.Group(); gun.add(slide);
-  add(new THREE.BoxGeometry(0.06, 0.06, 0.34), metal, 0, 0.004, -0.09, slide);
-  add(new THREE.BoxGeometry(0.014, 0.02, 0.02), polymer, 0, 0.044, -0.24, slide);   // Korn
-  add(new THREE.BoxGeometry(0.03, 0.02, 0.02), polymer, 0, 0.044, 0.06, slide);     // Kimme
-  add(new THREE.CylinderGeometry(0.012, 0.012, 0.05, 10), metal, 0, 0.004, -0.275, slide).rotation.x = Math.PI / 2; // Lauf
-  // Hand + Unterarm
-  add(new THREE.BoxGeometry(0.085, 0.1, 0.1), glove, 0.005, -0.13, 0.075);
-  add(new THREE.BoxGeometry(0.1, 0.1, 0.4), glove, 0.06, -0.2, 0.32).rotation.set(-0.15, -0.2, 0);
+  const sl = new THREE.Shape();
+  sl.moveTo(-0.08, -0.026); sl.lineTo(-0.08, 0.02); sl.quadraticCurveTo(-0.08, 0.034, -0.066, 0.034); sl.lineTo(0.23, 0.034);
+  sl.lineTo(0.262, 0.026); sl.lineTo(0.262, -0.014); sl.lineTo(0.245, -0.026); sl.closePath();
+  add(ex(sl, 0.034), steel, new V3(), slide);
+  add(new THREE.CylinderGeometry(0.0075, 0.0075, 0.03, 12), darkSteel, L(0.268, 0.004), slide).rotation.x = Math.PI / 2;  // Laufmündung
+  for (let i = 0; i < 6; i++) for (const sw of [-0.0172, 0.0172]) add(new THREE.BoxGeometry(0.0016, 0.032, 0.003), darkSteel, L(-0.062 + i * 0.0065, 0.006, sw), slide);
+  add(new THREE.BoxGeometry(0.002, 0.016, 0.052), new THREE.MeshStandardMaterial({ color: 0x0b0c0e, roughness: 0.6 }), L(0.07, 0.012, 0.0171), slide); // Auswurffenster rechts
+  chamberBrass = add(new THREE.CylinderGeometry(0.0045, 0.0045, 0.022, 10), brassMat, L(0.062, 0.012, 0.0176), slide); chamberBrass.rotation.x = Math.PI / 2;
+  add(new THREE.BoxGeometry(0.008, 0.012, 0.012), darkSteel, L(0.245, 0.04), slide);                  // Korn
+  add(new THREE.BoxGeometry(0.0032, 0.0032, 0.001), dotMat, L(0.2385, 0.0415), slide);
+  for (const sw of [-0.0085, 0.0085]) {                                                              // Kimme (zwei Pfosten)
+    add(new THREE.BoxGeometry(0.007, 0.012, 0.012), darkSteel, L(-0.062, 0.04, sw), slide);
+    add(new THREE.BoxGeometry(0.0032, 0.0032, 0.001), dotMat, L(-0.0685, 0.0415, sw), slide);
+  }
+  // Hahn
+  hammer = new THREE.Group(); hammer.position.copy(L(-0.086, 0.012)); gun.add(hammer);
+  add(new THREE.BoxGeometry(0.009, 0.02, 0.012), darkSteel, new V3(0, 0.01, 0), hammer);
+
+  // Hand, Finger, Unterarm
+  add(new THREE.BoxGeometry(0.058, 0.08, 0.075), glove, L(-0.088, -0.088, 0.014));                    // Handballen
+  const thumb = add(new THREE.CapsuleGeometry(0.0105, 0.04, 4, 8), glove, L(-0.008, -0.04, -0.0255)); thumb.rotation.x = Math.PI / 2;
+  const index = add(new THREE.CapsuleGeometry(0.0095, 0.05, 4, 8), glove, L(0.075, -0.058, -0.0225)); index.rotation.x = Math.PI / 2;
+  [[-0.094, 0.0108], [-0.119, 0.0052], [-0.144, -0.0003]].forEach(([y, x]) => { const f = add(new THREE.CapsuleGeometry(0.0108, 0.034, 4, 8), glove, L(x + 0.009, y, 0)); f.rotation.z = Math.PI / 2; });
+  const wrist = new V3(0.02, -0.09, 0.115), dArm = new V3(0.3, -0.35, 0.89).normalize();
+  const cuff = add(new THREE.CylinderGeometry(0.04, 0.04, 0.05, 12), glove, wrist.clone().addScaledVector(dArm, 0.03)); cuff.quaternion.setFromUnitVectors(UPV, dArm);
+  const arm = add(new THREE.CapsuleGeometry(0.036, 0.32, 4, 10), sleeve, wrist.clone().addScaledVector(dArm, 0.04 + 0.16 + 0.036)); arm.quaternion.setFromUnitVectors(UPV, dArm);
+
   gun.position.set(0.24, -0.2, -0.45);
   gun.scale.setScalar(0.82);
   camera.add(gun);
@@ -525,10 +707,10 @@ let slide;
 const flashSprite = (() => {
   const c = mkCanvas(64, (g, s) => { const gr = g.createRadialGradient(32, 32, 1, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,230,1)'); gr.addColorStop(0.3, 'rgba(255,200,90,.8)'); gr.addColorStop(1, 'rgba(255,120,20,0)'); g.fillStyle = gr; g.fillRect(0, 0, s, s); });
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true }));
-  sp.position.set(0, 0.0, -0.33); sp.scale.setScalar(0.0001); gun.add(sp); return sp;
+  sp.position.set(0, 0.005, -0.3); sp.scale.setScalar(0.0001); gun.add(sp); return sp;
 })();
 const flash = { intensity: 0 };
-let recoil = 0, meleeAnim = 0, flashT = 0, kick = 0;
+let recoil = 0, meleeAnim = 0, flashT = 0, kick = 0, drawT = 1, inspectT = -1;
 
 // ---------- Spielzustand ----------
 let pitch = 0, state = 'menu', time = 0, locked = false, noLock = false, ads = 0, adsHeld = false, curX = 0, curY = 0, curMoved = false;
@@ -545,7 +727,7 @@ function msg(text, ms = 1500) {
   clearTimeout(msg.t); msg.t = setTimeout(() => ($('msg').style.opacity = 0), ms);
 }
 
-function killEntity(attacker, victim, how) {
+function killEntity(attacker, victim, how, dir, hit, strength = 7) {
   victim.alive = false; victim.lives--; attacker.kills++; attacker.ammo++;
   victim.respawn = 2.4; victim.deadT = 0;
   burst(new V3(victim.pos.x, victim.pos.y + 1.1, victim.pos.z), victim.isPlayer ? 0xff5555 : victim.color);
@@ -553,6 +735,7 @@ function killEntity(attacker, victim, how) {
   if (attacker.isPlayer) { sfx.kill(); msg('+1 Kugel'); hitT = 0.3; }
   if (victim.isPlayer) { sfx.hurt(); $('hurt').style.opacity = 1; setTimeout(() => ($('hurt').style.opacity = 0), 450); }
   if (victim.lives <= 0) { victim.respawn = -1; feed(`${victim.name} ist raus!`, '#ffcc66'); }
+  if (victim.rag) startRagdoll(victim, dir || new V3(0, 0, 0), hit, strength);
   checkWin();
 }
 function checkWin() {
@@ -579,12 +762,12 @@ function fire(shooter, origin, dir) {
   }
   const end = origin.clone().addScaledVector(dir, bestT);
   let start = origin.clone();
-  if (shooter.isPlayer) start = camera.localToWorld(new V3(0.24, -0.15, -0.65));
+  if (shooter.isPlayer) { gun.updateWorldMatrix(true, false); start = gun.localToWorld(new V3(0, 0.01, -0.3)); }
   else start.addScaledVector(dir, 0.5);
   tracer(start, end, shooter.isPlayer ? 0xffe9a0 : 0xff9a8a);
   if (shooter.isPlayer) sfx.shot();
   else { const d = Math.hypot(shooter.pos.x - player.pos.x, shooter.pos.z - player.pos.z); sfx.botshot(clamp(1.3 - d / 25, 0.15, 1)); }
-  if (target) { killEntity(shooter, target, 'erschießt'); }
+  if (target) { const hp = end.clone(); killEntity(shooter, target, 'erschießt', dir.clone(), hp, hp.y > target.pos.y + 1.45 ? 9 : 7); }
   else if (wallT < 90) impact(end, wallN);
 }
 
@@ -597,7 +780,7 @@ function melee(att) {
     if (d < bd && (dx * fx + dz * fz) / (d || 1) > 0.5 && Math.abs(e.pos.y - att.pos.y) < 1.2) { bd = d; best = e; }
   }
   if (att.isPlayer) { meleeAnim = 1; sfx.melee(); }
-  if (best) killEntity(att, best, 'erledigt (Nahkampf)');
+  if (best) killEntity(att, best, 'erledigt (Nahkampf)', new V3(fx, 0.25, fz), new V3(best.pos.x, best.pos.y + 1.3, best.pos.z), 5);
   att.meleeCd = 0.9;
 }
 
@@ -686,6 +869,7 @@ function toggleMouseMode() {
 addEventListener('keydown', (e) => {
   keys[e.code] = true;
   if (e.code === 'KeyQ' || e.code === 'KeyV') tryMelee();
+  if (e.code === 'KeyT' && state === 'play' && player.alive && inspectT < 0) inspectT = 0;
   if (e.code === 'KeyM') toggleMouseMode();
   if (e.code === 'Escape') { if ($('settings').style.display === 'flex') closeSettings(); else if (state === 'play') openSettings(); }
   if (e.code === 'Space') e.preventDefault();
@@ -877,31 +1061,55 @@ function loop(now) {
   flashT = Math.max(0, flashT - dt);
   flashSprite.scale.setScalar(flashT > 0 ? 0.22 + Math.random() * 0.1 : 0.0001);
   const sp = sprintPose() ? 1 : 0, hip = 1 - ads;
+  drawT = Math.min(1, drawT + dt / 0.55);
+  const dk = (1 - drawT) * (1 - drawT);
+  let insp = 0, inspSlide = 0, inspRoll = 0;
+  if (inspectT >= 0) {
+    inspectT += dt; const t = inspectT / 2.4;
+    if (t >= 1 || ads > 0.5) inspectT = -1;
+    else { insp = Math.sin(Math.PI * Math.min(1, t * 1.15)) ; inspRoll = insp; inspSlide = t > 0.35 && t < 0.62 ? Math.sin((t - 0.35) / 0.27 * Math.PI) : 0; }
+  }
+  const vyLag = clamp(-player.vy * 0.004, -0.03, 0.03);
   gun.position.set(
-    (0.24 - meleeAnim * 0.2 + swayX * hip + bobX * 0.8) * hip + 0.0 * ads,
-    (-0.2 + swayY * hip + bobY * 0.7 - sp * 0.04) * hip + (-0.037) * ads + recoil * 0.025 - meleeAnim * 0.05,
-    (-0.45) * hip + (-0.34) * ads + recoil * 0.1 - meleeAnim * 0.25);
-  gun.rotation.set(recoil * 0.3 * (1 - 0.5 * ads) + meleeAnim * 0.8 + sp * 0.25, meleeAnim * 0.9 + sp * -0.3, 0);
-  slide.position.z = player.ammo <= 0 ? 0.11 : recoil * 0.1;
+    (0.24 - meleeAnim * 0.2 + swayX * hip + bobX * 0.8 - insp * 0.06) * hip + 0.0 * ads,
+    (-0.2 + swayY * hip + bobY * 0.7 - sp * 0.04 + vyLag - dk * 0.35 + insp * 0.03) * hip + (-0.036 - dk * 0.2) * ads + recoil * 0.025 - meleeAnim * 0.05,
+    (-0.45 + insp * 0.08) * hip + (-0.34) * ads + recoil * 0.1 - meleeAnim * 0.25);
+  gun.rotation.set(recoil * 0.3 * (1 - 0.5 * ads) + meleeAnim * 0.8 + sp * 0.25 + dk * 0.9 - inspRoll * 0.15,
+    meleeAnim * 0.9 + sp * -0.3 + inspRoll * 0.7, dk * -0.5 + inspRoll * -1.1);
+  const locked0 = player.ammo <= 0;
+  slide.position.z = locked0 ? 0.075 : recoil * 0.075 + inspSlide * 0.05;
+  hammer.rotation.x = -0.65 * (locked0 || recoil > 0.2 || inspSlide > 0 ? 1 : 0.2) ;
+  trigger.position.z = -0.058 + (recoil > 0.3 ? 0.006 : 0);
+  chamberBrass.visible = player.ammo > 0 && recoil < 0.3;
   gun.visible = player.alive;
 
   // Bots animieren
   for (const e of ents) {
     if (!e.mesh) continue;
-    const m = e.mesh;
-    m.position.copy(e.pos); m.rotation.y = e.yaw;
-    const u = m.userData;
+    const m = e.mesh, rd = e.rag;
     if (e.alive) {
+      m.position.copy(e.pos); m.rotation.y = e.yaw;
+      const u = m.userData;
       e.walk += dt * e.speed * 2.6;
       const amp = Math.min(1, e.speed / 3.2);
-      u.legs[0].rotation.x = Math.sin(e.walk) * 0.85 * amp; u.legs[1].rotation.x = -Math.sin(e.walk) * 0.85 * amp;
-      u.torso.rotation.z = Math.sin(e.walk) * 0.05 * amp;
-      m.position.y += Math.abs(Math.sin(e.walk)) * 0.05 * amp;
-      m.rotation.x = 0;
-    } else {
+      for (let i = 0; i < 2; i++) {
+        const ph = e.walk + (i ? Math.PI : 0), sw = Math.sin(ph) * 0.85 * amp;
+        u.thighs[i].rotation.x = sw;
+        u.shins[i].rotation.x = -(0.08 + 1.1 * Math.pow(Math.max(0, Math.cos(ph - 0.3)), 3)) * (0.3 + 0.7 * amp);
+      }
+      u.torso.rotation.z = Math.sin(e.walk) * 0.04 * amp;
+      u.arms[0].rotation.set(1.3 - Math.sin(e.walk) * 0.08 * amp, 0.3, 0); u.fores[0].rotation.x = 1.0;
+      u.arms[1].rotation.set(1.45 + Math.sin(e.walk) * 0.05 * amp, -0.1, 0); u.fores[1].rotation.x = 0.1;
+      m.position.y += Math.abs(Math.sin(e.walk)) * 0.045 * amp;
+      m.rotation.x = amp * 0.08;
+    } else if (rd && rd.active) {
       e.deadT += dt;
-      const k = Math.min(1, e.deadT / 0.45), ease = k * k;
-      m.rotation.x = ease * (Math.PI / 2 - 0.05); m.position.y += ease * 0.14;
+      if (!rd.asleep) {
+        rd.acc = (rd.acc || 0) + Math.min(dt, 0.05); let ke = 0, n = 0;
+        while (rd.acc >= RH && n++ < 4) { ke = ragStep(rd); rd.acc -= RH; }
+        if (n) { rd.still = ke < 0.00002 ? rd.still + dt : 0; if (rd.still > 1) rd.asleep = true; }
+        ragPose(rd);
+      }
     }
   }
   // Partikel
