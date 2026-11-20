@@ -134,12 +134,15 @@
     function newStream(column, segment = -1, segmentCount = 1) {
       const totalRows = Math.max(1, Math.ceil(pageHeight / cell));
       const row = segment < 0
-        ? Math.floor(rand(-4, totalRows - 1))
+        // Each new stream starts ABOVE the page and writes down to its end.
+        ? -Math.floor(rand(3, 14))
+        // Seed initial streams at staggered document depths so all sections
+        // already show code when the page first opens.
         : Math.floor(((segment + rand(-0.12, 0.62)) / segmentCount) * totalRows);
       const startRow = Math.max(-7, Math.min(row, totalRows - 1));
       return {
         column, startRow, nextRow: startRow, glyphs: [],
-        target: Math.floor(rand(15, 38)),
+        target: Math.max(1, totalRows - startRow + 1),
         delay: rand(0.075, 0.155),
         elapsed: 0, count: 0,
         phase: 'drawing', cooldown: rand(0.1, 1.1)
