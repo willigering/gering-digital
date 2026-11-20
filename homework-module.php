@@ -17,7 +17,7 @@ function stop(string $message,int $status):never{
 if(empty($_SESSION['hw_login']))stop('Bitte erst bei HomeWork anmelden.',401);
 $base=__DIR__.'/data/homework';
 $id=(string)($_POST['id']??$_GET['id']??'');
-if(!preg_match('/\\A[a-z0-9-]{3,80}\\z/D',$id))stop('Ungültige Modul-ID.',400);
+if(!preg_match('/\A[a-z0-9-]{3,80}\z/D',$id))stop('Ungültige Modul-ID.',400);
 $file=$base.'/'.$id.'.html';
 if($_SERVER['REQUEST_METHOD']==='POST'){
   $csrf=$_POST['csrf']??'';
@@ -49,7 +49,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         $title=trim((string)($_POST['title']??''));$topic=trim((string)($_POST['topic']??''));$date=(string)($_POST['date']??'');
         if($title===''||mb_strlen($title)>140)$title='HTML-Modul';
         if($topic===''||mb_strlen($topic)>100)$topic='Unterrichtsmaterial';
-        if(!preg_match('/^\\d{4}-\\d{2}-\\d{2}$/',$date))$date=gmdate('Y-m-d');
+        if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$date))$date=gmdate('Y-m-d');
         $q=$d->prepare("INSERT INTO modules(id,title,topic,date,status,filename,created) VALUES(?,?,? ,?,'offen',?,?) ON CONFLICT(id) DO UPDATE SET title=excluded.title, topic=excluded.topic, date=excluded.date");
         $q->execute([$id,$title,$topic,$date,$id.'.html',gmdate('c')]);
       }catch(Throwable $e){error_log('HomeWork module: '.$e->getMessage());stop('Moduldaten konnten nicht gespeichert werden.',500);}
@@ -96,7 +96,7 @@ $navigation=<<<'HTML'
 </style>
 <a id="hw-return" href="/HA.html" aria-label="Zur HomeWork-Übersicht zurückkehren">← Zu den Hausaufgaben</a>
 HTML;
-if(preg_match('~</body\\s*>~i',$markup)){
-  echo preg_replace('~</body\\s*>~i',static fn($match)=>$navigation."\\n".$match[0],$markup,1);
+if(preg_match('~</body\s*>~i',$markup)){
+  echo preg_replace('~</body\s*>~i',static fn($match)=>$navigation."\\n".$match[0],$markup,1);
 }else{echo $markup.$navigation;}
 
