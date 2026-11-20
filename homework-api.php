@@ -65,7 +65,7 @@ try{
   if($action==='save-status'){
     $id=(string)($body['id']??'');
     $status=$body['status']??'';
-    if(!preg_match('/\\A[a-z0-9-]{3,80}\\z/D',$id)||!in_array($status,['offen','bearbeitung','fertig'],true))fail('Ungültiger Modulstatus.');
+    if(!preg_match('/\A[a-z0-9-]{3,80}\z/D',$id)||!in_array($status,['offen','bearbeitung','fertig'],true))fail('Ungültiger Modulstatus.');
     $d=db();$stmt=$d->prepare('UPDATE modules SET status=? WHERE id=?');$stmt->execute([$status,$id]);
     if(!$stmt->rowCount())fail('Modul nicht gefunden.',404);
     output(['ok'=>true,'status'=>$status]);
