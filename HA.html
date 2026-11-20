@@ -71,7 +71,7 @@ input[type=file]{cursor:pointer}
 let csrf='',modules=[];
 const $=id=>document.getElementById(id);
 const statuses={offen:'Offen',bearbeitung:'In Bearbeitung',fertig:'Fertig'};
-async function api(action,data){const isGet=action==='state';const r=await fetch('homework-api.php?action='+encodeURIComponent(action),{method:isGet?'GET':'POST',credentials:'same-origin',cache:'no-store',...(isGet?{}:{headers:{'Content-Type':'application/json'},body:JSON.stringify({csrf,...data})})});const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(_){throw Error('HomeWork-Server antwortet nicht korrekt (HTTP '+r.status+').')}if(j.csrf)csrf=j.csrf;if(!r.ok)throw Error(j.error||'Serverfehler');return j}
+async function api(action,data){const isGet=action==='state';const r=await fetch('homework-api.php?action='+encodeURIComponent(action),{method:isGet?'GET':'POST',credentials:'same-origin',cache:'no-store',...(isGet?{}:{headers:{'Content-Type':'application/json'},body:JSON.stringify({csrf,...data})})});const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(_){throw Error('HomeWork-Server antwortet nicht korrekt (HTTP '+r.status+').')}if(j.csrf)csrf=j.csrf;if(!r.ok)throw Error(j.error||'Serverfehler (HTTP '+r.status+')');if(j.error)throw Error(j.error);return j}
 function tag(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
 function render(){const grid=$('modules');grid.replaceChildren();modules.forEach(m=>{
 const card=tag('article','module-card');card.dataset.status=m.status||'offen';
@@ -84,7 +84,7 @@ const a=tag('a','openlink','HTML öffnen');a.href='homework-module.php?id='+enco
 });grid.classList.toggle('stacked',modules.length>=4);$('count').textContent=modules.length+' Module';
 if(!modules.length)grid.append(tag('p','', 'Noch keine HTML-Dateien abgelegt.'));
 }
-async function refresh(){try{const d=await api('state');$('login').classList.toggle('hidden',d.mode==='ready');$('app').classList.toggle('hidden',d.mode!=='ready');if(d.mode==='ready'){modules=d.modules||[];render()}else if(d.mode==='nosetup')$('error').textContent='Bitte zuerst das Passwort der Bewerbungsseite einrichten.'}catch(e){$('error').textContent=e.message}}
+async function refresh(){try{const d=await api('state');$('login').classList.toggle('hidden',d.mode==='ready');$('app').classList.toggle('hidden',d.mode!=='ready');if(d.mode==='ready'){modules=d.modules||[];render()}else if(d.mode==='nosetup')$('error').textContent='Bitte zuerst das Passwort der Bewerbungsseite einrichten.'}catch(e){$('error').textContent=e.message;$('message').textContent='Verbindung zur HomeWork-Verwaltung fehlgeschlagen: '+e.message; if(!$('app').classList.contains('hidden'))$('message').scrollIntoView({block:'nearest'});}}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();try{await api('login',{password:$('password').value});$('password').value='';$('error').textContent='';await refresh()}catch(x){$('error').textContent=x.message}});
 $('logout').addEventListener('click',async()=>{await api('logout');modules=[];await refresh()});
 $('date').value=new Date().toLocaleDateString('en-CA');
@@ -92,12 +92,18 @@ $('file').addEventListener('change',()=>{const f=$('file').files[0];if(!f)return
 $('upload').addEventListener('click',async()=>{
 const file=$('file').files[0];if(!file){$('message').textContent='Bitte HTML-Datei auswählen.';return}
 if(!/\.html?$/i.test(file.name)||file.size>12582912||file.size<30){$('message').textContent='Nur HTML-Dateien bis 12 MB erlaubt.';return}
+if(!csrf){$('message').textContent='Keine gültige Sitzung. Bitte Seite neu laden und anmelden.';return}
 const id='hw-'+Array.from(crypto.getRandomValues(new Uint8Array(12)),x=>x.toString(16).padStart(2,'0')).join('');
 const title=$('title').value.trim()||file.name.replace(/\.html?$/i,''),topic=$('topic').value.trim()||'Unterrichtsmaterial',date=$('date').value;
 $('upload').disabled=true;
 try{const partSize=512*1024,total=Math.ceil(file.size/partSize);
-for(let i=0;i<total;i++){const f=new FormData();f.append('csrf',csrf);f.append('id',id);f.append('title',title);f.append('topic',topic);f.append('date',date);f.append('chunkIndex',i);f.append('chunkTotal',total);f.append('lesson',file.slice(i*partSize,(i+1)*partSize),'teil.html');const response=await fetch('homework-module.php',{method:'POST',body:f,credentials:'same-origin'});if(!response.ok)throw Error((await response.text()).slice(0,250));$('message').textContent='Upload '+Math.round((i+1)/total*100)+' %'}
-$('message').textContent='HTML dauerhaft abgelegt.';$('file').value='';$('title').value='';$('topic').value='';await refresh();
+for(let i=0;i<total;i++){const f=new FormData();f.append('csrf',csrf);f.append('id',id);f.append('title',title);f.append('topic',topic);f.append('date',date);f.append('chunkIndex',i);f.append('chunkTotal',total);f.append('lesson',file.slice(i*partSize,(i+1)*partSize),'teil.html');const response=await fetch('homework-module.php',{method:'POST',body:f,credentials:'same-origin'});const raw=await response.text();let result;try{result=JSON.parse(raw)}catch(_){throw Error('Upload-Server liefert keine gültige JSON-Antwort (HTTP '+response.status+'): '+raw.slice(0,160))}
+if(!response.ok||!result.ok)throw Error(result.error||'Upload fehlgeschlagen (HTTP '+response.status+')');
+if(i===total-1&&result.moduleId!==id)throw Error('Der Server hat den Abschluss des Uploads nicht bestätigt.');
+$('message').textContent='Upload '+Math.round((i+1)/total*100)+' %'}
+$('file').value='';$('title').value='';$('topic').value='';await refresh();
+if(!modules.some(m=>m.id===id))throw Error('Die Datei wurde übertragen, erscheint aber nicht in der Modulliste. Bitte Serverdatenbank prüfen.');
+$('message').textContent='HTML gespeichert. Das neue Modul ist unten sichtbar.';
 }catch(e){$('message').textContent='Fehler: '+e.message}finally{$('upload').disabled=false}
 });
 refresh();
