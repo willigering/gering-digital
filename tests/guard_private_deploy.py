@@ -40,6 +40,12 @@ for raw in tracked:
     lower = tuple(part.lower() for part in parts)
     if name == "data/.htaccess":
         continue  # Intentional deny rule; deployed after checkout if required.
+    # Bewusst versionierte, oeffentliche Vorschaubilder der Startseite direkt in
+    # assets/uploads/. Der STRATO-Upload ueberspringt 'uploads'-Ordner ohnehin
+    # (blocked_dirs); Unterordner, data/runtime und Nicht-Bilder bleiben verboten.
+    if (len(lower) == 3 and lower[:2] == ("assets", "uploads")
+            and name.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".gif", "/.htaccess"))):
+        continue  # .htaccess dort enthaelt nur "Options -Indexes"
     if "data" in lower or "uploads" in lower or "runtime" in lower:
         errors.append(f"Private runtime path is Git-tracked: {name}")
     if name.lower().endswith((".sqlite", ".sqlite3", ".sqlite-wal", ".sqlite-shm", ".db", ".env", ".pem", ".p12", ".pfx", ".key")):
