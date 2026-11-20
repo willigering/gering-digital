@@ -19,7 +19,7 @@ data_rules = read("data/.htaccess")
 workflow = read(".github/workflows/deploy-strato.yml")
 gitignore = read(".gitignore")
 
-if not any("RewriteRule ^data" in line and "[F" in line.upper().replace("[F", "[F")
+if not any("RewriteRule ^data" in line and "[F" in line.upper()
            for line in root_rules.splitlines()):
     errors.append("Root .htaccess must deny direct requests to /data.")
 if not ("Require all denied" in data_rules or "Deny from all" in data_rules):
