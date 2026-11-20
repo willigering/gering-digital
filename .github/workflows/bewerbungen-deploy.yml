@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'b.html'
+      - 'HA.html'
+      - 'homework-api.php'
       - 'bewerbungen-*.js'
       - 'bewerbungen-*.php'
       - 'bewerbungen-*.css'
