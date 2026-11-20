@@ -63,7 +63,7 @@ def expect(condition, message):
 def run():
     with tempfile.TemporaryDirectory(prefix="hw-ci-") as tmp:
         dest = pathlib.Path(tmp)
-        for name in ("HA.html", "homework-api.php", "homework-module.php"):
+        for name in ("HA.html", "homework-api.php", "homework-module.php", "homework-storage.php"):
             shutil.copy2(ROOT / name, dest / name)
         (dest / "data").mkdir()
         db = sqlite3.connect(dest / "data/bewerbungen-private.sqlite")
@@ -96,7 +96,7 @@ def run():
             else:
                 raise AssertionError("Local PHP server did not start")
 
-            expect("HTML-Datei hinzufügen" in page, "Upload UI not present")
+            expect("Unterrichtsmaterial hinzufügen" in page, "Upload UI not present")
             status, raw = make_request(opener, base, "/homework-api.php?action=state")
             state = json.loads(raw)
             expect(status == 200 and state["mode"] == "login", "Expected login mode")
@@ -149,7 +149,93 @@ def run():
             expect(persisted["status"] == "fertig", "Saved status not persisted")
             original = (dest / "data/homework" / (lesson_id + ".html")).read_bytes()
             expect(original == lesson, "Uploaded HTML must remain byte-for-byte unchanged")
-            print("HomeWork integration: login, two-part upload, list, authorized open, return link and status PASSED")
+            # Categories seeded automatically, without overwriting modules or status.
+            status, raw = make_request(opener, base, "/homework-api.php?action=state")
+            initial = json.loads(raw)
+            expect(status == 200 and [c["name"] for c in initial["categories"][:6]] ==
+                   ["IT I", "IT II", "IT III", "IT IV", "IT V", "IT VI"],
+                   "Missing default IT I-VI categories")
+
+            def mutate(action, payload, user=opener):
+                data = json.dumps({"csrf": csrf, **payload}, ensure_ascii=False).encode()
+                status_code, raw_response = make_request(
+                    user, base, "/homework-api.php?action=" + action, data
+                )
+                return status_code, json.loads(raw_response)
+
+            # Unauthenticated users cannot mutate data even with a known CSRF token.
+            denied_status, denied = mutate("create-category", {"name": "Intruder"}, other)
+            expect(denied_status == 401, "Category creation must require login")
+            status_code, created = mutate("create-category", {"name": "Eigene Aufgaben"})
+            expect(status_code == 200 and created["category"]["name"] == "Eigene Aufgaben",
+                   "Creating a custom category failed")
+            category_id = created["category"]["id"]
+            status_code, duplicate = mutate("create-category", {"name": "eigene aufgaben"})
+            expect(status_code == 409, "Case-insensitive duplicate category accepted")
+
+            # Existing module can be renamed and assigned without changing HTML bytes.
+            status_code, updated = mutate("rename-module",
+                                          {"id": lesson_id, "title": "Neu benannt"})
+            expect(status_code == 200 and updated["title"] == "Neu benannt",
+                   "Module rename failed")
+            status_code, assigned = mutate("set-category",
+                                           {"id": lesson_id, "categoryId": category_id})
+            expect(status_code == 200 and assigned["categoryId"] == category_id,
+                   "Module category assignment failed")
+            status, raw = make_request(opener, base, "/homework-api.php?action=state")
+            saved = next(m for m in json.loads(raw)["modules"] if m["id"] == lesson_id)
+            expect(saved["title"] == "Neu benannt" and saved["category_id"] == category_id,
+                   "Module edits did not persist after reload")
+            expect(saved["status"] == "fertig", "Editing lost completion status")
+            expect((dest / "data/homework" / (lesson_id + ".html")).read_bytes() == lesson,
+                   "Editing must not alter original HTML")
+
+            # Invalid categories and CSRF values are not accepted.
+            status_code, rejected = mutate("set-category",
+                                            {"id": lesson_id, "categoryId": "cat-not-found"})
+            expect(status_code == 404, "Unknown categories must be rejected")
+            status_code, rejected = make_request(
+                opener, base, "/homework-api.php?action=delete-module",
+                json.dumps({"csrf": "incorrect", "id": lesson_id}).encode()
+            )
+            expect(status_code == 403, "Deletion requires CSRF token")
+
+            # A new upload directly into a user-created category must persist.
+            second_id = "hw-" + uuid.uuid4().hex[:24]
+            fields = {
+                "csrf": csrf, "id": second_id, "title": "Zugeordnetes Modul",
+                "topic": "Eigene", "date": "2026-11-20",
+                "categoryId": category_id, "chunkIndex": 0, "chunkTotal": 1,
+            }
+            multipart, ctype = form_data(fields, "teil.html", lesson)
+            status_code, raw = make_request(opener, base, "/homework-module.php", multipart, ctype)
+            expect(status_code == 200 and json.loads(raw).get("moduleId") == second_id,
+                   "Upload directly into custom category failed")
+            status, raw = make_request(opener, base, "/homework-api.php?action=state")
+            saved_second = next(m for m in json.loads(raw)["modules"] if m["id"] == second_id)
+            expect(saved_second["category_id"] == category_id, "Upload category not persisted")
+
+            # Deletion removes both the record and original file; it must not
+            # delete any other module, category or the existing status.
+            status_code, deleted = mutate("delete-module", {"id": lesson_id})
+            expect(status_code == 200 and deleted["deletedId"] == lesson_id,
+                   "Deleting a module failed")
+            expect(not (dest / "data/homework" / (lesson_id + ".html")).exists(),
+                   "Deleting must remove uploaded HTML")
+            status, raw = make_request(opener, base, "/homework-api.php?action=state")
+            updated_state = json.loads(raw)
+            expect(not any(m["id"] == lesson_id for m in updated_state["modules"]),
+                   "Deleted module reappeared")
+            expect(any(m["id"] == second_id for m in updated_state["modules"]),
+                   "Deleting one module affected another")
+            expect(any(c["id"] == category_id for c in updated_state["categories"]),
+                   "Deleting a module must preserve its category")
+            status, raw = make_request(opener, base, "/homework-module.php?id=" + lesson_id)
+            expect(status == 404, "Deleted HTML still accessible")
+            status_code, deleted = mutate("delete-module", {"id": lesson_id})
+            expect(status_code == 404, "Deletion must reject unknown module")
+
+            print("HomeWork integration: login, uploads, categories, rename, assignment, deletion and privacy PASSED")
         finally:
             server.terminate()
             try:

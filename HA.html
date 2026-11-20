@@ -1,110 +1,105 @@
 <!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive"><title>HomeWork – Gering Digital</title>
-<style>
-:root{color-scheme:dark;--bg:#0a1017;--panel:#172129;--ink:#eef5f4;--muted:#aab9c4;--red:#f07171;--yellow:#ffeb3b;--green:#65d69b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,Segoe UI,sans-serif}
-main{max-width:1170px;margin:auto;padding:32px 24px 65px}
-header,.row{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
-header{border-bottom:1px solid #ffffff19;padding-bottom:24px}
-h1{font-size:clamp(38px,6vw,68px);letter-spacing:-.05em;margin:40px 0 0}h1 span{color:#7fdfca}
-p{color:var(--muted)}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:#80d8c6;text-transform:uppercase}
-button{border:1px solid #dbbb78;background:#dbbb78;color:#111821;border-radius:9px;padding:11px 16px;font:inherit;font-weight:700;cursor:pointer}
-button.secondary{background:#ffffff0c;color:#eaf2f2;border-color:#ffffff35}
-button:hover{filter:brightness(1.1)}button:disabled{opacity:.55;cursor:wait}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.hidden{display:none!important}
-.upload{border:1px solid #ffffff2c;background:#121d26;padding:22px;border-radius:14px;margin:25px 0}
-.upload h2{margin:0 0 12px;font-size:19px}
-.fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:15px 0}
-.fields label{display:grid;gap:6px;color:#cbd5db;font-size:13px}
-input{width:100%;border:1px solid #ffffff45;border-radius:8px;background:#0b131b;color:#f3f5f5;font:inherit;padding:12px;min-width:0}
-input[type=file]{cursor:pointer}
-#message{color:#ffeb3b;min-height:20px;font-size:13px}
-.module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px;margin-top:25px}
-.module-card{--status-color:var(--red);border:3px solid var(--status-color);border-radius:13px;background:#17232c;padding:22px;min-width:0;display:flex;flex-direction:column;gap:10px;transition:transform .2s}
-.module-card[data-status=bearbeitung]{--status-color:var(--yellow)}.module-card[data-status=fertig]{--status-color:var(--green)}
-.module-card:hover{transform:translateY(-4px)}
-.module-card h2{font-size:23px;line-height:1.2;margin:8px 0 2px;overflow-wrap:anywhere}
-.module-card small{color:#aebdc6}.module-card .status{font-size:12px;font-weight:800;color:var(--status-color);text-transform:uppercase}
-.actions{display:flex;flex-wrap:wrap;gap:7px;margin-top:3px}
-.actions button{font-size:12px;min-height:38px;padding:8px 9px;background:#ffffff0b;border:1px solid #ffffff35;color:var(--ink)}
-.actions button[aria-pressed=true]{border-color:var(--status-color);color:var(--status-color)}
-.openlink{display:block;margin-top:auto;text-align:center;background:#dabb7a;color:#111821;padding:12px;border-radius:9px;font-weight:750;text-decoration:none}
-.login{position:fixed;inset:0;background:#081019;display:grid;place-items:center;padding:20px}.login form{width:min(420px,100%);background:#15222c;border:1px solid #dabb7a88;border-radius:18px;padding:32px}
-.login h2{font-size:28px;margin:6px 0}.login button{width:100%;margin-top:12px}
-@media(min-width:950px){.module-grid.stacked{display:flex;flex-wrap:wrap;gap:0;padding:10px 10px 35px}.module-grid.stacked .module-card{width:315px;min-height:300px;margin-right:-45px;position:relative}.module-grid.stacked .module-card:hover,.module-grid.stacked .module-card:focus-within{transform:translateY(-12px);z-index:5}.module-grid.stacked .module-card:last-child{margin-right:0}}
-@media(max-width:680px){.fields{grid-template-columns:1fr}main{padding:20px 16px}h1{margin-top:30px}}
-
-/* DAU-to-Pro inspired module cards: artwork banner, compact category and clean footer. */
-.module-grid{gap:24px}
-.module-card{padding:0;overflow:hidden;gap:0;background:#111b22;border-width:2px;border-radius:14px;box-shadow:0 13px 30px #0004}
-.module-card:hover{box-shadow:0 20px 40px #0007}
-.module-art{aspect-ratio:16/9;display:grid;place-items:center;position:relative;overflow:hidden;border-bottom:1px solid #ffffff1b;background:radial-gradient(ellipse at 40% 35%,#24414a,#101c25 68%,#0b121a)}
-.module-art:before{content:"";position:absolute;inset:0;opacity:.24;background:linear-gradient(90deg,transparent 49.5%,#ffffff16 50%,transparent 50.5%),linear-gradient(transparent 49.5%,#ffffff16 50%,transparent 50.5%);background-size:34px 34px;mask-image:linear-gradient(130deg,#000,transparent)}
-.module-art-symbol{position:relative;z-index:1;font:800 clamp(40px,5vw,64px)/1 Consolas,monospace;letter-spacing:-.1em;color:#96e6d6;text-shadow:0 8px 26px #0006}
-.module-body{display:flex;flex-direction:column;gap:12px;padding:23px;flex:1}
-.module-body h2{margin:3px 0 5px;font-size:24px;letter-spacing:-.035em}
-.module-body .eyebrow{font-size:10px;letter-spacing:.11em}
-.module-body .status{border-bottom:1px solid #ffffff1a;padding-bottom:13px}
-.module-body .actions{margin-top:0}
-.module-body .openlink{margin-top:auto}
-@media(min-width:950px){.module-grid.stacked .module-card{min-height:440px;margin-right:-50px;overflow:hidden}.module-grid.stacked .module-card:hover,.module-grid.stacked .module-card:focus-within{z-index:10}.module-grid.stacked .module-art{aspect-ratio:16/9}}
-</style></head><body>
-<main id="app" class="hidden"><header><strong>GERING DIGITAL <span style="color:#91a3b2">/ PRIVAT</span></strong><button id="logout" class="secondary">Abmelden</button></header>
-<h1>Home<span>Work.</span></h1><p>Dein privater Parkplatz für HTML-Unterrichtsmaterialien. Originaldateien bleiben unverändert.</p>
-<section class="upload"><div class="row"><h2>HTML-Datei hinzufügen</h2><span class="eyebrow">Private Ablage</span></div>
-<div class="fields">
-<label>Titel der Kachel<input id="title" type="text" maxlength="140" placeholder="z. B. Dokumentieren & Abschließen"></label>
-<label>Thema<input id="topic" type="text" maxlength="100" placeholder="z. B. LF VI · IT-Support"></label>
-<label>Datum<input id="date" type="date"></label>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>HomeWork – Gering Digital</title>
+<link rel="stylesheet" href="assets/homework.css?v=20261120b">
+<script src="assets/homework.js?v=20261120b" defer></script>
+</head>
+<body>
+<div class="workspace hidden" id="app">
+  <aside class="sidebar" aria-label="HomeWork-Kategorien">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">&lt;/&gt;</span><strong>HomeWork</strong></div>
+    <p class="sidebar-label">Oberkategorien</p>
+    <nav id="categoryNav" class="category-nav" aria-label="Kategorien"></nav>
+    <button id="categoryCreate" type="button" class="category-create">+ Neue Kategorie</button>
+  </aside>
+  <main class="content" id="inhalt">
+    <header class="topbar">
+      <span>GERING DIGITAL <span class="slash">/</span> <b>HOMEWORK</b> <span class="slash">/</span> PRIVAT</span>
+      <button id="logout" class="outline-button" type="button">Abmelden</button>
+    </header>
+    <div class="page-heading">
+      <h1>HomeWork</h1>
+      <div class="summary" aria-label="Modulübersicht">
+        <div><strong id="totalCount">0</strong><small>Module</small></div>
+        <div><strong id="doneCount">0</strong><small>Fertig</small></div>
+      </div>
+    </div>
+    <section class="upload-panel" aria-labelledby="upload-heading">
+      <div class="upload-header">
+        <span class="upload-symbol" aria-hidden="true">+</span>
+        <h2 id="upload-heading">Unterrichtsmaterial hinzufügen</h2>
+        <button id="toggleUpload" class="gold-button" type="button" aria-expanded="false" aria-controls="uploadFields">+ Datei hinzufügen</button>
+      </div>
+      <div id="uploadFields" class="upload-fields hidden">
+        <div class="form-grid">
+          <label>Titel der Kachel<input id="title" maxlength="140" placeholder="Titel des Moduls"></label>
+          <label>Thema<input id="topic" maxlength="100" placeholder="z. B. IT-Support"></label>
+          <label>Oberkategorie<select id="uploadCategory"></select></label>
+          <label>Datum<input id="date" type="date"></label>
+        </div>
+        <div class="upload-bottom">
+          <label class="file-label">HTML-Datei auswählen<input id="file" type="file" accept=".html,.htm,text/html"></label>
+          <button id="upload" class="gold-button" type="button">HTML-Datei hochladen</button>
+        </div>
+      </div>
+      <p id="message" role="status" aria-live="polite"></p>
+    </section>
+    <section class="module-section" aria-labelledby="sectionTitle">
+      <div class="list-heading">
+        <div>
+          <h2 id="sectionTitle">Alle HTML-Module</h2>
+          <p id="count" aria-live="polite"></p>
+        </div>
+        <div class="list-tools">
+          <div class="legend"><span class="dot green"></span>Fertig <span class="dot yellow"></span>In Arbeit <span class="dot red"></span>Offen</div>
+          <label class="search-label"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Module suchen …" aria-label="Module suchen"></label>
+        </div>
+      </div>
+      <div id="modules" class="module-grid"></div>
+    </section>
+  </main>
 </div>
-<label class="eyebrow" for="file">HTML-Datei auswählen</label><input id="file" type="file" accept=".html,.htm,text/html">
-<div class="row" style="margin-top:15px"><button id="upload">Datei hinzufügen</button><span id="message" role="status"></span></div>
-</section>
-<div class="row"><h2 style="margin:15px 0 0">Meine HTML-Module</h2><span id="count"></span></div>
-<div class="module-grid" id="modules"></div>
-</main>
-<div class="login" id="login"><form id="loginForm"><span class="eyebrow">GERING DIGITAL · PRIVAT</span><h2>HomeWork</h2><p>Mit dem Passwort deiner Bewerbungsseite anmelden.</p><input id="password" type="password" autocomplete="current-password" placeholder="Passwort" required><button>Anmelden</button><p id="error" role="alert"></p></form></div>
-<script>
-'use strict';
-let csrf='',modules=[];
-const $=id=>document.getElementById(id);
-const statuses={offen:'Offen',bearbeitung:'In Bearbeitung',fertig:'Fertig'};
-async function api(action,data){const isGet=action==='state';const r=await fetch('homework-api.php?action='+encodeURIComponent(action),{method:isGet?'GET':'POST',credentials:'same-origin',cache:'no-store',...(isGet?{}:{headers:{'Content-Type':'application/json'},body:JSON.stringify({csrf,...data})})});const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(_){throw Error('HomeWork-Server antwortet nicht korrekt (HTTP '+r.status+').')}if(j.csrf)csrf=j.csrf;if(!r.ok)throw Error(j.error||'Serverfehler (HTTP '+r.status+')');if(j.error)throw Error(j.error);return j}
-function tag(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n}
-function render(){const grid=$('modules');grid.replaceChildren();modules.forEach(m=>{
-const card=tag('article','module-card');card.dataset.status=m.status||'offen';
-const art=tag('div','module-art');const artIcon=tag('span','module-art-symbol','</>');art.append(artIcon);card.append(art);
-const body=tag('div','module-body');const top=tag('div','row');top.append(tag('span','eyebrow',m.topic),tag('small','',new Date(m.date+'T12:00:00').toLocaleDateString('de-DE')));body.append(top,tag('h2','',m.title));
-const status=tag('div','status',statuses[m.status]||'Offen');body.append(status);
-const actions=tag('div','actions');actions.setAttribute('role','group');actions.setAttribute('aria-label','Status für '+m.title);
-Object.entries(statuses).forEach(([value,label])=>{const b=tag('button','',label);b.type='button';b.setAttribute('aria-pressed',String(m.status===value));b.addEventListener('click',async()=>{b.disabled=true;try{await api('save-status',{id:m.id,status:value});m.status=value;render()}catch(e){alert(e.message);b.disabled=false}});actions.append(b)});body.append(actions);
-const a=tag('a','openlink','HTML öffnen');a.href='homework-module.php?id='+encodeURIComponent(m.id);body.append(a);card.append(body);grid.append(card);
-});grid.classList.toggle('stacked',modules.length>=4);$('count').textContent=modules.length+' Module';
-if(!modules.length)grid.append(tag('p','', 'Noch keine HTML-Dateien abgelegt.'));
-}
-async function refresh(){try{const d=await api('state');$('login').classList.toggle('hidden',d.mode==='ready');$('app').classList.toggle('hidden',d.mode!=='ready');if(d.mode==='ready'){modules=d.modules||[];render()}else if(d.mode==='nosetup')$('error').textContent='Bitte zuerst das Passwort der Bewerbungsseite einrichten.'}catch(e){$('error').textContent=e.message;$('message').textContent='Verbindung zur HomeWork-Verwaltung fehlgeschlagen: '+e.message; if(!$('app').classList.contains('hidden'))$('message').scrollIntoView({block:'nearest'});}}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();try{await api('login',{password:$('password').value});$('password').value='';$('error').textContent='';await refresh()}catch(x){$('error').textContent=x.message}});
-$('logout').addEventListener('click',async()=>{await api('logout');modules=[];await refresh()});
-$('date').value=new Date().toLocaleDateString('en-CA');
-$('file').addEventListener('change',()=>{const f=$('file').files[0];if(!f)return;const name=f.name.replace(/\.html?$/i,'').replace(/[_-]+/g,' ');if(!$('title').value)$('title').value=name});
-$('upload').addEventListener('click',async()=>{
-const file=$('file').files[0];if(!file){$('message').textContent='Bitte HTML-Datei auswählen.';return}
-if(!/\.html?$/i.test(file.name)||file.size>12582912||file.size<30){$('message').textContent='Nur HTML-Dateien bis 12 MB erlaubt.';return}
-if(!csrf){$('message').textContent='Keine gültige Sitzung. Bitte Seite neu laden und anmelden.';return}
-const id='hw-'+Array.from(crypto.getRandomValues(new Uint8Array(12)),x=>x.toString(16).padStart(2,'0')).join('');
-const title=$('title').value.trim()||file.name.replace(/\.html?$/i,''),topic=$('topic').value.trim()||'Unterrichtsmaterial',date=$('date').value;
-$('upload').disabled=true;
-try{const partSize=512*1024,total=Math.ceil(file.size/partSize);
-for(let i=0;i<total;i++){const f=new FormData();f.append('csrf',csrf);f.append('id',id);f.append('title',title);f.append('topic',topic);f.append('date',date);f.append('chunkIndex',i);f.append('chunkTotal',total);f.append('lesson',file.slice(i*partSize,(i+1)*partSize),'teil.html');const response=await fetch('homework-module.php',{method:'POST',body:f,credentials:'same-origin'});const raw=await response.text();let result;try{result=JSON.parse(raw)}catch(_){throw Error('Upload-Server liefert keine gültige JSON-Antwort (HTTP '+response.status+'): '+raw.slice(0,160))}
-if(!response.ok||!result.ok)throw Error(result.error||'Upload fehlgeschlagen (HTTP '+response.status+')');
-if(i===total-1&&result.moduleId!==id)throw Error('Der Server hat den Abschluss des Uploads nicht bestätigt.');
-$('message').textContent='Upload '+Math.round((i+1)/total*100)+' %'}
-$('file').value='';$('title').value='';$('topic').value='';await refresh();
-if(!modules.some(m=>m.id===id))throw Error('Die Datei wurde übertragen, erscheint aber nicht in der Modulliste. Bitte Serverdatenbank prüfen.');
-$('message').textContent='HTML gespeichert. Das neue Modul ist unten sichtbar.';
-}catch(e){$('message').textContent='Fehler: '+e.message}finally{$('upload').disabled=false}
-});
-refresh();
-</script></body></html>
+
+<div class="login" id="login">
+  <form id="loginForm" class="login-box">
+    <span class="login-label">GERING DIGITAL · PRIVAT</span>
+    <h2>HomeWork</h2>
+    <p>Mit dem Passwort der Bewerbungsseite anmelden.</p>
+    <label class="visually-hidden" for="password">Passwort</label>
+    <input id="password" type="password" autocomplete="current-password" placeholder="Passwort" required>
+    <button class="gold-button" type="submit">Anmelden</button>
+    <p id="error" role="alert"></p>
+  </form>
+</div>
+
+<dialog id="editDialog" aria-labelledby="editHeading" class="homework-dialog">
+  <form id="editForm">
+    <h2 id="editHeading">Modul bearbeiten</h2>
+    <input id="editId" type="hidden">
+    <label>Titel<input id="editTitle" required maxlength="140"></label>
+    <label>Oberkategorie<select id="editCategory"></select></label>
+    <p id="editError" role="alert"></p>
+    <div class="dialog-actions">
+      <button class="outline-button" type="button" id="cancelEdit">Abbrechen</button>
+      <button class="gold-button" type="submit" id="saveEdit">Speichern</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="categoryDialog" aria-labelledby="categoryHeading" class="homework-dialog">
+  <form id="categoryForm">
+    <h2 id="categoryHeading">Neue Kategorie</h2>
+    <label>Name<input id="categoryName" maxlength="60" required placeholder="Kategoriename"></label>
+    <p id="categoryError" role="alert"></p>
+    <div class="dialog-actions">
+      <button class="outline-button" type="button" id="cancelCategory">Abbrechen</button>
+      <button class="gold-button" type="submit" id="saveCategory">Erstellen</button>
+    </div>
+  </form>
+</dialog>
+</body>
+</html>
