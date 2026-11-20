@@ -96,7 +96,7 @@ assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
   vm.runInContext(part('let GM=', 'function pvpWeapon('), pvp);
   assert.equal(vm.runInContext('DM_GOAL', pvp), 10, 'Deathmatch: 10 kills win');
   assert.equal(vm.runInContext('GM_NAME.oc', pvp), 'ONE IN THE CHAMBER', 'OITC mode exists');
-  for (const frag of ["if(GM==='oc'){w.ammo=1;w.res=0}", "if(GM==='oc')dmg=9999", "'+1 PATRONE'", "function pvpClearStations()", "if(PVP())pvpClearStations()", "WX_KINDS=['sun','fog','rain','dusk']"]) assert.ok(script.includes(frag), 'VS feature '+frag);
+  for (const frag of ["if(GM==='oc'){w.ammo=1;w.res=0}", "if(GM==='oc')dmg=9999", "'+1 PATRONE'", "function pvpClearStations()", "if(PVP())pvpClearStations()", "WX_KINDS=['sun','rain','dusk']"]) assert.ok(script.includes(frag), 'VS feature '+frag);
   const ladder = vm.runInContext('GG_LADDER', pvp);
   assert.equal(ladder[ladder.length-1], 'tknife', 'GunGame ends with throwing knife');
   for (const k of ladder) assert.ok(!vm.runInContext('WEAPONS.'+k+'.melee', W), 'GunGame has no melee: '+k);

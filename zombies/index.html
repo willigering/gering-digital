@@ -598,11 +598,11 @@ function updPowerups(dt){for(const p of PUPS){p.t-=dt;if(NET.client)continue;for
  if(!NET.client)for(let i=PUPS.length-1;i>=0;i--)if(PUPS[i].t<=0)PUPS.splice(i,1)}
 // ===================== Atmosphäre: Krähen, Regen, Blitze, Laub, Motten
 const BIRDS=[],SPLASH=[],RIPPLES=[],LEAVES=[];let flockT=12,boltT=25,bolt=0,thunderAt=-1;
-const WEATHER={rain:false,kind:'night'},WX_KINDS=['sun','fog','rain','dusk'],WX_NAME={night:'Nacht',sun:'Sonne',fog:'Nebel',rain:'Regen',dusk:'Abendrot'};
+const WEATHER={rain:false,kind:'night'},WX_KINDS=['sun','rain','dusk'],WX_NAME={night:'Nacht',sun:'Sonne',fog:'Nebel',rain:'Regen',dusk:'Abendrot'};
 // Dunkelheit je Wetter (Zombie-Modus bleibt Nacht, Wetter gibt es nur in den VS-Modi)
 const WX_DARK=()=>({sun:.04,dusk:.2,fog:.3,rain:.42}[WEATHER.kind]??.5);
 function applyWeather(rain,kind){if(kind&&WX_NAME[kind])WEATHER.kind=kind;if(typeof rain!=='boolean')return;WEATHER.rain=rain;if(!rain){SPLASH.length=0;RIPPLES.length=0;bolt=0;thunderAt=-1}}
-function startWeather(asClient,rain,kind){WEATHER.kind='night';if(PVP()){kind=WX_NAME[kind]&&kind!=='night'?kind:pick(WX_KINDS);rain=kind==='rain'}applyWeather(typeof rain==='boolean'?rain:!asClient&&Math.random()<.5,kind);SPLASH.length=0;RIPPLES.length=0;bolt=0;thunderAt=-1;boltT=25+Math.random()*15}
+function startWeather(asClient,rain,kind){WEATHER.kind='night';if(PVP()){kind=WX_KINDS.includes(kind)?kind:pick(WX_KINDS);rain=kind==='rain'}applyWeather(typeof rain==='boolean'?rain:!asClient&&Math.random()<.5,kind);SPLASH.length=0;RIPPLES.length=0;bolt=0;thunderAt=-1;boltT=25+Math.random()*15}
 // sitzende Krähen auf Zaun, Schuldach, Autos und Containern
 for(let i=0;i<5;i++)BIRDS.push({x:800+i*85+Math.random()*30,y:410,z:11,perch:true,ph:Math.random()*6});
 for(let i=0;i<4;i++)BIRDS.push({x:140+i*90+Math.random()*30,y:153,z:52,perch:true,ph:Math.random()*6});
@@ -1155,7 +1155,7 @@ let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamS
 // Touch-Geräte ohne feinen Zeiger: Hinweis im Hauptmenü
 const TOUCH_ONLY=(matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0)&&!matchMedia('(any-pointer: fine)').matches;
 // Spielversion: bei einer Veröffentlichung bewusst erhöhen.
-const GAME_VERSION='1.7.0';
+const GAME_VERSION='1.7.1';
 const MENU_BG=new Image();MENU_BG.onerror=()=>{MENU_BG.onerror=null;MENU_BG.src='menu_bg.png'};MENU_BG.src='menu_bg.webp';
 const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 // Maus-/Animationszustand des Menüs: hov = Platte unter dem Zeiger, down = gedrückte Platte, anim[i] = {h:Hover,p:Druck,f:Blitz,s:Wackeln,e:Impuls}
