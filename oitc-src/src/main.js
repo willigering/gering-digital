@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 let last = performance.now();
@@ -381,9 +382,10 @@ function wallDist(origin, dir, maxD) {
 function rayHitsEntity(origin, dir, e) {
   _ray.set(origin, dir);
   let best = Infinity;
-  _sph.set(new V3(e.pos.x, e.pos.y + 1.0, e.pos.z), 0.55);
+  const sl = e.slideAmt > 0.5;
+  _sph.set(new V3(e.pos.x, e.pos.y + (sl ? 0.5 : 1.0), e.pos.z), sl ? 0.5 : 0.55);
   let p = _ray.intersectSphere(_sph, _pt); if (p) best = Math.min(best, origin.distanceTo(p));
-  _sph.set(new V3(e.pos.x, e.pos.y + 1.62, e.pos.z), 0.27);
+  _sph.set(new V3(e.pos.x, e.pos.y + (sl ? 0.85 : 1.62), e.pos.z), 0.27);
   p = _ray.intersectSphere(_sph, _pt); if (p) best = Math.min(best, origin.distanceTo(p));
   return best;
 }
@@ -559,7 +561,7 @@ function makeEntity(name, isPlayer, color) {
   const e = {
     name, isPlayer, color, pos: new V3(), vel: new V3(), vy: 0, onGround: true, yaw: 0, lives: LIVES, ammo: 1, alive: true,
     kills: 0, respawn: 0, mesh: null, meleeCd: 0, aim: 0, aimTime: rnd(0.7, 1.5), meleeWind: 0,
-    stuckT: 0, lastPos: new V3(), avoid: 0, avoidDir: 1, id: ents.length, walk: 0, speed: 0, deadT: 0,
+    stuckT: 0, lastPos: new V3(), avoid: 0, avoidDir: 1, id: ents.length, walk: 0, speed: 0, deadT: 0, hum: null, slideT: -1, slideAmt: 0, slideDir: new V3(), slideSp: 0, slideSp0: 0, slideCd: 0,
   };
   if (!isPlayer) { e.mesh = makeBotMesh(color); scene.add(e.mesh); e.rag = makeRagdoll(color); }
   ents.push(e);
@@ -567,6 +569,16 @@ function makeEntity(name, isPlayer, color) {
 }
 const player = makeEntity('Du', true, 0xffffff);
 for (let i = 0; i < BOT_COUNT; i++) makeEntity(BOT_NAMES[i], false, BOT_COLORS[i]);
+let tpv = false;   // 3rd-Person-Ansicht (Tab)
+function initHumans() {
+  for (const e of ents) {
+    const h = makeHuman(e.isPlayer ? 0x6f8f5a : e.color, gun);
+    h.root.visible = false; scene.add(h.root); e.hum = h;
+    if (e.mesh) e.mesh.visible = false;
+    if (e.rag) { e.rag.active = false; e.rag.root.visible = false; }
+  }
+}
+loadHuman(initHumans, (err) => console.warn('Soldat nicht geladen, nutze Platzhalter', err));
 
 function spawnPoint(e) {
   let best = spawns[0], bd = -1;
@@ -582,7 +594,9 @@ function placeEntity(e, s) {
   e.pos.set(s.x, 0, s.z); e.vel.set(0, 0, 0); e.vy = 0; e.onGround = true;
   e.yaw = Math.atan2(s.x, s.z); e.ammo = 1; e.alive = true; e.meleeCd = 0.6; e.aim = 0; e.meleeWind = 0; e.deadT = 0;
   e.lastPos.copy(e.pos); e.avoid = 0;
-  if (e.mesh) { e.mesh.rotation.x = 0; e.mesh.visible = true; }
+  e.slideT = -1; e.slideAmt = 0; e.slideCd = 0;
+  if (e.hum) { humanReset(e.hum); e.hum.root.visible = true; }
+  else if (e.mesh) { e.mesh.rotation.x = 0; e.mesh.visible = true; }
   if (e.rag) { e.rag.active = false; e.rag.root.visible = false; }
   if (e.isPlayer) { pitch = 0; kick = 0; drawT = 0; inspectT = -1; }
 }
@@ -735,7 +749,9 @@ function killEntity(attacker, victim, how, dir, hit, strength = 7) {
   if (attacker.isPlayer) { sfx.kill(); msg('+1 Kugel'); hitT = 0.3; }
   if (victim.isPlayer) { sfx.hurt(); $('hurt').style.opacity = 1; setTimeout(() => ($('hurt').style.opacity = 0), 450); }
   if (victim.lives <= 0) { victim.respawn = -1; feed(`${victim.name} ist raus!`, '#ffcc66'); }
-  if (victim.rag) startRagdoll(victim, dir || new V3(0, 0, 0), hit, strength);
+  victim.slideT = -1;
+  if (victim.hum) { humanDie(victim.hum); victim.hum.deadYaw = dir && (dir.x || dir.z) ? Math.atan2(dir.x, dir.z) : victim.yaw; }
+  else if (victim.rag) startRagdoll(victim, dir || new V3(0, 0, 0), hit, strength);
   checkWin();
 }
 function checkWin() {
@@ -762,7 +778,9 @@ function fire(shooter, origin, dir) {
   }
   const end = origin.clone().addScaledVector(dir, bestT);
   let start = origin.clone();
-  if (shooter.isPlayer) { gun.updateWorldMatrix(true, false); start = gun.localToWorld(new V3(0, 0.01, -0.3)); }
+  if (shooter.hum) humanOverlay(shooter.hum, 'shoot');
+  if (shooter.isPlayer && tpv) start = new V3(player.pos.x, player.pos.y + 1.35, player.pos.z).addScaledVector(dir, 0.7);
+  else if (shooter.isPlayer) { gun.updateWorldMatrix(true, false); start = gun.localToWorld(new V3(0, 0.01, -0.3)); }
   else start.addScaledVector(dir, 0.5);
   tracer(start, end, shooter.isPlayer ? 0xffe9a0 : 0xff9a8a);
   if (shooter.isPlayer) sfx.shot();
@@ -772,6 +790,7 @@ function fire(shooter, origin, dir) {
 }
 
 function melee(att) {
+  if (att.hum) humanOverlay(att.hum, 'melee', 1.6);
   let best = null, bd = MELEE_RANGE;
   const fx = -Math.sin(att.yaw), fz = -Math.cos(att.yaw);
   for (const e of ents) {
@@ -871,6 +890,8 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' || e.code === 'KeyV') tryMelee();
   if (e.code === 'KeyT' && state === 'play' && player.alive && inspectT < 0) inspectT = 0;
   if (e.code === 'KeyM') toggleMouseMode();
+  if (e.code === 'Tab') { e.preventDefault(); if (state === 'play' && !e.repeat) { tpv = !tpv; msg(tpv ? '3rd Person' : '1st Person', 900); } }
+  if ((e.code === 'KeyC' || e.code === 'ControlLeft') && !e.repeat) { if (e.code === 'ControlLeft') e.preventDefault(); trySlide(); }
   if (e.code === 'Escape') { if ($('settings').style.display === 'flex') closeSettings(); else if (state === 'play') openSettings(); }
   if (e.code === 'Space') e.preventDefault();
 });
@@ -969,20 +990,40 @@ $('start').addEventListener('click', startGame);
 $('again').addEventListener('click', startGame);
 
 // ---------- Spieler-Update ----------
-let stepAcc = 0;
+let stepAcc = 0, sprintT = 0;
+const SLIDE_DUR = 1.05;
+function endSlide() { player.slideT = -1; player.slideCd = 0.7; sprintT = 0; }
+function trySlide() {
+  if (state !== 'play' || !player.alive || player.slideT >= 0 || player.slideCd > 0 || !player.onGround) return;
+  if (sprintT < 0.35 || player.speed < WALK + 0.8) { if (player.speed < WALK + 0.8) msg('Zum Sliden erst sprinten (Shift + W)', 1200); return; }
+  const l = player.speed || 1;
+  player.slideDir.set(player.vel.x / l, 0, player.vel.z / l);
+  player.slideSp0 = Math.max(player.speed * 1.28, 9.2); player.slideSp = player.slideSp0; player.slideT = 0;
+  sfx.land();
+}
 function updatePlayer(dt) {
   player.meleeCd -= dt;
   const f = (keys.KeyW ? 1 : 0) - (keys.KeyS ? 1 : 0), s = (keys.KeyD ? 1 : 0) - (keys.KeyA ? 1 : 0);
   const sprint = keys.ShiftLeft && f > 0 && ads < 0.3;
+  if (sprint && player.onGround && player.speed > WALK + 0.8) sprintT += dt; else if (player.slideT < 0) sprintT = 0;
+  player.slideCd -= dt;
   const max = (sprint ? SPRINT : WALK) * (1 - 0.35 * ads);
   const fx = -Math.sin(player.yaw), fz = -Math.cos(player.yaw), rx = Math.cos(player.yaw), rz = -Math.sin(player.yaw);
   let wx = fx * f + rx * s, wz = fz * f + rz * s;
   const wl = Math.hypot(wx, wz) || 1; wx = (wx / wl) * max * (f || s ? 1 : 0); wz = (wz / wl) * max * (f || s ? 1 : 0);
   const k = player.onGround ? (f || s ? 11 : 14) : 2.2;
   const a = 1 - Math.exp(-k * dt);
-  player.vel.x += (wx - player.vel.x) * a; player.vel.z += (wz - player.vel.z) * a;
+  if (player.slideT >= 0) {   // Rutschen: feste Richtung, Tempo klingt ab
+    player.slideT += dt;
+    const u = player.slideT / SLIDE_DUR;
+    player.slideSp = player.slideSp0 * Math.pow(Math.max(0, 1 - u), 1.3) + 2.2 * (1 - u);
+    player.vel.set(player.slideDir.x * player.slideSp, 0, player.slideDir.z * player.slideSp);
+    if (u >= 1 || !player.onGround || player.slideSp < 2.6) endSlide();
+  } else {
+    player.vel.x += (wx - player.vel.x) * a; player.vel.z += (wz - player.vel.z) * a;
+  }
 
-  if (keys.Space && player.onGround) { player.vy = JUMP; player.onGround = false; sfx.jump(); }
+  if (keys.Space && player.onGround) { if (player.slideT >= 0) endSlide(); player.vy = JUMP; player.onGround = false; sfx.jump(); }
   player.pos.x += player.vel.x * dt; player.pos.z += player.vel.z * dt;
   resolve(player.pos, player.pos.y);
   const g = groundAt(player.pos, player.pos.y);
@@ -1049,10 +1090,21 @@ function loop(now) {
   landDip = Math.max(0, landDip - dt * 0.7);
   kick = Math.max(0, kick - dt * 0.35);
   const bobY = Math.sin(bobPhase * 2) * 0.03 * sf * (1 - 0.8 * ads), bobX = Math.cos(bobPhase) * 0.022 * sf * (1 - 0.8 * ads);
-  const targetY = player.pos.y + (player.alive ? EYE : 0.5);
+  player.slideAmt += ((player.slideT >= 0 ? 1 : 0) - player.slideAmt) * Math.min(1, dt * 12);
+  const targetY = player.pos.y + (player.alive ? EYE - 0.85 * player.slideAmt : 0.5);
   camY += (targetY - camY) * Math.min(1, dt * (player.alive ? 22 : 4));
   camera.position.set(player.pos.x, camY + bobY - landDip, player.pos.z);
-  camera.rotation.set(player.alive ? pitch + kick * 1.4 : -0.35, player.yaw, player.alive ? bobX * 0.5 : 0.55);
+  camera.rotation.set(player.alive ? pitch + kick * 1.4 : -0.35, player.yaw, player.alive ? bobX * 0.5 + player.slideAmt * 0.05 : 0.55);
+  if (tpv && player.alive) {   // Schulterkamera mit Wandkollision
+    const cp = Math.cos(pitch), fdir = new V3(-Math.sin(player.yaw) * cp, Math.sin(pitch), -Math.cos(player.yaw) * cp);
+    const rgt = new V3(Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+    const piv = new V3(player.pos.x, camY + 0.05, player.pos.z).addScaledVector(rgt, 0.35 * (1 - 0.6 * ads));
+    const want = piv.clone().addScaledVector(fdir, -3.0 * (1 - 0.45 * ads)).add(new V3(0, 0.25, 0));
+    const dv = want.clone().sub(piv), dl = dv.length(); dv.divideScalar(dl);
+    const wd = wallDist(piv, dv, dl + 0.3);
+    camera.position.copy(piv).addScaledVector(dv, Math.max(0.4, Math.min(dl, wd - 0.3)));
+    camera.rotation.z = 0;
+  }
   camera.updateMatrixWorld();
 
   // Waffe: Schwanken, Rückstoß, Schlitten
@@ -1081,12 +1133,22 @@ function loop(now) {
   hammer.rotation.x = -0.65 * (locked0 || recoil > 0.2 || inspSlide > 0 ? 1 : 0.2) ;
   trigger.position.z = -0.058 + (recoil > 0.3 ? 0.006 : 0);
   chamberBrass.visible = player.ammo > 0 && recoil < 0.3;
-  gun.visible = player.alive;
+  gun.visible = player.alive && !tpv;
 
-  // Bots animieren
+  // Soldaten animieren
+  for (const e of ents) {
+    const h = e.hum; if (!h) continue;
+    h.root.visible = e.isPlayer ? (tpv || !e.alive) : true;
+    h.root.position.copy(e.pos);
+    h.root.rotation.y = e.alive ? e.yaw : (h.deadYaw !== undefined ? h.deadYaw : e.yaw);
+    const sl = e.isPlayer ? e.slideT : -1;
+    humanUpdate(h, dt, e.isPlayer ? e.speed = player.speed : e.speed, sl, e.isPlayer);
+  }
+  // Bots animieren (Platzhalter, falls Soldat fehlt)
   for (const e of ents) {
     if (!e.mesh) continue;
     const m = e.mesh, rd = e.rag;
+    if (e.hum) continue;
     if (e.alive) {
       m.position.copy(e.pos); m.rotation.y = e.yaw;
       const u = m.userData;
