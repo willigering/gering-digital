@@ -23,9 +23,9 @@ if (str_contains($page,'<header class="nav glass-nav">') ||
 if (!str_contains($css,'pointer-events:none;opacity:.27;mix-blend-mode:screen;')) {
   throw new RuntimeException('Matrix opacity must be 15 percentage points lower than before.');
 }
-if (!str_contains($css,'grid-template-columns:minmax(0,1fr);gap:30px;') ||
+if (!str_contains($css,'grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);') ||
     !str_contains($page,'aria-label="SharpLab-Vorschau in voller Größe öffnen"')) {
-  throw new RuntimeException('The preview must fill a wide row and open at full resolution.');
+  throw new RuntimeException('The preview must sit beside the introduction and open at full resolution.');
 }
 if (!str_contains($css,'.sharplab-page .portable-action{color:#161406;background:#f2cc47') ||
     !str_contains($css,'sl-runtime-action')) {
