@@ -92,16 +92,17 @@ scene.add(camera);
   const mat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
     uniforms: { skyMap: { value: null }, hasMap: { value: 0 }, time: { value: 0 }, top: { value: new THREE.Color(0x24407a) }, mid: { value: new THREE.Color(0x7d8fb5) }, hor: { value: new THREE.Color(0xe0a77f) } },
-    vertexShader: 'varying vec3 vP; void main(){ vP = position; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-    fragmentShader: `varying vec3 vP; uniform sampler2D skyMap; uniform float hasMap; uniform float time; uniform vec3 top; uniform vec3 mid; uniform vec3 hor;
+    vertexShader: 'varying vec3 vP; varying vec3 vW; void main(){ vP = position; vW = (modelMatrix*vec4(position,1.0)).xyz; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+    fragmentShader: `varying vec3 vP; varying vec3 vW; uniform sampler2D skyMap; uniform float hasMap; uniform float time; uniform vec3 top; uniform vec3 mid; uniform vec3 hor;
       void main(){ float h = normalize(vP).y; vec3 c = mix(hor, mid, smoothstep(0.0, 0.25, h)); c = mix(c, top, smoothstep(0.2, 0.85, h));
       vec3 sd = normalize(vec3(-0.55, 0.30, 0.45)); float s = max(dot(normalize(vP), sd), 0.0);
       c += vec3(1.0,0.75,0.45) * (pow(s, 30.0) * 0.45 + pow(s, 1500.0) * 1.6);
-      if (hasMap > 0.5) { vec3 d = normalize(vP); float az = atan(d.z, d.x) / 6.2831853 + 0.5;
-        vec3 pc = texture2D(skyMap, vec2(az * 2.0 + time * 0.003, clamp(pow(max(d.y, 0.0), 0.75) * 1.2, 0.0, 0.9))).rgb;
-        vec2 pu = d.xz / (d.y + 0.45) * 0.55 + vec2(time * 0.004, 0.31);
-        pc = mix(pc, texture2D(skyMap, pu).rgb, smoothstep(0.45, 0.8, d.y));
-        c = mix(c, pc * 0.92, smoothstep(0.0, 0.07, d.y)); }
+      if (hasMap > 0.5) { vec3 d = normalize(vW - cameraPosition);
+        // zwei ebene Wolkenschichten (keine Naht, kein Pol); Spieler-Bewegung verschiebt sie unterschiedlich stark -> Parallax
+        vec2 pA = d.xz / (d.y + 0.42) * 0.62 + vec2(time * 0.0007, 0.13) + cameraPosition.xz * 0.0035;
+        vec2 pB = (mat2(0.8, -0.6, 0.6, 0.8) * d.xz) / (d.y + 0.42) * 0.95 + vec2(time * -0.0012, 0.57) + cameraPosition.xz * 0.0085;
+        vec3 pc = mix(texture2D(skyMap, pA).rgb, texture2D(skyMap, pB).rgb, 0.27);
+        c = mix(c, pc * 0.92, smoothstep(0.06, 0.4, d.y)); }
       gl_FragColor = vec4(c, 1.0); }`,
   });
   const sky = new THREE.Mesh(new THREE.SphereGeometry(150, 32, 16), mat);
@@ -359,8 +360,7 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
         const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hgt, 48, 1, true), new THREE.MeshBasicMaterial({ map: t2, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: col }));
         m.position.y = y; m.renderOrder = ro; scene.add(m); return m;
       };
-      mkRing(178, 90, 0xb8bccc, 0.21, false, 30, -2);
-      mkRing(66, 34, 0x8a90a6, 0.57, true, 13, 0);
+      window.__rings = [[cyl, 0.5], [mkRing(178, 90, 0xc4c8d8, 0.21, false, 30, -2), 0.97], [mkRing(46, 30, 0x6c7288, 0.57, true, 11, 0), 0.35]];
     }
   });
 }
@@ -1408,6 +1408,7 @@ function loop(now) {
   const targetY = player.pos.y + (player.alive ? EYE - 0.85 * player.slideAmt : 0.5);
   camY += (targetY - camY) * Math.min(1, dt * (player.alive ? 22 : 4));
   camera.position.set(player.pos.x, camY + bobY - landDip, player.pos.z);
+  if (window.__rings) for (const [m, f] of window.__rings) m.position.set(camera.position.x * f, m.position.y, camera.position.z * f);
   camera.rotation.set(player.alive ? pitch + kick * 1.4 : -0.35, player.yaw, player.alive ? bobX * 0.5 + player.slideAmt * 0.05 : 0.55);
   if (tpv && player.alive) {   // Schulterkamera mit Wandkollision
     const cp = Math.cos(pitch), fdir = new V3(-Math.sin(player.yaw) * cp, Math.sin(pitch), -Math.cos(player.yaw) * cp);
