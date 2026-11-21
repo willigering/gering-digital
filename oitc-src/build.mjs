@@ -8,7 +8,7 @@ const tpl = readFileSync('src/template.html', 'utf8');
 mkdirSync('dist', { recursive: true });
 if (existsSync('assets')) cpSync('assets', 'dist/assets', { recursive: true }); // GLB-Modelle etc.
 
-const opts = { entryPoints: ['src/main.js'], bundle: true, format: 'iife', outfile: 'dist/bundle.js', minify: !dev, loader: { '.glb': 'binary' }, sourcemap: dev };
+const opts = { entryPoints: ['src/main.js'], bundle: true, format: 'iife', outfile: 'dist/bundle.js', minify: !dev, loader: { '.glb': 'binary', '.jpg': 'dataurl' }, sourcemap: dev };
 
 if (dev) {
   writeFileSync('dist/index.html', tpl.replace('<script>/*BUNDLE*/</script>', '<script src="bundle.js"></script>'));
