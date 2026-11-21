@@ -423,8 +423,8 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
           if (win) { g.fillStyle = glow; for (let wy = y + 8; wy < c.height - 6; wy += 9) for (let wx = x + 5; wx < x + w - 5; wx += 8) if (R() < 0.28) g.fillRect(wx, wy, 3, 4); }
           x += w + (R() < 0.3 ? 6 + R() * 18 : 0);
         }
-        g.globalCompositeOperation = 'destination-in'; const fade = g.createLinearGradient(0, c.height * 0.78, 0, c.height); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(1, 'rgba(0,0,0,0.0)');
-        g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height * 0.78); g.fillStyle = fade; g.fillRect(0, c.height * 0.78, c.width, c.height * 0.22);
+        g.globalCompositeOperation = 'destination-out'; const fade = g.createLinearGradient(0, c.height * 0.8, 0, c.height); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
+        g.fillStyle = fade; g.fillRect(0, c.height * 0.8, c.width, c.height * 0.2); g.globalCompositeOperation = 'source-over';
         const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = maxAniso; return t;
       };
       const mkRing = (r, hgt, tex, y, ro) => {
