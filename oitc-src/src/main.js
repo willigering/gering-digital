@@ -64,7 +64,7 @@ renderer.toneMappingExposure = 1.05;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.appendChild(renderer.domElement);
-const maxAniso = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+const maxAniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 
 const scene = new THREE.Scene();
 const FOG = 0x8d93a3;
@@ -124,6 +124,42 @@ function tex(canvas, srgb = true) {
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
+// Aus dem Farbbild werden Normal- und Rauheits-Map abgeleitet (Sobel auf der Helligkeit, nahtlos kachelnd)
+function heightOf(canvas, blur) {
+  const s = canvas.width, d = canvas.getContext('2d').getImageData(0, 0, s, s).data, h = new Float32Array(s * s);
+  for (let i = 0; i < s * s; i++) h[i] = (d[i * 4] * 0.3 + d[i * 4 + 1] * 0.59 + d[i * 4 + 2] * 0.11) / 255;
+  let a = h, b = new Float32Array(s * s);
+  for (let it = 0; it < blur; it++) {
+    for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) { const i = y * s + x; b[i] = (a[i] * 2 + a[y * s + ((x + 1) % s)] + a[y * s + ((x + s - 1) % s)] + a[((y + 1) % s) * s + x] + a[((y + s - 1) % s) * s + x]) / 6; }
+    const t = a; a = b; b = t;
+  }
+  return a;
+}
+function normalFrom(canvas, strength = 2.2, blur = 1) {
+  const s = canvas.width, h = heightOf(canvas, blur), c = document.createElement('canvas'); c.width = c.height = s;
+  const g = c.getContext('2d'), img = g.createImageData(s, s), o = img.data;
+  for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) {
+    const xl = (x + s - 1) % s, xr = (x + 1) % s, yu = (y + s - 1) % s, yd = (y + 1) % s;
+    const dx = (h[y * s + xr] - h[y * s + xl]) * strength, dy = (h[yd * s + x] - h[yu * s + x]) * strength;
+    const l = Math.hypot(dx, dy, 1), i = (y * s + x) * 4;
+    o[i] = (-dx / l * 0.5 + 0.5) * 255; o[i + 1] = (dy / l * 0.5 + 0.5) * 255; o[i + 2] = (1 / l * 0.5 + 0.5) * 255; o[i + 3] = 255;
+  }
+  g.putImageData(img, 0, 0); return c;
+}
+function roughFrom(canvas, lo = 0.62, hi = 1.0) {
+  const s = canvas.width, h = heightOf(canvas, 1), c = document.createElement('canvas'); c.width = c.height = s;
+  const g = c.getContext('2d'), img = g.createImageData(s, s), o = img.data;
+  for (let i = 0; i < s * s; i++) { const v = (lo + (hi - lo) * (1 - Math.min(1, Math.max(0, (h[i] - 0.15) * 1.5)))) * 255; o[i * 4] = o[i * 4 + 1] = o[i * 4 + 2] = v; o[i * 4 + 3] = 255; }
+  g.putImageData(img, 0, 0); return c;
+}
+// Komplettes Material aus einem Farbbild: Farbe + Normal + Rauheit
+function pbr(canvas, o = {}) {
+  const map = tex(canvas), normalMap = tex(normalFrom(canvas, o.bump ?? 2.2, o.blur ?? 1), false), roughnessMap = tex(roughFrom(canvas, o.rlo ?? 0.62, o.rhi ?? 1.0), false);
+  const m = new THREE.MeshStandardMaterial({ map, normalMap, roughnessMap, roughness: 1, metalness: o.metal ?? 0 });
+  m.normalScale.set(o.ns ?? 1, o.ns ?? 1);
+  m.userData.texs = [map, normalMap, roughnessMap];
+  return m;
+}
 function macro(g, s, alpha, dark = 40, light = 220) {
   const n = 12, c = document.createElement('canvas'); c.width = c.height = n; const cg = c.getContext('2d');
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const v = rnd(dark, light) | 0; cg.fillStyle = `rgb(${v},${v},${v})`; cg.fillRect(x, y, 1, 1); }
@@ -162,13 +198,15 @@ const concreteC = mkCanvas(512, (g, s) => {
   g.fillStyle = 'rgba(20,20,24,.55)'; for (const [x, y] of [[s * 0.25, s * 0.25], [s * 0.75, s * 0.25], [s * 0.25, s * 0.75], [s * 0.75, s * 0.75]]) { g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = 2; g.stroke(); }
   dirtBottom(g, s, 0.25, 0.3);
 });
-const floorC = mkCanvas(512, (g, s) => {
-  g.fillStyle = '#6f737b'; g.fillRect(0, 0, s, s); macro(g, s, 0.3, 30, 200); speckle(g, s, 30000, 50, 190, 0.2); pores(g, s, 400);
-  stains(g, s, 12, 0.22); cracks(g, s, 5, 0.4);
+const floorC = mkCanvas(1024, (g, s) => {
+  g.fillStyle = '#6f737b'; g.fillRect(0, 0, s, s); macro(g, s, 0.3, 30, 200); speckle(g, s, 120000, 50, 190, 0.2); pores(g, s, 1400);
+  stains(g, s, 40, 0.22); cracks(g, s, 16, 0.4);
   for (let i = 0; i < 3; i++) { const x = rnd(40, s - 40), y = rnd(40, s - 40), r = rnd(20, 50), gr = g.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, 'rgba(10,10,14,.55)'); gr.addColorStop(0.7, 'rgba(10,10,14,.25)'); gr.addColorStop(1, 'rgba(10,10,14,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
-  g.strokeStyle = 'rgba(15,15,20,.8)'; g.lineWidth = 6; g.strokeRect(0, 0, s, s);
-  g.strokeStyle = 'rgba(255,255,255,.1)'; g.lineWidth = 2; g.strokeRect(5, 5, s - 10, s - 10);
-  g.strokeStyle = 'rgba(15,15,20,.3)'; g.lineWidth = 2; g.beginPath(); g.moveTo(s / 2, 0); g.lineTo(s / 2, s); g.moveTo(0, s / 2); g.lineTo(s, s / 2); g.stroke();
+  for (const [ox, oy] of [[0, 0], [s / 2, 0], [0, s / 2], [s / 2, s / 2]]) {   // vier Platten je Kachel
+    g.strokeStyle = 'rgba(15,15,20,.8)'; g.lineWidth = 6; g.strokeRect(ox, oy, s / 2, s / 2);
+    g.strokeStyle = 'rgba(255,255,255,.1)'; g.lineWidth = 2; g.strokeRect(ox + 5, oy + 5, s / 2 - 10, s / 2 - 10);
+    g.strokeStyle = 'rgba(15,15,20,.3)'; g.lineWidth = 2; g.beginPath(); g.moveTo(ox + s / 4, oy); g.lineTo(ox + s / 4, oy + s / 2); g.moveTo(ox, oy + s / 4); g.lineTo(ox + s / 2, oy + s / 4); g.stroke();
+  }
 });
 const wallC = mkCanvas(512, (g, s) => {
   g.fillStyle = '#867a6f'; g.fillRect(0, 0, s, s); macro(g, s, 0.25); speckle(g, s, 12000, 60, 205, 0.2); pores(g, s, 200); stains(g, s, 10, 0.2);
@@ -217,19 +255,16 @@ const barrelC = (color) => mkCanvas(256, (g, s) => {
   for (let i = 0; i < 24; i++) { g.strokeStyle = 'rgba(210,210,215,.3)'; g.lineWidth = 1; g.beginPath(); const x = rnd(0, s), y = rnd(0, s); g.moveTo(x, y); g.lineTo(x + rnd(-20, 20), y + rnd(-8, 8)); g.stroke(); }
 });
 
-const T = {
-  concrete: tex(concreteC), floor: tex(floorC), wall: tex(wallC), crate: tex(crateC),
-};
-T.floor.repeat.set(HALF / 2, HALF / 2);
 const mats = {
-  floor: new THREE.MeshStandardMaterial({ map: T.floor, roughness: 0.92 }),
-  concrete: new THREE.MeshStandardMaterial({ map: T.concrete, roughness: 0.9 }),
-  wall: new THREE.MeshStandardMaterial({ map: T.wall, roughness: 0.9 }),
-  crate: new THREE.MeshStandardMaterial({ map: T.crate, roughness: 0.85 }),
+  floor: pbr(floorC, { bump: 3.2, blur: 1, ns: 1.1, rlo: 0.7 }),
+  concrete: pbr(concreteC, { bump: 2.6, ns: 1.0, rlo: 0.7 }),
+  wall: pbr(wallC, { bump: 3.0, ns: 1.1, rlo: 0.72 }),
+  crate: pbr(crateC, { bump: 4.2, blur: 0, ns: 1.2, rlo: 0.55, rhi: 0.9 }),
 };
+mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
 const containerMats = {};
 function containerMat(color) {
-  if (!containerMats[color]) { const t = tex(containerC(color)); containerMats[color] = new THREE.MeshStandardMaterial({ map: t, roughness: 0.55, metalness: 0.5 }); }
+  if (!containerMats[color]) { containerMats[color] = pbr(containerC(color), { bump: 4.5, blur: 0, ns: 1.3, rlo: 0.4, rhi: 0.8, metal: 0.5 }); }
   return containerMats[color];
 }
 const TILE = { concrete: 2, wall: 4.2, crate: 1.5, container: 2.4 };
@@ -268,8 +303,7 @@ function addBox(x, z, w, d, h, type, color) {
   return m;
 }
 function addBarrel(x, z, color) {
-  const t = tex(barrelC(color));
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.1, 20), new THREE.MeshStandardMaterial({ map: t, roughness: 0.45, metalness: 0.6 }));
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 1.1, 20), pbr(barrelC(color), { bump: 3.5, blur: 0, rlo: 0.35, rhi: 0.7, metal: 0.6 }));
   m.position.set(x, 0.55, z); m.castShadow = true; m.receiveShadow = true; scene.add(m);
   addCollider(x, z, 0.8, 0.8, 1.1);
 }
