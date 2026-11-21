@@ -3,8 +3,6 @@ import phFloor from '../assets/tex/floor.jpg';
 import phWall from '../assets/tex/wall.jpg';
 import phCrate from '../assets/tex/crate.jpg';
 import phMetal from '../assets/tex/metal.jpg';
-import phSky from '../assets/tex/sky.jpg';
-import phSkyline from '../assets/tex/skyline.jpg';
 import { Net } from './net.js';
 import { setCamo, loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -49,17 +47,70 @@ function noise(dur, vol = 0.1, lp = 3000) {
     s.connect(f); f.connect(g); g.connect(actx.destination); s.start();
   } catch (e) { /* Audio optional */ }
 }
+// ---------- Sounds aus "Are You Dead Yet?" (zur Laufzeit aus ../zombies/ geladen, sonst synthetisch) ----------
+const SFXBASE = new URL('../zombies/sfx/', location.href).href, MUSBASE = new URL('../zombies/music/', location.href).href;
+const SMAP = {
+  shot: ['pistol_shot_1', 'pistol_shot_2', 'pistol_shot_3'], botshot: ['pistol_shot_1', 'pistol_shot_2', 'pistol_shot_3'],
+  click: ['gun_empty_1', 'gun_empty_2'], reload: ['reload_pistol_1', 'reload_pistol_2', 'reload_pistol_3'],
+  melee: ['knife_swing', 'swing_whoosh_1'], stab: ['knife_hit_1', 'knife_hit_2'], kill: ['headshot_1', 'headshot_2'], pickup: ['ammo_refill'],
+  hurt: ['player_hurt_1', 'player_hurt_2', 'player_hurt_3', 'player_hurt_4'], step: ['step_asphalt_1', 'step_asphalt_2', 'step_asphalt_3', 'step_asphalt_4'],
+  land: ['land'], jump: ['swing_whoosh_2'], groan: ['zombie_groan_1', 'zombie_groan_2', 'zombie_groan_3', 'zombie_groan_4'],
+  zatk: ['zombie_attack_1', 'zombie_attack_2', 'zombie_attack_3', 'zombie_attack_4'], zdie: ['zombie_die_1', 'zombie_die_2', 'zombie_die_3', 'zombie_die_4'],
+  zhit: ['zombie_hit_1', 'zombie_hit_2', 'zombie_hit_3'], headshot: ['headshot_bone_1', 'headshot_bone_2'], wave: ['wave_bell'], over: ['game_over'], go: ['round_start'], ui: ['ui_select'],
+  wind: ['wind_loop'],
+};
+const SBUF = {}; let sampStarted = false;
+function loadSamples() {
+  if (sampStarted) return; sampStarted = true;
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+  for (const n of new Set(Object.values(SMAP).flat())) {
+    fetch(SFXBASE + n + '.mp3').then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b ? actx.decodeAudioData(b) : null)).then((buf) => { if (buf) SBUF[n] = buf; }).catch(() => {});
+  }
+}
+const sampLast = {};
+function samp(key, vol = 1, rate = 1, pan = 0, minGap = 0.03) {
+  const list = SMAP[key]; if (!list || !actx) return false;
+  const t = performance.now() / 1000; if (t - (sampLast[key] || -9) < minGap) return true;
+  const ok = list.filter((n) => SBUF[n]); if (!ok.length) return false;
+  sampLast[key] = t;
+  try {
+    const src = actx.createBufferSource(), g = actx.createGain(); src.buffer = SBUF[ok[(Math.random() * ok.length) | 0]];
+    src.playbackRate.value = rate * (0.96 + Math.random() * 0.08); g.gain.value = vol * (cfg.sfxVol ?? 1);
+    src.connect(g);
+    if (actx.createStereoPanner) { const pn = actx.createStereoPanner(); pn.pan.value = clamp(pan, -1, 1); g.connect(pn); pn.connect(actx.destination); } else g.connect(actx.destination);
+    src.start();
+  } catch (e) { return false; }
+  return true;
+}
+// Musik: Menü-Stück und ruhige Spiel-Stücke als Stream
+const music = { el: null, cur: '' };
+function musicPlay(file, vol) {
+  if (music.cur === file && music.el) { music.el.volume = vol * (cfg.musVol ?? 0.5); return; }
+  try {
+    if (music.el) { music.el.pause(); }
+    const a = new Audio(MUSBASE + file); a.loop = file === 'menu.mp3'; a.volume = vol * (cfg.musVol ?? 0.5);
+    if (file !== 'menu.mp3') a.addEventListener('ended', () => musicPlay('slow' + (1 + ((Math.random() * 10) | 0)) + '.mp3', 0.5));
+    a.play().catch(() => {}); music.el = a; music.cur = file;
+  } catch (e) { /* Audio optional */ }
+}
+function musicStop() { if (music.el) { music.el.pause(); music.el = null; music.cur = ''; } }
+const pn = (x, z) => { const dx = x - camera.position.x, dz = z - camera.position.z, a = Math.atan2(dx, -dz) - camera.rotation.y; return Math.sin(a) * 0.8; };
 const sfx = {
-  shot: () => { noise(0.25, 0.22, 4500); beep(140, 0.2, 'sawtooth', 0.12, -90); },
-  botshot: (vol) => { noise(0.2, 0.08 * vol, 2500); },
-  click: () => beep(1400, 0.03, 'square', 0.05),
-  melee: () => { noise(0.12, 0.12, 1500); beep(240, 0.1, 'triangle', 0.08, -140); },
-  kill: () => { beep(520, 0.1, 'square', 0.07); setTimeout(() => beep(780, 0.12, 'square', 0.07), 90); },
-  hurt: () => beep(120, 0.35, 'sawtooth', 0.12, -70),
-  step: () => noise(0.05, 0.05, 700),
-  land: () => noise(0.09, 0.09, 600),
-  jump: () => noise(0.06, 0.04, 900),
-  groan: (v) => { beep(rnd(70, 110), 0.7, 'sawtooth', 0.05 * v, -25); noise(0.5, 0.025 * v, 500); },
+  shot: () => { if (!samp('shot', 0.8)) { noise(0.25, 0.22, 4500); beep(140, 0.2, 'sawtooth', 0.12, -90); } },
+  botshot: (vol, x, z) => { if (!samp('botshot', 0.55 * vol, 0.95, x === undefined ? 0 : pn(x, z))) noise(0.2, 0.08 * vol, 2500); },
+  click: () => { if (!samp('click', 0.6)) beep(1400, 0.03, 'square', 0.05); },
+  reload: () => { if (!samp('reload', 0.7)) beep(900, 0.04, 'square', 0.05); },
+  melee: () => { if (!samp('melee', 0.7)) { noise(0.12, 0.12, 1500); beep(240, 0.1, 'triangle', 0.08, -140); } },
+  stab: () => samp('stab', 0.8),
+  kill: () => { if (!samp('kill', 0.7)) { beep(520, 0.1, 'square', 0.07); setTimeout(() => beep(780, 0.12, 'square', 0.07), 90); } },
+  pickup: () => { if (!samp('pickup', 0.8)) sfx.kill(); },
+  hurt: () => { if (!samp('hurt', 0.9)) beep(120, 0.35, 'sawtooth', 0.12, -70); },
+  step: () => { if (!samp('step', 0.35, 1, 0, 0.12)) noise(0.05, 0.05, 700); },
+  land: () => { if (!samp('land', 0.5)) noise(0.09, 0.09, 600); },
+  jump: () => { if (!samp('jump', 0.25, 1.2)) noise(0.06, 0.04, 900); },
+  groan: (v, x, z) => { if (!samp('groan', 0.9 * v, 1, x === undefined ? 0 : pn(x, z), 0.4)) { beep(rnd(70, 110), 0.7, 'sawtooth', 0.05 * v, -25); noise(0.5, 0.025 * v, 500); } },
+  zatk: () => samp('zatk', 0.9, 1, 0, 0.2), zdie: (x, z) => samp('zdie', 0.8, 1, pn(x, z), 0.1), zhit: (x, z) => samp('zhit', 0.7, 1, pn(x, z), 0.05),
+  head: () => samp('headshot', 0.7), wave: () => samp('wave', 0.9), over: () => samp('over', 0.9), go: () => samp('go', 0.7), ui: () => samp('ui', 0.6),
 };
 
 // ---------- Renderer ----------
@@ -92,19 +143,32 @@ scene.add(camera);
 {
   const mat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { skyMap: { value: null }, hasMap: { value: 0 }, time: { value: 0 }, top: { value: new THREE.Color(0x24407a) }, mid: { value: new THREE.Color(0x7d8fb5) }, hor: { value: new THREE.Color(0xe0a77f) } },
+    uniforms: { time: { value: 0 }, top: { value: new THREE.Color(0x21407f) }, mid: { value: new THREE.Color(0x6f95c6) }, hor: { value: new THREE.Color(0xf0c8a4) } },
     vertexShader: 'varying vec3 vP; varying vec3 vW; void main(){ vP = position; vW = (modelMatrix*vec4(position,1.0)).xyz; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
-    fragmentShader: `varying vec3 vP; varying vec3 vW; uniform sampler2D skyMap; uniform float hasMap; uniform float time; uniform vec3 top; uniform vec3 mid; uniform vec3 hor;
-      void main(){ float h = normalize(vP).y; vec3 c = mix(hor, mid, smoothstep(0.0, 0.25, h)); c = mix(c, top, smoothstep(0.2, 0.85, h));
-      vec3 sd = normalize(vec3(-0.55, 0.30, 0.45)); float s = max(dot(normalize(vP), sd), 0.0);
-      c += vec3(1.0,0.75,0.45) * (pow(s, 30.0) * 0.45 + pow(s, 1500.0) * 1.6);
-      if (hasMap > 0.5) { vec3 d = normalize(vW - cameraPosition);
-        // zwei ebene Wolkenschichten (keine Naht, kein Pol); Spieler-Bewegung verschiebt sie unterschiedlich stark -> Parallax
-        vec2 pA = d.xz / (d.y + 0.42) * 0.62 + vec2(time * 0.0007, 0.13) + cameraPosition.xz * 0.0035;
-        vec2 pB = (mat2(0.8, -0.6, 0.6, 0.8) * d.xz) / (d.y + 0.42) * 0.95 + vec2(time * -0.0012, 0.57) + cameraPosition.xz * 0.0085;
-        vec3 pc = mix(texture2D(skyMap, pA).rgb, texture2D(skyMap, pB).rgb, 0.27);
-        c = mix(c, pc * 0.92, smoothstep(0.06, 0.4, d.y)); }
-      gl_FragColor = vec4(c, 1.0); }`,
+    fragmentShader: `varying vec3 vP; varying vec3 vW; uniform float time; uniform vec3 top; uniform vec3 mid; uniform vec3 hor;
+      float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+      float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f); return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y); }
+      float fbm(vec2 p){ float a = 0.5, s = 0.0; for (int i = 0; i < 5; i++) { s += a * vn(p); p = p * 2.03 + vec2(17.1, 9.2); a *= 0.5; } return s; }
+      void main(){
+        vec3 d = normalize(vW - cameraPosition); float h = max(d.y, 0.0);
+        vec3 sd = normalize(vec3(-0.55, 0.22, 0.45)); float sg = max(dot(d, sd), 0.0);
+        // Verlauf: warmer Dunst am Horizont, tiefes Blau im Zenit
+        vec3 c = mix(hor, mid, smoothstep(0.0, 0.32, h)); c = mix(c, top, smoothstep(0.18, 0.95, h));
+        c += vec3(1.0, 0.62, 0.30) * pow(sg, 6.0) * 0.28 + vec3(1.0, 0.78, 0.50) * pow(sg, 40.0) * 0.45 + vec3(1.0, 0.92, 0.75) * pow(sg, 900.0) * 1.8;
+        // Wolken: zwei ebene Schichten, weich, mit Licht von der Sonnenseite; Bewegung des Spielers verschiebt sie unterschiedlich stark (Parallax)
+        vec2 sxz = normalize(sd.xz);
+        vec2 pA = d.xz / (h + 0.38) * 0.85 + vec2(time * 0.0016, 0.0) + cameraPosition.xz * 0.0030;
+        float nA = fbm(pA * 1.35), nA2 = fbm(pA * 1.35 + sxz * 0.09);
+        float dA = smoothstep(0.46, 0.76, nA);
+        float litA = clamp(0.55 + (nA - nA2) * 5.5, 0.0, 1.0);
+        vec3 cA = mix(vec3(0.46, 0.50, 0.64), vec3(1.0, 0.86, 0.72), litA);
+        cA = mix(cA, vec3(1.0, 0.70, 0.50), pow(sg, 3.0) * 0.45);
+        c = mix(c, cA, dA * smoothstep(0.03, 0.32, h) * 0.92);
+        vec2 pB = (mat2(0.8, -0.6, 0.6, 0.8) * d.xz) / (h + 0.38) * 1.7 + vec2(time * -0.0030, 3.7) + cameraPosition.xz * 0.0075;
+        float nB = fbm(pB * 1.2), dB = smoothstep(0.58, 0.86, nB);
+        c = mix(c, mix(vec3(0.62, 0.66, 0.80), vec3(1.0, 0.90, 0.80), 0.35 + 0.4 * sg), dB * smoothstep(0.06, 0.4, h) * 0.45);
+        gl_FragColor = vec4(c, 1.0);
+      }`,
   });
   const sky = new THREE.Mesh(new THREE.SphereGeometry(150, 32, 16), mat);
   scene.add(sky); window.__skyMat = mat;
@@ -337,32 +401,44 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
 // KI-Fotos laden und danach alle Texturen neu zeichnen
 {
   const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-  Promise.all([['floor', phFloor], ['wall', phWall], ['crate', phCrate], ['metal', phMetal], ['sky', phSky], ['skyline', phSkyline]].map(([k, src]) => load(src).then((im) => { PH[k] = im; }))).then(() => {
+  Promise.all([['floor', phFloor], ['wall', phWall], ['crate', phCrate], ['metal', phMetal]].map(([k, src]) => load(src).then((im) => { PH[k] = im; }))).then(() => {
     for (const t of TEXLIST) { const g = t.c.getContext('2d'); g.clearRect(0, 0, t.size, t.size); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; t.fn(g, t.size); }
     for (const { canvas, m, o } of PBRLIST) {
       const [map, nm, rm] = m.userData.texs; map.needsUpdate = true;
       nm.image = normalFrom(canvas, o.bump ?? 2.2, o.blur ?? 1); nm.needsUpdate = true;
       rm.image = roughFrom(canvas, o.rlo ?? 0.62, o.rhi ?? 1.0); rm.needsUpdate = true;
     }
-    if (PH.sky && window.__skyMat) {
-      const t = new THREE.Texture(PH.sky); t.wrapS = THREE.MirroredRepeatWrapping; t.wrapT = THREE.MirroredRepeatWrapping; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true;
-      window.__skyMat.uniforms.skyMap.value = t; window.__skyMat.uniforms.hasMap.value = 1;
-    }
-    if (PH.skyline) {
-      const im = PH.skyline, c = document.createElement('canvas'); c.width = im.width * 2; c.height = im.height; const g = c.getContext('2d');
-      g.drawImage(im, 0, 0); g.save(); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(im, 0, 0); g.restore();
-      g.globalCompositeOperation = 'destination-in'; const gr = g.createLinearGradient(0, 0, 0, c.height); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.3, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,1)'); g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
-      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.repeat.set(2, 1); t.anisotropy = maxAniso;
-      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(112, 112, 56, 64, 1, true), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: 0xe0e0e8 }));
-      cyl.position.y = 22; cyl.renderOrder = -1; scene.add(cyl); scene.remove(skylineBoxes);
-      // Parallax: zwei weitere Ringe in anderer Entfernung/Tönung -> Ebenen verschieben sich beim Laufen gegeneinander
-      const mkRing = (r, hgt, col, off, flip, y, ro) => {
-        const t2 = t.clone(); t2.needsUpdate = true; t2.offset.x = off; t2.repeat.set(flip ? -2 : 2, 1); t2.wrapS = THREE.RepeatWrapping;
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hgt, 48, 1, true), new THREE.MeshBasicMaterial({ map: t2, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: col }));
+    // Skyline: prozedurale Silhouetten in drei Entfernungen, oben transparent (Dunst nach unten)
+    {
+      const city = (seed, hMin, hMax, col, glow, win) => {
+        let sd = seed; const R = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
+        const c = document.createElement('canvas'); c.width = 2048; c.height = 256; const g = c.getContext('2d');
+        let x = 0;
+        while (x < c.width) {
+          const w = 36 + R() * 90 | 0, hh = hMin + R() * (hMax - hMin), y = c.height - hh;
+          const gr = g.createLinearGradient(0, y, 0, c.height); gr.addColorStop(0, col[0]); gr.addColorStop(1, col[1]);
+          g.fillStyle = gr; g.fillRect(x, y, Math.min(w, c.width - x), hh);
+          if (R() < 0.35) { const w2 = w * (0.4 + R() * 0.3); g.fillRect(x + (w - w2) / 2, y - 14 - R() * 26, w2, 40); }
+          if (R() < 0.18) g.fillRect(x + w / 2 - 1, y - 38 - R() * 24, 2, 40);
+          if (win) { g.fillStyle = glow; for (let wy = y + 8; wy < c.height - 6; wy += 9) for (let wx = x + 5; wx < x + w - 5; wx += 8) if (R() < 0.28) g.fillRect(wx, wy, 3, 4); }
+          x += w + (R() < 0.3 ? 6 + R() * 18 : 0);
+        }
+        g.globalCompositeOperation = 'destination-in'; const fade = g.createLinearGradient(0, c.height * 0.78, 0, c.height); fade.addColorStop(0, 'rgba(0,0,0,1)'); fade.addColorStop(1, 'rgba(0,0,0,0.0)');
+        g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height * 0.78); g.fillStyle = fade; g.fillRect(0, c.height * 0.78, c.width, c.height * 0.22);
+        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = maxAniso; return t;
+      };
+      const mkRing = (r, hgt, tex, y, ro) => {
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hgt, 64, 1, true), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false }));
         m.position.y = y; m.renderOrder = ro; scene.add(m); return m;
       };
-      window.__rings = [[cyl, 0.5], [mkRing(178, 90, 0xc4c8d8, 0.21, false, 30, -2), 0.97], [mkRing(46, 30, 0x6c7288, 0.57, true, 11, 0), 0.35]];
+      scene.remove(skylineBoxes);
+      window.__rings = [
+        [mkRing(175, 64, city(11, 70, 165, ['#a9a3b4', '#d6b9a4'], '', false), 26, -3), 0.97],
+        [mkRing(112, 52, city(23, 60, 175, ['#7b7f9a', '#b3a2a2'], '#ffd9a0', true), 20, -2), 0.8],
+        [mkRing(60, 36, city(37, 55, 150, ['#444b64', '#7d7284'], '#ffcf8a', true), 12, -1), 0.4],
+      ];
     }
+
   });
 }
 const containerMats = {};
@@ -968,7 +1044,7 @@ function fire(shooter, origin, dir) {
   else start.addScaledVector(dir, 0.5);
   tracer(start, end, shooter.isPlayer ? 0xffe9a0 : 0xff9a8a);
   if (shooter.isPlayer) sfx.shot();
-  else { const d = Math.hypot(shooter.pos.x - player.pos.x, shooter.pos.z - player.pos.z); sfx.botshot(clamp(1.3 - d / 25, 0.15, 1)); }
+  else { const d = Math.hypot(shooter.pos.x - player.pos.x, shooter.pos.z - player.pos.z); sfx.botshot(clamp(1.3 - d / 25, 0.15, 1), shooter.pos.x, shooter.pos.z); }
   if (target && target.zombie) { const hp = end.clone(); hitZombie(shooter, target, hp.y > target.pos.y + 1.45 ? 100 : 50, dir.clone(), hp); }
   else if (target) { const hp = end.clone(); killEntity(shooter, target, 'erschießt', dir.clone(), hp, hp.y > target.pos.y + 1.45 ? 9 : 7); }
   else if (wallT < 90) impact(end, wallN);
@@ -1026,7 +1102,7 @@ function spawnZombie() {
 }
 function hurtPlayer() {
   if (!player.alive || player.hurtCd > 0) return;
-  player.hurtCd = 1.0; player.lives--; sfx.hurt(); $('hurt').style.opacity = 1; setTimeout(() => ($('hurt').style.opacity = 0), 450); kick = 0.05;
+  player.hurtCd = 1.0; player.lives--; sfx.hurt(); sfx.zatk(); $('hurt').style.opacity = 1; setTimeout(() => ($('hurt').style.opacity = 0), 450); kick = 0.05;
   if (player.lives <= 0) {
     player.alive = false; player.slideT = -1; if (player.hum) { humanDie(player.hum); player.hum.deadYaw = player.yaw; }
     state = 'over'; $('endtitle').textContent = 'Du wurdest überrannt'; $('endsub').textContent = `Welle ${zw.wave} · ${zw.kills} Zombies erledigt`;
@@ -1035,8 +1111,8 @@ function hurtPlayer() {
 }
 function hitZombie(att, z, dmg, dir, hit) {
   z.hp -= dmg; burst(hit.clone(), 0x7a1010); hitT = 0.2;
-  if (z.hp > 0) { z.meleeWind = 0; z.stagger = 0.25; return; }
-  z.alive = false; z.deadT = 0; z.meleeWind = 0; zw.kills++; sfx.kill();
+  if (z.hp > 0) { z.meleeWind = 0; z.stagger = 0.25; sfx.zhit(z.pos.x, z.pos.z); return; }
+  z.alive = false; z.deadT = 0; z.meleeWind = 0; zw.kills++; sfx.kill(); sfx.zdie(z.pos.x, z.pos.z);
   humanDie(z.hum); z.hum.deadYaw = dir && (dir.x || dir.z) ? Math.atan2(dir.x, dir.z) : z.yaw;
   if (Math.random() < 0.3) dropAmmo(z.pos.x, z.pos.z, 4 + (Math.random() < 0.3 ? 2 : 0));
   hudSig = ''; boardSig = '';
@@ -1060,14 +1136,14 @@ function zombieThink(z, dt) {
   for (const o of ents) if (o.zombie && o !== z && o.alive) { const ex = z.pos.x - o.pos.x, ez = z.pos.z - o.pos.z, dd = Math.hypot(ex, ez); if (dd < 0.7 && dd > 0.001) { z.pos.x += (ex / dd) * (0.7 - dd) * 0.5; z.pos.z += (ez / dd) * (0.7 - dd) * 0.5; } }
   resolve(z.pos, 0);
   z.speed += (Math.hypot(z.pos.x - px, z.pos.z - pz) / dt - z.speed) * Math.min(1, dt * 8);
-  if (Math.random() < dt * 0.12 && d < 14) sfx.groan(clamp(1 - d / 14, 0.1, 1));
+  if (Math.random() < dt * 0.12 && d < 14) sfx.groan(clamp(1 - d / 14, 0.1, 1), z.pos.x, z.pos.z);
 }
 function zombieWaves(dt) {
   player.hurtCd = Math.max(0, (player.hurtCd || 0) - dt);
   for (let i = pickups.length - 1; i >= 0; i--) {
     const k = pickups[i]; k.t += dt; k.g.rotation.y += dt * 1.4; k.g.position.y = 0.38 + Math.sin(k.t * 3) * 0.06;
     if (player.alive && Math.hypot(player.pos.x - k.x, player.pos.z - k.z) < 1.3 && Math.abs(player.pos.y) < 1.2) {
-      zres = Math.min(60, zres + k.n); sfx.kill(); msg(`+${k.n} Munition`, 1000); scene.remove(k.g); pickups.splice(i, 1); hudSig = '';
+      zres = Math.min(60, zres + k.n); sfx.pickup(); msg(`+${k.n} Munition`, 1000); scene.remove(k.g); pickups.splice(i, 1); hudSig = '';
     }
   }
   const alive = ents.filter((e) => e.zombie && e.alive).length;
@@ -1082,7 +1158,7 @@ function zombieWaves(dt) {
 }
 function startWave() {
   zw.wave++; zw.toSpawn = 4 + zw.wave * 3; zw.spawnT = 1.5; zw.breakT = 0; boardSig = '';
-  msg(`Welle ${zw.wave}`, 2500);
+  msg(`Welle ${zw.wave}`, 2500); sfx.wave();
   const sp = spawns[(Math.random() * spawns.length) | 0]; dropAmmo(sp.x * 0.6, sp.z * 0.6, 12);
   feed(`Welle ${zw.wave}: ${zw.toSpawn} Zombies`, '#9be37a');
 }
@@ -1107,7 +1183,7 @@ function fireFx(e, o, d) {
   const dist = wallDist(o, d, 90), end = o.clone().addScaledVector(d, dist);
   if (e.hum) humanOverlay(e.hum, 'shoot');
   tracer(o.clone().addScaledVector(d, 0.5), end, 0xff9a8a);
-  sfx.botshot(clamp(1.3 - Math.hypot(e.pos.x - player.pos.x, e.pos.z - player.pos.z) / 25, 0.15, 1));
+  sfx.botshot(clamp(1.3 - Math.hypot(e.pos.x - player.pos.x, e.pos.z - player.pos.z) / 25, 0.15, 1), e.pos.x, e.pos.z);
   if (dist < 90) impact(end, lastN);
 }
 Net.onMsg = (m) => {
@@ -1231,14 +1307,17 @@ function botThink(b, dt) {
 }
 
 // ---------- Einstellungen ----------
-const cfg = { sens: 1, fov: 100 };
+const cfg = { sens: 1, fov: 100, sfxVol: 1, musVol: 0.5 };
 try { Object.assign(cfg, JSON.parse(localStorage.getItem('lr_cfg') || '{}')); } catch (e) { /* ohne Speicher */ }
 cfg.fov = clamp(+cfg.fov || 100, 90, 120); cfg.sens = clamp(+cfg.sens || 1, 0.2, 3);
 function saveCfg() { try { localStorage.setItem('lr_cfg', JSON.stringify(cfg)); } catch (e) { /* ignorieren */ } }
-$('sens').value = cfg.sens; $('fov').value = cfg.fov;
+cfg.sfxVol = clamp(+cfg.sfxVol, 0, 1.5); cfg.musVol = clamp(+cfg.musVol, 0, 1);
+$('sens').value = cfg.sens; $('fov').value = cfg.fov; $('sfxv').value = cfg.sfxVol; $('musv').value = cfg.musVol;
 const showCfg = () => { $('sensv').textContent = cfg.sens.toFixed(2) + '×'; $('fovv').textContent = cfg.fov + '°'; };
 showCfg();
 $('sens').addEventListener('input', () => { cfg.sens = +$('sens').value; showCfg(); saveCfg(); });
+$('sfxv').addEventListener('input', () => { cfg.sfxVol = +$('sfxv').value; saveCfg(); });
+$('musv').addEventListener('input', () => { cfg.musVol = +$('musv').value; saveCfg(); if (music.el) music.el.volume = (music.cur === 'menu.mp3' ? 0.6 : 0.5) * cfg.musVol; });
 $('fov').addEventListener('input', () => { cfg.fov = +$('fov').value; showCfg(); saveCfg(); });
 let prevState = null;
 function openSettings() {
@@ -1268,6 +1347,7 @@ $('tomenu').addEventListener('click', () => {
   mpMenu = false; $('mp').style.display = 'none'; $('settings').style.display = 'none'; prevState = null; state = 'menu'; adsHeld = false; reloadT = 0;
   if (document.pointerLockElement) document.exitPointerLock();
   $('end').style.display = 'none'; $('spectate').style.display = 'none'; $('dz').style.display = 'none'; $('menu').style.display = 'flex';
+  musicPlay('menu.mp3', 0.6);
 });
 
 // ---------- Eingabe ----------
@@ -1317,7 +1397,7 @@ renderer.domElement.addEventListener('mousedown', (e) => {
 function startReload() {
   if (mode !== 'zombie' || state !== 'play' || !player.alive || reloadT > 0 || player.ammo >= MAG) return;
   if (zres <= 0) { msg('Keine Reserve-Munition!', 1200); return; }
-  reloadT = RELOAD_T; if (player.hum) humanOverlay(player.hum, 'reload', 1.7 / RELOAD_T); sfx.click(); msg('Nachladen …', 900);
+  reloadT = RELOAD_T; if (player.hum) humanOverlay(player.hum, 'reload', 1.7 / RELOAD_T); sfx.reload(); msg('Nachladen …', 900);
 }
 function finishReload() { const n = Math.min(MAG - player.ammo, zres); player.ammo += n; zres -= n; hudSig = ''; sfx.click(); }
 function tryShoot() {
@@ -1405,6 +1485,8 @@ function startGame(m) {
   setTimeout(() => { if (!locked && state === 'play') msg('Cursor-Steuerung: Maus zum Rand = drehen. M = Maus-Erfassung. Q = Nahkampf', 5000); }, 600);
   if (mode === 'zombie') startWave(); else msg(mode === 'mp' ? 'Online: Der Letzte, der steht, gewinnt.' : 'Eine Kugel. Mach sie zählen.', 2200);
   if (actx && actx.state === 'suspended') actx.resume();
+  loadSamples(); sfx.go();
+  musicPlay('slow' + (1 + ((Math.random() * 10) | 0)) + '.mp3', 0.5);
 }
 $('start').addEventListener('click', () => startGame('oitc'));
 $('startz').addEventListener('click', () => startGame('zombie'));
@@ -1635,7 +1717,7 @@ function loop(now) {
     if (s.life <= 0) { scene.remove(s.m); s.m.geometry.dispose(); shells.splice(i, 1); }
   }
   // Hitmarker, HUD, Radar
-  $('cross').style.opacity = String(1 - ads); $('vig').style.opacity = String(1 + ads * 0.6);
+  $('cross').style.opacity = String(tpv ? 1 : 1 - ads); $('vig').style.opacity = String(1 + ads * 0.6);
   hitT = Math.max(0, hitT - dt); $('hit').style.opacity = hitT > 0 ? 1 : 0;
   $('fps').textContent = Math.round(1000 / ftAvg) + ' FPS · ' + Math.round(pr * 100) + '%';
   hud();
@@ -1650,3 +1732,5 @@ addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
 });
 window.__otc = { Net, setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
+
+addEventListener('pointerdown', () => { loadSamples(); if (actx && actx.state === 'suspended') actx.resume(); if (state === 'menu' && !music.el) musicPlay('menu.mp3', 0.6); }, { once: false });
