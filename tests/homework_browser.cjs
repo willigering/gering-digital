@@ -40,12 +40,17 @@ const server=http.createServer((req,res)=>{
       const layout=await page.evaluate(()=>({
         overflow:document.documentElement.scrollWidth-innerWidth,
         radius:getComputedStyle(document.querySelector('.module-card')).borderRadius,
+        statusBorders:[...document.querySelectorAll('.module-card')].map(card=>({border:getComputedStyle(card).borderColor,status:getComputedStyle(card).getPropertyValue('--status-color').trim(),width:getComputedStyle(card).borderTopWidth})),
         ratio:(()=>{const r=document.querySelector('.module-art').getBoundingClientRect();return r.width/r.height;})(),
         columns:getComputedStyle(document.querySelector('.module-grid')).gridTemplateColumns.split(' ').length,
         backgrounds:[...document.querySelectorAll('.module-art')].map(el=>getComputedStyle(el).backgroundImage)
       }));
       assert.ok(layout.overflow<=1,'Horizontal overflow at '+width+': '+layout.overflow);
       assert.equal(layout.radius,'18px');
+      assert.ok(layout.statusBorders.every(item=>item.width==='2px'));
+      assert.equal(new Set(layout.statusBorders.map(item=>item.border)).size,3,'All three status colors must frame the cards');
+      assert.equal(await page.getByText('Modul öffnen',{exact:true}).count(),0,'No separate open button');
+      assert.equal(await page.locator('.module-card h3 a.openlink').count(),6);
       assert.ok(Math.abs(layout.ratio-16/9)<.02,'Artwork must remain 16:9');
       assert.equal(layout.columns,width===1440?3:width===820?2:1);
       for(const bg of layout.backgrounds){
@@ -53,6 +58,23 @@ const server=http.createServer((req,res)=>{
         assert.ok(image,'Category image missing');
         assert.equal((await page.request.get(image)).status(),200,'Broken category artwork');
       }
+      // The stretched title link covers artwork and empty card space; options stay above it.
+      await page.locator('.module-art').first().scrollIntoViewIfNeeded();
+      const targets=await page.locator('.module-card').first().evaluate(card=>{
+        const art=card.querySelector('.module-art').getBoundingClientRect();
+        const hit=document.elementFromPoint(art.x+art.width/2,art.y+art.height/2);
+        return {artwork:hit?.closest('a')?.classList.contains('openlink'),link:card.querySelector('a').getAttribute('href')};
+      });
+      assert.equal(targets.artwork,true,'Clicking the artwork must hit the module link');
+      let opened='';
+      await page.route('**/homework-module.php?id=*',async route=>{
+        opened=new URL(route.request().url()).searchParams.get('id');
+        await route.fulfill({contentType:'text/html',body:'<h1>Geöffnetes Modul</h1>'});
+      });
+      const artBox=await page.locator('.module-art').first().boundingBox();
+      await Promise.all([page.waitForURL('**/homework-module.php?id=hw-test-0'),page.mouse.click(artBox.x+artBox.width/2,artBox.y+artBox.height/2)]);
+      assert.equal(opened,'hw-test-0','Artwork opens the module');
+      await page.goto(base+'/HA.html',{waitUntil:'networkidle'});
       await page.locator('#statusFilter').selectOption('fertig');
       assert.equal(await page.locator('.module-card').count(),2);
       await page.locator('#statusFilter').selectOption('all');

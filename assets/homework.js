@@ -149,12 +149,13 @@ function renderCards(){
     const date=element('time','',formatDate(module.date));
     if(date.textContent)date.dateTime=module.date;
     meta.append(element('span','module-category',categoryLabel(module.category_id)),date);
-    body.append(meta,element('h3','',module.title));
+    const heading=element('h3');
+    body.append(meta,heading);
     body.append(element('p','module-description',module.topic||'Unterrichtsmaterial'));
     const actions=element('div','card-actions');
-    const a=element('a','openlink','Modul öffnen');
+    const a=element('a','openlink',module.title);
     a.href='homework-module.php?id='+encodeURIComponent(module.id);
-    a.setAttribute('aria-label',module.title+' öffnen');
+    heading.append(a);
     const options=element('details','card-options');
     const summary=element('summary','','⋯');
     summary.setAttribute('aria-label','Aktionen für '+module.title);
@@ -189,7 +190,7 @@ function renderCards(){
     }
     menu.append(controls,element('hr','menu-divider'),remove);
     options.append(summary,menu);
-    actions.append(a,options);
+    actions.append(options);
     body.append(actions);
     card.append(body);
     grid.append(card);
