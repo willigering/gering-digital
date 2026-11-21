@@ -155,7 +155,6 @@ function renderCards(){
     const actions=element('div','card-actions');
     const a=element('a','openlink',module.title);
     a.href='homework-module.php?id='+encodeURIComponent(module.id);
-    a.setAttribute('aria-label',module.title+' öffnen');
     heading.append(a);
     const options=element('details','card-options');
     const summary=element('summary','','⋯');
