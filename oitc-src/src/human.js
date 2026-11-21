@@ -47,14 +47,15 @@ export function loadHuman(done, fail) {
   } catch (e) { fail && fail(e); }
 }
 
-export function makeHuman(color, gunModel) {
+export function makeHuman(color, gunModel, knifeModel, opts = {}) {
   const root = new THREE.Group();
   const body = SkeletonUtils.clone(tpl);
   body.rotation.y = Math.PI;               // Modell blickt +Z, Spiel-Vorwärts ist -Z
   body.traverse((o) => {
     if (o.isMesh || o.isSkinnedMesh) {
       o.castShadow = true; o.frustumCulled = false;
-      const fix = (m) => { if (m.name === 'TeamColor') { m = m.clone(); m.color.set(color); } else if (camoTex && m.name === 'Cloth') m = camoize(m, new THREE.Vector3(5.5, 5.5, 5.5)); else if (camoTex && m.name === 'Pants') m = camoize(m, new THREE.Vector3(3.6, 3.6, 3.6)); return m; };
+      const fix = (m) => { if (opts.zombie) { m = m.clone(); if (m.name === 'Skin') m.color.set(0x7f9c6c); else if (m.name === 'TeamColor') m.color.set(0x4a1c16); else if (m.name === 'Cloth') m.color.set(0x5a5148); else if (m.name === 'Pants') m.color.set(0x3a3a38); return m; }
+      if (m.name === 'TeamColor') { m = m.clone(); m.color.set(color); } else if (camoTex && m.name === 'Cloth') m = camoize(m, new THREE.Vector3(5.5, 5.5, 5.5)); else if (camoTex && m.name === 'Pants') m = camoize(m, new THREE.Vector3(3.6, 3.6, 3.6)); return m; };
       o.material = Array.isArray(o.material) ? o.material.map(fix) : fix(o.material);
     }
   });
@@ -73,7 +74,9 @@ export function makeHuman(color, gunModel) {
     pistol.position.set(0, 0.02, 0.0); pistol.quaternion.set(0.6381, -0.0249, 0.0066, 0.7695); pistol.scale.setScalar(1);
     hand.add(pistol);
   }
-  return { root, body, mixer, act, cur: { L: null, U: null }, mode: '', ov: 0, pistol, hand };
+  let knife = null;
+  if (knifeModel && hand) { knife = knifeModel; knife.position.set(0, 0.02, 0); knife.quaternion.set(0.6381, -0.0249, 0.0066, 0.7695); knife.visible = false; hand.add(knife); }
+  return { root, body, mixer, act, cur: { L: null, U: null }, mode: '', ov: 0, pistol, knife, hand, zombie: !!opts.zombie };
 }
 
 function layer(h, k, name, fade, once, ts) {
@@ -87,10 +90,11 @@ function layer(h, k, name, fade, once, ts) {
 function setBoth(h, name, fade, once, ts) { layer(h, 'L', name, fade, once, ts); layer(h, 'U', name, fade, once, ts); }
 
 export function humanReset(h) { h.mixer.stopAllAction(); h.cur.L = h.cur.U = null; h.mode = ''; h.ov = 0; }
-export function humanDie(h) { h.mode = 'dead'; h.ov = 0; setBoth(h, 'death', 0.08, true, 1.15); }
+export function humanDie(h) { if (h.knife) { h.knife.visible = false; if (h.pistol) h.pistol.visible = true; } h.mode = 'dead'; h.ov = 0; setBoth(h, 'death', 0.08, true, 1.15); }
 export function humanOverlay(h, name, ts = 1.3) { // Schuss/Nahkampf nur auf dem Oberkörper
   if (h.mode === 'dead' || h.mode.startsWith('slide')) return;
   layer(h, 'U', name, 0.05, true, ts); h.ov = clips[name].dur / ts; h.ovName = name;
+  if (name === 'punch' && h.knife) { h.knife.visible = true; if (h.pistol) h.pistol.visible = false; }
 }
 // speed: m/s, slideT: <0 = nicht am Rutschen, sprintArms: Sprint-Armhaltung
 export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = false) {
@@ -118,10 +122,11 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
     }
     if (!m.startsWith('slide') && m !== 'air') {
       const ref = clips[m].speed;
-      if (ref > 0 && h.cur.L) h.cur.L.timeScale = THREE.MathUtils.clamp(speed / ref, 0.5, 1.5) * (rev ? -1 : 1);
+      if (ref > 0 && h.cur.L) h.cur.L.timeScale = THREE.MathUtils.clamp(speed / ref, h.zombie ? 0.28 : 0.5, 1.5) * (rev ? -1 : 1);
       if (h.ov > 0) h.ov -= dt;
       else {
-        const u = m === 'sprint' && sprintArms ? 'sprint' : 'pistol_idle';
+        if (h.knife && h.knife.visible) { h.knife.visible = false; if (h.pistol) h.pistol.visible = true; }
+        const u = h.zombie ? 'idle' : (m === 'sprint' && sprintArms ? 'sprint' : 'pistol_idle');
         if (h.upper !== u) { h.upper = u; layer(h, 'U', u, 0.15, false, u === 'sprint' ? THREE.MathUtils.clamp(speed / clips.sprint.speed, 0.6, 1.4) : 1); }
       }
     }
