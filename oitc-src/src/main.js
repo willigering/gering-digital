@@ -3,6 +3,7 @@ import phFloor from '../assets/tex/floor.jpg';
 import phWall from '../assets/tex/wall.jpg';
 import phCrate from '../assets/tex/crate.jpg';
 import phMetal from '../assets/tex/metal.jpg';
+import phSkyline from '../assets/tex/skyline.jpg';
 import { Net } from './net.js';
 import { setCamo, loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -398,42 +399,22 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
 // KI-Fotos laden und danach alle Texturen neu zeichnen
 {
   const load = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = src; });
-  Promise.all([['floor', phFloor], ['wall', phWall], ['crate', phCrate], ['metal', phMetal]].map(([k, src]) => load(src).then((im) => { PH[k] = im; }))).then(() => {
+  Promise.all([['floor', phFloor], ['wall', phWall], ['crate', phCrate], ['metal', phMetal], ['skyline', phSkyline]].map(([k, src]) => load(src).then((im) => { PH[k] = im; }))).then(() => {
     for (const t of TEXLIST) { const g = t.c.getContext('2d'); g.clearRect(0, 0, t.size, t.size); g.globalCompositeOperation = 'source-over'; g.globalAlpha = 1; t.fn(g, t.size); }
     for (const { canvas, m, o } of PBRLIST) {
       const [map, nm, rm] = m.userData.texs; map.needsUpdate = true;
       nm.image = normalFrom(canvas, o.bump ?? 2.2, o.blur ?? 1); nm.needsUpdate = true;
       rm.image = roughFrom(canvas, o.rlo ?? 0.62, o.rhi ?? 1.0); rm.needsUpdate = true;
     }
-    // Skyline: prozedurale Silhouetten in drei Entfernungen, oben transparent (Dunst nach unten)
-    {
-      const city = (seed, hMin, hMax, col, glow, win) => {
-        let sd = seed; const R = () => { sd = (sd * 16807) % 2147483647; return sd / 2147483647; };
-        const c = document.createElement('canvas'); c.width = 2048; c.height = 256; const g = c.getContext('2d');
-        let x = 0;
-        while (x < c.width) {
-          const w = 36 + R() * 90 | 0, hh = hMin + R() * (hMax - hMin), y = c.height - hh;
-          const gr = g.createLinearGradient(0, y, 0, c.height); gr.addColorStop(0, col[0]); gr.addColorStop(1, col[1]);
-          g.fillStyle = gr; g.fillRect(x, y, Math.min(w, c.width - x), hh);
-          if (R() < 0.35) { const w2 = w * (0.4 + R() * 0.3); g.fillRect(x + (w - w2) / 2, y - 14 - R() * 26, w2, 40); }
-          if (R() < 0.18) g.fillRect(x + w / 2 - 1, y - 38 - R() * 24, 2, 40);
-          if (win) { g.fillStyle = glow; for (let wy = y + 8; wy < c.height - 6; wy += 9) for (let wx = x + 5; wx < x + w - 5; wx += 8) if (R() < 0.28) g.fillRect(wx, wy, 3, 4); }
-          x += w + (R() < 0.3 ? 6 + R() * 18 : 0);
-        }
-        g.globalCompositeOperation = 'destination-out'; const fade = g.createLinearGradient(0, c.height * 0.8, 0, c.height); fade.addColorStop(0, 'rgba(0,0,0,0)'); fade.addColorStop(1, 'rgba(0,0,0,1)');
-        g.fillStyle = fade; g.fillRect(0, c.height * 0.8, c.width, c.height * 0.2); g.globalCompositeOperation = 'source-over';
-        const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = maxAniso; return t;
-      };
-      const mkRing = (r, hgt, tex, y, ro) => {
-        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hgt, 64, 1, true), new THREE.MeshBasicMaterial({ map: tex, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false }));
-        m.position.y = y; m.renderOrder = ro; scene.add(m); return m;
-      };
-      scene.remove(skylineBoxes);
-      window.__rings = [
-        [mkRing(175, 64, city(11, 70, 165, ['#a9a3b4', '#d6b9a4'], '', false), 26, -3), 0.97],
-        [mkRing(112, 52, city(23, 60, 175, ['#7b7f9a', '#b3a2a2'], '#ffd9a0', true), 20, -2), 0.8],
-        [mkRing(60, 36, city(37, 55, 150, ['#444b64', '#7d7284'], '#ffcf8a', true), 12, -1), 0.4],
-      ];
+    // Skyline: Foto der Stadt im Abendlicht, gespiegelt zu einem nahtlosen Ring, oben ausgeblendet (neuer Himmel scheint durch)
+    if (PH.skyline) {
+      const im = PH.skyline, c = document.createElement('canvas'); c.width = im.width * 2; c.height = im.height; const g = c.getContext('2d');
+      g.drawImage(im, 0, 0); g.save(); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(im, 0, 0); g.restore();
+      g.globalCompositeOperation = 'destination-in'; const gr = g.createLinearGradient(0, 0, 0, c.height); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.3, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,1)'); g.fillStyle = gr; g.fillRect(0, 0, c.width, c.height);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.repeat.set(2, 1); t.anisotropy = maxAniso;
+      const cyl = new THREE.Mesh(new THREE.CylinderGeometry(112, 112, 56, 64, 1, true), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: 0xe0e0e8 }));
+      cyl.position.y = 22; cyl.renderOrder = -1; scene.add(cyl); scene.remove(skylineBoxes);
+      window.__rings = [[cyl, 0.8]];
     }
 
   });
