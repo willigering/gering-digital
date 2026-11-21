@@ -7,6 +7,8 @@ import animData from '../assets/human/anims.json';
 
 const b64 = (s) => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Int16Array(u.buffer); };
 
+// Gemessene Fuss-Bodengeschwindigkeit der Clips bei timeScale 1 (m/s), damit die Fuesse nicht gleiten
+const STRIDE = { walk: 0.71, jog: 5.1, sprint: 5.4 };
 function buildClips() {
   const out = {}, fps = animData.fps;
   for (const [name, c] of Object.entries(animData.clips)) {
@@ -19,7 +21,7 @@ function buildClips() {
       }
       return tracks.length ? new THREE.AnimationClip(name + suffix, c.n / fps, tracks) : null;
     };
-    out[name] = { L: mk(c.L, '_L'), U: mk(c.U, '_U'), dur: c.dur, loop: c.loop, speed: Math.abs(c.speed || 0) };
+    out[name] = { L: mk(c.L, '_L'), U: mk(c.U, '_U'), dur: c.dur, loop: c.loop, speed: STRIDE[name] !== undefined ? STRIDE[name] : Math.abs(c.speed || 0) };
   }
   return out;
 }
@@ -109,7 +111,7 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
     let m;
     if (slideT >= 0) m = slideT < 0.8 ? 'slide_start' : 'slide_loop';
     else if (air && speed < 6.5) m = 'air';
-    else m = speed < 0.4 ? 'idle' : speed > 6.3 ? 'sprint' : 'jog';
+    else m = speed < 0.4 ? 'idle' : speed < (h.zombie ? 3.0 : 2.2) ? 'walk' : speed > 6.3 ? 'sprint' : 'jog';
     const wasSlide = h.mode.startsWith('slide');
     if (m !== h.mode) {
       h.mode = m;
@@ -122,7 +124,7 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
     }
     if (!m.startsWith('slide') && m !== 'air') {
       const ref = clips[m].speed;
-      if (ref > 0 && h.cur.L) h.cur.L.timeScale = THREE.MathUtils.clamp(speed / ref, h.zombie ? 0.28 : 0.5, 1.5) * (rev ? -1 : 1);
+      if (ref > 0 && h.cur.L) h.cur.L.timeScale = THREE.MathUtils.clamp(speed / ref, 0.5, m === 'walk' ? 3.2 : 1.6) * (rev ? -1 : 1);
       if (h.ov > 0) h.ov -= dt;
       else {
         if (h.knife && h.knife.visible) { h.knife.visible = false; if (h.pistol) h.pistol.visible = true; }
@@ -132,4 +134,22 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
     }
   }
   h.mixer.update(dt);
+  if (h.zombie) zombiePose(h, dt);
+}
+// Zombie-Haltung: Arme nach vorn, Oberkörper gebeugt, Kopf schief, Schwanken (nach dem Mixer, als Zusatzrotation)
+const ZP = { arm: [1.4, 0, 0], fore: [0.3, 0, 0], lean: [0.3, 0, 0], head: [0.25, 0, 0.3] };
+const _q = new THREE.Quaternion(), _e = new THREE.Euler();
+function addRot(b, v, w) { if (!b) return; _e.set(v[0], v[1], v[2]); _q.setFromEuler(_e); _q.slerp(new THREE.Quaternion(), 1 - w); b.quaternion.multiply(_q); }
+function zombiePose(h, dt) {
+  if (!h.zb) { h.zb = {}; h.body.traverse((o) => { if (o.isBone) h.zb[o.name] = o; }); h.zt = Math.random() * 6; h.zw = 0; }
+  h.zt += dt;
+  const target = h.mode === 'dead' || h.ov > 0 ? 0 : 1;
+  h.zw += (target - h.zw) * Math.min(1, dt * 9);
+  const w = h.zw; if (w < 0.01) return;
+  const sw = Math.sin(h.zt * 2.1) * 0.12, sw2 = Math.sin(h.zt * 1.3 + 1) * 0.1;
+  const b = h.zb, P = ZP;
+  addRot(b.spine_02, [P.lean[0] + sw2, P.lean[1] + sw * 0.6, P.lean[2] + sw], w);
+  addRot(b.upperarm_l, [P.arm[0] + sw2, P.arm[1] + sw, P.arm[2]], w); addRot(b.upperarm_r, [P.arm[0] - sw2, -P.arm[1] - sw, -P.arm[2]], w);
+  addRot(b.lowerarm_l, P.fore, w); addRot(b.lowerarm_r, P.fore, w);
+  addRot(b.neck_01, [P.head[0], sw * 0.8, P.head[2]], w);
 }

@@ -98,7 +98,9 @@ scene.add(camera);
       vec3 sd = normalize(vec3(-0.55, 0.30, 0.45)); float s = max(dot(normalize(vP), sd), 0.0);
       c += vec3(1.0,0.75,0.45) * (pow(s, 30.0) * 0.45 + pow(s, 1500.0) * 1.6);
       if (hasMap > 0.5) { vec3 d = normalize(vP); float az = atan(d.z, d.x) / 6.2831853 + 0.5;
-        vec3 pc = texture2D(skyMap, vec2(az * 2.0 + time * 0.003, clamp(pow(max(d.y, 0.0), 0.75) * 1.2, 0.0, 1.0))).rgb;
+        vec3 pc = texture2D(skyMap, vec2(az * 2.0 + time * 0.003, clamp(pow(max(d.y, 0.0), 0.75) * 1.2, 0.0, 0.9))).rgb;
+        vec2 pu = d.xz / (d.y + 0.45) * 0.55 + vec2(time * 0.004, 0.31);
+        pc = mix(pc, texture2D(skyMap, pu).rgb, smoothstep(0.45, 0.8, d.y));
         c = mix(c, pc * 0.92, smoothstep(0.0, 0.07, d.y)); }
       gl_FragColor = vec4(c, 1.0); }`,
   });
@@ -341,7 +343,7 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
       rm.image = roughFrom(canvas, o.rlo ?? 0.62, o.rhi ?? 1.0); rm.needsUpdate = true;
     }
     if (PH.sky && window.__skyMat) {
-      const t = new THREE.Texture(PH.sky); t.wrapS = THREE.MirroredRepeatWrapping; t.wrapT = THREE.ClampToEdgeWrapping; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true;
+      const t = new THREE.Texture(PH.sky); t.wrapS = THREE.MirroredRepeatWrapping; t.wrapT = THREE.MirroredRepeatWrapping; t.minFilter = THREE.LinearFilter; t.generateMipmaps = false; t.needsUpdate = true;
       window.__skyMat.uniforms.skyMap.value = t; window.__skyMat.uniforms.hasMap.value = 1;
     }
     if (PH.skyline) {
@@ -978,6 +980,7 @@ function melee(att) {
 // ---------- Zombie-Modus ----------
 let mode = 'oitc';
 const ZMAX_LIVES = 5, ZPOOL = 16;
+const MAG = 8, RELOAD_T = 1.35; let reloadT = 0, zres = 0;
 const zw = { wave: 0, toSpawn: 0, spawnT: 0, breakT: 0, kills: 0, started: false };
 const pickups = [];
 const pickGeo = new THREE.BoxGeometry(0.4, 0.24, 0.28), pickMat = new THREE.MeshStandardMaterial({ color: 0x3f6b36, roughness: 0.6, emissive: 0x1d4a18, emissiveIntensity: 0.6 });
@@ -1051,7 +1054,7 @@ function zombieWaves(dt) {
   for (let i = pickups.length - 1; i >= 0; i--) {
     const k = pickups[i]; k.t += dt; k.g.rotation.y += dt * 1.4; k.g.position.y = 0.38 + Math.sin(k.t * 3) * 0.06;
     if (player.alive && Math.hypot(player.pos.x - k.x, player.pos.z - k.z) < 1.3 && Math.abs(player.pos.y) < 1.2) {
-      player.ammo = Math.min(60, player.ammo + k.n); sfx.kill(); msg(`+${k.n} Munition`, 1000); scene.remove(k.g); pickups.splice(i, 1); hudSig = '';
+      zres = Math.min(60, zres + k.n); sfx.kill(); msg(`+${k.n} Munition`, 1000); scene.remove(k.g); pickups.splice(i, 1); hudSig = '';
     }
   }
   const alive = ents.filter((e) => e.zombie && e.alive).length;
@@ -1133,6 +1136,8 @@ function openSettings() {
   prevState = state;
   if (state === 'play') { state = 'paused'; adsHeld = false; if (document.pointerLockElement) document.exitPointerLock(); }
   $('settings').style.display = 'flex';
+  const inGame = prevState === 'play';
+  $('restart').style.display = inGame ? '' : 'none'; $('tomenu').style.display = inGame ? '' : 'none';
 }
 function closeSettings() {
   $('settings').style.display = 'none';
@@ -1145,6 +1150,13 @@ function closeSettings() {
 $('gear').addEventListener('click', () => ($('settings').style.display === 'flex' ? closeSettings() : openSettings()));
 $('menucfg').addEventListener('click', openSettings);
 $('resume').addEventListener('click', closeSettings);
+$('restart').addEventListener('click', () => { $('settings').style.display = 'none'; prevState = null; startGame(lastMode); });
+$('endmenu').addEventListener('click', () => $('tomenu').click());
+$('tomenu').addEventListener('click', () => {
+  $('settings').style.display = 'none'; prevState = null; state = 'menu'; adsHeld = false; reloadT = 0;
+  if (document.pointerLockElement) document.exitPointerLock();
+  $('end').style.display = 'none'; $('spectate').style.display = 'none'; $('dz').style.display = 'none'; $('menu').style.display = 'flex';
+});
 
 // ---------- Eingabe ----------
 let mdx = 0, mdy = 0;
@@ -1158,6 +1170,7 @@ addEventListener('keydown', (e) => {
   if (e.code === 'KeyQ' || e.code === 'KeyV') tryMelee();
   if (e.code === 'KeyT' && state === 'play' && player.alive && inspectT < 0) inspectT = 0;
   if (e.code === 'KeyM') toggleMouseMode();
+  if (e.code === 'KeyR' && !e.repeat) startReload();
   if (e.code === 'Tab') { e.preventDefault(); if (state === 'play' && !e.repeat) { tpv = !tpv; msg(tpv ? '3rd Person' : '1st Person', 900); } }
   if ((e.code === 'KeyC' || e.code === 'ControlLeft') && !e.repeat) { if (e.code === 'ControlLeft') e.preventDefault(); trySlide(); }
   if (e.code === 'Escape') { if ($('settings').style.display === 'flex') closeSettings(); else if (state === 'play') openSettings(); }
@@ -1189,9 +1202,16 @@ renderer.domElement.addEventListener('mousedown', (e) => {
   if (e.button === 0) tryShoot();
   if (e.button === 2) adsHeld = true;
 });
+function startReload() {
+  if (mode !== 'zombie' || state !== 'play' || !player.alive || reloadT > 0 || player.ammo >= MAG) return;
+  if (zres <= 0) { msg('Keine Reserve-Munition!', 1200); return; }
+  reloadT = RELOAD_T; sfx.click(); msg('Nachladen …', 900);
+}
+function finishReload() { const n = Math.min(MAG - player.ammo, zres); player.ammo += n; zres -= n; hudSig = ''; sfx.click(); }
 function tryShoot() {
   if (!player.alive || player.meleeCd > 0) return;
-  if (player.ammo <= 0) { sfx.click(); msg('Keine Kugel! Nahkampf: V oder Rechtsklick', 1400); player.meleeCd = 0.25; return; }
+  if (mode === 'zombie') { if (reloadT > 0) return; if (player.ammo <= 0 && zres > 0) { startReload(); return; } }
+  if (player.ammo <= 0) { sfx.click(); msg(mode === 'zombie' ? 'Keine Munition! Messer: Q' : 'Keine Kugel! Nahkampf: V oder Rechtsklick', 1400); player.meleeCd = 0.25; return; }
   const dir = new V3(); camera.getWorldDirection(dir);
   fire(player, camera.position.clone(), dir);
   recoil = 1; flashT = 0.06; kick = 0.045; player.meleeCd = 0.35;
@@ -1206,13 +1226,13 @@ function tryMelee() {
 let hudSig = '', boardSig = '';
 function hud() {
   const lv = '♥'.repeat(Math.max(0, player.lives)) + '♡'.repeat(Math.max(0, (mode === 'zombie' ? ZMAX_LIVES : LIVES) - player.lives));
-  const am = player.ammo + '|' + lv;
+  const am = player.ammo + '|' + lv + '|' + (mode === 'zombie' ? zres : '');
   if (am !== hudSig) {
     hudSig = am;
     $('lives').textContent = lv;
     $('ammo').innerHTML = player.ammo > 0
-      ? '<i class="b"></i>'.repeat(Math.min(player.ammo, 8)) + (player.ammo > 8 ? '<span>+' + (player.ammo - 8) + '</span>' : '')
-      : '<i class="b empty"></i>';
+      ? '<i class="b"></i>'.repeat(Math.min(player.ammo, 8)) + (player.ammo > 8 ? '<span>+' + (player.ammo - 8) + '</span>' : '') + (mode === 'zombie' ? '<span> / ' + zres + '</span>' : '')
+      : '<i class="b empty"></i>' + (mode === 'zombie' ? '<span> / ' + zres + (zres > 0 ? ' · R = Nachladen' : '') + '</span>' : '');
   }
   const bs = mode === 'zombie' ? 'z' + zw.wave + ':' + zw.kills + ':' + ents.filter((e) => e.zombie && e.alive).length : ents.map((e) => e.lives + ':' + e.kills).join(',');
   if (bs !== boardSig) {
@@ -1251,7 +1271,7 @@ function startGame(m) {
   if (mode === 'zombie') {
     while (ents.filter((e) => e.zombie).length < ZPOOL) makeZombie();
     for (const e of ents) if (e.zombie) { e.alive = false; e.zFree = true; e.hum.root.visible = false; } else if (!e.isPlayer) { e.hidden = true; e.alive = false; e.lives = 0; e.respawn = -1; if (e.hum) e.hum.root.visible = false; }
-    placeEntity(player, new V3(0, 0, 8)); player.lives = ZMAX_LIVES; player.ammo = 15; player.kills = 0; player.hurtCd = 0;
+    placeEntity(player, new V3(0, 0, 8)); player.lives = ZMAX_LIVES; player.ammo = MAG; zres = 8; reloadT = 0; player.kills = 0; player.hurtCd = 0;
     Object.assign(zw, { wave: 0, toSpawn: 0, spawnT: 0, breakT: 0, kills: 0 });
     scene.fog.color.set(0x16221b); scene.fog.near = 8; scene.fog.far = 48; scene.background.set(0x16221b);
     ents.forEach((e) => { if (e.zombie) e.kills = 0; });
@@ -1404,7 +1424,9 @@ function loop(now) {
   flashSprite.scale.setScalar(flashT > 0 ? 0.22 + Math.random() * 0.1 : 0.0001);
   const sp = sprintPose() ? 1 : 0, hip = 1 - ads;
   drawT = Math.min(1, drawT + dt / 0.55);
-  const dk = (1 - drawT) * (1 - drawT);
+  if (reloadT > 0) { reloadT -= dt; if (reloadT <= 0) { reloadT = 0; finishReload(); } }
+  const rld = reloadT > 0 ? Math.sin(Math.PI * clamp(1 - reloadT / RELOAD_T, 0, 1)) : 0;
+  const dk = (1 - drawT) * (1 - drawT) + rld * 0.75;
   let insp = 0, inspSlide = 0, inspRoll = 0;
   if (inspectT >= 0) {
     inspectT += dt; const t = inspectT / 2.4;
@@ -1419,7 +1441,7 @@ function loop(now) {
   gun.rotation.set(recoil * 0.3 * (1 - 0.5 * ads) + meleeAnim * 0.8 + sp * 0.25 + dk * 0.9 - inspRoll * 0.15,
     meleeAnim * 0.9 + sp * -0.3 + inspRoll * 0.7, dk * -0.5 + inspRoll * -1.1);
   const locked0 = player.ammo <= 0;
-  slide.position.z = locked0 ? 0.075 : recoil * 0.075 + inspSlide * 0.05;
+  slide.position.z = locked0 && reloadT <= 0 ? 0.075 : recoil * 0.075 + inspSlide * 0.05;
   hammer.rotation.x = -0.65 * (locked0 || recoil > 0.2 || inspSlide > 0 ? 1 : 0.2) ;
   trigger.position.z = -0.058 + (recoil > 0.3 ? 0.006 : 0);
   chamberBrass.visible = player.ammo > 0 && recoil < 0.3;
@@ -1509,4 +1531,4 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
 });
-window.__otc = { ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
+window.__otc = { setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
