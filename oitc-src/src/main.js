@@ -353,6 +353,14 @@ mats.floor.userData.texs.forEach((t) => t.repeat.set(HALF / 4, HALF / 4));
       const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.repeat.set(2, 1); t.anisotropy = maxAniso;
       const cyl = new THREE.Mesh(new THREE.CylinderGeometry(112, 112, 56, 64, 1, true), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: 0xe0e0e8 }));
       cyl.position.y = 22; cyl.renderOrder = -1; scene.add(cyl); scene.remove(skylineBoxes);
+      // Parallax: zwei weitere Ringe in anderer Entfernung/Tönung -> Ebenen verschieben sich beim Laufen gegeneinander
+      const mkRing = (r, hgt, col, off, flip, y, ro) => {
+        const t2 = t.clone(); t2.needsUpdate = true; t2.offset.x = off; t2.repeat.set(flip ? -2 : 2, 1); t2.wrapS = THREE.RepeatWrapping;
+        const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, hgt, 48, 1, true), new THREE.MeshBasicMaterial({ map: t2, side: THREE.BackSide, transparent: true, depthWrite: false, fog: false, toneMapped: false, color: col }));
+        m.position.y = y; m.renderOrder = ro; scene.add(m); return m;
+      };
+      mkRing(178, 90, 0xb8bccc, 0.21, false, 30, -2);
+      mkRing(66, 34, 0x8a90a6, 0.57, true, 13, 0);
     }
   });
 }
@@ -999,7 +1007,7 @@ function makeZombie() {
 function zombieStats(e) {
   const w = zw.wave, runner = w >= 3 && Math.random() < Math.min(0.4, 0.08 * w);
   e.hp = Math.min(220, 100 + w * 8); e.maxHp = e.hp;
-  e.zspeed = runner ? rnd(3.6, 4.4) : rnd(1.5, 2.1) + Math.min(1.0, w * 0.09);
+  e.zspeed = runner ? rnd(2.0, 2.4) : rnd(0.9, 1.3) + Math.min(0.5, w * 0.05);
   e.zdmgCd = 0; e.meleeWind = 0; e.meleeCd = 0.5;
 }
 function spawnZombie() {
@@ -1036,7 +1044,7 @@ function zombieThink(z, dt) {
   const dx = player.pos.x - z.pos.x, dz = player.pos.z - z.pos.z, d = Math.hypot(dx, dz);
   const dy = wrap(Math.atan2(-dx, -dz) - z.yaw); z.yaw += clamp(dy, -3.2 * dt, 3.2 * dt);
   let move = 1, strafe = 0;
-  if (d < 1.55 && z.meleeCd <= 0 && z.meleeWind <= 0 && Math.abs(player.pos.y - z.pos.y) < 1.0) { z.meleeWind = 0.55; humanOverlay(z.hum, 'punch', 1.1); }
+  if (d < 1.55 && z.meleeCd <= 0 && z.meleeWind <= 0 && Math.abs(player.pos.y - z.pos.y) < 1.0) { z.meleeWind = 0.75; humanOverlay(z.hum, 'zscratch', 1.25); }
   if (z.meleeWind > 0) { z.meleeWind -= dt; move = 0; if (z.meleeWind <= 0) { if (Math.hypot(player.pos.x - z.pos.x, player.pos.z - z.pos.z) < 2.0) hurtPlayer(); z.meleeCd = 1.1; } }
   else if (d < 1.2) move = 0;
   z.stuckT += dt;
@@ -1205,7 +1213,7 @@ renderer.domElement.addEventListener('mousedown', (e) => {
 function startReload() {
   if (mode !== 'zombie' || state !== 'play' || !player.alive || reloadT > 0 || player.ammo >= MAG) return;
   if (zres <= 0) { msg('Keine Reserve-Munition!', 1200); return; }
-  reloadT = RELOAD_T; sfx.click(); msg('Nachladen …', 900);
+  reloadT = RELOAD_T; if (player.hum) humanOverlay(player.hum, 'reload', 1.7 / RELOAD_T); sfx.click(); msg('Nachladen …', 900);
 }
 function finishReload() { const n = Math.min(MAG - player.ammo, zres); player.ammo += n; zres -= n; hudSig = ''; sfx.click(); }
 function tryShoot() {
