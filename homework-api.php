@@ -126,6 +126,13 @@ try {
         if ($title===''||hw_length($title)>140||preg_match('/[\x00-\x1F\x7F]/u',$title)) fail('Bitte einen Titel mit maximal 140 Zeichen eingeben.');
         $db=db();
         require_module($db,$id);
+        if (array_key_exists('topic',$body)) {
+            $topic=trim((string)$body['topic']);
+            if (hw_length($topic)>100||preg_match('/[\x00-\x1F\x7F]/u',$topic)) fail('Kurzbeschreibung darf maximal 100 Zeichen haben.');
+            $stmt=$db->prepare('UPDATE modules SET title=?,topic=? WHERE id=?');
+            $stmt->execute([$title,$topic,$id]);
+            output(['ok'=>true,'title'=>$title,'topic'=>$topic]);
+        }
         $stmt=$db->prepare('UPDATE modules SET title=? WHERE id=?');
         $stmt->execute([$title,$id]);
         output(['ok'=>true,'title'=>$title]);

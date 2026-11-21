@@ -5,16 +5,19 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>HomeWork – Gering Digital</title>
-<link rel="stylesheet" href="assets/homework.css?v=20261120b">
-<script src="assets/homework.js?v=20261120b" defer></script>
+<link rel="stylesheet" href="assets/homework.css?v=20261121c">
+<script src="assets/homework.js?v=20261121c" defer></script>
 </head>
 <body>
+<div class="homework-scene" aria-hidden="true"><div class="scene-desk"></div><div class="scene-light"></div></div>
+<a class="skip" href="#inhalt">Zu den Modulen</a>
 <div class="workspace hidden" id="app">
   <aside class="sidebar" aria-label="HomeWork-Kategorien">
-    <div class="brand"><span class="brand-mark" aria-hidden="true">&lt;/&gt;</span><strong>HomeWork</strong></div>
-    <p class="sidebar-label">Oberkategorien</p>
+    <div class="brand"><span class="brand-mark" aria-hidden="true">HW</span><strong>HomeWork</strong></div>
+    <p class="sidebar-label">Kategorien</p>
     <nav id="categoryNav" class="category-nav" aria-label="Kategorien"></nav>
     <button id="categoryCreate" type="button" class="category-create">+ Neue Kategorie</button>
+    <a class="sidebar-back" href="dau-to-pro/">Zurück zu DAU to Pro</a>
   </aside>
   <main class="content" id="inhalt">
     <header class="topbar">
@@ -23,21 +26,17 @@
     </header>
     <div class="page-heading">
       <h1>HomeWork</h1>
-      <div class="summary" aria-label="Modulübersicht">
-        <div><strong id="totalCount">0</strong><small>Module</small></div>
-        <div><strong id="doneCount">0</strong><small>Fertig</small></div>
-      </div>
+      <button id="toggleUpload" class="gold-button" type="button" aria-expanded="false" aria-controls="uploadFields">+ HTML hochladen</button>
     </div>
     <section class="upload-panel" aria-labelledby="upload-heading">
-      <div class="upload-header">
+      <div class="upload-header visually-hidden">
         <span class="upload-symbol" aria-hidden="true">+</span>
         <h2 id="upload-heading">Unterrichtsmaterial hinzufügen</h2>
-        <button id="toggleUpload" class="gold-button" type="button" aria-expanded="false" aria-controls="uploadFields">+ Datei hinzufügen</button>
       </div>
       <div id="uploadFields" class="upload-fields hidden">
         <div class="form-grid">
           <label>Titel der Kachel<input id="title" maxlength="140" placeholder="Titel des Moduls"></label>
-          <label>Thema<input id="topic" maxlength="100" placeholder="z. B. IT-Support"></label>
+          <label>Kurzbeschreibung<input id="topic" maxlength="100" placeholder="Worum geht es im Modul?"></label>
           <label>Oberkategorie<select id="uploadCategory"></select></label>
           <label>Datum<input id="date" type="date"></label>
         </div>
@@ -46,16 +45,17 @@
           <button id="upload" class="gold-button" type="button">HTML-Datei hochladen</button>
         </div>
       </div>
-      <p id="message" role="status" aria-live="polite"></p>
     </section>
+    <p id="message" role="status" aria-live="polite"></p>
     <section class="module-section" aria-labelledby="sectionTitle">
       <div class="list-heading">
         <div>
-          <h2 id="sectionTitle">Alle HTML-Module</h2>
+          <h2 id="sectionTitle">Alle Module</h2>
           <p id="count" aria-live="polite"></p>
         </div>
         <div class="list-tools">
-          <div class="legend"><span class="dot green"></span>Fertig <span class="dot yellow"></span>In Arbeit <span class="dot red"></span>Offen</div>
+          <label class="visually-hidden" for="statusFilter">Nach Status filtern</label>
+          <select id="statusFilter"><option value="all">Alle Status</option><option value="offen">Offen</option><option value="bearbeitung">In Bearbeitung</option><option value="fertig">Fertig</option></select>
           <label class="search-label"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Module suchen …" aria-label="Module suchen"></label>
         </div>
       </div>
@@ -81,6 +81,7 @@
     <h2 id="editHeading">Modul bearbeiten</h2>
     <input id="editId" type="hidden">
     <label>Titel<input id="editTitle" required maxlength="140"></label>
+    <label>Kurzbeschreibung<input id="editTopic" maxlength="100"></label>
     <label>Oberkategorie<select id="editCategory"></select></label>
     <p id="editError" role="alert"></p>
     <div class="dialog-actions">
