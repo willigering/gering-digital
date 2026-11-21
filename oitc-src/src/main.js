@@ -48,7 +48,7 @@ function noise(dur, vol = 0.1, lp = 3000) {
   } catch (e) { /* Audio optional */ }
 }
 // ---------- Sounds aus "Are You Dead Yet?" (zur Laufzeit aus ../zombies/ geladen, sonst synthetisch) ----------
-const SFXBASE = new URL('../zombies/sfx/', location.href).href, MUSBASE = new URL('../zombies/music/', location.href).href;
+const SFXBASE = new URL('../zombies/sfx/', location.href).href;
 const SMAP = {
   shot: ['pistol_shot_1', 'pistol_shot_2', 'pistol_shot_3'], botshot: ['pistol_shot_1', 'pistol_shot_2', 'pistol_shot_3'],
   click: ['gun_empty_1', 'gun_empty_2'], reload: ['reload_pistol_1', 'reload_pistol_2', 'reload_pistol_3'],
@@ -68,7 +68,7 @@ function loadSamples() {
   }
 }
 const sampLast = {};
-function samp(key, vol = 1, rate = 1, pan = 0, minGap = 0.03) {
+function samp(key, vol = 1, rate = 1, at = null, minGap = 0.03) {
   const list = SMAP[key]; if (!list || !actx) return false;
   const t = performance.now() / 1000; if (t - (sampLast[key] || -9) < minGap) return true;
   const ok = list.filter((n) => SBUF[n]); if (!ok.length) return false;
@@ -77,39 +77,36 @@ function samp(key, vol = 1, rate = 1, pan = 0, minGap = 0.03) {
     const src = actx.createBufferSource(), g = actx.createGain(); src.buffer = SBUF[ok[(Math.random() * ok.length) | 0]];
     src.playbackRate.value = rate * (0.96 + Math.random() * 0.08); g.gain.value = vol * (cfg.sfxVol ?? 1);
     src.connect(g);
-    if (actx.createStereoPanner) { const pn = actx.createStereoPanner(); pn.pan.value = clamp(pan, -1, 1); g.connect(pn); pn.connect(actx.destination); } else g.connect(actx.destination);
+    if (at && actx.createPanner) {
+      // echte Raumklang-Position: Lautstärke fällt mit Entfernung, ferne Geräusche werden dumpfer und nach links/rechts verteilt
+      const L = actx.listener, c = camera.position, fw = new V3(0, 0, -1).applyQuaternion(camera.quaternion);
+      if (L.positionX) { L.positionX.value = c.x; L.positionY.value = c.y; L.positionZ.value = c.z; L.forwardX.value = fw.x; L.forwardY.value = fw.y; L.forwardZ.value = fw.z; L.upX.value = 0; L.upY.value = 1; L.upZ.value = 0; }
+      else { L.setPosition(c.x, c.y, c.z); L.setOrientation(fw.x, fw.y, fw.z, 0, 1, 0); }
+      const d = Math.hypot(at.x - c.x, (at.y ?? 1.2) - c.y, at.z - c.z);
+      const lp = actx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = clamp(16000 / (1 + d / 7), 700, 16000);
+      const pn = actx.createPanner(); pn.panningModel = 'HRTF'; pn.distanceModel = 'inverse'; pn.refDistance = 3; pn.rolloffFactor = 1.7; pn.maxDistance = 200;
+      if (pn.positionX) { pn.positionX.value = at.x; pn.positionY.value = at.y ?? 1.2; pn.positionZ.value = at.z; } else pn.setPosition(at.x, at.y ?? 1.2, at.z);
+      g.connect(lp); lp.connect(pn); pn.connect(actx.destination);
+    } else g.connect(actx.destination);
     src.start();
   } catch (e) { return false; }
   return true;
 }
-// Musik: Menü-Stück und ruhige Spiel-Stücke als Stream
-const music = { el: null, cur: '' };
-function musicPlay(file, vol) {
-  if (music.cur === file && music.el) { music.el.volume = vol * (cfg.musVol ?? 0.5); return; }
-  try {
-    if (music.el) { music.el.pause(); }
-    const a = new Audio(MUSBASE + file); a.loop = file === 'menu.mp3'; a.volume = vol * (cfg.musVol ?? 0.5);
-    if (file !== 'menu.mp3') a.addEventListener('ended', () => musicPlay('slow' + (1 + ((Math.random() * 10) | 0)) + '.mp3', 0.5));
-    a.play().catch(() => {}); music.el = a; music.cur = file;
-  } catch (e) { /* Audio optional */ }
-}
-function musicStop() { if (music.el) { music.el.pause(); music.el = null; music.cur = ''; } }
-const pn = (x, z) => { const dx = x - camera.position.x, dz = z - camera.position.z, a = Math.atan2(dx, -dz) - camera.rotation.y; return Math.sin(a) * 0.8; };
 const sfx = {
   shot: () => { if (!samp('shot', 0.8)) { noise(0.25, 0.22, 4500); beep(140, 0.2, 'sawtooth', 0.12, -90); } },
-  botshot: (vol, x, z) => { if (!samp('botshot', 0.55 * vol, 0.95, x === undefined ? 0 : pn(x, z))) noise(0.2, 0.08 * vol, 2500); },
+  botshot: (vol, x, z) => { if (!samp('botshot', 0.9, 0.95, { x, z, y: 1.4 })) noise(0.2, 0.08 * vol, 2500); },
   click: () => { if (!samp('click', 0.6)) beep(1400, 0.03, 'square', 0.05); },
   reload: () => { if (!samp('reload', 0.7)) beep(900, 0.04, 'square', 0.05); },
   melee: () => { if (!samp('melee', 0.7)) { noise(0.12, 0.12, 1500); beep(240, 0.1, 'triangle', 0.08, -140); } },
   stab: () => samp('stab', 0.8),
-  kill: () => { if (!samp('kill', 0.7)) { beep(520, 0.1, 'square', 0.07); setTimeout(() => beep(780, 0.12, 'square', 0.07), 90); } },
+  kill: (x, z) => { if (!samp('kill', 0.7, 1, x === undefined ? null : { x, z, y: 1.3 })) { beep(520, 0.1, 'square', 0.07); setTimeout(() => beep(780, 0.12, 'square', 0.07), 90); } },
   pickup: () => { if (!samp('pickup', 0.8)) sfx.kill(); },
   hurt: () => { if (!samp('hurt', 0.9)) beep(120, 0.35, 'sawtooth', 0.12, -70); },
   step: () => { if (!samp('step', 0.35, 1, 0, 0.12)) noise(0.05, 0.05, 700); },
   land: () => { if (!samp('land', 0.5)) noise(0.09, 0.09, 600); },
   jump: () => { if (!samp('jump', 0.25, 1.2)) noise(0.06, 0.04, 900); },
-  groan: (v, x, z) => { if (!samp('groan', 0.9 * v, 1, x === undefined ? 0 : pn(x, z), 0.4)) { beep(rnd(70, 110), 0.7, 'sawtooth', 0.05 * v, -25); noise(0.5, 0.025 * v, 500); } },
-  zatk: () => samp('zatk', 0.9, 1, 0, 0.2), zdie: (x, z) => samp('zdie', 0.8, 1, pn(x, z), 0.1), zhit: (x, z) => samp('zhit', 0.7, 1, pn(x, z), 0.05),
+  groan: (v, x, z) => { if (!samp('groan', 1.1, 1, { x, z, y: 1.5 }, 0.4)) { beep(rnd(70, 110), 0.7, 'sawtooth', 0.05 * v, -25); noise(0.5, 0.025 * v, 500); } },
+  zatk: () => samp('zatk', 0.9, 1, 0, 0.2), zdie: (x, z) => samp('zdie', 1, 1, { x, z, y: 1.2 }, 0.1), zhit: (x, z) => samp('zhit', 0.9, 1, { x, z, y: 1.3 }, 0.05),
   head: () => samp('headshot', 0.7), wave: () => samp('wave', 0.9), over: () => samp('over', 0.9), go: () => samp('go', 0.7), ui: () => samp('ui', 0.6),
 };
 
@@ -1004,7 +1001,7 @@ function killEntity(attacker, victim, how, dir, hit, strength = 7) {
   victim.respawn = 2.4; victim.deadT = 0;
   burst(new V3(victim.pos.x, victim.pos.y + 1.1, victim.pos.z), victim.isPlayer ? 0xff5555 : victim.color);
   feed(`${attacker.name} ${how} ${victim.name}`, attacker.isPlayer ? '#9be37a' : victim.isPlayer ? '#ff7a7a' : '#ddd');
-  if (attacker.isPlayer) { sfx.kill(); msg('+1 Kugel'); hitT = 0.3; }
+  if (attacker.isPlayer) { sfx.kill(victim.pos.x, victim.pos.z); msg('+1 Kugel'); hitT = 0.3; }
   if (victim.isPlayer) { sfx.hurt(); $('hurt').style.opacity = 1; setTimeout(() => ($('hurt').style.opacity = 0), 450); }
   if (victim.lives <= 0) { victim.respawn = -1; feed(`${victim.name} ist raus!`, '#ffcc66'); }
   victim.slideT = -1;
@@ -1112,7 +1109,7 @@ function hurtPlayer() {
 function hitZombie(att, z, dmg, dir, hit) {
   z.hp -= dmg; burst(hit.clone(), 0x7a1010); hitT = 0.2;
   if (z.hp > 0) { z.meleeWind = 0; z.stagger = 0.25; sfx.zhit(z.pos.x, z.pos.z); return; }
-  z.alive = false; z.deadT = 0; z.meleeWind = 0; zw.kills++; sfx.kill(); sfx.zdie(z.pos.x, z.pos.z);
+  z.alive = false; z.deadT = 0; z.meleeWind = 0; zw.kills++; sfx.zdie(z.pos.x, z.pos.z);
   humanDie(z.hum); z.hum.deadYaw = dir && (dir.x || dir.z) ? Math.atan2(dir.x, dir.z) : z.yaw;
   if (Math.random() < 0.3) dropAmmo(z.pos.x, z.pos.z, 4 + (Math.random() < 0.3 ? 2 : 0));
   hudSig = ''; boardSig = '';
@@ -1307,17 +1304,16 @@ function botThink(b, dt) {
 }
 
 // ---------- Einstellungen ----------
-const cfg = { sens: 1, fov: 100, sfxVol: 1, musVol: 0.5 };
+const cfg = { sens: 1, fov: 100, sfxVol: 1 };
 try { Object.assign(cfg, JSON.parse(localStorage.getItem('lr_cfg') || '{}')); } catch (e) { /* ohne Speicher */ }
 cfg.fov = clamp(+cfg.fov || 100, 90, 120); cfg.sens = clamp(+cfg.sens || 1, 0.2, 3);
 function saveCfg() { try { localStorage.setItem('lr_cfg', JSON.stringify(cfg)); } catch (e) { /* ignorieren */ } }
-cfg.sfxVol = clamp(+cfg.sfxVol, 0, 1.5); cfg.musVol = clamp(+cfg.musVol, 0, 1);
-$('sens').value = cfg.sens; $('fov').value = cfg.fov; $('sfxv').value = cfg.sfxVol; $('musv').value = cfg.musVol;
+cfg.sfxVol = clamp(+cfg.sfxVol, 0, 1.5);
+$('sens').value = cfg.sens; $('fov').value = cfg.fov; $('sfxv').value = cfg.sfxVol;
 const showCfg = () => { $('sensv').textContent = cfg.sens.toFixed(2) + '×'; $('fovv').textContent = cfg.fov + '°'; };
 showCfg();
 $('sens').addEventListener('input', () => { cfg.sens = +$('sens').value; showCfg(); saveCfg(); });
 $('sfxv').addEventListener('input', () => { cfg.sfxVol = +$('sfxv').value; saveCfg(); });
-$('musv').addEventListener('input', () => { cfg.musVol = +$('musv').value; saveCfg(); if (music.el) music.el.volume = (music.cur === 'menu.mp3' ? 0.6 : 0.5) * cfg.musVol; });
 $('fov').addEventListener('input', () => { cfg.fov = +$('fov').value; showCfg(); saveCfg(); });
 let prevState = null;
 function openSettings() {
@@ -1347,7 +1343,6 @@ $('tomenu').addEventListener('click', () => {
   mpMenu = false; $('mp').style.display = 'none'; $('settings').style.display = 'none'; prevState = null; state = 'menu'; adsHeld = false; reloadT = 0;
   if (document.pointerLockElement) document.exitPointerLock();
   $('end').style.display = 'none'; $('spectate').style.display = 'none'; $('dz').style.display = 'none'; $('menu').style.display = 'flex';
-  musicPlay('menu.mp3', 0.6);
 });
 
 // ---------- Eingabe ----------
@@ -1486,7 +1481,6 @@ function startGame(m) {
   if (mode === 'zombie') startWave(); else msg(mode === 'mp' ? 'Online: Der Letzte, der steht, gewinnt.' : 'Eine Kugel. Mach sie zählen.', 2200);
   if (actx && actx.state === 'suspended') actx.resume();
   loadSamples(); sfx.go();
-  musicPlay('slow' + (1 + ((Math.random() * 10) | 0)) + '.mp3', 0.5);
 }
 $('start').addEventListener('click', () => startGame('oitc'));
 $('startz').addEventListener('click', () => startGame('zombie'));
@@ -1731,6 +1725,6 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
 });
-window.__otc = { Net, setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
+window.__otc = { samp, sfx, SBUF, Net, setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
 
-addEventListener('pointerdown', () => { loadSamples(); if (actx && actx.state === 'suspended') actx.resume(); if (state === 'menu' && !music.el) musicPlay('menu.mp3', 0.6); }, { once: false });
+addEventListener('pointerdown', () => { loadSamples(); if (actx && actx.state === 'suspended') actx.resume(); }, { once: false });
