@@ -12,7 +12,7 @@ const MAP = {
   idle: 'idle_loop_fit', pistol_idle: 'pistol_idle_loop_fit', walk: 'walk_loop_fit', jog: 'jog_fwd_loop_fit', sprint: 'sprint_loop_fit',
   slide_start: 'slide_start_fit', slide_loop: 'slide_loop_fit', death: 'death01_fit', hit_chest: 'hit_chest_fit', hit_head: 'hit_head_fit',
   hit_knock: 'hit_knockback_fit', melee: 'melee_hook_rec_fit', punch: 'punch_cross_fit', shoot: 'pistol_shoot_fit', aim: 'pistol_aim_neutral_fit',
-  jump: 'jump_land_fit', roll: 'roll_fit',
+  jump: 'jump_land_fit', roll: 'roll_fit', reload: 'pistol_reload_fit', zwalk: 'zombie_walk_fwd_loop_fit', zidle: 'zombie_idle_loop_fit', zscratch: 'zombie_scratch_fit',
 };
 const LOWER = /^(root|pelvis|thigh_[lr]|calf_[lr]|foot_[lr]|ball_[lr])$/;
 const SKIP = /^(ik_|socket_|Armature|.*_leaf_.*)/;

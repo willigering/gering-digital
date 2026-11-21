@@ -8,7 +8,7 @@ import animData from '../assets/human/anims.json';
 const b64 = (s) => { const bin = atob(s), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new Int16Array(u.buffer); };
 
 // Gemessene Fuss-Bodengeschwindigkeit der Clips bei timeScale 1 (m/s), damit die Fuesse nicht gleiten
-const STRIDE = { walk: 0.71, jog: 5.1, sprint: 5.4 };
+const STRIDE = { walk: 0.71, jog: 5.1, sprint: 5.4, zwalk: 0.7 };
 function buildClips() {
   const out = {}, fps = animData.fps;
   for (const [name, c] of Object.entries(animData.clips)) {
@@ -95,6 +95,7 @@ export function humanReset(h) { h.mixer.stopAllAction(); h.cur.L = h.cur.U = nul
 export function humanDie(h) { if (h.knife) { h.knife.visible = false; if (h.pistol) h.pistol.visible = true; } h.mode = 'dead'; h.ov = 0; setBoth(h, 'death', 0.08, true, 1.15); }
 export function humanOverlay(h, name, ts = 1.3) { // Schuss/Nahkampf nur auf dem Oberkörper
   if (h.mode === 'dead' || h.mode.startsWith('slide')) return;
+  if (h.zombie) { setBoth(h, name, 0.12, true, ts); h.ov = clips[name].dur / ts; h.mode = 'zatk'; return; }
   layer(h, 'U', name, 0.05, true, ts); h.ov = clips[name].dur / ts; h.ovName = name;
   if (name === 'punch' && h.knife) { h.knife.visible = true; if (h.pistol) h.pistol.visible = false; }
 }
@@ -107,6 +108,15 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
   }
   h.off = (h.off || 0) + (off - (h.off || 0)) * Math.min(1, dt * 10);
   h.body.rotation.y = Math.PI + h.off;
+  if (h.zombie && h.mode !== 'dead') {
+    if (h.mode === 'zatk') { h.ov -= dt; if (h.ov <= 0) { h.mode = ''; h.ov = 0; } }
+    else {
+      const m = speed < 0.3 ? 'zidle' : 'zwalk';
+      if (m !== h.mode) { h.mode = m; setBoth(h, m, 0.25, false, 1); }
+      if (m === 'zwalk') { const t = THREE.MathUtils.clamp(speed / clips.zwalk.speed, 0.6, 3.4); h.cur.L.timeScale = t; h.cur.U.timeScale = t; }
+    }
+    h.body.rotation.y = Math.PI; h.mixer.update(dt); return;
+  }
   if (h.mode !== 'dead') {
     let m;
     if (slideT >= 0) m = slideT < 0.8 ? 'slide_start' : 'slide_loop';
@@ -134,7 +144,6 @@ export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = fal
     }
   }
   h.mixer.update(dt);
-  if (h.zombie) zombiePose(h, dt);
 }
 // Zombie-Haltung: Arme nach vorn, Oberkörper gebeugt, Kopf schief, Schwanken (nach dem Mixer, als Zusatzrotation)
 const ZP = { arm: [1.4, 0, 0], fore: [0.3, 0, 0], lean: [0.3, 0, 0], head: [0.25, 0, 0.3] };
