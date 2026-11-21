@@ -23,7 +23,7 @@ const THEMES = [
   { item: 'jammer', name: 'Mond', sky: ['#05060c', '#1a1d2b'], far: '#3a3d48', near: '#2a2c35', tile: '#4a4d57', edge: '#d9dde6', hook: '#ffe66d', deco: 'moon', sun: '#3f86ff', fx: 'stars' },
   { name: 'Bonus: Zufallsstrecke (täglich neu)', sky: ['#1d2b4f', '#e07a5f'], far: '#2f3f63', near: '#22304d', tile: '#26334f', edge: '#ffd166', hook: '#ffffff', deco: 'garden', sun: '#ffd27a', fx: 'flies', item: 'banana' },
 ];
-const VER = 84; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
+const VER = 85; // bei jeder Änderung an Strecken oder Spielregeln erhöhen (auch in index.html: game.js?v=…)
 const NMAPS = THEMES.length, ROCKET_V = 1500;
 const PLAY = THEMES.map((t, i) => t.off ? -1 : i).filter(i => i >= 0); // spielbare Strecken (die senkrechten Etagen-Strecken sind vorerst aus der Auswahl genommen)
 const randMap = () => PLAY[fl(Math.random() * PLAY.length)];
@@ -375,6 +375,7 @@ function addDecks(g, rnd) {
   const deck = (x, d, k, L) => {              // Auffahrt über k Felder, dann Steg bis x + L
     for (let i = 0; i < k; i++) if (g[d + k - 1 - i][x + i] !== ' ') return false;
     if (!free(x + k, d, L - k)) return false;
+    for (let cx = x - 3; cx < x; cx++) for (let r = d - 2; r <= d + k; r++) if (!soft((g[r] || [])[cx] || ' ')) return false; // vor dem Rampenfuß darf kein Block stehen
     for (let i = 0; i < k; i++) g[d + k - 1 - i][x + i] = '/';
     for (let i = k; i < L; i++) g[d][x + i] = '=';
     if (rnd() < 0.7) g[d - 1][x + k + 2 + fl(rnd() * 3)] = '>';
@@ -1906,10 +1907,10 @@ function drawTile(c, tx, ty, x, y, now) {
   } else if (SLOPE[c]) {
     const f = SLOPE[c];
     const air = isAir(tx, ty + 1) && !SLOPE[tile(tx, ty + 1)];
-    if (air) { // freischwebende Rampe: gefülltes Dreieck bis zum Fuß der Rampe (gleiche dunkle Fläche wie die Plattform), ohne Kästchen je Feld
-      const foot = Math.max(y + T, rampFoot(tx, ty) * T - (ty * T - y)); // Fuß der Rampe relativ zu y
-      ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, foot + 0.5); ctx.lineTo(x, foot + 0.5); ctx.fill();
-      ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.fillRect(x, foot - 2, T + 0.5, 2); ctx.globalAlpha = 1;
+    if (air) { // freischwebende Rampe: schräge Fortsetzung der Plattform (gleiche Dicke, gleiche dunkle Fläche), unten am Rampenfuß auslaufend – kein Kasten
+      const foot = rampFoot(tx, ty) * T - (ty * T - y), bl = Math.min(y + f(0) + T, foot), br = Math.min(y + f(T) + T, foot);
+      ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, br + 0.5); ctx.lineTo(x, bl + 0.5); ctx.fill();
+      ctx.strokeStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, bl); ctx.lineTo(x + T + 0.5, br); ctx.stroke(); ctx.globalAlpha = 1;
     }
     else { ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill(); }
     ctx.strokeStyle = theme.edge; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 2.5); ctx.lineTo(x + T + 0.5, y + f(T) + 2.5); ctx.stroke();
