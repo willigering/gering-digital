@@ -4,7 +4,7 @@
 .sl-page-matrix{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:.27;mix-blend-mode:screen;}
 .section-shell{width:min(100%,var(--content));margin-inline:auto;padding-inline:32px;}
 .sharplab-page .hero{padding:34px 0 56px;position:relative;z-index:1;}
-.sharplab-page .hero-inner{width:min(100%,var(--content));margin:auto;padding-inline:32px;display:grid;grid-template-columns:minmax(0,1fr);gap:30px;align-items:start;}
+.sharplab-page .hero-inner{width:min(100%,var(--content));margin:auto;padding-inline:32px;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:clamp(30px,4vw,64px);align-items:center;}
 .sharplab-page .hero-copy{position:relative;z-index:2;min-width:0;max-width:1050px;}
 .sharplab-page .kicker,.sharplab-page .eyebrow{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-size:10px;font-weight:850;letter-spacing:.24em;text-transform:uppercase;color:#95abb4;margin-bottom:22px;}
 .sharplab-page .live-dot{height:6px;width:6px;flex:0 0 6px;border-radius:50%;background:var(--sl-green);box-shadow:0 0 10px #3fcb6e99;}
@@ -25,11 +25,11 @@
 .sharplab-page .hero-meta span{display:inline-flex;align-items:center;gap:5px;}
 .sharplab-page .hero-meta b{color:#f3f3ed;font-weight:650;}
 .sharplab-page .hero-meta span+span:before{content:"";width:3px;height:3px;background:#6e8188;border-radius:50%;margin-right:8px;}
-.sharplab-page .hero-visual{position:relative;min-width:0;}
+.sharplab-page .hero-visual{position:relative;min-width:0;width:100%;max-width:560px;justify-self:center;}
 .sharplab-page .hero-art-wrap{display:block;position:relative;width:100%;overflow:hidden;border:1px solid #3fcb6e33;border-radius:14px;background:#070a08;box-shadow:0 28px 60px #0008,0 0 0 1px #3fcb6e14;cursor:zoom-in;}
 .sharplab-page .hero-art-wrap:focus-visible{outline:3px solid #ffde64;outline-offset:5px;}
 .sharplab-page .hero-art-wrap img{display:block;width:100%;height:auto;}
-.sharplab-page .hero-caption{margin:10px 0 0;font-size:12px;color:#8fa3a6;}
+.sharplab-page .hero-caption{margin:12px 0 0;font-size:14px;color:#afc2c5;text-align:center;}
 .sharplab-page .section-heading{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:24px;}
 .sharplab-page .section-heading h2,.sharplab-page .sl-facts h2{font-size:clamp(26px,3.3vw,38px);font-weight:1000;line-height:1.08;letter-spacing:-.05em;text-transform:uppercase;margin:10px 0 12px;text-wrap:balance;}
 .sharplab-page .section-heading h2 span{color:var(--gold);}
@@ -83,3 +83,16 @@
   .sharplab-page .hero-actions .primary-action,.sharplab-page .hero-actions .portable-action,.sharplab-page .hero-actions .secondary-action{width:100%;}
 }
 
+
+/* Compact app window and same-tab, native modal preview. */
+.sharplab-page .sl-window-bar{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;background:#101a14;color:#afc2c5;font-size:14px;border-bottom:1px solid #3fcb6e33;}
+.sharplab-page .hero-art-wrap:hover{border-color:#3fcb6e99;}
+.sl-preview{box-sizing:border-box;width:min(1600px,calc(100vw - 40px));max-width:none;max-height:calc(100dvh - 40px);padding:0;border:1px solid #3fcb6e88;border-radius:14px;background:#070e0a;color:#f4f4ed;box-shadow:0 30px 100px #000b;overflow:auto;}
+.sl-preview::backdrop{background:#020806d9;backdrop-filter:blur(6px);}
+.sl-preview-header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:8px 16px;font-size:16px;}
+.sl-preview-close{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:8px;background:transparent;color:#f4f4ed;font-size:30px;cursor:pointer;}
+.sl-preview-close:hover{background:#ffffff14;}
+.sl-preview-close:focus-visible{outline:2px solid #ffde64;outline-offset:-2px;}
+.sl-preview img{display:block;width:100%;height:auto;max-height:calc(100dvh - 104px);object-fit:contain;}
+html.sl-preview-open{overflow:hidden;}
+@media(max-width:600px){.sl-preview{width:calc(100vw - 16px);max-height:calc(100dvh - 16px);}.sl-preview-header{font-size:14px;padding-inline:12px;}.sl-preview img{max-height:calc(100dvh - 80px);}}
