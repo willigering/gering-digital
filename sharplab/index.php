@@ -41,10 +41,11 @@ $year=(int)date('Y');
         <div class="hero-meta"><span><b>27</b> Lektionen</span><span>Kostenlos unter MIT</span><span>Windows 10/11</span></div>
       </div>
       <div class="hero-visual">
-        <a class="hero-art-wrap" href="../assets/sharplab-screenshot.webp" target="_blank" rel="noopener" aria-label="SharpLab-Vorschau in voller Größe öffnen">
+        <a class="hero-art-wrap" href="../assets/sharplab-screenshot.webp" aria-label="SharpLab-Vorschau in voller Größe öffnen" aria-haspopup="dialog" aria-controls="sl-preview">
+          <span class="sl-window-bar" aria-hidden="true"><span>SharpLab</span><span>− &nbsp; □ &nbsp; ×</span></span>
           <img src="../assets/sharplab-screenshot.webp" width="1600" height="900" alt="SharpLab im Überblick: Lernpfad, Lektionstext und Code-Editor mit Ausgabe">
         </a>
-        <p class="hero-caption">Ein Nachbau der Oberfläche – Lernpfad, Lektion und Editor in einem Fenster. Klicke auf das Bild für die volle Größe.</p>
+        <p class="hero-caption">Ansicht vergrößern</p>
       </div>
     </div>
   </section>
@@ -129,6 +130,10 @@ $year=(int)date('Y');
   </section>
 </main>
 
+<dialog class="sl-preview" id="sl-preview" aria-labelledby="sl-preview-title">
+  <div class="sl-preview-header"><span id="sl-preview-title">SharpLab · App-Vorschau</span><button type="button" class="sl-preview-close" aria-label="Vorschau schließen" autofocus>×</button></div>
+  <img src="../assets/sharplab-screenshot.webp" width="1600" height="900" alt="SharpLab im Überblick: Lernpfad, Lektionstext und Code-Editor mit Ausgabe">
+</dialog>
 <footer>
   <div class="wrap footer">
     <a class="brand" href="../">
@@ -140,5 +145,6 @@ $year=(int)date('Y');
   </div>
 </footer>
 <script src="../assets/sharplab-matrix.js?v=<?=filemtime(__DIR__.'/../assets/sharplab-matrix.js')?>" defer></script>
+<script src="preview.js?v=<?=filemtime(__DIR__.'/preview.js')?>" defer></script>
 </body>
 </html>
