@@ -20,6 +20,10 @@ function output(array $data,int $status=200): never {
 function fail(string $message,int $status=400): never {
     output(['error'=>$message],$status);
 }
+function mb_safe_excerpt(string $value,int $length): string {
+    $value=iconv('UTF-8','UTF-8//IGNORE',$value)?:'';
+    preg_match('/^.{0,'.(int)$length.'}/us',$value,$match);return $match[0]??'';
+}
 function db(): PDO {
     return hw_db();
 }
@@ -68,6 +72,32 @@ try {
         output(['mode'=>'ready','modules'=>$modules,'categories'=>$categories]);
     }
 
+    if (in_array($action,['search','workbook'],true) && $_SERVER['REQUEST_METHOD']==='GET') {
+        if(empty($_SESSION['hw_login']))fail('Nicht angemeldet.',401);
+        $db=db();
+        if($action==='workbook'){
+            $id=(string)($_GET['id']??'');require_module($db,$id);
+            output(['ok'=>true]+hw_saved_workbook($db,$id));
+        }
+        $term=trim((string)($_GET['q']??''));
+        if(hw_length($term)>200)fail('Suchbegriff zu lang.');
+        $words=preg_split('/\s+/u',$term,-1,PREG_SPLIT_NO_EMPTY)?:[];$matches=[];
+        foreach($db->query('SELECT id,title,topic FROM modules')->fetchAll(PDO::FETCH_ASSOC) as $module){
+            $source=__DIR__.'/data/homework/'.$module['id'].'.html';
+            $html=is_file($source)?file_get_contents($source):'';
+            $text=hw_index_module($db,$module['id'],is_string($html)?$html:'');
+            $haystack=$module['title'].' '.$module['topic'].' '.$text;$found=true;
+            foreach($words as $word)if(!preg_match('~'.preg_quote($word,'~').'~iu',$haystack)){$found=false;break;}
+            if($found){
+                $snippet=$text;
+                if($words&&preg_match('~'.preg_quote($words[0],'~').'~iu',$text,$hit,PREG_OFFSET_CAPTURE))$snippet=substr($text,max(0,$hit[0][1]-60),320);
+                $snippet=preg_replace('/^.{0,3}(?=[\x80-\xBF])/s','',$snippet)??$snippet;
+                $matches[]=['id'=>$module['id'],'snippet'=>mb_safe_excerpt($snippet,240)];
+            }
+        }
+        output(['ok'=>true,'matches'=>$matches]);
+    }
+
     if ($_SERVER['REQUEST_METHOD']!=='POST') fail('Methode nicht erlaubt.',405);
     if ((int)($_SERVER['CONTENT_LENGTH']??0)>200000) fail('Anfrage zu groß.',413);
     $body=json_decode(file_get_contents('php://input'),true);
@@ -93,6 +123,19 @@ try {
         output(['ok'=>true]);
     }
     if (empty($_SESSION['hw_login'])) fail('Nicht angemeldet.',401);
+
+    if($action==='save-workbook'){
+        $id=(string)($body['id']??'');$db=db();require_module($db,$id);
+        try{$fields=hw_clean_fields($body['fields']??null);}catch(InvalidArgumentException $e){fail($e->getMessage());}
+        $revision=filter_var($body['revision']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>0]]);
+        if($revision===false)fail('Ungültige Speicherversion.');
+        $db->beginTransaction();
+        $current=hw_saved_workbook($db,$id);
+        if($current['revision']!==$revision){$db->rollBack();output(['error'=>'Das Arbeitsblatt wurde in einem anderen Fenster geändert. Bitte neu laden.','revision'=>$current['revision']],409);}
+        $q=$db->prepare('INSERT INTO workbook_state(module_id,state_json,revision,updated) VALUES(?,?,?,?) ON CONFLICT(module_id) DO UPDATE SET state_json=excluded.state_json,revision=excluded.revision,updated=excluded.updated');
+        $q->execute([$id,json_encode($fields,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),$revision+1,gmdate('c')]);$db->commit();
+        output(['ok'=>true,'revision'=>$revision+1]);
+    }
 
     if ($action==='create-category') {
         $name=trim((string)($body['name']??''));
@@ -168,6 +211,8 @@ try {
             $stmt=$db->prepare('DELETE FROM modules WHERE id=?');
             $stmt->execute([$id]);
             if ($stmt->rowCount()!==1) throw new RuntimeException('Modul wurde während des Löschens geändert.');
+            $db->prepare('DELETE FROM workbook_state WHERE module_id=?')->execute([$id]);
+            $db->prepare('DELETE FROM workbook_search WHERE module_id=?')->execute([$id]);
             $db->commit();
         } catch(Throwable $e) {
             if($db->inTransaction())$db->rollBack();
