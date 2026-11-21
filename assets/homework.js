@@ -1,16 +1,36 @@
 'use strict';
 // HomeWork: browser UI only. Categories and module mutations persist via the private API.
-let csrf='', modules=[], categories=[], activeCategory='all', searchText='';
+let csrf='', modules=[], categories=[], activeCategory='all', searchText='', activeStatus='all';
 const $=id=>document.getElementById(id);
 const statuses={offen:'Offen',bearbeitung:'In Bearbeitung',fertig:'Fertig'};
-const artByCategory={
-  'it-1':'assets/dau-backgrounds/cables-768.webp',
-  'it-2':'assets/dau-backgrounds/circuit-768.webp',
-  'it-3':'assets/dau-backgrounds/csharp-loops-768.webp',
-  'it-4':'assets/dau-backgrounds/hardware-memory-768.webp',
-  'it-5':'assets/dau-backgrounds/server-768.webp',
-  'it-6':'assets/dau-backgrounds/klausur-bg.webp'
-};
+// Reusable motifs: every category, including new ones, works without an image upload.
+const motifs=[
+  {image:'cables-768.webp',color:'#76d8df',paths:['M22 26h76v42H22z','M48 68v12m24-12v12M36 82h48','m48 38-10 9 10 9m24-18 10 9-10 9m-7-21-8 24']},
+  {image:'circuit-768.webp',color:'#81ddd5',paths:['M44 14h32v24H44zM12 82h30v24H12zM78 82h30v24H78z','M60 38v22H27v22m33-22h33v22','M52 26h16M20 94h14m52 0h14']},
+  {image:'csharp-loops-768.webp',color:'#c4afff',paths:['M28 28c0-16 64-16 64 0s-64 16-64 0Z','M28 28v64c0 16 64 16 64 0V28','M28 50c0 16 64 16 64 0M28 72c0 16 64 16 64 0']},
+  {image:'hardware-memory-768.webp',color:'#a7d8a1',paths:['M30 30h60v60H30zM44 44h32v32H44z','M42 18v12m18-12v12m18-12v12M42 90v12m18-12v12m18-12v12M18 42h12M18 60h12M18 78h12m60-36h12M90 60h12M90 78h12']},
+  {image:'server-768.webp',color:'#edc477',paths:['M26 18h68v24H26zM26 48h68v24H26zM26 78h68v24H26z','M38 30h2m10 0h2m18 0h12M38 60h2m10 0h2m18 0h12M38 90h2m10 0h2m18 0h12']},
+  {image:'klausur-bg.webp',color:'#9dc8ef',paths:['M34 32h52v72H34zM46 24h28v16H46z','m44 58 4 4 7-8m-11 23 4 4 7-8M64 58h12M64 77h12']}
+];
+function motifForCategory(id){
+  const index=/^it-[1-6]$/.test(id||'')?Number(id.slice(3))-1:
+    Array.from(id||'general').reduce((hash,char)=>(hash*31+char.charCodeAt(0))>>>0,0)%motifs.length;
+  return motifs[index];
+}
+function motifIcon(motif){
+  const ns='http://www.w3.org/2000/svg';
+  const wrapper=element('span','module-icon');
+  wrapper.setAttribute('aria-hidden','true');
+  const svg=document.createElementNS(ns,'svg');
+  for(const [key,value] of Object.entries({viewBox:'0 0 120 120',fill:'none',stroke:'currentColor','stroke-width':'3','stroke-linejoin':'round','stroke-linecap':'round'}))svg.setAttribute(key,value);
+  for(const d of motif.paths){
+    const path=document.createElementNS(ns,'path');
+    path.setAttribute('d',d);
+    svg.append(path);
+  }
+  wrapper.append(svg);
+  return wrapper;
+}
 function element(tag,classes,text){
   const n=document.createElement(tag);
   if(classes)n.className=classes;
@@ -86,6 +106,7 @@ function formatDate(value){
 function openEditor(module){
   $('editId').value=module.id;
   $('editTitle').value=module.title;
+  $('editTopic').value=module.topic||'';
   fillCategorySelect($('editCategory'),module.category_id||'');
   $('editError').textContent='';
   $('editDialog').showModal();
@@ -107,51 +128,33 @@ function renderCards(){
   const filtered=modules.filter(m=>{
     const inCategory=activeCategory==='all' || (m.category_id||'')===activeCategory;
     const match=(m.title+' '+m.topic+' '+categoryLabel(m.category_id)).toLocaleLowerCase('de-DE').includes(term);
-    return inCategory&&match;
+    return inCategory&&match&&(activeStatus==='all'||m.status===activeStatus);
   });
-  $('sectionTitle').textContent=activeCategory==='all'?'Alle HTML-Module':categoryLabel(activeCategory);
-  $('count').textContent=filtered.length+' von '+modules.length+' Modulen angezeigt';
+  $('sectionTitle').textContent=activeCategory==='all'?'Alle Module':categoryLabel(activeCategory);
+  $('count').textContent=filtered.length+' von '+modules.length+' Modulen';
 
   for(const module of filtered){
     const card=element('article','module-card');
     card.dataset.status=statuses[module.status]?module.status:'offen';
     const art=element('div','module-art');
-    const artPath=artByCategory[module.category_id]||'assets/dau-backgrounds/klausur-bg.webp';
-    art.style.setProperty('--art-image','url("'+artPath+'")');
-    art.append(element('span','module-category',categoryLabel(module.category_id)));
-    art.append(element('span','module-icon','</>'));
+    const motif=motifForCategory(module.category_id);
+    const artUrl=new URL('assets/dau-backgrounds/'+motif.image,document.baseURI).href;
+    art.style.setProperty('--art-image','url("'+artUrl+'")');
+    card.style.setProperty('--motif-color',motif.color);
+    art.append(motifIcon(motif),element('span','module-status',statuses[module.status]||'Offen'));
     card.append(art);
 
     const body=element('div','module-body');
     const meta=element('div','module-meta');
-    meta.append(element('span','',module.topic||'Unterrichtsmaterial'),
-                element('time','',formatDate(module.date)));
+    const date=element('time','',formatDate(module.date));
+    if(date.textContent)date.dateTime=module.date;
+    meta.append(element('span','module-category',categoryLabel(module.category_id)),date);
     body.append(meta,element('h3','',module.title));
-    body.append(element('div','module-subtitle','Originaldatei unverändert · HTML-Modul'));
-    const status=element('div','module-status',statuses[module.status]||'Offen');
-    body.append(status);
-
-    const controls=element('div','status-controls');
-    controls.setAttribute('role','group');
-    controls.setAttribute('aria-label','Status für '+module.title);
-    for(const [value,label] of Object.entries(statuses)){
-      const button=element('button','',label==='In Bearbeitung'?'In Arbeit':label);
-      button.type='button';
-      button.setAttribute('aria-pressed',String(module.status===value));
-      button.addEventListener('click',async()=>{
-        button.disabled=true;
-        try{
-          await api('save-status',{id:module.id,status:value});
-          module.status=value;
-          render();
-        }catch(error){notice('Status konnte nicht gespeichert werden: '+error.message);button.disabled=false;}
-      });
-      controls.append(button);
-    }
-    body.append(controls);
+    body.append(element('p','module-description',module.topic||'Unterrichtsmaterial'));
     const actions=element('div','card-actions');
-    const a=element('a','openlink','HTML öffnen ↗');
+    const a=element('a','openlink','Modul öffnen');
     a.href='homework-module.php?id='+encodeURIComponent(module.id);
+    a.setAttribute('aria-label',module.title+' öffnen');
     const options=element('details','card-options');
     const summary=element('summary','','⋯');
     summary.setAttribute('aria-label','Aktionen für '+module.title);
@@ -162,7 +165,29 @@ function renderCards(){
     const remove=element('button','danger','Modul löschen');
     remove.type='button';
     remove.addEventListener('click',()=>{options.open=false;deleteModule(module)});
-    menu.append(edit,remove);
+    menu.append(edit,element('hr','menu-divider'));
+    const controls=element('div','status-controls');
+    controls.setAttribute('role','group');
+    controls.setAttribute('aria-label','Status für '+module.title);
+    for(const [value,label] of Object.entries(statuses)){
+      const button=element('button','',label);
+      button.type='button';
+      button.setAttribute('aria-pressed',String(module.status===value));
+      button.addEventListener('click',async()=>{
+        for(const control of controls.children)control.disabled=true;
+        try{
+          await api('save-status',{id:module.id,status:value});
+          module.status=value;
+          render();
+          notice('Status gespeichert: '+label+'.');
+        }catch(error){
+          notice('Status konnte nicht gespeichert werden: '+error.message);
+          for(const control of controls.children)control.disabled=false;
+        }
+      });
+      controls.append(button);
+    }
+    menu.append(controls,element('hr','menu-divider'),remove);
     options.append(summary,menu);
     actions.append(a,options);
     body.append(actions);
@@ -176,8 +201,6 @@ function renderCards(){
 function render(){
   renderSidebar();
   renderCards();
-  $('totalCount').textContent=String(modules.length);
-  $('doneCount').textContent=String(modules.filter(m=>m.status==='fertig').length);
   const selection=$('uploadCategory').value;
   fillCategorySelect($('uploadCategory'),selection||((activeCategory!=='all')?activeCategory:''));
 }
@@ -213,7 +236,8 @@ $('loginForm').addEventListener('submit',async event=>{
 $('logout').addEventListener('click',async()=>{
   try{
     await api('logout');
-    modules=[];categories=[];activeCategory='all';
+    modules=[];categories=[];activeCategory='all';activeStatus='all';searchText='';
+    $('search').value='';$('statusFilter').value='all';
     await refresh();
   }catch(error){notice(error.message);}
 });
@@ -246,10 +270,11 @@ $('editForm').addEventListener('submit',async event=>{
   if(!module)return;
   const newTitle=$('editTitle').value.trim();
   const newCategory=$('editCategory').value;
+  const newTopic=$('editTopic').value.trim();
   if(!newTitle)return;
   $('saveEdit').disabled=true;
   try{
-    if(newTitle!==module.title)await api('rename-module',{id,title:newTitle});
+    if(newTitle!==module.title||newTopic!==(module.topic||''))await api('rename-module',{id,title:newTitle,topic:newTopic});
     if(newCategory!==(module.category_id||''))await api('set-category',{id,categoryId:newCategory});
     $('editDialog').close();
     await refresh();
@@ -263,6 +288,7 @@ $('search').addEventListener('input',()=>{
   searchText=$('search').value.trim();
   renderCards();
 });
+$('statusFilter').addEventListener('change',()=>{activeStatus=$('statusFilter').value;renderCards()});
 $('toggleUpload').addEventListener('click',()=>{
   const closed=$('uploadFields').classList.toggle('hidden');
   $('toggleUpload').setAttribute('aria-expanded',String(!closed));
@@ -270,9 +296,38 @@ $('toggleUpload').addEventListener('click',()=>{
 });
 const now=new Date();
 $('date').value=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-$('file').addEventListener('change',()=>{
+// Only parse metadata fragments. Uploaded scripts, images and styles never run here.
+function htmlMetadata(source){
+  const title=source.match(/<title\b[^>]*>([\s\S]*?)<\/title\s*>/i)||source.match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
+  const plain=value=>{
+    const escaped=value.replace(/<[^>]*>/g,'');
+    const doc=new DOMParser().parseFromString('<body>'+escaped.replace(/</g,'&lt;'),'text/html');
+    return doc.body.textContent.replace(/\s+/g,' ').trim();
+  };
+  let description='';
+  for(const match of source.matchAll(/<meta\b[^>]*>/gi)){
+    const doc=new DOMParser().parseFromString(match[0],'text/html');
+    const meta=doc.querySelector('meta');
+    if((meta?.getAttribute('name')||'').toLowerCase()==='description'){
+      description=(meta.getAttribute('content')||'').replace(/\s+/g,' ').trim();break;
+    }
+  }
+  return {title:title?plain(title[1]).slice(0,140):'',description:description.slice(0,100)};
+}
+$('file').addEventListener('change',async()=>{
   const file=$('file').files[0];
-  if(file&&!$('title').value)$('title').value=file.name.replace(/\.html?$/i,'').replace(/[_-]+/g,' ');
+  if(!file)return;
+  const initialTitle=$('title').value;
+  const initialTopic=$('topic').value;
+  if(!initialTitle)$('title').value=file.name.replace(/\.html?$/i,'').replace(/[_-]+/g,' ').slice(0,140);
+  const fallbackTitle=$('title').value;
+  if(file.size>12582912||! /\.html?$/i.test(file.name))return;
+  try{
+    const metadata=htmlMetadata(await file.text());
+    if($('file').files[0]!==file)return;
+    if(!initialTitle&&$('title').value===fallbackTitle&&metadata.title)$('title').value=metadata.title;
+    if(!initialTopic&&!$('topic').value&&metadata.description)$('topic').value=metadata.description;
+  }catch(_){/* Filename and manual fields remain available. */}
 });
 $('upload').addEventListener('click',async()=>{
   const file=$('file').files[0];
@@ -313,9 +368,31 @@ $('upload').addEventListener('click',async()=>{
     $('title').value='';
     $('topic').value='';
     if(activeCategory!=='all' && activeCategory!==categoryId)activeCategory=categoryId||'all';
+    activeStatus='all';$('statusFilter').value='all';
+    searchText='';$('search').value='';
     render();
+    $('uploadFields').classList.add('hidden');
+    $('toggleUpload').setAttribute('aria-expanded','false');
     notice('HTML-Datei gespeichert.');
   }catch(error){notice('Upload fehlgeschlagen: '+error.message);}
   finally{$('upload').disabled=false;}
 });
+// Bounded transform-only parallax; never intercept scrolling or move the cards.
+const motion=matchMedia('(prefers-reduced-motion: reduce)');
+const desktop=matchMedia('(min-width: 761px)');
+let sceneFrame=0;
+function paintScene(){
+  sceneFrame=0;
+  const enabled=!motion.matches&&desktop.matches&&!document.hidden;
+  const progress=enabled?Math.min(window.scrollY,1800):0;
+  const scene=document.querySelector('.homework-scene');
+  scene.style.setProperty('--desk-y',Math.round(progress*.025)+'px');
+  scene.style.setProperty('--light-y',Math.round(progress*.012)+'px');
+}
+function scheduleScene(){if(!sceneFrame)sceneFrame=requestAnimationFrame(paintScene)}
+window.addEventListener('scroll',scheduleScene,{passive:true});
+motion.addEventListener('change',scheduleScene);
+desktop.addEventListener('change',scheduleScene);
+document.addEventListener('visibilitychange',scheduleScene);
+paintScene();
 refresh();
