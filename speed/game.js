@@ -1906,10 +1906,10 @@ function drawTile(c, tx, ty, x, y, now) {
   } else if (SLOPE[c]) {
     const f = SLOPE[c];
     const air = isAir(tx, ty + 1) && !SLOPE[tile(tx, ty + 1)];
-    if (air) { // freischwebende Rampe: gefülltes Dreieck bis zum Fuß der Rampe (gleiche dunkle Fläche wie die Plattform), ohne Kästchen je Feld
-      const foot = Math.max(y + T, rampFoot(tx, ty) * T - (ty * T - y)); // Fuß der Rampe relativ zu y
-      ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, foot + 0.5); ctx.lineTo(x, foot + 0.5); ctx.fill();
-      ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.fillRect(x, foot - 2, T + 0.5, 2); ctx.globalAlpha = 1;
+    if (air) { // freischwebende Rampe: schräge Fortsetzung der Plattform (gleiche Dicke, gleiche dunkle Fläche), unten am Rampenfuß auslaufend – kein Kasten
+      const foot = rampFoot(tx, ty) * T - (ty * T - y), bl = Math.min(y + f(0) + T, foot), br = Math.min(y + f(T) + T, foot);
+      ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, br + 0.5); ctx.lineTo(x, bl + 0.5); ctx.fill();
+      ctx.strokeStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, bl); ctx.lineTo(x + T + 0.5, br); ctx.stroke(); ctx.globalAlpha = 1;
     }
     else { ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill(); }
     ctx.strokeStyle = theme.edge; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 2.5); ctx.lineTo(x + T + 0.5, y + f(T) + 2.5); ctx.stroke();
