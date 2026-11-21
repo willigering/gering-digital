@@ -85,6 +85,11 @@ jobs:
           mkdir -p assets/lib
           cp "$RUNNER_TEMP/dtp-browser/node_modules/pdf-lib/dist/pdf-lib.min.js" assets/lib/pdf-lib.min.js
 
+      - name: Test HomeWork cards, metadata, filters and reduced motion in desktop and mobile Chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/homework
+        run: node tests/homework_browser.cjs
       - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

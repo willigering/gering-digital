@@ -190,6 +190,23 @@ def run():
             expect((dest / "data/homework" / (lesson_id + ".html")).read_bytes() == lesson,
                    "Editing must not alter original HTML")
 
+            # The optional description is editable and validated without changing HTML.
+            status_code, updated = mutate("rename-module", {
+                "id": lesson_id, "title": "Neu benannt", "topic": "Neue Kurzbeschreibung"
+            })
+            expect(status_code == 200 and updated["topic"] == "Neue Kurzbeschreibung",
+                   "Editing description failed")
+            status_code, rejected = mutate("rename-module", {
+                "id": lesson_id, "title": "Should not save", "topic": "x" * 101
+            })
+            expect(status_code == 400, "Overlong description accepted")
+            status, raw = make_request(opener, base, "/homework-api.php?action=state")
+            edited = next(m for m in json.loads(raw)["modules"] if m["id"] == lesson_id)
+            expect(edited["title"] == "Neu benannt" and edited["topic"] == "Neue Kurzbeschreibung",
+                   "Description failed to persist or invalid edit changed title")
+            expect((dest / "data/homework" / (lesson_id + ".html")).read_bytes() == lesson,
+                   "Description edit changed original HTML")
+
             # Invalid categories and CSRF values are not accepted.
             status_code, rejected = mutate("set-category",
                                             {"id": lesson_id, "categoryId": "cat-not-found"})
