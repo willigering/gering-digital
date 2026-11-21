@@ -142,3 +142,6 @@ h1{font-size:42px}
 .topbar>span{max-width:65%}
 }
 @media (prefers-reduced-motion:reduce){.module-card{transition:none}.module-card:hover,.module-card:focus-within{transform:none}.scene-desk,.scene-light{transform:none!important}.homework-dialog::backdrop{backdrop-filter:none}}
+
+.heading-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.import-button{cursor:pointer;display:inline-flex;align-items:center}.search-snippet{font-size:13px;color:var(--teal);border-left:2px solid var(--teal);padding-left:10px;overflow-wrap:anywhere;margin:0 0 18px}.export-hint{font-size:14px;color:var(--muted)}
+@media(max-width:760px){.heading-actions{width:100%}.heading-actions>button,.heading-actions>label{flex:1;justify-content:center}}

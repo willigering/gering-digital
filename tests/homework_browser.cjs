@@ -29,6 +29,7 @@ const server=http.createServer((req,res)=>{
         const body=route.request().postDataJSON()||{};
         let result={ok:true,csrf:'test-only'};
         if(action==='state')result={...result,mode:'ready',categories,modules};
+        if(action==='search'){const term=new URL(route.request().url()).searchParams.get('q').toLowerCase();result.matches=modules.filter(m=>(m.title+' '+m.topic+(m.id==='hw-test-1'?' SLAAC':'' )).toLowerCase().includes(term)).map(m=>({id:m.id,snippet:'Fundstelle im Arbeitsblatt: SLAAC'}));}
         if(action==='rename-module'){
           saved.push(body);Object.assign(modules.find(m=>m.id===body.id),{title:body.title,topic:body.topic});
         }
@@ -78,13 +79,20 @@ const server=http.createServer((req,res)=>{
       await page.locator('#statusFilter').selectOption('fertig');
       assert.equal(await page.locator('.module-card').count(),2);
       await page.locator('#statusFilter').selectOption('all');
-      await page.locator('#search').fill('Subnetting');
+      await page.locator('#search').fill('SLAAC');
+      await page.waitForFunction(()=>document.querySelectorAll('.module-card').length===1);
       assert.equal(await page.locator('.module-card').count(),1);
       await page.locator('#search').fill('');
       await page.locator('.category-choice[data-category="it-1"]').click();
       assert.equal(await page.locator('.module-card').count(),1);
       await page.locator('.category-choice[data-category="all"]').click();
       const first=page.locator('.module-card').first();
+      await first.locator('summary').click();
+      await first.getByRole('button',{name:'Exportieren …'}).click();
+      assert.equal(await page.locator('#exportDialog').isVisible(),true);
+      await page.locator('#exportFormat').selectOption('print');
+      await page.locator('#exportVariant').selectOption('blank');
+      await page.locator('#cancelExport').click();
       await first.locator('summary').click();
       await first.getByRole('button',{name:'Umbenennen / zuweisen'}).click();
       await page.locator('#editTitle').fill('Überarbeitet');

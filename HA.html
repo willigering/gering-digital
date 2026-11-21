@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive">
 <title>HomeWork – Gering Digital</title>
-<link rel="stylesheet" href="assets/homework.css?v=20261121d">
-<script src="assets/homework.js?v=20261121d" defer></script>
+<link rel="stylesheet" href="assets/homework.css?v=20261121e">
+<script src="assets/homework.js?v=20261121e" defer></script>
 </head>
 <body>
 <div class="homework-scene" aria-hidden="true"><div class="scene-desk"></div><div class="scene-light"></div></div>
@@ -25,7 +25,7 @@
     </header>
     <div class="page-heading">
       <h1>HomeWork</h1>
-      <button id="toggleUpload" class="gold-button" type="button" aria-expanded="false" aria-controls="uploadFields">+ HTML hochladen</button>
+      <div class="heading-actions"><label class="outline-button import-button">Arbeitsblätter importieren<input id="worksheetImport" type="file" accept=".json,application/json" hidden></label><button id="toggleUpload" class="gold-button" type="button" aria-expanded="false" aria-controls="uploadFields">+ HTML hochladen</button></div>
     </div>
     <section class="upload-panel" aria-labelledby="upload-heading">
       <div class="upload-header visually-hidden">
@@ -55,7 +55,7 @@
         <div class="list-tools">
           <label class="visually-hidden" for="statusFilter">Nach Status filtern</label>
           <select id="statusFilter"><option value="all">Alle Status</option><option value="offen">Offen</option><option value="bearbeitung">In Bearbeitung</option><option value="fertig">Fertig</option></select>
-          <label class="search-label"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Module suchen …" aria-label="Module suchen"></label>
+          <label class="search-label"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Volltextsuche …" aria-label="Module und Inhalte durchsuchen"></label>
         </div>
       </div>
       <div id="modules" class="module-grid"></div>
@@ -100,6 +100,13 @@
       <button class="gold-button" type="submit" id="saveCategory">Erstellen</button>
     </div>
   </form>
+</dialog>
+<dialog id="exportDialog" class="homework-dialog" aria-labelledby="exportHeading">
+ <form id="exportForm"><h2 id="exportHeading">Modul exportieren</h2><input type="hidden" id="exportId">
+ <label>Format<select id="exportFormat"><option value="html">HTML-Datei</option><option value="print">PDF über Druckdialog</option></select></label>
+ <label>Fassung<select id="exportVariant"><option value="edited">Bearbeitet – mit gespeicherten Eingaben</option><option value="blank">Unbearbeitet – ohne deine Eingaben</option></select></label>
+ <p class="export-hint">PDF: Im Druckdialog „Als PDF speichern“ auswählen.</p>
+ <div class="dialog-actions"><button type="button" id="cancelExport" class="outline-button">Abbrechen</button><button type="submit" class="gold-button">Export starten</button></div></form>
 </dialog>
 </body>
 </html>

@@ -1,6 +1,6 @@
 'use strict';
 // HomeWork: browser UI only. Categories and module mutations persist via the private API.
-let csrf='', modules=[], categories=[], activeCategory='all', searchText='', activeStatus='all';
+let csrf='', modules=[], categories=[], activeCategory='all', searchText='', activeStatus='all', searchMatches=null, searchController=null, searchTimer=0;
 const $=id=>document.getElementById(id);
 const statuses={offen:'Offen',bearbeitung:'In Bearbeitung',fertig:'Fertig'};
 // Reusable motifs: every category, including new ones, works without an image upload.
@@ -127,7 +127,7 @@ function renderCards(){
   const term=searchText.toLocaleLowerCase('de-DE');
   const filtered=modules.filter(m=>{
     const inCategory=activeCategory==='all' || (m.category_id||'')===activeCategory;
-    const match=(m.title+' '+m.topic+' '+categoryLabel(m.category_id)).toLocaleLowerCase('de-DE').includes(term);
+    const match=searchMatches!==null?searchMatches.has(m.id):(m.title+' '+m.topic+' '+categoryLabel(m.category_id)).toLocaleLowerCase('de-DE').includes(term);
     return inCategory&&match&&(activeStatus==='all'||m.status===activeStatus);
   });
   $('sectionTitle').textContent=activeCategory==='all'?'Alle Module':categoryLabel(activeCategory);
@@ -152,6 +152,8 @@ function renderCards(){
     const heading=element('h3');
     body.append(meta,heading);
     body.append(element('p','module-description',module.topic||'Unterrichtsmaterial'));
+    const hit=searchMatches?.get(module.id);
+    if(hit?.snippet)body.append(element('p','search-snippet',hit.snippet));
     const actions=element('div','card-actions');
     const a=element('a','openlink',module.title);
     a.href='homework-module.php?id='+encodeURIComponent(module.id);
@@ -166,7 +168,9 @@ function renderCards(){
     const remove=element('button','danger','Modul löschen');
     remove.type='button';
     remove.addEventListener('click',()=>{options.open=false;deleteModule(module)});
-    menu.append(edit,element('hr','menu-divider'));
+    const exportButton=element('button','','Exportieren …');exportButton.type='button';
+    exportButton.addEventListener('click',()=>{options.open=false;$('exportId').value=module.id;$('exportDialog').showModal()});
+    menu.append(edit,exportButton,element('hr','menu-divider'));
     const controls=element('div','status-controls');
     controls.setAttribute('role','group');
     controls.setAttribute('aria-label','Status für '+module.title);
@@ -238,7 +242,7 @@ $('logout').addEventListener('click',async()=>{
   try{
     await api('logout');
     modules=[];categories=[];activeCategory='all';activeStatus='all';searchText='';
-    $('search').value='';$('statusFilter').value='all';
+    $('search').value='';$('statusFilter').value='all';searchMatches=null;searchController?.abort();
     await refresh();
   }catch(error){notice(error.message);}
 });
@@ -286,8 +290,25 @@ $('editForm').addEventListener('submit',async event=>{
   }finally{$('saveEdit').disabled=false;}
 });
 $('search').addEventListener('input',()=>{
-  searchText=$('search').value.trim();
-  renderCards();
+  searchText=$('search').value.trim();searchMatches=null;searchController?.abort();clearTimeout(searchTimer);
+  if(!searchText){renderCards();return;}
+  $('count').textContent='Inhalte werden durchsucht …';
+  const term=searchText;
+  searchTimer=setTimeout(async()=>{
+    searchController=new AbortController();
+    try{
+      const response=await fetch('homework-api.php?action=search&q='+encodeURIComponent(term),{credentials:'same-origin',cache:'no-store',signal:searchController.signal});
+      const result=await response.json();if(!response.ok||result.error)throw Error(result.error||'Suche fehlgeschlagen.');
+      if(term!==searchText)return;
+      searchMatches=new Map((result.matches||[]).map(match=>[match.id,match]));renderCards();
+    }catch(error){if(error.name!=='AbortError'){notice(error.message);renderCards();}}
+  },220);
+});
+$('cancelExport').addEventListener('click',()=>$('exportDialog').close());
+$('exportForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  window.location.assign('homework-export.php?id='+encodeURIComponent($('exportId').value)+'&variant='+$('exportVariant').value+'&format='+$('exportFormat').value);
+  $('exportDialog').close();
 });
 $('statusFilter').addEventListener('change',()=>{activeStatus=$('statusFilter').value;renderCards()});
 $('toggleUpload').addEventListener('click',()=>{
@@ -370,7 +391,7 @@ $('upload').addEventListener('click',async()=>{
     $('topic').value='';
     if(activeCategory!=='all' && activeCategory!==categoryId)activeCategory=categoryId||'all';
     activeStatus='all';$('statusFilter').value='all';
-    searchText='';$('search').value='';
+    searchText='';searchMatches=null;searchController?.abort();$('search').value='';
     render();
     $('uploadFields').classList.add('hidden');
     $('toggleUpload').setAttribute('aria-expanded','false');
@@ -397,3 +418,36 @@ desktop.addEventListener('change',scheduleScene);
 document.addEventListener('visibilitychange',scheduleScene);
 paintScene();
 refresh();
+
+// A private, locally prepared bundle is uploaded through the same authenticated chunk API.
+$('worksheetImport').addEventListener('change',async()=>{
+ const selected=$('worksheetImport').files[0];if(!selected)return;
+ const control=$('worksheetImport');control.disabled=true;
+ try{
+  if(selected.size>260000000)throw Error('Importpaket ist zu groß (maximal 250 MB).');
+  const bundle=JSON.parse(await selected.text());
+  if(bundle.format!=='homework-worksheets-v1'||!Array.isArray(bundle.modules)||bundle.modules.length>500)throw Error('Kein gültiges HomeWork-Arbeitsblattpaket.');
+  let imported=0,skipped=0;
+  for(const [index,item] of bundle.modules.entries()){
+   if(typeof item.id!=='string'||!/^hw-[a-f0-9]{24}$/.test(item.id)||typeof item.html!=='string'||typeof item.title!=='string')throw Error('Ungültiger Moduleintrag '+(index+1));
+   if(modules.some(m=>m.id===item.id)){skipped++;continue;}
+   let category=categories.find(c=>c.name===item.category);
+   if(!category){const result=await api('create-category',{name:item.category});category=result.category;categories.push(category);}
+   const file=new Blob([item.html],{type:'text/html'});
+   if(file.size>12582912)throw Error('Modul überschreitet 12 MB: '+item.title);
+   const partSize=512*1024,total=Math.ceil(file.size/partSize);
+   for(let part=0;part<total;part++){
+    const data=new FormData();
+    for(const [key,value] of Object.entries({csrf,id:item.id,title:item.title.slice(0,140),topic:String(item.topic||'Arbeitsblatt').slice(0,100),date:item.date||'',categoryId:category.id,chunkIndex:part,chunkTotal:total}))data.append(key,String(value));
+    data.append('lesson',file.slice(part*partSize,(part+1)*partSize),'teil.html');
+    const response=await fetch('homework-module.php',{method:'POST',body:data,credentials:'same-origin'});
+    const result=await response.json();if(!response.ok||!result.ok)throw Error(result.error||'Import fehlgeschlagen: '+item.title);
+    if(part===total-1&&result.moduleId!==item.id)throw Error('Import wurde nicht bestätigt.');
+   }
+   modules.push({id:item.id});imported++;
+   notice('Import '+(index+1)+'/'+bundle.modules.length+': '+item.title);
+  }
+  await refresh();notice(imported+' Arbeitsblätter importiert, '+skipped+' bereits vorhandene übersprungen.');
+ }catch(error){await refresh();notice('Import unterbrochen: '+error.message+' Erneut starten überspringt bereits importierte Arbeitsblätter.');}
+ finally{control.disabled=false;control.value='';}
+});

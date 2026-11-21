@@ -63,8 +63,11 @@ def expect(condition, message):
 def run():
     with tempfile.TemporaryDirectory(prefix="hw-ci-") as tmp:
         dest = pathlib.Path(tmp)
-        for name in ("HA.html", "homework-api.php", "homework-module.php", "homework-storage.php"):
+        for name in ("HA.html", "homework-api.php", "homework-module.php", "homework-storage.php", "homework-workbook.php", "homework-export.php"):
             shutil.copy2(ROOT / name, dest / name)
+        (dest / "assets").mkdir()
+        for asset in ("homework-workbook.js", "homework-workbook.css"):
+            shutil.copy2(ROOT / "assets" / asset, dest / "assets" / asset)
         (dest / "data").mkdir()
         db = sqlite3.connect(dest / "data/bewerbungen-private.sqlite")
         db.execute("CREATE TABLE account (id INTEGER PRIMARY KEY, password_hash TEXT NOT NULL, created_at TEXT NOT NULL)")
@@ -231,6 +234,31 @@ def run():
             status, raw = make_request(opener, base, "/homework-api.php?action=state")
             saved_second = next(m for m in json.loads(raw)["modules"] if m["id"] == second_id)
             expect(saved_second["category_id"] == category_id, "Upload category not persisted")
+
+            # Full text is searchable beyond title/topic; script code stays out of results.
+            status, raw = make_request(opener, base, "/homework-api.php?action=search&q=Wichtige")
+            expect(status == 200 and any(m["id"] == lesson_id for m in json.loads(raw)["matches"]), "Full-text search missed worksheet content")
+            status, raw = make_request(other, base, "/homework-api.php?action=search&q=Wichtige")
+            expect(status == 401, "Full-text search must remain private")
+            status, raw = make_request(opener, base, "/homework-api.php?action=workbook&id=" + lesson_id)
+            expect(json.loads(raw)["revision"] == 0, "New worksheet should have no saved answers")
+            fields = {"id:antwort:0": {"kind": "text", "value": "Meine Antwort </script><script>alert(1)</script>"}}
+            status_code, result = mutate("save-workbook", {"id": lesson_id, "revision": 0, "fields": fields})
+            expect(status_code == 200 and result["revision"] == 1, "Answers not saved")
+            status_code, result = mutate("save-workbook", {"id": lesson_id, "revision": 0, "fields": {}})
+            expect(status_code == 409, "Stale window must not overwrite newer answers")
+            status, raw = make_request(opener, base, "/homework-api.php?action=workbook&id=" + lesson_id)
+            expect(json.loads(raw)["fields"] == fields, "Answers did not persist")
+            status, edited_export = make_request(opener, base, "/homework-export.php?id=" + lesson_id + "&variant=edited&format=html")
+            expect(status == 200 and "Meine Antwort" in edited_export, "Edited export missing saved input")
+            expect('</script><script>alert(1)</script>' not in edited_export, "Saved answers must not break the JSON script element")
+            status, blank_export = make_request(opener, base, "/homework-export.php?id=" + lesson_id + "&variant=blank&format=html")
+            expect(status == 200 and "Meine Antwort" not in blank_export and '\"blank\":true' in blank_export, "Blank export leaked edited answers")
+            status, print_export = make_request(opener, base, "/homework-export.php?id=" + lesson_id + "&variant=edited&format=print")
+            expect(status == 200 and "Als PDF speichern" in print_export and "Meine Antwort" in print_export, "PDF print view missing")
+            status, raw = make_request(other, base, "/homework-export.php?id=" + lesson_id + "&variant=edited&format=html")
+            expect(status == 401, "Exports must require login")
+            expect((dest / "data/homework" / (lesson_id + ".html")).read_bytes() == lesson, "Answers/exports changed source HTML")
 
             # Deletion removes both the record and original file; it must not
             # delete any other module, category or the existing status.

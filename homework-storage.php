@@ -36,6 +36,8 @@ function hw_db(): PDO {
     foreach (['I','II','III','IV','V','VI'] as $idx=>$roman) {
         $add->execute(['it-'.($idx+1),'IT '.$roman,$idx+1]);
     }
+    require_once __DIR__.'/homework-workbook.php';
+    hw_workbook_schema($db);
     return $db;
 }
 

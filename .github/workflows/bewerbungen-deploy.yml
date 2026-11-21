@@ -9,6 +9,10 @@ on:
       - 'homework-api.php'
       - 'homework-module.php'
       - 'homework-storage.php'
+      - 'homework-workbook.php'
+      - 'homework-export.php'
+      - 'assets/homework-workbook.js'
+      - 'assets/homework-workbook.css'
       - 'assets/homework.js'
       - 'assets/homework.css'
       - 'tests/homework_integration.py'
@@ -42,6 +46,9 @@ jobs:
           php -l homework-api.php
           php -l homework-module.php
           php -l homework-storage.php
+          php -l homework-workbook.php
+          php -l homework-export.php
+          node --check assets/homework-workbook.js
           node --check assets/homework.js
           php tests/bewerbungen_mail_test.php
           php tests/homework_smoke.php
