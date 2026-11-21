@@ -1223,9 +1223,15 @@ function onMsg(m) {
 // ---------------------------------------------------------------- Menü / Lobby (DOM)
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function renderList(ls) {
-  $('lobs').hidden = !ls.length; // leere Liste nicht anzeigen
-  $('list').innerHTML = ls.length ? ls.map(l => `<div class="lob"><b>${esc(l.name)}</b><small>${l.n}/20 · ${l.run ? 'läuft' : 'wartet'}</small><button data-id="${esc(l.id)}" ${l.n >= 20 ? 'disabled' : ''}>Beitreten</button></div>`).join('')
-    : '<div class="empty">Noch keine offenen Lobbys – erstelle eine und lade Freunde per Link ein!</div>';
+  const open = ls.filter(l => !l.run).length, run = ls.length - open;
+  const chip = $('lchip');
+  chip.className = 'a ui lchip' + (open ? ' open' : run ? ' run' : '');
+  $('lchipt').textContent = !ls.length ? 'Keine Lobby offen – eröffne eine!' : (open ? open + (open === 1 ? ' offene Lobby' : ' offene Lobbys') : '') + (open && run ? ' · ' : '') + (run ? run + (run === 1 ? ' Spiel läuft' : ' Spiele laufen') : '');
+  $('list').innerHTML = ls.length ? ls.map(l => {
+    const full = l.n >= 20;
+    const st = full ? ['', 'Voll'] : l.run ? ['run', 'Spiel läuft bereits – Mitspielen möglich'] : ['open', 'Offen – beitreten'];
+    return `<div class="lob ${l.run ? 'run' : 'open'}"><div class="info"><b>${esc(l.name)}</b><span class="badge ${st[0]}"><i></i>${st[1]} · ${l.n}/20 Spieler</span></div><button data-id="${esc(l.id)}" ${full ? 'disabled' : ''}>${full ? 'Voll' : l.run ? 'Mitspielen' : 'Beitreten'}</button></div>`;
+  }).join('') : '<div class="empty">Noch keine Lobby offen – erstelle eine und lade Freunde per Link ein!</div>';
 }
 function renderLobby() {
   const L = lobby, host = L.host === myId;
@@ -1245,7 +1251,7 @@ $('quick').onclick = async () => {
 $('create').onclick = createLobby;
 // Startbildschirm ↔ Spielauswahl
 const home = on => { $('home').hidden = !on; $('play').hidden = on; if (!on) setTimeout(() => $('name').focus(), 50); };
-$('go').onclick = () => home(false); $('back').onclick = () => home(true);
+$('go').onclick = () => home(false); $('back').onclick = () => home(true); $('lchip').onclick = () => home(false);
 // Alleine üben: Lobby anlegen und sofort starten
 $('solo').onclick = async () => { await createLobby(); if (hosting && lobby) send({ t: 'start' }); };
 $('name').addEventListener('keydown', e => { if (e.key === 'Enter') $('quick').click(); });
