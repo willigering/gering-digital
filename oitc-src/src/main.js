@@ -5,6 +5,7 @@ import phCrate from '../assets/tex/crate.jpg';
 import phMetal from '../assets/tex/metal.jpg';
 import phSky from '../assets/tex/sky.jpg';
 import phSkyline from '../assets/tex/skyline.jpg';
+import { Net } from './net.js';
 import { setCamo, loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
@@ -920,8 +921,10 @@ function msg(text, ms = 1500) {
   clearTimeout(msg.t); msg.t = setTimeout(() => ($('msg').style.opacity = 0), ms);
 }
 
+let netApply = false;
 function killEntity(attacker, victim, how, dir, hit, strength = 7) {
-  victim.alive = false; victim.lives--; attacker.kills++; attacker.ammo++;
+  if (mode === 'mp' && attacker.isPlayer && !netApply && Net.role) Net.send({ t: 'k', v: victim.pid, how, d: dir ? [dir.x, dir.y, dir.z] : [0, 0, 0] });
+  victim.diedAt = time; victim.alive = false; victim.lives--; attacker.kills++; attacker.ammo++;
   victim.respawn = 2.4; victim.deadT = 0;
   burst(new V3(victim.pos.x, victim.pos.y + 1.1, victim.pos.z), victim.isPlayer ? 0xff5555 : victim.color);
   feed(`${attacker.name} ${how} ${victim.name}`, attacker.isPlayer ? '#9be37a' : victim.isPlayer ? '#ff7a7a' : '#ddd');
@@ -941,7 +944,7 @@ function checkWin() {
     const w = left[0];
     $('endtitle').textContent = !w ? 'Unentschieden' : w.isPlayer ? 'Du hast gewonnen!' : `${w.name} gewinnt`;
     $('endsub').textContent = `Deine Kills: ${player.kills}`;
-    $('end').style.display = 'flex';
+    $('end').style.display = 'flex'; $('again').style.display = mode === 'mp' ? 'none' : '';
     if (document.pointerLockElement) document.exitPointerLock();
   } else if (player.lives <= 0 && state === 'play') $('spectate').style.display = 'block';
 }
@@ -958,6 +961,7 @@ function fire(shooter, origin, dir) {
   }
   const end = origin.clone().addScaledVector(dir, bestT);
   let start = origin.clone();
+  if (mode === 'mp' && shooter.isPlayer && Net.role) Net.send({ t: 'f', o: [origin.x, origin.y, origin.z], d: [dir.x, dir.y, dir.z] });
   if (shooter.hum) humanOverlay(shooter.hum, 'shoot');
   if (shooter.isPlayer && tpv) start = new V3(player.pos.x, player.pos.y + 1.35, player.pos.z).addScaledVector(dir, 0.7);
   else if (shooter.isPlayer) { gun.updateWorldMatrix(true, false); start = gun.localToWorld(new V3(0, 0.01, -0.3)); }
@@ -972,6 +976,7 @@ function fire(shooter, origin, dir) {
 
 function melee(att) {
   if (att.hum) humanOverlay(att.hum, 'punch', 1.7);
+  if (mode === 'mp' && att.isPlayer && Net.role) Net.send({ t: 'm' });
   let best = null, bd = MELEE_RANGE;
   const fx = -Math.sin(att.yaw), fz = -Math.cos(att.yaw);
   for (const e of ents) {
@@ -1083,6 +1088,103 @@ function startWave() {
 }
 
 // ---------- Bot-KI ----------
+// ---------- Online-Mehrspieler ----------
+let mpMenu = false, netT = 0;
+const mpEnt = new Map();   // pid -> Entität
+function setupMp() {
+  mpEnt.clear(); player.pid = Net.pid; mpEnt.set(Net.pid, player);
+  const bots = ents.filter((e) => !e.isPlayer && !e.zombie); let bi = 0;
+  for (const r of Net.roster) {
+    if (r.pid === Net.pid) continue;
+    const e = bots[bi++]; if (!e) break;
+    e.remote = true; e.pid = r.pid; e.name = r.name; mpEnt.set(r.pid, e);
+  }
+  for (; bi < bots.length; bi++) { const e = bots[bi]; e.hidden = true; e.alive = false; e.lives = 0; e.respawn = -1; if (e.hum) e.hum.root.visible = false; }
+  for (const [pid, e] of mpEnt) placeEntity(e, spawns[(pid * 2 + 1) % spawns.length]);
+  for (const e of ents) if (e.remote) e.net = { x: e.pos.x, y: e.pos.y, z: e.pos.z, yw: e.yaw, sl: 0, g: 1 };
+}
+function fireFx(e, o, d) {
+  const dist = wallDist(o, d, 90), end = o.clone().addScaledVector(d, dist);
+  if (e.hum) humanOverlay(e.hum, 'shoot');
+  tracer(o.clone().addScaledVector(d, 0.5), end, 0xff9a8a);
+  sfx.botshot(clamp(1.3 - Math.hypot(e.pos.x - player.pos.x, e.pos.z - player.pos.z) / 25, 0.15, 1));
+  if (dist < 90) impact(end, lastN);
+}
+Net.onMsg = (m) => {
+  if (mode !== 'mp' || state === 'menu') return;
+  const e = mpEnt.get(m.p); if (!e) return;
+  if (m.t === 's') {
+    e.net = { x: m.x, y: m.y, z: m.z, yw: m.yw, sl: m.sl, g: m.g };
+    if (m.al && !e.alive && e.lives > 0 && time - (e.diedAt || 0) > 1.2) { placeEntity(e, { x: m.x, z: m.z }); e.pos.y = m.y; }
+  } else if (m.t === 'f') fireFx(e, new V3(m.o[0], m.o[1], m.o[2]), new V3(m.d[0], m.d[1], m.d[2]));
+  else if (m.t === 'm') { if (e.hum) humanOverlay(e.hum, 'punch', 1.7); }
+  else if (m.t === 'k') {
+    const v = mpEnt.get(m.v);
+    if (v && v.alive) { netApply = true; try { killEntity(e, v, m.how, new V3(m.d[0], m.d[1], m.d[2]), null, 7); } finally { netApply = false; } }
+  }
+};
+Net.onLeft = (pid) => {
+  const e = mpEnt.get(pid); if (!e || e === player || mode !== 'mp') return;
+  feed(`${e.name} hat das Spiel verlassen`, '#ffcc66');
+  e.lives = 0; e.alive = false; e.hidden = true; e.respawn = -1; if (e.hum) e.hum.root.visible = false; mpEnt.delete(pid);
+  if (state === 'play') checkWin();
+};
+function mpTick(dt) {
+  netT += dt;
+  if (netT > 0.05 && Net.role) {
+    netT = 0; const r = (v) => Math.round(v * 100) / 100;
+    Net.send({ t: 's', x: r(player.pos.x), y: r(player.pos.y), z: r(player.pos.z), yw: r(player.yaw), sl: player.slideT >= 0 ? 1 : 0, g: player.onGround ? 1 : 0, al: player.alive ? 1 : 0 }, true);
+  }
+  const k = 1 - Math.exp(-dt * 16);
+  for (const e of ents) {
+    if (!e.remote || !e.net || !e.alive) continue;
+    const n = e.net, ox = e.pos.x, oz = e.pos.z;
+    if (Math.hypot(n.x - e.pos.x, n.z - e.pos.z) > 6) e.pos.set(n.x, n.y, n.z);
+    e.pos.x += (n.x - e.pos.x) * k; e.pos.y += (n.y - e.pos.y) * k; e.pos.z += (n.z - e.pos.z) * k;
+    let dy = n.yw - e.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); e.yaw += dy * k;
+    if (dt > 0) { e.vel.x += ((e.pos.x - ox) / dt - e.vel.x) * 0.3; e.vel.z += ((e.pos.z - oz) / dt - e.vel.z) * 0.3; }
+    e.speed = Math.hypot(e.vel.x, e.vel.z); e.onGround = !!n.g; e.slideT = n.sl ? 0.9 : -1; e.slideAmt = n.sl ? 1 : 0;
+  }
+}
+// Menü: Lobby-Liste, Lobby erstellen, beitreten
+{
+  const nm = () => { const v = $('mpname').value.replace(/[<>\x00-\x1f]/g, '').trim().slice(0, 14) || 'Soldat'; try { localStorage.setItem('lr_name', v); } catch (e) { /* ignorieren */ } return v; };
+  try { $('mpname').value = localStorage.getItem('lr_name') || ''; } catch (e) { /* ignorieren */ }
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const st = (t, ok) => { $('mpstat').textContent = t || ''; $('mpstat').style.color = ok ? '#7dffb0' : '#ff8a8a'; };
+  let listT = 0;
+  async function refresh() {
+    if (Net.role || $('mp').style.display === 'none') return;
+    try {
+      const ls = await Net.list();
+      const html = ls.length ? ls.map((l) => `<div class="lob"><b>${esc(l.name)}</b> <span>${l.n}/4${l.run ? ' · läuft' : ''}</span> <button data-id="${esc(l.id)}" ${l.run || l.n >= 4 ? 'disabled' : ''}>Beitreten</button></div>`).join('') : '<div style="opacity:.6">Keine offenen Lobbys. Erstelle die erste!</div>';
+      if (html !== $('mplist').dataset.h) { $('mplist').innerHTML = html; $('mplist').dataset.h = html; }
+    } catch (e) { $('mplist').textContent = 'Lobby-Server nicht erreichbar (nur auf dem Webspace verfügbar).'; }
+  }
+  function view() {
+    const inLobby = !!Net.role;
+    $('mpbrowse').style.display = inLobby ? 'none' : 'block'; $('mplobby').style.display = inLobby ? 'block' : 'none';
+    if (inLobby) {
+      $('mproster').innerHTML = Net.roster.map((p) => `<div>${p.pid === 0 ? '👑 ' : '• '}${esc(p.name)}${p.pid === Net.pid ? ' (du)' : ''}</div>`).join('');
+      $('mpgo').style.display = Net.role === 'host' ? '' : 'none'; $('mpgo').disabled = Net.roster.length < 2;
+      $('mpwait').textContent = Net.role === 'host' ? (Net.roster.length < 2 ? 'Warte auf Mitspieler … (mind. 2, max. 4)' : 'Bereit. Starte, wenn alle da sind.') : 'Warte, bis der Host das Spiel startet …';
+    }
+  }
+  Net.onRoster = view;
+  Net.onStart = () => { $('mp').style.display = 'none'; startGame('mp'); };
+  Net.onClosed = (t) => { if (Net.role) Net.leave(); $('tomenu').click(); $('mp').style.display = 'flex'; $('menu').style.display = 'none'; view(); st(t); refresh(); };
+  $('mpbtn').addEventListener('click', () => { $('menu').style.display = 'none'; $('mp').style.display = 'flex'; st(''); view(); refresh(); clearInterval(listT); listT = setInterval(refresh, 3000); });
+  $('mpback').addEventListener('click', () => { if (Net.role) Net.leave(); clearInterval(listT); $('mp').style.display = 'none'; $('menu').style.display = 'flex'; });
+  $('mprefresh').addEventListener('click', refresh);
+  $('mpcreate').addEventListener('click', async () => { st('Erstelle Lobby …', true); try { await Net.host(nm()); st(''); } catch (e) { st(e.message); } view(); });
+  $('mplist').addEventListener('click', async (ev) => {
+    const id = ev.target && ev.target.dataset && ev.target.dataset.id; if (!id) return;
+    st('Verbinde …', true); try { await Net.join(id, nm()); st(''); } catch (e) { st(e.message); refresh(); } view();
+  });
+  $('mpgo').addEventListener('click', () => { Net.start(); });
+  $('mpleave').addEventListener('click', () => { Net.leave(); view(); refresh(); });
+}
+
 function botThink(b, dt) {
   if (!b.alive) return;
   let t = null, bd = 1e9;
@@ -1142,15 +1244,16 @@ let prevState = null;
 function openSettings() {
   if ($('settings').style.display === 'flex') return;
   prevState = state;
-  if (state === 'play') { state = 'paused'; adsHeld = false; if (document.pointerLockElement) document.exitPointerLock(); }
+  if (state === 'play' && mode === 'mp') { mpMenu = true; adsHeld = false; for (const k in keys) keys[k] = false; if (document.pointerLockElement) document.exitPointerLock(); }
+  else if (state === 'play') { state = 'paused'; adsHeld = false; if (document.pointerLockElement) document.exitPointerLock(); }
   $('settings').style.display = 'flex';
   const inGame = prevState === 'play';
   $('restart').style.display = inGame ? '' : 'none'; $('tomenu').style.display = inGame ? '' : 'none';
 }
 function closeSettings() {
   $('settings').style.display = 'none';
-  if (prevState === 'play' && state === 'paused') {
-    state = 'play'; last = performance.now();
+  if (prevState === 'play' && (state === 'paused' || mpMenu)) {
+    mpMenu = false; state = 'play'; last = performance.now();
     if (!noLock) { try { renderer.domElement.requestPointerLock(); } catch (e) { /* Cursor-Steuerung */ } }
   }
   prevState = null;
@@ -1161,7 +1264,8 @@ $('resume').addEventListener('click', closeSettings);
 $('restart').addEventListener('click', () => { $('settings').style.display = 'none'; prevState = null; startGame(lastMode); });
 $('endmenu').addEventListener('click', () => $('tomenu').click());
 $('tomenu').addEventListener('click', () => {
-  $('settings').style.display = 'none'; prevState = null; state = 'menu'; adsHeld = false; reloadT = 0;
+  if (Net.role) Net.leave();
+  mpMenu = false; $('mp').style.display = 'none'; $('settings').style.display = 'none'; prevState = null; state = 'menu'; adsHeld = false; reloadT = 0;
   if (document.pointerLockElement) document.exitPointerLock();
   $('end').style.display = 'none'; $('spectate').style.display = 'none'; $('dz').style.display = 'none'; $('menu').style.display = 'flex';
 });
@@ -1242,11 +1346,11 @@ function hud() {
       ? '<i class="b"></i>'.repeat(Math.min(player.ammo, 8)) + (player.ammo > 8 ? '<span>+' + (player.ammo - 8) + '</span>' : '') + (mode === 'zombie' ? '<span> / ' + zres + '</span>' : '')
       : '<i class="b empty"></i>' + (mode === 'zombie' ? '<span> / ' + zres + (zres > 0 ? ' · R = Nachladen' : '') + '</span>' : '');
   }
-  const bs = mode === 'zombie' ? 'z' + zw.wave + ':' + zw.kills + ':' + ents.filter((e) => e.zombie && e.alive).length : ents.map((e) => e.lives + ':' + e.kills).join(',');
+  const bs = mode === 'zombie' ? 'z' + zw.wave + ':' + zw.kills + ':' + ents.filter((e) => e.zombie && e.alive).length : ents.map((e) => e.lives + ':' + e.kills + ':' + (e.hidden ? 1 : 0)).join(',');
   if (bs !== boardSig) {
     boardSig = bs;
     if (mode === 'zombie') { $('board').innerHTML = `<div>Welle <b>${zw.wave}</b></div><div>Zombies: ${ents.filter((e) => e.zombie && e.alive).length + zw.toSpawn}</div><div>Erledigt: ${zw.kills}</div>`; } else
-    $('board').innerHTML = ents.map((e) =>
+    $('board').innerHTML = ents.filter((e) => !e.zombie && !e.hidden).map((e) =>
       `<div style="opacity:${e.lives > 0 ? 1 : 0.4}"><span style="color:#${e.color.toString(16).padStart(6, '0')}">■</span> ${e.name} <span class="h">${'♥'.repeat(Math.max(0, e.lives))}</span> · ${e.kills}</div>`).join('');
   }
 }
@@ -1273,7 +1377,8 @@ function drawRadar() {
 // ---------- Start ----------
 let lastMode = 'oitc';
 function startGame(m) {
-  mode = lastMode = m === 'zombie' ? 'zombie' : 'oitc';
+  mode = lastMode = m === 'zombie' ? 'zombie' : m === 'mp' ? 'mp' : 'oitc';
+  for (const e of ents) { e.remote = false; e.net = null; }
   if (mode === 'zombie' && !player.hum) { msg('Soldat lädt noch, gleich nochmal klicken', 1500); return; }
   for (const k of pickups) scene.remove(k.g); pickups.length = 0;
   if (mode === 'zombie') {
@@ -1287,7 +1392,10 @@ function startGame(m) {
     for (const e of ents) if (e.zombie) { e.alive = false; e.zFree = true; e.hum.root.visible = false; }
     scene.fog.color.set(FOG); scene.fog.near = 22; scene.fog.far = 95; scene.background.set(FOG);
     ents.filter((e) => !e.zombie).forEach((e, i) => { e.hidden = false; e.lives = LIVES; e.kills = 0; e.respawn = 0; placeEntity(e, spawns[(i * 2 + (i > 3 ? 1 : 0)) % spawns.length]); });
+    if (mode === 'mp') setupMp();
   }
+  mpMenu = false;
+  $('restart').style.display = mode === 'mp' ? 'none' : '';
   state = 'play';
   $('menu').style.display = 'none'; $('end').style.display = 'none'; $('spectate').style.display = 'none'; $('feed').innerHTML = '';
   hudSig = ''; boardSig = '';
@@ -1295,7 +1403,7 @@ function startGame(m) {
   if (!noLock) { try { renderer.domElement.requestPointerLock(); } catch (e) { /* Cursor-Steuerung */ } }
   $('dz').style.display = 'block';
   setTimeout(() => { if (!locked && state === 'play') msg('Cursor-Steuerung: Maus zum Rand = drehen. M = Maus-Erfassung. Q = Nahkampf', 5000); }, 600);
-  if (mode === 'zombie') startWave(); else msg('Eine Kugel. Mach sie zählen.', 2200);
+  if (mode === 'zombie') startWave(); else msg(mode === 'mp' ? 'Online: Der Letzte, der steht, gewinnt.' : 'Eine Kugel. Mach sie zählen.', 2200);
   if (actx && actx.state === 'suspended') actx.resume();
 }
 $('start').addEventListener('click', () => startGame('oitc'));
@@ -1387,10 +1495,11 @@ function loop(now) {
   adaptQuality();
 
   if (state === 'play') {
-    if (player.alive) updatePlayer(dt);
+    if (player.alive && !mpMenu) updatePlayer(dt);
+    if (mode === 'mp') mpTick(dt);
     if (mode === 'zombie') zombieWaves(dt);
     for (const e of ents) {
-      if (!e.alive && e.respawn > 0 && !e.zombie) { e.respawn -= dt; if (e.respawn <= 0 && e.lives > 0) placeEntity(e, spawnPoint(e)); }
+      if (!e.alive && e.respawn > 0 && !e.zombie && !e.remote) { e.respawn -= dt; if (e.respawn <= 0 && e.lives > 0) placeEntity(e, spawnPoint(e)); }
       if (e.zombie) zombieThink(e, dt); else if (!e.isPlayer && mode === 'oitc') botThink(e, dt);
     }
   }
@@ -1471,11 +1580,11 @@ function loop(now) {
     h.root.visible = e.isPlayer ? ((tpv && !tpvClose) || !e.alive) : !(e.hidden || e.zFree);
     h.root.position.copy(e.pos);
     h.root.rotation.y = e.alive ? e.yaw : (h.deadYaw !== undefined ? h.deadYaw : e.yaw);
-    const sl = e.isPlayer ? e.slideT : -1;
+    const sl = e.isPlayer || e.remote ? e.slideT : -1;
     const spd = e.isPlayer ? (e.speed = player.speed) : e.speed;
     let ang = 0;
     if (spd > 0.8) { ang = Math.atan2(-e.vel.x, -e.vel.z) - e.yaw; ang = Math.atan2(Math.sin(ang), Math.cos(ang)); }
-    humanUpdate(h, dt, spd, sl, e.isPlayer, ang, e.isPlayer && !e.onGround);
+    humanUpdate(h, dt, spd, sl, e.isPlayer || e.remote, ang, (e.isPlayer || e.remote) && !e.onGround);
   }
   // Bots animieren (Platzhalter, falls Soldat fehlt)
   for (const e of ents) {
@@ -1539,4 +1648,4 @@ addEventListener('resize', () => {
   renderer.setSize(innerWidth, innerHeight);
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
 });
-window.__otc = { setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
+window.__otc = { Net, setPitch: (v) => { pitch = v; }, ents, player, startGame, fire, boxes, scene, camera, renderer, get state() { return state; } };
