@@ -6,8 +6,14 @@ function hw_workbook_schema(PDO $db): void {
     $db->exec('CREATE TABLE IF NOT EXISTS workbook_search (module_id TEXT PRIMARY KEY, source_hash TEXT NOT NULL, content TEXT NOT NULL)');
 }
 function hw_source_text(string $html): string {
-    $clean=preg_replace('~<(script|style)\b[^>]*>[\s\S]*?</\1\s*>~i',' ',$html);
-    if($clean===null) $clean=$html;
+    $clean='';$offset=0;
+    while(preg_match('~<(script|style)\b[^>]*>~i',$html,$match,PREG_OFFSET_CAPTURE,$offset)){
+        $start=$match[0][1];$clean.=substr($html,$offset,$start-$offset).' ';
+        $close=stripos($html,'</'.$match[1][0],$start+strlen($match[0][0]));
+        if($close===false){$offset=strlen($html);break;}
+        $end=strpos($html,'>',$close);$offset=$end===false?strlen($html):$end+1;
+    }
+    $clean.=substr($html,$offset);
     $clean=preg_replace('~</(?:p|div|li|h[1-6]|tr|section)>|<br\s*/?>~i',' ',$clean)??$clean;
     $clean=html_entity_decode(strip_tags($clean),ENT_QUOTES|ENT_HTML5,'UTF-8');
     $clean=preg_replace('/\s+/u',' ',$clean)??$clean;
