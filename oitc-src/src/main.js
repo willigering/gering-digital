@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
+import { setCamo, loadHuman, makeHuman, humanUpdate, humanDie, humanOverlay, humanReset } from './human.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 
 let last = performance.now();
@@ -124,6 +124,45 @@ function tex(canvas, srgb = true) {
   if (srgb) t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
+// Nahtlos kachelnde Rauschtexturen (Value-Noise mit ganzzahligen Gittern) für Materialdetails
+function vnoise(s, fx, fy) {
+  const L = new Float32Array(fx * fy); for (let i = 0; i < L.length; i++) L[i] = Math.random();
+  const out = new Float32Array(s * s), sx = fx / s, sy = fy / s;
+  for (let y = 0; y < s; y++) {
+    const gy = y * sy, y0 = gy | 0, ty = gy - y0, wy = ty * ty * (3 - 2 * ty), ra = (y0 % fy) * fx, rb = ((y0 + 1) % fy) * fx;
+    for (let x = 0; x < s; x++) {
+      const gx = x * sx, x0 = gx | 0, tx = gx - x0, wx = tx * tx * (3 - 2 * tx), xa = x0 % fx, xb = (x0 + 1) % fx;
+      const a = L[ra + xa] + (L[ra + xb] - L[ra + xa]) * wx, b = L[rb + xa] + (L[rb + xb] - L[rb + xa]) * wx;
+      out[y * s + x] = a + (b - a) * wy;
+    }
+  }
+  return out;
+}
+function fbmTile(s, f, oct, fyMul = 1) {
+  const acc = new Float32Array(s * s); let amp = 1, tot = 0;
+  for (let o = 0; o < oct; o++) { const n = vnoise(s, f << o, Math.max(1, Math.round((f * fyMul)) << o)); for (let i = 0; i < acc.length; i++) acc[i] += n[i] * amp; tot += amp; amp *= 0.5; }
+  for (let i = 0; i < acc.length; i++) acc[i] /= tot; return acc;
+}
+function noiseLayer(s, kind) {
+  const c = document.createElement('canvas'); c.width = c.height = s; const g = c.getContext('2d'), img = g.createImageData(s, s), o = img.data;
+  const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+  let v;
+  if (kind === 'concrete') {
+    const a = fbmTile(s, 3, 6), grain = vnoise(s, s >> 1, s >> 1), fine = vnoise(s, s >> 2, s >> 2), pit = fbmTile(s, 48, 2), blot = fbmTile(s, 6, 3);
+    v = (i) => clamp01(0.5 + (a[i] - 0.5) * 0.8 + (blot[i] - 0.5) * 0.3 + (grain[i] - 0.5) * 0.22 + (fine[i] - 0.5) * 0.22 - Math.max(0, pit[i] - 0.68) * 1.0);
+  } else if (kind === 'wood') {
+    const g1 = vnoise(s, 110, 5), g2 = vnoise(s, 38, 3), w = fbmTile(s, 4, 4), kn = fbmTile(s, 5, 3, 1.2);
+    v = (i) => clamp01(0.5 + (g1[i] - 0.5) * 0.7 + (g2[i] - 0.5) * 0.6 + (w[i] - 0.5) * 0.5 - Math.max(0, kn[i] - 0.66) * 1.4);
+  } else { // metal: gebürstet, Lackabplatzer
+    const br = vnoise(s, s >> 1, 6), br2 = vnoise(s, 90, 3), a = fbmTile(s, 4, 5), chip = fbmTile(s, 14, 4);
+    v = (i) => clamp01(0.5 + (br[i] - 0.5) * 0.35 + (br2[i] - 0.5) * 0.3 + (a[i] - 0.5) * 0.7 - Math.max(0, chip[i] - 0.66) * 0.9);
+  }
+  for (let i = 0; i < s * s; i++) { const k = v(i) * 255; o[i * 4] = o[i * 4 + 1] = o[i * 4 + 2] = k; o[i * 4 + 3] = 255; }
+  g.putImageData(img, 0, 0); return c;
+}
+function noiseOver(g, s, kind, a = 1) {
+  g.save(); g.globalCompositeOperation = 'overlay'; g.globalAlpha = a; g.drawImage(noiseLayer(s, kind), 0, 0); g.restore();
+}
 // Aus dem Farbbild werden Normal- und Rauheits-Map abgeleitet (Sobel auf der Helligkeit, nahtlos kachelnd)
 function heightOf(canvas, blur) {
   const s = canvas.width, d = canvas.getContext('2d').getImageData(0, 0, s, s).data, h = new Float32Array(s * s);
@@ -192,14 +231,14 @@ function hazard(g, x, y, w, h) {
   g.restore();
 }
 const concreteC = mkCanvas(512, (g, s) => {
-  g.fillStyle = '#9b9ea4'; g.fillRect(0, 0, s, s); macro(g, s, 0.22); speckle(g, s, 14000, 70, 215, 0.2); pores(g, s, 260); stains(g, s, 8, 0.14); cracks(g, s, 3, 0.35);
+  g.fillStyle = '#9b9ea4'; g.fillRect(0, 0, s, s); noiseOver(g, s, 'concrete', 0.8); macro(g, s, 0.12); speckle(g, s, 14000, 70, 215, 0.2); pores(g, s, 260); stains(g, s, 8, 0.14); cracks(g, s, 3, 0.35);
   g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 3; g.strokeRect(5, 5, s - 10, s - 10);
   g.strokeStyle = 'rgba(15,15,20,.65)'; g.lineWidth = 5; g.strokeRect(1, 1, s - 2, s - 2);
   g.fillStyle = 'rgba(20,20,24,.55)'; for (const [x, y] of [[s * 0.25, s * 0.25], [s * 0.75, s * 0.25], [s * 0.25, s * 0.75], [s * 0.75, s * 0.75]]) { g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); g.strokeStyle = 'rgba(255,255,255,.2)'; g.lineWidth = 2; g.stroke(); }
   dirtBottom(g, s, 0.25, 0.3);
 });
 const floorC = mkCanvas(1024, (g, s) => {
-  g.fillStyle = '#6f737b'; g.fillRect(0, 0, s, s); macro(g, s, 0.3, 30, 200); speckle(g, s, 120000, 50, 190, 0.2); pores(g, s, 1400);
+  g.fillStyle = '#6f737b'; g.fillRect(0, 0, s, s); noiseOver(g, s, 'concrete', 0.8); macro(g, s, 0.14, 30, 200); speckle(g, s, 120000, 50, 190, 0.2); pores(g, s, 1400);
   stains(g, s, 40, 0.22); cracks(g, s, 16, 0.4);
   for (let i = 0; i < 3; i++) { const x = rnd(40, s - 40), y = rnd(40, s - 40), r = rnd(20, 50), gr = g.createRadialGradient(x, y, 2, x, y, r); gr.addColorStop(0, 'rgba(10,10,14,.55)'); gr.addColorStop(0.7, 'rgba(10,10,14,.25)'); gr.addColorStop(1, 'rgba(10,10,14,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); }
   for (const [ox, oy] of [[0, 0], [s / 2, 0], [0, s / 2], [s / 2, s / 2]]) {   // vier Platten je Kachel
@@ -209,7 +248,7 @@ const floorC = mkCanvas(1024, (g, s) => {
   }
 });
 const wallC = mkCanvas(512, (g, s) => {
-  g.fillStyle = '#867a6f'; g.fillRect(0, 0, s, s); macro(g, s, 0.25); speckle(g, s, 12000, 60, 205, 0.2); pores(g, s, 200); stains(g, s, 10, 0.2);
+  g.fillStyle = '#867a6f'; g.fillRect(0, 0, s, s); noiseOver(g, s, 'concrete', 0.8); macro(g, s, 0.12); speckle(g, s, 12000, 60, 205, 0.2); pores(g, s, 200); stains(g, s, 10, 0.2);
   g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(0, 0, s, 50); g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(0, 50, s, 3);
   hazard(g, 0, s - 54, s, 30);
   for (const x of [34, s - 34]) { for (const y of [24, s - 90]) { const gr = g.createLinearGradient(0, y, 0, y + 150); gr.addColorStop(0, 'rgba(120,60,25,.45)'); gr.addColorStop(1, 'rgba(120,60,25,0)'); g.fillStyle = gr; g.fillRect(x - 5, y, 10, 150); g.fillStyle = '#2a2724'; g.beginPath(); g.arc(x, y, 7, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.arc(x - 2, y - 2, 2.5, 0, 7); g.fill(); } }
@@ -224,6 +263,7 @@ const crateC = mkCanvas(512, (g, s) => {
     if (Math.random() < 0.7) { const kx = i * pw + rnd(14, pw - 14), ky = rnd(60, s - 60); g.fillStyle = 'rgba(60,32,10,.55)'; g.beginPath(); g.ellipse(kx, ky, 7, 11, 0, 0, 7); g.fill(); g.strokeStyle = 'rgba(60,32,10,.3)'; g.lineWidth = 2; g.beginPath(); g.ellipse(kx, ky, 12, 18, 0, 0, 7); g.stroke(); }
     g.fillStyle = 'rgba(30,15,5,.6)'; g.fillRect(i * pw, 0, 3, s);
   }
+  noiseOver(g, s, 'wood', 0.7);
   g.fillStyle = 'rgba(255,255,255,.07)'; for (let i = 0; i < 5; i++) g.fillRect(i * pw + 4, 0, 3, s);
   g.strokeStyle = '#5c3b1a'; g.lineWidth = 34; g.strokeRect(17, 17, s - 34, s - 34);
   g.strokeStyle = 'rgba(255,220,170,.22)'; g.lineWidth = 3; g.strokeRect(2, 2, s - 4, s - 4); g.strokeRect(34, 34, s - 68, s - 68);
@@ -237,7 +277,7 @@ function containerC(color) {
   return mkCanvas(512, (g, s) => {
     g.fillStyle = color; g.fillRect(0, 0, s, s);
     for (let x = 0; x < s; x += 26) { g.fillStyle = 'rgba(0,0,0,.3)'; g.fillRect(x, 0, 9, s); g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(x + 9, 0, 4, s); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x + 13, 0, 3, s); }
-    macro(g, s, 0.18); speckle(g, s, 9000, 0, 130, 0.2); stains(g, s, 6, 0.28);
+    noiseOver(g, s, 'metal', 0.7); macro(g, s, 0.1); speckle(g, s, 9000, 0, 130, 0.2); stains(g, s, 6, 0.28);
     g.fillStyle = 'rgba(0,0,0,.4)'; g.fillRect(0, 0, s, 22); g.fillRect(0, s - 22, s, 22);
     g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(0, 22, s, 3); g.fillRect(0, s - 25, s, 3);
     g.fillStyle = 'rgba(15,15,18,.85)'; for (const [x, y] of [[0, 0], [s - 36, 0], [0, s - 36], [s - 36, s - 36]]) g.fillRect(x, y, 36, 36);
@@ -248,7 +288,7 @@ function containerC(color) {
   });
 }
 const barrelC = (color) => mkCanvas(256, (g, s) => {
-  g.fillStyle = color; g.fillRect(0, 0, s, s); macro(g, s, 0.2); speckle(g, s, 2600, 0, 140, 0.25); rust(g, s, 6, 0.4);
+  g.fillStyle = color; g.fillRect(0, 0, s, s); noiseOver(g, s, 'metal', 0.7); macro(g, s, 0.1); speckle(g, s, 2600, 0, 140, 0.25); rust(g, s, 6, 0.4);
   for (const y of [14, 70, 186, 236]) { g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, y, s, 10); g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(0, y + 10, s, 3); }
   g.fillStyle = 'rgba(240,235,220,.85)'; g.fillRect(0, 100, s, 62); g.fillStyle = '#1a1a1c'; g.font = 'bold 40px Arial Black, Impact, sans-serif'; g.textAlign = 'center'; g.fillText('FUEL', s / 4, 146); g.fillText('FUEL', s * 0.75, 146);
   g.fillStyle = 'rgba(255,255,255,.2)'; g.fillRect(40, 0, 10, s); dirtBottom(g, s, 0.3, 0.4);
@@ -603,7 +643,13 @@ function makeEntity(name, isPlayer, color) {
 }
 const player = makeEntity('Du', true, 0xffffff);
 for (let i = 0; i < BOT_COUNT; i++) makeEntity(BOT_NAMES[i], false, BOT_COLORS[i]);
-let tpv = false;   // 3rd-Person-Ansicht (Tab)
+{ // Tarnmuster (Oliv/Braun/Dunkel) aus Rauschen
+  const sz = 256, a = fbmTile(sz, 4, 3), b = fbmTile(sz, 7, 3), c = document.createElement('canvas'); c.width = c.height = sz;
+  const g = c.getContext('2d'), img = g.createImageData(sz, sz), o = img.data, cols = [[92, 100, 66], [64, 70, 48], [112, 96, 66], [38, 42, 32]];
+  for (let i = 0; i < sz * sz; i++) { const k = a[i] > 0.55 ? (b[i] > 0.52 ? 1 : 0) : (b[i] > 0.58 ? 2 : (a[i] < 0.38 ? 3 : 0)); const f = 0.88 + Math.random() * 0.24; o[i * 4] = cols[k][0] * f; o[i * 4 + 1] = cols[k][1] * f; o[i * 4 + 2] = cols[k][2] * f; o[i * 4 + 3] = 255; }
+  g.putImageData(img, 0, 0); const t = tex(c); setCamo(t);
+}
+let tpv = false, tpvClose = false;   // 3rd-Person-Ansicht (Tab)
 function initHumans() {
   for (const e of ents) {
     const h = makeHuman(e.isPlayer ? 0x6f8f5a : e.color, gun);
@@ -1136,7 +1182,8 @@ function loop(now) {
     const want = piv.clone().addScaledVector(fdir, -3.0 * (1 - 0.45 * ads)).add(new V3(0, 0.25, 0));
     const dv = want.clone().sub(piv), dl = dv.length(); dv.divideScalar(dl);
     const wd = wallDist(piv, dv, dl + 0.3);
-    camera.position.copy(piv).addScaledVector(dv, Math.max(0.4, Math.min(dl, wd - 0.3)));
+    const cd = Math.max(0.4, Math.min(dl, wd - 0.3)); tpvClose = cd < 1.3;
+    camera.position.copy(piv).addScaledVector(dv, cd);
     camera.rotation.z = 0;
   }
   camera.updateMatrixWorld();
@@ -1172,11 +1219,14 @@ function loop(now) {
   // Soldaten animieren
   for (const e of ents) {
     const h = e.hum; if (!h) continue;
-    h.root.visible = e.isPlayer ? (tpv || !e.alive) : true;
+    h.root.visible = e.isPlayer ? ((tpv && !tpvClose) || !e.alive) : true;
     h.root.position.copy(e.pos);
     h.root.rotation.y = e.alive ? e.yaw : (h.deadYaw !== undefined ? h.deadYaw : e.yaw);
     const sl = e.isPlayer ? e.slideT : -1;
-    humanUpdate(h, dt, e.isPlayer ? e.speed = player.speed : e.speed, sl, e.isPlayer);
+    const spd = e.isPlayer ? (e.speed = player.speed) : e.speed;
+    let ang = 0;
+    if (spd > 0.8) { ang = Math.atan2(-e.vel.x, -e.vel.z) - e.yaw; ang = Math.atan2(Math.sin(ang), Math.cos(ang)); }
+    humanUpdate(h, dt, spd, sl, e.isPlayer, ang, e.isPlayer && !e.onGround);
   }
   // Bots animieren (Platzhalter, falls Soldat fehlt)
   for (const e of ents) {
