@@ -54,8 +54,24 @@
   <p><kbd>WASD</kbd> laufen · <kbd>Leertaste</kbd> springen · <kbd>Shift</kbd> sprinten · <kbd>Linksklick</kbd> schießen · <kbd>Rechtsklick</kbd> halten = Kimme &amp; Korn · <kbd>Q</kbd> Nahkampf · <kbd>T</kbd> Waffe prüfen · <kbd>C</kbd> Sliden (beim Sprinten) · <kbd>Tab</kbd> 3rd Person</p>
   <p style="font-size:13px"><b>Maus:</b> Klick ins Spiel erfasst die Maus. Geht das nicht (z. B. in der Vorschau), steuerst du mit dem frei beweglichen Cursor: Richtung Bildrand = drehen, Mitte = ruhig. <kbd>M</kbd> schaltet zwischen beiden um. <kbd>P</kbd> Schatten an/aus.</p>
   <p style="font-size:13px;color:#b8e0a0"><b>Zombie-Modus:</b> Wellen von Zombies, 5 Herzen. Munition liegt als grüne Kiste herum, Zombies lassen manchmal welche fallen. Magazin 8 Schuss, <kbd>R</kbd> lädt nach. Das Messer (Q) kostet nichts.</p>
-  <div><button id="start">Spiel starten</button> <button id="startz" class="sec">Zombie-Modus</button> <button id="menucfg" class="sec">Einstellungen</button></div>
+  <div><button id="start">Spiel starten</button> <button id="startz" class="sec">Zombie-Modus</button> <button id="mpbtn" class="sec">Online-Multiplayer</button> <button id="menucfg" class="sec">Einstellungen</button></div>
 </div>
+<div id="mp" class="overlay" style="display:none">
+  <h1>Online-Multiplayer</h1>
+  <p style="color:#9fb0c6">Bis zu 4 Spieler · Letzter, der steht, gewinnt · 3 Leben, 1 Kugel</p>
+  <div id="mpbrowse" style="display:block;width:min(460px,90vw);text-align:left">
+    <label style="display:block;margin-bottom:10px">Dein Name <input id="mpname" maxlength="14" placeholder="Soldat" style="margin-left:8px;padding:6px 10px;border-radius:8px;border:1px solid #445;background:#141c28;color:#fff"></label>
+    <div style="margin-bottom:10px"><button id="mpcreate">Lobby erstellen</button> <button id="mprefresh" class="sec">Aktualisieren</button></div>
+    <div id="mplist" style="min-height:80px"></div>
+  </div>
+  <div id="mplobby" style="display:none;width:min(460px,90vw);text-align:left">
+    <h3 style="margin:0 0 8px">Lobby</h3><div id="mproster" style="margin-bottom:10px"></div><p id="mpwait" style="color:#ffd45e"></p>
+    <button id="mpgo">Spiel starten</button> <button id="mpleave" class="sec">Verlassen</button>
+  </div>
+  <p id="mpstat" style="min-height:1.4em"></p>
+  <button id="mpback" class="sec">Zurück</button>
+</div>
+<style>.lob{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #2a3442}.lob span{opacity:.7;margin-left:auto}.lob button{margin:0;padding:6px 12px}</style>
 <div id="settings" class="overlay" style="display:none">
   <h1>Einstellungen</h1>
   <div class="row"><label>Maus-Empfindlichkeit <b id="sensv"></b></label><input id="sens" type="range" min="0.2" max="3" step="0.05"></div>
