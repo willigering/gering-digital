@@ -86,8 +86,21 @@ body.lobbyview #home{display:none}
 .gbtn:hover{transform:scale(1.04)}.gbtn:active{transform:scale(.96)}.gbtn:disabled{opacity:.5;transform:none}
 .modes .mode{display:flex;flex-direction:column;align-items:stretch;gap:6px;text-align:center;min-height:0;padding:0;background:none;border:0;box-shadow:none}
 .modes .mode small{color:var(--muted);font-weight:600;font-size:13px;text-shadow:0 2px 0 #0008}
+.modes .gbtn{white-space:nowrap}
 .modes .gbtn.gold{font-size:clamp(20px,2.4vw,30px)}
 #start.gbtn{font-size:clamp(18px,2.2vw,28px)}
+/* Feder und Stacheln stehen auf dem Boden: weicher Kontaktschatten, Fuß leicht im Boden */
+#stage .gshadow{border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(20,6,1,.62) 0%,rgba(20,6,1,.32) 55%,rgba(20,6,1,0) 72%);filter:blur(2px);pointer-events:none}
+#stage .prop{filter:drop-shadow(0 3px 2px rgba(25,8,2,.55)) drop-shadow(0 0 1px rgba(0,0,0,.4));transform-origin:50% 100%}
+/* Lobby-Anzeige */
+.lchip{display:flex;align-items:center;justify-content:center;gap:12px;height:54px;padding:0 20px!important;font-family:"Lilita One",sans-serif;font-size:24px;color:var(--cream);background:linear-gradient(#45210e,#341709)!important;border:4px solid var(--gold)!important;border-radius:999px!important;box-shadow:0 0 0 4px var(--ink),0 6px 0 4px rgba(0,0,0,.35)!important;-webkit-text-stroke:0;cursor:pointer}
+.lchip .dot,.badge i{width:14px;height:14px;border-radius:50%;background:#8a6a50;border:2px solid var(--ink);flex:none}
+.lchip.open .dot,.badge.open i{background:#5bd75b;box-shadow:0 0 8px #5bd75b}
+.lchip.run .dot,.badge.run i{background:#ffb02e;box-shadow:0 0 8px #ffb02e}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--cream);white-space:nowrap}
+.lob.run{border-color:#7a5214}.lob.open{border-color:#2f6a2f}
+.lob .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.lob .info b{flex:none}
 /* Tastentabelle (Optionen und Lobby) */
 table.keys{width:100%;border-collapse:collapse;font-size:14px;color:var(--cream);text-align:left}
 table.keys th{font-family:"Lilita One",sans-serif;font-weight:400;color:#ffe56a;padding:4px 6px;border-bottom:2px solid rgba(255,195,31,.35)}
@@ -116,7 +129,7 @@ label.step{font-family:"Lilita One",sans-serif;font-weight:400;font-size:20px;te
 button:disabled{opacity:.45;cursor:default;transform:none}
 .row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:2px 0 6px}
 .row>*{flex:1}
-#list{max-height:20vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
+#list{max-height:26vh;overflow:auto;display:flex;flex-direction:column;gap:8px}
 .lob{display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.25);border:3px solid #5c2f14;border-radius:14px;padding:6px 12px}
 .lob b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:18px}
 .lob small{color:var(--muted);font-weight:600}
@@ -241,14 +254,17 @@ body:has(#play:not([hidden])) .feedback-link{display:none}
       <img src="assets/menu/orange.webp" alt="" class="a fig" style="left:1352px;top:232px;width:265px">
       <img src="assets/menu/gruen.webp" alt="" class="a fig" style="left:1138px;top:385px;width:182px">
       <img src="assets/menu/pink.webp" alt="" class="a fig" style="left:1440px;top:438px;width:188px">
-      <img src="assets/menu/sprungfeder.webp" alt="" class="a fig" style="left:776px;top:772px;width:114px">
-      <img src="assets/menu/stacheln.webp" alt="" class="a fig" style="left:1222px;top:820px;width:140px">
+      <i class="a gshadow" style="left:416px;top:868px;width:128px;height:22px"></i>
+      <img src="assets/menu/sprungfeder.webp" alt="" class="a fig prop" style="left:430px;top:771px;width:100px;transform:rotate(-2deg)">
+      <i class="a gshadow" style="left:1226px;top:866px;width:176px;height:20px"></i>
+      <img src="assets/menu/stacheln.webp" alt="" class="a fig prop" style="left:1244px;top:828px;width:140px">
     </div>
     <div class="lay l2">
       <div id="home">
         <img src="assets/menu/logo.webp" alt="Rüdiger, nicht so schnell!" class="a ui d-logo" style="left:468px;top:12px;width:723px">
         <button id="go" class="ib a ui d-start" style="left:596px;top:276px;width:475px" aria-label="Start"><img src="assets/menu/start.webp" alt=""></button>
         <button id="optbtn2" class="ib a ui d-opt" style="left:628px;top:424px;width:416px" aria-label="Optionen"><img src="assets/menu/optionen.webp" alt=""></button>
+        <button id="lchip" class="a ui lchip" style="left:612px;top:792px;width:440px" type="button" aria-live="polite"><i class="dot"></i><span id="lchipt">Lobbys werden geladen …</span></button>
         <div class="a ui d-board" style="left:532px;top:512px;width:600px;height:265px">
           <img src="assets/menu/highscore-leer.webp" alt="Highscore" style="width:100%">
           <div id="hs1"></div>
@@ -268,10 +284,10 @@ body:has(#play:not([hidden])) .feedback-link{display:none}
     <label class="step">② Wie willst du spielen?</label>
     <div class="modes">
       <div class="mode"><button id="quick" class="gbtn gold">▶ Schnellspiel</button><small>Einem offenen Rennen beitreten</small></div>
-      <div class="mode"><button id="create" class="gbtn cream">Mit Freunden</button><small>Eigene Lobby – Link verschicken</small></div>
+      <div class="mode"><button id="create" class="gbtn cream">Lobby erstellen</button><small>Eigene Lobby – Link verschicken</small></div>
       <div class="mode"><button id="solo" class="gbtn cream">Alleine üben</button><small>Sofort los, ohne Gegner</small></div>
     </div>
-    <div class="panel" id="lobs" hidden><h2>Offene Rennen</h2><div id="list"></div></div>
+    <div class="panel" id="lobs"><h2>Lobbys</h2><div id="list"></div></div>
     <div id="status"></div>
     <button id="back" class="gbtn cream" style="align-self:center;width:260px">◀ Zurück</button>
   </div>
