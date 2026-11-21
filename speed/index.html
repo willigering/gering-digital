@@ -101,6 +101,16 @@ body.lobbyview #home{display:none}
 .lob.run{border-color:#7a5214}.lob.open{border-color:#2f6a2f}
 .lob .info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .lob .info b{flex:none}
+/* Spielauswahl: Kacheln untereinander; offene Lobbys erscheinen rechts neben „Lobby erstellen“ */
+.modes{grid-template-columns:1fr!important;gap:12px}
+.modes .mode.tile{flex-direction:row;align-items:center;justify-content:flex-start;gap:16px;text-align:left;padding:12px 16px;min-height:0;background:linear-gradient(#45210e,#341709);border:4px solid var(--gold);border-radius:20px;box-shadow:0 0 0 4px var(--ink),0 8px 0 4px rgba(0,0,0,.35)}
+.modes .tile .gbtn{width:240px;flex:none}
+.modes .tile .tr{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.modes .tile small{font-size:15px}
+.modes,.modes .mode.tile,.modes .tile .tr,.modes .lob{min-width:0;max-width:100%}
+.modes .badge{white-space:normal}
+.modes #list{max-height:24vh}
+@media (max-width:620px){.modes .mode.tile{flex-direction:column;align-items:stretch}.modes .tile .gbtn{width:100%}}
 /* Tastentabelle (Optionen und Lobby) */
 table.keys{width:100%;border-collapse:collapse;font-size:14px;color:var(--cream);text-align:left}
 table.keys th{font-family:"Lilita One",sans-serif;font-weight:400;color:#ffe56a;padding:4px 6px;border-bottom:2px solid rgba(255,195,31,.35)}
@@ -278,16 +288,14 @@ body:has(#play:not([hidden])) .feedback-link{display:none}
 
 <div id="menu" class="screen on">
   <div class="card" id="play" hidden>
-    <img src="assets/menu/logo.webp" alt="Rüdiger, nicht so schnell!" style="width:min(460px,90%);align-self:center;filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))">
     <label for="name" class="step">① Wie heißt du?</label>
     <input id="name" maxlength="14" placeholder="z. B. Turbo-Tina" autocomplete="off">
     <label class="step">② Wie willst du spielen?</label>
     <div class="modes">
-      <div class="mode"><button id="quick" class="gbtn gold">▶ Schnellspiel</button><small>Einem offenen Rennen beitreten</small></div>
-      <div class="mode"><button id="create" class="gbtn cream">Lobby erstellen</button><small>Eigene Lobby – Link verschicken</small></div>
-      <div class="mode"><button id="solo" class="gbtn cream">Alleine üben</button><small>Sofort los, ohne Gegner</small></div>
+      <div class="mode tile"><button id="quick" class="gbtn gold">▶ Schnellspiel</button><div class="tr"><small>Einem offenen Rennen beitreten</small></div></div>
+      <div class="mode tile"><button id="create" class="gbtn cream">Lobby erstellen</button><div class="tr"><small id="cdesc">Eigene Lobby – Link verschicken</small><div id="list" hidden></div></div></div>
+      <div class="mode tile"><button id="solo" class="gbtn cream">Alleine üben</button><div class="tr"><small>Sofort los, ohne Gegner</small></div></div>
     </div>
-    <div class="panel" id="lobs"><h2>Lobbys</h2><div id="list"></div></div>
     <div id="status"></div>
     <button id="back" class="gbtn cream" style="align-self:center;width:260px">◀ Zurück</button>
   </div>
@@ -321,7 +329,7 @@ body:has(#play:not([hidden])) .feedback-link{display:none}
   <button data-k="item" style="right:26px;bottom:126px">★</button>
   <button data-k="boost" style="right:112px;bottom:110px">⚡</button>
 </div>
-<script src="game.js?v=93"></script>
+<script src="game.js?v=94"></script>
 <script src="music-player.js"></script>
 <script>
 (() => {
