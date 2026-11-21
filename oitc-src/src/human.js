@@ -72,7 +72,7 @@ export function makeHuman(color, gunModel, knifeModel, opts = {}) {
   let pistol = null;
   if (gunModel && hand) {
     pistol = gunModel.clone(true);
-    const kill = []; pistol.traverse((o) => { if (o.isSprite || o.isLight) kill.push(o); }); kill.forEach((o) => o.parent.remove(o));
+    const kill = []; pistol.traverse((o) => { if (o.isSprite || o.isLight || (o.isMesh && o.material && o.material.color && (o.material.color.getHex() === 0x3b4636 || o.material.color.getHex() === 0x1f2329))) kill.push(o); });; kill.forEach((o) => o.parent.remove(o));
     pistol.position.set(0, 0.02, 0.0); pistol.quaternion.set(0.6381, -0.0249, 0.0066, 0.7695); pistol.scale.setScalar(1);
     hand.add(pistol);
   }
