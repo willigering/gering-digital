@@ -78,6 +78,7 @@ async function run(){
        assert(body.includes("expectedPdfHash"),"Reviewed PDF hash required");
        assert(/expectedPdfHash[\s\S]{0,300}[a-f0-9]{64}/.test(body),"Exact preview PDF hash forwarded");
        assert(body.includes('"useFivePage":true'),"Five-page mode requested");
+       assert(body.includes("Neuer Weg 12"),"Edited address forwarded to server validation");
        assert(body.includes("Bewerbungsmappe.pdf"),"Whole five-page map attached");
        assert(body.includes("lemgo@example.org"),"Correct recipient forwarded");
        send(200,{sent:true,message:"SMTP accepted"});return;
@@ -140,7 +141,7 @@ async function run(){
    await page.waitForSelector("#gdm-overlay:not([hidden])");
    assert.equal(await page.locator("#gdm-company option").count(),1,"Only companies without a sent application are selectable");
    assert.equal(await page.locator("#gdm-company").inputValue(),"betrieb-lemgo","Uncontacted company selected by default");
-   assert.match(await page.locator("#gdm-address").innerText(),/Kirchweg 8/,"Uncontacted company address visible");
+   assert.match(await page.locator("#gdm-address-street").inputValue(),/Kirchweg 8/,"Uncontacted company address visible");
    
    
    assert.equal(await page.locator("#gdm-to").inputValue(),"lemgo@example.org","Mail recipient follows uncontacted company");
@@ -163,6 +164,15 @@ async function run(){
    assert.deepEqual(rows.slice(0,4),["Musterfirma Lemgo","Personal","Kirchweg 8","32657 Lemgo"]);
    assert.match(rows[4],/^\d{2}\.\d{2}\.\d{4}$/);
    assert.equal(rows[5],"Sehr geehrte Damen und Herren,");
+   await page.locator("#gdm-address-street").fill("Neuer Weg 12");
+   assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Address edits invalidate reviewed PDF");
+   await page.locator("#gdm-preview").click();
+   await page.waitForFunction(()=>!document.querySelector("#gdm-send").disabled);
+   const revised=await page.evaluate(async()=>Array.from(new Uint8Array(await (await fetch(document.querySelector("#gdm-pdf-download").href)).arrayBuffer())));
+   const editedPdf=await PDFDocument.load(Uint8Array.from(revised));
+   const editedStream=Buffer.from(decodePDFRawStream(editedPdf.getPage(1).node.lookup(PDFName.of("Contents"))).decode()).toString("ascii");
+   assert(editedStream.toLowerCase().includes(Buffer.from("Neuer Weg 12","utf16le").swap16().toString("hex")),"Edited address is written into PDF");
+   assert.equal(companies[2].street,"Kirchweg 8","Company record remains unchanged");
    await page.locator("#gdm-subject").fill("Geänderter E-Mail-Betreff.");
    assert.equal(await page.locator("#gdm-send").isDisabled(),true,"Editing invalidates preview");
    await page.locator("#gdm-preview").click();
@@ -216,7 +226,7 @@ async function run(){
    assert.equal(await mobile.locator("#logoutTop").isVisible(),true,"Logout visible on mobile");
    await mobile.locator(".mobile-card[data-edit='betrieb-lemgo'] [data-gdm-mail]").click();
    await mobile.waitForSelector("#gdm-overlay:not([hidden])");
-   assert.match(await mobile.locator("#gdm-address").innerText(),/Kirchweg 8/);
+   assert.match(await mobile.locator("#gdm-address-street").inputValue(),/Kirchweg 8/);
    await mobile.close();
    console.log("Bewerbungskompass e-mail composer: desktop/mobile, PDF preview gate, company address, send & settings OK.");
  } finally {

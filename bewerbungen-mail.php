@@ -121,6 +121,16 @@ try{
         $company=gdm_company($db,$entryId);
         $cfg=gdm_config($db);
         $fullMap=$action==='send' && !empty($body['useFivePage']);
+        // Composer edits apply only to this application, never overwrite the company record.
+        if($fullMap && isset($body['address'])){
+            if(!is_array($body['address']))throw new InvalidArgumentException('Ungültige Firmenanschrift.');
+            foreach(['company','recipient','street','postal','city'] as $field){
+                $value=gdm_limited_string($body['address'][$field]??'', $field==='postal'?20:200, 'Firmenanschrift');
+                if(preg_match('/[\r\n]/',$value))throw new InvalidArgumentException('Adressfelder dürfen keine Zeilenumbrüche enthalten.');
+                $company[$field]=$value;
+            }
+            $company['postCity']=$company['city'];
+        }
         $doc=gdm_prepare_document($body,$company,$cfg,$fullMap);
         if($action==='preview'){
             header('X-Document-SHA256: '.hash('sha256',$doc['pdf']));

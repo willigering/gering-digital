@@ -211,7 +211,13 @@ function createComposer(){
     '<div class="gdm-compose-layout"><form id="gdm-compose-form" class="gdm-compose-fields">',
     '<div class="gdm-two"><label>Unternehmen<select id="gdm-company" required></select></label>',
     '<label>Von<input value="willi.gering@mail.de" disabled></label></div>',
-    '<div id="gdm-address" class="gdm-address" aria-live="polite"></div>',
+    '<fieldset id="gdm-address" class="gdm-address"><legend>Empfänger im PDF</legend>',
+    '<label>Unternehmen<input id="gdm-address-company" required maxlength="200"></label>',
+    '<label>Ansprechpartner / Abteilung<input id="gdm-address-recipient" maxlength="200"></label>',
+    '<label>Straße und Hausnummer<input id="gdm-address-street" required maxlength="200"></label>',
+    '<div class="gdm-two"><label>Postleitzahl<input id="gdm-address-postal" required maxlength="20"></label>',
+    '<label>Ort<input id="gdm-address-city" required maxlength="200"></label></div>',
+    '<small>Aus der Firmenkartei übernommen. Änderungen gelten für diese Bewerbung.</small></fieldset>',
     '<label>Empfänger-E-Mail<input id="gdm-to" type="email" required placeholder="bewerbung@firma.de"></label>',
     '<label>Betreff<input id="gdm-subject" required maxlength="250"></label>',
     '<p class="gdm-small">Anrede im PDF: Sehr geehrte Damen und Herren,</p>',
@@ -221,7 +227,7 @@ function createComposer(){
     '<label class="gdm-check" id="gdm-cv-choice"><input type="checkbox" id="gdm-attach-cv"><span>Lebenslauf und Zeugnisse sind bereits in der Mappe enthalten</span></label>',
     '<label>Weitere PDFs (optional, höchstens 3 Dateien / insgesamt 8 MB)',
     '<input id="gdm-other-pdfs" type="file" accept=".pdf,application/pdf" multiple></label></div>',
-    '<p class="gdm-small">Die PDF-Firmenanschrift kommt aus der Kartei. Stimmt sie nicht, bitte zuerst das Unternehmensprofil bearbeiten.</p>',
+    '<p class="gdm-small">Die Anschrift kannst du oben anpassen. Erstelle nach jeder Änderung eine neue Vorschau.</p>',
     '</form><div class="gdm-pdf-wrap">',
     '<div class="gdm-pdf-head"><div><strong>Vollständige Bewerbungsmappe · 5 Seiten</strong><small>Auf Seite 2 werden Firmenanschrift, Datum und Anrede eingesetzt. Alle Seiten vor dem Versand prüfen.</small></div>',
     '<a class="button secondary small" href="#" id="gdm-pdf-download" download="Bewerbungsmappe.pdf" hidden>↓ PDF</a></div>',
@@ -238,7 +244,7 @@ function createComposer(){
   overlay.addEventListener("click",e=>{if(e.target===overlay)close()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!overlay.hidden)close()});
   $("gdm-company").addEventListener("change",()=>{selected=$("gdm-company").value;choose()});
-  ["gdm-to","gdm-subject","gdm-message","gdm-attach-cv","gdm-other-pdfs"].forEach(k=>{
+  ["gdm-to","gdm-subject","gdm-message","gdm-attach-cv","gdm-other-pdfs",...addressKeys.map(k=>"gdm-address-"+k)].forEach(k=>{
     $(k).addEventListener("input",invalidate);$(k).addEventListener("change",invalidate);
   });
   $("gdm-preview").addEventListener("click",preview);
@@ -248,8 +254,10 @@ function signature(){
   const f=fields();
   return JSON.stringify([f,Array.from($("gdm-other-pdfs").files).map(x=>[x.name,x.size,x.lastModified])]);
 }
+const addressKeys=["company","recipient","street","postal","city"];
+function addressFields(){return Object.fromEntries(addressKeys.map(k=>[k,$("gdm-address-"+k).value.trim()]));}
 function fields(){
-  return {entryId:selected,to:$("gdm-to").value.trim(),subject:$("gdm-subject").value.trim(),
+  return {address:addressFields(),entryId:selected,to:$("gdm-to").value.trim(),subject:$("gdm-subject").value.trim(),
     mailBody:$("gdm-message").value.trim(),attachCv:$("gdm-attach-cv").checked};
 }
 function invalidate(){
@@ -263,12 +271,9 @@ function choose(){
   $("gdm-to").value=c.email||"";
   $("gdm-subject").value=mapTokens(cfg.subjectTemplate,c);
   $("gdm-message").value=mapTokens(cfg.mailBody,c);
-  const address=[c.company,c.recipient||c.contact||"",c.street||"",
-    [c.postal,c.postCity||c.city].filter(Boolean).join(" ")].filter(Boolean);
-  const incomplete=!(c.street&&c.postal&&(c.postCity||c.city));
-  $("gdm-address").innerHTML='<span>EMPFÄNGER IM PDF</span><strong>'+address.map(esc).join("<br>")+
-    '</strong><small class="'+(incomplete?"warn":"")+'">'+
-    (incomplete?"Die Anschrift ist noch unvollständig. Bitte Firma bearbeiten.":"Adresse automatisch aus der Firmenkartei.")+'</small>';
+  const address={company:c.company,recipient:c.recipient||c.contact||"",street:c.street,
+    postal:c.postal,city:c.postCity||c.city};
+  addressKeys.forEach(k=>{$("gdm-address-"+k).value=address[k]||""});
   $("gdm-attach-cv").checked=false;$("gdm-attach-cv").disabled=true;$("gdm-other-pdfs").value="";
   invalidate();$("gdm-composer-state").textContent=hasOriginal?
     "Die Vorschau übernimmt das Anschreiben aus deiner fünfseitigen Originalbewerbung.":
@@ -292,9 +297,6 @@ async function preview(){
   if(!$("gdm-compose-form").reportValidity())return;
   if(!hasOriginal){alert("Bitte unter Daten & Sicherung → Meine Unterlagen zuerst die vollständige Original-PDF hochladen.");return}
   const c=row(selected);if(!c)return;
-  if(!(c.company&&c.street&&c.postal&&(c.postCity||c.city))){
-    alert("Bitte zuerst die vollständige Firmenanschrift in der Kartei eintragen.");return;
-  }
   const initialSignature=signature();
   $("gdm-preview").disabled=true;$("gdm-composer-state").textContent="Originalmappe wird vorbereitet …";
   try{
@@ -302,8 +304,7 @@ async function preview(){
     if(!original.ok)throw new Error("Die gespeicherte Original-PDF konnte nicht geladen werden.");
     const bytes=await original.arrayBuffer();
     const blob=await window.GDMFivePage.make(bytes,{
-      company:c.company,recipient:c.recipient||c.contact||"",street:c.street,
-      postal:c.postal,city:c.postCity||c.city,date:now()
+      ...addressFields(),date:now()
     });
     if(blob.size<100||blob.size>10*1024*1024)throw new Error("Ungültige Bewerbungsmappe.");
     const buffer=await blob.arrayBuffer();
