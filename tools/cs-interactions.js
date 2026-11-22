@@ -69,7 +69,7 @@ function prepareInteraction(id,t){
  return t;
 }
 function interactionInstruction(t,exam=false){const end=exam?' Änderungen werden automatisch für diese Prüfung gespeichert. Bewertet wird erst bei Abgabe.':' Anschließend „Antwort prüfen“ wählen.';return (t.kind==='order'?'Karten ziehen oder mit „Hoch“ und „Runter“ verschieben.':t.kind==='set'?'Wähle alle zutreffenden Aussagen.':'Begriff ziehen oder erst eine Lücke, dann einen Begriff anklicken. Begriffe können mehrfach verwendet werden; Ablenker bleiben übrig.')+end}
-function interactionHtml(t,id,exam){return '<section class="answer-section"'+(exam?'':' data-r="form"')+'><strong class="task-label">Deine Antwort</strong><p class="fmt"'+(exam?' id="exFmt"':'')+'>'+interactionInstruction(t,exam)+'</p><div class="bounded-answer" id="'+id+'" data-answer tabindex="-1"></div>'+(exam?'':'<button type="button" class="btn primary" data-r="check">Antwort prüfen</button>')+'</section>'}
+function interactionHtml(t,id,exam){return '<section class="answer-section"'+(exam?'':' data-r="form"')+'><strong class="task-label">Deine Antwort</strong><p class="fmt"'+(exam?' id="exFmt"':'')+'>'+interactionInstruction(t,exam)+'</p><div class="bounded-answer" id="'+id+'" data-answer'+(exam?' data-exam':'')+' tabindex="-1"></div>'+(exam?'':'<button type="button" class="btn primary" data-r="check">Antwort prüfen</button>')+'</section>'}
 function mountInteraction(host,t,saved){
  const el=host.querySelector('[data-answer]');if(!el)return;
  let values=t.kind==='order'?(saved?String(saved).split(''):t.items.map((_,i)=>LETTERS[i])):t.kind==='set'?(saved?String(saved).split(''):[]):Array(t.slots.length).fill(null);
@@ -97,7 +97,7 @@ function mountInteraction(host,t,saved){
  el.addEventListener('dragstart',e=>{if(el.disabled){e.preventDefault();return}const term=e.target.closest('[data-term]'),row=e.target.closest('[data-row]');dragged=term?{term:Number(term.dataset.term)}:row?{row:Number(row.dataset.row)}:null;if(dragged)e.dataTransfer.setData('text/plain',JSON.stringify(dragged))});
  el.addEventListener('dragover',e=>{if(!el.disabled&&e.target.closest('[data-slot],[data-row]'))e.preventDefault()});
  el.addEventListener('drop',e=>{if(el.disabled||!dragged)return;e.preventDefault();const slot=e.target.closest('[data-slot]'),row=e.target.closest('[data-row]');if(slot&&dragged.term!=null)put(Number(slot.dataset.slot),t.bank[dragged.term]);if(row&&dragged.row!=null)move(dragged.row,Number(row.dataset.row));dragged=null});
- el.addEventListener('dragend',()=>{dragged=null});draw();el.value=saved||'';
+ el.addEventListener('dragend',()=>{dragged=null});draw();el.value=saved||(t.kind==='order'&&!el.hasAttribute('data-exam')?raw():'');
 }
 
 function readableGiven(t,given){
