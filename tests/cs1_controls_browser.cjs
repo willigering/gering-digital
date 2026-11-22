@@ -10,7 +10,7 @@ const {pathToFileURL}=require('node:url'),{answer}=require('./support/cs1-answer
   const ids=await page.evaluate(()=>CS1START_TEST.SUBS.map(s=>s.id));
   for(const id of ids){
    for(const right of [true,false]){
-    await page.evaluate(id=>{const t=genTask(id);renderTask(document.getElementById('trainTask'),t,{noRef:true,noNext:true})},id);
+    await page.evaluate(id=>{const t=CS1START_TEST.genTask(id);CS1START_TEST.renderTask(document.getElementById('trainTask'),t,{noRef:true,noNext:true})},id);
     assert.equal(await page.locator('#trainTask input,#trainTask textarea').count(),0,id+': no free text');
     await answer(page,'#trainTask',right);
     assert.equal(await page.locator('#trainTask .result').evaluate(e=>e.classList.contains('bad')),!right,id+': correct grading');
@@ -18,13 +18,13 @@ const {pathToFileURL}=require('node:url'),{answer}=require('./support/cs1-answer
    }
   }
   // Pointer drag as well as the keyboard/touch buttons checked by answer().
-  await page.evaluate(()=>renderTask(document.getElementById('trainTask'),genTask('w_algo'),{noRef:true,noNext:true}));
+  await page.evaluate(()=>CS1START_TEST.renderTask(document.getElementById('trainTask'),CS1START_TEST.genTask('w_algo'),{noRef:true,noNext:true}));
   const before=await page.locator('#trainTask [data-row] code').allTextContents();
   await page.locator('#trainTask [data-row="0"]').dragTo(page.locator('#trainTask [data-row="1"]'));
   assert.notDeepEqual(await page.locator('#trainTask [data-row] code').allTextContents(),before,'drag reorders cards');
   await page.locator('#tab-exam').click();await page.locator('#examStart').click();
   for(const kind of ['code','cloze','order','set']){
-   const index=await page.evaluate(kind=>{const e=CS1START_TEST.exam();let i=e.tasks.findIndex(t=>t.kind===kind);if(i<0){const id=kind==='code'?'g_fix':kind==='cloze'?'w_frei':kind==='order'?'w_algo':'w_sprache';e.tasks[0]={...genTask(id),pts:5};i=0}e.cur=i;renderExamQ();renderExamNav();return i},kind);
+   const index=await page.evaluate(kind=>{const e=CS1START_TEST.exam();let i=e.tasks.findIndex(t=>t.kind===kind);if(i<0){const id=kind==='code'?'g_fix':kind==='cloze'?'w_frei':kind==='order'?'w_algo':'w_sprache';e.tasks[0]={...CS1START_TEST.genTask(id),pts:5};i=0}e.cur=i;CS1START_TEST.renderExamQ();CS1START_TEST.renderExamNav();return i},kind);
    const t=await page.evaluate(()=>CS1START_TEST.exam().tasks[CS1START_TEST.exam().cur]);
    if(t.slots){await page.locator('#examQ [data-slot="0"]').click();await page.locator('#examQ [data-term="'+t.bank.indexOf(t.slots[0])+'"]').click()}
    await page.locator('#examNav [data-q="'+((index+1)%20)+'"]').click();await page.locator('#examNav [data-q="'+index+'"]').click();
@@ -36,7 +36,7 @@ const {pathToFileURL}=require('node:url'),{answer}=require('./support/cs1-answer
   for(const width of [390,360]){
    await page.setViewportSize({width,height:800});
    for(const id of ['w_algo','w_frei','g_fix','w_sprache','l_off']){
-    await page.evaluate(id=>{const e=CS1START_TEST.exam();e.tasks[e.cur]={...genTask(id),pts:5};renderExamQ()},id);
+    await page.evaluate(id=>{const e=CS1START_TEST.exam();e.tasks[e.cur]={...CS1START_TEST.genTask(id),pts:5};CS1START_TEST.renderExamQ()},id);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),width+' '+id+': no overflow');
    }
   }

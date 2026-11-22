@@ -144,6 +144,7 @@ shell = shell.replace("esc(p.valid?p.given:a)", "esc(readableGiven(t,p.valid?p.g
 shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}})", "")
 shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});", "")
 shell = shell.replace("if(t.kind==='mc')h+='<div class=\"options\"", "if(t.kind==='mc')h+='<strong class=\"task-label\">Deine Antwort</strong><div class=\"options\"")
+shell = shell.replace('SUBS,genTask,parseAnswer', 'SUBS,genTask,renderTask,renderExamQ,renderExamNav,parseAnswer')
 html = apply_theme(shell)
 # Spielmodus wie in A1: Serie, Rekord, Leuchteffekte. Farbe auf den Modulakzent umgestellt.
 game_css = (ROOT / 'tools/module-game.css').read_text().replace('166,240,90', RGB).replace('#a6f05a', ACC)
