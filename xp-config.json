@@ -1,0 +1,461 @@
+{
+  "version": 2,
+  "reference_xp": 183050,
+  "pro_xp": 366100,
+  "task_xp": 2,
+  "first_correct_cap": 1000,
+  "repeat_correct_per_module_day": 50,
+  "repeat_correct_per_account_day": 100,
+  "repeat_seconds": 8,
+  "daily_goal": 5,
+  "daily_xp": 10,
+  "streak_xp": 5,
+  "week_xp": 40,
+  "month_xp": 150,
+  "planned_modules": [
+    {
+      "id": "d1",
+      "subject": "Datenschutz",
+      "prefix": "d1-dsgvo",
+      "stages": 10,
+      "exam_minutes": [
+        10,
+        20,
+        30
+      ]
+    },
+    {
+      "id": "d2",
+      "subject": "IT-Sicherheit & Schutzbedarf",
+      "prefix": "d2-sec",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "b5",
+      "subject": "Netzwerkdienste & Protokolle",
+      "prefix": "b5-dienste",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "b4",
+      "subject": "IPv6",
+      "prefix": "b4-ipv6",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "f2",
+      "subject": "Kalkulation & Beschaffung",
+      "prefix": "f2-kalk",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "f1",
+      "subject": "Projektmanagement",
+      "prefix": "f1-pm",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w1",
+      "subject": "Ausbildung & Arbeitsrecht",
+      "prefix": "w1-arbeit",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w2",
+      "subject": "Sozialversicherung, Steuern & Entgelt",
+      "prefix": "w2-sozial",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w3",
+      "subject": "Mitbestimmung & Tarif",
+      "prefix": "w3-tarif",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w4",
+      "subject": "Unternehmen & Organisation",
+      "prefix": "w4-unternehmen",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w5",
+      "subject": "Wirtschaft, Markt & Verträge",
+      "prefix": "w5-markt",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "a2",
+      "subject": "Hardware & Energie",
+      "prefix": "a2-hw",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "a3",
+      "subject": "Betriebssysteme & Terminal",
+      "prefix": "a3-os",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "e1",
+      "subject": "Programmierung & Algorithmen",
+      "prefix": "e1-prog",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "e2",
+      "subject": "Datenbanken & SQL",
+      "prefix": "e2-sql",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "c1",
+      "subject": "Virtualisierung & Cloud",
+      "prefix": "c1-virt",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "c2",
+      "subject": "Server & Verzeichnisdienste",
+      "prefix": "c2-ad",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "c3",
+      "subject": "Backup, Monitoring & Verfügbarkeit",
+      "prefix": "c3-backup",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "d3",
+      "subject": "Kryptografie",
+      "prefix": "d3-krypto",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "b6",
+      "subject": "Switching, Routing & VLAN",
+      "prefix": "b6-routing",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "e3",
+      "subject": "Skripting & Web",
+      "prefix": "e3-script",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "f3",
+      "subject": "IT-Service & Kundenberatung",
+      "prefix": "f3-service",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "f4",
+      "subject": "Qualität, Ergonomie & Nachhaltigkeit",
+      "prefix": "f4-qm",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "a4",
+      "subject": "Abkürzungen & Fachbegriffe",
+      "prefix": "a4-glossar",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h1",
+      "subject": "Programmieren in der Sandbox",
+      "prefix": "h1-code",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h2",
+      "subject": "Algorithmen & Datenstrukturen",
+      "prefix": "h2-algo",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h3",
+      "subject": "Objektorientierung & UML",
+      "prefix": "h3-oop",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h4",
+      "subject": "Pseudocode & Struktogramm",
+      "prefix": "h4-pseudo",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h5",
+      "subject": "SQL in der Praxis",
+      "prefix": "h5-sql",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h6",
+      "subject": "Testen & Versionskontrolle",
+      "prefix": "h6-test",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h7",
+      "subject": "Web, APIs & sichere Programmierung",
+      "prefix": "h7-web",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "h8",
+      "subject": "Software-Entwurf",
+      "prefix": "h8-entwurf",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "g3",
+      "subject": "Fehleranalyse & Troubleshooting",
+      "prefix": "g3-trouble",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "g1",
+      "subject": "Abschlussprüfung Teil 1",
+      "prefix": "g1-ap1",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "g2",
+      "subject": "Abschlussprüfung Teil 2",
+      "prefix": "g2-ap2",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "w6",
+      "subject": "WiSo-Simulation",
+      "prefix": "w6-wiso",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "a1",
+      "subject": "Zahlensysteme",
+      "prefix": "a1-bits",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "osi",
+      "subject": "OSI-Schichten",
+      "prefix": "osi-sprint",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "netz",
+      "subject": "Netzwerkgrundlagen",
+      "prefix": "netz-sprint",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    },
+    {
+      "id": "subnet",
+      "subject": "Subnetting",
+      "prefix": "subnet-sprint",
+      "stages": 10,
+      "exam_minutes": [
+        30,
+        60,
+        90
+      ]
+    }
+  ],
+  "stage_xp": 75,
+  "exam_xp_per_30_min": 200,
+  "module_achievement_budget": 590,
+  "global_achievement_budget": 2250
+}

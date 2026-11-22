@@ -1,0 +1,5 @@
+# Mitgelieferte Lernmodule: nur über Admin → HTML-Projekte übernehmen, nie direkt ausliefern.
+Require all denied
+<IfModule !mod_authz_core.c>
+  Deny from all
+</IfModule>

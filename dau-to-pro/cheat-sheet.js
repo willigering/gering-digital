@@ -1,0 +1,307 @@
+/* DAU TO PRO – Themen-Spickzettel. */
+(()=>{
+  "use strict";
+  const groups=globalThis.DTP_CHEAT_GROUPS||[];
+  const board=document.getElementById("sheet-board");
+  const search=document.getElementById("sheet-search");
+  const count=document.getElementById("sheet-count");
+  const detail=document.getElementById("sheet-detail");
+  const progress=document.getElementById("stack-progress");
+  const intro=document.getElementById("board-intro");
+  const empty=document.getElementById("sheet-empty");
+  const backdrop=document.getElementById("sheet-backdrop");
+  if(!board||!detail||!groups.length)return;
+  const enrichments=globalThis.DTP_CHEAT_ENRICHMENT||{};
+  const deepSections=g=>(enrichments[g.id]?.sections||[]);
+  const fullSections=g=>g.sections.concat(deepSections(g));
+  const descriptions={
+    zahlen:"Bit, Byte, Binär, Hex und Datenraten",
+    osi:"Sieben Schichten, Protokolle, Kapselung",
+    subnet:"CIDR, Netzadresse, Hosts, VLSM",
+    netzwerk:"Router, Switch, VLAN, WLAN und Kabel",
+    ipv6:"Adressarten, Kürzung, SLAAC, NDP",
+    dienste:"Ports, DNS, DHCP, TCP und TLS",
+    sicherheit:"Schutzziele, Hashes, MFA und Backup",
+    datenschutz:"DSGVO, Rechtsgrundlagen und TOM",
+    rechnung:"Rabatt, Skonto, TCO und Break-even",
+    "csharp-schleifen":"for, while, do … while, foreach, Abbruch und Ablauf",
+    csharp:"Datentypen, Bedingungen und Schleifen",
+    datenbanken:"Schlüssel, JOINs und Normalformen",
+    mix:"Hardware, RAID, SQL und Projektplanung",
+    support:"Ticketarten, Service Desk, SLA, Eskalation und ITSM",
+    "it-vi":"Klausurwissen zu ITIL, Support, SLA, Verträgen und Datenschutz"
+  };
+  const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  let disposeReader=()=>{};
+  let cards=[],rows=[],stage=null,rowH=0,shown=null,frame=0,stacked=false,lastRow=-1;
+  const wide=matchMedia("(min-width:1120px)"),calm=matchMedia("(prefers-reduced-motion:reduce)");
+  const PEEK=20,STEP=.47,TAIL=.32;
+  const overlapY=()=>Math.max(navH()+110,Math.min(innerHeight*.30,navH()+150));
+  const stagePin=()=>navH()+34;
+  const navH=()=>document.querySelector(".topbar")?.getBoundingClientRect().height||86;
+  const start=document.title;
+  const textureByTopic={
+    zahlen:"circuit-micro",osi:"circuit-signal",subnet:"cables-patch",
+    netzwerk:"cables",ipv6:"cables-fiber",dienste:"network-ports",
+    sicherheit:"server",datenschutz:"circuit-sockets",rechnung:"hardware-memory",
+    csharp:"circuit","csharp-schleifen":"csharp-loops",datenbanken:"hardware-connectors",mix:"klausur-bg",
+    support:"cables-braided","it-vi":"circuit-copper"
+  };
+  const topicImage=(id,size)=>{
+    const texture=textureByTopic[id];
+    const file=texture==="klausur-bg"?texture:texture+"-"+size;
+    return 'url("../assets/dau-backgrounds/'+file+'.webp")';
+  };
+  let parallaxFrame=0;
+  document.querySelectorAll("[data-cheat-total]").forEach(x=>x.textContent=String(groups.length));
+  document.querySelectorAll("[data-cheat-groups]").forEach(x=>x.textContent=String(groups.length));
+  function topicLink(g,n){
+    return '<a class="topic-card" href="?thema='+encodeURIComponent(g.id)+'" style="--tone:'+g.color+';--topic-image:'+safe(topicImage(g.id,768))+'" data-id="'+safe(g.id)+'">'
+      +'<span class="topic-top"><span>POCKET GUIDE // '+String(n+1).padStart(2,"0")+'</span><b>'+safe(g.symbol)+'</b></span>'
+      +'<span class="topic-icon" aria-hidden="true">'+safe(g.symbol)+'</span>'
+      +'<span class="topic-subtitle">SPICKZETTEL '+String(n+1).padStart(2,"0")+'</span>'
+      +'<strong class="topic-name">'+safe(g.name)+'</strong>'
+      +'<span class="topic-desc">'+safe(descriptions[g.id]||g.sections.map(c=>c[0]).slice(0,3).join(", "))+'</span>'
+      +'<span class="topic-foot"><span>'+fullSections(g).length+' ABSCHNITTE</span><b>LESEN ↗</b></span>'
+      +'</a>';
+  }
+  function destroyStack(){
+    if(!stacked)return;
+    cards.forEach(c=>{c.inert=false;board.append(c)});
+    stage?.remove();stage=null;rows=[];stacked=false;shown=null;lastRow=-1;
+    board.classList.remove("is-stacked");board.style.height="";
+    cancelAnimationFrame(frame);frame=0;
+  }
+  function measure(){
+    if(!stacked)return;
+    rows.forEach(r=>{r.style.transform="";r.style.position="static";r.style.height="auto";r.style.visibility="visible"});
+    rowH=Math.ceil(Math.max(...rows.map(r=>r.getBoundingClientRect().height),260));
+    rows.forEach(r=>{r.style.position="";r.style.height=rowH+"px"});
+    const offset=Math.min(rows.length-1,3)*PEEK;
+    const stHeight=offset+rowH+rowH*TAIL;
+    stage.style.top=stagePin()+"px";stage.style.height=stHeight+"px";
+    board.style.height=stHeight+(rows.length-1)*rowH*STEP+"px";
+    paint();
+  }
+  const position=()=>Math.max(0,Math.min(rows.length-1,(overlapY()-board.getBoundingClientRect().top)/Math.max(1,rowH*STEP)));
+  const active=()=>Math.round(shown??position());
+  function go(k){
+    scrollTo({top:Math.max(0,scrollY+board.getBoundingClientRect().top-overlapY()+k*rowH*STEP),behavior:calm.matches?"auto":"smooth"});
+  }
+  function paint(){
+    frame=0;if(!stacked)return;
+    const goal=position();if(shown===null)shown=goal;
+    shown+=(goal-shown)*.17;
+    if(Math.abs(goal-shown)<.002)shown=goal;else frame=requestAnimationFrame(paint);
+    const p=shown,peek=Math.min(rows.length-1,3)*PEEK;
+    rows.forEach((r,k)=>{
+      const d=p-k,back=Math.min(Math.max(d,0),3);
+      // Nachfolgende Reihen bleiben als schmale Kanten des Stapels sichtbar.
+      // Kein visibility-Sprung mehr bei der letzten, einzelnen Themenkarte.
+      const waiting=Math.max(0,-d);
+      const y=d>=0?peek-back*PEEK:peek+waiting*PEEK;
+      const near=Math.max(0,1-Math.abs(d));
+      const frontIndex=Math.round(p);
+      r.style.transform='translate3d(0,'+y.toFixed(1)+'px,0) scale('+(1-back*.03-waiting*.008).toFixed(3)+')';
+      r.style.zIndex=String(k===frontIndex?100:80-Math.abs(k-frontIndex)*10);
+      r.style.visibility="visible";
+      r.style.opacity=String(d<0 ? .63+.37*near : 1);
+      r.classList.toggle("is-front",k===frontIndex);
+      r.classList.toggle("is-behind",d>=.52);
+      r.classList.toggle("is-waiting",d<-.52);
+      r.inert=d< -1.1;
+    });
+    const index=Math.round(p);
+    if(lastRow!==index){
+      lastRow=index;progress.textContent=String(index+1).padStart(2,"0")+" / "+String(rows.length).padStart(2,"0")+" REIHEN";
+    }
+  }
+  function rebuild(){
+    destroyStack();
+    if(!wide.matches||calm.matches||cards.length<=5){progress.hidden=true;return}
+    progress.hidden=false;stacked=true;board.classList.add("is-stacked");
+    stage=document.createElement("div");stage.className="sheet-stage";board.append(stage);
+    for(let i=0;i<cards.length;i+=5){
+      const row=document.createElement("div");row.className="sheet-row";row.dataset.row=String(rows.length);
+      cards.slice(i,i+5).forEach(c=>row.append(c));
+      row.addEventListener("click",e=>{
+        if(row.classList.contains("is-behind")&&Number(row.dataset.row)!==active()){
+          e.preventDefault();e.stopPropagation();go(Number(row.dataset.row));
+        }
+      },true);
+      stage.append(row);rows.push(row);
+    }
+    measure();
+  }
+  function listing(){
+    disposeReader();
+    document.body.classList.remove("reading-sheet");
+    backdrop.hidden=true;
+    document.getElementById("sheet-jump").replaceChildren();
+    document.getElementById("swipe-count").hidden=true;
+    destroyStack();
+    document.title=start;
+    document.querySelector(".hero").hidden=false;
+    detail.hidden=true;intro.hidden=false;
+    board.hidden=false;search.closest(".search").hidden=false;
+    const q=search.value.trim().toLocaleLowerCase("de");
+    const visible=groups.filter(g=>(g.name+" "+descriptions[g.id]+" "+fullSections(g).map(c=>c.join(" ")).join(" ")).toLocaleLowerCase("de").includes(q));
+    board.innerHTML=visible.map(g=>topicLink(g,groups.indexOf(g))).join("");
+    cards=[...board.querySelectorAll(".topic-card")];
+    count.textContent=visible.length+" / "+groups.length+" THEMEN";
+    empty.hidden=visible.length!==0;
+    if(visible.length===0){board.hidden=true;progress.hidden=true;return}
+    rebuild();
+  }
+  function sectionHTML(c,i){
+    const [heading,lead,lines]=c;
+    const facts=lines.split(/(?<!\|)\|(?!\|)/).map(f=>{
+      const n=f.indexOf("::");
+      return '<div class="fact"><dt>'+safe(n>=0?f.slice(0,n):"Merke")+'</dt><dd>'+safe(n>=0?f.slice(n+2):f)+'</dd></div>';
+    }).join("");
+    return '<section class="detail-section sheet-panel" id="section-'+i+'" aria-labelledby="heading-'+i+'"><span class="section-num">'+String(i+1).padStart(2,"0")+'</span><div>'
+      +'<h3 id="heading-'+i+'">'+safe(heading)+'</h3><p class="section-lead">'+safe(lead)+'</p><dl>'+facts+'</dl></div></section>';
+  }
+  function getQuestions(g){
+    const own=g.sections.map(c=>[c[3],c[4]]);
+    const extra=(globalThis.DTP_CHEAT_EXTRAS||{})[g.id]||"";
+    const additional=extra.split(/\r?\n/).filter(Boolean).map(row=>{
+      const divider=row.indexOf("¦");
+      return divider<0?null:[row.slice(0,divider).trim(),row.slice(divider+1).trim()];
+    }).filter(Boolean);
+    return own.concat(additional,(enrichments[g.id]?.questions||[]));
+  }
+  function refreshParallax(){
+    parallaxFrame=0;
+    if(backdrop.hidden||calm.matches)return;
+    const scrollRange=Math.max(1,document.documentElement.scrollHeight-innerHeight);
+    const progress=Math.min(1,Math.max(0,scrollY/scrollRange));
+    backdrop.style.setProperty("--sheet-shift",((progress-.5)*Math.min(180,innerHeight*.24)).toFixed(1)+"px");
+  }
+  function requestParallax(){
+    if(!parallaxFrame&&!backdrop.hidden&&!calm.matches)parallaxFrame=requestAnimationFrame(refreshParallax);
+  }
+  function showTopic(id){
+    disposeReader();
+    document.body.classList.add("reading-sheet");
+    const g=groups.find(item=>item.id===id);
+    if(!g){history.replaceState(null,"",location.pathname);listing();return}
+    destroyStack();board.hidden=true;intro.hidden=true;empty.hidden=true;detail.hidden=false;
+    document.querySelector(".hero").hidden=true;
+    search.closest(".search").hidden=true;
+    document.title=g.name+" · Spickzettel · DAU TO PRO";
+    document.body.style.setProperty("--sheet-tone",g.color);
+    backdrop.style.setProperty("--sheet-image",topicImage(g.id,1536));
+    backdrop.style.setProperty("--sheet-image-mobile",topicImage(g.id,768));
+    backdrop.hidden=false;
+    const questions=getQuestions(g),sections=fullSections(g);
+    const rendered=questions.map((c,i)=>'<div class="exam-qa"><span>'+String(i+1).padStart(2,"0")+'</span>'
+      +'<strong>'+safe(c[0])+'</strong><p>'+safe(c[1])+'</p></div>').join("");
+    const traps=[0,4,7].filter(n=>n<g.sections.length).map(i=>'<li>'+safe(g.sections[i][5])+'</li>').join("");
+    detail.innerHTML='<div class="detail-actions"><a class="detail-back" href="cheat-sheet.html">← ALLE SPICKZETTEL</a><button type="button" class="print-button" id="sheet-print">⎙ ALS PDF DRUCKEN</button></div>'
+      +'<article class="one-sheet" style="--tone:'+g.color+'">'
+      +'<div class="detail-header"><span class="detail-kicker">DAU TO PRO // SPICKZETTEL</span><span class="detail-code">'+safe(g.symbol)+'</span>'
+      +'<h2>'+safe(g.name)+'</h2><p>'+safe(descriptions[g.id])+' – die wichtigsten Regeln, Zusammenhänge und Beispiele übersichtlich auf einem Themenblatt.</p>'
+      +'<div class="detail-line"><span>'+sections.length+' FACHABSCHNITTE</span><span>'+questions.length+' PRÜFUNGSFRAGEN MIT LÖSUNGEN</span></div>'+(g.id==='csharp'?'<p style="margin:22px 0 0"><a href="csharp-befehle.html" style="display:inline-flex;align-items:center;min-height:46px;padding:11px 19px;border-radius:12px;border:1px solid #e8b84a;color:#f6d688;background:#e8b84a16;text-decoration:none;font-weight:800">C# BEFEHLE &amp; ERKLÄRUNGEN ↗</a></p>':'')+'</div>'
+      +'<div class="sheet-panels" id="sheet-panels">'+sections.map(sectionHTML).join("")
+      +'<section class="detail-exam sheet-panel" id="sheet-questions" aria-labelledby="questions-heading"><h3 id="questions-heading">✦ '+questions.length+' TYPISCHE PRÜFUNGSFRAGEN MIT ANTWORTEN</h3><div class="exam-grid">'+rendered+'</div></section>'
+      +'<section class="detail-traps sheet-panel" id="sheet-traps" aria-labelledby="traps-heading"><strong id="traps-heading">⚠ HIER PASSIEREN DIE KLASSIKER:</strong><ul>'+traps+'</ul></section></div>'
+      +'<p class="detail-signoff">DAU TO PRO · Wissen anwenden, nicht bloß aufsagen.</p>'
+      +'</article>';
+    document.getElementById("sheet-print").addEventListener("click",()=>print());
+    progress.hidden=true;
+    setupReader(sections);
+    scrollTo({top:0,behavior:"auto"});
+    requestParallax();
+  }
+  function setupReader(sections){
+    const track=document.getElementById("sheet-panels");
+    const panels=[...track.children];
+    const nav=document.getElementById("sheet-jump");
+    const status=document.getElementById("swipe-count");
+    const mobile=matchMedia("(max-width:900px)");
+    const labels=sections.map(s=>s[0]).concat("Prüfungsfragen","Typische Fallen");
+    nav.innerHTML=labels.map((label,i)=>'<a href="#'+panels[i].id+'" aria-controls="'+panels[i].id+'">'+safe(label)+'</a>').join("");
+    const links=[...nav.children];
+    let current=0,pending=0;
+    const fit=()=>{track.style.height=mobile.matches?Math.ceil(panels[current].getBoundingClientRect().height)+"px":""};
+    function updateTabEdges(){
+      nav.style.setProperty("--fade-start",nav.scrollLeft>1?"12px":"0px");
+      nav.style.setProperty("--fade-end",nav.scrollLeft+nav.clientWidth<nav.scrollWidth-1?"12px":"0px");
+    }
+    function mark(i){
+      current=i;
+      links.forEach((a,n)=>{if(n===i)a.setAttribute("aria-current","true");else a.removeAttribute("aria-current")});
+      panels.forEach((p,n)=>{p.inert=mobile.matches&&n!==i});
+      status.hidden=!mobile.matches;
+      status.textContent=(i+1)+" / "+panels.length+" · nach links oder rechts wischen";
+      if(mobile.matches){
+        const tab=links[i].getBoundingClientRect(),bar=nav.getBoundingClientRect();
+        nav.scrollLeft+=tab.left-bar.left+(tab.width-nav.clientWidth)/2;
+        updateTabEdges();
+      }
+      fit();
+    }
+    function go(i,updateHash=true){
+      i=Math.max(0,Math.min(panels.length-1,i));
+      if(updateHash)history.replaceState(null,"","#"+panels[i].id);
+      if(mobile.matches){
+        track.scrollTo({left:panels[i].offsetLeft-panels[0].offsetLeft,behavior:"auto"});
+        mark(i);
+        const top=track.getBoundingClientRect().top+scrollY-navH()-12;
+        if(scrollY>top)scrollTo({top:Math.max(0,top),behavior:"auto"});
+      }else{
+        mark(i);
+        const top=panels[i].getBoundingClientRect().top+scrollY-navH()-12;
+        scrollTo({top:Math.max(0,top),behavior:calm.matches?"auto":"smooth"});
+      }
+    }
+    links.forEach((a,i)=>{
+      a.addEventListener("click",e=>{e.preventDefault();go(i)});
+      a.addEventListener("keydown",e=>{
+        const next=e.key==="ArrowRight"?i+1:e.key==="ArrowLeft"?i-1:e.key==="Home"?0:e.key==="End"?panels.length-1:null;
+        if(next===null)return;e.preventDefault();const n=Math.max(0,Math.min(panels.length-1,next));go(n);links[n].focus({preventScroll:true});
+      });
+    });
+    function onScroll(){
+      if(!mobile.matches||pending)return;
+      pending=requestAnimationFrame(()=>{
+        pending=0;
+        const step=panels.length>1?panels[1].offsetLeft-panels[0].offsetLeft:track.clientWidth;
+        const i=Math.max(0,Math.min(panels.length-1,Math.round(track.scrollLeft/Math.max(1,step))));
+        if(i!==current){
+          mark(i);history.replaceState(null,"","#"+panels[i].id);
+          const top=track.getBoundingClientRect().top+scrollY-navH()-12;
+          if(scrollY>top)scrollTo({top:Math.max(0,top),behavior:"auto"});
+        }
+      });
+    }
+    function resize(){
+      mark(current);
+      if(mobile.matches)track.scrollLeft=panels[current].offsetLeft-panels[0].offsetLeft;
+      else track.scrollLeft=0;
+    }
+    function hashChange(){const i=panels.findIndex(p=>"#"+p.id===location.hash);if(i>=0)go(i,false)}
+    const observer=new ResizeObserver(fit);panels.forEach(p=>observer.observe(p));
+    track.addEventListener("scroll",onScroll,{passive:true});
+    nav.addEventListener("scroll",updateTabEdges,{passive:true});
+    addEventListener("resize",resize);addEventListener("hashchange",hashChange);
+    mobile.addEventListener("change",resize);
+    const initial=panels.findIndex(p=>"#"+p.id===location.hash);current=Math.max(0,initial);resize();
+    disposeReader=()=>{observer.disconnect();cancelAnimationFrame(pending);nav.removeEventListener("scroll",updateTabEdges);removeEventListener("resize",resize);removeEventListener("hashchange",hashChange);mobile.removeEventListener("change",resize)};
+  }
+  function route(){
+    const id=new URLSearchParams(location.search).get("thema");
+    if(id)showTopic(id);else listing();
+  }
+  search.addEventListener("input",()=>{if(!new URLSearchParams(location.search).has("thema"))listing()});
+  addEventListener("popstate",route);
+  addEventListener("scroll",requestParallax,{passive:true});
+  addEventListener("scroll",()=>{if(stacked&&!frame)frame=requestAnimationFrame(paint)},{passive:true});
+  addEventListener("resize",()=>{if(!detail.hidden)return;rebuild()},{passive:true});
+  wide.addEventListener("change",()=>{if(detail.hidden)rebuild()});
+  calm.addEventListener("change",()=>{if(detail.hidden)rebuild()});
+  addEventListener("load",()=>{if(stacked)measure();requestParallax()},{once:true});
+  addEventListener("resize",requestParallax,{passive:true});
+  route();
+})();

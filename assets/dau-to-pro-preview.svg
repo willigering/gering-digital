@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+<defs><radialGradient id="bg"><stop stop-color="#173038"/><stop offset="1" stop-color="#090e14"/></radialGradient><pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#72d9de" stroke-opacity=".07"/></pattern></defs>
+<rect width="1280" height="720" fill="url(#bg)"/><rect width="1280" height="720" fill="url(#grid)"/>
+<g fill="none" stroke="#55d9df" stroke-width="4" opacity=".3"><path d="M0 130H125L170 85H310M0 570H105L160 625H330M1280 115H1160L1110 65H980M1280 590H1180L1125 645H1010"/><circle cx="310" cy="85" r="8"/><circle cx="330" cy="625" r="8"/><circle cx="980" cy="65" r="8"/><circle cx="1010" cy="645" r="8"/></g>
+<g font-family="Arial,Helvetica,sans-serif">
+<text x="82" y="139" fill="#61e0e3" font-size="25" font-weight="700" letter-spacing="5">IT VERSTEHEN. LEVEL AUFSTEIGEN.</text>
+<text x="76" y="282" fill="#f4f7fa" font-size="110" font-weight="900" letter-spacing="-5">DAU <tspan fill="#e8b84a" font-size="66" letter-spacing="-2">TO</tspan><tspan fill="#e8b84a" dx="14">PRO</tspan></text>
+<text x="82" y="347" fill="#c3d2da" font-size="34">Von „Hä?“ zu „Hab ich.“</text>
+<rect x="82" y="408" width="640" height="185" rx="10" fill="#080c11" stroke="#39535e" stroke-width="2"/>
+<path d="M83 448H721" stroke="#39535e" stroke-width="2"/><circle cx="107" cy="429" r="6" fill="#e8b84a"/><circle cx="129" cy="429" r="6" fill="#55d9df"/><circle cx="151" cy="429" r="6" fill="#526775"/>
+<g font-family="monospace" font-size="27"><text x="108" y="499" fill="#8ce6e8">&gt; lade IT-Verständnis …</text><text x="108" y="548" fill="#e8b84a">[OK] Aha-Moment installiert.</text></g>
+<text x="82" y="653" fill="#b8c9d1" font-size="23" font-weight="700" letter-spacing="2">LERNEN / ÜBEN / PRÜFUNG ROCKEN</text>
+</g>
+<g transform="translate(835 330) scale(14)" shape-rendering="crispEdges">
+<path d="M5 0H13V1H16V3H18V6H19V11H17V12H14V17H5V12H2V11H0V6H1V3H3V1H5Z" fill="#061016"/>
+<path d="M5 1H13V2H16V4H18V7H19V10H17V11H2V10H1V7H2V4H4V2H5Z" fill="#e8b84a"/>
+<path d="M5 2H8V5H4V4H5ZM12 3H15V6H12ZM8 7H11V10H8Z" fill="#fff3cb"/>
+<path d="M6 12H13V16H6Z" fill="#eef6f3"/><path d="M7 12H8V14H7ZM11 12H12V14H11Z" fill="#0d2531"/>
+<path d="M2 8H5V10H2ZM15 8H18V10H15Z" fill="#bd822e"/>
+</g>
+<path d="M872 304L907 269M907 269V294M907 269H882" fill="none" stroke="#55d9df" stroke-width="9" stroke-linecap="square"/>
+<text x="947" y="290" fill="#61e0e3" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="900" letter-spacing="3">LEVEL UP!</text>
+</svg>

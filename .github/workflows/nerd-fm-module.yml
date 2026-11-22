@@ -1,0 +1,34 @@
+name: NERD FM uninterrupted module playback
+on:
+  pull_request:
+    paths:
+      - 'dau-to-pro/index.php'
+      - 'dau-to-pro/module-shell.js'
+      - 'dau-to-pro/module-shell.css'
+      - 'tests/radio_module_continuity.cjs'
+      - 'tests/support/radio_module_router.php'
+      - '.github/workflows/nerd-fm-module.yml'
+  push:
+    branches:
+      - feature/nerd-fm-continuity-clean
+permissions:
+  contents: read
+jobs:
+  module-radio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax validation
+        run: php -l dau-to-pro/index.php && php -l tests/support/radio_module_router.php && node --check dau-to-pro/module-shell.js && node --check tests/radio_module_continuity.cjs
+      - name: Install Playwright
+        run: npm install --prefix "$RUNNER_TEMP/radio" --no-package-lock playwright@1.62.1
+      - name: Install Chromium
+        run: node "$RUNNER_TEMP/radio/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Verify continuous playback
+        env:
+          NODE_PATH: ${{ runner.temp }}/radio/node_modules
+        run: node tests/radio_module_continuity.cjs

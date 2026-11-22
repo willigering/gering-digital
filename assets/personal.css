@@ -1,0 +1,173 @@
+/* Persönliche Ausrichtung – nur isolierte pd-* Klassen. Wirkt nicht auf .hero-stage / .phone. */
+.hero-copy .pd-hero-title{font-size:clamp(34px,3.4vw,50px);letter-spacing:-1.8px;line-height:1.06;margin-bottom:20px}
+.hero-copy .pd-hero-text .lead{margin-bottom:10px;font-size:16px;line-height:1.6}
+
+/* Äußere Panels (App-Katalog, Kontaktformular) */
+.pd-card{position:relative;overflow:hidden;border:1px solid rgba(218,168,64,.28);border-radius:26px;
+ background:linear-gradient(150deg,rgba(28,44,62,.55) 0%,rgba(12,18,28,.78) 55%,rgba(8,11,17,.88) 100%);
+ -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 30px 80px rgba(0,0,0,.45)}
+.pd-card:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.75}
+
+/* Abschnittskopf */
+.pd-section{padding:64px 0}
+.pd-wrap{max-width:none;margin:0}
+.pd-head{margin-bottom:23px;max-width:100%}
+.pd-head .eyebrow,.inquiry.pd-card .eyebrow{display:inline-block;padding:6px 12px;border:1px solid rgba(218,168,64,.35);border-radius:999px;background:rgba(218,168,64,.07);margin-bottom:18px}
+.pd-head h2,.inquiry.pd-card h2{font-size:clamp(26px,2.6vw,34px);line-height:1.2;letter-spacing:-.6px;font-weight:700;color:#f5f8fc;margin:0;overflow-wrap:break-word}
+.pd-head h2 span,.inquiry.pd-card h2 span{color:var(--gold)}
+.pd-head .pd-sub{margin:12px 0 0;font-size:17px;line-height:1.5;color:var(--gold);font-weight:500}
+
+/* Ein Glas-Block pro Abschnitt, Text als normale Spalte */
+.pd-single{border:1px solid rgba(218,168,64,.28);border-radius:24px;padding:48px 56px;position:relative;overflow:hidden;
+ background:linear-gradient(150deg,rgba(28,44,62,.55) 0%,rgba(12,18,28,.78) 55%,rgba(8,11,17,.88) 100%);
+ -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 30px 80px rgba(0,0,0,.45)}
+.pd-single:before{content:"";position:absolute;left:0;top:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold) 30%,var(--gold) 70%,transparent);opacity:.75}
+.pd-single .pd-head{margin-bottom:28px}
+.pd-flow{max-width:min(100%,108ch);text-align:left}
+.pd-flow p{margin:0 0 1em;font-size:17px;line-height:1.65;color:rgb(200,212,223)}
+.pd-flow p:last-child{margin-bottom:0}
+.pd-flow .pd-punch{color:var(--gold);font-weight:600;margin-top:1.4em}
+.pd-flow .pd-quote{color:#f5f8fc;font-style:italic}
+.pd-apps-intro{margin-bottom:36px;padding-bottom:32px;border-bottom:1px solid rgba(218,168,64,.18)}
+.pd-apps-intro .pd-head{margin-bottom:24px}
+.inquiry.pd-card .inquiry-copy h2{margin-bottom:20px}
+.inquiry.pd-card .inquiry-copy .pd-flow p{font-size:16px}
+.pd-footer-quote{flex:1;min-width:0;margin:0;font-size:13px;line-height:1.6;font-style:italic;color:var(--muted);max-width:65ch}
+
+@media(max-width:800px){.pd-single{padding:32px 26px}.pd-section{padding:44px 0}
+ .hero-copy .pd-hero-title{font-size:clamp(32px,8vw,48px);letter-spacing:-1.4px}.pd-footer-quote{flex-basis:100%}}
+@media(max-width:480px){.pd-single{padding:26px 20px;border-radius:20px}.pd-flow p{font-size:16px}.hero-copy .pd-hero-title{font-size:32px}.pd-head h2,.inquiry.pd-card h2{font-size:26px}.pd-card{border-radius:20px}}
+
+/* Einzige Smartphone-Anpassung (vom Nutzer freigegeben): Lücke nach Entfernen von
+   Mini-Kacheln und Signatur schließen – Inhalt vertikal mittiger setzen. Nur Abstände. */
+.phone-screen .contact-hero.pd-phone-fill{margin-top:72px}
+.phone-screen .phone-contact-hit.pd-phone-fill{margin-top:22px}
+@media(max-width:480px){.phone-screen .contact-hero.pd-phone-fill{margin-top:56px}}
+
+/* Touch-Drehung: horizontales Wischen dreht das Smartphone, vertikal scrollt die Seite weiter. */
+.hero-stage .phone{touch-action:pan-y}
+
+/* Mobile-Feinschliff (nur außerhalb des Smartphones) */
+@media(max-width:800px){
+ .nav .brand small{font-size:9px;letter-spacing:1.6px}
+ footer .brand small{font-size:12px;letter-spacing:.2px;text-transform:none}
+ .pd-head .eyebrow,.inquiry.pd-card .eyebrow,.apps-panel .eyebrow{font-size:11px}
+ .app-card .app-status{font-size:12px}
+ .app-card .app-details{font-size:13px;min-height:44px}
+ .inquiry .check{font-size:14px;line-height:1.5;align-items:flex-start}
+ .inquiry .check span,.inquiry .check a{font-size:14px}
+ .inquiry .check input{width:22px;height:22px;flex:0 0 22px;margin-top:1px}
+ footer .footer>div a{display:inline-block;padding:12px 4px;font-size:14px}
+ footer .footer>small{font-size:12px}
+ .mobile-menu a{font-size:16px;min-height:44px;display:flex;align-items:center}
+}
+/* v8: mobile app catalog grid */
+@media(max-width:800px){
+ #apps .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:stretch}
+ #apps .app-card{border-radius:14px;height:100%}
+ #apps .app-card .icon-wrap{height:auto;aspect-ratio:1/1;max-height:128px;padding:14px}
+ #apps .app-card .appicon{width:100%;height:100%;max-width:100px;max-height:100px;object-fit:contain}
+ #apps .app-card .card-body{padding:2px 11px 12px;gap:6px}
+ #apps .app-card h3{font-size:15px;line-height:1.25;margin:0;overflow-wrap:anywhere;hyphens:auto}
+ #apps .app-card .card-body>p{font-size:13px;line-height:1.4;margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;hyphens:auto;overflow-wrap:break-word}
+ #apps .app-card .app-status{font-size:11.5px;margin:auto 0 0;padding-top:4px}
+ #apps .app-card .app-details span{display:none}
+ #apps .app-card .app-details{font-size:12.5px;min-height:44px;width:100%;margin-top:0;justify-content:center;padding:0 6px;line-height:1.25;border-bottom:0}
+ #apps .app-card .store-links{gap:2px 8px}
+ #apps .app-card .store-links:not(:has(a)){display:none}
+ #apps .app-card .store{font-size:12.5px;min-height:44px;display:inline-flex;align-items:center}
+}
+@media(max-width:339px){#apps .cards{grid-template-columns:1fr}}
+/* v10: mobile phone performance & rendering */
+.phone-back picture{display:contents}
+.brand picture{display:block;flex:none;line-height:0}
+.phone-brand-lockup picture{display:block;width:31px;height:31px;line-height:0}
+.phone-back>picture>img{width:60px;opacity:.48;filter:grayscale(.3)}
+@media(max-width:800px){
+ .hero-stage>.phone{will-change:transform;transform:translate3d(var(--x),calc(var(--y) + min(var(--s),12px)),0) rotate(var(--angle,0deg)) rotateY(calc(var(--yaw,0deg) + var(--spin,0deg))) rotateX(var(--pitch,0deg))}
+ .phone-frame,.phone-back{-webkit-backface-visibility:hidden;backface-visibility:hidden}
+}
+@media(max-width:480px){
+ .hero-stage{overflow:visible;overflow-x:clip;overflow-y:visible}
+}
+
+
+/* Project catalogue categories: native Gering Digital black / gold design */
+.catalog-filters{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px;align-items:center;justify-content:center}
+.catalog-filter{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:10px 16px;background:rgba(9,14,18,.65);border:1px solid rgba(218,168,64,.28);border-radius:999px;color:#e3d7bd;font-size:13px;font-weight:650;line-height:1.3;cursor:pointer;transition:background .2s,border-color .2s,color .2s,box-shadow .2s}
+.catalog-filter span{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:24px;padding:0 6px;background:rgba(218,168,64,.11);border-radius:999px;font-size:11px;color:#d6b96c}
+.catalog-filter:hover{border-color:rgba(255,209,122,.8);background:rgba(218,168,64,.13)}
+.catalog-filter.is-active{background:linear-gradient(120deg,#f6d58a,#d6a440);border-color:#efd18a;color:#20180b;box-shadow:0 8px 24px rgba(218,168,64,.18)}
+.catalog-filter.is-active span{background:rgba(22,14,5,.15);color:#241805}
+.category-badge{align-self:flex-start;display:inline-block;max-width:100%;padding:4px 9px;margin:0 0 9px;border:1px solid rgba(218,168,64,.25);background:rgba(218,168,64,.08);border-radius:999px;color:#ddbf7a;font-size:10px;font-weight:650;line-height:1.3}
+.catalog-empty{margin:0;padding:24px;text-align:center;color:#ddbf7a;border:1px dashed rgba(218,168,64,.35);border-radius:15px;background:rgba(218,168,64,.05)}
+#apps .app-card[hidden],#catalog-empty[hidden]{display:none!important}
+@media(max-width:480px){.catalog-filters{gap:8px;margin-bottom:22px}.catalog-filter{padding:9px 11px;font-size:12px;gap:6px}.catalog-filter span{min-width:20px;height:20px;font-size:10px}.category-badge{font-size:9px;margin-bottom:5px;padding:4px 7px}}
+@media(prefers-reduced-motion:reduce){.catalog-filter{transition:none}}
+
+
+/* Self-hosted HTML project cards */
+.html-project-icon{width:128px;height:128px;display:grid;place-items:center;border:1px solid rgba(255,212,116,.36);border-radius:28px;background:radial-gradient(circle at 30% 15%,rgba(255,231,155,.28),transparent 62%),linear-gradient(145deg,#312410,#101719);box-shadow:0 16px 35px #0008,inset 0 1px rgba(255,255,255,.13);color:#f1c76c;font:800 39px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:-4px}
+@media(max-width:800px){#apps .html-project-icon{width:100%;height:100%;max-width:100px;max-height:100px;border-radius:20px;font-size:30px}}
+
+
+
+/* Single-row navigation – project categories remain in the catalogue below. */
+.nav .desktop-nav{align-items:center}
+/* Navigation scrolls with the page: no sticky-header offset for project anchors. */
+#apps{scroll-margin-top:18px}
+
+/* Broader reading columns, shorter sections, unchanged typography and copy. */
+@media(min-width:801px){.pd-section .pd-single{padding:40px 46px}}
+@media(max-width:800px){.pd-section .pd-single{padding:32px 26px}}
+@media(max-width:480px){.pd-section .pd-single{padding:26px 20px}}
+
+/* Entire HTML project card is a native, keyboard-focusable link. Other app
+   cards retain their existing buttons and store links. */
+#apps .html-clickable-card{cursor:pointer}
+#apps .html-clickable-card .html-card-link{position:absolute;inset:0;display:block;z-index:3;border-radius:inherit}
+#apps .html-clickable-card .html-card-link:focus-visible{outline:3px solid var(--gold2);outline-offset:-5px}
+#apps .html-clickable-card:focus-within{box-shadow:0 20px 40px #0007,0 0 0 2px rgba(255,225,154,.8)}
+#apps .html-card-cta{display:inline-flex;align-items:center;gap:9px;min-height:44px;margin-top:8px;font-size:12px;font-weight:700;color:var(--gold)}
+#apps .html-clickable-card:hover .html-card-cta{color:var(--gold2)}
+@media(max-width:800px){#apps .html-card-cta{font-size:12px;min-height:38px}}
+
+/* Keep the mobile hamburger menu scrollable, without a nested project dropdown. */
+@media(max-width:800px){.nav .mobile-menu{z-index:40;max-height:calc(100dvh - 95px);overflow-y:auto}}
+
+/* Actual HTML screenshots on project cards; existing native app icons unchanged. */
+#apps .icon-wrap.html-preview-wrap{padding:12px;height:190px;background:radial-gradient(ellipse at 50% 5%,rgba(227,182,83,.10),transparent 72%)}
+#apps .html-preview-image{display:block;width:100%;height:100%;min-height:0;object-fit:var(--thumb-fit,cover);object-position:var(--thumb-x,50%) var(--thumb-y,0%);border:1px solid rgba(218,168,64,.33);border-radius:12px;box-shadow:0 14px 28px #0008;background:#09111b}
+@media(max-width:800px){
+  #apps .app-card .icon-wrap.html-preview-wrap{height:auto;max-height:none;aspect-ratio:16/10;padding:9px}
+  #apps .app-card .icon-wrap.html-preview-wrap .html-preview-image{max-width:none;max-height:none;width:100%;height:100%;object-fit:var(--thumb-fit,cover);object-position:var(--thumb-x,50%) var(--thumb-y,0%);border-radius:9px}
+}
+@media(max-width:339px){#apps .app-card .icon-wrap.html-preview-wrap{aspect-ratio:16/9}}
+
+
+/* DAU-to-Pro typography and square UI frames; content remains unchanged. */
+:root{--dtp-font:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif}
+body{font-family:var(--dtp-font)}
+button,input,textarea,select{font-family:inherit}
+.hero-copy .pd-hero-title{font-family:var(--dtp-font);text-transform:uppercase;font-weight:950;letter-spacing:-.055em;line-height:1.02}
+h2,.pd-head h2,.inquiry.pd-card h2{font-family:var(--dtp-font);text-transform:uppercase;font-weight:950;letter-spacing:-.05em;line-height:1.08}
+.app-card h3{font-family:var(--dtp-font);font-weight:850;letter-spacing:-.03em}
+.nav,.btn,.catalog-filter,.category-badge{font-family:inherit}
+.nav .desktop-nav a,.nav .mobile-menu a,.btn,.catalog-filter,.category-badge,
+.eyebrow,.section-kicker{text-transform:uppercase;font-weight:850}
+.eyebrow,.section-kicker{letter-spacing:.24em}
+/* Smartphone chassis, camera lenses and original app icons retain their shape. */
+.nav,.glass-panel,.pd-card,.pd-single,.app-card,.panel,.glass-inner,
+.btn,.mobile-menu-btn,.mobile-menu,.catalog-filter,.catalog-filter span,
+.category-badge,.catalog-empty,.html-project-icon,.html-preview-image,
+.pd-head .eyebrow,.inquiry.pd-card .eyebrow,input,textarea,select{
+ border-radius:0!important;
+}
+
+/* SharpLab uses the same wide 16:9 cover + CTA as the DAU TO PRO card. */
+#apps .sharplab-portal-card .project-preview-wide{background:#0B0F0C}
+#apps .sharplab-portal-card .sharplab-matrix{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:screen;
+}
+#apps .sharplab-portal-card .project-preview-wide > .html-preview-image{z-index:2}

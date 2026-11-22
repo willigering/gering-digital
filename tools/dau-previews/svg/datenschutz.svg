@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <radialGradient id="datenschutz-glow" cx="0.625" cy="0.5" r=".55">
+      <stop offset="0" stop-color="#ff8fa3" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#ff8fa3" stop-opacity=".035"/>
+      <stop offset="1" stop-color="#ff8fa3" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="datenschutz-warm" cx=".78" cy=".8" r=".6">
+      <stop offset="0" stop-color="#f39a2b" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#f39a2b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="datenschutz-vignette" cx=".5" cy=".5" r=".75">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".62"/>
+    </radialGradient>
+    <linearGradient id="datenschutz-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1bb"/><stop offset=".55" stop-color="#efc261"/><stop offset="1" stop-color="#cc8f25"/>
+    </linearGradient>
+    <linearGradient id="datenschutz-goldv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe4a1"/><stop offset="1" stop-color="#d79a2c"/>
+    </linearGradient>
+    <linearGradient id="datenschutz-ray" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#d88120" stop-opacity=".2"/><stop offset=".5" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff9c29" stop-opacity=".15"/>
+    </linearGradient>
+    <linearGradient id="datenschutz-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16201f"/><stop offset="1" stop-color="#0c1215"/>
+    </linearGradient>
+    <pattern id="datenschutz-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#9fe9ef" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+    <filter id="datenschutz-glowf" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="datenschutz-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#080c0e"/>
+  <rect width="1280" height="720" fill="url(#datenschutz-grid)"/>
+  <rect width="1280" height="720" fill="url(#datenschutz-glow)"/>
+  <rect width="1280" height="720" fill="url(#datenschutz-warm)"/>
+  <g><path d="M-20 213.9 H115.4 L178 151.3 H242" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="242" cy="151.3" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 479.4 H1173.1 L1128.6 434.9 H991" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="991" cy="434.9" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 590 H166.5 L235.1 521.5 H336.1" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="336.1" cy="521.5" r="4" fill="#eab448" fill-opacity=".35"/><path d="M1300 441.3 H1157.1 L1087.5 510.9 H1011.5" stroke="#ff8fa3" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="1011.5" cy="510.9" r="4" fill="#ff8fa3" fill-opacity=".35"/><path d="M-20 448 H263.5 L309.1 493.7 H419.4" stroke="#ff8fa3" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="419.4" cy="493.7" r="4" fill="#ff8fa3" fill-opacity=".35"/><path d="M1300 394.1 H1038.7 L1001.7 357.1 H913.9" stroke="#ff8fa3" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="913.9" cy="357.1" r="4" fill="#ff8fa3" fill-opacity=".35"/><path d="M-20 164.7 H211.2 L245.5 199 H389.5" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="389.5" cy="199" r="4" fill="#eab448" fill-opacity=".35"/></g>
+  
+    <g stroke-linecap="round" fill="none">
+      <path d="M-140 780 L704 -140" stroke="#f39a2b" stroke-width="16" stroke-opacity=".08" filter="url(#datenschutz-soft)"/>
+      <path d="M-140 780 L704 -140" stroke="url(#datenschutz-ray)" stroke-width="2.4" stroke-opacity=".55"/>
+      <path d="M704 860 L1420 86.39999999999999" stroke="url(#datenschutz-ray)" stroke-width="1.6" stroke-opacity=".32"/>
+    </g>
+  <text x="640" y="119" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="24" font-weight="700" letter-spacing="7" fill="#ff8fa3">D1 // DATENSCHUTZ</text>
+    <g transform="translate(180 208)">
+    <path d="M0 0H238L274 36V292H0Z" fill="#17151d" stroke="#ff8fa3" stroke-width="3"/>
+    <circle cx="65" cy="78" r="22" fill="#ff8fa3" opacity=".8"/><path d="M29 136v-12q36-40 72 0v12" fill="#ff8fa3" opacity=".55"/>
+    <path d="M128 67h100M128 92h74M30 179h198M30 207h165M30 235h198" stroke="#f5f0df" stroke-width="9" opacity=".35"/>
+  </g><g transform="translate(199 189)">
+    <path d="M0 0H238L274 36V292H0Z" fill="#17151d" stroke="#ff8fa3" stroke-width="3"/>
+    <circle cx="65" cy="78" r="22" fill="#ff8fa3" opacity=".8"/><path d="M29 136v-12q36-40 72 0v12" fill="#ff8fa3" opacity=".55"/>
+    <path d="M128 67h100M128 92h74M30 179h198M30 207h165M30 235h198" stroke="#f5f0df" stroke-width="9" opacity=".35"/>
+  </g><g transform="translate(218 170)">
+    <path d="M0 0H238L274 36V292H0Z" fill="#17151d" stroke="#ff8fa3" stroke-width="3"/>
+    <circle cx="65" cy="78" r="22" fill="#ff8fa3" opacity=".8"/><path d="M29 136v-12q36-40 72 0v12" fill="#ff8fa3" opacity=".55"/>
+    <path d="M128 67h100M128 92h74M30 179h198M30 207h165M30 235h198" stroke="#f5f0df" stroke-width="9" opacity=".35"/>
+  </g>
+    <path d="M505 359H750" stroke="#ff8fa3" stroke-width="3" stroke-dasharray="8 10" opacity=".5"/>
+    <g filter="url(#datenschutz-glowf)"><path d="M843 202l154 56v111q0 113-154 170-154-57-154-170V258Z" fill="#17151d" stroke="url(#datenschutz-gold)" stroke-width="7"/></g>
+    <path d="M807 348v-36a36 36 0 0 1 72 0v36" fill="none" stroke="#ffd98a" stroke-width="13"/>
+    <path d="M792 343h102v86H792Z" fill="#eab448"/><circle cx="843" cy="376" r="11" fill="#18151b"/><path d="M843 381v21" stroke="#18151b" stroke-width="10"/>
+    <path d="M726 500l-33 14-15-35M976 196l30-21 18 31" fill="none" stroke="#ff8fa3" stroke-width="3"/>
+    <text x="640" y="609" text-anchor="middle" font-family="Inter,'DejaVu Sans',sans-serif" font-size="42" font-weight="900" fill="#ffd98a">DEINE DATEN. KEIN BUFFET.</text>
+    <text x="640" y="650" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="21" fill="#f5f0df" opacity=".7">Rechte verstehen. Fälle entscheiden.</text>
+  <rect width="1280" height="720" fill="url(#datenschutz-vignette)" pointer-events="none"/>
+</svg>

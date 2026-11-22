@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080c11"><title>C# Befehle und Erklärungen · DAU TO PRO</title><link rel="icon" href="../assets/dau-to-pro-pixelpilz.svg" type="image/svg+xml"><style>
+:root{color-scheme:dark;--bg:#080e17;--pane:#111b2b;--edge:#26384c;--txt:#e9f2f6;--muted:#a3b4c8;--gold:#e8b84a;--cyan:#70e4df}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--txt);background:radial-gradient(ellipse at 90% 0%,#15404477,transparent 42%),radial-gradient(ellipse at 0% 28%,#46361544,transparent 46%),var(--bg);font:16px/1.65 system-ui,"Segoe UI",sans-serif}main{max-width:1120px;margin:auto;padding:52px 22px 100px}.back{display:inline-block;color:var(--cyan);font-size:13px;text-decoration:none;font-weight:700;margin-bottom:25px}.eyebrow{color:var(--cyan);font-size:12px;letter-spacing:.23em;font-weight:800;text-transform:uppercase}h1{font-size:clamp(35px,6vw,65px);letter-spacing:-.06em;line-height:1.06;margin:13px 0}h1 span{color:var(--gold)}.intro{max-width:700px;color:var(--muted);font-size:18px}nav{display:flex;gap:10px;flex-wrap:wrap;margin:32px 0 55px}nav a{color:#d8e9ee;border:1px solid var(--edge);background:#152332aa;border-radius:40px;text-decoration:none;padding:10px 17px;font-size:14px;font-weight:700}nav a:hover{border-color:var(--cyan)}section{scroll-margin-top:28px;margin-top:58px}section>header{display:flex;align-items:baseline;gap:15px;border-bottom:1px solid var(--edge);padding-bottom:14px;margin-bottom:20px}section>header h2{font-size:29px;letter-spacing:-.04em;margin:0}section>header small{color:var(--cyan);font-size:12px;letter-spacing:.1em;font-weight:800}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{min-width:0;border:1px solid var(--edge);background:linear-gradient(145deg,#162437f2,#0b1522f2);border-radius:19px;padding:23px 23px 18px}.wide{grid-column:1/-1}.card h3{font-size:18px;margin:0 0 10px;color:#fff}.card p{font-size:14px;color:var(--muted);margin:12px 0 0}.card b{color:var(--cyan)}pre{margin:13px 0 0;background:#070e18;border-radius:12px;padding:17px;color:#e9cc94;overflow:auto;border:1px solid #23354a;line-height:1.55;font-size:13.6px}code{font-family:Consolas,monospace}p code{color:#a2eee9;background:#20303d;padding:1px 5px;border-radius:5px}.output{font-family:Consolas,monospace;color:#bfeac7;background:#112822;border-left:3px solid #6bc7a1;padding:10px 12px;margin:13px 0 0;border-radius:0 8px 8px 0;font-size:13px;white-space:pre-wrap}.hint{border-left:3px solid var(--gold);padding:13px 18px;background:#e8b84a10;border-radius:0 12px 12px 0;color:#e6d5a9;margin-top:19px;font-size:14px}.hint strong{color:var(--gold)}footer{color:#849aad;font-size:13px;border-top:1px solid var(--edge);margin-top:60px;padding-top:22px}@media(max-width:690px){main{padding:28px 15px 70px}.cards{grid-template-columns:1fr}.wide{grid-column:auto}.card{padding:19px}section{margin-top:40px}}
+</style></head><body><main>
+<a class="back" href="cheat-sheet.html?thema=csharp">← ZURÜCK ZUM C#-SPICKZETTEL</a>
+<div class="eyebrow">DAU TO PRO / SPICKZETTEL / C# GRUNDLAGEN</div><h1>Ein Thema.<br><span>Ein Spickzettel.</span></h1><p class="intro">C#-Befehle auf einen Blick: Variablen und Datentypen, Konsolenein- und -ausgabe sowie Typumwandlungen. Mit kurzen Beispielen und Erklärungen.</p>
+<nav aria-label="Themen"><a href="#typen">01 · Variablen &amp; Typen</a><a href="#konsole">02 · Konsole</a><a href="#umwandlungen">03 · Typumwandlungen</a></nav>
+<section id="typen"><header><small>01 / C#</small><h2>Variablen &amp; Typen</h2></header><div class="cards">
+<article class="card"><h3><code>string</code> – Text</h3><pre><code>string ort = "Büro";</code></pre><p>Speichert Text. Text steht in doppelten Anführungszeichen.</p></article>
+<article class="card"><h3><code>int</code> – Ganze Zahl</h3><pre><code>int minuten = 45;</code></pre><p>Speichert ganze Zahlen. <code>45</code> ist eine Zahl, <code>"45"</code> ist Text.</p></article>
+<article class="card"><h3><code>double</code> – Kommazahl</h3><pre><code>double temperatur = 21.5;</code></pre><p>Gleitkommazahl. In C# steht ein Punkt als Dezimaltrennzeichen; nicht jede Dezimalzahl ist exakt darstellbar.</p></article>
+<article class="card"><h3><code>bool</code> – Wahrheitswert</h3><pre><code>bool fertig = false;</code></pre><p>Hat zwei mögliche Werte: <code>true</code> und <code>false</code>.</p></article>
+<article class="card"><h3>Variable ändern</h3><pre><code>int minuten = 45;
+minuten = 60;
+Console.WriteLine(minuten);</code></pre><div class="output">60</div><p>Der neue Wert ersetzt den alten. Beim Ändern den Typ nicht erneut angeben.</p></article>
+<article class="card"><h3>Variable und Text ausgeben</h3><pre><code>int minuten = 45;
+Console.WriteLine(minuten);
+Console.WriteLine("minuten");
+Console.WriteLine("Minuten: " + minuten);</code></pre><div class="output">45
+minuten
+Minuten: 45</div><p>Ohne Anführungszeichen wird der Variablenwert ausgegeben. Mit Anführungszeichen steht wörtlicher Text. <code>+</code> verbindet hier Text und Wert.</p></article>
+</div><div class="hint"><strong>Merke:</strong> Der Variablentyp steht beim Anlegen fest. C# unterscheidet Groß- und Kleinschreibung; die Anweisungen enden mit <code>;</code>. Eine Zuweisung allein erzeugt keine Ausgabe.</div></section>
+<section id="konsole"><header><small>02 / C#</small><h2>Konsolenbefehle</h2></header><div class="cards">
+<article class="card"><h3><code>Console.Write()</code></h3><pre><code>Console.Write("Hallo ");
+Console.Write("Büro!");</code></pre><div class="output">Hallo Büro!</div><p>Gibt Text ohne nachfolgenden Zeilenumbruch aus.</p></article>
+<article class="card"><h3><code>Console.WriteLine()</code></h3><pre><code>Console.WriteLine("Hallo Büro!");
+Console.WriteLine("Nächste Zeile");
+Console.WriteLine();</code></pre><div class="output">Hallo Büro!
+Nächste Zeile</div><p>Gibt Text mit anschließendem Zeilenumbruch aus. Ohne Argument fügt es einen Zeilenumbruch ein.</p></article>
+<article class="card"><h3><code>Console.ReadLine()</code></h3><pre><code>Console.Write("Name: ");
+string? name = Console.ReadLine();
+Console.WriteLine("Hallo " + name);</code></pre><div class="output">Name: Ada
+Hallo Ada</div><p>Liest die gesamte Eingabezeile als Text, ohne Enter-Zeilenumbruch. Nur Enter ergibt leeren Text. <code>string?</code> erlaubt <code>null</code> bei Eingabeende.</p></article>
+<article class="card"><h3><code>Console.Read()</code></h3><pre><code>int code = Console.Read();
+Console.WriteLine(code);</code></pre><div class="output">65  // nach Eingabe von A</div><p>Liest den Zeichencode des nächsten Zeichens als <code>int</code>, nicht die eingegebene Zahl. <code>7</code> ergibt <code>55</code>; am Eingabeende folgt <code>-1</code>. Im üblichen Terminal ist Enter nötig.</p></article>
+</div><div class="hint"><strong>Unterschied:</strong> <code>ReadLine()</code> liest eine ganze Textzeile, <code>Read()</code> einen Zeichencode. <code>WriteLine()</code> wechselt danach die Zeile, <code>Write()</code> nicht.</div></section>
+<section id="umwandlungen"><header><small>03 / C#</small><h2>Typumwandlungen</h2></header><div class="cards">
+<article class="card"><h3>Implizit: <code>int</code> → <code>double</code></h3><pre><code>int anzahl = 7;
+double wert = anzahl;</code></pre><p>Die Umwandlung erfolgt ohne Cast. <code>wert</code> enthält 7 als <code>double</code>; <code>anzahl</code> bleibt eine <code>int</code>-Variable.</p></article>
+<article class="card"><h3>Explizit: <code>double</code> → <code>int</code></h3><pre><code>double messwert = 21.9;
+int ganz = (int)messwert;
+Console.WriteLine(ganz);</code></pre><div class="output">21</div><p><code>(int)</code> schneidet Nachkommastellen Richtung 0 ab. Auch <code>-21.9</code> wird zu <code>-21</code>. Das ist kein Runden; der Wert muss in den <code>int</code>-Bereich passen.</p></article>
+<article class="card wide"><h3>Vor dem Teilen umwandeln</h3><pre><code>int a = 7, b = 2;
+double genau = (double)a / b;       // 3,5
+double gekuerzt = (double)(a / b);  // 3</code></pre><p>Beim ersten Ausdruck wird vor der Division umgewandelt. Beim zweiten ergibt <code>int / int</code> zuerst 3. Der spätere Cast kann die abgeschnittenen Nachkommastellen nicht zurückholen.</p></article>
+<article class="card wide"><h3><code>Convert.ToDouble()</code> – Text in Zahl</h3><pre><code>string text = "12,5";
+double zahl = Convert.ToDouble(text);
+Console.WriteLine(zahl);</code></pre><div class="output">12,5  // bei deutscher Zahlenkultur</div><p>Interpretiert Zahlentext als <code>double</code>. Das Dezimaltrennzeichen hängt von der aktuellen Zahlenkultur ab: <code>12,5</code> bei de-DE, <code>12.5</code> bei en-US. Ungültiger oder leerer Text löst <code>FormatException</code> aus; <code>null</code> wird zu 0. <code>(double)text</code> funktioniert bei <code>string</code> nicht.</p></article>
+</div><div class="hint"><strong>Drei Wege:</strong> Implizit ohne Cast, explizit mit <code>(Zieltyp)</code> und Textkonvertierung mit <code>Convert.ToDouble()</code>. Der Typ der ursprünglichen Variablen bleibt unverändert.</div></section><footer>C# Grundlagen · Befehle, Beispiele und Erklärungen · DAU TO PRO</footer></main></body></html>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <radialGradient id="osi-modell-glow" cx="0.515625" cy="0.4583333333333333" r=".55">
+      <stop offset="0" stop-color="#c4a8ff" stop-opacity=".16"/>
+      <stop offset=".55" stop-color="#c4a8ff" stop-opacity=".035"/>
+      <stop offset="1" stop-color="#c4a8ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="osi-modell-warm" cx=".78" cy=".8" r=".6">
+      <stop offset="0" stop-color="#f39a2b" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#f39a2b" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="osi-modell-vignette" cx=".5" cy=".5" r=".75">
+      <stop offset=".55" stop-color="#000" stop-opacity="0"/>
+      <stop offset="1" stop-color="#000" stop-opacity=".62"/>
+    </radialGradient>
+    <linearGradient id="osi-modell-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff1bb"/><stop offset=".55" stop-color="#efc261"/><stop offset="1" stop-color="#cc8f25"/>
+    </linearGradient>
+    <linearGradient id="osi-modell-goldv" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe4a1"/><stop offset="1" stop-color="#d79a2c"/>
+    </linearGradient>
+    <linearGradient id="osi-modell-ray" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#d88120" stop-opacity=".2"/><stop offset=".5" stop-color="#ffd27a"/><stop offset="1" stop-color="#ff9c29" stop-opacity=".15"/>
+    </linearGradient>
+    <linearGradient id="osi-modell-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#16201f"/><stop offset="1" stop-color="#0c1215"/>
+    </linearGradient>
+    <pattern id="osi-modell-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#9fe9ef" stroke-opacity=".045" stroke-width="1"/>
+    </pattern>
+    <filter id="osi-modell-glowf" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="osi-modell-soft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="10"/></filter>
+  </defs>
+  <rect width="1280" height="720" fill="#080c0e"/>
+  <rect width="1280" height="720" fill="url(#osi-modell-grid)"/>
+  <rect width="1280" height="720" fill="url(#osi-modell-glow)"/>
+  <rect width="1280" height="720" fill="url(#osi-modell-warm)"/>
+  <g><path d="M-20 208 H224.5 L288.6 143.9 H413" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="413" cy="143.9" r="4" fill="#c4a8ff" fill-opacity=".35"/><path d="M1300 359.4 H1142.5 L1077.7 294.6 H1011.8" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="1011.8" cy="294.6" r="4" fill="#c4a8ff" fill-opacity=".35"/><path d="M-20 358.9 H209.5 L273.3 295.1 H375.9" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="375.9" cy="295.1" r="4" fill="#c4a8ff" fill-opacity=".35"/><path d="M1300 578.6 H1166.6 L1122.4 622.8 H994.8" stroke="#eab448" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="994.8" cy="622.8" r="4" fill="#eab448" fill-opacity=".35"/><path d="M-20 417.7 H180.7 L228.6 465.6 H333.8" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="333.8" cy="465.6" r="4" fill="#c4a8ff" fill-opacity=".35"/><path d="M1300 233 H1044.4 L998 186.6 H850" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="850" cy="186.6" r="4" fill="#c4a8ff" fill-opacity=".35"/><path d="M-20 587.6 H148 L189.9 545.7 H329.8" stroke="#c4a8ff" stroke-opacity=".16" stroke-width="2" fill="none"/><circle cx="329.8" cy="545.7" r="4" fill="#c4a8ff" fill-opacity=".35"/></g>
+  
+    <g stroke-linecap="round" fill="none">
+      <path d="M-140 780 L704 -140" stroke="#f39a2b" stroke-width="16" stroke-opacity=".08" filter="url(#osi-modell-soft)"/>
+      <path d="M-140 780 L704 -140" stroke="url(#osi-modell-ray)" stroke-width="2.4" stroke-opacity=".55"/>
+      <path d="M704 860 L1420 86.39999999999999" stroke="url(#osi-modell-ray)" stroke-width="1.6" stroke-opacity=".32"/>
+    </g>
+  
+  <g filter="url(#osi-modell-glowf)">
+    <polygon points="395,108 411,92 911,92 895,108" fill="#c4a8ff" fill-opacity="0.26"/>
+    <polygon points="895,108 911,92 911,146 895,162" fill="#c4a8ff" fill-opacity="0.16"/>
+    <rect x="395" y="108" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#c4a8ff" stroke-width="2"/>
+    <rect x="395" y="108" width="70" height="54" fill="#c4a8ff" fill-opacity="0.2"/>
+    <text x="430" y="147" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#c4a8ff">7</text>
+    <text x="491" y="145" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Anwendung</text>
+    <polygon points="395,175 411,159 911,159 895,175" fill="#c4a8ff" fill-opacity="0.26"/>
+    <polygon points="895,175 911,159 911,213 895,229" fill="#c4a8ff" fill-opacity="0.16"/>
+    <rect x="395" y="175" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#c4a8ff" stroke-width="2"/>
+    <rect x="395" y="175" width="70" height="54" fill="#c4a8ff" fill-opacity="0.2"/>
+    <text x="430" y="214" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#c4a8ff">6</text>
+    <text x="491" y="212" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Darstellung</text>
+    <polygon points="395,242 411,226 911,226 895,242" fill="#c4a8ff" fill-opacity="0.26"/>
+    <polygon points="895,242 911,226 911,280 895,296" fill="#c4a8ff" fill-opacity="0.16"/>
+    <rect x="395" y="242" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#c4a8ff" stroke-width="2"/>
+    <rect x="395" y="242" width="70" height="54" fill="#c4a8ff" fill-opacity="0.2"/>
+    <text x="430" y="281" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#c4a8ff">5</text>
+    <text x="491" y="279" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Sitzung</text>
+    <polygon points="395,309 411,293 911,293 895,309" fill="#ffd27a" fill-opacity="0.55"/>
+    <polygon points="895,309 911,293 911,347 895,363" fill="#ffd27a" fill-opacity="0.4"/>
+    <rect x="395" y="309" width="500" height="54" fill="#ffd27a" fill-opacity="0.9" stroke="#ffd27a" stroke-width="2"/>
+    <rect x="395" y="309" width="70" height="54" fill="#ffd27a" fill-opacity="0"/>
+    <text x="430" y="348" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#14110a">4</text>
+    <text x="491" y="346" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#14110a">Transport</text>
+    <polygon points="395,376 411,360 911,360 895,376" fill="#eab448" fill-opacity="0.26"/>
+    <polygon points="895,376 911,360 911,414 895,430" fill="#eab448" fill-opacity="0.16"/>
+    <rect x="395" y="376" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#eab448" stroke-width="2"/>
+    <rect x="395" y="376" width="70" height="54" fill="#eab448" fill-opacity="0.2"/>
+    <text x="430" y="415" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#eab448">3</text>
+    <text x="491" y="413" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Vermittlung</text>
+    <polygon points="395,443 411,427 911,427 895,443" fill="#eda23a" fill-opacity="0.26"/>
+    <polygon points="895,443 911,427 911,481 895,497" fill="#eda23a" fill-opacity="0.16"/>
+    <rect x="395" y="443" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#eda23a" stroke-width="2"/>
+    <rect x="395" y="443" width="70" height="54" fill="#eda23a" fill-opacity="0.2"/>
+    <text x="430" y="482" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#eda23a">2</text>
+    <text x="491" y="480" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Sicherung</text>
+    <polygon points="395,510 411,494 911,494 895,510" fill="#f39a2b" fill-opacity="0.26"/>
+    <polygon points="895,510 911,494 911,548 895,564" fill="#f39a2b" fill-opacity="0.16"/>
+    <rect x="395" y="510" width="500" height="54" fill="#0d1619" fill-opacity="1" stroke="#f39a2b" stroke-width="2"/>
+    <rect x="395" y="510" width="70" height="54" fill="#f39a2b" fill-opacity="0.2"/>
+    <text x="430" y="549" text-anchor="middle" font-family="'JetBrains Mono','DejaVu Sans Mono',monospace" font-size="34" font-weight="800" fill="#f39a2b">1</text>
+    <text x="491" y="547" font-family="Inter,'DejaVu Sans',sans-serif" font-size="27" font-weight="800" letter-spacing="-.5" fill="#f5f0df">Bitübertragung</text></g>
+  <path d="M300 112 V542" stroke="#c4a8ff" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <path d="M286 530 L300 552 L314 530" fill="none" stroke="#eab448" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M1000 560 V130" stroke="#eab448" stroke-width="3" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <path d="M986 142 L1000 120 L1014 142" fill="none" stroke="#c4a8ff" stroke-width="3.5" stroke-linejoin="round"/>
+  <rect x="282" y="154" width="36" height="22" rx="4" fill="#c4a8ff" fill-opacity=".85"/><rect x="275.7" y="288" width="48.6" height="22" rx="4" fill="#c4a8ff" fill-opacity=".85"/><rect x="269.4" y="422" width="61.2" height="22" rx="4" fill="#eab448" fill-opacity=".85"/><rect x="969.4" y="496" width="61.2" height="22" rx="4" fill="#f39a2b" fill-opacity=".85"/><rect x="975.7" y="362" width="48.6" height="22" rx="4" fill="#eab448" fill-opacity=".85"/><rect x="982" y="228" width="36" height="22" rx="4" fill="#c4a8ff" fill-opacity=".85"/>
+  <rect width="1280" height="720" fill="url(#osi-modell-vignette)" pointer-events="none"/>
+</svg>

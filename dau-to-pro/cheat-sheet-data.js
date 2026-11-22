@@ -1,0 +1,276 @@
+/* DAU TO PRO – eigenständige IHK-orientierte Themen-Spickzettel.
+   Keine offiziellen IHK-Fragen. Je Themengebiet EIN zusammenhängender Spickzettel mit acht kompakten Abschnitten. Keine 88 Einzelkarten. */
+globalThis.DTP_CHEAT_GROUPS=[
+{
+  "id": "csharp-schleifen",
+  "name": "C#-Schleifen",
+  "symbol": "i++",
+  "color": "#79e2ce",
+  "sections": [
+    [
+      "Welche Schleife nehme ich?",
+      "Entscheide zuerst, was sich wiederholt und wodurch der Ablauf endet.",
+      "for::Anzahl, Zahlenfolge oder Index steuern, z. B. zehn Ports aus einem Array anzeigen.|while::Vor jedem Durchlauf prüfen, z. B. solange noch Tickets in der Warteschlange stehen.|do … while::Zuerst ausführen, danach prüfen, z. B. ein Menü mindestens einmal anzeigen.|foreach::Jedes Element einer Sammlung lesen oder bearbeiten, z. B. Geräte aus einer Liste ausgeben.",
+      "Ich will jedes Element einer Liste ausgeben. Welche Schleife ist am direktesten?",
+      "foreach. Du arbeitest unmittelbar mit dem aktuellen Element."
+    ],
+    [
+      "for – Zähler und Index",
+      "Initialisierung einmal → Bedingung → Block → Änderung → erneute Bedingung.",
+      "Syntax::for (int i = 0; i < 3; i++) { Console.WriteLine(i); }|Ablauf::Ausgabe 0, 1, 2. Bei i = 3 schlägt der Test fehl. Der Block kann nullmal laufen.|Schrittweite::i += 2 springt in Zweierschritten. Für einen Countdown z. B. bei 3 starten, i > 0 prüfen und i-- verwenden.|Gültigkeit::Ein im for-Kopf deklariertes i ist nur innerhalb der for-Anweisung sichtbar.",
+      "Welche Werte liefert for (int i = 1; i <= 5; i += 2)?",
+      "1, 3 und 5. Danach ist i = 7 und der Test ist falsch."
+    ],
+    [
+      "while – Bedingung zuerst",
+      "Solange die Bedingung true ist, läuft der Block. Die Entscheidung fällt jedes Mal vorher.",
+      "Syntax::int n = 3; while (n > 0) { Console.WriteLine(n); n--; }|Ablauf::Ausgabe 3, 2, 1. Bei n = 0 endet die Schleife.|Abbruch::Der Block oder ein darin aufgerufener Vorgang muss die Bedingung irgendwann ändern, sofern kein break oder return vorgesehen ist.|Typischer Einsatz::Eine Warteschlange abarbeiten, bis sie leer ist. Eine leere Warteschlange wird sofort erkannt.",
+      "Wie oft läuft der Block, wenn n anfangs 0 ist?",
+      "Nullmal. n > 0 ist schon beim ersten Test falsch."
+    ],
+    [
+      "do … while – Block zuerst",
+      "Der erste Durchlauf findet immer statt. Danach entscheidet die Bedingung über weitere Durchläufe.",
+      "Syntax::int n = 0; do { Console.WriteLine(n); n++; } while (n < 0);|Ablauf::Ausgabe 0. Erst dann wird mit n = 1 geprüft. 1 < 0 ist false.|Syntaxfalle::Das Semikolon nach while (Bedingung) gehört bei do … while dazu.|Typischer Einsatz::Eingabe holen, prüfen und wiederholen, solange sie ungültig ist. Bei Console.ReadLine() das Eingabeende null behandeln.",
+      "Was passiert bei do { Aktion(); } while (false);?",
+      "Aktion() läuft genau einmal. Danach ist die Bedingung false."
+    ],
+    [
+      "foreach – Die Elemente einer Sammlung",
+      "C# holt nacheinander das nächste Element und stoppt nach dem letzten. Das funktioniert z. B. mit Arrays und Listen.",
+      "Syntax::int[] zahlen = { 2, 4, 6 }; foreach (int zahl in zahlen) { Console.WriteLine(zahl); }|Ablauf::Ausgabe 2, 4, 6. Bei einer leeren Sammlung erfolgt keine Ausgabe.|Index::zahl enthält den Wert. Die Position steht nur zur Verfügung, wenn du sie selbst mitzählst oder per for darauf zugreifst.|Änderungen::Bei einem gewöhnlichen foreach kannst du der Iterationsvariablen keinen neuen Wert zuweisen. Eine List<T> während der Iteration zu erweitern oder zu kürzen führt beim weiteren Durchlaufen gewöhnlich zu InvalidOperationException.|Alternative::Für direkte Änderungen eines Arrays über seine Position verwende for und weise array[i] einen Wert zu.",
+      "Wofür steht var in foreach (var item in liste)?",
+      "Der Compiler leitet den Typ von item aus dem Elementtyp der Sammlung ab."
+    ],
+    [
+      "Bedingungen und Änderungen lesen",
+      "Schreib pro Schritt den Wert vor der Prüfung, das Testergebnis, die Ausgabe und den Wert danach auf.",
+      "Vergleich::< schließt den Grenzwert aus, <= schließt ihn ein. == vergleicht, = weist zu.|Logik::&& verlangt zwei wahre Teilausdrücke, || mindestens einen. ! kehrt einen bool-Wert um. C# wertet bei && und || rechts nur aus, wenn es für das Ergebnis nötig ist.|Änderung::i++ erhöht i um 1. i-- senkt i um 1. In Console.WriteLine(i++) wird der alte Wert ausgegeben, bei ++i der bereits erhöhte.|Summe::int summe = 0; vor der Schleife. summe += zahl; im Block. Sonst setzt eine erneute Initialisierung im Block den Zwischenstand zurück.",
+      "i startet bei 0. Was gibt Console.WriteLine(i++) aus, und wie groß ist i danach?",
+      "Die Ausgabe ist 0. Danach ist i gleich 1."
+    ],
+    [
+      "break, continue und return",
+      "Mit diesen Anweisungen kann der normale Weg durch die Schleife vorzeitig abbiegen.",
+      "break::Verlässt die unmittelbar umgebende Schleife oder das unmittelbar umgebende switch.|continue::Überspringt den Rest des aktuellen Schleifendurchlaufs. for führt dann seine Änderung aus, while und do … while prüfen die Bedingung, foreach holt das nächste Element.|return::Beendet die ganze aktuelle Methode. Bei einer Methode mit Rückgabewert gibst du den Wert mit return zurück.|Falle::Liegt bei while das i++ erst hinter einem continue, kann i unverändert bleiben und die Schleife hängen.",
+      "Der innere Block zweier verschachtelter Schleifen enthält break. Welche Schleife endet?",
+      "Die innere Schleife. Die äußere läuft nach dem inneren Block weiter."
+    ],
+    [
+      "Typische Fehler und Grenzfälle",
+      "Prüfe, welche Werte die Schleife erreicht, und teste insbesondere leere Daten und Grenzwerte.",
+      "Array-Grenze::Gültige Indizes reichen von 0 bis Length − 1. Verwende i < array.Length beim Vorwärtslauf. Bei List<T> heißt die Anzahl Count.|Endlosschleife::Fehlendes Update, falsche Zählrichtung oder eine Bedingung, die immer wahr bleibt. for (;;) und while (true) können absichtlich endlos laufen und über break oder return verlassen werden.|Leeranweisung::Ein Semikolon direkt nach for (...) oder while (...) bildet einen leeren Schleifenkörper. Ein nachfolgender Block gehört dann nicht zur Schleife.|Null::Eine leere Sammlung hat null Elemente. Eine Variable mit null verweist auf keine Sammlung. Prüfe die Referenz, bevor du sie durchläufst.|Verschachtelung::Bei drei äußeren und zwei inneren Durchläufen pro Runde läuft der innere Block sechsmal. Bei wechselnden Grenzen die Durchläufe einzeln addieren.",
+      "Warum scheitert ein Array-Zugriff bei i == array.Length?",
+      "Length ist die Anzahl. Der letzte gültige Index ist Length − 1. Der Zugriff wirft IndexOutOfRangeException."
+    ],
+    [
+      "Schleifen in Methoden einsetzen",
+      "Eine Methode bündelt eine Aufgabe. Die Schleife darin wiederholt nur den benötigten Arbeitsschritt.",
+      "Beispiel::static int Summe(int[] zahlen) { int ergebnis = 0; foreach (int zahl in zahlen) { ergebnis += zahl; } return ergebnis; }|Parameter::zahlen ist die Eingabe der Methode. Beim Aufruf Summe(new[] { 2, 4 }) hat der Rückgabewert den Wert 6.|Akkumulator::ergebnis sammelt die Zwischensumme außerhalb des Schleifenblocks. return nach der Schleife liefert das komplette Resultat.|Frühe Rückgabe::Bei einer Suche kannst du innerhalb von foreach direkt true zurückgeben, sobald du einen Treffer findest. Nach der Schleife gibst du false zurück.",
+      "Was liefert die gezeigte Methode mit einem leeren Array?",
+      "0. foreach hat null Durchläufe. ergebnis behält seinen Startwert."
+    ]
+  ]
+},
+{
+  "id": "datenbanken",
+  "name": "Datenbanken & SQL",
+  "symbol": "SQL",
+  "color": "#89b4fa",
+  "sections": [
+    [
+      "Datenbank und DBMS",
+      "Vom Programm zur gespeicherten Zeile.",
+      "Datenbank::Datenbestand mit Struktur.|DBMS::Verwaltet Daten, Abfragen, Regeln und Zugriffe.|SQL::Sprache für Abfragen und Änderungen.",
+      "Was verarbeitet die SQL-Anfrage einer Web-App?",
+      "Das DBMS nimmt sie entgegen, prüft und führt sie aus.",
+      "PostgreSQL ist ein DBMS. SQL ist die Sprache.",
+      "GRUNDLAGEN"
+    ],
+    [
+      "Modelle und Einsatz",
+      "Wähle nach Daten, Regeln und typischen Zugriffen.",
+      "Relational::Tabellen und Beziehungen über Schlüssel.|Dokument::Verschachtelte Datensätze, z. B. MongoDB.|Graph::Knoten und Kanten, z. B. Neo4j.|Schlüssel-Wert::Direkter Zugriff über einen Schlüssel.",
+      "Welches eingebettete SQL-System passt oft zur lokalen Einzelplatz-App?",
+      "SQLite. Die Engine läuft in der App.",
+      "Cloud-Betrieb ist eine Betriebsform. Das Datenmodell ist eine eigene Entscheidung.",
+      "VERGLEICH"
+    ],
+    [
+      "Schlüssel und ER-Modell",
+      "Beziehungen werden aus fachlichen Regeln abgeleitet.",
+      "Primärschlüssel::Eindeutig und ohne NULL.|Fremdschlüssel::Sichert einen zulässigen Verweis.|1:n::Fremdschlüssel auf der n-Seite.|n:m::Zwischentabelle für die Schlüsselpaare.",
+      "Wie setzt du Ticket ↔ Tag bei n:m um?",
+      "Zwischentabelle ticket_tag mit zwei Fremdschlüsseln, z. B. mit dem Paar als Primärschlüssel.",
+      "UNIQUE auf einem Fremdschlüssel begrenzt die Zahl der Zeilen pro Ziel auf höchstens eins.",
+      "MODELLIERUNG"
+    ],
+    [
+      "Normalformen",
+      "Abhängigkeiten bestimmen, wohin ein Feld gehört.",
+      "1NF::Einzelwerte, keine Wiederholungsgruppen.|2NF::Nichtschlüsselfelder hängen vom ganzen Kandidatenschlüssel ab.|3NF::Im einfachen Fall keine transitiven Abhängigkeiten über Nichtschlüsselfelder.",
+      "Was tun, wenn teamname in ticket nur von team_id abhängt?",
+      "Teamname in team pflegen. ticket speichert den Bezug per team_id.",
+      "Eine neue künstliche ID allein beseitigt fachliche Abhängigkeiten nicht.",
+      "ENTWURF"
+    ],
+    [
+      "SELECT und Filter",
+      "Spalten, Zeilen und Reihenfolge getrennt bestimmen.",
+      "SELECT::Ausgabespalten.|WHERE::Zeilenfilter.|ORDER BY::Sortierung, DESC absteigend.|IS NULL::Fehlende Werte erkennen.",
+      "Wie findest du Tickets ohne eingetragene Minuten?",
+      "SELECT id FROM ticket WHERE minuten IS NULL;",
+      "Ohne ORDER BY gibt es keine garantierte Reihenfolge.",
+      "SQL"
+    ],
+    [
+      "Gruppen und JOINs",
+      "Zeilen filtern, kombinieren und zusammenfassen.",
+      "GROUP BY::Bildet Gruppen.|HAVING::Filtert Gruppen.|INNER JOIN::Nur passende Zeilenpaare.|LEFT JOIN::Behält linke Zeilen ohne Treffer.",
+      "Welches COUNT liefert im LEFT JOIN für ein Team ohne Tickets 0?",
+      "COUNT(ticket.id), wenn ticket.id der rechte Primärschlüssel ist.",
+      "COUNT(*) zählt auch die ergänzte Zeile mit NULL rechts mit.",
+      "ABFRAGEN"
+    ],
+    [
+      "Daten und Schema ändern",
+      "Änderungen eingrenzen und vor der Freigabe prüfen.",
+      "INSERT / UPDATE / DELETE::Zeilen einfügen, ändern, löschen.|CREATE / ALTER::Objekte anlegen oder Schema ändern.|COMMIT / ROLLBACK::Offene Transaktion übernehmen oder zurücknehmen.",
+      "Was trifft UPDATE ohne WHERE bei erfolgreicher Ausführung?",
+      "Alle Zeilen der Zieltabelle.",
+      "Vor UPDATE oder DELETE den Filter im passenden SELECT prüfen.",
+      "ÄNDERUNGEN"
+    ],
+    [
+      "Betrieb und Wiederherstellung",
+      "Datenschutzregeln, Performance und Ausfall getrennt betrachten.",
+      "Index::Kann passende Zugriffe beschleunigen.|Rollen::Nur die nötigen Rechte vergeben.|Backup::Wiederherstellung ausprobieren.|Replikation::Weitere Kopie aktuell halten.",
+      "Warum reicht eine aktuelle Replik nach einer versehentlichen Löschung oft nicht?",
+      "Die Löschung kann bereits repliziert worden sein. Eine getrennte Sicherung ermöglicht die Wiederherstellung.",
+      "Ein erfolgreicher Backup-Job beweist noch keinen erfolgreichen Restore.",
+      "BETRIEB"
+    ]
+  ]
+},
+{
+ id:"zahlen",name:"Zahlensysteme",symbol:"01",color:"#f4aa5b",sections:[
+ ["Bit, Byte & Co.","Die Einheiten entscheiden, ob deine Rechnung stimmt.","Bit::Kleinste Informationseinheit, 0 oder 1.|Byte::1 Byte = 8 Bit.|Größen::kB/MB sind nicht dasselbe wie kbit/Mbit.","Wie viele Bit sind 12 Byte?","12 × 8 = 96 Bit.","Großes B = Byte, kleines b = Bit. Klingt klein, macht Faktor 8.","BASIS"],
+ ["Binär → Dezimal","Jedes gesetzte Bit zählt seinen Stellenwert.","Stellenwerte::128 · 64 · 32 · 16 · 8 · 4 · 2 · 1.|Regel::Werte der Einsen addieren.|Beispiel::10101100₂ = 128 + 32 + 8 + 4 = 172.","Welcher Dezimalwert steckt hinter 11001010₂?","128 + 64 + 8 + 2 = 202.","Nicht die Anzahl der Einsen zählen. Die Stellen haben unterschiedliche Gewichte.","RECHNEN"],
+ ["Dezimal → Binär","Wiederholt durch 2 teilen und die Reste rückwärts lesen.","Methode::Durch 2 teilen, Rest (0/1) merken.|Reihenfolge::Reste vom letzten zum ersten lesen.|Kontrolle::Ergebnis mit Zweierpotenzen zurückrechnen.","Wie lautet 13 dezimal als Binärzahl?","13 = 8 + 4 + 1 → 1101₂.","Reste von oben nach unten ablesen ergibt fast garantiert Murks.","RECHNEN"],
+ ["Hexadezimal","Vier Binärstellen passen genau in eine Hex-Ziffer.","Zeichen::0–9 und A–F; A = 10, F = 15.|Gruppen::4 Bit = 1 Hex-Ziffer; 8 Bit = 2 Hex-Ziffern.|Beispiel::1111 1010₂ = FA₁₆.","Wofür steht 2F₁₆ in Dezimal?","2 × 16 + 15 = 47.","A in Hex bedeutet zehn, nicht den Buchstaben aus dem Alphabettest.","RECHNEN"],
+ ["SI vs. IEC","Speicherangaben benutzen zwei verschiedene Tausender.","Dezimal::1 kB = 1.000 B; 1 MB = 1.000.000 B.|Binär::1 KiB = 1.024 B; 1 MiB = 1.048.576 B.|Praxis::Hersteller und Betriebssysteme zeigen teils verschiedene Einheiten.","Wie viele Byte sind 2 MiB?","2 × 1.048.576 = 2.097.152 Byte.","MB und MiB nicht stillschweigend gleichsetzen.","RECHNEN"],
+ ["Übertragungszeit","Datenmenge und Datenrate müssen dieselbe Einheit haben.","Formel::Zeit = Datenmenge in Bit / Rate in bit/s.|Umrechnung::1 MB = 8 Mbit bei dezimalen Einheiten.|Realität::Protokolloverhead und Auslastung kosten Zeit.","Wie lange dauern 100 MB bei 100 Mbit/s ideal?","100 × 8 / 100 = 8 Sekunden.","100 MB sind nicht 100 Mbit. Der Faktor 8 winkt schon.","RECHNEN"],
+ ["Zweierkomplement","Negative Ganzzahlen im Binärformat darstellen.","8-Bit-Bereich::-128 bis +127 bei vorzeichenbehafteten Ganzzahlen.|Negativ bilden::Bits invertieren und 1 addieren.|Beispiel::-5 in 8 Bit = 11111011.","Warum ist 11111111 als signed 8 Bit gleich -1?","Im Zweierkomplement steht dieses Bitmuster für -1.","Das höchste Bit ist beim signed-Typ Teil des Vorzeichens.","WISSEN"],
+ ["Textcodierung","Zeichen sind Zahlen – aber der Zeichensatz entscheidet.","ASCII::Klassischer 7-Bit-Zeichensatz mit 128 Codes.|Unicode::Definiert Zeichen über viele Schriftsysteme hinweg.|UTF-8::Variable Codierung mit 1 bis 4 Byte pro Unicode-Codepunkt.","Braucht jedes UTF-8-Zeichen ein Byte?","Nein. ASCII-Zeichen meist 1 Byte, andere Codepunkte bis 4.","UTF-8 ist eine Codierung, Unicode der Zeichensatz-Standard.","WISSEN"]
+]},
+{
+ id:"osi",name:"OSI-Modell",symbol:"07",color:"#6cdad4",sections:[
+ ["Die sieben Schichten","Ein Ordnungsmodell, kein echter Netzwerkapparat.","7–5::Anwendung, Darstellung, Sitzung.|4–3::Transport, Vermittlung/Netzwerk.|2–1::Sicherung, Bitübertragung.","Auf welcher Schicht arbeitet IP?","Auf Schicht 3 (Vermittlungs-/Netzwerkschicht).","Ein Protokoll muss nicht exakt in nur eine OSI-Schublade passen.","BASIS"],
+ ["Kapselung","Jede Schicht ergänzt ihre Steuerinformationen.","Transport::TCP-Segment oder UDP-Datagramm.|Netzwerk::IP-Paket mit Quell- und Ziel-IP.|Sicherung::Ethernet-Frame mit MAC-Adressen.","In welcher Reihenfolge wird beim Senden gekapselt?","Anwendungsdaten → Transport → IP-Paket → Frame → Bits.","MAC- und IP-Adressen erfüllen verschiedene Aufgaben.","WISSEN"],
+ ["OSI und TCP/IP","Zwei Modelle beschreiben denselben Kommunikationsweg.","TCP/IP-Anwendung::Fasst OSI-Schichten 5–7 zusammen.|TCP/IP-Transport::Entspricht grob OSI-Schicht 4.|TCP/IP-Internet/Zugang::Internet ≈ OSI 3; Netzzugang ≈ OSI 1–2.","Wie viele Schichten nutzt das gebräuchliche TCP/IP-Modell?","Häufig vier: Anwendung, Transport, Internet, Netzzugang.","Nicht jedes Lehrbuch zeichnet TCP/IP mit derselben Schichtenzahl.","WISSEN"],
+ ["Switch vs. Router","Zwei Geräte, zwei Adresswelten.","Switch::Lernt MAC-Adressen und leitet Ethernet-Frames im LAN.|Router::Entscheidet anhand von IP-Präfixen zwischen Netzwerken.|VLAN::Ein verwalteter Switch kann mehrere logische LANs trennen.","Warum braucht VLAN 10 für VLAN 20 einen Router oder Layer-3-Switch?","Weil die Kommunikation zwischen verschiedenen IP-Netzen geroutet werden muss.","Ein normaler Layer-2-Switch routet nicht einfach nebenbei.","PRAXIS"],
+ ["TCP und UDP","Beide liefern Transportdienste – mit anderer Philosophie.","TCP::Verbindungsorientiert; Reihenfolge und Wiederholung gesichert.|UDP::Verbindungslos, geringer Overhead, keine eigene Zustellgarantie.|Anwendung::Echtzeit wählt oft UDP; Dateiübertragung häufig TCP.","Warum wird bei VoIP oft UDP verwendet?","Verspätete Sprachpakete bringen beim Telefonieren kaum Nutzen.","UDP ist nicht pauschal schneller; die Anforderungen entscheiden.","WISSEN"],
+ ["MAC, IP, Port","Drei Begriffe, die Prüfungen gern vermischen.","MAC::Adressierung auf der lokalen Ethernet-Verbindung.|IP::Logische Adressierung und Routing zwischen Netzwerken.|Port::Zuordnung zu Diensten/Prozessen auf einem Host.","Was identifiziert 192.0.2.7:443?","Die IP-Adresse eines Hosts und den Port eines Dienstes.","443 ist kein IP-Teil, sondern eine Portnummer.","BASIS"],
+ ["Fehler je Schicht","Die Schichten helfen beim Eingrenzen.","Schicht 1::Kabel, Stecker, Link, Signal.|Schicht 2–3::VLAN, MAC, IP, Gateway, Routing.|Schicht 4–7::Ports, Firewall, TLS, Anwendung, DNS.","Ein Netzwerkkabel ist nicht eingesteckt. Welche Schicht zuerst prüfen?","Schicht 1: physische Verbindung.","Nicht zuerst den DNS-Server opfern, wenn das Kabel fehlt.","PRAXIS"],
+ ["PDU und Geräte","Welche Dateneinheit gehört wohin?","Schicht 4::Segment (TCP), Datagramm (UDP).|Schicht 3::Paket (IP).|Schicht 2::Frame (Ethernet).","Welche Dateneinheit verarbeitet ein Ethernet-Switch typischerweise?","Frames auf Schicht 2.","Frame und Paket sind nicht synonym – auch wenn's im Alltag passiert.","WISSEN"]
+]},
+{
+ id:"subnet",name:"Subnetting",symbol:"/24",color:"#89df8a",sections:[
+ ["CIDR verstehen","Der Präfix sagt, wie viele IPv4-Bits zum Netz gehören.","IPv4::Insgesamt 32 Bit pro Adresse.|/24::24 Netzbits und 8 Hostbits.|Maske::/24 = 255.255.255.0; /26 = 255.255.255.192.","Wie viele Hostbits besitzt ein /27-Netz?","32 − 27 = 5 Hostbits.","Die 27 ist keine Anzahl von Geräten, sondern von Netzbits.","RECHNEN"],
+ ["Präfix-Merktabelle","Die häufigsten Werte auswendig spart Zeit.","/25–/26::128 / 64 Adressen je Subnetz.|/27–/28::32 / 16 Adressen je Subnetz.|/29–/30::8 / 4 Adressen je Subnetz.","Wie viele nutzbare Hosts hat ein klassisches /28?","16 Adressen minus Netz und Broadcast = 14 Hosts.","Die bekannte Minus-2-Regel gilt nicht uneingeschränkt bei /31 und /32.","RECHNEN"],
+ ["Sprungweite","Ermittle die Subnetzgrenzen blitzschnell.","Formel::256 − Maskenwert des maßgeblichen Oktetts.|/27::Maske .224 → Sprungweite 32.|Grenzen::0, 32, 64, 96, 128, 160, 192, 224.","In welchem /27-Netz liegt 192.168.10.70?","Im Bereich .64 bis .95, also Netz 192.168.10.64/27.","Die Sprungweite gehört zum variablen Oktett, nicht beliebig zum letzten.","RECHNEN"],
+ ["Netzadresse","Netzbits behalten, alle Hostbits auf null setzen.","Methode::IP-Adresse bitweise mit der Maske UND-verknüpfen.|Beispiel::192.168.4.141/26 gehört zu 192.168.4.128.|Kontrolle::Netzadresse ist erste Adresse des Bereichs.","Netzadresse von 10.0.5.200/27?","10.0.5.192/27.","Die Netzadresse darf bei klassischen Netzen nicht an einen Host.","RECHNEN"],
+ ["Broadcast & Hosts","Die letzte Adresse des klassischen IPv4-Subnetzes.","Broadcast::Alle Hostbits auf 1.|Erster Host::Netzadresse + 1.|Letzter Host::Broadcast − 1.","Hostbereich von 192.168.1.64/27?","192.168.1.65 bis 192.168.1.94; Broadcast .95.","Broadcast ist nicht das Standardgateway – auch wenn die Zahlen nah liegen.","RECHNEN"],
+ ["Benötigte Größe","Plane das kleinste passende Subnetz.","Formel::2^h − 2 ≥ benötigte Hosts (klassische Subnetze).|30 Hosts::h = 5 → 32 Adressen → /27.|60 Hosts::h = 6 → 64 Adressen → /26.","Welches Präfix ist für 45 Hosts mindestens nötig?","/26 mit 62 nutzbaren Hostadressen.","Ein /27 liefert nur 30 Hosts. Optimismus erzeugt keine IPs.","RECHNEN"],
+ ["VLSM","Verschiedene Subnetzgrößen sinnvoll kombinieren.","Planung::Größtes benötigtes Subnetz zuerst.|Grenzen::Jedes Teilnetz beginnt auf seiner passenden Blockgrenze.|Dokumentation::Netzadresse, Präfix, Bereich, Gateway festhalten.","Warum große Subnetze zuerst vergeben?","So lassen sich Adressblöcke ohne Überschneidung leichter einteilen.","Ein /26 kann nicht an jeder beliebigen IPv4-Adresse beginnen.","PRAXIS"],
+ ["/31 und /32","Die wichtige Ausnahme zur Minus-2-Regel.","/31::Für Punkt-zu-Punkt-Links sind beide Adressen nutzbar (RFC 3021).|/32::Bezeichnet genau eine einzelne IPv4-Adresse.|Kontext::Prüfungsaufgaben nennen meist klassische LAN-Subnetze.","Hat ein /31 grundsätzlich null nutzbare Endpunkte?","Nein. Bei Punkt-zu-Punkt-Verbindungen sind beide nutzbar.","Minus zwei ist eine Faustregel für gewöhnliche IPv4-LANs, kein Naturgesetz.","WISSEN"]
+]},
+{
+ id:"netzwerk",name:"Netzwerk",symbol:"LAN",color:"#e1c16d",sections:[
+ ["Switch und MAC-Tabelle","Der Switch lernt, an welchem Port welche MAC hängt.","Lernen::Absender-MAC und Eingangsport merken.|Bekanntes Ziel::Frame gezielt weiterleiten.|Unbekanntes Ziel::Im VLAN an weitere Ports fluten.","Was macht der Switch mit einer unbekannten Ziel-MAC?","Er flutet den Frame im betreffenden VLAN, außer am Eingangsport.","Broadcast und unbekannter Unicast sind nicht dasselbe.","WISSEN"],
+ ["Gateway und Routing","Ohne Route bleibt das Paket im falschen Netz.","Lokal::Ziel im eigenen Subnetz → direkte Zustellung.|Fremdnetz::Ziel außerhalb → an Next Hop/Default Gateway.|Route::Längstes passendes Präfix gewinnt.","Wohin sendet ein PC ein Paket zu einer externen IP?","An die MAC-Adresse des nächsten Routers (Default Gateway), sofern die Route so lautet.","Die Ziel-IP bleibt beim Routing grundsätzlich die des Empfängers.","PRAXIS"],
+ ["VLAN-Grundlagen","Ein physisches Netz, mehrere logische Broadcast-Domänen.","Access-Port::Transportiert in der Regel ein ungetaggtes VLAN.|Trunk::Transportiert mehrere VLANs meist per 802.1Q-Tag.|Inter-VLAN::Benötigt Routing zwischen IP-Netzen.","Dürfen Geräte in VLAN 10 und 20 ohne Routing direkt kommunizieren?","Normalerweise nein: Die Layer-2-Broadcast-Domänen sind getrennt.","VLAN ist Segmentierung, keine automatische Sicherheitsgarantie.","WISSEN"],
+ ["NAT und PAT","Private Adressen teilen oft eine öffentliche IPv4-Adresse.","NAT::Übersetzt IP-Adressen an Netzgrenzen.|PAT/NAPT::Übersetzt zusätzlich Ports; viele Clients nutzen eine öffentliche IP.|Private Bereiche::10/8, 172.16/12, 192.168/16.","Wie kommen mehrere private PCs über eine öffentliche IPv4 ins Internet?","Häufig mit PAT: unterschiedliche Quellport-Zuordnungen.","NAT verschlüsselt nichts und ersetzt keine Firewall.","WISSEN"],
+ ["ARP bei IPv4","Erst die MAC kennen, dann kann der Frame los.","Aufgabe::IPv4-Adresse im lokalen Netz einer MAC-Adresse zuordnen.|Anfrage::ARP-Request als Broadcast im lokalen Layer-2-Netz.|Antwort::ARP-Reply liefert passende MAC-Adresse.","Welche MAC ermittelt ein PC für ein fremdes IPv4-Netz?","Die des nächsten Routers/Gateways, nicht die des entfernten Servers.","ARP funktioniert lokal, nicht als Internet-Auskunft.","PRAXIS"],
+ ["WLAN auf einen Blick","Funk braucht mehr als ein tolles Balkensymbol.","2,4 GHz::Mehr Reichweite, meist stärker belegt.|5 GHz / 6 GHz::Mehr Spektrum, oft höherer Durchsatz, meist kürzere Reichweite.|Sicherheit::WPA2-AES oder WPA3; WEP ist veraltet.","Warum kann WLAN trotz vollem Empfang langsam sein?","Störungen, Kanalbelegung, Funkstandard, Airtime und Auslastung.","Signalstärke ist nicht automatisch Datendurchsatz.","WISSEN"],
+ ["Kupfer, Glasfaser, PoE","Das Medium muss Strecke und Einsatz erfüllen.","Kupfer::Typische Ethernet-Kanalstrecke bis 100 m, häufig 90 m fest + 10 m Patch.|Glasfaser::Große Distanzen, elektrisch isolierend, EMV-unempfindlich.|PoE::Versorgt geeignete Geräte über Datenkabel mit Strom.","Welches Medium eignet sich für lange Strecken und hohe EMV-Belastung?","Glasfaser.","Nicht jede Kabelkategorie kann jede Datenrate über 100 m garantieren.","WISSEN"],
+ ["Netzwerktopologien","Die Struktur entscheidet über Kosten und Ausfälle.","Stern::Ausfall eines Endgerätekabels betrifft meist nur diesen Teilnehmer.|Bus::Gemeinsames Medium, Fehler oft mit großer Wirkung.|Vermascht::Redundanz, dafür höhere Kosten und Komplexität.","Was ist ein Nachteil der Sterntopologie?","Die zentrale Komponente kann zum Single Point of Failure werden.","Physische und logische Topologie können voneinander abweichen.","WISSEN"]
+]},
+{
+ id:"ipv6",name:"IPv6",symbol:"::",color:"#a5a0ff",sections:[
+ ["IPv6-Aufbau","128 Bit, acht hexadezimale Gruppen.","Format::8 Gruppen à 16 Bit, getrennt durch Doppelpunkte.|Präfix::Übliche LAN-Präfixlänge ist /64.|Beispiel::2001:db8:1:2:0:0:0:1 (2001:db8::/32 ist Dokumentation).","Wie viele Bit stecken in einer IPv6-Adresse?","128 Bit; eine normale ausgeschriebene Adresse hat acht Gruppen.","Sechs Gruppen ohne :: ergeben keine vollständige IPv6-Adresse.","BASIS"],
+ ["IPv6 kürzen","Weniger schreiben, nichts dazuerfinden.","Führende Nullen::In jeder Gruppe dürfen führende Nullen entfallen.|Nullergruppen::Eine zusammenhängende Folge kann durch :: ersetzt werden.|Regel::Nur ein einziges :: pro Adresse erlaubt.","Kürze 2001:0db8:0000:0000:0000:0000:0000:0001.","2001:db8::1.","Ein einzelnes 0-Feld wird in der kanonischen Schreibweise nicht mit :: gekürzt.","RECHNEN"],
+ ["IPv6 wieder auffüllen","Aus :: müssen wieder insgesamt acht Gruppen werden.","Zählen::Gruppen links und rechts von :: zählen.|Ergänzen::Fehlende Nullgruppen bis insgesamt acht auffüllen.|Schreiben::Jede Gruppe bei Bedarf auf vier Hex-Ziffern ergänzen.","Wie viele Nullgruppen verbirgt 2001:db8::5?","8 − 2 − 1 = 5 Gruppen mit 0000.","Nicht erst sechs Gruppen hinschreiben und sie dann passend nennen.","RECHNEN"],
+ ["IPv6-Adresstypen","An den Präfixen erkennst du die Rolle.","Global Unicast::2000::/3 (öffentlich routbarer Adressbereich).|Link-Local::fe80::/10, nur für den lokalen Link.|ULA::fc00::/7, meist fd00::/8 lokal genutzt.","Was bedeutet eine Adresse aus fe80::/10?","Link-Local: gilt auf dem lokalen Link und wird nicht über Router weitergeleitet.","IPv6 hat kein Broadcast; es nutzt unter anderem Multicast.","WISSEN"],
+ ["Gateway mit fe80::","Ein Standardgateway darf eine Link-Local-Adresse haben.","Router Advertisement::Router kündigt sich mit ICMPv6 an.|Next Hop::Häufig die Link-Local-Adresse des Routers.|Zone-ID::Bei Mehrdeutigkeit beschreibt z. B. %12 die lokale Schnittstelle.","Ist fe80::1 als IPv6-Gateway grundsätzlich falsch?","Nein. Link-Local-Adressen sind als Gateway üblich.","Das fe80::/10-Präfix sagt nichts darüber, welche Schnittstelle gemeint ist.","PRAXIS"],
+ ["SLAAC und DHCPv6","Adresskonfiguration ohne klassisches DHCPv4-Denken.","SLAAC::Host bildet eine Adresse aus einem Router-Präfix selbst.|RA::Router Advertisement liefert u. a. Netzpräfix und Router-Information.|DHCPv6::Kann zusätzliche Konfiguration oder Adressen liefern.","Braucht SLAAC zwingend einen DHCPv6-Server?","Nein, Router Advertisements reichen für die automatische Adressbildung.","Ein DHCPv6-Server liefert nicht automatisch den Default Router wie DHCPv4.","WISSEN"],
+ ["NDP statt ARP","IPv6 nutzt ICMPv6 für Nachbarschaftsaufgaben.","Neighbor Solicitation::Fragt nach Nachbarn bzw. ihrer Layer-2-Adresse.|Neighbor Advertisement::Antwortet und teilt Nachbarinformationen mit.|DAD::Prüft, ob eine IPv6-Adresse bereits benutzt wird.","Welches Protokoll ersetzt ARP bei IPv6?","Neighbor Discovery Protocol (NDP) mit ICMPv6.","ICMPv6 pauschal sperren? Damit zerlegst du gern das Netz.","WISSEN"],
+ ["Dual Stack & Präfixe","IPv4 und IPv6 können gleichzeitig laufen.","Dual Stack::Ein Gerät nutzt beide Protokollfamilien parallel.|/48 zu /64::16 zusätzliche Subnetzbits → 65.536 /64-Netze.|IPv6-NAT::Für normale globale IPv6-Kommunikation meist nicht nötig.","Wie viele /64-Subnetze stecken in einem /48?","2^(64 − 48) = 65.536.","IPv6-Präfixe werden in Bit gezählt, nicht in Hex-Gruppen.","RECHNEN"]
+]},
+{
+ id:"dienste",name:"Ports & Dienste",symbol:":443",color:"#ff9984",sections:[
+ ["Die Standardports","Der Klassiker: Dienst und Port korrekt zuordnen.","Web::HTTP 80/TCP, HTTPS 443/TCP (auch HTTP/3 über UDP 443).|Administration::SSH 22/TCP, Telnet 23/TCP.|Namen::DNS 53/UDP und TCP.","Ein Admin soll verschlüsselt auf einen Linux-Server zugreifen. Welcher Port?","SSH verwendet standardmäßig TCP 22.","Port und Protokoll gehören zusammen. Nur 53 ist nicht immer die volle Antwort.","BASIS"],
+ ["E-Mail-Protokolle","Senden und Abrufen sind unterschiedliche Jobs.","SMTP::Typisch 25 (Server-zu-Server), 587 (Submission mit STARTTLS).|IMAP::143, verschlüsselt mit implizitem TLS meist 993.|POP3::110, verschlüsselt mit implizitem TLS meist 995.","Welcher Dienst ruft Mails synchronisiert vom Server ab?","IMAP, häufig über Port 993/TCP.","SMTP versendet; IMAP und POP3 holen Nachrichten ab.","WISSEN"],
+ ["DNS – Namen finden","DNS löst Namen in Einträge auf, nicht nur IPv4.","A/AAAA::IPv4- bzw. IPv6-Adresse.|MX/CNAME::Mailserver bzw. Aliasname.|Abfragen::Meist UDP 53, ggf. TCP 53.","Welcher DNS-Record liefert IPv6-Adressen?","AAAA-Record.","DNS-Auflösung und Internetverbindung sind zwei verschiedene Probleme.","WISSEN"],
+ ["DHCP und DORA","Automatische IPv4-Parameter – in vier Schritten.","DORA::Discover → Offer → Request → Acknowledge.|Ports::UDP 67 Server, UDP 68 Client.|Lease::Adresse gilt für eine vereinbarte Zeit.","Was passiert, wenn unter Windows DHCP ausfällt?","Ein Client kann eine APIPA-Adresse aus 169.254.0.0/16 verwenden.","APIPA ist kein Ersatz für ein korrektes Gateway.","WISSEN"],
+ ["TCP-Verbindungsaufbau","Drei Pakete – dann geht's los.","Handshake::SYN → SYN-ACK → ACK.|Bestätigung::TCP nutzt Sequenz- und Bestätigungsnummern.|Abbau::Typischerweise mit FIN/ACK; RST beendet abrupt.","Welche drei Schritte hat der TCP-Handshake?","SYN, SYN-ACK, ACK.","Der Drei-Wege-Handshake gehört zu TCP, nicht zu UDP.","WISSEN"],
+ ["TLS und HTTPS","Verschlüsselt heißt nicht automatisch vertrauenswürdig.","TLS::Schützt Daten während der Übertragung gegen Mitlesen/Manipulation.|Zertifikat::Client prüft u. a. Identität und Vertrauenskette.|HTTPS::HTTP über TLS; Standardport TCP 443.","Warum nutzt man HTTPS statt HTTP?","Zum Schutz der übertragenen Daten und zur Prüfung des Serverzertifikats.","Ein Schloss-Symbol garantiert keine seriöse Website.","WISSEN"],
+ ["Netzwerkdiagnose","Mit wenigen Befehlen systematisch eingrenzen.","ipconfig /all::IP, DNS, Gateway, DHCP-Informationen (Windows).|ping / tracert::Erreichbarkeit und Weg grob prüfen.|nslookup::DNS-Abfragen testen.","Ping zur IP geht, der Hostname scheitert. Was prüfen?","DNS-Einstellungen und Namensauflösung.","Ping-Blockade allein beweist keinen Netzwerkausfall.","PRAXIS"],
+ ["Paketverlust & Latenz","Teams ruckelt nicht nur bei schlechtem Downloadtest.","Latenz::Zeit für Übertragung und Verarbeitung.|Jitter::Schwankung der Paketlaufzeit.|Paketverlust::Verlorene Pakete stören vor allem Echtzeitdienste.","Warum ist hoher Paketverlust bei Videokonferenzen kritisch?","Sprache und Bild haben Aussetzer, obwohl nominell genug Bandbreite vorhanden ist.","Hohe Mbit/s sind keine Garantie für stabile Echtzeitkommunikation.","PRAXIS"]
+]},
+{
+ id:"sicherheit",name:"IT-Sicherheit",symbol:"SEC",color:"#f280b4",sections:[
+ ["CIA-Schutzziele","Drei Begriffe, auf die viele Sicherheitsfragen hinauslaufen.","Vertraulichkeit::Nur Berechtigte dürfen Informationen lesen.|Integrität::Daten bleiben korrekt und unverändert.|Verfügbarkeit::Systeme und Daten sind nutzbar, wenn sie gebraucht werden.","Welches Schutzziel verletzt ein unbemerkter Datenmanipulationsangriff?","Die Integrität der Daten.","Ein Backup verbessert vor allem Wiederherstellbarkeit, nicht automatisch Vertraulichkeit.","BASIS"],
+ ["Hash oder Verschlüsselung?","Einwegsicherheit und Rückweg sind nicht dasselbe.","Hash::Einwegfunktion, z. B. zur Integritätsprüfung.|Verschlüsselung::Daten mit Schlüssel wieder entschlüsselbar.|Passwortspeicherung::Geeigneter Passwort-Hash mit Salt und Kostenfaktor.","Kann man einen sicheren Hashwert einfach entschlüsseln?","Nein, Hashing ist keine umkehrbare Verschlüsselung.","SHA-256 allein ist für Passwortspeicherung kein gutes Standardverfahren.","WISSEN"],
+ ["Symmetrisch & asymmetrisch","Zwei Schlüsselkonzepte, zwei Stärken.","Symmetrisch::Derselbe geheime Schlüssel für Ver- und Entschlüsselung.|Asymmetrisch::Öffentlicher und privater Schlüssel gehören zusammen.|Hybrid::TLS kombiniert Verfahren für Schlüsselaustausch und Datenverkehr.","Warum ist symmetrische Verschlüsselung bei großen Datenmengen üblich?","Sie ist in der Regel deutlich effizienter.","Mit öffentlichem Schlüssel verschlüsseln ist etwas anderes als digital signieren.","WISSEN"],
+ ["Digitale Signatur","Wer hat unterschrieben – und wurde etwas verändert?","Signieren::Mit privatem Schlüssel eine Signatur erzeugen.|Prüfen::Mit öffentlichem Schlüssel verifizieren.|Nutzen::Authentizität und Integrität, nicht Vertraulichkeit.","Kann eine digitale Signatur allein Daten geheim halten?","Nein. Sie schützt nicht vor Mitlesen.","Unterschrift ≠ Verschlüsselung. Zwei verschiedene Baustellen.","WISSEN"],
+ ["MFA und Passwörter","Mehrere Faktoren sind mehr als zwei Passwörter.","Wissen::Passwort oder PIN.|Besitz::Token oder Hardware-Sicherheitsschlüssel.|Sein::Biometrisches Merkmal.","Sind Passwort und zweite PIN zwei Faktoren?","Nein, beides gehört zur Kategorie Wissen.","Phishing-resistente Verfahren wie Passkeys/FIDO2 sind besonders wertvoll.","PRAXIS"],
+ ["Backup und 3-2-1","Redundanz hält Betrieb am Laufen; Backups retten Daten.","3-2-1::3 Kopien, auf 2 Medientypen, 1 Kopie außer Haus.|RPO::Maximal tolerierter Datenverlust in Zeit.|RTO::Maximal tolerierte Wiederanlaufzeit.","Was unterscheidet RAID 1 von einem Backup?","RAID 1 spiegelt Daten; auch versehentlich gelöschte Dateien werden gespiegelt.","Ein nicht getestetes Restore ist eine Wette auf den Ernstfall.","PRAXIS"],
+ ["Schutzbedarf und Risiko","Ein Risiko besteht aus Wahrscheinlichkeit und Auswirkung.","Schutzbedarf::Oft normal, hoch oder sehr hoch je nach Schaden.|Risiko::Eintrittswahrscheinlichkeit und Schadenshöhe bewerten.|Maßnahmen::Vermeiden, vermindern, übertragen oder akzeptieren.","Was bedeutet hoher Schutzbedarf bei Kundendaten?","Ein Schaden kann gravierende Folgen haben; stärkere Schutzmaßnahmen sind nötig.","Ein teures Produkt ist nicht automatisch die beste Sicherheitsmaßnahme.","WISSEN"],
+ ["Firewall & Angriffstypen","Schutzmaßnahmen müssen zum Angriff passen.","Firewall::Regelt erlaubten Verkehr anhand definierter Kriterien.|Phishing::Täuscht Menschen, um Daten oder Handlungen zu erschleichen.|Ransomware::Erpresst nach Verschlüsselung/Sperrung von Daten.","Welche Maßnahmen helfen gegen Phishing?","Schulung, MFA, E-Mail-Prüfung und möglichst phishing-resistente Anmeldung.","Eine Firewall beseitigt kein Social Engineering.","PRAXIS"]
+]},
+{
+ id:"datenschutz",name:"Datenschutz",symbol:"DSGVO",color:"#79c8b0",sections:[
+ ["Personenbezogene Daten","Auch indirekte Zuordnung kann genügen.","Definition::Informationen über eine identifizierte oder identifizierbare Person.|Beispiele::Name, E-Mail, Personalnummer, personenbezogene IP-Adresse.|Pseudonym::Weiterhin personenbezogen, wenn Re-Identifizierung möglich ist.","Sind pseudonymisierte Nutzerdaten automatisch anonym?","Nein. Bei möglicher Zuordnung bleibt die DSGVO relevant.","Anonymisierung und Pseudonymisierung sind nicht dasselbe.","BASIS"],
+ ["Rechtsgrundlagen","Nicht jede Verarbeitung braucht eine Einwilligung.","Art. 6 DSGVO::Nennt Rechtsgrundlagen für Verarbeitung.|Möglich::Vertrag, gesetzliche Pflicht, Einwilligung, berechtigte Interessen u. a.|Grundsatz::Zweck und Rechtsgrundlage vorher festlegen.","Braucht ein Händler für eine Lieferadresse immer eine Einwilligung?","Nein. Verarbeitung kann zur Erfüllung des Kaufvertrags erforderlich sein.","Einwilligung ist keine Allzweck-Ausrede für jede Datensammlung.","WISSEN"],
+ ["Datenschutzgrundsätze","So wenig wie nötig, so klar wie möglich.","Zweckbindung::Nur für bestimmte, legitime Zwecke verarbeiten.|Datenminimierung::Nicht mehr Daten als nötig erfassen.|Speicherbegrenzung::Nicht länger als erforderlich aufbewahren.","Warum ist eine unnötige Geburtsdatumsabfrage problematisch?","Sie kann gegen den Grundsatz der Datenminimierung verstoßen.","„Vielleicht brauchen wir das mal“ ist kein sauberer Zweck.","WISSEN"],
+ ["Betroffenenrechte","Menschen dürfen wissen, was mit ihren Daten passiert.","Rechte::Auskunft, Berichtigung, Löschung, Einschränkung u. a.|Datenübertragbarkeit::Gilt unter bestimmten Voraussetzungen.|Widerspruch::Relevant insbesondere bei Art. 6 Abs. 1 lit. e/f DSGVO.","Darf eine Person fehlerhafte Kundendaten korrigieren lassen?","Ja, sie hat grundsätzlich ein Recht auf Berichtigung.","Löschung ist nicht absolut: gesetzliche Aufbewahrungspflichten können entgegenstehen.","WISSEN"],
+ ["Verantwortlicher & AV","Wer entscheidet und wer verarbeitet im Auftrag?","Verantwortlicher::Bestimmt Zwecke und Mittel der Verarbeitung.|Auftragsverarbeiter::Verarbeitet personenbezogene Daten im Auftrag.|AV-Vertrag::Art. 28 DSGVO regelt Anforderungen an die Beauftragung.","Ein Hostinganbieter verarbeitet Kundendaten nach Weisung. Welche Rolle?","Typischerweise Auftragsverarbeiter; die genaue Rolle hängt vom Einsatz ab.","Ein Dienstleister ist nicht automatisch ein Auftragsverarbeiter.","WISSEN"],
+ ["TOM","Technische und organisatorische Maßnahmen passend zum Risiko.","Technisch::Verschlüsselung, Zugriffskontrolle, Sicherungen, Protokollierung.|Organisatorisch::Rollen, Schulungen, Löschkonzept, Berechtigungsprozesse.|Ziel::Schutz von Vertraulichkeit, Integrität, Verfügbarkeit und Belastbarkeit.","Nenne zwei geeignete TOM für Kundendaten.","Rollenbasierte Zugriffe und verschlüsselte Übertragung, je nach Risiko.","Eine Datenschutzerklärung ersetzt keine Sicherheitsmaßnahmen.","PRAXIS"],
+ ["Datenpannen melden","Bei Sicherheitsvorfällen laufen wichtige Fristen.","Aufsicht::In der Regel binnen 72 Stunden ab Kenntnis melden, wenn Risiko für Personen besteht.|Betroffene::Bei voraussichtlich hohem Risiko grundsätzlich informieren.|Dokumentation::Auch nicht meldepflichtige Pannen dokumentieren.","Muss jede falsch versendete E-Mail automatisch an die Behörde?","Nicht zwingend. Entscheidend ist die Risikoabwägung nach Art. 33 DSGVO.","Die 72 Stunden beginnen nicht erst nach der nächsten Teams-Sitzung.","WISSEN"],
+ ["Cookies und Transparenz","Technik und Rechtsgrundlage getrennt prüfen.","Notwendig::Technisch erforderliche Funktionen können ohne Einwilligung möglich sein.|Tracking::Nicht erforderlicher Zugriff/Speicherung bedarf regelmäßig Einwilligung.|Information::Betroffene müssen verständlich informiert werden.","Ist ein Analytics-Cookie automatisch technisch notwendig?","Nein. Tracking benötigt regelmäßig eine wirksame Einwilligung.","DSGVO und Regeln für Endgerätezugriff (z. B. TDDDG) wirken zusammen.","WISSEN"]
+]},
+{
+ id:"rechnung",name:"Kalkulation",symbol:"€",color:"#f7c36e",sections:[
+ ["Rabatt & Skonto","Nicht zweimal vom selben Ursprungspreis abziehen.","Rabatt::Preisnachlass auf den Listenpreis.|Skonto::Nachlass bei fristgerechter Zahlung auf den Zielpreis.|Beispiel::1.000 € − 10 % = 900 €; davon 2 % Skonto = 882 €.","Was sind 2 % Skonto auf 900 €?","18 €; Barpreis = 882 €.","Prozente nacheinander auf den jeweils neuen Betrag anwenden.","RECHNEN"],
+ ["Bezugskalkulation","Vom Listenpreis bis zum tatsächlichen Einkauf.","Reihenfolge::Listenpreis − Rabatt = Zieleinkaufspreis.|Danach::− Skonto = Bareinkaufspreis.|Zuletzt::+ Bezugskosten = Bezugspreis.","Ein Artikel kostet 1.000 € − 10 % Rabatt − 2 % Skonto + 20 € Fracht. Bezugspreis?","900 € → 882 € → 902 € (netto, vereinfacht).","Fracht kommt nicht schon vor dem Rabatt in die Rechnung.","RECHNEN"],
+ ["Angebote vergleichen","Der günstigste Stückpreis kann teuer werden.","Bezugspreis::Preisnachlässe und Nebenkosten einrechnen.|Qualität::Lieferzeit, Garantie, Support, Ausfallrisiko beachten.|Bewertung::Kostenvergleich und Nutzwertanalyse sind verschiedene Methoden.","Warum ist das billigste Angebot nicht immer das beste?","Folgekosten, Lieferbedingungen oder Qualität können schwerer wiegen.","Preis und Nutzen sind keine identischen Größen.","PRAXIS"],
+ ["Nutzwertanalyse","Kriterien gewichten und nachvollziehbar bewerten.","Gewichte::Summe der Gewichtungen = 100 % bzw. 1,0.|Punkte::Bewertung pro Kriterium mit Gewicht multiplizieren.|Ergebnis::Gewichtete Punkte je Alternative addieren.","20 % Gewicht, 4 von 5 Punkten: welcher Beitrag?","0,20 × 4 = 0,8 Punkte.","Kriterien nicht doppelt werten und Gewichte kontrollieren.","RECHNEN"],
+ ["TCO verstehen","Kaufpreis ist nur die Eintrittskarte.","TCO::Total Cost of Ownership über die Nutzungsdauer.|Kosten::Anschaffung, Strom, Lizenzen, Wartung, Personal, Entsorgung.|Vergleich::Gleicher Zeitraum und gleiche Annahmen für Alternativen.","Warum kann ein billiger Server langfristig teurer sein?","Höhere Energie-, Wartungs- oder Ausfallkosten können überwiegen.","Ein Einmalpreis sagt wenig über fünf Jahre Betrieb.","WISSEN"],
+ ["Lineare Abschreibung","Gleicher Wertverlust pro Jahr.","Formel::(Anschaffungskosten − Restwert) / Nutzungsjahre.|Beispiel::3.000 € ohne Restwert, 3 Jahre → 1.000 €/Jahr.|Unterschied::Steuerliche Regeln können weitere Vorgaben enthalten.","Wie hoch ist die jährliche lineare Abschreibung bei 2.400 € und 4 Jahren ohne Restwert?","2.400 / 4 = 600 € jährlich.","Abschreibung ist nicht identisch mit einem jährlichen Geldabfluss.","RECHNEN"],
+ ["Amortisation","Ab wann ist die Anfangsausgabe rechnerisch wieder drin?","Einfache Methode::Investition / jährliche Nettoeinsparung.|Beispiel::6.000 € / 2.000 € pro Jahr = 3 Jahre.|Grenze::Zeitwert des Geldes bleibt bei einfacher Rechnung außen vor.","Ein Upgrade kostet 4.800 € und spart jährlich 1.600 €. Wann amortisiert es sich?","Nach 3 Jahren bei konstanten jährlichen Einsparungen.","Ersparnis ist nicht gleich Umsatz; laufende Mehrkosten mitrechnen.","RECHNEN"],
+ ["Break-even","Ab welcher Menge entsteht Gewinn?","Deckungsbeitrag::Verkaufspreis je Stück − variable Kosten je Stück.|Formel::Fixkosten / Deckungsbeitrag je Stück.|Beispiel::4.000 € Fixkosten / 20 € = 200 Stück.","Fixkosten 6.000 €, DB 30 € pro Gerät: Break-even?","200 Geräte (sofern Stückzahlen und Kosten konstant sind).","Bei Deckungsbeitrag ≤ 0 erreicht man so keinen Break-even.","RECHNEN"]
+]},
+{
+ id:"csharp",name:"C#-Grundlagen",symbol:"C#",color:"#8eb7ff",sections:[
+ ["Datentypen","Der Typ bestimmt, welche Werte passen.","int::Ganzzahl, z. B. 42.|double::Gleitkommazahl, z. B. 3.14.|bool/char::Wahrheitswert bzw. einzelnes Zeichen.","Welchen Typ wählst du für true oder false?","bool.","char speichert ein Zeichen, string eine Zeichenfolge.","BASIS"],
+ ["Variablen & var","var lässt den Compiler einen Typ ableiten.","Deklaration::int alter = 40; legt eine Ganzzahl fest.|var::var zahl = 12; wird beim Kompilieren zu int.|Typbindung::C# ist weiterhin statisch typisiert.","Kann var zahl = 5; später einfach Text aufnehmen?","Nein, zahl hat den Typ int.","var bedeutet nicht „beliebiger Typ zu jedem Zeitpunkt“.","WISSEN"],
+ ["if und Vergleich","Eine Bedingung braucht einen bool-Wert.","Vergleich::== gleich, != ungleich, < und > kleiner/größer.|Logik::&& = UND; || = ODER; ! = NICHT.|Verzweigung::if, else if, else.","Was ist der Unterschied zwischen = und ==?","= weist zu; == prüft auf Gleichheit.","Ein einzelnes = in einer Bedingung ist nicht automatisch ein Vergleich.","BASIS"],
+ ["Ganzzahldivision","int durch int bleibt erst einmal ganzzahlig.","Beispiel::5 / 2 ergibt 2 als int.|Gleitkomma::5.0 / 2 ergibt 2.5.|Rest::5 % 2 ergibt 1.","Was gibt Console.WriteLine(7 / 2); aus?","3, nicht 3.5.","Ein Komma im Kopf hilft nichts – der Datentyp entscheidet.","RECHNEN"],
+ ["Schleifen","Wiederholung ohne Copy-Paste-Marathon.","for::Gut, wenn ein Zähler eine feste Anzahl durchläuft.|while::Wiederholt, solange die Bedingung wahr ist.|do-while::Führt den Block mindestens einmal aus.","Wie oft läuft for (int i = 0; i < 3; i++)?","Dreimal: i = 0, 1, 2.","Kleiner-als 3 bedeutet nicht, dass i auch 3 erreicht.","WISSEN"],
+ ["Eingabe & Umwandlung","Konsoleneingaben kommen zunächst als Text.","ReadLine::Liest eine Zeile als string? (kann null liefern).|Parse::int.Parse(text) kann bei ungültiger Eingabe scheitern.|TryParse::Prüft die Umwandlung ohne Format-Ausnahme.","Warum ist int.TryParse oft robuster als int.Parse?","Ungültige Eingaben lassen sich mit bool-Rückgabewert behandeln.","Nutzereingaben nicht ungeprüft als Zahl voraussetzen.","PRAXIS"],
+ ["Arrays und Indizes","Der erste Eintrag hat die Nummer null.","Index::array[0] ist das erste Element.|Length::Anzahl der Elemente.|Grenze::Bei drei Elementen sind 0, 1 und 2 gültig.","Welches Element liest werte[2] bei einem Array mit drei Einträgen?","Das dritte Element.","werte[3] wäre außerhalb der Grenzen.","WISSEN"],
+ ["Methoden und Rückgabe","Wiederverwendbare Logik bekommt einen Namen.","Parameter::Werte, die beim Aufruf übergeben werden.|return::Gibt einen Wert an den Aufrufer zurück.|void::Methode liefert keinen Rückgabewert.","Was bedeutet void bei einer Methodendeklaration?","Die Methode gibt keinen Wert zurück.","Ausgabe mit Console.WriteLine ist keine Rückgabe per return.","WISSEN"]
+]},
+{
+ id:"mix",name:"Prüfungs-Mix",symbol:"IHK",color:"#d6a3f4",sections:[
+ ["RAID ist kein Backup","Verfügbarkeit und Wiederherstellung sind zwei Paar Schuhe.","RAID 0::Striping, keine Redundanz.|RAID 1::Spiegelung, Mindestzahl typischerweise 2 Platten.|RAID 5::Parität, ab 3 Platten, Kapazität grob (n−1) × kleinste Größe.","Was passiert bei RAID 0, wenn eine Platte ausfällt?","In der Regel ist der gesamte Verbund nicht mehr nutzbar.","RAID schützt nicht vor versehentlichem Löschen oder Ransomware.","WISSEN"],
+ ["RAM, SSD, HDD","Wo Daten liegen, macht einen Unterschied.","RAM::Flüchtiger Arbeitsspeicher; verliert Inhalt ohne Strom.|SSD::Nichtflüchtiger Flashspeicher, meist kurze Zugriffszeiten.|HDD::Magnetische rotierende Datenträger, bewegliche Teile.","Welches dieser Medien speichert Daten typischerweise ohne Strom nicht dauerhaft?","RAM.","SSD ist nicht dasselbe wie RAM, auch wenn beide schnell sind.","BASIS"],
+ ["Virtualisierung","Eine Hardware, mehrere getrennte Systeme.","Hypervisor Typ 1::Läuft direkt auf Hardware.|Hypervisor Typ 2::Läuft auf einem Host-Betriebssystem.|Snapshot::Punkt-in-Zeit-Zustand, kein vollwertiges Backup.","Warum nutzt man VMs in einer Testumgebung?","Für isolierte, reproduzierbare Systeme ohne zusätzliche Hardware.","Ein Snapshot ist keine verlässliche Langzeit-Backupstrategie.","WISSEN"],
+ ["Windows & Linux-Tools","Ein paar Befehle retten die Fehlersuche.","Windows::ipconfig /all, nslookup, tracert, netstat.|Linux::ip addr, ip route, ss, ping.|Rechte::Befehle je nach Aktion mit passenden Rechten ausführen.","Wie siehst du unter Linux IP-Adressen der Schnittstellen?","Zum Beispiel mit ip addr.","ifconfig ist auf modernen Linux-Systemen nicht immer vorinstalliert.","PRAXIS"],
+ ["Datenbank-Grundlagen","Schlüssel machen Beziehungen eindeutig.","Primärschlüssel::Identifiziert einen Datensatz eindeutig.|Fremdschlüssel::Verweist auf einen Schlüssel einer anderen Tabelle.|SELECT / WHERE::Daten abfragen und Zeilen filtern.","Welcher SQL-Befehl liest alle Zeilen einer Tabelle Kunden?","SELECT * FROM Kunden;","Ein Fremdschlüssel darf je nach Modell mehrfach vorkommen.","WISSEN"],
+ ["Projekte sauber planen","Anforderungen sind mehr als „Soll irgendwie gehen“.","Lastenheft::Beschreibt die Anforderungen aus Auftraggebersicht.|Pflichtenheft::Beschreibt die geplante Umsetzung durch den Auftragnehmer.|SMART::Ziele spezifisch, messbar, attraktiv/akzeptiert, realistisch, terminiert.","Was steht eher im Pflichtenheft?","Die konkrete geplante Lösung und technische Umsetzung.","Ein Wunsch ohne prüfbare Kriterien lässt sich schwer abnehmen.","WISSEN"],
+ ["USV & Strom","Ein Stromausfall muss kein Datenverlust werden.","USV::Überbrückt kurze Ausfälle und ermöglicht geordnetes Herunterfahren.|Leistung::Watt und VA sind nicht dieselbe Angabe.|Planung::Laufzeit hängt von Last, Batterie und Wirkungsgrad ab.","Warum braucht ein Server eine USV?","Um Ausfälle zu überbrücken und Datenverlust/unsaubere Abschaltung zu vermeiden.","Eine USV ist keine Dauerstromversorgung.","WISSEN"],
+ ["Troubleshooting-Reihenfolge","Erst eingrenzen, dann reparieren.","Prüfen::Link und Netzwerkadapter → IP/Mask/Gateway → DNS → Dienst.|Vergleich::Funktioniert IP, aber Name nicht? DNS prüfen.|Dokumentieren::Fehlerbild, Tests, Ergebnis und Maßnahme festhalten.","Ein PC erreicht seine Gateway-IP, aber keinen Hostnamen. Nächster sinnvoller Check?","Namensauflösung mit nslookup sowie DNS-Konfiguration prüfen.","Nicht wahllos Treiber, Firewall und Router gleichzeitig ändern.","PRAXIS"]
+]}
+];

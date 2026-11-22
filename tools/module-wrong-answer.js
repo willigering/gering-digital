@@ -1,0 +1,206 @@
+/* Shared wrong-answer quips, approved in the Klausurvorbereitung.
+ * Also holds the new correct-answer quips behind the same switch.
+ * No scoring, storage or DOM changes: renderers keep their explanations. */
+(function () {
+  'use strict';
+  if (window.DTPWrongAnswer) return;
+  const quips = [
+  "Wirklich? Das ist deine Antwort?",
+  "Nope. Versuch's nochmal.",
+  "Nicht dein Ernst, Digga!",
+  "Das war ein Griff ins Netzwerkklo.",
+  "Falsch abgebogen. Das Navi weint.",
+  "Da hat dein Gehirn kurz 404 gemeldet.",
+  "Der Router sagt: Nö.",
+  "Das Paket ging wohl an die falsche Adresse.",
+  "Autsch. Das tat sogar dem Switch weh.",
+  "Mutig. Leider komplett daneben.",
+  "Das war eher UDP: abgeschickt und gehofft.",
+  "Nein. Aber selbstbewusst war's.",
+  "Die Antwort hat Paketverlust.",
+  "Dein Wissen hat gerade einen Timeout.",
+  "Ganz heiß! Also ungefähr wie ein Eiswürfel.",
+  "Fast. Wenn man alle Fehler ignoriert.",
+  "Das war kein Treffer, das war ein Broadcast ins Nichts.",
+  "Junge, was war denn das?",
+  "Der DNS findet deine Lösung nicht.",
+  "Das war ein klassischer Layer-8-Moment.",
+  "Nicht ganz. Nicht mal mit NAT.",
+  "Ping? Keine Antwort.",
+  "Sogar die Firewall hat den Kopf geschüttelt.",
+  "Falscher Port, falsche Party.",
+  "Hoppla. Das ging ins falsche Subnetz.",
+  "Der Prüfer hebt gerade eine Augenbraue.",
+  "Einfach mal nein.",
+  "Der Gedanke war da. Kurz.",
+  "Diese Antwort braucht dringend ein Update.",
+  "Ein kleiner Fehler für dich, ein großer für die Klausur.",
+  "Da ist wohl ein Bit umgekippt.",
+  "Dein Ergebnis ist leider nicht im gültigen Bereich.",
+  "Das OSI-Modell distanziert sich.",
+  "Klingt erfunden. Ist leider auch falsch.",
+  "Wenn Raten ein Protokoll wäre, wärst du Admin.",
+  "Du hast die Frage elegant umfahren.",
+  "Nö. Aber der Mut verdient einen Ping.",
+  "Error 418: Ich bin eine Teekanne, keine Lösung.",
+  "Das war mehr Kabelsalat als Netzwerk.",
+  "Nicht korrekt. Dein Switch möchte reden.",
+  "Was zum DHCP war das denn?",
+  "Diese Antwort kommt nicht durch die Prüfung.",
+  "Schade. Die Lösung wohnt woanders.",
+  "Der Taschenrechner ist unschuldig.",
+  "Das war ein SYN ohne ACK.",
+  "Nope.exe wurde erfolgreich ausgeführt.",
+  "Hier hilft auch kein Neustart.",
+  "Das war leider eine Nullnummer im Binärsystem.",
+  "Das hätte selbst der Drucker hinterfragt.",
+  "Noch ein Versuch. Diesmal mit weniger Würfeln."
+];
+  // Neue Sprüche (falsch und richtig): mit diesem Schalter aktiv.
+  const NEW_QUIPS_LIVE = true;
+  const newQuips = [
+  "Richtig! Könnte ich jetzt sagen. Wäre aber gelogen.",
+  "Oha, das ist ja richt… Oh. Doch nicht.",
+  "WOW! Eine Antwort! Und sie ist FALSCH.",
+  "Ehrlich? DAS ist deine Antwort?",
+  "Das hast du jetzt nicht gesagt!?",
+  "Das war einfach nur scheiße.",
+  "Das war Bockmist. Der nächste Versuch ist gratis.",
+  "Falsch. Hast du das gerade wirklich abgeschickt?",
+  "Falsch. Aber mutig.",
+  "Falsch. Und ich hatte so viel Hoffnung.",
+  "Falsch. Das tat beim Lesen weh.",
+  "Deine Antwort ist durchgefallen. Du noch nicht.",
+  "Falsch. Tu einfach so, als hättest du das nie abgeschickt.",
+  "Falsch. Steht in keiner Doku. Nicht mal in der schlechten.",
+  "Falsch. Sag das bitte nie im Bewerbungsgespräch.",
+  "Falsch. Und zwar richtig falsch.",
+  "Falsch. Ich hab extra noch mal nachgeschaut.",
+  "Falsch. Ich muss mich kurz setzen.",
+  "Falsch. Ich bin nicht wütend, nur enttäuscht.",
+  "Falsch. Das sagen wir jetzt einfach niemandem.",
+  "Falsch. Erklär mir bitte nicht, wie du darauf gekommen bist.",
+  "Falsch. Die Frage hat das nicht verdient.",
+  "Falsch. Aber schön, dass du da bist.",
+  "Falsch. Das war so daneben, das hat schon wieder Stil.",
+  "Falsch. Noch so eine, und ich rufe deine Mutter an.",
+  "Falsch. Das kannst du besser. Hoffe ich.",
+  "Falsch. Und du hattest so viel Zeit.",
+  "Falsch. Und das auch noch mit Absicht?",
+  "Falsch. Hoffentlich war das nur geraten.",
+  "Falsch. Das hat mir jetzt den Abend versaut.",
+  "Falsch. Und das ist noch die freundliche Formulierung.",
+  "Falsch. Ich sag's dir lieber gleich.",
+  "Falsch. Ich hab's zweimal gelesen, es wird nicht besser.",
+  "Falsch. Da kann auch ich nichts mehr retten.",
+  "Falsch. Ich hab kurz gehofft, du machst Spaß.",
+  "Falsch. Bitte sag mir, dass das ein Witz war.",
+  "Falsch. Ich brauch jetzt erst mal einen Kaffee.",
+  "Falsch. Ich hol mal kurz frische Luft.",
+  "Falsch. Das muss ich erst mal verarbeiten.",
+  "Falsch. Gib mir eine Minute.",
+  "Falsch. Ich sag jetzt lieber nichts.",
+  "Falsch. Mir fehlen die Worte. Dir leider nicht.",
+  "Falsch. Das wird auch nicht richtiger, wenn du es noch mal anschaust.",
+  "Falsch. Aber du bist ja noch jung.",
+  "Falsch. Aber du wirkst sehr überzeugt.",
+  "Falsch. Aber gut, dass wir darüber gesprochen haben.",
+  "Falsch. Aber du siehst heute gut aus.",
+  "Falsch. Aber deine Haare sitzen.",
+  "Falsch. Aber das Selbstvertrauen stimmt.",
+  "Falsch. Dafür gibt's keine Punkte. Auch keine halben.",
+  "Falsch. Dafür gibt's nicht mal Mitleidspunkte.",
+  "Falsch. Das gibt eine schöne Null.",
+  "Falsch. Das kommt nicht an den Kühlschrank.",
+  "Falsch. Das rahmen wir nicht ein.",
+  "Falsch. Das erzählst du besser nicht weiter.",
+  "Falsch. Das streichen wir aus dem Protokoll.",
+  "Falsch. Keine Sorge, das hat keiner gesehen. Außer mir.",
+  "Falsch. Schau jetzt bitte nicht so.",
+  "Falsch. Guck nicht so, das warst du selbst.",
+  "Falsch. Du weißt es. Ich weiß es.",
+  "Falsch. Das weißt du aber auch selbst.",
+  "Falsch. Wer hätte das gedacht. Ich.",
+  "Falsch. Ich hab's kommen sehen.",
+  "Falsch. Hat mich jetzt nicht überrascht.",
+  "Falsch. Schade um die schöne Frage.",
+  "Falsch. Hast du das ausgewürfelt?",
+  "Falsch. Wer hat dir das erzählt?",
+  "Falsch. Geht's dir gut?",
+  "Falsch. Möchtest du dich kurz hinlegen?",
+  "Falsch. Trink mal was.",
+  "Falsch. Hast du heute schon was gegessen?",
+  "Falsch. Wie viele Finger halte ich hoch?",
+  "Falsch. Fahr heute bitte nicht mehr selbst.",
+  "Falsch. Mach mal eine Pause. Ich brauch auch eine.",
+  "Falsch. So wird das nichts mit uns.",
+  "Falsch. Wir müssen reden.",
+  "Falsch. Ich glaub, wir sollten uns mal zusammensetzen.",
+  "Falsch. Ich lass das mal so wirken.",
+  "Falsch. Lass das mal kurz sacken.",
+  "Falsch. Lass uns das nie wieder erwähnen.",
+  "Falsch. Wir fangen einfach noch mal von vorne an. Ganz von vorne.",
+  "Falsch. Das Gute: Schlimmer wird's heute nicht. Hoffentlich.",
+  "Falsch. Beim nächsten Mal gern mit Nachdenken.",
+  "Falsch. Nachdenken wäre auch eine Option gewesen.",
+  "Falsch. Raten ist auch eine Methode. Nur keine gute."
+];
+  if (NEW_QUIPS_LIVE) quips.push(...newQuips);
+  let bag = [], previous;
+  function next() {
+    if (!bag.length) {
+      bag = quips.map((_, i) => i);
+      for (let i = bag.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [bag[i], bag[j]] = [bag[j], bag[i]];
+      }
+      // Avoid an immediate repeat even at the boundary between two bags.
+      if (bag[bag.length - 1] === previous) {
+        [bag[0], bag[bag.length - 1]] = [bag[bag.length - 1], bag[0]];
+      }
+    }
+    previous = bag.pop();
+    return quips[previous];
+  }
+  window.DTPWrongAnswer = Object.freeze({next});
+  const newRightQuips = [
+  "Richtig. Und zwar richtig richtig.",
+  "Richtig. Ich hab extra noch mal nachgeschaut.",
+  "Richtig. Das hätte ich dir gar nicht zugetraut.",
+  "Richtig. Bist du das wirklich?",
+  "Richtig. Wer sitzt da gerade an deinem Platz?",
+  "Richtig. Das erzählst du bitte überall weiter.",
+  "Richtig. Das kommt an den Kühlschrank.",
+  "Richtig. Das rahmen wir ein.",
+  "Richtig. Deine Mutter wäre stolz.",
+  "Richtig. Ich geb einen Kaffee aus.",
+  "Richtig. Hat mich jetzt echt überrascht.",
+  "Richtig. Das hab ich nicht kommen sehen.",
+  "Richtig. Wer hätte das gedacht. Ich nicht.",
+  "Richtig. Ich muss mich wohl entschuldigen.",
+  "Richtig. Mir fehlen die Worte.",
+  "Richtig. Da gibt's nichts zu meckern. Leider.",
+  "Richtig. Schade, ich hatte so einen guten Spruch für falsche Antworten.",
+  "Richtig. Kann ja mal passieren.",
+  "Richtig. Das war kein Zufall. Hoffe ich.",
+  "Richtig. Jetzt bloß nicht nachlassen.",
+  "Richtig. Jetzt werd aber nicht übermütig.",
+  "Richtig. Bild dir nichts drauf ein.",
+  "Richtig. Und dabei siehst du auch noch gut aus.",
+  "Richtig. Und die Haare sitzen auch.",
+  "Richtig. Geht doch.",
+  "Richtig. Na also.",
+  "Richtig. War doch gar nicht so schwer.",
+  "Richtig. Das Nachdenken hat sich gelohnt.",
+  "Richtig. Raten sah noch nie so gut aus.",
+  "Richtig. Die Frage gibt auf.",
+  "Richtig. Das darfst du dir merken.",
+  "Richtig. Bitte genau so wiederholen.",
+  "Richtig. Und ich hatte so wenig Hoffnung."
+];
+  window.DTPRightAnswer = Object.freeze({next(own) {
+    // Always the shared quips, so every module sounds alike.
+    const pool = NEW_QUIPS_LIVE ? newRightQuips : own;
+    return pool[Math.floor(Math.random() * pool.length)];
+  }});
+})();

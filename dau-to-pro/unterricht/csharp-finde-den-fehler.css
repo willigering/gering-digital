@@ -1,0 +1,108 @@
+/* Finde den Fehler. Editor, Knöpfe und Abstände folgen den C#-Unterrichtsseiten.
+   Der Seitenhintergrund kommt aus csharp-material.css (.dtp-backdrop). */
+body.fehler-page { margin: 0; font: 16px/1.6 system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+body.dtp-material, body.dtp-material *, body.dtp-material *::before, body.dtp-material *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.fehler-main { padding-bottom: 72px; }
+.fehler-lead { max-width: 760px; margin: 0 0 22px; color: #b9d5d5; font-size: 17px; }
+.fehler-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.task-card {
+  display: flex; flex-direction: column; gap: 8px; min-height: 168px; width: 100%;
+  padding: 18px 16px 16px; text-align: left; cursor: pointer;
+  border: 1px solid #70dace65; border-radius: 16px;
+  background: linear-gradient(145deg, #12232cf5, #0a161ff9);
+  color: #f6f1e8; box-shadow: 0 16px 40px #0008, inset 0 1px #ffffff12;
+}
+.task-card small { font: 800 11px/1.3 ui-monospace, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; color: #e8b84a; }
+.task-card strong { font-size: 22px; letter-spacing: -.03em; line-height: 1.15; }
+.task-card span { color: #b9d5d5; font-size: 14.5px; line-height: 1.45; }
+.task-card em { margin-top: auto; font-style: normal; font: 800 12px/1 ui-monospace, Consolas, monospace; letter-spacing: .06em; color: #8deadd; }
+.task-card.is-done { border-color: #4ade80aa; }
+.task-card:hover { border-color: #77e6d6; }
+.task-card:focus-visible, .fehler-actions .btn:focus-visible, .fehler-back:focus-visible, details.help summary:focus-visible {
+  outline: 2px solid #e8b84a; outline-offset: 3px;
+}
+.fehler-back {
+  display: inline-flex; align-items: center; gap: 8px; margin: 0 0 18px; padding: 9px 14px;
+  border: 1px solid #79e4d65c; border-radius: 8px; background: #0e2834dd; color: #a8fff0;
+  font: 800 12px/1.4 ui-monospace, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; cursor: pointer;
+}
+.fehler-back:hover { background: #16404a; }
+.fehler-kicker { display: block; margin-bottom: 8px; font: 800 12px/1 ui-monospace, Consolas, monospace; letter-spacing: .12em; text-transform: uppercase; color: #e8b84a; }
+.fehler-title { margin: 0 0 8px; font-size: clamp(28px, 4vw, 40px); letter-spacing: -.04em; line-height: 1.05; text-transform: uppercase; }
+.fehler-box, .fehler-console, .editor, details.help {
+  border: 1px solid #34535a; border-radius: 12px; background: #101d26;
+}
+.fehler-box { padding: 12px 16px; margin: 16px 0; }
+.fehler-box b, .fehler-label {
+  display: block; margin-bottom: 4px;
+  font: 700 12px/1.3 ui-monospace, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; color: #8deadd;
+}
+.fehler-box p, .fehler-note { margin: 0.35em 0 0; color: #d5e4e4; }
+.fehler-console { overflow: hidden; margin: 12px 0; background: #07080b; max-width: 100%; }
+.fehler-console .cap, .editor .cap {
+  padding: 6px 12px; background: #142631; border-bottom: 1px solid #34535a;
+  font: 11.5px/1.4 ui-monospace, Consolas, monospace; color: #a2bfc2;
+}
+.fehler-console pre, .case pre {
+  margin: 0; padding: 10px 14px; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere;
+  font: 13.5px/1.55 ui-monospace, Consolas, monospace; color: #cfe8d5;
+}
+.editor { overflow: hidden; background: #0b0d12; }
+.editor-body { display: grid; grid-template-columns: 3.1em minmax(0, 1fr); min-height: 280px; }
+.gutter {
+  margin: 0; padding: 12px 8px 12px 0; overflow: hidden; text-align: right; color: #4b5365;
+  font: 13.5px/1.6 ui-monospace, Consolas, monospace; user-select: none;
+}
+.codeedit {
+  width: 100%; min-height: 280px; margin: 0; resize: vertical; border: 0; border-radius: 0;
+  padding: 12px 14px; background: transparent; color: #dbe2f4; tab-size: 4; white-space: pre; overflow: auto;
+  font: 13.5px/1.6 ui-monospace, Consolas, monospace;
+}
+.codeedit:focus { outline: 2px solid rgba(94, 234, 212, .55); outline-offset: -2px; }
+.stdin {
+  width: 100%; min-height: 74px; resize: vertical; border: 1px solid #34535a; border-radius: 8px;
+  padding: 10px 12px; background: #0b0d12; color: #dbe2f4;
+  font: 14px/1.5 ui-monospace, Consolas, monospace;
+}
+.fehler-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+.btn {
+  cursor: pointer; border: 1px solid #34535a; border-radius: 8px; background: #142631; color: #edf8f6;
+  padding: 10px 14px; min-height: 44px; font: 700 14px/1.2 ui-monospace, Consolas, monospace;
+}
+.btn:hover { border-color: #77e6d6; background: #1a313b; }
+.btn.pri { background: linear-gradient(110deg, #79e8d8, #a4f7e4); color: #071d24; border-color: #79e8d8; }
+.btn.pri:hover { filter: brightness(1.06); }
+.btn:disabled { opacity: .55; cursor: wait; }
+details.help { margin: 12px 0; background: rgba(251, 191, 36, .08); border-color: rgba(251, 191, 36, .38); }
+details.help summary { cursor: pointer; padding: 10px 14px; font-weight: 700; color: #fbbf24; }
+details.help p { margin: 0; padding: 0 14px 12px; color: #f3e6c4; }
+.run-view { margin-top: 8px; }
+.run-view.is-error pre { color: #f87171; }
+.cases { display: grid; gap: 10px; margin-top: 12px; }
+.case { padding: 12px 14px; border: 1px solid #34535a; border-radius: 12px; background: #0d1b24; }
+.case.pass { border-color: rgba(74, 222, 128, .55); }
+.case.fail { border-color: rgba(248, 113, 113, .6); }
+.case h3 { margin: 0 0 8px; font-size: 15px; }
+.case .tag { font: 800 11px ui-monospace, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; }
+.case.pass .tag { color: #4ade80; }
+.case.fail .tag { color: #f87171; }
+.mini { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.mini p { margin: 0 0 4px; color: #a2bfc2; font-size: 12px; }
+.result-line { margin: 8px 0 0; font-weight: 700; }
+.result-line.ok { color: #4ade80; }
+.result-line.bad { color: #f87171; }
+.result-line.warn { color: #fbbf24; }
+@media (max-width: 800px) {
+  .fehler-grid, .mini { grid-template-columns: 1fr; }
+  .fehler-actions .btn { flex: 1 1 160px; }
+}
+@media (max-width: 600px) {
+  .gutter, .codeedit { font-size: 16px; line-height: 1.5; }
+  .codeedit, .editor-body { min-height: 240px; }
+  .stdin { font-size: 16px; }
+  .fehler-title { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .task-card, .btn { transition: none; }
+}

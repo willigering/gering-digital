@@ -1,0 +1,136 @@
+name: Deploy Tick-It to STRATO
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tick-it/**'
+      - '.github/workflows/deploy-tick-it.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: strato-production-deploy
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check syntax and local tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          find tick-it -name '*.php' -print0 | xargs -0 -n1 php -l
+          node --check tick-it/assets/app.js
+          php tick-it/tests/generator-tests.php
+          node tick-it/tests/update-notice-tests.js
+          # The helper checks do not require MySQL.
+          test -f tick-it/.htaccess
+          test -f tick-it/database/schema.sql
+          test -f tick-it/DEPLOYMENT.md
+
+  deploy:
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      STRATO_HOST: ${{ secrets.STRATO_HOST }}
+      STRATO_PORT: ${{ secrets.STRATO_PORT }}
+      STRATO_USER: ${{ secrets.STRATO_USER }}
+      STRATO_PASSWORD: ${{ secrets.STRATO_PASSWORD }}
+      STRATO_REMOTE_PATH: ${{ secrets.STRATO_REMOTE_PATH }}
+      STRATO_KNOWN_HOSTS: ${{ secrets.STRATO_KNOWN_HOSTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install --disable-pip-version-check 'paramiko>=3.4,<5'
+      - name: Upload Tick-It files only (no remote deletes)
+        shell: bash
+        run: |
+          python - <<'PY'
+          import datetime, io, json, os, pathlib, posixpath, re, subprocess, tempfile
+          import paramiko
+
+          needed = ('STRATO_HOST','STRATO_USER','STRATO_PASSWORD','STRATO_REMOTE_PATH','STRATO_KNOWN_HOSTS')
+          missing = [v for v in needed if not os.environ.get(v, '').strip()]
+          if missing: raise SystemExit('Missing secrets: '+', '.join(missing))
+          remote_root = os.environ['STRATO_REMOTE_PATH'].strip().rstrip('/') or '/'
+          if not remote_root.startswith('/'): raise SystemExit('Remote root must be absolute')
+          target = posixpath.join(remote_root,'tick-it')
+          port = int(os.environ.get('STRATO_PORT') or 22)
+          if port < 1 or port > 65535: raise SystemExit('Invalid SFTP port')
+          allow = {'.php','.js','.css','.json','.sql'}
+          paths = []
+          for raw in subprocess.check_output(['git','ls-files','-z','tick-it']).split(b'\x00'):
+              if not raw: continue
+              rel = pathlib.PurePosixPath(os.fsdecode(raw))
+              parts = rel.parts
+              if len(parts)<2 or parts[0]!='tick-it' or '..' in parts: continue
+              if any(part in ('storage','uploads','tests','vendor','data','runtime','backups','sessions','cache') for part in parts[1:-1]): continue
+              if parts[-1] in ('config.local.php','release.json') or parts[-1].startswith('.env'): continue
+              if rel.suffix.lower() not in allow and parts[-1] != '.htaccess': continue
+              local = pathlib.Path(*parts)
+              if not local.is_file() or local.is_symlink(): continue
+              paths.append((local,'/'.join(parts[1:])))
+          if not any(rel == '.htaccess' for _,rel in paths): raise SystemExit('Missing Tick-It access protection')
+          if not any(rel == 'index.php' for _,rel in paths): raise SystemExit('Missing Tick-It index')
+          if not any(rel == 'version.php' for _,rel in paths): raise SystemExit('Missing version endpoint')
+          if not any(rel == 'assets/update-notice.js' for _,rel in paths): raise SystemExit('Missing update notification')
+          # Code-Updates kopieren oder ändern weder Datenbankinhalte noch Sessions/Uploads.
+          # Es werden ausschließlich freigegebene Quellcodedateien übertragen, nie DELETE/DROP/Migrationen ausgeführt.
+          paths.sort(key=lambda item: ({'.htaccess':0,'tick-it-deployment.json':1}.get(item[1],2),item[1]))
+
+          with tempfile.NamedTemporaryFile(mode='w',encoding='utf8') as known_file:
+              known_file.write(os.environ['STRATO_KNOWN_HOSTS'].strip()+'\n');known_file.flush()
+              ssh=paramiko.SSHClient()
+              ssh.load_host_keys(known_file.name)
+              ssh.set_missing_host_key_policy(paramiko.RejectPolicy())
+              ssh.connect(hostname=os.environ['STRATO_HOST'].strip(),port=port,
+                          username=os.environ['STRATO_USER'],password=os.environ['STRATO_PASSWORD'],
+                          look_for_keys=False,allow_agent=False,timeout=25)
+              try:
+                  sftp=ssh.open_sftp()
+                  try:
+                      for marker in ('index.php','lib.php','dau-to-pro'):
+                          sftp.stat(posixpath.join(remote_root,marker))
+                      try:
+                          sftp.stat(target)
+                      except OSError:
+                          sftp.mkdir(target)
+                      else:
+                          # Do not overwrite an unknown pre-existing site at the chosen URL.
+                          entries=sftp.listdir(target)
+                          if entries and 'tick-it-deployment.json' not in entries:
+                              raise SystemExit('tick-it already exists without expected marker; refusing overwrite')
+                      # Activation marker is created only after protecting the directory.
+                      for local,relative in paths:
+                          parent=posixpath.dirname(posixpath.join(target,relative))
+                          pieces=relative.split('/')[:-1]
+                          curr=target
+                          for piece in pieces:
+                              curr=posixpath.join(curr,piece)
+                              try:sftp.stat(curr)
+                              except OSError:sftp.mkdir(curr)
+                          destination=posixpath.join(target,relative)
+                          temporary=destination+'.uploading'
+                          sftp.put(str(local),temporary,confirm=True)
+                          sftp.posix_rename(temporary,destination)
+                          print('Uploaded atomically tick-it/'+relative)
+                      # Release-ID erst NACH allen Dateien atomar aktivieren.
+                      # Browser sehen eine neue Version nur nach vollständig erfolgreichem Upload.
+                      revision=os.environ['GITHUB_SHA']
+                      if not re.fullmatch(r'[a-f0-9]{40}', revision):
+                          raise SystemExit('Invalid git revision; release not activated')
+                      receipt=json.dumps({'revision':revision,'published_at':datetime.datetime.now(datetime.timezone.utc).isoformat()},sort_keys=True).encode('utf-8')
+                      release=posixpath.join(target,'release.json')
+                      sftp.putfo(io.BytesIO(receipt),release+'.tmp',confirm=True)
+                      sftp.posix_rename(release+'.tmp',release)
+                      print('Tick-It release activated: '+revision[:12]+'. Existing tickets, assignments, messages, sessions, and database data left untouched.')
+                  finally:sftp.close()
+              finally:ssh.close()
+          PY

@@ -1,0 +1,50 @@
+/* DTP-HANDY: gemeinsame Handy-Optimierung für alle Lernmodule.
+   Nur Bedienung und Lesbarkeit auf kleinen Displays. Keine Inhalte, keine Bewertung,
+   keine Fortschritts-Schlüssel. Optik (Farben, Kacheln, Schriften) bleibt wie im Modul. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+button,a,[role="tab"],.qhelp,summary,label,select,.area-tab,.stage-tile,.ch-tile,.mode-tile{touch-action:manipulation}
+
+/* Finger statt Mauszeiger: unsichtbar größere Trefferflächen, gleiche Optik. */
+@media (pointer:coarse){
+  .qhelp .qmark{position:relative}
+  .qhelp .qmark::after{content:"";position:absolute;inset:-11px;border-radius:50%}
+  .backtop,.ref-link{padding-block:10px;margin-block:-10px}
+}
+/* Auf Touch-Geräten bleibt :hover nach dem Antippen hängen. Der Tipp folgt dort nur dem Fokus,
+   damit ein zweiter Tipp auf das ? ihn wieder schließt. */
+@media (hover:none){
+  .qhelp:hover:not(:focus):not(:focus-within) .qtip{display:none}
+}
+
+@media (max-width:760px){
+  /* iOS zoomt bei Eingabefeldern unter 16 px ungefragt in die Seite. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),select,textarea{font-size:max(16px,1em)}
+  /* Die Speicherstatus-Pille unten links verdeckt sonst die letzten Zeilen. */
+  body:has(> dtp-sync-status){padding-bottom:72px}
+}
+
+@media (max-width:610px){
+  /* Tabellen: Wörter und Zahlen nicht mitten im Wort umbrechen, lieber seitlich wischen. */
+  .panel table th,.panel table td{overflow-wrap:normal;word-break:normal}
+  /* Rechenwege passen öfter ohne Wischen in die Zeile. */
+  .calc{font-size:12.5px}
+  /* Laborspalten dürfen schmaler werden als ihr längster Inhalt. */
+  .osi-lab,.lab-grid{grid-template-columns:minmax(0,1fr)}
+  .osi-lab>*,.lab-grid>*{min-width:0}
+
+  /* Bereichskacheln kompakter, damit nach dem Antippen der Inhalt sichtbar bleibt. */
+  .area-tabs{gap:10px;margin-top:22px}
+  .area-tab{padding:12px 14px}
+  .area-sym{font-size:20px}
+  .area-tab strong{font-size:16px;margin:6px 0 2px}
+  .area-no{font-size:32px}
+
+  /* Prüfungsmodus: Aufgabe, Punkte und Restzeit bleiben beim Scrollen sichtbar. */
+  #examRun .exam-top{position:sticky;top:0;z-index:30;margin:0 -8px 12px;padding:8px;
+    background:color-mix(in srgb,var(--module-panel,#0b1015) 94%,#000);border-bottom:1px solid var(--module-line,#ffffff22);
+    box-shadow:0 8px 18px #0008}
+  body:has(> dtp-back) #examRun .exam-top{top:55px}
+  #examRun .exam-top{flex-wrap:nowrap;align-items:center}
+  #examRun .exam-top>:not(.timer){flex:1 1 auto;min-width:0;line-height:1.3}
+  #examRun .exam-top .timer{flex:none;font-size:22px}
+}
