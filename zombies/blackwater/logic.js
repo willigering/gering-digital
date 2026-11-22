@@ -21,7 +21,7 @@ function bwInitBarriers(){
 
 // Requisiten: Sichtbereich für große Kulissen, Lichter, Gebäudeschilder als Neon
 function bwInitWorld(){
- for(const p of PROPS){if(p.t==='wheel')p.vb=[p.x-125,p.y-250,250,260];else if(p.t==='carousel')p.vb=[p.x-70,p.y-115,140,125];else if(p.t==='clowngate')p.vb=[p.x-105,p.y-145,210,155];
+ for(const p of PROPS){if(p.t==='wheel')p.vb=[p.x-125,p.y-250,250,260];else if(p.t==='carousel')p.vb=[p.x-70,p.y-115,140,125];else if(p.t==='clowngate')p.vb=[p.x-125,p.y-215,250,225];
   else if(p.t==='billboard')p.vb=[p.x-50,p.y-80,100,90];else if(p.t==='wreck')p.vb=[p.x-60,p.y-50,120,60];
   if(p.t==='flamp')p.lt=bwLight(p.x,p.y-4,p.big?78:62,.85,{lamp:p,hy:p.big?50:40,emer:!!p.emer,c:p.pier?'255,220,170':'255,214,150'});
   else if(p.t==='bulbpole')bwLight(p.x,p.y,42,.55,{hy:46,c:'255,200,120'});
@@ -202,6 +202,15 @@ function bwRenderOver(cx,cy){
  {const a=BW_ZIP.a,b=BW_ZIP.b,ta=a.y-70;if(Math.max(a.x,b.x)>cx-20&&Math.min(a.x,b.x)<cx+W+20&&b.y<cy+H+40&&ta>cy-40){const open=BW.barr.some(q=>q.k==='zip'&&q.open),n=Math.ceil(Math.hypot(b.x-a.x,ta-b.y)/4);
   for(let i=0;i<=n;i++){const t=i/n,x=lerp(a.x,b.x,t),y=lerp(ta,b.y-24,t)+Math.sin(t*Math.PI)*18;R(g,x,y,1,1,open?'#c8c8d0':'#5a5a62')}
   R(g,b.x-3,b.y-30,6,30,'#4a4a52');R(g,b.x-8,b.y-32,16,3,'#6a6a72')}}
+ // Wind: Wimpelketten, Fahnen und lose Zeltlappen
+ {const gw=gustG(),wv=(ph,f=1)=>Math.sin(now*(2.2+gw*3)*f+ph)*(.4+gw);
+  for(const [x0,y0,x1,y1] of [[980,1220,1440,1210],[1000,1520,1360,1530],[980,1220,1000,1520],[1440,1210,1360,1530],[1620,1540,2120,1560]]){if(Math.max(x0,x1)<cx-20||Math.min(x0,x1)>cx+W+20||Math.max(y0,y1)<cy-80||Math.min(y0,y1)>cy+H+20)continue;
+   const n=Math.ceil(Math.hypot(x1-x0,y1-y0)/14);for(let i=1;i<n;i++){const t=i/n,x=lerp(x0,x1,t),y=lerp(y0,y1,t)-40+Math.sin(t*Math.PI)*10,sw=wv(i*.9)*3,col=['#d83a3a','#e8c040','#3a8ad8','#e8e0d0'][i%4];
+    for(let k=0;k<5;k++)R(g,x-2+k*.3+sw*k/5,y+k,Math.max(1,4-k*.8),1,shade(col,.75+k*.03))}}
+  for(const b of BUILD){if(!(b.kind==='canvas'||b.kind==='arcade'||b.kind==='metal'||b.kind==='light'))continue;const fx=b.x+b.w/2,fy=b.y-b.z-(b.rup||0)*.6;if(fx<cx-40||fx>cx+W+40||fy<cy-60||fy>cy+H+40)continue;
+   R(g,fx,fy-26,1,26,'#5a5a62');const col=b.kind==='canvas'?'#c82a34':b.kind==='arcade'?'#c86bff':b.kind==='light'?'#e8dcc8':'#8ad06a';for(let k=0;k<14;k++){const off=Math.sin(now*(4+gw*4)-k*.5)*(1+gw*2)*k/14;R(g,fx+1+k,fy-26+off,1,8,shade(col,k%4<2?1:.8))}}
+  for(const b of BUILD){if(b.kind!=='canvas'&&b.kind!=='stall')continue;if(b.x>cx+W+20||b.x+b.w<cx-20||b.y+b.h<cy-20||b.y>cy+H+40)continue;const yb=b.y+b.h-b.z+2;
+   for(let i=0;i<b.w;i+=b.kind==='canvas'?14:10){const sw=wv(i*.3+b.x,1.3),L=b.kind==='canvas'?8:5;for(let k=0;k<L;k++)R(g,b.x+i+sw*k*.5,yb+k,b.kind==='canvas'?7:5,1,b.kind==='canvas'?(((i/14)|0)%2?'#d8ccb4':'#a8202a'):(((i/10)|0)%2?'#f0e8d8':b.rc))}}}
  // Lichterketten zwischen den Masten am Festzelt
  const pw=POWER.on;const poles=[[980,1220,1440,1210],[1000,1520,1360,1530],[980,1220,1000,1520],[1440,1210,1360,1530]];
  for(const [x0,y0,x1,y1] of poles){if(Math.max(x0,x1)<cx-20||Math.min(x0,x1)>cx+W+20||Math.max(y0,y1)<cy-60||Math.min(y0,y1)>cy+H+20)continue;

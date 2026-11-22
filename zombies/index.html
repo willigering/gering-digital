@@ -40,7 +40,7 @@ const [light,lg]=mk(1,1),[bloomC,bc]=mk(1,1);
 function drawFX(){const F=window.FXS,c=fxg,w=fxc.width,h=fxc.height;if(!HD()||!F){if(fxc.dataset.on){c.clearRect(0,0,w,h);delete fxc.dataset.on}return}fxc.dataset.on=1;
  const k=w/W,tx=x=>(x-F.cx)*k,ty=y=>(y-F.cy)*k;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.clearRect(0,0,w,h);
  // Dunkelheit mit weich ausgeschnittenen Lichtkegeln
- const l=fxlg;l.setTransform(1,0,0,1,0,0);l.globalCompositeOperation='source-over';l.clearRect(0,0,w,h);l.fillStyle=(FAIR?'rgba(18,8,40,':'rgba(14,10,34,')+((FAIR?(POWER.on?.6:.64):.66)*(1-F.bolt*.85))+')';l.fillRect(0,0,w,h);l.globalCompositeOperation='destination-out';
+ const l=fxlg;l.setTransform(1,0,0,1,0,0);l.globalCompositeOperation='source-over';l.clearRect(0,0,w,h);l.fillStyle=(FAIR?WX.col:'rgba(14,10,34,')+((FAIR?WX.dark*(POWER.on?1:1.07):.66)*(1-F.bolt*.85))+')';l.fillRect(0,0,w,h);l.globalCompositeOperation='destination-out';
  for(const [x,y,r,a] of F.LS){const sx=tx(x),sy=ty(y),R2=r*k*1.15;if(sx<-R2||sx>w+R2||sy<-R2||sy>h+R2)continue;const gr=l.createRadialGradient(sx,sy,0,sx,sy,R2);gr.addColorStop(0,'rgba(0,0,0,'+a+')');gr.addColorStop(.45,'rgba(0,0,0,'+a*.7+')');gr.addColorStop(1,'rgba(0,0,0,0)');l.fillStyle=gr;l.fillRect(sx-R2,sy-R2,R2*2,R2*2)}
  c.drawImage(fxl,0,0);
  // warmes Glühen (additiv)
@@ -61,7 +61,7 @@ function drawFX(){const F=window.FXS,c=fxg,w=fxc.width,h=fxc.height;if(!HD()||!F
  // Blitz
  if(F.bolt){c.globalCompositeOperation='screen';c.fillStyle='rgba(190,205,255,'+(.35*F.bolt)+')';c.fillRect(0,0,w,h);c.globalCompositeOperation='source-over'}
  // Regen: feine Schlieren mit leichtem Glanz
- if(OPT.rain!==false){c.strokeStyle='rgba(185,205,235,.28)';c.lineWidth=Math.max(1,k*.35);c.beginPath();const n=Math.round(w*h/9000);for(let i=0;i<n;i++){const x=(i*97.3+now*170*k)%(w+40)-20,y=(i*53.7+now*620*k+i*i*.37)%(h+40)-20;c.moveTo(x,y);c.lineTo(x-2.5*k,y+11*k)}c.stroke()}
+ if(rainOn()){c.strokeStyle='rgba(185,205,235,.28)';c.lineWidth=Math.max(1,k*.35);c.beginPath();const n=Math.round(w*h/9000);for(let i=0;i<n;i++){const x=(i*97.3+now*170*k)%(w+40)-20,y=(i*53.7+now*620*k+i*i*.37)%(h+40)-20;c.moveTo(x,y);c.lineTo(x-2.5*k,y+11*k)}c.stroke()}
  c.globalCompositeOperation='source-over'}
 function resize(){W=Math.ceil(innerWidth/SCALE);H=Math.ceil(innerHeight/SCALE);DPR=devicePixelRatio||1;
  cv.width=light.width=W;cv.height=light.height=H;bloomC.width=Math.ceil(W/3);bloomC.height=Math.ceil(H/3);
@@ -200,6 +200,14 @@ for(let i=0;i<(FAIR?9000:400)&&TREES.length<(FAIR?520:46);i++){const x=srnd(BL.l
  TREES.push({x,y,v:sr()*4|0,ph:sr()*6})}
 if(!FAIR)for(const t of TREES)solids.push({x:t.x-3,y:t.y-4,w:6,h:5});
 // Wind: globale Böenstärke + Welle, die über die Karte zieht (für Gras, Bäume und Wind-Sound)
+// Wetter (nur Blackwater Fair): Regen, Abendrot, Tageslicht – der Host würfelt, Gäste übernehmen es per Snapshot
+const WX={k:['rain','dusk','day'][Math.random()*3|0],t:150,dark:.6,col:'rgba(18,8,40,',tint:'#3a2a6a',mix:{}};
+const WX_SET={rain:{dark:.6,c:[18,8,40],tint:[58,42,106]},dusk:{dark:.36,c:[50,20,34],tint:[118,66,58]},day:{dark:.1,c:[30,30,50],tint:[120,110,100]}};
+function updWeather(dt){if(!FAIR)return;if(!NET.client){WX.t-=dt;if(WX.t<=0){WX.t=120+Math.random()*120;const o=Object.keys(WX_SET).filter(k=>k!==WX.k);WX.k=pick(o);say(WX.k==='rain'?'Es fängt an zu regnen …':WX.k==='dusk'?'Die Sonne geht unter …':'Der Himmel klart auf …')}}
+ const T=WX_SET[WX.k],m=WX.mix,a=Math.min(1,dt*.25);m.d=m.d==null?T.dark:m.d+(T.dark-m.d)*a;m.c=(m.c||T.c.slice()).map((v,i)=>v+(T.c[i]-v)*a);m.t=(m.t||T.tint.slice()).map((v,i)=>v+(T.tint[i]-v)*a);
+ WX.dark=m.d;WX.col='rgba('+m.c.map(v=>v|0).join(',')+',';WX.tint='rgb('+m.t.map(v=>v|0).join(',')+')'}
+// Regen sichtbar? (in Gebäuden der Kirmes nicht; world=true: Regen in der Welt unabhängig vom Standort)
+function rainOn(world){if(OPT.rain===false)return false;if(!FAIR)return true;if(WX.k!=='rain')return false;return world||!(P&&buildingAt(P.x,P.y))}
 const gustG=()=>.55+.45*Math.sin(now*.21)*Math.sin(now*.13+1.3);
 const windAt=(x,y)=>{const w=Math.sin(x*.011+y*.006-now*1.6);return gustG()*(.35+.65*Math.max(0,w)*Math.max(0,w))};
 const GRASS=[];{const GC=['#5e8238','#6e9444','#4f7232','#82a64e'];
@@ -651,7 +659,7 @@ if(FAIR)bwBirds();else for(let i=0;i<5;i++)BIRDS.push({x:800+i*85+Math.random()*
 if(!FAIR)for(let i=0;i<4;i++)BIRDS.push({x:140+i*90+Math.random()*30,y:153,z:52,perch:true,ph:Math.random()*6});
 for(const c of CARS)if(Math.random()<.35)BIRDS.push({x:c.x+c.w/2,y:c.y+c.h/2,z:13,perch:true,ph:Math.random()*6,car:c});
 function scareBirds(x,y,r){for(const b of BIRDS)if(b.perch&&Math.hypot(b.x-x,b.y-y)<r){b.perch=false;const a=Math.random()*6.3;b.vx=Math.cos(a)*150;b.vy=Math.sin(a)*70-20;b.vz=90+Math.random()*40}}
-function updAtmos(dt){
+function updAtmos(dt){updWeather(dt);
  for(const gl of GULLIS)if(Math.abs(gl.x-cam.x-W/2)<W&&Math.abs(gl.y-cam.y-H/2)<H&&Math.random()<dt*4)part({x:gl.x+rnd(-4,4),y:gl.y,z:1,vx:rnd(2,7),vy:rnd(-1,1),vz:rnd(5,10),life:rnd(1.6,2.8),c:'#c8ccd4',s:3,grow:7,smoke:1});
  // Krähen
  for(const p of PL)if(!p.dead)scareBirds(p.x,p.y,55);if(noise_)scareBirds(noise_.x,noise_.y,noise_.r*.8);
@@ -661,7 +669,7 @@ function updAtmos(dt){
  flockT-=dt;if(flockT<=0){flockT=20+Math.random()*30;const L=Math.random()<.5,y0=cam.y+Math.random()*H,n=3+Math.random()*5|0;
   for(let i=0;i<n;i++)BIRDS.push({x:(L?cam.x-40:cam.x+W+40)-(L?1:-1)*i*14+Math.random()*8,y:y0+Math.random()*40-20+i*5,z:90+Math.random()*40,vx:(L?1:-1)*(190+Math.random()*60),vy:Math.random()*30-15,ph:Math.random()*6,zig:1})}
  // Regen-Spritzer und Pfützenringe
- if(OPT.rain!==false){for(let i=0;i<10;i++)if(Math.random()<dt*60/10)SPLASH.push({x:cam.x+Math.random()*W,y:cam.y+Math.random()*H,t:0});
+ if(rainOn(true)){for(let i=0;i<10;i++)if(Math.random()<dt*60/10){const sx=cam.x+Math.random()*W,sy=cam.y+Math.random()*H;if(!FAIR||!buildingAt(sx,sy))SPLASH.push({x:sx,y:sy,t:0})}
   for(const p of PUDDLES)if(Math.random()<dt*2.5&&Math.abs(p.x-cam.x-W/2)<W)RIPPLES.push({x:p.x+(Math.random()-.5)*p.w*1.4,y:p.y+(Math.random()-.5)*p.w*.5,t:0})}
  for(const s2 of SPLASH)s2.t+=dt;for(const r of RIPPLES)r.t+=dt;
  for(let i=SPLASH.length-1;i>=0;i--)if(SPLASH[i].t>.22)SPLASH.splice(i,1);for(let i=RIPPLES.length-1;i>=0;i--)if(RIPPLES[i].t>.9)RIPPLES.splice(i,1);
@@ -669,7 +677,7 @@ function updAtmos(dt){
  if(Math.random()<dt*1.2)LEAVES.push({x:cam.x-10,y:cam.y+Math.random()*H,vx:30+Math.random()*40,ph:Math.random()*6,c:pick(['#a05a20','#c8862a','#7a4a1e','#b8a030']),t:0});
  for(const l of LEAVES){l.t+=dt;l.ph+=dt*4;l.x+=l.vx*dt;l.y+=Math.sin(l.ph)*12*dt+6*dt}for(let i=LEAVES.length-1;i>=0;i--)if(LEAVES[i].t>12)LEAVES.splice(i,1);
  // Gewitter
- boltT-=dt;if(boltT<=0){boltT=30+Math.random()*40;bolt=.45;thunderAt=now+.8+Math.random()*1.4}
+ boltT-=dt;if(boltT<=0&&(!FAIR||WX.k==='rain')){boltT=30+Math.random()*40;bolt=.45;thunderAt=now+.8+Math.random()*1.4}
  if(bolt>0)bolt-=dt;if(thunderAt>0&&now>=thunderAt){thunderAt=-1;thunder()}}
 function thunder(){if(SFXB.thunder_1){sfx('thunder',P?P.x:0,P?P.y:0,.7,.9+Math.random()*.2,1);return}try{const c=ac(),t=c.currentTime,len=c.sampleRate*3.5|0,b=c.createBuffer(1,len,c.sampleRate),d=b.getChannelData(0);let f=0;
  for(let i=0;i<len;i++){f=f*.97+(Math.random()*2-1)*.03;const k=i/len;d[i]=f*8*(k<.03?k/.03:Math.pow(1-k,1.6))*(1+.5*Math.sin(k*40)*Math.sin(k*7))}
@@ -688,7 +696,7 @@ function drawRainWorld(){g.strokeStyle='rgba(200,215,240,.5)';g.lineWidth=1;
  for(const r of RIPPLES){const rr=1+r.t*9;g.globalAlpha=(1-r.t/.9)*.6;g.beginPath();g.ellipse(r.x,r.y,rr,rr*.4,0,0,7);g.stroke()}g.globalAlpha=1;
  for(const l of LEAVES){R(g,l.x,l.y,2,1,l.c);if(Math.sin(l.ph)>0)R(g,l.x+1,l.y-1,1,1,l.c)}}
 const RAIN=[];for(let i=0;i<260;i++)RAIN.push({x:Math.random(),y:Math.random(),s:.7+Math.random()*.6});
-function drawRainScreen(dt){if(OPT.rain===false)return;g.strokeStyle='rgba(170,190,225,.32)';g.lineWidth=1;g.beginPath();
+function drawRainScreen(dt){if(!rainOn())return;g.strokeStyle='rgba(170,190,225,.32)';g.lineWidth=1;g.beginPath();
  for(const r of RAIN){r.y+=dt*1.5*r.s;r.x-=dt*.18*r.s;if(r.y>1){r.y-=1;r.x=Math.random()*1.2}if(r.x<0)r.x+=1;const x=r.x*W,y=r.y*H;g.moveTo(x,y);g.lineTo(x-2*r.s,y+7*r.s)}g.stroke()}
 function drawMoths(){for(const p of PROPS)if(p.t==='lamp'){const lx=p.x+7,ly=p.y-38;for(let i=0;i<3;i++){const a=now*(3+i)+i*2.1+p.x;R(g,lx+Math.cos(a)*(4+i*2),ly+Math.sin(a*1.3)*(3+i),1,1,'rgba(255,245,200,.9)')}}}
 function swap(pl){if(pl.aimT)pl.aimT=null;if(pl.slots[1-pl.cur]){pl.cur=1-pl.cur;pl.reloadT=0;sfx('weapon_swap',pl.x,pl.y,.7)}}
@@ -883,7 +891,7 @@ function clientRest(dt){
   netSend({t:'in',cr:P.inCar>=0&&CARS[P.inCar]?[P.inCar,Math.round(CARS[P.inCar].cx*10)/10,Math.round(CARS[P.inCar].cy*10)/10,+CARS[P.inCar].a.toFixed(3),Math.round(CARS[P.inCar].spd)]:null,pz:+(P.hz||0).toFixed(1),pt:playCode(P),x:Math.round(P.x*10)/10,y:Math.round(P.y*10)/10,f:+P.face.toFixed(2),ph:+P.phase.toFixed(2),mv:P.moving,hop:+(P.hop||0).toFixed(2),e:!!keys.e,...NET.out});
   NET.out={shots:[],rl:false,sw:false,vault:null,ep:false,ml:false,bl:false,th:null,hl:0,hd:null,dp:false,cc:0,ky:false,xc:false,cl:false}}}
 function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
- netSend({t:'snap',mp:MAPID,mb:mbSnap(),bw:FAIR?bwSnap():null,wave,toSpawn,breakT:+breakT.toFixed(1),
+ netSend({t:'snap',mp:MAPID,mb:mbSnap(),wx:FAIR?WX.k:0,bw:FAIR?bwSnap():null,wave,toSpawn,breakT:+breakT.toFixed(1),
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
    bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,pk:p.papK||0,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),ic:p.inCar,ky:p.key,tn:+(p.turnT||0).toFixed(1),aw:p.away?1:0,zb:p.zombie?1:0,mx:p.max,pe:p.perks?Object.keys(p.perks).join(','):'',sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
    hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0})),
@@ -896,7 +904,7 @@ function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
   z:zombies.map(z=>[z.id,Math.round(z.x),Math.round(z.y),+z.face.toFixed(2),+z.phase.toFixed(1),+(z.hz||0).toFixed(1),+Math.max(0,z.rise).toFixed(2),
    +Math.max(0,z.lunge||0).toFixed(2),+Math.max(0,z.stag||0).toFixed(2),z.hit>0?1:0,+Math.max(0,z.alertT).toFixed(1),z.look,+(z.scent||0).toFixed(1)]),
   ev:EV.splice(0)})}
-function applySnap(s){if(mapCheck(s.mp))return;if(FAIR&&s.bw)bwApply(s.bw);mbApply(s.mb);wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=new Set([P.id]);
+function applySnap(s){if(mapCheck(s.mp))return;if(FAIR&&s.bw)bwApply(s.bw);mbApply(s.mb);if(FAIR&&s.wx&&WX_SET[s.wx])WX.k=s.wx;wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=new Set([P.id]);
  for(const d of s.pl){seen.add(d.id);let p=PL.find(q=>q.id===d.id);
   if(!p){p=newPlayer({id:d.id,name:d.n,net:true,x:d.x,y:d.y});PL.push(p)}
   if(p===P){if(d.hp<P.hp-1&&!d.dn){P.hurtT=.3;shake=4;sfx('zombie_attack',null,null,.8);sfx('player_hurt',null,null,.75,1,.35)}if(P.zapT<d.zp-.2)sfx('revive_zap',null,null,.7);if(P.down&&!d.dn&&!d.dd)sfx('revive_done');if((P.dead&&!d.dd)||(P.down!==d.dn)){P.x=d.x;P.y=d.y}}
@@ -1899,7 +1907,7 @@ function render(){
  const mr=g.createLinearGradient(MW-200,0,MW,0);mr.addColorStop(0,'rgba(170,110,80,0)');mr.addColorStop(1,'rgba(170,110,80,.35)');g.fillStyle=mr;g.fillRect(MW-200,cy,200,H)}
  g.globalCompositeOperation='source-over';g.globalAlpha=1;
  // ===== Licht (Dämmerung + Taschenlampe)
- lg.setTransform(1,0,0,1,0,0);lg.globalCompositeOperation='source-over';lg.clearRect(0,0,W,H);lg.fillStyle=(FAIR?'rgba(20,8,42,':'rgba(16,12,36,')+((FAIR?.5:.5)*(1-boltFlash()*.85))+')';lg.fillRect(0,0,W,H);
+ lg.setTransform(1,0,0,1,0,0);lg.globalCompositeOperation='source-over';lg.clearRect(0,0,W,H);lg.fillStyle=(FAIR?WX.col:'rgba(16,12,36,')+((FAIR?WX.dark*.83:.5)*(1-boltFlash()*.85))+')';lg.fillRect(0,0,W,H);
  lg.translate(-cx+ox,-cy+oy);lg.globalCompositeOperation='destination-out';
  const LS=[];
  for(const f of FIRES)LS.push([f.x,f.y-(f.lift||0)-f.s*.5,f.s*5.5+Math.sin(now*13+f.ph)*4,1]);
@@ -1929,7 +1937,7 @@ function render(){
  g.globalCompositeOperation='screen';g.imageSmoothingEnabled=true;g.globalAlpha=.3;g.drawImage(bloomC,0,0,W,H);
  g.filter='blur(6px) sepia(1) saturate(5) hue-rotate(-28deg)';g.globalAlpha=.28;g.drawImage(bloomC,0,0,W,H);g.filter='none';g.imageSmoothingEnabled=false}
  // ===== Color-Grading, Vignette, Filmkorn
- g.globalAlpha=1;g.globalCompositeOperation='soft-light';g.fillStyle=FAIR?'#3a2a6a':'#2a4a6a';g.fillRect(0,0,W,H);
+ g.globalAlpha=1;g.globalCompositeOperation='soft-light';g.fillStyle=FAIR?WX.tint:'#2a4a6a';g.fillRect(0,0,W,H);
  g.globalCompositeOperation='source-over';
  const vg=g.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,H*.95);vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.55)');g.fillStyle=vg;g.fillRect(0,0,W,H);
  g.globalCompositeOperation='overlay';g.globalAlpha=.12;const gx=Math.random()*128|0,gy=Math.random()*128|0;for(let x=-gx;x<W;x+=128)for(let y=-gy;y<H;y+=128)g.drawImage(grainT,x,y);
@@ -2130,7 +2138,7 @@ function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
  else if(SCALE!==BASE_SCALE){camZoom=1;SCALE=BASE_SCALE;resize()}
  if(started&&NET.host)for(let i=PL.length-1;i>0;i--)if(PL[i].away&&Date.now()-PL[i].awayT>180000)onMsg({t:'leave',id:PL[i].id});
  if(started&&!NET.client&&!alive().length)sendTeamScore();
- if(started){sfxLoop('rain_loop',OPT.rain!==false,.35);sfxLoop('wind_loop',true,.25);if(LOOPS.wind_loop)LOOPS.wind_loop.gn.gain.value=OPT.svol*SFX_MASTER*.25*(.45+gustG()*.9);
+ if(started){sfxLoop('rain_loop',rainOn(true),FAIR&&P&&buildingAt(P.x,P.y)?.15:.35);sfxLoop('wind_loop',true,.25);if(LOOPS.wind_loop)LOOPS.wind_loop.gn.gain.value=OPT.svol*SFX_MASTER*.25*(.45+gustG()*.9);
   if(Math.random()<dt*1.2){const vt=TREES.filter(t=>t.v<4&&Math.abs(t.x-cam.x-W/2)<W/2+20&&Math.abs(t.y-cam.y-H/2)<H/2+40);if(vt.length){const t=pick(vt),w=windAt(t.x,t.y);part({x:t.x+rnd(-8,8),y:t.y,z:rnd(22,34),vx:20+w*40,vy:rnd(-4,6),vz:rnd(-2,4),g:9,life:rnd(3,5),c:pick(['#8a6a2a','#a0602a','#6a7a2a','#7a4a20']),s:1})}}sfxLoop('ambient_loop',true,.5);sfxLoop('aerial_loop',true,.4);
   {let fd=1e9;for(const f of FIRES){const dd=Math.hypot(f.x-P.x,f.y-P.y);if(dd<fd)fd=dd}const fv=clamp(1-fd/160,0,1);sfxLoop('fire_loop',fv>0,0);if(LOOPS.fire_loop)LOOPS.fire_loop.gn.gain.value=OPT.svol*SFX_MASTER*fv*fv*.9}
   for(const z of zombies)if(z.hp>0&&!(z.rise>0)&&Math.random()<dt*.05&&Math.hypot(z.x-P.x,z.y-P.y)<200)sfx('zombie_groan',z.x,z.y,.55,.85+Math.random()*.3,.5);sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);

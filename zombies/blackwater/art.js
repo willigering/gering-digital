@@ -181,19 +181,29 @@ function bwRoofLighthouse(c,b){const w=b.w,h=b.h;R(c,0,0,w,h,'#5a4a46');for(let 
 // =====================================================================
 let BW_GATE=null,BW_WHEEL=null,BW_CAR=null,BW_COASTER=null;
 function bwPrerender(){
- // Clownstor (200×140), Fußpunkt unten Mitte = (100,136)
- {const [cv,c]=mk(200,140),ox=100,oy=136;
-  for(const sx of [-62,50]){R(c,ox+sx,oy-70,12,70,'#2a1e22');for(let y=0;y<68;y+=8){R(c,ox+sx+1,oy-69+y,10,4,'#b8202a');R(c,ox+sx+1,oy-65+y,10,4,'#e8dcc4')}R(c,ox+sx-2,oy-74,16,6,'#c8a040');R(c,ox+sx-2,oy-4,16,4,'#3a2a2a')}
-  bwCirc(c,ox,oy-96,40,'#1e1418');bwCirc(c,ox,oy-96,38,'#e8dcc8');
-  for(let i=0;i<60;i++){const a=Math.random()*6.3,r=Math.random()*36;R(c,ox+Math.cos(a)*r,oy-96+Math.sin(a)*r,2,1,'#c8bca8')}
-  for(const s of [-1,1]){bwCirc(c,ox+s*44,oy-104,14,'#d84a1a');bwCirc(c,ox+s*52,oy-96,10,'#e86a2a');bwCirc(c,ox+s*40,oy-116,9,'#c83a12')}
-  bwEll(c,ox,oy-138+6,18,5,'#3a2a5a');R(c,ox-10,oy-138,20,6,'#4a3a6a');
-  for(const s of [-1,1]){bwEll(c,ox+s*14,oy-106,7,8,'#1a1014');R(c,ox+s*14-6,oy-116,12,2,'#1a1014')}
-  bwCirc(c,ox,oy-94,6,'#d82a2a');R(c,ox-2,oy-97,2,2,'#ff8a8a');
-  bwEll(c,ox,oy-74,30,12,'#9a1a22');bwEll(c,ox,oy-72,24,9,'#0a0608');for(let x=-20;x<=16;x+=6){R(c,ox+x,oy-80,4,4,'#f0ead8');R(c,ox+x+2,oy-67,3,3,'#e8e0c8')}
-  R(c,ox-50,oy-66,100,2,'#9a1a22');
-  for(let i=0;i<30;i++){R(c,ox-30+Math.random()*60,oy-120+Math.random()*50,1,2,'rgba(60,40,30,.6)')}
-  R(c,ox-72,oy-52,144,14,'#1a1016');R(c,ox-72,oy-52,144,1,'#c8a040');R(c,ox-72,oy-39,144,1,'#c8a040');
+ // Clownstor (240×210) nach Willis Bild: riesiger Clownskopf, das offene Maul ist der Durchgang. Fußpunkt unten Mitte = (120,206)
+ {const [cv,c]=mk(240,210),ox=120,oy=206;
+  // Pfosten mit Streifen und Lampen
+  for(const sx of [-68,52]){R(c,ox+sx,oy-160,16,160,'#2a1a1e');for(let y=0;y<156;y+=10){R(c,ox+sx+2,oy-158+y,12,5,'#b8202a');R(c,ox+sx+2,oy-153+y,12,5,'#e8dcc4')}R(c,ox+sx-3,oy-166,22,7,'#c8a040');R(c,ox+sx+2,oy-6,12,6,'#3a2a2a')}
+  // Haare (rot-orange Büschel)
+  for(const s2 of [-1,1])for(let i=0;i<7;i++){const a=-.3+i*.32;bwCirc(c,ox+s2*(46+Math.cos(a)*12),oy-112+Math.sin(a)*30-10,12-(i%2)*3,['#c83a12','#e8601e','#a82a10'][i%3])}
+  for(let i=0;i<5;i++)bwCirc(c,ox-24+i*12,oy-150,9,['#c83a12','#e8601e'][i%2]);
+  // Gesicht
+  bwEll(c,ox,oy-100,50,52,'#1e1418');bwEll(c,ox,oy-101,47,49,'#e8dcc8');
+  for(let i=0;i<220;i++){const a=Math.random()*6.3,r=Math.random()*44;R(c,ox+Math.cos(a)*r,oy-101+Math.sin(a)*r*1.05,2,1,pick(['#d0c4ae','#c8bca6','#f0e6d4']))}
+  for(const s2 of [-1,1]){bwEll(c,ox+s2*30,oy-86,10,7,'rgba(200,60,70,.45)');
+   // Augenhöhlen + Brauen
+   bwEll(c,ox+s2*17,oy-118,11,10,'#2a1418');bwEll(c,ox+s2*17,oy-118,8,7,'#5a1a14');bwLine(c,ox+s2*6,oy-128,ox+s2*30,oy-136,'#1a1014',3);
+   for(let k=0;k<6;k++)R(c,ox+s2*(36+k),oy-122+k*3,1,2,'rgba(60,40,30,.6)')}
+  // Nase
+  bwCirc(c,ox,oy-100,10,'#9a1a1a');bwCirc(c,ox,oy-101,9,'#d82a2a');R(c,ox-4,oy-106,3,3,'#ff9a8a');
+  // Maul = Tor: rote Lippen, dunkler Schlund, Zähne
+  bwEll(c,ox,oy-40,46,42,'#7a0a12');bwEll(c,ox,oy-38,42,38,'#b01a22');bwEll(c,ox,oy-36,36,34,'#0a0406');R(c,ox-38,oy-36,76,36,'#0a0406');R(c,ox-46,oy-40,8,40,'#b01a22');R(c,ox+38,oy-40,8,40,'#b01a22');
+  for(let x=-32;x<=26;x+=8){for(let k=0;k<9;k++)R(c,ox+x+k*.45,oy-70+k,Math.max(1,7-k*.8),1,k<2?'#f0e6c0':'#d8c890')}
+  for(const x of [-38,30])for(let k=0;k<14;k++)R(c,ox+x+(x<0?k*.3:-k*.3),oy-60+k*4,4,3,'#d8c890');
+  bwEll(c,ox,oy-20,18,6,'rgba(120,20,30,.5)');
+  // Schmutz und Risse
+  for(let i=0;i<40;i++)R(c,ox-44+Math.random()*88,oy-150+Math.random()*80,1,2,'rgba(50,34,26,.5)');
   BW_GATE=cv}
  // Riesenrad: Rad mit Speichen (R=108)
  {const S=232,[cv,c]=mk(S,S),m=S/2;bwRing(c,m,m,108,'#9a9088',3);bwRing(c,m,m,96,'#7a706a',2);
@@ -224,9 +234,13 @@ function bwDrawProp(p){const x=Math.round(p.x),y=Math.round(p.y);
  switch(p.t){
  case'flamp':{const on=p.emer?(Math.sin(now*19+x)+Math.sin(now*7+y)>1.3?0:1):bwLit(bwSec(x,y),p.fl||0),H=p.big?50:40;R(g,x-1,y-H,3,H,'#2a2a34');R(g,x-1,y-H,1,H,'#4a4a56');R(g,x-3,y-3,7,3,'#1e1e26');R(g,x-6,y-H,13,2,'#2a2a34');
   for(const s of [-6,6]){bwCirc(g,x+s,y-H+3,3,on?'#fff2c8':'#3a3a44');if(on)R(g,x+s-1,y-H+2,2,2,'#ffffff')}bwCirc(g,x,y-H-3,2,on?'#ffe8a0':'#3a3a44');break}
- case'clowngate':{const a=fadeIf(x-100,y-140,200,140,y);g.globalAlpha=a;g.drawImage(BW_GATE,x-100,y-136);
-  const on=POWER.on,eye=.6+Math.sin(now*3)*.4;for(const s of [-1,1]){R(g,x+s*14-2,y-107,4,4,'rgba(255,40,30,'+eye+')');R(g,x+s*14-1,y-106,2,2,'#ffd0c0')}
-  bwText(g,'BLACKWATER FAIR',x-29,y-48,on?'#ffd23a':'#4a3a2a');for(let i=0;i<24;i++){const bx=x-70+i*6,lit=on?((i+(now*6|0))%3===0):(i===7&&Math.random()<.5);R(g,bx,y-53,2,2,lit?'#fff2a0':'#3a2a1e');R(g,bx,y-38,2,2,lit?'#fff2a0':'#3a2a1e')}g.globalAlpha=1;break}
+ case'clowngate':{const a=fadeIf(x-120,y-210,240,210,y);g.globalAlpha=a;g.drawImage(BW_GATE,x-120,y-206);
+  const on=POWER.on,eye=.65+Math.sin(now*3)*.35;for(const s of [-1,1]){bwEll(g,x+s*17,y-118,5,4,'rgba(255,214,60,'+eye+')');R(g,x+s*17-2,y-119,3,2,'#fff6c0')}
+  // Neon-Bogen BLACKWATER / FAIR mit Glühbirnen
+  for(let i=0;i<=28;i++){const t=i/28,bx=x-62+t*124,by=y-176-Math.sin(t*Math.PI)*16,lit=on?((i+(now*6|0))%3!==0):(i%9===4&&Math.random()<.5);R(g,bx-1,by-1,2,2,lit?'#fff2a0':'#3a2a1e')}
+  R(g,x-46,y-196,92,30,'rgba(20,6,10,.85)');
+  const nc=on?((now*1.3%5)<.08?'#5a1a10':'#ff5a2a'):'#4a1a14';bwTextC(g,'BLACKWATER',x,y-192,nc,2);bwTextC(g,'FAIR',x,y-180,on?'#ffb03a':'#4a2a14',2);
+  g.globalAlpha=1;break}
  case'turnstile':R(g,x-6,y-12,2,12,'#5a5a64');R(g,x+4,y-12,2,12,'#5a5a64');R(g,x-6,y-12,12,2,'#7a7a84');bwLine(g,x-5,y-8,x+5,y-5,'#9a9aa4');break;
  case'billboard':{R(g,x-30,y-50,3,50,'#3a3036');R(g,x+27,y-50,3,50,'#3a3036');R(g,x-36,y-76,72,30,'#1a1418');R(g,x-35,y-75,70,28,'#d8ccb0');R(g,x-35,y-75,70,6,'#b02a2a');for(let i=0;i<14;i++)R(g,x-35+Math.random()*0+i*5,y-48,2,2,'rgba(60,40,30,.5)');
   bwTextC(g,p.txt[0],x,y-66,'#2a1a1a');bwTextC(g,p.txt[1],x,y-59,'#8a1a1a');R(g,x-35+((x*3)%40),y-75,10,28,'rgba(0,0,0,.15)');R(g,x+10,y-62,22,14,'rgba(40,30,30,.25)');break}
