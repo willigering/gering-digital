@@ -13,6 +13,10 @@ $db->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE TABLE mail_meta (id INTEGER PRIMARY KEY CHECK(id=1), salt TEXT NOT NULL, config TEXT NOT NULL DEFAULT '{}', smtp_secret TEXT NOT NULL DEFAULT '')");
 $db->exec("INSERT INTO mail_meta(id,salt) VALUES(1,'0123456789abcdef0123456789abcdef')");
 $_SESSION['bewerbungen_mail_key']=bin2hex(random_bytes(32));
+$legacy=['mailBody'=>'Alter Begleittext','senderStreet'=>'Bestehende Straße'];
+$db->prepare('UPDATE mail_meta SET config=? WHERE id=1')->execute([json_encode($legacy)]);
+t(gdm_config($db)['mailBody']===gdm_defaults()['mailBody'],'Requested mail body replaces legacy configuration');
+t(gdm_config($db)['senderStreet']==='Bestehende Straße','Migration preserves sender fields');
 $config=gdm_defaults();
 $config['senderStreet']='Musterweg 10';
 $config['senderPostal']='32791';
@@ -22,6 +26,9 @@ gdm_update_settings($db,$config);
 t(gdm_decrypt($db)==='test-local-only','SMTP secret encrypted and round-tripped');
 t(!str_contains((string)$db->query('SELECT smtp_secret FROM mail_meta')->fetchColumn(),'test-local-only'),'SMTP secret not saved as plaintext');
 t(gdm_config($db)['senderStreet']==='Musterweg 10','Sender address persisted');
+$custom=gdm_config($db);$custom['mailBody']='Mein angepasster Begleittext';
+gdm_update_settings($db,$custom);
+t(gdm_config($db)['mailBody']==='Mein angepasster Begleittext','Subsequent edits remain saved');
 $company=[
     'id'=>'test-entry','company'=>'Muster & Partner GmbH','city'=>'Detmold',
     'street'=>'Beispielstr. 7','postal'=>'32756','postCity'=>'Detmold',

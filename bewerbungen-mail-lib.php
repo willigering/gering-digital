@@ -65,7 +65,8 @@ function gdm_defaults(): array {
         'subjectTemplate' => 'Bewerbung um ein Pflichtpraktikum – Fachinformatiker Systemintegration',
         'salutation' => 'Sehr geehrte Damen und Herren,',
         'coverLetter' => "im Rahmen meiner Umschulung zum Fachinformatiker für Systemintegration suche ich einen Praktikumsplatz für den Zeitraum vom 09.08.2027 bis zum 24.03.2028.\n\nBesonders interessieren mich die Arbeit mit Netzwerken, Windows- und Linux-Systemen, Virtualisierung sowie die praktische Unterstützung im IT-Betrieb.\n\nÜber die Möglichkeit, mich und meine Motivation in einem persönlichen Gespräch vorzustellen, würde ich mich sehr freuen.",
-        'mailBody' => "Guten Tag,\n\nanbei übersende ich Ihnen meine Bewerbung für ein Pflichtpraktikum im Bereich Fachinformatik Systemintegration vom 09.08.2027 bis zum 24.03.2028.\n\nÜber eine Rückmeldung freue ich mich.\n\nMit freundlichen Grüßen\n{ABSENDER}",
+        'mailBodyVersion' => 1,
+        'mailBody' => "Sehr geehrte Damen und Herren,\n\nim Rahmen meiner Umschulung zum Fachinformatiker für Systemintegration bei der DAA suche ich einen Praktikumsplatz für den Zeitraum vom 09.08.2027 bis zum 24.03.2028.\n\nGerne möchte ich mein Pflichtpraktikum in Ihrem Unternehmen absolvieren und dabei meine erworbenen Kenntnisse in der Praxis vertiefen.\n\nMeine vollständigen Bewerbungsunterlagen finden Sie im Anhang.\n\nÜber eine Rückmeldung und die Möglichkeit eines persönlichen Gesprächs würde ich mich sehr freuen.\n\nMit freundlichen Grüßen\n\nWilli Gering",
     ];
 }
 function gdm_config(PDO $db): array {
@@ -73,6 +74,11 @@ function gdm_config(PDO $db): array {
     $read = $raw ? json_decode((string)$raw, true) : [];
     if (!is_array($read)) $read = [];
     $config = array_merge(gdm_defaults(), array_intersect_key($read,gdm_defaults()));
+    // Apply Willi's requested replacement once, including to existing settings.
+    if((int)($read['mailBodyVersion']??0)<1){
+        $config['mailBody']=gdm_defaults()['mailBody'];
+        $config['mailBodyVersion']=1;
+    }
     $config['senderEmail'] = GD_MAIL_FROM;
     return $config;
 }
