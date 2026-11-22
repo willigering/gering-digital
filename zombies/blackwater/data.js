@@ -20,7 +20,7 @@ const BW_PRICES={
  pap:5000,      // erste Waffenverbesserung (jede weitere Stufe: pap × Stufe)
  perkBase:2500, // 1. Perk; jeder weitere +perkStep
  perkStep:500,
- car:[100,500,1000,1600], // Auto: meist min–max1, mit 30 % Chance max1–max2
+ car:[20,120,200,450], // Auto: meist min–max1, mit 12 % Chance max1–max2
  till:[300,800]           // Kasse (Ticketschalter, Festzelt, Spielhalle, Buden …)
 };
 const BW_START={x:380,y:1330};
@@ -53,6 +53,8 @@ const BW_PATHS=[
 const BW_PATHW=26;
 const BW_BRIDGE=[2140,1578,370,44]; // Welt-Pixel
 const BW_ZIP={a:{x:2742,y:1600},b:{x:2800,y:650}}; // Leuchtturm-Spitze → Kraftwerkshof
+const BW_LH_TOP={x:2742,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
+const BW_LH_STAIR=[2780,1398,12,206],BW_LH_GAL=[2714,1384,78,24]; // Außentreppe (Ostseite) und Galerie, begehbar
 
 // ---- Kleiner SVG-Pfad-Leser (nur M, L, C, Z, absolut) → Punktlisten in Welt-Pixeln
 function bwPathPts(d,step=6){const t=d.match(/[MLCZ]|-?[\d.]+/g),out=[];let cur=null,i=0,x=0,y=0,sx=0,sy=0;const num=()=>+t[i++]*BW_S;
@@ -72,7 +74,7 @@ function bwBuildMask(){
  const [c1,x1]=mk2();x1.fillStyle='#fff';x1.strokeStyle='#fff';x1.lineCap='round';x1.lineJoin='round';
  for(const k of BW_ZK)x1.fill(bwP2(BW_ZONES[k].d));
  x1.lineWidth=BW_PATHW;for(const p of BW_PATHS)x1.stroke(bwP2(p.d));
- x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);
+ x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);x1.fillRect(...BW_LH_STAIR);x1.fillRect(...BW_LH_GAL);
  const d1=x1.getImageData(0,0,BW_GW,BW_GH).data;BW_MASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_MASK.length;i++)BW_MASK[i]=d1[i*4+3]>140?1:0;
  const [c2,x2]=mk2();BW_ZK.forEach((k,i)=>{x2.fillStyle='rgb('+((i+1)*25)+',0,0)';x2.fill(bwP2(BW_ZONES[k].d))});
  const d2=x2.getImageData(0,0,BW_GW,BW_GH).data;BW_ZMASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_ZMASK.length;i++)BW_ZMASK[i]=d2[i*4+3]>200?Math.round(d2[i*4]/25):0;
@@ -116,7 +118,7 @@ function bwBuildings(){const B=[];
  // F: Festzelt + Buden
  B.push({x:1060,y:1220,w:280,h:200,z:44,wall:'#a8202a',rc:'#c82a34',roof:'flat',kind:'canvas',floor:'boards',inner:'#5a161c',pass:1,
   N:[[120,40,'o']],S:[[110,60,'o']],W:[[80,40,'o']],E:[[80,40,'o']],inner:[],roofFn:bwRoofTent,wallFn:bwWallCanvas,rup:52,rov:6,furn:bwTentFurn()});
- for(const [x,y,c,rc,s,sc] of [[1380,1236,'#c8a030','#d83a2a','CORN DOGS','#ffd23a'],[952,1320,'#3a7ac8','#e8e8f0','BRAIN FREEZE','#7ad8ff'],[1180,1452,'#a83a7a','#ffb0d8','COTTON CANDY','#ff8ad8']])B.push(bwStall(x,y,72,56,c,rc,s,sc,1));
+ for(const [x,y,c,rc,s,sc] of [[1380,1236,'#c8a030','#d83a2a','CORN DOGS','#ffd23a'],[952,1320,'#3a7ac8','#e8e8f0','BRAIN FREEZE','#7ad8ff']])B.push(bwStall(x,y,72,56,c,rc,s,sc,1));
  // R: Geisterbahn + Wurfbude
  B.push({x:1600,y:420,w:150,h:110,z:46,wall:'#2a2430',rc:'#1a1620',roof:'gable',kind:'wood',floor:'carpet',inner:'#3a2a3a',pass:1,
   N:[],S:[[24,24,'o'],[104,24,'o']],W:[[40,20,'o']],E:[],inner:[[70,30,70,110,[]]],
@@ -137,12 +139,12 @@ function bwBuildings(){const B=[];
  // P: Imbiss auf der Promenade
  B.push(bwStall(1640,1570,72,56,'#c8602a','#ffe0a0','FRIED EVERYTHING','#ffb040',1));
  // L: Leuchtturm
- B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:40});
+ B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
  return B}
 
 // ---- Möbeltypen [Breite, Tiefe, Höhe, Oberseite, Front, durchsuchbar]
 const BW_FT={arcade:[12,8,26,'#24162e','#3a2050',1],pinball:[12,24,12,'#1a1a2a','#4a2a6a',1],claw:[16,14,30,'#c8c8d8','#c83a6a',1],skee:[14,44,8,'#6a4a2a','#4a3220'],
- prize:[60,10,14,'#d8b848','#a83a3a',1],stage:[120,26,8,'#5a3a24','#3a2416'],btable:[40,12,8,'#8a6a44','#6a4e32'],bbench:[40,4,5,'#7a5a3a','#5a4028'],
+ prize:[60,10,14,'#d8b848','#a83a3a',1],stage:[120,26,8,'#5a3a24','#3a2416'],btable:[40,12,8,'#8a6a44','#6a4e32'],bbench:[40,5,9,'#c8904a','#8a5a2a'],
  barv:[12,70,14,'#6a4a2a','#4a3220',1],piano:[30,12,16,'#1a1414','#2a2020',1],counter2:[52,6,12,'#c8b890','#8a6a48'],fryer:[18,10,14,'#9a9aa0','#6a6a70',1],
  turbine:[50,30,30,'#6a7078','#4a5058'],generator:[60,30,24,'#7a6a3a','#5a4a28'],panel:[60,10,14,'#4a5a5a','#2a3a3a',1],bumper:[16,12,8,'#c83a3a','#8a2a2a'],
  cart:[26,12,10,'#a83020','#6a2016',1],coffin:[10,22,8,'#3a2418','#2a180e',1],spiral:[24,24,40,'#8a8a90','#5a5a60']};
@@ -175,12 +177,12 @@ function bwProps(){
  prop({t:'clowngate',x:640,y:1594});solids.push({x:572,y:1580,w:16,h:14},{x:692,y:1580,w:16,h:14});
  prop({t:'billboard',x:420,y:1176,solid:[70,6],txt:['FUN FOR THE','WHOLE CORPSE!']});
  prop({t:'billboard',x:880,y:1676,solid:[70,6],txt:['KIDS EAT FREE','(KIDS ARE FOOD)']});
- for(const [x,y] of [[300,1240],[600,1240],[300,1460],[600,1460],[120,1380],[660,1400]])prop({t:'flamp',x,y,solid:[4,4],big:1});
+ for(const [x,y] of [[300,1240],[600,1240],[300,1460],[600,1460],[120,1380],[660,1400]])prop({t:'flamp',x,y,big:1});
  for(const [x,y] of [[380,1240],[400,1450],[230,1350],[560,1370]])prop({t:'cone',x,y});
  for(const [x,y] of [[230,1320],[520,1360],[640,1270]])prop({t:'trolley',x,y,solid:[10,5]});
  prop({t:'fountain',x:720,y:1850,solid:[56,26]});
  prop({t:'infoboard',x:960,y:1720,solid:[24,5],txt:['YOU ARE HERE','(SORRY)']});
- for(const [x,y] of [[620,1660],[680,1900],[960,1880],[540,1860]])prop({t:'flamp',x,y,solid:[4,4]});
+ for(const [x,y] of [[620,1660],[680,1900],[960,1880],[540,1860]])prop({t:'flamp',x,y});
  for(const [x,y] of [[620,1800],[880,1910]])prop({t:'bench',x,y,solid:[28,4]});
  for(const [x,y] of [[700,1720],[1000,1800]])prop({t:'trash',x,y});
  prop({t:'balloons',x:800,y:1700,solid:[6,4]});prop({t:'icecart',x:600,y:1880,solid:[30,10]});
@@ -189,20 +191,20 @@ function bwProps(){
  // ===== F: Festzelt
  for(const [x,y] of [[1000,1460],[1380,1360],[1250,1180]])prop({t:'picnic',x,y,solid:[30,10]});
  prop({t:'striker',x:1430,y:1440,solid:[10,6]});prop({t:'balloons',x:1020,y:1260,solid:[6,4]});
- for(const [x,y] of [[980,1220],[1440,1210],[1000,1520],[1360,1530]])prop({t:'bulbpole',x,y,solid:[4,4]});
+ for(const [x,y] of [[980,1220],[1440,1210],[1000,1520],[1360,1530]])prop({t:'bulbpole',x,y});
  for(const [x,y] of [[1110,1480],[1300,1490]])prop({t:'trash',x,y});
  prop({t:'barrel',x:1450,y:1300,solid:[8,6],fire:1});
  // ===== C: Achterbahn
  prop({t:'derail',x:900,y:700,solid:[26,14]});
- for(const [x,y] of [[460,320],[880,340],[560,720],[860,600]])prop({t:'flamp',x,y,solid:[4,4]});
+ for(const [x,y] of [[460,320],[880,340],[560,720],[860,600]])prop({t:'flamp',x,y});
  prop({t:'barrel',x:420,y:700,solid:[8,6],fire:1});prop({t:'bench',x:720,y:600,solid:[28,4]});prop({t:'trash',x:560,y:600});
  bwNeon(680,470,'YOU MUST BE THIS TALL TO DIE','#ff8a3a',{fl:.25});
  // ===== R: Rummel
  prop({t:'wheel',x:1480,y:600,solid:[100,20]});
- for(const [x,y] of [[1290,480],[1700,330],[1640,660],[1380,680]])prop({t:'flamp',x,y,solid:[4,4]});
+ for(const [x,y] of [[1290,480],[1700,330],[1640,660],[1380,680]])prop({t:'flamp',x,y});
  prop({t:'icecart',x:1300,y:600,solid:[30,10]});prop({t:'photobooth',x:1780,y:600,solid:[20,10]});prop({t:'trash',x:1560,y:680});
  // ===== S: Spielhalle (außen)
- for(const [x,y] of [[1860,800],[2300,840],[1860,1150],[2300,1140]])prop({t:'flamp',x,y,solid:[4,4]});
+ for(const [x,y] of [[1860,800],[2300,840],[1860,1150],[2300,1140]])prop({t:'flamp',x,y});
  prop({t:'dumpster',x:2300,y:980,solid:[26,12]});prop({t:'horse',x:2000,y:1180,solid:[18,6]});prop({t:'trash',x:1900,y:1180});
  bwNeon(2070,1200,'LOST CHILDREN','#ffd23a',{fl:.5});
  // ===== K: Kraftwerk
@@ -211,7 +213,7 @@ function bwProps(){
  prop({t:'pylon',x:2800,y:610,solid:[8,6]});prop({t:'pylon',x:2940,y:300,solid:[8,6]});
  // ===== P: Promenade & Pier
  prop({t:'carousel',x:1884,y:2036,solid:[72,30]});
- for(const [x,y] of [[1620,1540],[1820,1560],[2000,1520],[2120,1560]])prop({t:'flamp',x,y,solid:[4,4],pier:1});
+ for(const [x,y] of [[1620,1540],[1820,1560],[2000,1520],[2120,1560]])prop({t:'flamp',x,y,pier:1});
  for(const y of [1720,1820,1920])prop({t:'flamp',x:1846,y,solid:[4,4],pier:1});
  for(const [x,y] of [[1760,1640],[1990,1620]])prop({t:'bench',x,y,solid:[28,4]});
  for(const x of [1700,1950,2100])prop({t:'lifering',x,y:1690});
@@ -244,8 +246,8 @@ function bwBarrDefs(){const D=[];
  for(const p of BW_PATHS){const pts=bwPathPts(p.d,4)[0],m=pts[pts.length>>1],q=pts[(pts.length>>1)+1]||pts[(pts.length>>1)-1],dx=Math.abs(q[0]-m[0]),dy=Math.abs(q[1]-m[1]);
   let v=dx>dy?1:0;if(p.k==='shutter')v=0;if(p.k==='maint')v=1;const cx=Math.round(m[0]),cy=Math.round(m[1]),L=BW_PATHW*BW_S+16;
   D.push({id:p.id,k:p.k,lab:p.lab,z:p.z,v,r:v?[cx-10,cy-L/2,20,L]:[cx-L/2,cy-10,L,20],c:[cx-L/2+4,cy-L/2+4,L-8,L-8]})}
- const [bx,by,bw,bh]=BW_BRIDGE;D.push({id:'PL',k:'bridge',lab:'REPAIR BRIDGE',z:['P','L'],r:[bx+30,by,bw-60,bh],c:[bx+bw/2-30,by-8,60,bh+16],low:1});
- D.push({id:'LK',k:'zip',lab:'UNLOCK ZIPLINE',z:['L','K'],r:[BW_ZIP.a.x-16,BW_ZIP.a.y+40,32,20],noCol:1});
+ const [bx,by,bw,bh]=BW_BRIDGE;D.push({id:'PL',k:'bridge',lab:'REPAIR BRIDGE',z:['P','L'],r:[bx+30,by,bw-60,bh],c:[bx+26,by-8,bw-52,bh+16],low:1});
+ D.push({id:'LK',k:'zip',lab:'UNLOCK ZIPLINE',z:['L','K'],r:[BW_LH_TOP.x-16,BW_LH_TOP.y-10,32,20],noCol:1,top:1});
  return D}
 const BW_BARR=[];
 // Bäume: auf Land außerhalb der begehbaren Fläche (Wald zwischen den Bereichen)

@@ -61,6 +61,13 @@ function bwGround(){const c=gc;
  // Randsteine entlang der begehbaren Fläche
  for(let gy=1;gy<BW_GH-1;gy++)for(let gx=1;gx<BW_GW-1;gx++){const i=gy*BW_GW+gx;if(!BW_MASK[i])continue;
   if(!BW_MASK[i-1]||!BW_MASK[i+1]||!BW_MASK[i-BW_GW]||!BW_MASK[i+BW_GW]){const x=gx*BW_G,y=gy*BW_G,land=BW_LAND[i];R(c,x,y,4,4,land?'#1c1820':'#3a2a1e');if(!BW_MASK[i-BW_GW])R(c,x,y,4,1,land?'#4a4452':'#6a5038')}}
+ // Eisenzaun zur Rasenfläche: zeigt klar, wo man nicht hin kann
+ {const W=BW_GW,PC='#6a6676',PH='#b0acbc',RL='#848092';
+  for(let gy=2;gy<BW_GH-2;gy++)for(let gx=2;gx<W-2;gx++){const i=gy*W+gx;if(!BW_MASK[i])continue;const x=gx*BW_G,y=gy*BW_G;
+   if(!BW_MASK[i-W]&&BW_LAND[i-W]){R(c,x,y-9,4,1,RL);R(c,x,y-4,4,1,RL);if(x%12===0){R(c,x,y-14,2,14,PC);R(c,x,y-15,2,1,PH)}}
+   if(!BW_MASK[i+W]&&BW_LAND[i+W]){R(c,x,y-6,4,1,RL);R(c,x,y-1,4,1,RL);if(x%12===0){R(c,x,y-10,2,14,PC);R(c,x,y-11,2,1,PH)}}
+   if(!BW_MASK[i-1]&&BW_LAND[i-1]){R(c,x,y-8,1,4,RL);if(y%12===0){R(c,x-1,y-12,2,14,PC);R(c,x-1,y-13,2,1,PH)}}
+   if(!BW_MASK[i+1]&&BW_LAND[i+1]){R(c,x+3,y-8,1,4,RL);if(y%12===0){R(c,x+2,y-12,2,14,PC);R(c,x+2,y-13,2,1,PH)}}}}
  // Pfützen & Gullis
  for(let i=0,n=0;i<400&&n<40;i++){const x=srnd(60,MW-60),y=srnd(60,MH-60),w=srnd(8,24);if(!bwWalk(x-w,y)||!bwWalk(x+w,y)||bwZoneAt(x,y)==='P')continue;n++;PUDDLES.push({x,y,w});bwEll(c,x,y,w|0,Math.max(2,w*.35|0),'#161a2a');bwEll(c,x-w*.2,y-1,Math.max(2,w*.4|0),1,'#2a3048')}
  for(const [x,y] of [[440,1380],[700,1800],[1200,1500],[2000,1180],[2700,660],[1500,700]]){GULLIS.push({x,y});bwEll(c,x,y,6,3,'#26242a');R(c,x-4,y-1,8,1,'#141216');R(c,x-4,y+1,8,1,'#141216')}

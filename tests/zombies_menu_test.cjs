@@ -15,7 +15,7 @@ const context = vm.createContext({
   MUI: {}, NET: {}, OPT: undefined,
   cv: {addEventListener: on}, addEventListener: on,
   sfx() {}, musApply() {}, openFeedback() {},
-  MAPID: 'town', mapName: () => 'Stadt', MAP_SEL: 'town', mapGo: () => false, cycleMap() {}, mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
+  MAPID: 'town', mapName: () => 'Stadt', MAP_SEL: 'town', mapGo: () => false, DPM: () => 1, CAR_LOOT: new Set(), cycleMap() {}, mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
 });
 const run = code => vm.runInContext(code, context);
 run(script.match(/^const OPT=.*$/m)[0]);
@@ -48,7 +48,7 @@ const deathLoop = part(' for(let i=zombies.length-1;i>=0;i--)if(zombies[i].hp<=0
 for (const [flags, expected] of [[{},50],[{head:true},100],[{melee:true},130],[{expl:true},50],[{run:true},50]]) {
   const player = {money:500, kills:0, heads:0};
   const zombies = [{hp:0,x:0,y:0,face:0,look:{skin:'#aaa'},last:{own:player,...flags}}];
-  const ctx = vm.createContext({zombies,P:player,NET:{client:false},GROUND:[],gid:1,part(){},rnd:()=>1,pick:a=>a[0],dropPowerup(){},addCorpse(){},stain(){},sfx(){},ftext(){}});
+  const ctx = vm.createContext({zombies,P:player,NET:{client:false},GROUND:[],gid:1,part(){},rnd:()=>1,pick:a=>a[0],dropPowerup(){},addCorpse(){},stain(){},sfx(){},ftext(){},DPM:()=>1});
   vm.runInContext(deathLoop, ctx);
   assert.equal(player.money, 500+expected);
   assert.equal(player.kills, 1);
@@ -61,7 +61,7 @@ let random = .1;
 const weather = vm.createContext({
   Math: Object.assign(Object.create(Math), {random: () => random}),
   SPLASH: [], RIPPLES: [], bolt: 0, thunderAt: -1, boltT: 25,
-  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0, MAPID: 'town', FAIR: false, mbSnap: () => null, mbApply() {}, mapCheck: () => false,
+  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0, MAPID: 'town', DP_T: 0, now: 0, FAIR: false, mbSnap: () => null, mbApply() {}, mapCheck: () => false,
   PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
   P: {id: 'client'}, netSend: data => {packet = data;},
   STATIONS: [], GM: 'z', PVP: () => false, pick: a => a[0], MATCH: {over: false, win: ''}, pvpSaveScore() {},
