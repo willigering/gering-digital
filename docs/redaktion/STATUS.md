@@ -206,3 +206,13 @@ Neues Spezialmodul mit 415 Fragen und 43 Nachschlageabschnitten, einschließlich
 ### 18.11.2026 – C#-Schleifenlabor und Spickzettel
 
 Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. Der öffentliche Themenzettel erklärt Auswahl, Ablauf, Bedingungen, Methoden und typische Fehler. Beispiele und Lösungen fachlich durchgegangen. Live-Status hängt vom STRATO-Deployment ab.
+
+## 22.11.2026 – CS1: klare Aufgaben und gebundene Antworten (Pilot)
+
+- Auftrag gilt zunächst nur für „Compiler sagt nein“. Titel, Untertitel, Aufgaben-IDs, Speicherpräfixe, Stufen, XP und Konto-Verträge bleiben erhalten. Neue ausdrückliche Vorgabe hat Vorrang vor früheren Humor-/Freitextvorgaben: Aufgaben sachlich formulieren; Humor auf Titel, Untertitel und Bewertungsrückmeldungen begrenzen.
+- Automatische Humor-Einleitungen entfernt, situationsbezogene Pointen in Aufgaben und Erklärungen redigiert. Ausgangssituation, Aufgabe und Antwortbereich sichtbar getrennt. Aus „Buchstaben eingeben“ werden sortierbare Schritte bzw. anklickbare Aussagen.
+- Freie Begründungen durch sieben redaktionell formulierte Lückentexte mit thematischen Ablenkern ersetzt. Code wird aus vorgegebenen Bausteinen ergänzt, Ergebnisse und Fachbegriffe werden gewählt. Ziehen sowie Maus-/Tastaturauswahl, Sortierknöpfe als Alternative auch für Touch. Gleiche Steuerelemente in Lernpfad, Kurzcheck, Training, Sprint und Prüfung. Prüfungsauswahl bleibt bis Abgabe veränderbar.
+- Lokal: 95.000 Generierungen (1.000 je Typ), Musterlösungen und Rekonstruktion aus den angebotenen Bausteinen akzeptiert; keine Freitextfelder, alle Lücken vollständig lösbar, jede Auswahl mit Ablenker. JavaScript-Syntax und reproduzierbarer HTML-Build geprüft.
+- Lokale Browserprozesse können in dieser Umgebung nicht starten; PHP ist hier nicht installiert. Browser-/PHP-/Kontotests laufen deshalb über die bestehenden verpflichtenden GitHub-Prüfungen. Visuelle Funktionsprüfung zusätzlich über die bereitgestellte Browservorschau; Merge, Deployment und Liveprüfung werden separat kontrolliert.
+- Browservorschau: Reihenfolge des Messwert-Algorithmus mit Sortierknöpfen korrekt gelöst; EVA-Lücken mit auswählbaren Begriffen bedient; Nachschlagwerk erreichbar; Prüfungsauswahl nach Vor-/Zurück-Navigation erhalten; klare Trennung und Sortierkarten visuell geprüft. Automatisierte vollständige Browser-/PHP-Abnahme steht noch aus.
+- Veröffentlichung blockiert: Die automatische Freigabeprüfung hat den Git-Push zum bestehenden Repository abgelehnt und verlangt eine ausdrückliche Bestätigung des Upload-Ziels. Nutzerbestätigung ist angefragt. Daher weder PR-/CI-Abschluss noch Deployment oder Liveabnahme behauptet.

@@ -100,7 +100,7 @@ shell = sub(shell, '</main>', '</main>\n<button type="button" class="btn primary
 # Inhalte und Aufgaben
 lessons = [{k: v for k, v in c.items() if k != 'home'} for c in cc.LESSONS]
 gen = (ROOT / 'tools/cs-generators.js').read_text().replace('__CONTENT__', json.dumps(lessons, ensure_ascii=False))
-shell = between(shell, '/* Topic content only', '/* ================= Antwort prüfen', gen + '\n')
+shell = between(shell, '/* Topic content only', '/* ================= Antwort prüfen', (ROOT / 'tools/cs-interactions.js').read_text() + '\n' + gen + '\n')
 shell = between(shell, 'const FMT=', 'function showAnswer(t)', (ROOT / 'tools/cs-parser.js').read_text() + '\n')
 shell = between(shell, 'let match=[],', '/* ================= Prüfungsmodus', (ROOT / 'tools/cs-match.js').read_text().replace('__MATCH__', json.dumps(cc.MATCH_BANK, ensure_ascii=False)) + '\n')
 shell = between(shell, '// Hero: a visible purchase', '/* Kurz-Checks */', (ROOT / 'tools/cs-ui.js').read_text() + '\n')
@@ -120,6 +120,30 @@ shell = shell.replace('f2-kalk', 'cs1-start').replace('window.F2KALK_TEST', 'win
 shell = shell.replace('<html lang="de"', '<html lang="de" data-game-id="cs1"', 1)
 shell = sub(shell, "$('backToTask')" if False else "/* Start */", "/* Start */")
 
+# CS1 pilot: task controls shared by practice, short checks, sprint and exam.
+shell = shell.replace('<p class="task-prompt">', '<p class="task-prompt"><strong class="task-label">Aufgabe</strong>')
+a = shell.index(" else h+='<div class=\"ans-row\" data-r=\"form\"")
+b = shell.index(" h+='<div class=\"result\"", a)
+shell = shell[:a] + " else h+=interactionHtml(t,id,false);\n" + shell[b:]
+shell = shell.replace(' host.innerHTML=h;', ' host.innerHTML=h;\n mountInteraction(host,t);', 1)
+shell = shell.replace("form.querySelector('input')", "form.querySelector('[data-answer]')")
+shell = shell.replace("host.querySelector('input')", "host.querySelector('[data-answer]')")
+shell = shell.replace("host.querySelector('input,.opt')", "host.querySelector('[data-answer] button,.opt')")
+shell = shell.replace("  done=true;", "  done=true;\n  host.querySelectorAll('[data-answer] button').forEach(b=>b.disabled=true);", 1)
+shell = shell.replace("inp.focus();return", "inp.focus({preventScroll:true});return")
+a = shell.index(" else h+='<div class=\"ans-row\"><label class=\"sr-only\" for=\"exIn\"")
+b = shell.index(" $('examQ').innerHTML=h;", a)
+shell = shell[:a] + " else h+=interactionHtml(t,'exIn',true);\n" + shell[b:]
+shell = shell.replace(" $('examQ').innerHTML=h;", " $('examQ').innerHTML=h;\n mountInteraction($('examQ'),t,ex.ans[i]);")
+shell = shell.replace("(t.fmt||FMT[t.kind]);renderExamNav()", "interactionInstruction(t,true);renderExamNav()")
+shell = shell.replace("ex.ans[i]===k?' is-right'", "ex.ans[i]===k?' is-selected'")
+shell = shell.replace('</head>', '<style>\n'+(ROOT / 'tools/cs-interactions.css').read_text()+'\n</style>\n</head>', 1)
+
+shell = shell.replace("esc(given)", "esc(readableGiven(t,given))")
+shell = shell.replace("esc(p.valid?p.given:a)", "esc(readableGiven(t,p.valid?p.given:a))")
+shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}})", "")
+shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});", "")
+shell = shell.replace("if(t.kind==='mc')h+='<div class=\"options\"", "if(t.kind==='mc')h+='<strong class=\"task-label\">Deine Antwort</strong><div class=\"options\"")
 html = apply_theme(shell)
 # Spielmodus wie in A1: Serie, Rekord, Leuchteffekte. Farbe auf den Modulakzent umgestellt.
 game_css = (ROOT / 'tools/module-game.css').read_text().replace('166,240,90', RGB).replace('#a6f05a', ACC)
