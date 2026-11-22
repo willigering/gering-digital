@@ -2012,7 +2012,7 @@ function prepareInteraction(id,t){
    else if(id==='m_teile')wrong=['int','void','bool','double','string'].includes(a)?['int','void','bool','double','string']:['port','name','text','Gruss','IstAktiv','Summe','Mittel'];
    else wrong=TERM_BANK[t.cat]||Object.values(TERM_BANK).flat();
   }
-  wrong=[...new Set(wrong)].filter(x=>x&&x!==a).slice(0,4);
+  wrong=[...new Set(wrong)].filter(x=>x&&x!==a&&!parseAnswer(t,x).ok).slice(0,4);
   Object.assign(t,{sentence:t.kind==='out'?'Konsolenausgabe: {0}':'Antwort: {0}',slots:[a],bank:shuffle([a,...wrong])});
  }
  if(t.kind==='order'){t.show=t.answer.split('').map((key,i)=>(i+1)+'. '+esc(t.items[LETTERS.indexOf(key)])).join('<br>');t.prompt='Bringe die Schritte in die fachlich richtige Reihenfolge.';t.plain='Verschiebe die Karten. Der erste Schritt steht oben.'}
