@@ -283,7 +283,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
           <p class="field-hint">In der <a href="highscore.php">öffentlichen Rangliste</a> können Gäste deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Vitrine sehen. Wenn du deinen Eintrag einschaltest, ist er automatisch auch ohne Anmeldung sichtbar.</p>
           <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
           <label class="confirm-check"><input type="radio" name="scope" value="public"<?=$highscoreScope==='public'?' checked':''?>> Im Highscore anzeigen – öffentlich, auch ohne Anmeldung</label>
-          <?php if($highscoreScope==='members'): ?><label class="confirm-check"><input type="radio" name="scope" value="members" checked> Bisherige Freigabe nur für angemeldete Lernende beibehalten</label><?php endif; ?>
+          <label class="confirm-check"><input type="radio" name="scope" value="members"<?=$highscoreScope==='members'?' checked':''?>> Optional einschränken: nur für angemeldete Lernende</label>
           <label class="confirm-check"><input type="radio" name="scope" value="hidden"<?=$highscoreScope==='hidden'?' checked':''?>> Unsichtbar</label>
           <button class="secondary-action" type="submit">Speichern</button>
         </form>
