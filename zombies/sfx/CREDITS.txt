@@ -13,3 +13,5 @@ heckfricker (Feuer), ninebilly (AK-47), areniporgen (M4), franki (MP5), Ali_6868
 augustsandberg (K98), sentry (Kipplauf), phonoflora (Nebelhorn), mikeask, florian (Holzschritte),
 softdistortion (Metallschritte), isaac, ar21749, sandro, daftrio (Snacks), jedimichael (Hydraulik),
 kinoton, bolkmar (Neon).
+
+Soundpaket 2 (2026-11-22): Waffen, Nachladen, Schritte, Umgebung, Perks und Zombies aus Boom Library (Guns Bundle) und Sound Ideas, Lizenz von Willi gekauft. Quellen siehe QUELLEN.txt im Auswahlordner.

@@ -107,7 +107,7 @@ function bwInteract(pl,me,EP,auth){
  if(me&&!pl.bwRide)for(let i=0;i<BW_RIDES.length;i++){const r=BW_RIDES[i];if(Math.hypot(r.x-pl.x,r.y-pl.y)>18)continue;
   if(r.zip&&!bwRideOk(r))break;
   prompt=bwRideOk(r)?{x:r.x,y:r.y-34,t:r.n,tc:'#ffd23a',d:r.zip?'Runter zum Kraftwerk':'Eine Runde fahren',s:'[E] EINSTEIGEN',c:'#fff2a8'}:{x:r.x,y:r.y-34,t:r.n,tc:'#9a96a8',d:'Braucht Strom',s:'NO POWER',c:'#9a96a8'};
-  if(EP&&bwRideOk(r)){pl.bwRide={i,t0:now};sfx(r.zip?'door_hit':'pipe_hit',pl.x,pl.y,.6,r.zip?1.4:.8,0)}return true}
+  if(EP&&bwRideOk(r)){pl.bwRide={i,t0:now};if(!r.zip)sfx('bw_ride_start',r.x,r.y,.7,1,0);sfx(r.zip?'door_hit':'pipe_hit',pl.x,pl.y,.6,r.zip?1.4:.8,0)}return true}
  if(!(pl.inCar>=0))for(const c of CARS){if(BW.looted.has(c.i)||pl.key===c.i||c.driver)continue;const nx=clamp(pl.x,c.x,c.x+c.w),ny=clamp(pl.y,c.y,c.y+c.h);if(Math.hypot(pl.x-nx,pl.y-ny)>8)continue;
   if(me)prompt={x:c.x+c.w/2,y:c.y-14,s:'[E] AUTO DURCHSUCHEN',c:'#fff2a8'};
   if(EP&&auth){BW.looted.add(c.i);const m=bwCarMoney();pl.money+=m;sfx(Math.random()<.5?'car_door':'car_trunk',c.x+c.w/2,c.y+c.h/2,.9,1,0);setTimeout(()=>sfx('loot_found',c.x,c.y,.8),500);if(m>=1000){sfx('cash_register',pl.x,pl.y,.7,1,0);ftext(c.x+c.w/2,c.y-20,'+$'+m+'!','#ffd23a',1)}else ftext(c.x+c.w/2,c.y-20,'+$'+m,'#9fff9f',1)}
@@ -342,6 +342,7 @@ function bwAmbience(dt,pw){if(!started)return;const L=listener();
  bwLoopAt('bw_musicbox_2',pw&&rk==='wheel',.5);
  bwLoopAt('bw_carousel_mech',rk==='carousel',.6);
  bwLoopAt('bw_coaster_chain',rk==='coaster',.8);
+ bwLoopAt('bw_coaster_ride',rk==='coaster',.55);
  bwLoopAt('bw_zipline',rk==='zip',.8);
  if((BWA.gull-=dt)<0){BWA.gull=10+Math.random()*25;const a=Math.random()*6.28;sfx('bw_gull',L.x+Math.cos(a)*220,L.y+Math.sin(a)*160,.7,.9+Math.random()*.2,0)}
  if((BWA.horn-=dt)<0){BWA.horn=55+Math.random()*50;sfx('bw_foghorn',2710,1560,1.2,1,0)}
