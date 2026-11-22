@@ -1186,6 +1186,11 @@ function MT(s,x,y,sz,col,al='left',font='"VT323"',w=700){u.font=w+' '+sz+'px '+f
 const [pc_,pcx]=mk(40,40);
 function charSprite(look){pcx.setTransform(1,0,0,1,0,0);pcx.clearRect(0,0,40,40);const old=g;g=pcx;
  drawHuman(20,34,look,Math.PI*.42,now*7,!!look._walk,0,{len:5,lv:0});g=old;return pc_}
+// Vorschaubild der gewählten Karte im Menü (maps/<id>.jpg)
+const MAPPREV={};for(const m of MAPS){const im=new Image();im.src='maps/'+m.id+'.jpg';MAPPREV[m.id]=im}
+function drawMapPreview(x,y,w){const im=MAPPREV[MAPID],h=w*.336;u.fillStyle='rgba(8,6,12,.85)';u.fillRect(x-4,y-4,w+8,h+8+28);
+ if(im&&im.complete&&im.naturalWidth){u.imageSmoothingEnabled=true;u.drawImage(im,x,y,w,h)}else{u.fillStyle='#1a1424';u.fillRect(x,y,w,h)}
+ u.strokeStyle='#e8892e';u.lineWidth=2;u.strokeRect(x-4,y-4,w+8,h+8+28);MT('KARTE: '+mapName(MAPID),x,y+h+18,20,'#ece4d4','left','"VT323",monospace',700)}
 function drawCard(x,y,w,p,status,col,big){const h=w*1.42;
  u.fillStyle='rgba(16,14,20,.86)';u.fillRect(x,y,w,h);u.fillStyle=col;u.fillRect(x,y,w,3);u.fillRect(x,y+h-3,w,3);
  if(p){const spr=charSprite({...charLook(p.char,(p.name||'').length+3),_walk:big}),sc=Math.max(2,Math.floor(w*1.05/40)),sw=40*sc;u.imageSmoothingEnabled=false;
@@ -1222,7 +1227,8 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
  if(menu.screen==='lobby'){const wide=VW>=1000,rx=wide?L+bw+L*.6:L,rw=wide?VW-rx-L*.6:VW-L*2;let ry=wide?VH*.3:VH*.27;
   MT('LOBBY   '+NET.lobby.length+'/'+MAXP,rx,ry,bh*.46,'#e8892e');ry+=bh*.55;MT('KARTE: '+mapName(MAPID),rx,ry,bh*.32,'#c8a8ff');ry+=bh*.55;
   const ch=drawRoster(rx,ry,rw,wide?VH*.52:VH*.3);if(!wide)y=ry+ch+gap;}
- if(menu.screen==='play'){const sx=L+bw+L*.4;if(VW>=900)drawCard(sx,VH*.38,Math.min(180,VW*.14),{name:OPT.name||'—',char:OPT.char},'DEIN CHARAKTER','#e8892e',true)}
+ if(menu.screen==='play'){const sx=L+bw+L*.4,cw=Math.min(180,VW*.14);if(VW>=900)drawCard(sx,VH*.38,cw,{name:OPT.name||'—',char:OPT.char},'DEIN CHARAKTER','#e8892e',true);
+  const px=VW>=900?sx+cw+L*.4:L,pw=Math.min(VW-px-L*.4,560),py=VW>=900?VH*.38:VH*.89;if(pw>200)drawMapPreview(px,py,pw)}
  if(menu.screen==='mp'&&MODE==='rtc'){MT(NET.lobbies.length?'OFFENE LOBBYS':'Keine offene Lobby – hoste ein neues Spiel!',L,y,bh*.36,'#b8b0a8');y+=bh*.6}
  if(menu.screen==='keys'){const K=KEYLIST;
   MT('STEUERUNG',L,y,bh*.5,'#e8892e');y+=bh*.7;const avail=VH*.86-y-bh*1.4,cols=avail/(K.length)<26&&VW>900?2:1,per=Math.ceil(K.length/cols);
