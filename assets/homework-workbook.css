@@ -20,3 +20,10 @@ body:has(#hw-workbook-toolbar){padding-bottom:110px!important}
  .hw-answer-group{break-inside:avoid-page}
 }
 @media screen{.hw-answer-print{display:none}}
+
+.hw-cloze-text p{line-height:2.5;margin:0 0 1rem;white-space:normal;overflow-wrap:anywhere}
+.hw-cloze-text input.hw-cloze-gap{display:inline-block!important;width:auto!important;max-width:100%!important;min-width:4ch;min-height:2.2em;padding:.2em .5em!important;margin:.15em .2em;border:1px solid #76d8df88!important;border-bottom:2px solid #76d8df!important;border-radius:5px!important;background:#102129!important;color:#f3f3ed!important;font:inherit!important;vertical-align:baseline;box-sizing:border-box}
+.hw-cloze-text input.hw-cloze-gap:focus{outline:2px solid #ffe33c;outline-offset:2px}
+.hw-cloze-legacy[hidden]{display:none!important}
+.hw-cloze-legacy summary{cursor:pointer}
+@media print{.hw-cloze-text .hw-cloze-print{display:inline-block!important;min-height:1.5em;min-width:8ch;border:0;border-bottom:1px solid #555;padding:0 .3em;white-space:pre-wrap;vertical-align:baseline}}

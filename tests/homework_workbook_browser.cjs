@@ -8,7 +8,7 @@ function markup(config){return '<!doctype html><html><head><title>Arbeitsblatt T
 const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end(markup({id:'hw-test-worksheet',fields:{},revision:0,standalone:false,blank:false}));});
 (async()=>{
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port;
- const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const browser=await chromium.launch({headless:true,...(process.env.CHROMIUM_PATH?{executablePath:process.env.CHROMIUM_PATH}:{}),args:['--no-sandbox']});
  try{
   for(const width of [1440,390]){
    const page=await browser.newPage({viewport:{width,height:900}});let fields={},revision=0;const errors=[];page.on('pageerror',e=>errors.push(e.message));
@@ -40,6 +40,33 @@ const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/ht
    assert.equal(await page.locator('#antwort').inputValue(),'');assert.equal(await page.locator('#check').isChecked(),false);assert.equal(await page.locator('#notizen').innerText(),'');
    assert.deepEqual(errors,[]);await page.close();
   }
+  // Imported cloze markup: duplicated first sentence and later numbered items.
+  const page=await browser.newPage({viewport:{width:390,height:900}});
+  let saved={'id:answer-1:0':{kind:'text',value:'Alte Notiz'}},rev=0;
+  await page.route('**/homework-api.php?*',async route=>{
+   const body=route.request().postDataJSON();
+   if(body){saved=body.fields;rev++;}
+   await route.fulfill({json:{csrf:'test',fields:saved,revision:rev}});
+  });
+  const fixture=markup({id:'cloze',fields:{},revision:0}).replace('<h1>Aufgaben</h1>',
+   '<h1>Ethernet Lückentext</h1><p class="intro">Alt</p><section class="question"><h2>1 Ethernet ist ein ____ Netzwerk.</h2><div class="question-text">1 Ethernet ist ein ____ Netzwerk.</div><label for="answer-1">Deine Antwort</label><textarea id="answer-1"></textarea></section><section class="question"><h2>2 Der Frame hat ____________</h2><div class="question-text">Byte.\n3Die Adresse ist ____.\nWortliste: MAC • 6</div><label for="answer-2">Deine Antwort</label><textarea id="answer-2"></textarea></section>');
+  await page.route('**/cloze',route=>route.fulfill({contentType:'text/html',body:fixture}));
+  await page.goto(base+'/cloze');await page.waitForFunction(()=>document.querySelector('#answer-1').value==='Alte Notiz');
+  assert.equal(await page.locator('.hw-cloze-gap').count(),3);
+  assert.equal((await page.locator('.hw-cloze-text').first().innerText()).replace(/\s+/g,' '),'1 Ethernet ist ein Netzwerk.');
+  assert.equal(await page.locator('.hw-cloze-legacy').first().isVisible(),true);
+  assert.equal(await page.locator('.hw-cloze-legacy').last().isVisible(),false);
+  await page.locator('#hw-gap-answer-1-1').fill('lokales');
+  await page.getByRole('button',{name:'Jetzt speichern',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('#hw-save-state').textContent==='Gespeichert');
+  assert.equal(saved['id:hw-gap-answer-1-1:0'].value,'lokales');
+  assert.equal(saved['id:answer-1:0'].value,'Alte Notiz');
+  await page.reload();await page.waitForFunction(()=>document.querySelector('#hw-gap-answer-1-1').value==='lokales');
+  assert.equal(await page.locator('.hw-cloze-gap').count(),3);
+  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+  await page.evaluate(()=>window.dispatchEvent(new Event('beforeprint')));
+  assert.equal(await page.locator('.hw-cloze-print').first().textContent(),'lokales');
+  await page.close();
   console.log('HomeWork answer persistence, checkboxes, select, editable text, complete PDF print and blank HTML PASSED');
  }finally{await browser.close();server.close();}
 })().catch(error=>{console.error(error);server.close();process.exitCode=1;});
