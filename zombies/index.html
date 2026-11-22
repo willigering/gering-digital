@@ -127,9 +127,9 @@ const BUILD=FAIR?[]:[
   rooms:[[0,0,127,90,'wood'],[127,0,127,90,'wood'],[254,0,126,90,'wood']],
   furn:(()=>{const f=[];for(const cx of[0,127,254]){for(let i=0;i<4;i++)for(let j=0;j<2;j++)f.push(['desk',cx+14+i*27,14+j*22]);f.push(['tdesk',cx+8,62])}
    for(const x of[80,92,104,212,224,236,330,342])f.push(['locker',x,94]);f.push(['vending',355,120]);return f})()},
- {x:120,y:300,w:150,h:90,z:50,wall:'#8b4a3a',rc:'#958f85',roof:'flat',kind:'brick',floor:'wood',inner:'#c9c2a2',group:'school',
+ ...NEWSTYLE?[]:[{x:120,y:300,w:150,h:90,z:50,wall:'#8b4a3a',rc:'#958f85',roof:'flat',kind:'brick',floor:'wood',inner:'#c9c2a2',group:'school',
   N:[[60,18,'d']],S:[[64,18,'d']],W:[[20,16,'w'],[55,16,'w']],E:[[20,16,'w'],[55,18,'d']],inner:[],
-  furn:[['table',12,22],['table',104,22],['table',12,58],['table',104,58],['counter',52,40],['vending',128,8]]},
+  furn:[['table',12,22],['table',104,22],['table',12,58],['table',104,58],['counter',52,40],['vending',128,8]]}],
  {x:790,y:180,w:150,h:110,z:36,wall:'#cfc7aa',rc:'#6a3d32',roof:'gable',kind:'siding',floor:'wood',inner:'#d8c8a8',
   N:[[30,16,'w'],[100,16,'w']],S:[[14,16,'w'],[48,18,'d'],[112,16,'w']],W:[[45,16,'w']],E:[[22,16,'w'],[75,16,'w']],
   inner:[[80,0,80,110,[[60,18,'d']]],[80,55,150,55,[[30,18,'d']]]],rooms:[[80,0,70,55,'tile'],[80,55,70,55,'carpet']],
@@ -202,7 +202,7 @@ for(const [x,y] of [[560,250],[600,700],[1000,450],[260,560],[820,560]])prop({t:
 }
 
 // Kaufstationen: Waffenstände, Munitionskisten, Upgrade-Maschine
-const STATIONS=FAIR?bwStations():[{t:'perk',k:'thicc',x:540,y:380},{t:'perk',k:'popcorn',x:284,y:316},{t:'perk',k:'twixx',x:1060,y:180},{t:'perk',k:'ravioli',x:240,y:760},{t:'perk',k:'brain',x:920,y:880},
+const STATIONS=FAIR?bwStations():[{t:'perk',k:'thicc',x:540,y:380},{t:'perk',k:'popcorn',x:NEWSTYLE?160:284,y:316},{t:'perk',k:'twixx',x:1060,y:180},{t:'perk',k:'ravioli',x:240,y:760},{t:'perk',k:'brain',x:920,y:880},
  {t:'wall',k:'smg',x:470,y:452},{t:'wall',k:'shotgun',x:1010,y:444},{t:'wall',k:'rifle',x:560,y:712},{t:'wall',k:'magnum',x:1030,y:596},
  {t:'ammo',x:610,y:334},{t:'ammo',x:300,y:900},{t:'pap',x:1135,y:792}];
 for(const s of STATIONS){if(s.t==='ammo')solids.push({x:s.x-11,y:s.y-8,w:22,h:8});if(s.t==='pap')FSOL.push(FAIR?{x:s.x-15,y:s.y-12,w:30,h:12}:{x:s.x-8,y:s.y-10,w:16,h:10});if(s.t==='power')solids.push({x:s.x-14,y:s.y-10,w:28,h:10});if(s.t==='perk')solids.push({x:s.x-10,y:s.y-9,w:20,h:9})}
