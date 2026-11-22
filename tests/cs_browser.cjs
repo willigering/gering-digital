@@ -18,7 +18,7 @@ const {answer}=require('./support/cs1-answer.cjs');
  await page.locator('#practiceGo').click();await page.waitForSelector('dialog.dtp-practice-dialog[open]');
  assert.equal(await page.locator('#practiceTask [data-r="hint"]').isVisible(),true);
  while(!(await page.locator('#practiceTask [data-slot]').count())){await answer(page,'#practiceTask');await page.locator('#practiceTask [data-r="next"]').click()}
- const histBeforeRef=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0].hist.length);
+ const histBeforeRef=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0]?.hist.length||0);
  await page.locator('#practiceTask [data-slot]').first().click();await page.locator('#practiceTask [data-term]').first().click();const partial=await page.locator('#practiceTask [data-answer]').evaluate(e=>e.value);
  await page.locator('#practiceTask [data-r="ref"]').click();await page.waitForFunction(()=>!document.getElementById('learnView').hidden);
  await page.locator('#backToTask').waitFor();assert.match(await page.locator('#backToTask').innerText(),/ZURÜCK ZUR AUFGABE/);
