@@ -61,7 +61,7 @@ let random = .1;
 const weather = vm.createContext({
   Math: Object.assign(Object.create(Math), {random: () => random}),
   SPLASH: [], RIPPLES: [], bolt: 0, thunderAt: -1, boltT: 25,
-  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0, MAPID: 'town', DP_T: 0, now: 0, FAIR: false, mbSnap: () => null, mbApply() {}, mapCheck: () => false,
+  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0, MAPID: 'town', DP_T: 0, IK_T: 0, now: 0, FAIR: false, mbSnap: () => null, mbApply() {}, mapCheck: () => false,
   PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
   P: {id: 'client'}, netSend: data => {packet = data;},
   STATIONS: [], GM: 'z', PVP: () => false, pick: a => a[0], MATCH: {over: false, win: ''}, pvpSaveScore() {},
