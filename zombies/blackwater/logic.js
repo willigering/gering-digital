@@ -346,7 +346,7 @@ const BWA={gull:8,horn:30,neon:15};
 function bwLoopAt(name,on,v){sfxLoop(name,on&&v>.003,0);if(LOOPS[name])LOOPS[name].gn.gain.value=OPT.svol*SFX_MASTER*v}
 function bwAmbience(dt,pw){if(!started)return;const L=listener();
  const sea=bwLandAt(L.x,L.y)?.25:.45;bwLoopAt('bw_sea_loop',true,sea);
- bwLoopAt('bw_flag_loop',true,.35*(1+Math.sin(now*.4)*.3));
+
  const car=BW_RIDES.find(r=>r.k==='carousel'),rk=P.bwRide?BW_RIDES[P.bwRide.i].k:null;
  bwLoopAt('bw_musicbox_1',pw,.7*sfxDist(car.x,car.y-40));
  bwLoopAt('bw_musicbox_2',pw&&rk==='wheel',.5);

@@ -643,7 +643,7 @@ function tryVault(pl,w){const c=crossTarget(w,pl);if(blocked(c.x,c.y,4,'bullet')
  if(dmg){if(!NET.client)hurt(pl,dmg);else NET.out.vault=[wi,dmg]}return true}
 const CAR_MAX_HITS=20;
 function rebuildArea(x0,y0,x1,y1){for(let gy=Math.max(0,x0*0+y0/GS|0);gy<=Math.min(GH-1,y1/GS|0);gy++)for(let gx=Math.max(0,x0/GS|0);gx<=Math.min(GW-1,x1/GS|0);gx++){const cx=gx*GS+GS/2,cy=gy*GS+GS/2;
- walk[gy*GW+gx]=(cx<BL.l||cy<BL.t||cx>BL.r||cy>BL.b||hit(solids,cx,cy,GS/2+1)||hit(FSOL,cx,cy,GS/2+1)||(FAIR&&bwOff(cx,cy,GS/2-1)))?0:1}}
+ walk[gy*GW+gx]=(cx<BL.l||cy<BL.t||cx>BL.r||cy>BL.b||hit(solids,cx,cy,GS/2+1)||hit(FSOL,cx,cy,GS/2+1)||(FAIR&&bwOff(cx,cy,GS/2+2)))?0:1}}
 function parkCar(c,local){const ca=Math.abs(Math.cos(c.a)),sa=Math.abs(Math.sin(c.a)),ox=c.x,oy=c.y,ow=c.w,oh=c.h;
  c.w=ca*40+sa*20;c.h=sa*40+ca*20;c.x=c.cx-c.w/2;c.y=c.cy-c.h/2;if(!solids.includes(c))solids.push(c);c.spd=0;
  if(!local)rebuildArea(Math.min(ox,c.x)-12,Math.min(oy,c.y)-12,Math.max(ox+ow,c.x+c.w)+12,Math.max(oy+oh,c.y+c.h)+12)}
@@ -809,7 +809,7 @@ function spawnZombie(){
 const GW=Math.ceil(MW/GS),GH=Math.ceil(MH/GS),walk=new Uint8Array(GW*GH),Q=new Int32Array(GW*GH);
 const distZ=new Int16Array(GW*GH),distP=new Int16Array(GW*GH);
 for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const cx=x*GS+GS/2,cy=y*GS+GS/2;
- walk[y*GW+x]=(cx<BL.l||cy<BL.t||cx>BL.r||cy>BL.b||hit(solids,cx,cy,GS/2+1)||hit(FSOL,cx,cy,GS/2+1)||(FAIR&&bwOff(cx,cy,GS/2-1)))?0:1}
+ walk[y*GW+x]=(cx<BL.l||cy<BL.t||cx>BL.r||cy>BL.b||hit(solids,cx,cy,GS/2+1)||hit(FSOL,cx,cy,GS/2+1)||(FAIR&&bwOff(cx,cy,GS/2+2)))?0:1}
 let ZOPEN=new Set();
 function bfs(dist,srcs){dist.fill(-1);let h=0,t=0;for(const p of srcs){const s=(p.y/GS|0)*GW+(p.x/GS|0);if(dist[s]<0){dist[s]=0;Q[t++]=s}}
  while(h<t){const c=Q[h++],cx=c%GW,cy=c/GW|0,d=dist[c]+1;
@@ -2157,6 +2157,11 @@ function drawStation(s){if(s===MB.st){mbDraw(s);return}if(s.t==='perk'){drawPerk
   R(g,x-3,y-40,6,4,'#5a2a7a');R(g,x-1,y-43,2,3,c>.7?'#ffffff':'#e0a0ff'); // Antenne
   if(Math.random()<.35)part({x:x+rnd(-16,16),y:y+rnd(-5,5),z:rnd(0,8),vx:rnd(-4,4),vy:0,vz:rnd(14,34),life:rnd(.8,1.6),c:pick(['#e8a0ff','#c86bff','#ffffff','#b080ff']),s:1,ember:1})}}
 const [rtc,rtx]=mk(1,1);
+function carLootFx(c){if(c.driver)return;const pl=PL.find(p=>(p.bwCs&&p.bwCs.c===c.i)||(p.carS&&p.carS.c===c.i)),done=(FAIR?BW.looted.has(c.i):CAR_LOOT.has(c.i));if(!pl&&!done)return;
+ const x=Math.round(c.x),y=Math.round(c.y),w=c.w,h=c.h,j=pl?Math.round(Math.sin(now*18)*1):0;
+ if(c.v){R(g,x-2,y-9+j,w+4,9,'#1a1a20');R(g,x-1,y-8+j,w+2,7,shade(c.c,.7));R(g,x+2,y-4+j,w-4,2,'#0c0c10')}
+ else{R(g,x+w,y-8+j,9,h+2,'#1a1a20');R(g,x+w+1,y-7+j,7,h,shade(c.c,.7));R(g,x+w+3,y-4+j,2,h-6,'#0c0c10')}
+ if(pl&&Math.random()<.35)part({x:c.cx+rnd(-8,8),y:c.cy,z:rnd(8,16),vx:rnd(-40,40),vy:rnd(-20,10),vz:rnd(30,70),g:200,life:.6,c:pick(['#e8dca0','#c8b070','#fff','#7ad87a']),s:1})}
 function drawCarDyn(c){const ok=c.state==='ok',col=ok?c.c:'#2e2a26',dk=shade(col,.6),lt=shade(col,1.22),F=(x,y,w,h,cl)=>{g.fillStyle=cl;g.fillRect(x,y,w,h)};
  g.save();g.translate(Math.round(c.cx),Math.round(c.cy));
  g.save();g.rotate(c.a);F(-21,-9,44,22,'rgba(0,0,0,.35)');g.restore();
@@ -2214,7 +2219,7 @@ function render(){
    if(Math.random()<.35)part({x:sf.x+sf.w/2+rnd(-sf.w/3,sf.w/3),y:sf.y+sf.d,z:sf.hh*.5,vx:rnd(-30,30),vy:rnd(5,25),vz:rnd(25,60),g:160,life:.7,c:pick(['#e8e4d8','#c8b890','#8a6a4a','#d0d0d8','#a04040']),s:1})}}
  for(const f of FURN)if(!(f.b.roofSpr&&f.b.cut<.05)&&vis(f.x,f.y-30,f.w,40))L.push({y:f.y+f.d,f:()=>drawFurn(f)});
  for(const s of STATIONS)if(vis(s.x-20,s.y-40,40,50))L.push({y:s.y,f:()=>drawStation(s)});
- for(const c of CARS)if(vis(c.cx-30,c.cy-40,60,60))L.push({y:c.cy+10,f:()=>drawCarDyn(c)});
+ for(const c of CARS)if(vis(c.cx-30,c.cy-40,60,60))L.push({y:c.cy+10,f:()=>{drawCarDyn(c);carLootFx(c)}});
  for(const p of PROPS)if(p.vb?vis(p.vb[0],p.vb[1],p.vb[2],p.vb[3]):vis(p.x-30,p.y-60,(p.w||0)+60,(p.h||0)+70))L.push({y:p.t==='canopy'?p.y+p.h:p.y,f:()=>{if(p.t==='canopy')g.globalAlpha=fadeIf(p.x,p.y-p.z,p.w,p.h+p.z,p.y+p.h);drawProp(p);g.globalAlpha=1}});
  const tree=(t,spr)=>{const s=spr.cn,r=spr.r,sw=t.v>=4?0:Math.round(Math.sin(now*1.2+t.ph)*.6+windAt(t.x,t.y)*1.8);
   return()=>{g.fillStyle='rgba(0,0,0,.28)';g.beginPath();g.ellipse(t.x+6,t.y,r*.9,r*.35,0,0,7);g.fill();
