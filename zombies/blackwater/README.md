@@ -57,6 +57,6 @@ Mit dem Servicetor entsteht der große Rundweg B-D-E-B. Es gibt keine feste Reih
 
 ## Was fehlt / Ideen
 
-* **Sounds:** Generator, Brummen und Signal werden per WebAudio erzeugt. Alles andere nutzt vorhandene Dateien (`door_break`, `pipe_hit`, `wood_impact` …). Schöner wären echte Aufnahmen: `bw_generator_start.mp3`, `bw_power_hum_loop.mp3`, `bw_pa_chime.mp3`, `bw_shutter_roll.mp3`, `bw_gate_creak.mp3`, `bw_sea_loop.mp3` und Möwen. Sie würden in `sfx/` liegen und in `SFX_FILES` eingetragen.
+* **Sounds:** Seit dem Blackwater-Soundpaket (22.11.2026) gibt es echte Aufnahmen für Generator, Brummen, Durchsage, Tore, Rolltore, Wartungstür, Meer, Möwen, Nebelhorn, Neon, Fahnen, Feuer, Karussell-Spieluhr und alle Fahrgeschäfte (`sfx/bw_*`). Fehlt eine Datei, fällt das Spiel auf die alten WebAudio-Klänge zurück. Quellen und Lizenzen stehen in `sfx/CREDITS.txt`.
 * **Musik:** Bisher die vorhandenen Tracks. Eine verstimmte Jahrmarkt-Orgel für die Karte wäre ein Plus.
 * Die Lobbyliste im Menü zeigt die Karte noch nicht an. In der Lobby selbst steht sie.

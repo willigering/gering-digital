@@ -57,12 +57,12 @@ function bwOpen(i,fx){const b=BW.barr[i];if(!b||b.open)return;b.open=true;b.t=fx
  case'debris':sfx('door_break',cx,cy,1,.8,0);sfx('wood_impact',cx,cy,1,.7,0);setTimeout(()=>sfx('wood_impact',cx,cy,.8,1.1,0),250);
   for(let k=0;k<40;k++)part({x:cx+rnd(-18,18),y:cy+rnd(-30,30),z:rnd(0,10),vx:rnd(-30,30),vy:rnd(-20,20),vz:rnd(5,25),life:rnd(1.2,2.4),c:pick(['#8a7a68','#6a5e52','#a8988a']),s:4,grow:9,smoke:1});
   for(let k=0;k<24;k++)part({x:cx+rnd(-10,10),y:cy+rnd(-30,30),z:6,vx:rnd(-70,70),vy:rnd(-50,50),vz:rnd(30,90),g:220,life:1,c:pick(['#6a4a2e','#8a3a2a','#6a6a72']),s:2,bounce:1});break;
- case'gate':sfx('door_hit',cx,cy,1,.6,0);sfx('pipe_hit',cx,cy,.8,.7,0);setTimeout(()=>sfx('door_hit',cx,cy,.6,.5,0),420);
+ case'gate':sfx('bw_gate',cx,cy,1,1,0);sfx('door_hit',cx,cy,.6,.6,0);sfx('pipe_hit',cx,cy,.5,.7,0);setTimeout(()=>sfx('door_hit',cx,cy,.6,.5,0),420);
   for(let k=0;k<12;k++)part({x:cx+rnd(-20,20),y:cy,z:rnd(4,24),vx:rnd(-20,20),vy:rnd(-10,10),vz:rnd(0,20),g:90,life:1.2,c:pick(['#8a4a2a','#6a3a22','#a8602e']),s:1});break;
- case'shutter':for(let k=0;k<6;k++)setTimeout(()=>sfx('pipe_hit',cx,cy,.45,1.3+k*.08,0),k*120);sfx('container_open',cx,cy,1,.6,0);
+ case'shutter':sfx('bw_shutter',cx,cy,1,1,0);for(let k=0;k<6;k++)setTimeout(()=>sfx('pipe_hit',cx,cy,.25,1.3+k*.08,0),k*120);sfx('container_open',cx,cy,1,.6,0);
   for(let k=0;k<20;k++)part({x:cx+rnd(-30,30),y:cy,z:rnd(18,28),vx:rnd(-10,10),vy:rnd(-4,4),vz:rnd(-5,5),g:80,life:1.4,c:pick(['#8a4a22','#5a5e66']),s:1});break;
  case'bridge':for(let k=0;k<7;k++)setTimeout(()=>{sfx('wood_impact',cx,cy,.9,.8+Math.random()*.4,0);for(let j=0;j<5;j++)part({x:b.r.x+b.r.w*(k/7)+rnd(-3,3),y:cy+rnd(-b.r.h/2,b.r.h/2),z:2,vx:rnd(-20,20),vy:rnd(-20,20),vz:rnd(20,50),g:160,life:.6,c:'#c8d8e8',s:1})},k*160);break;
- default:sfx('door_break',cx,cy,.9,.75,0);sfx('pipe_hit',cx,cy,.7,.6,0);
+ default:sfx('bw_maint_door',cx,cy,1,1,0);sfx('door_break',cx,cy,.5,.75,0);sfx('pipe_hit',cx,cy,.5,.6,0);
   for(let k=0;k<26;k++)part({x:cx+rnd(-8,8),y:cy+rnd(-6,6),z:rnd(10,24),vx:rnd(-80,80),vy:rnd(-50,50),vz:rnd(20,80),g:200,life:rnd(.3,.7),c:pick(['#ffe08a','#fff','#ffb03a']),s:1,ember:1})}}
 
 // ---------------------------------------------------------------------
@@ -73,7 +73,7 @@ function bwPowerOn(fx){if(POWER.on)return;POWER.on=true;POWER.at=fx?now:now-60;
  const x=BW_GEN.x,y=BW_GEN.y;shake=Math.max(shake,5);
  sfx('pipe_hit',x,y,1,.5,0);sfx('door_hit',x,y,1,.45,0);
  for(let k=0;k<50;k++)part({x:x+rnd(-10,10),y:y-rnd(10,26),z:rnd(0,10),vx:rnd(-110,110),vy:rnd(-60,60),vz:rnd(20,110),g:220,life:rnd(.3,.9),c:pick(['#fff','#ffe08a','#8ad8ff','#ffb03a']),s:1,ember:1});
- bwSpinUp();setTimeout(bwChime,3400);
+ if(SFXB.bw_generator_start){sfx('bw_generator_start',x,y,1.2,1,0);setTimeout(bwHumStart,2600)}else bwSpinUp();setTimeout(()=>sfx('bw_neon_on',P.x,P.y,.6,1,0),2400);setTimeout(bwChime,3400);
  say('HAUPTSCHALTER UMGELEGT – der Park erwacht …');setTimeout(()=>{if(started)say('STROM IST DA! Automaten und Upgrade-Maschine sind aktiv.')},3600)}
 function bwAudio(){try{return ac()}catch{return null}}
 // Generator-Anlauf: tiefer Sägezahn, der hochfährt, plus Rumpeln
@@ -85,11 +85,11 @@ function bwSpinUp(){const c=bwAudio();if(!c)return;try{const t=c.currentTime,v=O
   o.connect(lp);o2.connect(lp);lp.connect(gn);gn.connect(c.destination);o.start(t);o2.start(t);o.stop(t+3.7);o2.stop(t+3.7)}catch{}
  setTimeout(bwHumStart,2600)}
 // Dauerbrummen in der Nähe des Kraftwerks (Lautstärke in bwUpdate)
-function bwHumStart(){if(BW.hum)return;const c=bwAudio();if(!c)return;try{const o=c.createOscillator(),o2=c.createOscillator(),lp=c.createBiquadFilter(),gn=c.createGain();
+function bwHumStart(){if(BW.hum)return;if(SFXB.bw_hum_loop){BW.hum={file:1};return}const c=bwAudio();if(!c)return;try{const o=c.createOscillator(),o2=c.createOscillator(),lp=c.createBiquadFilter(),gn=c.createGain();
   o.type='sawtooth';o.frequency.value=50;o2.type='sine';o2.frequency.value=100.6;lp.type='lowpass';lp.frequency.value=320;gn.gain.value=0;
   o.connect(lp);o2.connect(lp);lp.connect(gn);gn.connect(c.destination);o.start();o2.start();BW.hum={o,o2,gn}}catch{}}
 // Signal: drei aufsteigende Töne wie eine alte Lautsprecheranlage
-function bwChime(){const c=bwAudio();if(!c||!started)return;try{const t0=c.currentTime,v=OPT.svol*SFX_MASTER*.5;
+function bwChime(){if(started&&SFXB.bw_pa_chime){sfx('bw_pa_chime',P.x,P.y,.8,1,0);return}const c=bwAudio();if(!c||!started)return;try{const t0=c.currentTime,v=OPT.svol*SFX_MASTER*.5;
   [523,659,784,1046].forEach((f,i)=>{const t=t0+i*.22,o=c.createOscillator(),gn=c.createGain(),lp=c.createBiquadFilter();o.type='square';o.frequency.value=f;lp.type='bandpass';lp.frequency.value=1400;lp.Q.value=.8;
    gn.gain.setValueAtTime(0,t);gn.gain.linearRampToValueAtTime(v*.5,t+.02);gn.gain.exponentialRampToValueAtTime(.001,t+(i===3?.9:.3));o.connect(lp);lp.connect(gn);gn.connect(c.destination);o.start(t);o.stop(t+1)})}catch{}}
 const sfxDist=(x,y)=>{const L=listener();return distGain(Math.hypot(x-L.x,y-L.y))};
@@ -110,7 +110,7 @@ function bwInteract(pl,me,EP,auth){
   if(EP&&bwRideOk(r)){pl.bwRide={i,t0:now};sfx(r.zip?'door_hit':'pipe_hit',pl.x,pl.y,.6,r.zip?1.4:.8,0)}return true}
  if(!(pl.inCar>=0))for(const c of CARS){if(BW.looted.has(c.i)||pl.key===c.i||c.driver)continue;const nx=clamp(pl.x,c.x,c.x+c.w),ny=clamp(pl.y,c.y,c.y+c.h);if(Math.hypot(pl.x-nx,pl.y-ny)>8)continue;
   if(me)prompt={x:c.x+c.w/2,y:c.y-14,s:'[E] AUTO DURCHSUCHEN',c:'#fff2a8'};
-  if(EP&&auth){BW.looted.add(c.i);const m=bwCarMoney();pl.money+=m;sfx('loot_found',c.x,c.y,.8);if(m>=1000){sfx('cash_register',pl.x,pl.y,.7,1,0);ftext(c.x+c.w/2,c.y-20,'+$'+m+'!','#ffd23a',1)}else ftext(c.x+c.w/2,c.y-20,'+$'+m,'#9fff9f',1)}
+  if(EP&&auth){BW.looted.add(c.i);const m=bwCarMoney();pl.money+=m;sfx(Math.random()<.5?'car_door':'car_trunk',c.x+c.w/2,c.y+c.h/2,.9,1,0);setTimeout(()=>sfx('loot_found',c.x,c.y,.8),500);if(m>=1000){sfx('cash_register',pl.x,pl.y,.7,1,0);ftext(c.x+c.w/2,c.y-20,'+$'+m+'!','#ffd23a',1)}else ftext(c.x+c.w/2,c.y-20,'+$'+m,'#9fff9f',1)}
   return true}
  const st=STATIONS.find(s=>Math.hypot(s.x-pl.x,s.y-pl.y)<20);if(!st)return false;
  if(st.t==='power'){
@@ -174,7 +174,8 @@ function bwPickSpawn(){const act=SPAWNS.filter(s=>BW.zun.has(s.z));if(!act.lengt
 function bwUpdate(dt){const pw=POWER.on&&now-POWER.at>1;bwRideStep();
  BW.wheelA+=dt*(pw?.11:0);BW.carA+=dt*(pw?.6:0);BW.beamA+=dt*.55;
  const z=P.dead?null:bwZoneAt(P.x,P.y);if(z&&z!==BW.zone){BW.zone=z;if(!BW.seen.has(z)){BW.seen.add(z);BW.zoneT=now}}
- if(BW.hum){const v=OPT.svol*SFX_MASTER*.22*sfxDist(BW_GEN.x,BW_GEN.y)*(1+Math.sin(now*1.7)*.08);try{BW.hum.gn.gain.value=Math.min(.25,v)}catch{}}
+ if(BW.hum){const v=OPT.svol*SFX_MASTER*.22*sfxDist(BW_GEN.x,BW_GEN.y)*(1+Math.sin(now*1.7)*.08);if(BW.hum.file){sfxLoop('bw_hum_loop',true,0);if(LOOPS.bw_hum_loop)LOOPS.bw_hum_loop.gn.gain.value=Math.min(.5,v*2.4)}else try{BW.hum.gn.gain.value=Math.min(.25,v)}catch{}}
+ bwAmbience(dt,pw);
  // Funken an defekten Leuchten und Trafos
  if(pw&&Math.random()<dt*2){const n=pick(BWN);if(n&&n.fl>.2&&Math.abs(n.x-P.x)<260&&Math.abs(n.y-P.y)<200)for(let k=0;k<6;k++)part({x:n.x+rnd(-12,12),y:n.y,z:26+rnd(0,8),vx:rnd(-40,40),vy:rnd(-10,10),vz:rnd(0,40),g:200,life:.5,c:pick(['#fff','#ffe08a','#8ad8ff']),s:1,ember:1})}
  if(pw&&Math.random()<dt*1.2&&Math.hypot(BW_GEN.x-P.x,BW_GEN.y-P.y)<300)for(let k=0;k<5;k++)part({x:pick([2560,2720])+rnd(-12,12),y:636,z:20,vx:rnd(-50,50),vy:rnd(-10,10),vz:rnd(10,60),g:200,life:.4,c:pick(['#fff','#8ad8ff']),s:1,ember:1});
@@ -326,3 +327,24 @@ function bwHud(VW,VH,k){
  for(const st of STATIONS){if(st.t!=='perk'&&st.t!=='pap'&&st.t!=='power')continue;const c=st.t==='perk'?PERKS[st.k].c:st.t==='pap'?'#c86bff':'#ffd23a';u.fillStyle='#000';u.fillRect(x0+st.x*s-3,y0+st.y*s-3,6,6);u.fillStyle=bwStationOn(st)||st.t==='power'?c:shade(c,.4);u.fillRect(x0+st.x*s-2,y0+st.y*s-2,4,4)}
  for(const p of PL)if(!p.dead){u.fillStyle=p===P?'#ffffff':pcol(p);u.beginPath();u.arc(x0+p.x*s,y0+p.y*s,p===P?3.5:2.5,0,7);u.fill()}
  u.textAlign='left';HT('■ offen  ■ gesperrt  ● Spieler',x0,y0+mh+20*k,13*k,'#a8a0b0','left','"VT323",monospace',700)}
+
+// ---------------------------------------------------------------------
+// Klangkulisse (Blackwater-Soundpaket): Meer, Möwen, Fahnen, Nebelhorn,
+// Neon, Karussell-Spieluhr und Fahrgeräusche. Alles lokal, nichts im Netz.
+// ---------------------------------------------------------------------
+const BWA={gull:8,horn:30,neon:15};
+function bwLoopAt(name,on,v){sfxLoop(name,on&&v>.003,0);if(LOOPS[name])LOOPS[name].gn.gain.value=OPT.svol*SFX_MASTER*v}
+function bwAmbience(dt,pw){if(!started)return;const L=listener();
+ const sea=bwLandAt(L.x,L.y)?.25:.45;bwLoopAt('bw_sea_loop',true,sea);
+ bwLoopAt('bw_flag_loop',true,.35*(1+Math.sin(now*.4)*.3));
+ const car=BW_RIDES.find(r=>r.k==='carousel'),rk=P.bwRide?BW_RIDES[P.bwRide.i].k:null;
+ bwLoopAt('bw_musicbox_1',pw,.7*sfxDist(car.x,car.y-40));
+ bwLoopAt('bw_musicbox_2',pw&&rk==='wheel',.5);
+ bwLoopAt('bw_carousel_mech',rk==='carousel',.6);
+ bwLoopAt('bw_coaster_chain',rk==='coaster',.8);
+ bwLoopAt('bw_zipline',rk==='zip',.8);
+ if((BWA.gull-=dt)<0){BWA.gull=10+Math.random()*25;const a=Math.random()*6.28;sfx('bw_gull',L.x+Math.cos(a)*220,L.y+Math.sin(a)*160,.7,.9+Math.random()*.2,0)}
+ if((BWA.horn-=dt)<0){BWA.horn=55+Math.random()*50;sfx('bw_foghorn',2710,1560,1.2,1,0)}
+ if(pw&&(BWA.neon-=dt)<0){BWA.neon=12+Math.random()*25;sfx('bw_neon_flicker',2070,836,.6,1,0)}}
+function bwStepSnd(x,y){const z=bwZoneAt(x,y);if(z==='P'||(x>BW_BRIDGE[0]&&x<BW_BRIDGE[0]+BW_BRIDGE[2]&&y>BW_BRIDGE[1]&&y<BW_BRIDGE[1]+BW_BRIDGE[3]))return 'step_wood';if(z==='K'&&!bwBuildingAt(x,y))return 'step_metal';return null}
+function bwBuildingAt(x,y){return typeof buildingAt==='function'&&buildingAt(x,y)}
