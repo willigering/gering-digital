@@ -357,11 +357,27 @@ const [grainT,grc]=mk(128,128);for(let i=0;i<5000;i++){const v=Math.random()*255
 // Waffen & Spieler
 // =====================================================================
 const WEAPONS={
- pistol:{name:'Pistole',dmg:28,rate:.26,mag:12,reload:1.5,spread:.03,pellets:1,speed:460,cost:0,len:5},
- smg:{name:'MP',dmg:22,rate:.075,mag:32,reload:1.9,spread:.08,pellets:1,speed:480,cost:1600,len:8},
- shotgun:{name:'Schrotflinte',dmg:24,rate:.7,mag:6,reload:2,spread:.22,pellets:7,speed:400,cost:2200,len:11},
- rifle:{name:'Sturmgewehr',dmg:36,rate:.11,mag:30,reload:2.2,spread:.035,pellets:1,speed:560,cost:2800,len:10},
- magnum:{name:'Magnum',dmg:95,rate:.42,mag:6,reload:1.9,spread:.01,pellets:1,speed:600,cost:1900,len:6},
+ pistol:{name:'M1911',dmg:28,rate:.26,mag:12,reload:1.5,spread:.03,pellets:1,speed:460,cost:0,len:5},
+ smg:{name:'MP5',dmg:22,rate:.075,mag:32,reload:1.9,spread:.08,pellets:1,speed:480,cost:1600,len:8},
+ shotgun:{name:'Pump-Schrot',dmg:24,rate:.7,mag:6,reload:2,spread:.22,pellets:7,speed:400,cost:2200,len:11},
+ rifle:{name:'M4',dmg:36,rate:.11,mag:30,reload:2.2,spread:.035,pellets:1,speed:560,cost:2800,len:10},
+ magnum:{name:'.357 Magnum',dmg:95,rate:.42,mag:6,reload:1.9,spread:.01,pellets:1,speed:600,cost:1900,len:6},
+ // Weitere Waffen (alle Karten). base = Grundtyp für Sound, Symbol und Nachladen; box = nur aus der Mystery Box; tier = Seltenheit in der Box (0 häufig … 3 sehr selten)
+ glock:{name:'Glock 18',base:'pistol',dmg:22,rate:.13,mag:17,reload:1.4,spread:.045,pellets:1,speed:460,cost:900,len:5,tier:0},
+ deagle:{name:'Desert Eagle',base:'magnum',dmg:78,rate:.4,mag:7,reload:1.8,spread:.02,pellets:1,speed:620,cost:2100,len:7,tier:1},
+ vector:{name:'Vector',base:'smg',dmg:16,rate:.048,mag:30,reload:1.7,spread:.07,pellets:1,speed:480,cost:1900,len:8,tier:1},
+ akmp:{name:'AK-MP',base:'smg',dmg:30,rate:.09,mag:30,reload:2,spread:.12,pellets:1,speed:500,cost:1800,len:9,tier:0},
+ uzi:{name:'Uzi',base:'smg',dmg:19,rate:.06,mag:32,reload:1.6,spread:.12,pellets:1,speed:460,cost:1400,len:7,tier:0},
+ p90:{name:'P90',base:'smg',dmg:20,rate:.065,mag:50,reload:2.4,spread:.07,pellets:1,speed:500,cost:2300,len:9,tier:1},
+ ak47:{name:'AK-47',base:'rifle',dmg:44,rate:.12,mag:30,reload:2.3,spread:.06,pellets:1,speed:560,cost:2600,len:10,tier:0},
+ famas:{name:'FAMAS',base:'rifle',dmg:32,rate:.08,mag:25,reload:2.1,spread:.04,pellets:1,speed:560,cost:2500,len:10,tier:1},
+ scar:{name:'SCAR-H',base:'rifle',dmg:52,rate:.15,mag:20,reload:2.4,spread:.03,pellets:1,speed:600,cost:3000,len:11,tier:2},
+ dbarrel:{name:'Doppelläufige',base:'shotgun',dmg:30,rate:.25,mag:2,reload:1.8,spread:.26,pellets:9,speed:400,cost:1500,len:12,tier:0},
+ autosg:{name:'Auto-Schrot',base:'shotgun',dmg:18,rate:.22,mag:8,reload:2.6,spread:.2,pellets:6,speed:400,cost:3200,len:11,tier:2},
+ sniper:{name:'Scharfschützengewehr',base:'rifle',dmg:230,rate:1.1,mag:5,reload:2.6,spread:.004,pellets:1,speed:900,cost:3500,len:14,tier:2},
+ lmg:{name:'LMG',base:'rifle',dmg:34,rate:.085,mag:100,reload:4.5,spread:.09,pellets:1,speed:560,cost:4000,len:13,tier:2},
+ xbow:{name:'Armbrust',base:'magnum',dmg:170,rate:.9,mag:1,reload:1.3,spread:.01,pellets:1,speed:420,cost:2000,len:10,tier:1,box:1},
+ raygun:{name:'Raygun',base:'magnum',dmg:130,rate:.28,mag:20,reload:2.2,spread:.01,pellets:1,speed:520,cost:9999,len:7,tier:3,box:1},
  // Stumpfe Waffen: ein Schlag = halber Pistolentreffer (14), dafür Bogen-Treffer und Rückstoß
  bat:{name:'Baseballschläger',melee:true,dmg:14,rate:.55,reach:22,arc:1.5,knock:10,mag:0,reload:0,cost:0,len:9,col:'#a8743c'},
  golf:{name:'Golfschläger',melee:true,dmg:14,rate:.45,reach:24,arc:1.3,knock:7,mag:0,reload:0,cost:0,len:10,col:'#c8ccd0'},
@@ -372,12 +388,13 @@ const RAR=[{n:'GEWÖHNLICH',c:'#c8c8c8',d:1,m:1},{n:'UNGEWÖHNLICH',c:'#5ad05a',
 const rollRar=()=>{const x=Math.random();return x<.005?3:x<.055?2:x<.28?1:0};
 const mkW=(k,r=0)=>{const mag=Math.round(WEAPONS[k].mag*RAR[r].m);return{k,r,ammo:mag,res:mag*3}};
 const isMelee=k=>!!(WEAPONS[k]&&WEAPONS[k].melee);
+const wBase=k=>(WEAPONS[k]&&WEAPONS[k].base)||k;
 // Preis für einen komplett leeren Vorrat (Magazin + max. Reserve) je Waffe
 const AMMO_PRICE={pistol:150,smg:300,shotgun:350,rifle:400,magnum:300};
 function wStats(pl,k){const w=WEAPONS[k],lv=pl.pap[k]||0,s=pl.slots.find(x=>x&&x.k===k),rm=RAR[(s&&s.r)||0].m;return{mag:Math.round(w.mag*(1+lv*.5)*rm),maxRes:Math.round(w.mag*(1+lv*.5)*rm)*5}}
 // Nur die tatsächlich fehlende Munition kostet – volle Waffen werden nicht berechnet
 function ammoCost(pl){let c=0;for(const s of pl.slots)if(s&&!isMelee(s.k)){const st=wStats(pl,s.k),cap=st.mag+st.maxRes,miss=Math.max(0,cap-s.ammo-Math.min(s.res,st.maxRes));
-  const mult=(1+(pl.pap[s.k]||0)*.75)*[1,1.25,1.5,2][s.r||0];if(miss>0)c+=Math.max(10,Math.ceil(miss/cap*AMMO_PRICE[s.k]*mult/10)*10)}return c}
+  const mult=(1+(pl.pap[s.k]||0)*.75)*[1,1.25,1.5,2][s.r||0];if(miss>0)c+=Math.max(10,Math.ceil(miss/cap*AMMO_PRICE[wBase(s.k)]*mult/10)*10)}return c}
 function refillAmmo(pl){for(const s of pl.slots)if(s&&!isMelee(s.k)){const st=wStats(pl,s.k);s.ammo=st.mag;s.res=Math.max(s.res,st.maxRes)}}
 function newPlayer(o){return Object.assign({x:FAIR?BW_START.x:600,y:FAIR?BW_START.y:420,r:5,hp:100,max:100,money:500,kills:0,heads:0,slots:[mkW('pistol'),null],cur:0,pap:{},reloadT:0,cd:0,face:0,phase:0,
  moving:false,gren:2,bomb:0,med:1,key:-1,inCar:-1,hold:null,healT:0,jumpT:0,hurtT:0,flashT:0,down:false,bleed:0,dead:false,revT:0,hop:0,zapT:0,vault:null,search:null,reviving:null},o)}
@@ -400,7 +417,7 @@ function curW(pl){const s=pl.slots[pl.cur],w=WEAPONS[s.k],lv=pl.pap[s.k]||0;
  return{...w,k:s.k,r:s.r||0,dmg:w.dmg*Math.pow(2,lv)*ra.d,mag:Math.round(w.mag*(1+lv*.5)*ra.m),rate:w.rate*Math.pow(.8,lv)/(hasPerk(pl,'twixx')?1.2:1),reload:w.reload*(hasPerk(pl,'ravioli')?.7:1),lv,s}}
 let waveDone=false,goPlayed=false;
 const SHOT_SND={pistol:'pistol_shot',smg:'smg_shot',shotgun:'shotgun_shot',rifle:'rifle_shot',magnum:'magnum_shot'};
-function startReload(pl){const w=curW(pl);if(!w.melee&&pl.reloadT<=0&&w.s.ammo<w.mag&&w.s.res>0){pl.reloadT=w.reload;if(w.k==='shotgun'){const n=Math.max(1,Math.min(w.mag-w.s.ammo,w.s.res)),span=w.reload-.45,ok=()=>pl.reloadT>0&&curW(pl).k==='shotgun';
+function startReload(pl){const w=curW(pl);if(!w.melee&&pl.reloadT<=0&&w.s.ammo<w.mag&&w.s.res>0){pl.reloadT=w.reload;if(wBase(w.k)==='shotgun'){const n=Math.max(1,Math.min(w.mag-w.s.ammo,w.s.res)),span=w.reload-.45,ok=()=>pl.reloadT>0&&curW(pl).k==='shotgun';
   for(let i=0;i<n;i++)setTimeout(()=>{if(ok())sfx('shell_load',pl.x,pl.y,.75,.95+Math.random()*.1,0)},(.1+span*i/n)*1000);
   setTimeout(()=>{if(ok())sfx('reload_shotgun',pl.x,pl.y,.8,1,0)},(w.reload-.4)*1000)}
  else{const l=SFX_GROUPS['reload_'+w.k]||SFX_GROUPS.reload_pistol,n=pick(l),b=SFXB[n];sfx('@'+n,pl.x,pl.y,.8,b?clamp(b.duration/w.reload,1,1.45):1,0)}}}
@@ -716,7 +733,7 @@ function blood(x,y,n,f=1,z=9){sfx(z>=15?'headshot':'zombie_hit',x,y,.75,1,.06);i
 // =====================================================================
 // Schießen
 // =====================================================================
-function shoot(pl,ang,aimH,vis){const w=curW(pl);sfx(SHOT_SND[w.k]||'pistol_shot',pl.x,pl.y,pl===P?.85:1,1,0);if(w.lv>0)sfx('upgraded_shot',pl.x,pl.y,.5,1,0);
+function shoot(pl,ang,aimH,vis){const w=curW(pl);sfx(SHOT_SND[wBase(w.k)]||'pistol_shot',pl.x,pl.y,pl===P?.85:1,1,0);if(w.lv>0)sfx('upgraded_shot',pl.x,pl.y,.5,1,0);
  w.s.ammo--;pl.cd=w.rate;pl.flashT=.05;pl.recoil=1;pl.smokeT=Math.min(1.6,(pl.smokeT||0)+.22*w.pellets**.5);if(pl===P)shake=Math.min(3,shake+.8+w.pellets*.2);
  if(!vis)noise_={x:pl.x,y:pl.y,r:buildingAt(pl.x,pl.y)?180:260,t:.2};
  let gx=pl.x+Math.cos(ang)*(6+w.len),gy=pl.y+Math.sin(ang)*(6+w.len)*.8;
@@ -1403,8 +1420,8 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
    if(EP&&auth){const busy=[...PL,...zombies].some(o=>(o.hp>0||o===pl)&&!o.dead&&o.x>dn.r.x-5&&o.x<dn.r.x+dn.r.w+5&&o.y>dn.r.y-5&&o.y<dn.r.y+dn.r.h+5);
     if(dn.open&&busy)note(pl,'Tür ist blockiert','#ff8a7a');else{dn.open=!dn.open;sfx('door_hit',cx,cy,.6,dn.open?1.25:.9,0)}}}}
 }
-const LOOT={locker:['pistol','smg','magnum','bat'],wardrobe:['shotgun','magnum','rifle','golf','bat'],bench:['rifle','shotgun','pipe','golf'],cabinet:['smg','magnum','pipe'],crate:['rifle','shotgun','smg','pipe','bat'],
- tdesk:['magnum','pistol','golf'],fridge:[],counter:['shotgun','bat'],shelf:['smg','pipe'],register:[],vending:[]};if(FAIR)Object.assign(LOOT,BW_LOOT);
+const LOOT={locker:['pistol','glock','smg','uzi','magnum','bat'],wardrobe:['shotgun','dbarrel','magnum','rifle','golf','bat','akmp'],bench:['rifle','ak47','shotgun','pipe','golf','famas'],cabinet:['smg','vector','magnum','deagle','pipe'],crate:['rifle','ak47','shotgun','smg','p90','pipe','bat','sniper'],
+ tdesk:['magnum','pistol','glock','golf'],fridge:[],counter:['shotgun','dbarrel','bat'],shelf:['smg','uzi','pipe'],register:[],vending:[]};if(FAIR)Object.assign(LOOT,BW_LOOT);
 function rareSnd(rr,x,y){sfx('rare_found',x,y,rr>=3?1:rr===2?.8:.55,rr>=3?1:rr===2?1.12:1.25,0);if(rr>=2)sfx('loot_found',x,y,.6,.8,0)}
 function loot(pl,f){sfx('loot_found',f.x,f.y,.8);const r=Math.random(),pool=LOOT[f.t]||[];let s,col='#fff2a8';
  const cand=pl.key<0?CARS.filter(c=>c.state==='ok'&&!c.unlocked&&!PL.some(p=>p.key===c.i)):[];
@@ -1707,7 +1724,7 @@ function drawPerkMachine(s){const x=Math.round(s.x),y=Math.round(s.y),C2=PM[s.k]
  R(g,x-11,y-3,22,3,shade(C2.b,.55));R(g,x-10+((x*7)%8),y-14,2,1,'rgba(40,30,20,.5)');R(g,x+8,y-30,2,3,'rgba(120,70,30,.45)');R(g,x-10,y-8,3,2,'rgba(60,50,40,.5)');R(g,x+2,y-28,1,2,'rgba(0,0,0,.25)')}
 function drawStation(s){if(s.t==='perk'){drawPerkMachine(s);if(FAIR)bwPerkOverlay(s);return}if(FAIR&&(s.t==='pap'||s.t==='power')){bwDrawStation(s);return}const x=Math.round(s.x),y=Math.round(s.y),pulse=.6+Math.sin(now*3+x)*.4;
  if(s.t==='wall'){R(g,x-12,y-26,2,26,'#4a3a2a');R(g,x+10,y-26,2,26,'#4a3a2a');R(g,x-15,y-32,30,18,'#5a4030');R(g,x-14,y-31,28,16,'#2a2420');
-  const [len,c]=GUNPIX[s.k];g.globalAlpha=.7+pulse*.3;R(g,x-len/2,y-26,len,3,c);R(g,x-len/2+2,y-23,2,4,c);R(g,x-len/2+len*.5,y-23,2,3,c);if(s.k==='rifle'||s.k==='shotgun')R(g,x-len/2-2,y-25,3,4,c);g.globalAlpha=1;
+  const [len,c]=GUNPIX[wBase(s.k)]||[10,'#ccc'];g.globalAlpha=.7+pulse*.3;R(g,x-len/2,y-26,len,3,c);R(g,x-len/2+2,y-23,2,4,c);R(g,x-len/2+len*.5,y-23,2,3,c);if(wBase(s.k)==='rifle'||wBase(s.k)==='shotgun')R(g,x-len/2-2,y-25,3,4,c);g.globalAlpha=1;
   R(g,x-14,y-31,28,1,'#7a5a40')}
  else if(s.t==='ammo'){const pl2=.5+Math.sin(now*3+x)*.5;
   g.globalAlpha=.25+pl2*.25;g.strokeStyle='#ffd040';g.lineWidth=1;g.beginPath();g.ellipse(x,y-1,15+pl2*2,6+pl2,0,0,7);g.stroke();g.globalAlpha=1;
@@ -1812,7 +1829,7 @@ function render(){
  for(const it of GROUND)if(vis(it.x-20,it.y-50,40,60))L.push({y:it.y,f:()=>{const x=Math.round(it.x),y=Math.round(it.y),bob=Math.round(Math.sin(now*3+it.id)*1.5),col=it.kind==='med'?'#9fffb0':RAR[it.r||0].c;
   if((it.r||0)===3){g.globalAlpha=.25+Math.sin(now*4)*.1;R(g,x-1,y-46,3,44,col);g.globalAlpha=1}
   g.globalAlpha=.35+Math.sin(now*4+it.id)*.12;g.fillStyle=col;g.beginPath();g.ellipse(x,y,8,3,0,0,7);g.fill();g.globalAlpha=1;
-  for(const [ix,iy,w,h,c] of ICONS[it.kind==='med'?'med':it.k]||[])R(g,x+ix*.65,y-6+bob+iy*.65,Math.max(1,w*.65),Math.max(1,h*.65),c)}});
+  for(const [ix,iy,w,h,c] of ICONS[it.kind==='med'?'med':it.k]||ICONS[wBase(it.k)]||[])R(g,x+ix*.65,y-6+bob+iy*.65,Math.max(1,w*.65),Math.max(1,h*.65),c)}});
  for(const t of THROWN)L.push({y:t.y,f:()=>{const x=Math.round(t.x),y=Math.round(t.y),z=Math.round(t.z);g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(x,y,3,1.3,0,0,7);g.fill();
   if(t.type==='gren'){R(g,x-2,y-z-4,4,4,'#3e4c24');R(g,x-1,y-z-4,1,1,'#7a8a4a');R(g,x-1,y-z-6,2,2,'#8a8a90')}
   else{R(g,x-4,y-z-3,8,3,'#8a8e94');R(g,x-4,y-z-3,8,1,'#b8bcc2');R(g,x-5,y-z-3,1,3,'#5a5e64');R(g,x+4,y-z-3,1,3,'#5a5e64');R(g,x-1,y-z-3,2,3,'#c8b040');
@@ -2016,12 +2033,27 @@ const ICONS={carkey:[[-7,-2,6,5,'#1a1a1c'],[-6,-1,2,2,'#d83030'],[-1,0,8,2,'#c8c
  shotgun:[[-8,-2,16,2,'#3a2a1e'],[-8,-3,11,1,'#3a3a40'],[2,-2,6,3,'#7a5230'],[-3,0,2,3,'#1e1e22']],
  rifle:[[-8,-3,16,3,'#2a2a2e'],[-8,-3,16,1,'#6a6a72'],[-2,0,3,5,'#1e1e22'],[4,-2,4,4,'#3a3a40'],[-3,-5,5,2,'#1e1e22']],
  magnum:[[-6,-3,12,3,'#8a8e96'],[-6,-3,12,1,'#d0d4da'],[-4,0,3,5,'#5a3a22'],[0,-2,3,3,'#5a5e66']],
+ ak47:[[-8,-3,16,3,'#2a2a2e'],[-8,-3,7,3,'#8a5a2a'],[-2,0,3,5,'#1e1e22'],[3,0,3,5,'#6a4a22'],[6,-3,3,1,'#6a6a72']],
+ akmp:[[-7,-3,13,3,'#2a2a2e'],[-7,-3,5,3,'#8a5a2a'],[-3,0,3,4,'#1e1e22'],[2,0,2,4,'#6a4a22']],
+ vector:[[-6,-4,12,4,'#2a2a2e'],[-6,-4,12,1,'#7a7a82'],[-3,0,3,5,'#1e1e22'],[2,0,3,3,'#3a3a40']],
+ p90:[[-7,-4,14,4,'#3a3a2a'],[-7,-4,14,1,'#7a7a5a'],[-2,0,3,4,'#1e1e22']],
+ uzi:[[-5,-3,10,3,'#2a2a2e'],[-5,-3,10,1,'#6a6a72'],[-1,0,3,6,'#1e1e22']],
+ glock:[[-5,-3,10,3,'#1e1e22'],[-5,-3,10,1,'#4a4a52'],[-4,0,3,5,'#1e1e22']],
+ deagle:[[-7,-3,13,4,'#b8bcc4'],[-7,-3,13,1,'#e8ecf0'],[-5,1,3,5,'#2a2a2e']],
+ famas:[[-8,-4,16,3,'#2a2a2e'],[-5,-5,8,1,'#5a5a62'],[-1,-1,3,5,'#1e1e22'],[4,-1,3,3,'#3a3a40']],
+ scar:[[-8,-3,16,3,'#8a7a5a'],[-8,-3,16,1,'#b8a880'],[-2,0,3,5,'#2a2a2e'],[4,-2,4,4,'#6a5a3a']],
+ dbarrel:[[-8,-3,16,2,'#3a3a40'],[-8,-1,16,1,'#2a2a30'],[2,-2,6,4,'#7a4a22']],
+ autosg:[[-8,-3,16,3,'#2a2a2e'],[-8,-3,16,1,'#6a6a72'],[-3,0,4,5,'#1e1e22'],[3,0,2,3,'#3a3a40']],
+ sniper:[[-8,-2,16,2,'#2a3a2a'],[-3,-5,6,2,'#1e1e22'],[3,-2,5,4,'#4a5a3a'],[-2,0,2,4,'#1e1e22']],
+ lmg:[[-8,-3,16,4,'#2a2a2e'],[-8,-3,16,1,'#6a6a72'],[-3,1,6,4,'#4a4a30'],[-8,1,2,3,'#1e1e22']],
+ xbow:[[-6,-1,12,2,'#6a4a2a'],[4,-5,2,10,'#3a3a40'],[-6,-1,1,2,'#c8c8d0']],
+ raygun:[[-6,-4,10,5,'#c83a2a'],[-6,-4,10,1,'#ff8a6a'],[4,-3,3,3,'#3aff6a'],[-4,1,3,5,'#3a3a40'],[-2,-3,2,2,'#ffd23a']],
  bat:[[-8,1,4,2,'#2a2018'],[-4,0,12,3,'#b07a40'],[4,-1,4,4,'#b07a40']],golf:[[-8,0,3,2,'#2a2018'],[-5,0,12,1,'#c8ccd0'],[6,-1,3,3,'#eceef0']],
  pipe:[[-8,-1,16,3,'#7a7e84'],[-8,-1,16,1,'#b0b4ba'],[-8,-1,2,3,'#5a5e64']],
  knife:[[-7,0,5,3,'#4a3422'],[-2,-1,9,2,'#dfe3e8'],[-2,0,8,1,'#a8acb2'],[-3,-1,1,4,'#6a6a70']],
  gren:[[-3,-2,7,7,'#4a5a2a'],[-2,-1,2,2,'#8a9a5a'],[-1,-5,3,3,'#8a8a90'],[2,-5,2,1,'#c8c8d0']],
  bombi:[[-7,-2,14,4,'#8a8e94'],[-7,-2,14,1,'#c0c4ca'],[-7,-2,2,4,'#5a5e64'],[5,-2,2,4,'#5a5e64'],[-2,-2,4,4,'#c8b040'],[0,-5,1,3,'#ff3030']]};
-function drawIcon(k,cx,cy,s,dim){const p=Math.max(1,Math.floor(s/22));u.globalAlpha=dim?.3:1;for(const [x,y,w,h,c] of ICONS[k]||[]){u.fillStyle=c;u.fillRect(Math.round(cx+x*p),Math.round(cy+y*p),w*p,h*p)}u.globalAlpha=1}
+function drawIcon(k,cx,cy,s,dim){const p=Math.max(1,Math.floor(s/22));u.globalAlpha=dim?.3:1;for(const [x,y,w,h,c] of ICONS[k]||ICONS[wBase(k)]||[]){u.fillStyle=c;u.fillRect(Math.round(cx+x*p),Math.round(cy+y*p),w*p,h*p)}u.globalAlpha=1}
 function scoreboard(VW,VH,k,over){
  u.fillStyle='rgba(0,0,0,'+(over?.7:.45)+')';u.fillRect(0,0,VW,VH);
  const cols=[['SPIELER',0,'left'],['PUNKTE',.42,'right'],['KILLS',.56,'right'],['HEADSHOTS',.72,'right'],['RETTUNGEN',.87,'right'],['AM BODEN',1,'right']];
