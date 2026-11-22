@@ -6,7 +6,7 @@ from cs_lessons_new import L_WELT, L_UEBERSETZEN, L_GRUND, L_TYPEN, L_DATEN, L_U
 _OLD = [
 {
  'title': 'Operatoren und Berechnungen', 'cat': 'rechnen', 'goal': 'Du rechnest Ausdrücke so aus, wie C# sie ausrechnet.',
- 'intro': '<p>Ein Backup hat 10 GB, drei Festplatten sollen es sich teilen. <code>10 / 3</code> ergibt in C# <strong>3</strong>. Kein Bug: Zwei <code>int</code>-Werte ergeben eine <strong>Integerdivision</strong>, und der Nachkommateil wird abgeschnitten. Niemand hat dich gefragt, ob du den Rest noch brauchst.</p>',
+ 'intro': '<p>Ein Backup hat 10 GB, drei Festplatten sollen es sich teilen. <code>10 / 3</code> ergibt in C# <strong>3</strong>. Kein Bug: Zwei <code>int</code>-Werte ergeben eine <strong>Integerdivision</strong>, und der Nachkommateil wird abgeschnitten. </p>',
  'visual': '<div class="calc">+  −  *  /   Rechnen\n%            Rest der Division (Modulo)\n== != &lt; &gt; &lt;= &gt;=   Vergleichen, Ergebnis ist bool\n&amp;&amp;  ||  !     und, oder, nicht\n=  +=  -=  ++  --   Zuweisen und Ändern</div>',
  'memo': 'Sind beide Werte <code>int</code>, ist das Ergebnis <code>int</code>. Ist einer <code>double</code>, gibt es Nachkommastellen. Punkt vor Strich gilt auch hier, Klammern gehen vor.',
  'example': 'Wie viele volle 3er-Pakete passen in 10 Geräte, und wie viele bleiben übrig?' + C('''
@@ -26,7 +26,7 @@ _OLD = [
     bool wartung = false;
     Console.WriteLine(online && !wartung);
     ''', out='True') + '<h4>Rangfolge</h4><p>Reihenfolge von oben nach unten: Klammern, dann <code>* / %</code>, dann <code>+ -</code>, dann Vergleiche, dann <code>&amp;&amp;</code>, dann <code>||</code>, zuletzt die Zuweisung.</p>',
- 'trap': '<code>double d = 10 / 4;</code> ergibt 2, nicht 2,5. Rechts wird zuerst mit <code>int</code> gerechnet, erst danach landet die 2 im <code>double</code>. Die Variable kann nichts dafür.',
+ 'trap': '<code>double d = 10 / 4;</code> ergibt 2, nicht 2,5. Rechts wird zuerst mit <code>int</code> gerechnet, erst danach landet die 2 im <code>double</code>. ',
  'labTitle': 'RECHNUNG IN ZEITLUPE',
  'trace': T('''
     int a = 7;
@@ -133,7 +133,7 @@ _OLD = [
 },
 {
  'title': 'Schleifen', 'cat': 'schleife', 'goal': 'Du sagst genau, wie oft eine Schleife läuft und warum.',
- 'intro': '<p>Zehn Geräte anpingen, zehnmal dieselbe Zeile schreiben? Spätestens bei 500 Geräten kündigst du. Eine <strong>Schleife</strong> wiederholt einen Block, solange eine Bedingung gilt.</p>',
+ 'intro': '<p>Wiederkehrende Arbeitsschritte, etwa das Prüfen mehrerer Geräte, lassen sich mit Schleifen umsetzen. Eine <strong>Schleife</strong> wiederholt einen Block, solange eine Bedingung gilt.</p>',
  'visual': '<div class="calc">for (Start; Bedingung; Schritt)\n1. Start läuft einmal\n2. Bedingung true? Sonst Ende\n3. Block läuft\n4. Schritt läuft, weiter bei 2</div>',
  'memo': 'Durchläufe zählst du, indem du die Werte der Zählvariablen aufschreibst. Bei <code>i &lt; 10</code> mit Start 0 sind es zehn, bei <code>i &lt;= 10</code> elf.',
  'example': 'Eine Meldung für drei Ports:' + C('''
@@ -155,7 +155,7 @@ _OLD = [
         Console.WriteLine("do");
         n++;
     } while (n < 3);
-    ''', out='do') + '<h4><code>foreach</code></h4><p>Geht jedes Element einer Sammlung durch. Ohne Zähler, ohne Indexfehler, ohne Drama.</p>' + C('''
+    ''', out='do') + '<h4><code>foreach</code></h4><p>Geht jedes Element einer Sammlung durch. Ein eigener Schleifenzähler ist dafür nicht erforderlich.</p>' + C('''
     string[] geraete = { "Router", "Switch" };
     foreach (string g in geraete)
     {
@@ -168,8 +168,8 @@ _OLD = [
         if (i == 4) break;
         Console.WriteLine(i);
     }
-    ''', out='1 3') + '<h4>Endlosschleifen</h4><p>Ändert sich die Bedingung nie, läuft die Schleife bis zum Abbruch. Im Terminal stoppt <code>Strg+C</code> das Programm. Der Lüfter dankt.</p>',
- 'trap': 'Off-by-one: <code>&lt;=</code> statt <code>&lt;</code> liefert einen Durchlauf zu viel. Und bei <code>while</code> das Hochzählen zu vergessen, ist die häufigste Art, eine CPU zu heizen.',
+    ''', out='1 3') + '<h4>Endlosschleifen</h4><p>Ändert sich die Bedingung nie, läuft die Schleife bis zum Abbruch. Im Terminal stoppt <code>Strg+C</code> das Programm. </p>',
+ 'trap': 'Off-by-one: <code>&lt;=</code> statt <code>&lt;</code> liefert einen Durchlauf zu viel. Fehlt bei <code>while</code> die notwendige Änderung der Bedingungsvariablen, kann eine Endlosschleife entstehen.',
  'labTitle': 'SCHLEIFE IN ZEITLUPE',
  'trace': T('''
     int summe = 0;

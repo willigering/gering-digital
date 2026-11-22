@@ -1,0 +1,28 @@
+/* CS1 pilot: clear hierarchy with quiet surfaces, no changes to other modules. */
+.scenario{background:#12131b;border:1px solid #ffffff24;border-radius:10px;padding:18px 20px;margin:0 0 20px;line-height:1.65}
+.scenario>strong,.task-label{display:block;font:700 14px/1.4 var(--sans, sans-serif);letter-spacing:.02em;text-transform:none;color:var(--cyan);margin:0 0 10px}
+.task-prompt{font-size:20px;line-height:1.5;margin:20px 0;padding:0;background:none}
+.task-prompt>.task-label{color:var(--text,#eee)}
+.answer-section{border-top:1px solid #ffffff28;padding-top:20px;margin-top:18px}
+.answer-section>.fmt{margin:0 0 14px;line-height:1.5;font-size:14px}
+.answer-section>.btn{margin-top:18px}
+.sort-cards{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.sort-cards li{display:flex;align-items:center;gap:12px;padding:12px;background:#161922;border:1px solid #ffffff30;border-radius:8px;cursor:grab;min-width:0}
+.sort-cards code{flex:1;white-space:pre-wrap;overflow-wrap:anywhere;font-size:16px;background:none;border:0;padding:0}
+.sort-number{color:var(--cyan);font-weight:700;min-width:20px}
+.sort-controls{display:flex;gap:6px;flex-shrink:0}
+.bounded-answer button{font:inherit;line-height:1.4;cursor:pointer;min-height:44px;border:1px solid #ffffff40;border-radius:7px;background:#171b25;color:#f1eef8;padding:8px 12px;overflow-wrap:anywhere}
+.bounded-answer button:hover{border-color:var(--cyan);background:#252335}
+.bounded-answer button:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+.bounded-answer button:disabled{cursor:default;opacity:.65}
+.sort-controls button{font-size:14px;padding:6px 9px}
+.statement-list{display:grid;gap:10px}
+.statement-list button{text-align:left;display:flex;align-items:center;gap:12px}
+.statement-list button[aria-pressed=true],.options .is-selected{border-color:var(--cyan);background:#29223b}
+.cloze-text{line-height:2.8;font-size:18px;overflow-wrap:anywhere}
+.cloze-code{font-family:var(--mono);white-space:pre-wrap;line-height:3;background:#0c1015;padding:14px;border-radius:8px}
+.gap-slot{display:inline-block;min-width:110px;border-style:dashed!important;margin:3px 4px;vertical-align:baseline;color:var(--cyan)!important}
+.gap-slot.active{outline:2px solid var(--cyan);outline-offset:1px}
+.word-bank{display:flex;flex-wrap:wrap;gap:9px;border-top:1px solid #ffffff20;padding-top:16px;margin-top:18px}
+.word-bank button{font-family:var(--mono);font-size:16px;max-width:100%;white-space:pre-wrap;cursor:grab}
+@media(max-width:610px){.scenario{padding:14px;font-size:16px}.task-prompt{font-size:18px}.sort-cards li{flex-wrap:wrap;padding:10px}.sort-cards code{font-size:16px;width:calc(100% - 36px)}.sort-controls{width:100%;justify-content:flex-end}.cloze-text{font-size:16px}.cloze-code{padding:10px}.gap-slot{min-width:90px}.bounded-answer button{max-width:100%}}

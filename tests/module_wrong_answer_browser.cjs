@@ -15,7 +15,7 @@ const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1])
     const result=page.locator('.result.bad').first();assert(quips.includes(await result.locator('b').first().innerText()));assert(await result.locator('.why').innerText());
    }else{
     await page.locator('#practiceGo').click();await page.locator('.dtp-practice-dialog[open]').waitFor();
-    await page.evaluate(()=>{
+    if(m.slug==='cs1-csharp'){await require('./support/cs1-answer.cjs').answer(page,'#practiceTask',false)}else await page.evaluate(()=>{
      const hook=Object.entries(window).find(([k,v])=>/_TEST$/.test(k)&&v&&typeof v.last==='function')[1],t=hook.last(),box=document.querySelector('#practiceTask');
      if(t.kind==='layer'){box.querySelector('[data-v="'+(t.answer===1?2:1)+'"]').click();return;}
      if(t.kind==='mc'){box.querySelector('[data-v="'+((t.answer+1)%t.options.length)+'"]').click();return;}

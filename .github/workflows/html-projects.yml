@@ -90,6 +90,10 @@ jobs:
           mkdir -p assets/lib
           cp "$RUNNER_TEMP/dtp-browser/node_modules/pdf-lib/dist/pdf-lib.min.js" assets/lib/pdf-lib.min.js
 
+      - name: Check C# module flow and account integration
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+        run: node tests/cs1_interactions.cjs && node tests/cs_browser.cjs && node tests/cs1_controls_browser.cjs && node tests/cs_platform.cjs
       - name: Test HomeWork cards, metadata, filters and reduced motion in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
@@ -132,10 +136,6 @@ jobs:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
           DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/w4
         run: node tests/w4_browser.cjs && node tests/w4_platform.cjs
-      - name: Check C# module flow and account integration
-        env:
-          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
-        run: node tests/cs_browser.cjs && node tests/cs_platform.cjs
       - name: Check B4 IPv6 offline and platform in real browsers
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
