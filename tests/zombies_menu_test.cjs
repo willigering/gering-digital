@@ -109,9 +109,34 @@ assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
   for (let i=1;i<pool.length;i++) assert.ok(pool[i][1] <= pool[i-1][1], 'Box weights fall with rarity');
   assert.ok(pool[pool.length-1][1] / pool.reduce((a,p)=>a+p[1],0) < .1, 'Wunderwaffe is the rarest box weapon');
   for (const frag of ["pl.max=BASE_MAX_HP+100", "'twixx')?1.3", "'ravioli')?.4", "'popcorn')?1.3", "'brain')?1.5"]) assert.ok(script.includes(frag), 'Perk value '+frag);
-  run('menu.screen="play"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['SOLO','KOOP','MULTIPLAYER','KARTE: ◀ Stadt ▶','ZURÜCK']), 'Play menu');
+  run('menu.screen="play"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['SOLO','KOOP','MULTIPLAYER','ZURÜCK']), 'Play menu');
   run('menu.screen="pvp"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['DEATHMATCH','GUNGAME','ONE IN THE CHAMBER','ZURÜCK']), 'PvP menu');
   run('menu.screen="scores"');{const sc=JSON.stringify(run('menuItems().map(i=>i[0])'));assert.ok(/SOLO/.test(sc)&&/MULTIPLAYER/.test(sc), 'Leaderboard tabs '+sc)}
   run('menu.screen="options"');
 }
 console.log('Zombies: PvP modes, mystery box, perks, menus, syntax, HD, mouse volume, bounds, persistence, kill rewards and multiplayer weather passed.');
+
+// Mode selection precedes maps; host owns the pending selection. A world reload
+// retains the existing lobby token/code and waits for ready guests to reconnect.
+{
+  const values=new Map(),sent=[],timers=[];
+  const env={MAPS:[{id:'town',n:'DEADMOLD CAMPUS'},{id:'fair',n:'BLACKWATER FAIR'}],MAP_SEL:'town',MAPID:'town',MODE:'rtc',started:false,
+    menu:{screen:'lobby'},NET:{id:'h',hostId:'h',code:'ROOM',want:'z',lobby:[{id:'h',ready:true},{id:'p1',ready:true}]},LREADY:true,tok:'existing-owner-token',
+    localStorage:{setItem:(k,v)=>values.set(k,v)},sessionStorage:{setItem:(k,v)=>values.set(k,v)},rhLobby:()=>sent.push('lobby'),rhBroadcast:p=>sent.push(p),netSend:p=>sent.push(p),
+    setTimeout:f=>timers.push(f),URL,location:{href:'https://game.test/zombies/'},document:{hidden:false},RH:{lastPoll:Date.now()},rhLast:0,
+    api:()=>new Promise(()=>{}),P:{name:'Willi'},OPT:{name:'Willi',char:0},CHARS:[{name:'Kalle'}],MAXP:8,cycleChar(){},openFeedback(){},menuGo:s=>{env.menu.screen=s},mapGo:()=>false,startGame:()=>sent.push('solo'),
+  };
+  const ctx=vm.createContext(env),exec=s=>vm.runInContext(s,ctx);
+  exec(part('function applyMenuMap(', 'function menuItems()'));
+  exec('chooseMenuMap("fair")');assert.equal(env.MAP_SEL,'fair');assert.equal(env.NET.lobby[1].ready,false,'Changing maps clears guest readiness');assert.equal(env.MAPID,'town','Preview does not reload world');
+  exec('startLobby()');assert.ok(!values.has('zw_host_resume'),'Unready guest prevents transition');
+  env.NET.lobby[1].ready=true;exec('startLobby()');const resume=JSON.parse(values.get('zw_host_resume'));assert.equal(resume.tok,env.tok);assert.equal(resume.code,'ROOM');assert.equal(resume.count,2);assert.equal(resume.map,'fair');assert.equal(env.NET.mapTransfer,true);assert.equal(sent.at(-1).t,'mapload');assert.equal(sent.at(-1).mp,'fair');timers[0]();assert.equal(env.location.href,'https://game.test/zombies/?map=fair');
+  env.NET.id='p1';env.NET.mapTransfer=false;exec('chooseMenuMap("town")');assert.equal(env.MAP_SEL,'fair','Guest cannot change host map');
+  env.NET.id='h';env.MAPID='fair';env.NET.resumeStart=2;sent.length=0;exec(part('function rhTick()', 'async function rhOffer('));exec('rhTick()');assert.equal(sent[0].t,'start');assert.equal(env.NET.resumeStart,0,'Resume starts once');
+  env.NET.resumeStart=3;sent.length=0;exec('rhTick()');assert.equal(sent.length,0,'Resume waits for missing guest');
+  exec(part('function menuItems()', 'const mpBack='));env.menu.screen='play';assert.ok(!exec('menuItems().some(q=>q[3]&&q[3].map)'));
+  env.menu.screen='mapsetup';assert.equal(exec('menuItems().filter(q=>q[3]&&q[3].map).length'),2);
+  exec('menuItems().find(q=>q[0]==="RUNDE STARTEN")[1]()');assert.equal(sent.at(-1),'solo','Solo starts only after map setup');
+  env.menu.screen='lobby';env.NET.id='p1';assert.ok(exec('menuItems().filter(q=>q[3]&&q[3].map).every(q=>q[3].dis)'),'Guest map cards are read-only');
+  console.log('Zombies: mode/map order, host selection, readiness reset, stable room/token across map reload, reconnect barrier and solo setup passed.');
+}

@@ -71,13 +71,14 @@ function resize(){W=Math.ceil(innerWidth/SCALE);H=Math.ceil(innerHeight/SCALE);D
 addEventListener('resize',resize);resize();
 // ===== Kartenauswahl: ?map=fair oder Menü (gespeichert). Gäste übernehmen beim Beitreten die Karte des Hosts.
 const MAPS=[{id:'town',n:'DEADMOLD'},{id:'fair',n:'BLACKWATER FAIR'}];
+const HOST_RESUME=(()=>{try{const r=JSON.parse(sessionStorage.getItem('zw_host_resume')||'null');sessionStorage.removeItem('zw_host_resume');return r&&r.code&&r.tok?r:null}catch{return null}})();
 const REJOIN=(()=>{try{const r=JSON.parse(sessionStorage.getItem('zw_rejoin')||'null');sessionStorage.removeItem('zw_rejoin');return r}catch{return null}})();
-const MAPID=(()=>{let m=REJOIN&&REJOIN.map;if(!m)m=new URLSearchParams(location.search).get('map');if(!m)try{m=JSON.parse(localStorage.getItem('dew_map')||'null')}catch{}return MAPS.some(x=>x.id===m)?m:'town'})();
+const MAPID=(()=>{let m=HOST_RESUME&&HOST_RESUME.map||REJOIN&&REJOIN.map;if(!m)m=new URLSearchParams(location.search).get('map');if(!m)try{m=JSON.parse(localStorage.getItem('dew_map')||'null')}catch{}return MAPS.some(x=>x.id===m)?m:'town'})();
 const FAIR=MAPID==='fair'&&typeof bwDefine==='function';
 const POWER={on:!FAIR,at:-99};const stOn=s=>!FAIR||bwStationOn(s);
 const mapName=id=>(MAPS.find(m=>m.id===id)||{n:id}).n;
-function mapCheck(mp){if(!mp||mp===MAPID||NET.mapSwitch)return false;NET.mapSwitch=true;
- try{localStorage.setItem('dew_map',JSON.stringify(mp));sessionStorage.setItem('zw_rejoin',JSON.stringify({map:mp,code:NET.code||null}))}catch{}
+function mapCheck(mp,ready=false){if(!mp||mp===MAPID||NET.mapSwitch)return false;NET.mapSwitch=true;
+ try{localStorage.setItem('dew_map',JSON.stringify(mp));sessionStorage.setItem('zw_rejoin',JSON.stringify({map:mp,code:NET.code||null,ready}))}catch{}
  NET.status='Host spielt '+mapName(mp)+' – Karte wird geladen …';try{if(NET.tx)NET.tx({t:'bye'})}catch{}setTimeout(()=>location.reload(),400);return true}
 // Kartenwahl im Menü ohne Neuladen; erst beim Start wird die gewählte Karte geladen (die Welt wird beim Laden gebaut)
 let MAP_SEL=MAPID;
@@ -1092,9 +1093,10 @@ function applySnap(s){if(mapCheck(s.mp))return;if(s.pj){const ps=STATIONS.filter
 let zid=1;
 function onMsg(m){switch(m.t){
  case'full':NET.status='Lobby ist voll (max. '+MAXP+' Spieler)';NET.tx=null;menuGo('mp');break;
- case'welcome':if(mapCheck(m.mp))break;NET.id=m.id;P.id=m.id;NET.hostId=m.hostId;NET.lobby=m.players;if(m.gm)NET.want=m.gm;NET.status='';LREADY=false;
+ case'mapload':if(!started)mapCheck(m.mp,true);break;
+ case'welcome':if(mapCheck(m.mp))break;applyMenuMap(m.pick);NET.id=m.id;P.id=m.id;NET.hostId=m.hostId;NET.lobby=m.players;if(m.gm)NET.want=m.gm;NET.status='';LREADY=!!(REJOIN&&REJOIN.ready);
   if(m.running){if(!started)startGame(false,true);else{say(m.back?'Wieder verbunden – weiter geht es!':'Verbunden');NET.status=''}}else menuGo('lobby');break;
- case'lobby':if(mapCheck(m.mp))break;NET.hostId=m.hostId;NET.lobby=m.players;if(m.gm)NET.want=m.gm;break;
+ case'lobby':if(mapCheck(m.mp))break;applyMenuMap(m.pick);NET.hostId=m.hostId;NET.lobby=m.players;if(m.gm)NET.want=m.gm;break;
  case'start':startGame(m.hostId===NET.id,m.hostId!==NET.id,m.players,m.rain,m.gm,m.wk);break;
  case'snap':if(NET.client)applySnap(m);break;
  case'in':if(NET.host){const pl=PL.find(p=>p.id===m.from);if(pl)recvInput(pl,m)}break;
@@ -1118,7 +1120,7 @@ function connect(){NET.status='Verbinde …';let ws;
 // =====================================================================
 const MODE=location.port==='8811'||location.protocol==='file:'?'ws':'rtc';
 const ICE={iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun.cloudflare.com:3478']}]};
-const tok=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+const tok=HOST_RESUME?HOST_RESUME.tok:[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const RK=(()=>{try{let k=localStorage.getItem('zw_rk');if(!k){k=[...crypto.getRandomValues(new Uint8Array(8))].map(b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem('zw_rk',k)}return k}catch{return tok.slice(0,16)}})();
 const api=(a,body)=>fetch('api.php?a='+a,{method:'POST',headers:{'Content-Type':'application/json'},cache:'no-store',body:JSON.stringify(Object.assign({tok},body||{}))}).then(r=>r.json());
@@ -1135,16 +1137,19 @@ const RH={peers:new Map(),n:1,lastPoll:0};
 async function rtcHost(){if(busy)return;busy=true;NET.status='Erstelle Lobby …';loadIce();
  const r=await api('create',{name:P.name,gm:NET.want||'z'}).catch(()=>({}));busy=false;
  if(!r.id){NET.status=r.err||'Lobby konnte nicht erstellt werden';return}
- NET.code=r.id;NET.id='h';P.id='h';NET.hostId='h';NET.lobby=[{id:'h',name:P.name,char:OPT.char,ready:true}];NET.status='';
+ openHostLobby(r.id)}
+function openHostLobby(code,resumeCount=0){loadIce();NET.resumeStart=resumeCount;
+ NET.code=code;NET.id='h';P.id='h';NET.hostId='h';NET.lobby=[{id:'h',name:P.name,char:OPT.char,ready:true}];NET.status='';
  NET.tx=o=>{if(o.t==='start'){const m={t:'start',players:NET.lobby,hostId:'h',rain:Math.random()<.5,gm:NET.want||'z',wk:pick(WX_KINDS)};rhBroadcast(m);onMsg(m)}else rhBroadcast(o)};
  menuGo('lobby');RH.lastPoll=0;
  // Taktgeber im Worker: Lobby-Abfrage und Simulation laufen weiter, auch wenn der Host-Tab im Hintergrund ist
  try{const w=new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),33)'],{type:'text/javascript'})));w.onmessage=rhTick}catch{setInterval(rhTick,33)}
- addEventListener('pagehide',()=>{try{rhBroadcast({t:'end'})}catch{}try{fetch('api.php?a=close',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({tok,id:NET.code})})}catch{}})}
+ addEventListener('pagehide',()=>{if(NET.mapTransfer)return;try{rhBroadcast({t:'end'})}catch{}try{fetch('api.php?a=close',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({tok,id:NET.code})})}catch{}})}
 function rhBroadcast(o){const s=JSON.stringify(o),snap=o.t==='snap';for(const p of RH.peers.values())if(p.id&&p.ch&&p.ch.readyState==='open'){if(snap&&p.ch.bufferedAmount>192000)continue;try{p.ch.send(s)}catch{}}}
-function rhLobby(){rhBroadcast({t:'lobby',mp:MAPID,players:NET.lobby,hostId:'h',running:started,gm:NET.want||'z'})}
+function rhLobby(){rhBroadcast({t:'lobby',mp:MAPID,pick:MAP_SEL,players:NET.lobby,hostId:'h',running:started,gm:NET.want||'z'})}
 let rhLast=0;
 function rhTick(){const now=Date.now();
+ if(NET.resumeStart&&!started&&NET.lobby.length>=NET.resumeStart&&NET.lobby.every(p=>p.ready)){NET.resumeStart=0;netSend({t:'start'})}
  if(document.hidden&&started){const dt=Math.min(.05,(now-(rhLast||now))/1000);if(dt>0){update(dt);hostNet(dt)}}rhLast=now;
  if(now-RH.lastPoll<(started?3000:1500))return;RH.lastPoll=now;
  api('poll',{id:NET.code,n:NET.lobby.length,run:started}).then(async r=>{
@@ -1163,7 +1168,7 @@ async function rhOffer(from,sdp){if(RH.peers.size>=8&&!RH.peers.has(from))return
      ch.send(JSON.stringify({t:'welcome',mp:MAPID,id:back.id,hostId:'h',running:true,players:NET.lobby,back:1,gm:NET.want||'z'}));rhLobby();ftext(back.x,back.y-28,back.name+' ist zurück!','#9fff9f',1);evp('msg',back.name+' ist wieder da');return}
     if(NET.lobby.length>=MAXP){ch.send(JSON.stringify({t:'full'}));setTimeout(drop,400);return}
     peer.id='p'+(RH.n++);const name=String(m.name||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,16)||'Spieler';
-    NET.lobby.push({id:peer.id,name,char:(m.char|0)%CHARS.length,ready:false});ch.send(JSON.stringify({t:'welcome',mp:MAPID,id:peer.id,hostId:'h',running:started,players:NET.lobby,gm:NET.want||'z'}));rhLobby();
+    NET.lobby.push({id:peer.id,name,char:(m.char|0)%CHARS.length,ready:!!m.ready});ch.send(JSON.stringify({t:'welcome',mp:MAPID,pick:MAP_SEL,id:peer.id,hostId:'h',running:started,players:NET.lobby,gm:NET.want||'z'}));rhLobby();
     if(started)onMsg({t:'join',id:peer.id,name,char:(m.char|0)%CHARS.length});const np=PL.find(p=>p.id===peer.id);if(np)np.rk=rk;peer.rk=rk}
    else if(m.t==='set'&&peer.id){const e=NET.lobby.find(p=>p.id===peer.id);if(e){e.char=((m.char|0)%CHARS.length+CHARS.length)%CHARS.length;e.ready=!!m.ready;const nn=String(m.name||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,16);if(nn)e.name=nn;rhLobby()}}
    else if(m.t==='in'&&peer.id){m.from=peer.id;onMsg(m)}
@@ -1184,7 +1189,7 @@ async function rtcJoin(code){if(busy)return;busy=true;NET.status='Verbinde mit L
   if(!open)throw new Error(pc.remoteDescription?'Verbindung fehlgeschlagen – Netzwerk blockiert. WLAN statt Mobilfunk probieren.':'Der Host antwortet nicht – bitte gleich noch mal versuchen.');
   NET.code=code;NET.tx=o=>{if(ch.readyState==='open')try{ch.send(JSON.stringify(o))}catch{}};
   let lostOnce=false;const lost=()=>{if(lostOnce)return;lostOnce=true;onMsg({t:'lost'})};ch.onclose=lost;pc.onconnectionstatechange=()=>{if(pc.connectionState==='failed')lost()};
-  ch.send(JSON.stringify({t:'hello',name:P.name,char:OPT.char,rk:RK}));NET.status='';NET.lost=0}
+  ch.send(JSON.stringify({t:'hello',name:P.name,char:OPT.char,rk:RK,ready:!!(REJOIN&&REJOIN.ready)}));NET.status='';NET.lost=0}
  catch(e){try{pc&&pc.close()}catch{}NET.status=e&&e.message?e.message:'Verbindung fehlgeschlagen.'}
  busy=false}
 
@@ -1282,7 +1287,7 @@ let teamSent=false;function sendTeamScore(){if(teamSent||NET.client)return;teamS
 // Touch-Geräte ohne feinen Zeiger: Hinweis im Hauptmenü
 const TOUCH_ONLY=(matchMedia('(pointer: coarse)').matches||navigator.maxTouchPoints>0)&&!matchMedia('(any-pointer: fine)').matches;
 // Spielversion: bei einer Veröffentlichung bewusst erhöhen.
-const GAME_VERSION='1.9.1';
+const GAME_VERSION='1.10.0';
 const MENU_BG=new Image();MENU_BG.onerror=()=>{MENU_BG.onerror=null;MENU_BG.src='menu_bg.png'};MENU_BG.src='menu_bg.webp';
 const menu={screen:'main',sel:0,edit:null,fade:0,rain:[],t:0};
 // Maus-/Animationszustand des Menüs: hov = Platte unter dem Zeiger, down = gedrückte Platte, anim[i] = {h:Hover,p:Druck,f:Blitz,s:Wackeln,e:Impuls}
@@ -1290,20 +1295,35 @@ const MUI={mx:-1,my:-1,hov:-1,down:null,drag:null,sb:null,anim:[]};
 const mAn=i=>MUI.anim[i]||(MUI.anim[i]={h:0,p:0,f:0,s:0,e:0});
 try{document.fonts.load('400 40px "Jersey 10"');document.fonts.load('700 20px "VT323"')}catch{}
 for(let i=0;i<160;i++)menu.rain.push({x:Math.random(),y:Math.random(),s:.6+Math.random()*.8});
+function applyMenuMap(id){if(!MAPS.some(m=>m.id===id))return;if(id!==MAP_SEL)LREADY=false;MAP_SEL=id;}
+function chooseMenuMap(id){if(!MAPS.some(m=>m.id===id)||menu.screen==='lobby'&&(MODE!=='rtc'||NET.id!==NET.hostId))return;
+ if(MAP_SEL===id)return;MAP_SEL=id;try{localStorage.setItem('dew_map',JSON.stringify(id))}catch{}
+ if(menu.screen==='lobby'){NET.resumeStart=0;for(const p of NET.lobby)p.ready=p.id===NET.hostId;rhLobby()}}
+function startLobby(){if(NET.id!==NET.hostId||NET.lobby.some(p=>p.id!==NET.hostId&&!p.ready))return;
+ if(MODE!=='rtc'||MAP_SEL===MAPID){NET.resumeStart=0;netSend({t:'start'});return}
+ // The world is built at load time. Keep the same lobby and owner token while
+ // reloading the host, then reconnect the ready guests before starting.
+ try{sessionStorage.setItem('zw_host_resume',JSON.stringify({map:MAP_SEL,tok,code:NET.code,want:NET.want,count:NET.lobby.length}))}catch{NET.status='Karte konnte nicht geladen werden';return}
+ NET.mapTransfer=true;rhBroadcast({t:'mapload',mp:MAP_SEL});NET.status='Karte wird geladen …';
+ setTimeout(()=>{const q=new URL(location.href);if(MAP_SEL==='town')q.searchParams.delete('map');else q.searchParams.set('map',MAP_SEL);location.href=q.toString()},400)}
+function menuMapItems(){return MAPS.map(m=>[m.n,()=>chooseMenuMap(m.id),null,{map:m.id,dis:menu.screen==='lobby'&&(MODE!=='rtc'||NET.id!==NET.hostId)}])}
+function beginSolo(){if(!mapGo('solo'))startGame(false,false)}
+function hostSelectedMap(){if(!mapGo('host:'+NET.want)){P.name=OPT.name;rtcHost()}}
 function menuItems(){const openN=f=>((NET&&NET.lobbies)||[]).filter(l=>f(l.gm||'z')&&!(l.n>=MAXP)).length;switch(menu.screen){
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['STEUERUNG',()=>menuGo('keys')],['OPTIONEN',()=>menuGo('options')],['FEEDBACK',openFeedback]];
  case'keys':return[['ZURÜCK',()=>menuGo('main')]];
  case'name':return[['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;nameDone()}else menu.edit='name'}],['WEITER ▶',()=>{menu.edit=null;if(!(OPT.name||'').trim()){menu.edit='name';NET.status='Bitte zuerst einen Namen eingeben';return}nameDone()}],['ZURÜCK',()=>{menu.edit=null;menu.after=null;NET.status='';menuGo('play')}]];
- case'play':return[['SOLO',()=>{if(!mapGo('solo'))startGame(false,false)}],['KOOP',()=>{if(mapGo('koop'))return;if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}},null,{badge:openN(g=>g==='z')}],['MULTIPLAYER',()=>{if(mapGo('pvp'))return;if(!needName(()=>menuGo('pvp')))menuGo('pvp')},null,{badge:openN(g=>g!=='z')}],['KARTE: ◀ '+mapName(MAP_SEL)+' ▶',()=>cycleMap(1),cycleMap],['ZURÜCK',()=>menuGo('main')]];
+ case'play':return[['SOLO',()=>menuGo('mapsetup')],['KOOP',()=>{NET.want='z';if(!needName(()=>menuGo('mp')))menuGo('mp')},null,{badge:openN(g=>g==='z')}],['MULTIPLAYER',()=>{if(!needName(()=>menuGo('pvp')))menuGo('pvp')},null,{badge:openN(g=>g!=='z')}],['ZURÜCK',()=>menuGo('main')]];
+ case'mapsetup':return[['◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['RUNDE STARTEN',beginSolo],['ZURÜCK',()=>menuGo('play')],...menuMapItems()];
  case'pvp':return[['DEATHMATCH',()=>{NET.want='dm';menuGo('mp')},null,{badge:openN(g=>g==='dm')}],['GUNGAME',()=>{NET.want='gg';menuGo('mp')},null,{badge:openN(g=>g==='gg')}],['ONE IN THE CHAMBER',()=>{NET.want='oc';menuGo('mp')},null,{badge:openN(g=>g==='oc')}],['ZURÜCK',()=>menuGo('play')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo(mpBack())]];
-  return[['NEUES SPIEL HOSTEN',()=>{P.name=OPT.name;rtcHost()}],
+  return[['NEUES SPIEL HOSTEN',hostSelectedMap],
    ...(()=>{const ls=NET.lobbies.filter(l=>(l.gm||'z')===(NET.want||'z')).slice(0,6);return ls.length?ls.map(l=>[(l.n>=MAXP?'VOLL: ':'BEITRETEN: ')+l.name+'   '+l.n+'/'+MAXP+(l.run?' · läuft':''),()=>{if(l.n<MAXP){P.name=OPT.name;rtcJoin(l.id)}},null,l.n>=MAXP?{dis:1}:null]):[['KEINE OFFENEN LOBBYS',()=>{},null,{dis:1}]]})(),
-   ['ZURÜCK',()=>menuGo(mpBack())]];
+   ['ZURÜCK',()=>menuGo(mpBack())],...menuMapItems()];
  case'lobby':{const host=NET.hostId===NET.id,wait=NET.lobby.filter(p=>p.id!==NET.hostId&&!p.ready).length;
   return[['◀ '+CHARS[OPT.char].name+' ▶',()=>cycleChar(1),cycleChar],['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;store.set('opt',OPT);nameChanged()}else menu.edit='name'}],
-   host?[wait?'RUNDE STARTEN  (warte auf '+wait+')':'RUNDE STARTEN',()=>{if(!wait)netSend({t:'start'})}]:[LREADY?'✔ BEREIT':'BEREIT MELDEN',()=>{LREADY=!LREADY;lobbySet()}],
-   ['LOBBY VERLASSEN',()=>location.reload()]]}
+   host?[wait?'RUNDE STARTEN  (warte auf '+wait+')':'RUNDE STARTEN',startLobby]:[LREADY?'✔ BEREIT':'BEREIT MELDEN',()=>{LREADY=!LREADY;lobbySet()}],
+   ['LOBBY VERLASSEN',()=>location.reload()],...menuMapItems()]}
  case'scores':return[['SOLO',()=>setLb('solo')],['KOOP',()=>setLb('team')],['MULTIPLAYER',()=>setLb('pvp')],['ZURÜCK',()=>menuGo('main')]];
  case'options':return[['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;nameDone()}else menu.edit='name'}],
   ...(MODE==='ws'?[['SERVER: '+OPT.addr+(menu.edit==='addr'&&menu.t%1<.5?'_':''),()=>{menu.edit=menu.edit==='addr'?null:'addr'}]]:[]),
@@ -1338,7 +1358,7 @@ setTimeout(()=>{$fb('fbx').onclick=closeFeedback;$fb('fbs').onclick=sendFeedback
  $fb('fbt').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeFeedback();if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))sendFeedback()})},0);
 function setLb(v){if((menu.lb||'solo')===v)return;menu.lb=v;menu.scroll=0;sfx('ui_move',null,null,.6,1.1,.03)}
 function menuGo(s){menu.screen=s;menu.sel=s==='scores'?-1:0;menu.edit=null;menu.fade=0;MUI.anim=[];MUI.down=null;MUI.drag=null;MUI.sb=null;if(s==='mp'||s==='play'||s==='pvp')refreshLobbies();if(s==='scores'){menu.onReq=0;menu.scroll=0}}
-function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo(mpBack());else if(menu.screen==='pvp'||menu.screen==='name'){menu.after=null;menuGo('play')}else if(menu.screen!=='main')menuGo('main')}
+function menuBack(){if(menu.edit){menu.edit=null;store.set('opt',OPT);return}if(menu.screen==='lobby')location.reload();else if(menu.screen==='mp')menuGo(mpBack());else if(menu.screen==='mapsetup')menuGo('play');else if(menu.screen==='pvp'||menu.screen==='name'){menu.after=null;menuGo('play')}else if(menu.screen!=='main')menuGo('main')}
 function menuKey(e){const NAV={KeyW:'w',KeyA:'a',KeyS:'s',KeyD:'d',Space:' '},k=!menu.edit&&NAV[e.code]?NAV[e.code]:e.key,it=menuItems();
  if(menu.screen==='scores'&&!menu.edit){if(k==='ArrowLeft'||k==='ArrowRight'||k==='a'||k==='d'||k==='A'||k==='D'){const T3=['solo','team','pvp'],ci=T3.indexOf(menu.lb||'solo'),dl=k==='ArrowLeft'||k==='a'||k==='A'?-1:1;setLb(T3[clamp(ci+dl,0,2)]);e.preventDefault();return}
   if(k==='Enter'||k===' '){menuAct(3,1,true);e.preventDefault();return}}if(menu.screen==='scores'&&(k==='ArrowDown'||k==='ArrowUp'||k==='PageDown'||k==='PageUp')){menu.scroll=(menu.scroll||0)+(k==='ArrowDown'?1:k==='ArrowUp'?-1:k==='PageDown'?8:-8);e.preventDefault();return}
@@ -1378,9 +1398,13 @@ function charSprite(look){pcx.setTransform(1,0,0,1,0,0);pcx.clearRect(0,0,40,40)
  drawHuman(20,34,look,Math.PI*.42,now*7,!!look._walk,0,{len:5,lv:0});g=old;return pc_}
 // Vorschaubild der gewählten Karte im Menü (maps/<id>.jpg)
 const MAPPREV={};for(const m of MAPS){const im=new Image();im.src='maps/'+m.id+'.jpg';MAPPREV[m.id]=im}
-function drawMapPreview(x,y,w){const im=MAPPREV[MAP_SEL],h=w*.336;u.fillStyle='rgba(8,6,12,.85)';u.fillRect(x-4,y-4,w+8,h+8+28);
- if(im&&im.complete&&im.naturalWidth){u.imageSmoothingEnabled=true;u.drawImage(im,x,y,w,h)}else{u.fillStyle='#1a1424';u.fillRect(x,y,w,h)}
- u.strokeStyle='#e8892e';u.lineWidth=2;u.strokeRect(x-4,y-4,w+8,h+8+28);MT('KARTE: '+mapName(MAP_SEL),x,y+h+18,20,'#ece4d4','left','"VT323",monospace',700)}
+function drawMapCard(x,y,w,h,id,selected,focused,locked){u.save();const im=MAPPREV[id],pad=4;
+ u.fillStyle=selected?'#e0ad3a':focused?'#9faea9':'#475964';u.fillRect(x,y,w,h);
+ u.fillStyle='#111923';u.fillRect(x+pad,y+pad,w-pad*2,h-pad*2);
+ if(im&&im.complete&&im.naturalWidth){const iw=w-pad*2,ih=h-pad*2,scale=Math.max(iw/im.naturalWidth,ih/im.naturalHeight);u.save();u.beginPath();u.rect(x+pad,y+pad,iw,ih);u.clip();u.imageSmoothingEnabled=false;u.drawImage(im,x+pad+(iw-im.naturalWidth*scale)/2,y+pad+(ih-im.naturalHeight*scale)/2,im.naturalWidth*scale,im.naturalHeight*scale);u.restore()}
+ const sh=Math.min(36,h*.32);u.fillStyle='rgba(5,9,15,.88)';u.fillRect(x+pad,y+h-pad-sh,w-pad*2,sh);
+ let fs=Math.min(28,sh*.86);u.font='400 '+fs+'px "Jersey 10",monospace';const label=mapName(id),room=w-28;if(u.measureText(label).width>room)fs*=room/u.measureText(label).width;
+ PT(label,x+14,y+h-pad-sh/2,fs,selected?'#ffe09a':'#eee8d4');if(selected){u.fillStyle='#e0ad3a';u.fillRect(x,y,5,h)}u.restore()}
 function drawCard(x,y,w,p,status,col,big){const h=w*1.42;
  u.fillStyle='rgba(16,14,20,.86)';u.fillRect(x,y,w,h);u.fillStyle=col;u.fillRect(x,y,w,3);u.fillRect(x,y+h-3,w,3);
  if(p){const spr=charSprite({...charLook(p.char,(p.name||'').length+3),_walk:big}),sc=Math.max(2,Math.floor(w*1.05/40)),sw=40*sc;u.imageSmoothingEnabled=false;
@@ -1388,17 +1412,18 @@ function drawCard(x,y,w,p,status,col,big){const h=w*1.42;
   MT(p.name,x+w/2,y+h*.74,Math.max(12,w*.1),'#f2ece4','center');MT(CHARS[p.char|0]?CHARS[p.char|0].name:'',x+w/2,y+h*.83,Math.max(10,w*.075),'#e8a868','center','"VT323"',500)}
  else MT('FREI',x+w/2,y+h*.5,Math.max(12,w*.1),'#5a5660','center');
  MT(status,x+w/2,y+h*.93,Math.max(10,w*.08),col,'center')}
-function drawRoster(x,y,w,maxH){const cols=4,g2=Math.max(6,w*.02);let cw=(w-g2*(cols-1))/cols;cw=Math.min(cw,(maxH-g2)/2/1.42);
+function drawRoster(x,y,w,maxH,players=NET.lobby,slots=MAXP){const cols=Math.min(slots,w<520?2:4),g2=Math.max(6,w*.02);let cw=(w-g2*(cols-1))/cols;const rows=Math.ceil(slots/cols);cw=Math.min(cw,(maxH-g2*(rows-1))/rows/1.42);
  const tw=cw*cols+g2*(cols-1),ox=x+(w-tw)/2*0;
- for(let i=0;i<MAXP;i++){const p=NET.lobby[i],cx=ox+(i%cols)*(cw+g2),cy=y+(i/cols|0)*(cw*1.42+g2);
+ for(let i=0;i<slots;i++){const p=players[i],cx=ox+(i%cols)*(cw+g2),cy=y+(i/cols|0)*(cw*1.42+g2);
   if(!p){drawCard(cx,cy,cw,null,'',  '#3a3640');continue}
   const host=p.id===NET.hostId,st=host?'HOST':p.ready?'BEREIT':'WARTET',col=host?'#e8b040':p.ready?'#5ad07a':'#8a8490';
   drawCard(cx,cy,cw,{...p,name:p.name+(p.id===NET.id?' (du)':'')},st,col)}
- return(cw*1.42+g2)*2}
-const MHEAD={play:'SPIELEN',pvp:'MULTIPLAYER',mp:'MULTIPLAYER',lobby:'LOBBY',options:'OPTIONEN',keys:'STEUERUNG',scores:'BESTENLISTE'};
+ return(cw*1.42+g2)*rows}
+const MHEAD={mapsetup:'SOLO',play:'SPIELEN',pvp:'MULTIPLAYER',mp:'MULTIPLAYER',lobby:'LOBBY',options:'OPTIONEN',keys:'STEUERUNG',scores:'BESTENLISTE'};
 const mClean=q=>String(q).replace(/[◀▶]/g,'').replace(/\s{2,}/g,' ').trim();
 const smallH=bh=>Math.max(bh*.62,Math.min(bh*.9,34));
-const mKind=(q,main)=>/^(ZURÜCK|LOBBY VERLASSEN)$/.test(q[0])||(main&&q[0]==='FEEDBACK')?'small':'big';
+const mKind=(q,main)=>q[3]&&q[3].map?'map':'big';
+const menuPlateWidth=(vw,left)=>Math.max(1,Math.min(460,Math.max(320,vw*.26),vw-left*2-8));
 const pad2=n=>String(n).padStart(2,'0');
 function mixc(a,b,t){const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)],A=p(a),B=p(b);return'rgb('+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(',')+')'}
 function tri(cx,cy,sz,dir,col){u.fillStyle=col;u.beginPath();u.moveTo(cx+dir*sz,cy);u.lineTo(cx-dir*sz*.7,cy-sz*.9);u.lineTo(cx-dir*sz*.7,cy+sz*.9);u.closePath();u.fill()}
@@ -1482,16 +1507,22 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
   if(scr==='scores')MT('Ein guter Lauf. Ein schlechtes Ende.',L,VH*.222,Math.max(14,VH*.03),'#d8d0c4','left','"VT323"',500)}
  // Menüpunkte: Größen
  const it=menuItems(),kinds=it.map(q=>mKind(q,main));let y=main?VH*.38:VH*.255;menuRects=[];
- let units=0;kinds.forEach((kd,i)=>{units+=(kd==='small'?.8:1)+.28+(kd==='small'&&i>0&&kinds[i-1]!=='small'?.3:0)});
- const bh=Math.min(Math.max(48,VH*.08),(lim-y)/(units+.2)),gap=bh*.28;
- let pw=Math.max(bh*5,Math.min(460,VW*.22));u.font='400 '+bh*.62+'px "Jersey 10",monospace';
- it.forEach((q,i)=>{if(kinds[i]==='big')pw=Math.max(pw,Math.min(u.measureText(mClean(q[0])).width+bh*(q[2]?2.5:1.35),VW-L*2,640))});
- pw=Math.min(pw,Math.max(1,VW-L*2-8));
- let pos=[];
- if(scr==='lobby'){const wide=VW>=1000,rx=wide?L+pw+L*.6:L,rw=wide?VW-rx-L*.6:VW-L*2;let ry=VH*.255;
-  MT('SPIELER   '+NET.lobby.length+'/'+MAXP,rx,ry,bh*.46,'#e8892e');ry+=bh*.7;MT('KARTE: '+mapName(MAPID),rx,ry,bh*.32,'#c8a8ff');ry+=bh*.55;
-  const ch=drawRoster(rx,ry,rw,wide?VH*.58:VH*.3);if(!wide)y=ry+ch+gap}
- if(scr==='play'&&VW>=900){const px=L+pw+L*.6,pw2=Math.min(VW-px-L*.6,560);if(pw2>200)drawMapPreview(px,VH*.3,pw2)}
+ let units=0;kinds.forEach(kd=>{if(kd!=='map')units+=1.28});
+ const setup=['mapsetup','lobby','mp'].includes(scr),wide=VW>=1100;
+ const bh=Math.max(18,Math.min(Math.max(48,VH*.08),(lim-y)/(units+(setup&&VW<720?it.filter(q=>q[3]&&q[3].map).length*1.3+.8:0)+.2))),gap=bh*.28;
+ const pw=menuPlateWidth(VW,L);let pos=[],mapPos={};
+ if(setup){const top=VH*.255,space=VW-L*2;
+  let mx,mw,my,mh;
+  if(wide){const rx=L+pw+L*.55,middle=Math.max(160,(space-pw-L*1.1)*.49);mx=rx+middle+L*.55;mw=VW-L-mx;my=top;mh=lim-my;
+   if(scr==='lobby'||scr==='mapsetup'){const players=scr==='lobby'?NET.lobby:[{id:NET.id,name:OPT.name||'Du',char:OPT.char,ready:true}];
+    MT('SPIELER   '+players.length+'/'+(scr==='mapsetup'?1:MAXP),rx,top,Math.max(18,bh*.4),'#e8b040');
+    drawRoster(rx,top+bh*.65,middle,lim-top-bh*.7,players,scr==='mapsetup'?1:MAXP)}}
+  else{mx=L+pw+L*.5;mw=VW-L-mx;my=top;mh=lim-my;
+   if(VW<720){mx=L;mw=space;my=y+units*bh+bh*.3;mh=lim-my}}
+  MT(scr==='lobby'&&(MODE!=='rtc'||NET.id!==NET.hostId)?'KARTE DES HOSTS':'KARTE WÄHLEN',mx,my,Math.max(14,bh*.36),'#e8b040');my+=bh*.55;mh=lim-my;
+  const cards=it.map((q,i)=>q[3]&&q[3].map?i:-1).filter(i=>i>=0),cg=Math.max(8,bh*.22),ch=Math.max(28,Math.min(mw*.29,(mh-cg*(cards.length-1))/Math.max(1,cards.length),160));
+  for(const [j,i] of cards.entries())mapPos[i]=[mx,my+j*(ch+cg),mw,ch];
+ }
  if(scr==='keys'){const K=KEYLIST,avail=lim-y-bh*1.3,cols=avail/(K.length)<26&&VW>900?2:1,per=Math.ceil(K.length/cols);
   const cw=(VW-L*2)/cols-24,rh=Math.max(18,Math.min(38,avail/per)),{fs,off}=fitKeys(K,cw,rh);
   K.forEach(([k2,v],i)=>{const c=i/per|0,xx=L+c*(cw+24),yy=y+(i%per)*rh;MT(k2,xx,yy,fs,'#ffd76a');MT(v,xx+off,yy,fs,'#f0ebe4','left','"VT323"',500)});y+=per*rh+rh*.4}
@@ -1536,7 +1567,7 @@ function drawMenu(dt){menu.t+=dt;{const th=document.getElementById('touchhint');
  // Hover-/Druck-Zustand + Wiederholung beim Halten von ◀ ▶
  const hovI=menuHit(MUI.mx,MUI.my);MUI.hov=hovI;
  if(MUI.down&&MUI.down.slider){const d=MUI.down;d.t+=dt;if(d.t>.4&&(d.t-.4)>=d.n*.08&&hovI===d.i){d.n++;menuStep(d.i,d.side)}}
- it.forEach((q,i)=>{const lab=mClean(q[0]);let kd=kinds[i],sl=!!q[2]&&scr!=='scores',x=L,yy=y,w=pw,h=kd==='small'?smallH(bh):bh;
+ it.forEach((q,i)=>{const lab=mClean(q[0]);if(kinds[i]==='map'){const r=mapPos[i];if(!r)return;menuRects[i]=r;drawMapCard(...r,q[3].map,MAP_SEL===q[3].map,menu.sel===i,!!q[3].dis);return}let kd=kinds[i],sl=!!q[2]&&scr!=='scores',x=L,yy=y,w=pw,h=kd==='small'?smallH(bh):bh;
   if(scr==='scores'){kd=i<3?'tab':'small';sl=false;[x,yy,w,h]=pos[i]}
   else{if(kd==='small'&&i>0&&kinds[i-1]!=='small')y+=gap+bh*.02;yy=y;if(kd==='small'){u.font='400 '+h*.52+'px "Jersey 10",monospace';w=Math.min(pw,Math.max(bh*3.2,u.measureText(lab).width+h*2.2))}y+=h+gap}
   const a=mAn(i),dn=MUI.down&&MUI.down.i===i&&!MUI.down.slider?1:0;
@@ -2420,11 +2451,11 @@ function hud(cx,cy){
  // --- Punktetafel (Tab halten) oder Endbildschirm
  const over=PVP()?MATCH.over:!alive().length;
  if(keys.tab||over)scoreboard(VW,VH,k,over);
- if(PAUSE.on&&!over){u.fillStyle='rgba(6,4,10,.72)';u.fillRect(0,0,VW,VH);const L=Math.max(24,VW*.07),bw=Math.min(420,VW-L*2),bh=Math.max(46,VH*.07);let y=VH*.32;
+ if(PAUSE.on&&!over){u.fillStyle='rgba(6,4,10,.72)';u.fillRect(0,0,VW,VH);const L=Math.max(28,VW*.04),bw=menuPlateWidth(VW,L),bh=Math.max(24,Math.min(72,VH*.07,(VH*.85-VH*.3)/(PAUSE_ITEMS().length*1.28)));let y=VH*.3;
   MT(isSolo()?'PAUSE':'MENÜ',L,y-bh*.9,Math.min(VH*.1,64),'#ece4d4','left','"Jersey 10"',400);if(!isSolo())MT('Das Spiel läuft für die anderen weiter',L,y-bh*.2,Math.max(14,bh*.3),'#ff9a7a');y+=bh*.4;
   if(PAUSE.keys){const K=KEYLIST,cols=VW>900?2:1,per=Math.ceil(K.length/cols),rh=Math.max(18,Math.min(36,(VH*.8-y-bh*1.6)/per)),cw=(VW-L*2)/cols-24,{fs,off}=fitKeys(K,cw,rh);
    K.forEach(([a,b],i)=>{const c=i/per|0,xx=L+c*(cw+24),yy=y+(i%per)*rh+rh/2;MT(a,xx,yy,fs,'#ffd76a');MT(b,xx+off,yy,fs,'#e8e2d8')});y+=per*rh+bh*.4}
-  PAUSE.rects=[];{const PI=PAUSE_ITEMS(),pdt=Math.min(.05,Math.max(0,now-(PAUSE.lt||now)));PAUSE.lt=now;const pbw=Math.min(Math.max(bh*5.2,360),VW-L*2),ph2=bh*.92;
+  PAUSE.rects=[];{const PI=PAUSE_ITEMS(),pdt=Math.min(.05,Math.max(0,now-(PAUSE.lt==null?now-.016:PAUSE.lt)));PAUSE.lt=now;const pbw=bw,ph2=bh;
    if(PAUSE.down&&PAUSE.down.slider){const d=PAUSE.down;d.t+=pdt;if(d.t>.4&&(d.t-.4)>=d.n*.08){d.n++;const q=PAUSE_ITEMS()[d.i];if(q&&q[2]){q[2](d.side);sfx('ui_move',null,null,.55,d.side>0?1.08:.94,.03)}}}
    PI.forEach((q,i)=>{const a=pAn(i),lab=mClean(q[0]),sl=!!q[2],dn=PAUSE.down&&PAUSE.down.i===i&&!PAUSE.down.slider?1:0;
     a.h+=((i===PAUSE.sel?1:0)-a.h)*Math.min(1,pdt*18);a.p+=(dn-a.p)*Math.min(1,pdt*32);a.e=Math.max(0,a.e-pdt*7);a.f=Math.max(0,a.f-pdt*5);
@@ -2506,7 +2537,8 @@ if(FAIR){bwPrerender();bwBuildWalls()}
 buildGround();for(const pc of PIECES)if(pc.horiz){if(pc.t==='window'&&pc.side==='S'&&Math.random()<.15)pc.lit=true;makePiece(pc)}
 for(const b of BUILD)makeRoof(b);for(const c of CARS)makeCar(c);
 if(FAIR)bwInitWorld();
-try{const zm=sessionStorage.getItem('zw_menu');if(zm){sessionStorage.removeItem('zw_menu');if(zm==='solo')startGame(false,false);else if(zm==='koop'){NET.want='z';if(!needName(()=>menuGo('mp')))menuGo('mp')}else if(zm==='pvp'){if(!needName(()=>menuGo('pvp')))menuGo('pvp')}else menuGo('play')}}catch{}
+try{const zm=sessionStorage.getItem('zw_menu');if(zm){sessionStorage.removeItem('zw_menu');if(zm==='solo')startGame(false,false);else if(zm.startsWith('host:')){NET.want=zm.slice(5);P.name=OPT.name;rtcHost()}else if(zm==='koop'){NET.want='z';if(!needName(()=>menuGo('mp')))menuGo('mp')}else if(zm==='pvp'){if(!needName(()=>menuGo('pvp')))menuGo('pvp')}else menuGo('play')}}catch{}
+if(HOST_RESUME&&!started&&MODE==='rtc'){NET.want=HOST_RESUME.want||'z';P.name=OPT.name;openHostLobby(HOST_RESUME.code,HOST_RESUME.count)}
 if(REJOIN&&!started){OPT.name&&(P.name=OPT.name);menuGo(MODE==='ws'?'play':'mp');if(MODE==='rtc'&&REJOIN.code)rtcJoin(REJOIN.code);else if(MODE==='ws')connect()}
 function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
  if(started&&(PVP()?MATCH.over:!alive().length)&&document.pointerLockElement)document.exitPointerLock();

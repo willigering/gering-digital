@@ -79,6 +79,11 @@ jobs:
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
         run: node tests/support/install-chromium.cjs
+      - name: Test Zombies lobby map selection, WebRTC map transition and pause signs
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/zombies
+        run: node tests/zombies_lobby_browser.cjs
       - name: Build same locally hosted PDF editor used by production
         shell: bash
         run: |
