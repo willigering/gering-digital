@@ -15,7 +15,7 @@ const context = vm.createContext({
   MUI: {}, NET: {}, OPT: undefined,
   cv: {addEventListener: on}, addEventListener: on,
   sfx() {}, musApply() {}, openFeedback() {},
-  mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
+  MAPID: 'town', mapName: () => 'Stadt', cycleMap() {}, mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
 });
 const run = code => vm.runInContext(code, context);
 run(script.match(/^const OPT=.*$/m)[0]);
@@ -61,7 +61,7 @@ let random = .1;
 const weather = vm.createContext({
   Math: Object.assign(Object.create(Math), {random: () => random}),
   SPLASH: [], RIPPLES: [], bolt: 0, thunderAt: -1, boltT: 25,
-  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0,
+  NET: {snapT: 0}, wave: 1, toSpawn: 5, breakT: 0, MAPID: 'town', FAIR: false, mbSnap: () => null, mbApply() {}, mapCheck: () => false,
   PL: [], CARS: [], PUPS: [], PROPS: [], DOORS: [], GROUND: [], THROWN: [], zombies: [], EV: [],
   P: {id: 'client'}, netSend: data => {packet = data;},
   STATIONS: [], GM: 'z', PVP: () => false, pick: a => a[0], MATCH: {over: false, win: ''}, pvpSaveScore() {},
@@ -109,7 +109,7 @@ assert.equal(wrun('thunderAt'), -1, 'Dry match has no pending thunder');
   for (let i=1;i<pool.length;i++) assert.ok(pool[i][1] <= pool[i-1][1], 'Box weights fall with rarity');
   assert.ok(pool[pool.length-1][1] / pool.reduce((a,p)=>a+p[1],0) < .1, 'Wunderwaffe is the rarest box weapon');
   for (const frag of ["pl.max=BASE_MAX_HP+100", "'twixx')?1.3", "'ravioli')?.4", "'popcorn')?1.3", "'brain')?1.5"]) assert.ok(script.includes(frag), 'Perk value '+frag);
-  run('menu.screen="play"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['SOLO','KOOP','MULTIPLAYER','ZURÜCK']), 'Play menu');
+  run('menu.screen="play"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['SOLO','KOOP','MULTIPLAYER','KARTE: ◀ Stadt ▶','ZURÜCK']), 'Play menu');
   run('menu.screen="pvp"');assert.equal(JSON.stringify(run('menuItems().map(i=>i[0])')), JSON.stringify(['DEATHMATCH','GUNGAME','ONE IN THE CHAMBER','ZURÜCK']), 'PvP menu');
   run('menu.screen="scores"');{const sc=JSON.stringify(run('menuItems().map(i=>i[0])'));assert.ok(/SOLO/.test(sc)&&/MULTIPLAYER/.test(sc), 'Leaderboard tabs '+sc)}
   run('menu.screen="options"');
