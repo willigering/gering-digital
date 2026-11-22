@@ -20,7 +20,7 @@ const BW_PRICES={
  pap:5000,      // erste Waffenverbesserung (jede weitere Stufe: pap × Stufe)
  perkBase:2500, // 1. Perk; jeder weitere +perkStep
  perkStep:500,
- car:[100,500,1000,1600], // Auto: meist min–max1, mit 30 % Chance max1–max2
+ car:[20,120,200,450], // Auto: meist min–max1, mit 12 % Chance max1–max2
  till:[300,800]           // Kasse (Ticketschalter, Festzelt, Spielhalle, Buden …)
 };
 const BW_START={x:380,y:1330};
@@ -53,6 +53,8 @@ const BW_PATHS=[
 const BW_PATHW=26;
 const BW_BRIDGE=[2140,1578,370,44]; // Welt-Pixel
 const BW_ZIP={a:{x:2742,y:1600},b:{x:2800,y:650}}; // Leuchtturm-Spitze → Kraftwerkshof
+const BW_LH_TOP={x:2742,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
+const BW_LH_STAIR=[2780,1398,12,206],BW_LH_GAL=[2714,1384,78,24]; // Außentreppe (Ostseite) und Galerie, begehbar
 
 // ---- Kleiner SVG-Pfad-Leser (nur M, L, C, Z, absolut) → Punktlisten in Welt-Pixeln
 function bwPathPts(d,step=6){const t=d.match(/[MLCZ]|-?[\d.]+/g),out=[];let cur=null,i=0,x=0,y=0,sx=0,sy=0;const num=()=>+t[i++]*BW_S;
@@ -72,7 +74,7 @@ function bwBuildMask(){
  const [c1,x1]=mk2();x1.fillStyle='#fff';x1.strokeStyle='#fff';x1.lineCap='round';x1.lineJoin='round';
  for(const k of BW_ZK)x1.fill(bwP2(BW_ZONES[k].d));
  x1.lineWidth=BW_PATHW;for(const p of BW_PATHS)x1.stroke(bwP2(p.d));
- x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);
+ x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);x1.fillRect(...BW_LH_STAIR);x1.fillRect(...BW_LH_GAL);
  const d1=x1.getImageData(0,0,BW_GW,BW_GH).data;BW_MASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_MASK.length;i++)BW_MASK[i]=d1[i*4+3]>140?1:0;
  const [c2,x2]=mk2();BW_ZK.forEach((k,i)=>{x2.fillStyle='rgb('+((i+1)*25)+',0,0)';x2.fill(bwP2(BW_ZONES[k].d))});
  const d2=x2.getImageData(0,0,BW_GW,BW_GH).data;BW_ZMASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_ZMASK.length;i++)BW_ZMASK[i]=d2[i*4+3]>200?Math.round(d2[i*4]/25):0;
@@ -137,7 +139,7 @@ function bwBuildings(){const B=[];
  // P: Imbiss auf der Promenade
  B.push(bwStall(1640,1570,72,56,'#c8602a','#ffe0a0','FRIED EVERYTHING','#ffb040',1));
  // L: Leuchtturm
- B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:40});
+ B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
  return B}
 
 // ---- Möbeltypen [Breite, Tiefe, Höhe, Oberseite, Front, durchsuchbar]
@@ -244,8 +246,8 @@ function bwBarrDefs(){const D=[];
  for(const p of BW_PATHS){const pts=bwPathPts(p.d,4)[0],m=pts[pts.length>>1],q=pts[(pts.length>>1)+1]||pts[(pts.length>>1)-1],dx=Math.abs(q[0]-m[0]),dy=Math.abs(q[1]-m[1]);
   let v=dx>dy?1:0;if(p.k==='shutter')v=0;if(p.k==='maint')v=1;const cx=Math.round(m[0]),cy=Math.round(m[1]),L=BW_PATHW*BW_S+16;
   D.push({id:p.id,k:p.k,lab:p.lab,z:p.z,v,r:v?[cx-10,cy-L/2,20,L]:[cx-L/2,cy-10,L,20],c:[cx-L/2+4,cy-L/2+4,L-8,L-8]})}
- const [bx,by,bw,bh]=BW_BRIDGE;D.push({id:'PL',k:'bridge',lab:'REPAIR BRIDGE',z:['P','L'],r:[bx+30,by,bw-60,bh],c:[bx+bw/2-30,by-8,60,bh+16],low:1});
- D.push({id:'LK',k:'zip',lab:'UNLOCK ZIPLINE',z:['L','K'],r:[BW_ZIP.a.x-16,BW_ZIP.a.y+40,32,20],noCol:1});
+ const [bx,by,bw,bh]=BW_BRIDGE;D.push({id:'PL',k:'bridge',lab:'REPAIR BRIDGE',z:['P','L'],r:[bx+30,by,bw-60,bh],c:[bx+26,by-8,bw-52,bh+16],low:1});
+ D.push({id:'LK',k:'zip',lab:'UNLOCK ZIPLINE',z:['L','K'],r:[BW_LH_TOP.x-16,BW_LH_TOP.y-10,32,20],noCol:1,top:1});
  return D}
 const BW_BARR=[];
 // Bäume: auf Land außerhalb der begehbaren Fläche (Wald zwischen den Bereichen)
