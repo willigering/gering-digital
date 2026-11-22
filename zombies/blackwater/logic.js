@@ -351,7 +351,7 @@ function bwAmbience(dt,pw){if(!started)return;const L=listener();
  bwLoopAt('bw_coaster_chain',rk==='coaster',.8);
  bwLoopAt('bw_coaster_ride',rk==='coaster',.55);
  bwLoopAt('bw_zipline',rk==='zip',.8);
- if((BWA.gull-=dt)<0){BWA.gull=10+Math.random()*25;const a=Math.random()*6.28;sfx('bw_gull',L.x+Math.cos(a)*220,L.y+Math.sin(a)*160,.7,.9+Math.random()*.2,0)}
+ if((BWA.gull-=dt)<0){BWA.gull=45+Math.random()*60;const a=Math.random()*6.28;sfx('bw_gull',L.x+Math.cos(a)*220,L.y+Math.sin(a)*160,.4,.9+Math.random()*.2,0)}
  if((BWA.horn-=dt)<0){BWA.horn=55+Math.random()*50;sfx('bw_foghorn',2710,1560,1.2,1,0)}
  if(pw&&(BWA.neon-=dt)<0){BWA.neon=12+Math.random()*25;sfx('bw_neon_flicker',2070,836,.6,1,0)}}
 function bwStepSnd(x,y){const z=bwZoneAt(x,y);if(z==='P'||(x>BW_BRIDGE[0]&&x<BW_BRIDGE[0]+BW_BRIDGE[2]&&y>BW_BRIDGE[1]&&y<BW_BRIDGE[1]+BW_BRIDGE[3]))return 'step_wood';if(z==='K'&&!bwBuildingAt(x,y))return 'step_metal';return null}

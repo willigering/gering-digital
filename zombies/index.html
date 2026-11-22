@@ -1234,7 +1234,7 @@ function sfx(grp,x,y,vol=1,rate=1,minGap=.03){const list=SFX_GROUPS[grp];if(!lis
   lp.type='lowpass';lp.frequency.value=cut;gn.gain.value=Math.min(1,v);let out=gn;
   src.connect(lp);lp.connect(gn);if(c.createStereoPanner&&pan){const p=c.createStereoPanner();p.pan.value=pan;gn.connect(p);out=p}out.connect(c.destination);src.start();return{src,gn}}catch{return null}}
 const LOOPS={};
-const LOOPPICK={};function loopBuf(name){const g=(SFX_GROUPS[name]||[name]).filter(n=>SFXB[n]);if(!g.length)return null;let n=LOOPPICK[name];if(!n||!SFXB[n])n=LOOPPICK[name]=pick(g);return SFXB[n]}
+const LOOPPICK={},LOOPSKIP=new Set(['bw_sea_loop_2']);function loopBuf(name){const g=(SFX_GROUPS[name]||[name]).filter(n=>SFXB[n]&&!LOOPSKIP.has(n));if(!g.length)return null;let n=LOOPPICK[name];if(!n||!SFXB[n])n=LOOPPICK[name]=pick(g);return SFXB[n]}
 function sfxLoop(name,on,vol=1){const L=LOOPS[name];const B=on&&!L&&loopBuf(name);if(B){try{const c=ac(),src=c.createBufferSource(),gn=c.createGain();src.buffer=B;src.loop=true;gn.gain.value=OPT.svol*SFX_MASTER*vol;src.connect(gn);gn.connect(c.destination);src.start();LOOPS[name]={src,gn}}catch{}}
  else if(!on&&L){try{L.src.stop()}catch{}delete LOOPS[name]}else if(on&&L)L.gn.gain.value=OPT.svol*SFX_MASTER*vol}
 function playExpl(x,y,ty){sfx(ty==='gas'?'explosion_gas':'explosion',x,y,1.1,1,0)}
