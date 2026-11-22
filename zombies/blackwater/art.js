@@ -35,60 +35,49 @@ function bwNoise(c,r,cols,dens){const n=r[2]*r[3]/dens;for(let i=0;i<n;i++)R(c,r
 function bwGround(){const c=gc;
  // Meer als Grund
  R(c,0,0,MW,MH,'#0b1628');
- for(let i=0;i<26000;i++){const x=sr()*MW,y=sr()*MH;R(c,x,y,2+(sr()*5|0),1,spick(['#0e1c34','#0a1322','#10213c','#0c182c']))}
- // Erde unter allem Land
- for(const k in BW_ZONES)for(const r of BW_ZONES[k].r)R(c,r[0],r[1],r[2],r[3],'#2c2630');
- // Lehm (Rummelplatz E)
- for(const r of BWG.dirt){R(c,...r,'#3a3029');bwNoise(c,r,['#433629','#2f2721','#4a3a2c','#3a2e26'],3)}
- // Gras
- for(const r of BWG.grass){R(c,...r,'#22331e');bwNoise(c,r,['#2a4024','#1c2a18','#34502a','#263a20'],2)}
- // nasser Asphalt
- for(const r of BWG.asph){R(c,...r,'#24222a');bwNoise(c,r,['#2a2830','#1e1c24','#2e2b36','#26242e'],3);
-  for(let i=0;i<r[2]*r[3]/9000;i++){let x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];const l=srnd(8,30);for(let k=0;k<l;k++){R(c,x,y,1,1,'#16141a');x+=srnd(-1,1.4);y+=srnd(-.6,1)}}}
- // Parkplatz-Markierungen
- for(let x=60;x<860;x+=60)if(x<380||x>540){R(c,x,96,2,40,'rgba(200,192,160,.5)');R(c,x,196,2,40,'rgba(200,192,160,.5)');R(c,x,276,2,40,'rgba(200,192,160,.45)')}
- for(let y=60;y<340;y+=24)R(c,458,y,4,12,'rgba(210,190,90,.45)');
- for(const [x,y] of [[460,150],[460,260]]){R(c,x-2,y,4,12,'rgba(220,220,210,.5)');R(c,x-5,y,10,3,'rgba(220,220,210,.5)');R(c,x-3,y-2,6,2,'rgba(220,220,210,.5)')}
- bwText(c,'PARKING',600,60,'rgba(200,192,160,.35)',2);
- // Pflaster (Vorplatz, Imbissmeile, Promenade, Spielhalle)
- for(const r of BWG.pave){R(c,...r,'#332d3a');for(let y=r[1];y<r[1]+r[3];y+=5){const off=((y/5)&1)*5;for(let x=r[0]-off;x<r[0]+r[2];x+=10){const col=spick(['#3a3342','#352f3e','#3e3747','#30293a','#383140']);R(c,Math.max(r[0],x)+1,y+1,Math.min(9,r[0]+r[2]-x-1),4,col)}}
-  bwNoise(c,r,['rgba(0,0,0,.25)','rgba(120,110,140,.12)'],14)}
+ for(let i=0;i<40000;i++){const x=sr()*MW,y=sr()*MH;R(c,x,y,2+(sr()*5|0),1,spick(['#0e1c34','#0a1322','#10213c','#0c182c']))}
+ const clipD=(d,fn)=>{c.save();c.scale(BW_S,BW_S);c.clip(bwP2(d));c.setTransform(1,0,0,1,0,0);fn();c.restore()};
+ const bbox=d=>{let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const pl of bwPathPts(d,20))for(const [x,y] of pl){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}return[x0-4|0,y0-4|0,(x1-x0+8)|0,(y1-y0+8)|0]};
+ // Flachwasser + Schaum an der Küste
+ c.save();c.scale(BW_S,BW_S);c.strokeStyle='#183656';c.lineWidth=7;c.stroke(bwP2(BW_COAST));c.strokeStyle='rgba(150,180,210,.35)';c.lineWidth=2.5;c.stroke(bwP2(BW_COAST));c.restore();
+ // Waldboden (unbegehbar)
+ clipD(BW_COAST,()=>{R(c,0,0,MW,MH,'#141b14');bwNoise(c,[0,0,MW,MH],['#18221a','#10160f','#1c2a1a','#121a12'],14);
+  for(let i=0;i<900;i++){const x=sr()*MW,y=sr()*MH;bwCirc(c,x,y,srnd(3,9)|0,spick(['#1a2a18','#142012','#203222']))}});
+ // Felsrand der Insel / unter dem Leuchtturm
+ c.save();c.scale(BW_S,BW_S);c.fillStyle='#24222a';c.translate(-3,-3);c.scale(1.006,1.006);c.fill(bwP2(BW_ZONES.L.d));c.restore();
+ // Wege (Pflastersteine)
+ const PP=new Path2D();for(const p of BW_PATHS)for(const [x,y] of bwPathPts(p.d,6)[0]){PP.moveTo(x+BW_PATHW,y);PP.arc(x,y,BW_PATHW,0,7)}
+ c.save();c.clip(PP);R(c,0,0,MW,MH,'#2e2834');c.restore();
+ c.save();c.clip(PP);for(const p of BW_PATHS){const [x0,y0,w,h]=bbox(p.d);for(let y=y0-30;y<y0+h+30;y+=6)for(let x=x0-30+((y/6)&1)*4;x<x0+w+30;x+=8)R(c,x+1,y+1,6,4,spick(['#3a3342','#352f3e','#3e3747','#30293a']))}c.restore();
+ // Bereiche mit eigenem Boden
+ for(const k of BW_ZK){const Z=BW_ZONES[k],r=bbox(Z.d);clipD(Z.d,()=>bwMat(c,Z.m,r))}
+ // Parkplatz: Asphalt + Markierungen
+ {const r=[60,1150,700,410];c.save();c.scale(BW_S,BW_S);c.clip(bwP2(BW_ZONES.A.d));c.setTransform(1,0,0,1,0,0);c.beginPath();c.rect(0,0,MW,1540);c.clip();bwMat(c,'asph',r);
+  for(const car of CARS){R(c,car.x-6,car.y-6,2,car.h+12,'rgba(200,192,160,.45)');R(c,car.x+car.w+4,car.y-6,2,car.h+12,'rgba(200,192,160,.45)')}
+  bwText(c,'PARKING',180,1170,'rgba(200,192,160,.35)',2);c.restore()}
  // Mosaik vor dem Clownstor
- for(let ring=0;ring<4;ring++){const rr=46-ring*11;bwRing(c,460,470,rr,['#6a2a3a','#c8a040','#3a5a7a','#a83a3a'][ring],3)}
- bwCirc(c,460,470,8,'#c8a040');bwText(c,'WELCOME',446,520,'rgba(200,170,90,.55)');
- // Bohlenweg (Promenade + Steg)
- for(const r of BWG.board){R(c,...r,'#3a2a1e');for(let y=r[1];y<r[1]+r[3];y+=5){let x=r[0]-sr()*40;while(x<r[0]+r[2]){const L=srnd(24,60),col=spick(['#5a4432','#4e3a2a','#634a36','#56402e','#4a3626']);R(c,Math.max(r[0],x),y,Math.min(L,r[0]+r[2]-Math.max(r[0],x))-1,4,col);
-    R(c,Math.max(r[0],x),y,Math.min(L,r[0]+r[2]-Math.max(r[0],x))-1,1,shade(col,1.12));if(sr()<.3)R(c,x+2,y+2,1,1,'#2a2018');x+=L}}
-  bwNoise(c,r,['rgba(0,0,0,.18)','rgba(150,130,110,.1)'],16)}
- // Beton (Kraftwerkshof)
- for(const r of BWG.conc){R(c,...r,'#3e3e44');bwNoise(c,r,['#46464c','#36363c','#4a4a50'],4);for(let x=r[0];x<r[0]+r[2];x+=48)R(c,x,r[1],1,r[3],'rgba(0,0,0,.25)');for(let y=r[1];y<r[1]+r[3];y+=48)R(c,r[0],y,r[2],1,'rgba(0,0,0,.25)');
-  for(let i=0;i<14;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];bwEll(c,x,y,srnd(6,16),srnd(3,6),'rgba(10,10,14,.45)')}}
- // Felsküste, Terrassen, Strand
- for(const r of BWG.rock){R(c,...r,'#302e36');bwNoise(c,r,['#3a3842','#28262e','#45424c','#34323a'],2)}
- for(const r of BWG.mid){R(c,...r,'#3a3742');bwNoise(c,r,['#433f4c','#33303a','#4a4654'],2.5)}
- for(const r of BWG.plat){R(c,...r,'#45414e');bwNoise(c,r,['#4e4a58','#3c3846','#55505e','#2e3a28'],2.5)}
- for(const r of BWG.shore){R(c,...r,'#3e382f');bwNoise(c,r,['#4a4238','#352f28','#57503f','#2e2a24','#6a6252'],2)}
- // Felsfelder (unbegehbar)
- for(const r of BWG.rocks){for(let i=0;i<r[2]*r[3]/40;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3],rr=srnd(3,8)|0;bwCirc(c,x,y,rr,spick(['#3a3640','#2e2b34','#45414c']));R(c,x-rr*.5,y-rr*.6,rr*.6,1,'#5a5662')}}
- // Klippenkanten mit Felswand
- for(const [x,y,w,h,st] of BW_WALLS)if(st==='cliff'){if(w>h){R(c,x,y-2,w,2,'#5a5664');R(c,x,y,w,h+4,'#18161c');for(let i=0;i<w;i+=3)R(c,x+i,y+(i*7%5),2,h-1,spick(['#24222a','#1e1c24','#2c2a32']));R(c,x,y+h+2,w,3,'rgba(0,0,0,.35)')}
-  else{R(c,x-2,y,2,h,'#5a5664');R(c,x,y,w,h,'#1a181e');for(let i=0;i<h;i+=3)R(c,x+(i*5%4),y+i,2,2,'#2a2830')}}
- for(const [x,y,w,h,d] of BW_STAIRS){if(d==='s')for(let i=0;i<h;i+=4){R(c,x,y+i,w,3,shade('#6a6474',1-i/h*.4));R(c,x,y+i+3,w,1,'#1e1c22')}else for(let i=0;i<w;i+=4){R(c,x+i,y,3,h,shade('#6a6474',.7+i/w*.3));R(c,x+i+3,y,1,h,'#1e1c22')}}
- // Wasserflächen (Bucht, Meer)
- for(const r of BWG.water){R(c,...r,'#0c1a30');for(let i=0;i<r[2]*r[3]/60;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];R(c,x,y,srnd(3,9),1,spick(['#10223e','#0a1628','#142a48']))}}
- // Ufersäume: helleres Flachwasser + Schaum
- const shore=(x,y,w,h)=>{R(c,x,y,w,h,'#183656');for(let i=0;i<(w+h)*1.2;i++)R(c,x+sr()*w,y+sr()*h,1+(sr()*2|0),1,spick(['#6a8aa8','#9ab4c8','#2a4a6a']))};
- shore(40,682,910,5);shore(946,1212,1694,5);shore(2568,40,4,1172);shore(36,40,4,628);
- // Felsen am Buchtende und Strand
- // Pfützen & Gullis (Regenringe, Dampf)
- for(let i=0;i<34;i++){const r=spick([...BWG.asph,...BWG.pave]),x=r[0]+20+sr()*(r[2]-40),y=r[1]+20+sr()*(r[3]-40),w=srnd(8,24);PUDDLES.push({x,y,w});bwEll(c,x,y,w|0,Math.max(2,w*.35|0),'#161a2a');bwEll(c,x-w*.2,y-1,Math.max(2,w*.4|0),1,'#2a3048')}
- for(const [x,y] of [[300,240],[760,520],[1300,560],[1100,1150],[2128,800],[1500,1110]]){GULLIS.push({x,y});bwEll(c,x,y,6,3,'#26242a');R(c,x-4,y-1,8,1,'#141216');R(c,x-4,y+1,8,1,'#141216')}
+ for(let ring=0;ring<4;ring++){const rr=40-ring*10;bwRing(c,640,1676,rr,['#6a2a3a','#c8a040','#3a5a7a','#a83a3a'][ring],3)}
+ bwCirc(c,640,1676,7,'#c8a040');bwText(c,'WELCOME',626,1724,'rgba(200,170,90,.55)');
+ // Randsteine entlang der begehbaren Fläche
+ for(let gy=1;gy<BW_GH-1;gy++)for(let gx=1;gx<BW_GW-1;gx++){const i=gy*BW_GW+gx;if(!BW_MASK[i])continue;
+  if(!BW_MASK[i-1]||!BW_MASK[i+1]||!BW_MASK[i-BW_GW]||!BW_MASK[i+BW_GW]){const x=gx*BW_G,y=gy*BW_G,land=BW_LAND[i];R(c,x,y,4,4,land?'#1c1820':'#3a2a1e');if(!BW_MASK[i-BW_GW])R(c,x,y,4,1,land?'#4a4452':'#6a5038')}}
+ // Pfützen & Gullis
+ for(let i=0,n=0;i<400&&n<40;i++){const x=srnd(60,MW-60),y=srnd(60,MH-60),w=srnd(8,24);if(!bwWalk(x-w,y)||!bwWalk(x+w,y)||bwZoneAt(x,y)==='P')continue;n++;PUDDLES.push({x,y,w});bwEll(c,x,y,w|0,Math.max(2,w*.35|0),'#161a2a');bwEll(c,x-w*.2,y-1,Math.max(2,w*.4|0),1,'#2a3048')}
+ for(const [x,y] of [[440,1380],[700,1800],[1200,1500],[2000,1180],[2700,660],[1500,700]]){GULLIS.push({x,y});bwEll(c,x,y,6,3,'#26242a');R(c,x-4,y-1,8,1,'#141216');R(c,x-4,y+1,8,1,'#141216')}
  // Popcorn, Ticketreste, Konfetti
- for(let i=0;i<1600;i++){const x=srnd(60,2540),y=srnd(60,1180);if(!BW_HARD.some(r=>x>r[0]&&x<r[0]+r[2]&&y>r[1]&&y<r[1]+r[3]))continue;R(c,x,y,1,1,spick(['#e8dca0','#d83a5a','#3a8ad8','#e8c040','#f0f0e0','#5ad08a']))}
- for(let i=0;i<30;i++)stain(srnd(80,2500),srnd(80,1180),srnd(3,9),true);
- // Schatten unter Mauern
- for(const [x,y,w,h,st] of BW_WALLS)if(st==='brick'||st==='conc')R(c,x,y+h,w,w>h?6:3,'rgba(0,0,0,.28)')
+ for(let i=0;i<5000;i++){const x=srnd(60,MW-60),y=srnd(60,MH-60);if(!bwWalk(x,y))continue;R(c,x,y,1,1,spick(['#e8dca0','#d83a5a','#3a8ad8','#e8c040','#f0f0e0','#5ad08a']))}
+ for(let i=0;i<40;i++){const x=srnd(80,MW-80),y=srnd(80,MH-80);if(bwWalk(x,y))stain(x,y,srnd(3,9),true)}
 }
+// Bodenmaterialien (füllt Rechteck r im aktuellen Clip)
+function bwMat(c,m,r){
+ if(m==='pave'){R(c,...r,'#332d3a');for(let y=r[1];y<r[1]+r[3];y+=5){const off=((y/5)&1)*5;for(let x=r[0]-off;x<r[0]+r[2];x+=10)R(c,x+1,y+1,9,4,spick(['#3a3342','#352f3e','#3e3747','#30293a','#383140']))}bwNoise(c,r,['rgba(0,0,0,.25)','rgba(120,110,140,.12)'],14)}
+ else if(m==='asph'){R(c,...r,'#24222a');bwNoise(c,r,['#2a2830','#1e1c24','#2e2b36','#26242e'],3);for(let i=0;i<r[2]*r[3]/9000;i++){let x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];const l=srnd(8,30);for(let k=0;k<l;k++){R(c,x,y,1,1,'#16141a');x+=srnd(-1,1.4);y+=srnd(-.6,1)}}}
+ else if(m==='dirt'){R(c,...r,'#3a3029');bwNoise(c,r,['#433629','#2f2721','#4a3a2c','#3a2e26'],3);for(let i=0;i<r[2]*r[3]/600;i++)R(c,r[0]+sr()*r[2],r[1]+sr()*r[3],2,1,spick(['#2a4024','#34502a']))}
+ else if(m==='conc'){R(c,...r,'#3e3e44');bwNoise(c,r,['#46464c','#36363c','#4a4a50'],4);for(let x=r[0];x<r[0]+r[2];x+=48)R(c,x,r[1],1,r[3],'rgba(0,0,0,.25)');for(let y=r[1];y<r[1]+r[3];y+=48)R(c,r[0],y,r[2],1,'rgba(0,0,0,.25)');
+  for(let i=0;i<20;i++){const x=r[0]+sr()*r[2],y=r[1]+sr()*r[3];bwEll(c,x,y,srnd(6,16)|0,srnd(3,6)|0,'rgba(10,10,14,.45)')}}
+ else if(m==='board'){R(c,...r,'#3a2a1e');for(let y=r[1];y<r[1]+r[3];y+=5){let x=r[0]-sr()*40;while(x<r[0]+r[2]){const L=srnd(24,60),col=spick(['#5a4432','#4e3a2a','#634a36','#56402e','#4a3626']);R(c,x,y,L-1,4,col);R(c,x,y,L-1,1,shade(col,1.12));x+=L}}
+  bwNoise(c,r,['rgba(0,0,0,.18)','rgba(150,130,110,.1)'],16)}
+ else if(m==='rock'){R(c,...r,'#3a3742');bwNoise(c,r,['#433f4c','#33303a','#4a4654','#2e3a28'],2.5)}}
 function bwGroundPost(){const c=gc;
  // Becken im Kraftwerk + Gitterrost-Steg
  for(const o of FSOL)if(o.pool){R(c,o.x,o.y,o.w,o.h,'#0e2238');for(let i=0;i<o.w*o.h/30;i++)R(c,o.x+sr()*o.w,o.y+sr()*o.h,srnd(2,6),1,spick(['#163050','#0a1a2c','#1e3a5a']));R(c,o.x,o.y,o.w,1,'#5a7a90');R(c,o.x,o.y+o.h-1,o.w,1,'#2a3a4a')}
@@ -217,17 +206,16 @@ function bwPrerender(){
   const [cv2,c2]=mk(130,60);const tx=65,ty=40;for(let y=-24;y<=14;y++){const k=(y+24)/38,r=Math.round(8+k*54);for(let x=-r;x<r;x++){const a=Math.atan2(y*2.4,x),idx=Math.floor((a+Math.PI)/(Math.PI*2)*16);R(c2,tx+x,ty+y,1,1,idx%2?'#d8ccb4':'#2a6a8a')}}
   for(let x=-62;x<62;x+=8)bwEll(c2,tx+x+4,ty+15,4,3,((x+62)/8)&1?'#d8ccb4':'#2a6a8a');R(c2,tx-1,ty-34,2,10,'#3a3036');R(c2,tx+1,ty-34,8,4,'#c8a040');BW_CAR.top=cv2}
  // Achterbahn: Schienen, Stützen, Querschwellen in eine Leinwand über Bereich E
- {const T=bwTrack(),x0=1732,y0=-60,[cv,c]=mk(860,1300);c.translate(-x0,-y0);
+ {const T=bwTrack();let mx=1e9,my=1e9,Mx=-1e9,My=-1e9;for(const p of T){mx=Math.min(mx,p.x);my=Math.min(my,p.y-p.z);Mx=Math.max(Mx,p.x);My=Math.max(My,p.y)}const x0=Math.floor(mx-20),y0=Math.floor(my-20),[cv,c]=mk(Math.ceil(Mx-mx+40),Math.ceil(My-my+40));c.translate(-x0,-y0);
   for(let i=0;i<T.length;i+=12){const p=T[i];if(p.broke)continue;const col=p.z>40?'#3a2a22':'#4a3426';R(c,p.x-1,p.y-p.z,2,p.z,col);R(c,p.x-1,p.y-p.z,1,p.z,'#5a4436');if(i%24===0&&p.z>16){bwLine(c,p.x-6,p.y-2,p.x,p.y-p.z*.6,'#3a2a22');bwLine(c,p.x+6,p.y-2,p.x,p.y-p.z*.6,'#3a2a22')}R(c,p.x-2,p.y-1,4,2,'#22181a')}
   for(let i=0;i<T.length;i++){const p=T[i];if(p.broke)continue;const sx=p.x,sy=p.y-p.z;if(i%3===0)bwLine(c,sx+p.nx*4,sy+p.ny*3,sx-p.nx*4,sy-p.ny*3,'#5a3a26');R(c,sx+p.nx*4-1,sy+p.ny*3-1,2,2,'#9a4a32');R(c,sx-p.nx*4-1,sy-p.ny*3-1,2,2,'#b85a3a')}
   for(const p of T)if(p.broke&&p.dangle)bwLine(c,p.x,p.y-p.z,p.x+p.dangle*6,p.y-p.z+18,'#8a3a2a',2);
   BW_COASTER={cv,x0,y0,T}}}
 // Achterbahnstrecke: Kontrollpunkte (Bodenposition + Höhe), Catmull-Rom geglättet
-const BW_TRACKP=[[1935,575,24],[2080,600,30],[2160,640,50],[2300,620,70],[2470,660,88],[2520,780,62],[2520,950,26],[2470,1120,40],[2300,1150,58],[2120,1120,34],[1960,1140,24],[1800,1080,46],[1770,900,62],[1790,720,40],[1830,630,28],[1880,600,24]];
-function bwTrack(){const P0=BW_TRACKP,n=P0.length,T=[];for(let i=0;i<n;i++){const a=P0[(i-1+n)%n],b=P0[i],c=P0[(i+1)%n],d=P0[(i+2)%n];const L=Math.hypot(c[0]-b[0],c[1]-b[1]),steps=Math.ceil(L/2);
-  for(let s=0;s<steps;s++){const t=s/steps,t2=t*t,t3=t2*t,f=(p0,p1,p2,p3)=>.5*((2*p1)+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t2+(-p0+3*p1-3*p2+p3)*t3);T.push({x:f(a[0],b[0],c[0],d[0]),y:f(a[1],b[1],c[1],d[1]),z:f(a[2],b[2],c[2],d[2])})}}
+const BW_TRACKD='M230 200 C300 130 460 140 490 210 C520 280 480 370 400 380 C320 390 300 300 260 330 C210 360 180 260 230 200Z';
+function bwTrack(){const pts=bwPathPts(BW_TRACKD,2)[0],T=pts.map(([x,y],i)=>({x,y,z:44+Math.sin(i/pts.length*Math.PI*4)*22+Math.sin(i/pts.length*Math.PI*10)*8}));
  for(let i=0;i<T.length;i++){const p=T[i],q=T[(i+1)%T.length],dx=q.x-p.x,dy=q.y-p.y,l=Math.hypot(dx,dy)||1;p.nx=-dy/l;p.ny=dx/l}
- const b0=Math.floor(T.length*.335),b1=b0+16;for(let i=b0;i<b1;i++){T[i].broke=1;if(i===b0||i===b1-1)T[i].dangle=i===b0?1:-1}
+ const b0=Math.floor(T.length*.42),b1=b0+16;for(let i=b0;i<b1;i++){T[i].broke=1;if(i===b0||i===b1-1)T[i].dangle=i===b0?1:-1}
  return T}
 function bwCoasterSupports(){const T=bwTrack();for(let i=0;i<T.length;i+=12){const p=T[i];if(p.broke)continue;if(blocked(p.x,p.y,7)||STATIONS.some(s=>Math.hypot(s.x-p.x,s.y-p.y)<22))continue;FSOL.push({x:p.x-2,y:p.y-3,w:4,h:4})}}
 

@@ -3,16 +3,16 @@
 // Multiplayer-Sync, Licht/Glühen, HUD (Ortsanzeige, Minikarte), Zusatz-Zeichnungen.
 // Alles wird nur aufgerufen, wenn die Karte aktiv ist (FAIR im Hauptskript).
 // =====================================================================
-const BW={zun:new Set(['A']),barr:[],zone:null,zoneT:-9,seen:new Set(),synced:false,mm:false,wheelA:0,carA:0,beamA:0,coastA:1,hum:null};
-const BW_FLAVOR={A:'Eintritt frei. Austritt unwahrscheinlich.',B:'Heute im Angebot: alles, was noch zuckt.',C:'Baden verboten. Sterben erlaubt.',
- D:'Game Over ist hier wörtlich gemeint.',E:'Keine Rückerstattung im Todesfall.',};
+const BW={zun:new Set(['A']),barr:[],zone:null,zoneT:-9,seen:new Set(),synced:false,mm:false,wheelA:0,carA:0,beamA:0,coastA:1,hum:null,
+ looted:new Set(),pk:null,pkSent:false};
 
 // ---------------------------------------------------------------------
 // Zugänge: Kollision anlegen (vor dem Aufbau des Wegfindungs-Rasters)
 // ---------------------------------------------------------------------
 function bwInitBarriers(){
+ BW_BARR.push(...bwBarrDefs());
  BW.barr=BW_BARR.map((d,i)=>{const [x,y,w,h]=d.r,b=Object.assign({},d,{i,r:{x,y,w,h},open:false,t:-99,cost:BW_PRICES[d.id]});
-  b.col={x,y,w,h,barr:1};(d.low?FSOL:solids).push(b.col);
+  const cc=d.c||d.r;b.col={x:cc[0],y:cc[1],w:cc[2],h:cc[3],barr:1};if(!d.noCol)(d.low?FSOL:solids).push(b.col);
   if(d.k==='debris'){b.pcs=[];const cols=['#6a4a2e','#7a5a3a','#5a3a22','#8a3a2a','#6a6a72','#4a4a52','#b8a888','#c83a3a'];
    for(let k=0;k<44;k++){const px=x-6+Math.random()*(w+10),py=y+Math.random()*h,big=Math.random()<.35;
     b.pcs.push({x:px,y:py,z:Math.random()*(big?6:16),w:big?10+Math.random()*12:3+Math.random()*6,h:big?3+Math.random()*3:2+Math.random()*4,c:cols[Math.random()*cols.length|0],vx:(px-(x+w/2))/(w/2)+Math.random()-.5,vy:(Math.random()-.5)*2})}
@@ -27,25 +27,28 @@ function bwInitWorld(){
   else if(p.t==='bulbpole')bwLight(p.x,p.y,42,.55,{hy:46,c:'255,200,120'});
   else if(p.t==='kiosk'||p.t==='icecart')bwLight(p.x,p.y+4,34,.45,{c:'255,170,210',fl:.2});
   else if(p.t==='photobooth')bwLight(p.x,p.y+4,30,.5,{c:'120,220,255',fl:.3})}
- // Notbeleuchtung (immer an, rot) im Kraftwerk und im Tunnel
- for(const [x,y] of [[2410,1020],[2530,1020]])bwLight(x,y,46,.55,{emer:1,c:'255,60,40'});
- // Innenlicht in Festzelt, Spielhalle, Ständen, Kraftwerk, Leuchtturm
- for(const x of [1140,1260,1380])for(const y of [180,290])bwLight(x,y,70,.6,{c:'255,190,120'});
- for(let x=1060;x<1640;x+=110)for(const y of [760,880,990])bwLight(x,y,58,.55,{c:pick(['200,120,255','90,220,255','255,90,200'])});
+ // Notbeleuchtung (immer an, rot) im Kraftwerk
+ for(const [x,y] of [[2540,600],[2860,600]])bwLight(x,y,46,.55,{emer:1,c:'255,60,40'});
+ // Innenlicht in Festzelt, Spielhalle, Kraftwerk
+ for(const b of BUILD){if(b.kind==='canvas')for(let x=b.x+50;x<b.x+b.w;x+=90)for(let y=b.y+50;y<b.y+b.h;y+=90)bwLight(x,y,70,.6,{c:'255,190,120'});
+  if(b.kind==='arcade')for(let x=b.x+50;x<b.x+b.w;x+=100)for(let y=b.y+50;y<b.y+b.h;y+=100)bwLight(x,y,58,.55,{c:pick(['200,120,255','90,220,255','255,90,200'])});
+  if(b.kind==='metal'&&b.w>200)for(let x=b.x+60;x<b.x+b.w;x+=120)bwLight(x,b.y+b.h/2,70,.5,{c:'210,230,255',fl:.08})}
+ // Leuchtfeuer des Leuchtturms (nur mit Strom)
+ BW.beacon=bwLight(2742,1540,90,.5,{c:'255,240,180'});
  for(const b of BUILD){if(b.kind==='stall')bwLight(b.x+b.w/2,b.y+b.h+6,40,.6,{c:'255,200,120',fl:.15});
   if(b.sign)b.neon=bwNeon(b.x+b.w/2,b.y+b.h+1,b.sign,b.sc||'#ffd23a',{post:false,sy:b.y+b.h-b.z+(b.rup?-b.rup*.25:0)+10,b})}
- bwLight(2470,1030,64,.6,{c:'210,230,255',fl:.08});
  for(const n of BWN){const by=n.sy!=null?n.sy:n.y-26;n.lt=bwLight(n.x,by-6,Math.max(34,bwTW(n.t,n.s||1)*.7),.55,{c:bwRGB(n.c),sec:n.sec,fl:n.fl,neon:n})}
  // Leuchtturm-Leuchtfeuer
  // Achterbahn-Überdeckung: grobe Liste der Gleispunkte (für Ausblenden über dem Spieler)
- BW.track=BW_COASTER?BW_COASTER.T.filter((p,i)=>i%6===0&&!p.broke):[]}
+ BW.track=BW_COASTER?BW_COASTER.T.filter((p,i)=>i%6===0&&!p.broke):[];
+ bwPerkShuffle(Math.random()*1e9|0)}
 
 // ---------------------------------------------------------------------
 // Öffnen eines Zugangs (Host und Clients; fx=false beim stillen Nachladen)
 // ---------------------------------------------------------------------
 function bwOpen(i,fx){const b=BW.barr[i];if(!b||b.open)return;b.open=true;b.t=fx?now:now-30;
  for(const L of [solids,FSOL]){const k=L.indexOf(b.col);if(k>=0)L.splice(k,1)}
- rebuildArea(b.r.x-16,b.r.y-16,b.r.x+b.r.w+16,b.r.y+b.r.h+16);
+ if(!b.noCol)rebuildArea(b.col.x-16,b.col.y-16,b.col.x+b.col.w+16,b.col.y+b.col.h+16);
  const nz=b.z.filter(z=>!BW.zun.has(z));for(const z of b.z)BW.zun.add(z);
  if(!fx)return;
  const cx=b.r.x+b.r.w/2,cy=b.r.y+b.r.h/2;shake=Math.max(shake,b.k==='debris'||b.k==='bridge'?4:2.5);
@@ -101,6 +104,14 @@ function bwInteract(pl,me,EP,auth){
   if(EP&&auth){if(pl.money<cost){note(pl,'Zu wenig Punkte','#ff8a7a');if(me)sfx('no_money')}
    else{pl.money-=cost;sfx('cash_register',pl.x,pl.y,.7,1,0);ftext(bb.r.x+bb.r.w/2,bb.r.y-20,'-'+cost.toLocaleString('en-US'),'#ffd23a',1);bwOpen(bb.i,true)}}
   return true}
+ if(me&&!pl.bwRide)for(let i=0;i<BW_RIDES.length;i++){const r=BW_RIDES[i];if(Math.hypot(r.x-pl.x,r.y-pl.y)>18)continue;
+  if(r.zip&&!bwRideOk(r))break;
+  prompt=bwRideOk(r)?{x:r.x,y:r.y-34,t:r.n,tc:'#ffd23a',d:r.zip?'Runter zum Kraftwerk':'Eine Runde fahren',s:'[E] EINSTEIGEN',c:'#fff2a8'}:{x:r.x,y:r.y-34,t:r.n,tc:'#9a96a8',d:'Braucht Strom',s:'NO POWER',c:'#9a96a8'};
+  if(EP&&bwRideOk(r)){pl.bwRide={i,t0:now};sfx(r.zip?'door_hit':'pipe_hit',pl.x,pl.y,.6,r.zip?1.4:.8,0)}return true}
+ if(!(pl.inCar>=0))for(const c of CARS){if(BW.looted.has(c.i)||pl.key===c.i||c.driver)continue;const nx=clamp(pl.x,c.x,c.x+c.w),ny=clamp(pl.y,c.y,c.y+c.h);if(Math.hypot(pl.x-nx,pl.y-ny)>8)continue;
+  if(me)prompt={x:c.x+c.w/2,y:c.y-14,s:'[E] AUTO DURCHSUCHEN',c:'#fff2a8'};
+  if(EP&&auth){BW.looted.add(c.i);const m=bwCarMoney();pl.money+=m;sfx('loot_found',c.x,c.y,.8);if(m>=1000){sfx('cash_register',pl.x,pl.y,.7,1,0);ftext(c.x+c.w/2,c.y-20,'+$'+m+'!','#ffd23a',1)}else ftext(c.x+c.w/2,c.y-20,'+$'+m,'#9fff9f',1)}
+  return true}
  const st=STATIONS.find(s=>Math.hypot(s.x-pl.x,s.y-pl.y)<20);if(!st)return false;
  if(st.t==='power'){
   if(me)prompt=POWER.on?{x:st.x,y:st.y-40,s:'POWER IS ON',c:'#9fff9f'}:{x:st.x,y:st.y-40,t:'HAUPTSCHALTER',tc:'#ffd23a',d:'Bringt Strom in den ganzen Park',s:'TURN ON THE POWER [E]',c:'#fff2a8'};
@@ -115,8 +126,37 @@ function bwPerkBuy(pl,k){let s=null,d=1e9;for(const o of STATIONS)if(o.t==='perk
 // ---------------------------------------------------------------------
 // Multiplayer: Zustand im Snapshot (offene Zugänge + Strom). Spätere Mitspieler übernehmen ihn still.
 // ---------------------------------------------------------------------
-function bwSnap(){return{o:BW.barr.filter(b=>b.open).map(b=>b.i),p:POWER.on?1:0}}
-function bwApply(s){const fx=BW.synced;for(const i of s.o||[])bwOpen(i,fx);if(s.p&&!POWER.on)bwPowerOn(fx);BW.synced=true}
+function bwSnap(){return{o:BW.barr.filter(b=>b.open).map(b=>b.i),p:POWER.on?1:0,pk:BW.pk,cl:[...BW.looted]}}
+function bwApply(s){const fx=BW.synced;for(const i of s.o||[])bwOpen(i,fx);if(s.p&&!POWER.on)bwPowerOn(fx);if(s.pk!=null)bwPerkShuffle(s.pk);for(const i of s.cl||[])BW.looted.add(i);BW.synced=true}
+
+// ---------------------------------------------------------------------
+// Perk-Automaten: zufällig auf Wandplätze verteilt (Host würfelt, Gäste übernehmen den Startwert)
+// ---------------------------------------------------------------------
+function bwPerkShuffle(seed){if(BW.pk===seed)return;BW.pk=seed;let r=seed>>>0;const rnd2=()=>(r=(Math.imul(r,1664525)+1013904223)>>>0)/4294967296;
+ const sl=BW_PERKSLOTS.map((p,i)=>i);for(let i=sl.length-1;i>0;i--){const j=rnd2()*(i+1)|0;[sl[i],sl[j]]=[sl[j],sl[i]]}
+ const ps=STATIONS.filter(s=>s.t==='perk');ps.forEach((st,i)=>{const [nx,ny]=BW_PERKSLOTS[sl[i]],col=solids.find(o=>o.x===st.x-10&&o.y===st.y-9&&o.w===20&&o.h===9);
+  const ox=st.x,oy=st.y;st.x=nx;st.y=ny;if(col){col.x=nx-10;col.y=ny-9}
+  try{rebuildArea(ox-20,oy-20,ox+20,oy+10);rebuildArea(nx-20,ny-20,nx+20,ny+10)}catch{}})}
+
+// ---------------------------------------------------------------------
+// Fahrgeschäfte (brauchen Strom) und Zipline (muss gekauft werden). Fahrt läuft lokal beim Spieler.
+// ---------------------------------------------------------------------
+const BW_RIDES=[
+ {k:'wheel',n:'RIESENRAD',x:1480,y:622,T:16,pw:1,ex:{x:1480,y:626},pos:t=>{const a=Math.PI/2+t*Math.PI*2;return{x:1480+Math.cos(a)*100,y:472+Math.sin(a)*100}}},
+ {k:'carousel',n:'KARUSSELL',x:1884,y:2064,T:12,pw:1,ex:{x:1884,y:2066},pos:t=>{const a=Math.PI/2+t*Math.PI*6;return{x:1884+Math.cos(a)*46,y:2022+Math.sin(a)*16}}},
+ {k:'coaster',n:'THE LAST RIDE',x:675,y:578,T:18,pw:1,ex:{x:675,y:580},pos:t=>{const T=BW_COASTER?BW_COASTER.T:null;if(!T)return{x:675,y:578};const p=T[Math.min(T.length-1,Math.floor(t*T.length))];return{x:p.x,y:p.y-p.z-(p.broke?Math.sin((t*T.length%16)/16*Math.PI)*10:0)}}},
+ {k:'zip',n:'ZIPLINE',x:BW_ZIP.a.x,y:BW_ZIP.a.y+48,T:5,zip:1,ex:{x:BW_ZIP.b.x,y:BW_ZIP.b.y+10},pos:t=>{const a=BW_ZIP.a,b=BW_ZIP.b,top=a.y-70;
+  if(t<.25)return{x:a.x,y:lerp(a.y+48,top,t/.25)};const k=(t-.25)/.75,e=k*k*(3-2*k);return{x:lerp(a.x,b.x,e),y:lerp(top,b.y,e)-Math.sin(e*Math.PI)*-30}}},
+];
+function bwRideOk(r){if(r.zip)return BW.barr.some(b=>b.k==='zip'&&b.open);return POWER.on&&now-POWER.at>bwSec(r.x,r.y)}
+function bwRideStep(){const R0=P.bwRide;if(!R0)return;const r=BW_RIDES[R0.i],t=(now-R0.t0)/r.T;
+ if(t>=1||P.dead||P.down){P.x=r.ex.x;P.y=r.ex.y;P.bwRide=null;if(r.zip)sfx('door_hit',P.x,P.y,.7,.6,0);return}
+ const q=r.pos(t);P.x=q.x;P.y=q.y;P.moving=false}
+
+// ---------------------------------------------------------------------
+// Geld: Autos auf dem Parkplatz durchsuchen (je Auto einmal pro Spiel)
+// ---------------------------------------------------------------------
+function bwCarMoney(){const [a,b,c,d]=BW_PRICES.car,r=Math.random();return Math.round((r<.3?c+Math.random()*(d-c):a+Math.random()*(b-a))/10)*10}
 
 // ---------------------------------------------------------------------
 // Spawns: nur in geöffneten Bereichen, bevorzugt 150–650 px von den Spielern entfernt
@@ -131,28 +171,26 @@ function bwPickSpawn(){const act=SPAWNS.filter(s=>BW.zun.has(s.z));if(!act.lengt
 // ---------------------------------------------------------------------
 // Laufende Aktualisierung (alle Rechner)
 // ---------------------------------------------------------------------
-function bwUpdate(dt){const pw=POWER.on&&now-POWER.at>1;
+function bwUpdate(dt){const pw=POWER.on&&now-POWER.at>1;bwRideStep();
  BW.wheelA+=dt*(pw?.11:0);BW.carA+=dt*(pw?.6:0);BW.beamA+=dt*.55;
  const z=P.dead?null:bwZoneAt(P.x,P.y);if(z&&z!==BW.zone){BW.zone=z;if(!BW.seen.has(z)){BW.seen.add(z);BW.zoneT=now}}
  if(BW.hum){const v=OPT.svol*SFX_MASTER*.22*sfxDist(BW_GEN.x,BW_GEN.y)*(1+Math.sin(now*1.7)*.08);try{BW.hum.gn.gain.value=Math.min(.25,v)}catch{}}
  // Funken an defekten Leuchten und Trafos
  if(pw&&Math.random()<dt*2){const n=pick(BWN);if(n&&n.fl>.2&&Math.abs(n.x-P.x)<260&&Math.abs(n.y-P.y)<200)for(let k=0;k<6;k++)part({x:n.x+rnd(-12,12),y:n.y,z:26+rnd(0,8),vx:rnd(-40,40),vy:rnd(-10,10),vz:rnd(0,40),g:200,life:.5,c:pick(['#fff','#ffe08a','#8ad8ff']),s:1,ember:1})}
- if(pw&&Math.random()<dt*1.2&&Math.hypot(2470-P.x,990-P.y)<300)for(let k=0;k<5;k++)part({x:pick([2415,2525])+rnd(-12,12),y:986,z:20,vx:rnd(-50,50),vy:rnd(-10,10),vz:rnd(10,60),g:200,life:.4,c:pick(['#fff','#8ad8ff']),s:1,ember:1});
- // Gischt an der Küste
- if(Math.random()<dt*6){const x=P.x+rnd(-200,200);if(x>40&&x<2600){const y=x<950?690:1218;if(Math.abs(y-P.y)<220)part({x,y:y+rnd(0,6),z:1,vx:rnd(-8,8),vy:rnd(-4,0),vz:rnd(10,30),g:90,life:.8,c:'#d8e4f0',s:1})}}
+ if(pw&&Math.random()<dt*1.2&&Math.hypot(BW_GEN.x-P.x,BW_GEN.y-P.y)<300)for(let k=0;k<5;k++)part({x:pick([2560,2720])+rnd(-12,12),y:636,z:20,vx:rnd(-50,50),vy:rnd(-10,10),vz:rnd(10,60),g:200,life:.4,c:pick(['#fff','#8ad8ff']),s:1,ember:1});
+ // Gischt am Ufer (auf Wasser direkt neben Land)
+ if(Math.random()<dt*8){const x=P.x+rnd(-220,220),y=P.y+rnd(-160,160);if(!bwLandAt(x,y)&&!bwWalk(x,y)&&(bwLandAt(x,y-8)||bwWalk(x,y-8)))part({x,y,z:1,vx:rnd(-8,8),vy:rnd(-4,0),vz:rnd(10,30),g:90,life:.8,c:'#d8e4f0',s:1})}
  // Achterbahn über dem Spieler ausblenden
- let under=false;if(P.x>1720&&P.y<1220)for(const p of BW.track)if(Math.abs(p.x-P.x)<14&&P.y<p.y+4&&P.y>p.y-p.z-10){under=true;break}
+ const CO=BW_COASTER;let under=false;if(CO&&P.x>CO.x0&&P.x<CO.x0+CO.cv.width&&P.y>CO.y0&&P.y<CO.y0+CO.cv.height+40&&!P.bwRide)for(const p of BW.track)if(Math.abs(p.x-P.x)<14&&P.y<p.y+4&&P.y>p.y-p.z-10){under=true;break}
  BW.coastA+=((under?.35:1)-BW.coastA)*Math.min(1,dt*8)}
 
 // ---------------------------------------------------------------------
 // Zeichnen: Boden-Ebene (nach dem Bodenbild), sortierte Ebene, Überlagerung
 // ---------------------------------------------------------------------
 function bwRenderGround(cx,cy){
- // Wasser: Mondglitzern und Wellenlinien nur im sichtbaren Bereich
- for(const [x,y,w,h] of BWG.water){const x0=Math.max(x,cx-10),y0=Math.max(y,cy-10),x1=Math.min(x+w,cx+W+10),y1=Math.min(y+h,cy+H+10);if(x1<=x0||y1<=y0)continue;
-  for(let gy=Math.floor(y0/12)*12;gy<y1;gy+=12)for(let gx=Math.floor(x0/16)*16;gx<x1;gx+=16){const hsh=((gx*73856093)^(gy*19349663))>>>0,ph=(hsh%1000)/159;
-   const s=Math.sin(now*1.6+ph);if(s>.82){const px=gx+(hsh>>10)%16,py=gy+(hsh>>16)%12;if(px>x&&px<x+w-3&&py>y&&py<y+h)R(g,px,py,s>.95?3:2,1,s>.95?'#c8d8f0':'#5a6a8a')}
-   else if(s<-.9){const px=gx+(hsh>>8)%16,py=gy+(hsh>>14)%12;if(px>x&&px<x+w-5&&py>y&&py<y+h)R(g,px,py,5,1,'rgba(20,30,60,.6)')}}}
+ // Wasser: Mondglitzern nur im sichtbaren Meer
+ for(let gy=Math.floor((cy-10)/12)*12;gy<cy+H+10;gy+=12)for(let gx=Math.floor((cx-10)/16)*16;gx<cx+W+10;gx+=16){const hsh=((gx*73856093)^(gy*19349663))>>>0,ph=(hsh%1000)/159,sn=Math.sin(now*1.6+ph);
+  if(sn>.82||sn<-.9){const px=gx+(hsh>>10)%16,py=gy+(hsh>>16)%12;if(bwLandAt(px,py)||bwWalk(px,py))continue;if(sn>.82)R(g,px,py,sn>.95?3:2,1,sn>.95?'#c8d8f0':'#5a6a8a');else R(g,px,py,5,1,'rgba(20,30,60,.6)')}}
  for(const b of BW.barr)if(b.k==='bridge'&&b.r.x+b.r.w>cx-20&&b.r.x<cx+W+20&&b.r.y+b.r.h>cy-20&&b.r.y<cy+H+20)bwDrawBridge(b)}
 function bwRender(L,vis,cx,cy){
  bwPushWalls(L,vis,cx,cy);
@@ -160,8 +198,12 @@ function bwRender(L,vis,cx,cy){
  for(const n of BWN)if(vis(n.x-60,n.y-50,120,60))L.push({y:n.y+(n.post===false?0:.5),f:()=>bwDrawNeon(n)})}
 function bwRenderOver(cx,cy){
  if(BW_COASTER){const c=BW_COASTER;if(c.x0<cx+W&&c.x0+c.cv.width>cx&&c.y0<cy+H&&c.y0+c.cv.height>cy){g.globalAlpha=BW.coastA;g.drawImage(c.cv,c.x0,c.y0);g.globalAlpha=1}}
- // Lichterketten zwischen den Masten der Imbissmeile
- const pw=POWER.on;const poles=[[920,400,1040,440],[1040,440,1200,640],[1480,440,1400,640],[1480,440,1700,400],[1200,640,1400,640],[920,100,1700,100]];
+ // Zipline-Seil vom Leuchtturm zum Kraftwerk
+ {const a=BW_ZIP.a,b=BW_ZIP.b,ta=a.y-70;if(Math.max(a.x,b.x)>cx-20&&Math.min(a.x,b.x)<cx+W+20&&b.y<cy+H+40&&ta>cy-40){const open=BW.barr.some(q=>q.k==='zip'&&q.open),n=Math.ceil(Math.hypot(b.x-a.x,ta-b.y)/4);
+  for(let i=0;i<=n;i++){const t=i/n,x=lerp(a.x,b.x,t),y=lerp(ta,b.y-24,t)+Math.sin(t*Math.PI)*18;R(g,x,y,1,1,open?'#c8c8d0':'#5a5a62')}
+  R(g,b.x-3,b.y-30,6,30,'#4a4a52');R(g,b.x-8,b.y-32,16,3,'#6a6a72')}}
+ // Lichterketten zwischen den Masten am Festzelt
+ const pw=POWER.on;const poles=[[980,1220,1440,1210],[1000,1520,1360,1530],[980,1220,1000,1520],[1440,1210,1360,1530]];
  for(const [x0,y0,x1,y1] of poles){if(Math.max(x0,x1)<cx-20||Math.min(x0,x1)>cx+W+20||Math.max(y0,y1)<cy-60||Math.min(y0,y1)>cy+H+20)continue;
   const n=Math.ceil(Math.hypot(x1-x0,y1-y0)/10);for(let i=0;i<=n;i++){const t=i/n,x=lerp(x0,x1,t),y=lerp(y0,y1,t)-44-Math.sin(t*Math.PI)*(-14)+Math.sin(now*1.3+x*.01)*.6;
    R(g,x,y,1,1,'#2a2228');if(i%2===0){const lit=pw&&bwLit(bwSec(x,y+44),0)&&((i+(x|0))%7!==0);R(g,x-1,y+1,2,2,lit?['#ffd23a','#ff6a4a','#7ad8ff','#ff8ad8'][(i/2)%4]:'#3a3036')}}}}
@@ -244,6 +286,7 @@ function bwGlow(glow){
   glow(l.x,hy,l.hy?12:18,l.c,.55*l.on);glow(l.x,l.y,l.r*.8,l.c,(l.emer?.14:.1)*l.on)}
  if(POWER.on){
   // Riesenrad-Leuchtring
+ if(BW.beacon&&BW.beacon.on){const a=BW.beamA;for(let i=1;i<6;i++)glow(BW.beacon.x+Math.cos(a)*i*40,BW.beacon.y-30+Math.sin(a)*i*16,26+i*6,'255,240,190',.16/i*2)}
   const wh=PROPS.find(p=>p.t==='wheel');if(wh&&now-POWER.at>bwSec(wh.x,wh.y))glow(wh.x,wh.y-128,130,'255,140,200',.08)}
  // Upgrade-Automat und Hauptschalter
  for(const s of STATIONS){if(s.t==='power')glow(s.x,s.y-30,16,POWER.on?'80,240,110':'255,60,40',.35+(POWER.on?0:Math.sin(now*4)*.2))}}
@@ -256,16 +299,20 @@ function bwHud(VW,VH,k){
  const zt=now-BW.zoneT;if(BW.zone&&zt<3.4){const Z=BW_ZONES[BW.zone],a=clamp(Math.min(zt*3,(3.4-zt)*1.5),0,1);u.globalAlpha=a;
   HT('BLACKWATER FAIR',VW/2,VH*.3-36*k,16*k,'#b8a8c8','center','"VT323",monospace',700);HT(Z.n,VW/2,VH*.3,44*k,Z.c,'center');HT(BW_FLAVOR[BW.zone],VW/2,VH*.3+26*k,18*k,'#e8e0d4','center');u.globalAlpha=1}
  const R0=VW-24;let y=36*k;
- if(!POWER.on){const b=.6+Math.sin(now*3)*.4;u.globalAlpha=.6+b*.4;HT('⚡ KEIN STROM',R0,y,22*k,'#ff7a5a','right');u.globalAlpha=1;HT('Hauptschalter am Generator (Riesenrad-Bereich)',R0,y+18*k,15*k,'#c8c0b8','right','"VT323",monospace',700);y+=40*k}
+ if(!POWER.on){const b=.6+Math.sin(now*3)*.4;u.globalAlpha=.6+b*.4;HT('⚡ KEIN STROM',R0,y,22*k,'#ff7a5a','right');u.globalAlpha=1;HT('Hauptschalter im Kraftwerk',R0,y+18*k,15*k,'#c8c0b8','right','"VT323",monospace',700);y+=40*k}
  else if(now-POWER.at<6){HT('⚡ STROM AN',R0,y,22*k,'#7aff8a','right');y+=26*k}
  if(!BW.mm){HT('[M] Karte',R0,y,14*k,'#8a8480','right','"VT323",monospace',700);return}
  const mw=Math.min(300*k,VW*.3),s=mw/BW_W,mh=BW_H*s,x0=R0-mw,y0=y;
  u.fillStyle='rgba(6,4,12,.82)';u.fillRect(x0-6,y0-6,mw+12,mh+12);u.fillStyle='#0c1a30';u.fillRect(x0,y0,mw,mh);
- for(const zk in BW_ZONES){const Z=BW_ZONES[zk],open=BW.zun.has(zk);for(const r of Z.r){u.fillStyle=open?shade(Z.c,.42):'#1c1a22';u.fillRect(x0+r[0]*s,y0+r[1]*s,r[2]*s,r[3]*s);
-   if(!open){u.fillStyle='rgba(255,255,255,.04)';for(let i=0;i<r[2]*s;i+=5)u.fillRect(x0+r[0]*s+i,y0+r[1]*s,1,r[3]*s)}}}
- for(const r of BWG.water){u.fillStyle='#0c1a30';u.fillRect(x0+r[0]*s,y0+r[1]*s,r[2]*s,r[3]*s)}
- for(const [x,y2,w,h,st] of BW_WALLS){if(st==='rail')continue;u.fillStyle=st==='cliff'?'#5a5048':'#8a8290';u.fillRect(x0+x*s,y0+y2*s,Math.max(1,w*s),Math.max(1,h*s))}
- for(const zk in BW_ZONES){const Z=BW_ZONES[zk],r=Z.r[0];u.font='700 '+Math.max(10,11*k)+'px "VT323",monospace';u.textAlign='center';u.fillStyle=BW.zun.has(zk)?'#fff':'#5a5662';u.fillText(zk,x0+(r[0]+r[2]/2)*s,y0+(r[1]+r[3]/2)*s+4)}
+ if(!BW.mmP){BW.mmP={coast:bwP2(BW_COAST),z:{},paths:BW_PATHS.map(p=>bwP2(p.d))};for(const zk of BW_ZK)BW.mmP.z[zk]=bwP2(BW_ZONES[zk].d)}
+ u.save();u.translate(x0,y0);u.scale(s*BW_S,s*BW_S);u.fillStyle='#16201a';u.fill(BW.mmP.coast);
+ u.lineCap='round';u.lineWidth=BW_PATHW;u.strokeStyle='#3a3442';for(const q of BW.mmP.paths)u.stroke(q);
+ for(const zk of BW_ZK){u.fillStyle=BW.zun.has(zk)?shade(BW_ZONES[zk].c,.5):'#24222c';u.fill(BW.mmP.z[zk])}
+ u.restore();{const [bx,by,bw2,bh]=BW_BRIDGE;u.fillStyle='#4a3a2a';u.fillRect(x0+bx*s,y0+by*s,bw2*s,Math.max(1,bh*s))}
+ u.strokeStyle='rgba(220,220,230,.5)';u.setLineDash([3,3]);u.beginPath();u.moveTo(x0+BW_ZIP.a.x*s,y0+BW_ZIP.a.y*s);u.lineTo(x0+BW_ZIP.b.x*s,y0+BW_ZIP.b.y*s);u.stroke();u.setLineDash([]);
+ for(const zk of BW_ZK){const pts=bwPathPts(BW_ZONES[zk].d,40)[0];let cx=0,cy=0;for(const q of pts){cx+=q[0];cy+=q[1]}cx/=pts.length;cy/=pts.length;
+  u.font='700 '+Math.max(10,11*k)+'px "VT323",monospace';u.textAlign='center';u.fillStyle=BW.zun.has(zk)?'#fff':'#6a6672';u.fillText(BW_ZONES[zk].n.split(' ')[0],x0+cx*s,y0+cy*s+4)}
+ if(MB.st){u.fillStyle='#3ad8ff';u.fillRect(x0+MB.st.x*s-3,y0+MB.st.y*s-3,6,6)}
  for(const b of BW.barr){const cx2=x0+(b.r.x+b.r.w/2)*s,cy2=y0+(b.r.y+b.r.h/2)*s;u.fillStyle=b.open?'#5aff7a':'#ff4a3a';u.fillRect(cx2-2,cy2-2,4,4)}
  for(const st of STATIONS){if(st.t!=='perk'&&st.t!=='pap'&&st.t!=='power')continue;const c=st.t==='perk'?PERKS[st.k].c:st.t==='pap'?'#c86bff':'#ffd23a';u.fillStyle='#000';u.fillRect(x0+st.x*s-3,y0+st.y*s-3,6,6);u.fillStyle=bwStationOn(st)||st.t==='power'?c:shade(c,.4);u.fillRect(x0+st.x*s-2,y0+st.y*s-2,4,4)}
  for(const p of PL)if(!p.dead){u.fillStyle=p===P?'#ffffff':pcol(p);u.beginPath();u.arc(x0+p.x*s,y0+p.y*s,p===P?3.5:2.5,0,7);u.fill()}
