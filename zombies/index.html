@@ -1213,7 +1213,8 @@ function musApply(){if(!MUS.on)return;MUS.menu.volume=OPT.mvol;MUS.game.volume=g
  else{MUS.menu.pause();if(!MUS.game.src)musNext();else if(MUS.game.paused)MUS.game.play().catch(()=>{})}}
 function musMode(m){if(MUS.mode===m)return;MUS.mode=m;musApply()}
 // Browser erlauben Ton erst nach der ersten Eingabe
-for(const ev of['pointerdown','keydown'])addEventListener(ev,()=>{loadSfx();if(!MUS.on){MUS.on=true;musApply()}},{capture:true});
+addEventListener('load',()=>{MUS.menu.volume=OPT.mvol;MUS.menu.play().then(()=>{MUS.on=true}).catch(()=>{})});
+for(const ev of['pointerdown','keydown','pointermove','touchstart','wheel'])addEventListener(ev,()=>{loadSfx();MUS.on=true;if(MUS.mode==='menu'?MUS.menu.paused:MUS.game.paused)musApply()},{capture:true});
 // ===== Soundeffekte
 let AC=null;
 function ac(){AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume();return AC}
@@ -1282,9 +1283,9 @@ const CHARS=[
  {name:'ROLLBRETT-RITA',look:{shirt:'#2a8a8a',jacket:'#e8c040',pants:'#2e3440',skin:'#8a5a3a',hair:'#2a1a10',hs:2,cap:'#222',pack:true}}];
 const charLook=(c,seed)=>({...CHARS[((c|0)%CHARS.length+CHARS.length)%CHARS.length].look,seed:seed||3});
 const MAXP=8;let LREADY=false;
-const OPT=Object.assign({hd:false,name:'',char:0,addr:location.protocol.startsWith('http')?location.host:'localhost:8811',bloom:true,fog:true,mvol:.2,gvol:.2,svol:.7,sens:1},store.get('opt',{}),{hd:false});
+const OPT=Object.assign({hd:false,name:'',char:0,addr:location.protocol.startsWith('http')?location.host:'localhost:8811',bloom:true,fog:true,mvol:.05,gvol:.05,svol:.7,sens:1},store.get('opt',{}),{hd:false});
 // Einmalig: neue Standard-Musiklautstärke 20 % auch für bestehende Spieler
-if(OPT.volv!==2){OPT.mvol=.2;OPT.gvol=.2;OPT.volv=2;store.set('opt',OPT)}
+if(OPT.volv!==3){OPT.mvol=.05;OPT.gvol=.05;OPT.volv=3;store.set('opt',OPT)}
 let scoreSaved=false;
 function saveScore(){if(scoreSaved)return;scoreSaved=true;const l=store.get('scores',[]);
  const d=new Date();l.push({map:MAPID,n:P.name||'Du',w:Math.max(0,wave-1),k:P.kills,h:P.heads,mp:PL.length>1,d:d.getDate()+'.'+(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2),me:1});l.sort((a,b)=>b.w-a.w||b.k-a.k);store.set('scores',l.slice(0,100))}
