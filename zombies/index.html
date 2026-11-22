@@ -574,11 +574,14 @@ function throwItem(pl,type,tx,ty){if((pl[type]||0)<=0||pl.down||pl.dead||pl.thrT
  if(NET.client&&pl===P)return true;
  const dx=tx-pl.x,dy=ty-pl.y,d=Math.min(150,Math.max(20,Math.hypot(dx,dy))),a=Math.atan2(dy,dx),T=.62;
  THROWN.push({id:thid++,type,x:pl.x+Math.cos(a)*6,y:pl.y+Math.sin(a)*4,z:13,vx:Math.cos(a)*d/T,vy:Math.sin(a)*d/T,vz:68,t:type==='bomb'?10:2.4,own:pl,land:false,spin:0,nb:0});return true}
-function updPap(dt){for(const st of STATIONS){const j=st.job;if(!j)continue;j.t-=dt;
+function updPap(dt){for(const st of STATIONS){const j=st.job;if(!j||j.ready)continue;j.t-=dt;
  if(Math.random()<dt*25)part({x:st.x+rnd(-7,7),y:st.y-4,z:rnd(8,22),vx:rnd(-20,20),vy:rnd(-10,10),vz:rnd(10,50),g:60,life:.6,c:pick(['#c86bff','#ff6bff','#fff','#8ae0ff']),s:1});
- if(j.t<=0){const pl=j.pl;st.job=null;pl.papK=null;const sl=pl.slots.find(x=>x&&x.k===j.k);if(sl){pl.pap[j.k]=j.lv;sl.ammo=wStats(pl,j.k).mag;sl.res+=sl.ammo*3}
+ if(j.t<=0&&!NET.client){j.ready=true;j.t=0
   for(let i=0;i<40;i++)part({x:st.x,y:st.y,z:20,vx:rnd(-60,60),vy:rnd(-35,35),vz:rnd(20,90),g:150,life:1,c:pick(['#c86bff','#ff6bff','#fff']),s:1});
-  sfx('rare_found',st.x,st.y,1,1,0);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist jetzt ÜBERMÄCHTIG!','#e0b0ff',1)}}}
+  sfx('rare_found',st.x,st.y,1,1,0);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist fertig – abholen!','#e0b0ff',1)}}}
+// Aufgerüstete Waffe aus der Maschine holen (nur der Besitzer)
+function papCollect(st,pl){const j=st.job;st.job=null;pl.papK=null;const sl=j.sl;pl.pap[j.k]=j.lv;sl.ammo=wStats(pl,j.k).mag;sl.res+=sl.ammo*3;
+ let i=pl.slots.indexOf(null);if(i<0){i=pl.cur}pl.slots[i]=sl;pl.cur=i;pl.reloadT=0;sfx('item_pickup',st.x,st.y);ftext(st.x,st.y-30,WEAPONS[j.k].name+' ist jetzt ÜBERMÄCHTIG!','#e0b0ff',1)}
 function updThrown(dt,sim){
  for(const t of THROWN){
   if(sim){const nx=t.x+t.vx*dt,ny=t.y+t.vy*dt;if(blocked(nx,t.y,1,'bullet'))t.vx*=-.4;else t.x=nx;if(blocked(t.x,ny,1,'bullet'))t.vy*=-.4;else t.y=ny;
@@ -1028,7 +1031,7 @@ function clientRest(dt){
   NET.out={shots:[],rl:false,sw:false,vault:null,ep:false,ml:false,bl:false,th:null,hl:0,hd:null,dp:false,cc:0,ky:false,xc:false,cl:false}}}
 function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
  const bxs=STATIONS.find(t=>t.t==='box'),bx=bxs&&bxs.bx?[bxs.bx.ph==='spin'?1:2,bxs.bx.k,bxs.bx.pl.id,+bxs.bx.t.toFixed(1)]:0;
- netSend({t:'snap',mp:MAPID,mb:mbSnap(),wx:FAIR?WX.k:0,bw:FAIR?bwSnap():null,rain:WEATHER.rain,wk:WEATHER.kind,wave,toSpawn,breakT:+Math.min(999,breakT).toFixed(1),gm:GM,mo:MATCH.over?MATCH.win:'',bx,
+ netSend({t:'snap',pj:STATIONS.filter(q=>q.t==='pap').map(q=>q.job?[q.job.pl.id,q.job.k,+q.job.t.toFixed(1),q.job.ready?1:0]:0),mp:MAPID,mb:mbSnap(),wx:FAIR?WX.k:0,bw:FAIR?bwSnap():null,rain:WEATHER.rain,wk:WEATHER.kind,wave,toSpawn,breakT:+Math.min(999,breakT).toFixed(1),gm:GM,mo:MATCH.over?MATCH.win:'',bx,
   pl:PL.map(p=>({id:p.id,n:p.name,ai:!!p.ai,x:Math.round(p.x),y:Math.round(p.y),f:+p.face.toFixed(2),ph:+p.phase.toFixed(2),mv:p.moving,hp:Math.round(p.hp),dn:p.down,
    bl:+p.bleed.toFixed(1),rv:+p.revT.toFixed(2),dd:p.dead,m:p.money,k:p.kills,hd:p.heads,pk:p.papK||0,rvs:p.revives||0,dns:p.downs||0,kn:p.knifes||0,sg:+Math.max(0,p.swing||0).toFixed(2),st:+Math.max(0,p.stab||0).toFixed(2),tr:+Math.max(0,p.thrT||0).toFixed(2),gr:p.gren||0,bo:p.bomb||0,md:p.med||0,ho:p.hold,hT:+Math.max(0,p.healT||0).toFixed(2),jp:+Math.max(0,p.jumpT||0).toFixed(2),pz:+(p.hz||0).toFixed(1),pt:playCode(p),ic:p.inCar,ky:p.key,tn:+(p.turnT||0).toFixed(1),aw:p.away?1:0,zb:p.zombie?1:0,mx:p.max,pe:p.perks?Object.keys(p.perks).join(','):'',sl:p.slots,cu:p.cur,pp:p.pap,rl:+Math.max(0,p.reloadT).toFixed(2),
    hop:+Math.max(0,p.hop||0).toFixed(2),zp:+Math.max(0,p.zapT||0).toFixed(2),rg:p.reviving?p.reviving.id:null,lk:p.look,sp:p.search?+(p.search.t/1.2).toFixed(2):0,de:p.deaths|0,gg:p.gg|0,rs:+Math.max(0,p.rsT||0).toFixed(1),pr:p.prot>0?1:0,sn:p.sn|0})),
@@ -1041,7 +1044,7 @@ function hostNet(dt){NET.snapT-=dt;if(NET.snapT>0)return;NET.snapT=.05;
   z:zombies.map(z=>[z.id,Math.round(z.x),Math.round(z.y),+z.face.toFixed(2),+z.phase.toFixed(1),+(z.hz||0).toFixed(1),+Math.max(0,z.rise).toFixed(2),
    +Math.max(0,z.lunge||0).toFixed(2),+Math.max(0,z.stag||0).toFixed(2),z.hit>0?1:0,+Math.max(0,z.alertT).toFixed(1),z.look,+(z.scent||0).toFixed(1),z.boss?1:0,z.boss?+(z.hp/z.max).toFixed(3):0,z.boss?+Math.max(0,z.slam||0).toFixed(2):0,z.boss?+Math.max(0,z.pound||0).toFixed(2):0,z.boss&&z.leap?1:0,z.boss?+Math.max(0,z.crouch||0).toFixed(2):0]),
   ev:EV.splice(0)})}
-function applySnap(s){if(mapCheck(s.mp))return;if(FAIR&&s.bw)bwApply(s.bw);mbApply(s.mb);if(FAIR&&s.wx&&WX_SET[s.wx])WX.k=s.wx;else applyWeather(s.rain,s.wk);wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=new Set([P.id]);
+function applySnap(s){if(mapCheck(s.mp))return;if(s.pj){const ps=STATIONS.filter(q=>q.t==='pap');s.pj.forEach((j,i)=>{const q=ps[i];if(!q)return;if(!j){q.job=null;return}const o=PL.find(p=>p.id===j[0]);q.job=o?{pl:o,k:j[1],t:j[2],T:5,ready:!!j[3]}:null})}if(FAIR&&s.bw)bwApply(s.bw);mbApply(s.mb);if(FAIR&&s.wx&&WX_SET[s.wx])WX.k=s.wx;else applyWeather(s.rain,s.wk);wave=s.wave;toSpawn=s.toSpawn;breakT=s.breakT;const seen=new Set([P.id]);
  if(s.gm)GM=s.gm;if(s.mo&&!MATCH.over){MATCH.over=true;MATCH.win=s.mo;msgT=0;sfx('wave_cleared');pvpSaveScore()}
  for(const d of s.pl){seen.add(d.id);let p=PL.find(q=>q.id===d.id);
   if(!p){p=newPlayer({id:d.id,name:d.n,net:true,x:d.x,y:d.y});PL.push(p)}
@@ -1722,8 +1725,11 @@ function interact(pl,dt){const me=pl===P,auth=!NET.client,E=me?keys.e:!!(pl.inp&
   else if(st.t==='ammo'){cost=ammoCost(pl);if(!cost){if(me)prompt={x:st.x,y:st.y-34,s:'Munition ist voll',c:'#9fff9f'};return}
    txt='Munition auffüllen';act=()=>{refillAmmo(pl);return'Munition aufgefüllt'}}
   else if(isMelee(s.k)){if(me)prompt={x:st.x,y:st.y-34,s:'Nahkampfwaffen lassen sich nicht aufrüsten',c:'#c8c0b8'};return}
-  else{if(st.job){if(me)prompt={x:st.x,y:st.y-34,s:st.job.pl===pl?'Aufrüstung läuft …':'Maschine ist belegt',p:1-st.job.t/st.job.T,c:'#e0b0ff'};return}
-   cost=(FAIR?BW_PRICES.pap:3500)*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{st.job={pl,k:s.k,lv:lv+1,t:6.5,T:6.5};pl.papK=s.k;sfx('pap_upgrade',st.x,st.y,1,1,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
+  else if(st.job||st.t==='pap'&&pl.slots.filter(Boolean).length<2){const j=st.job;if(!j){if(me)prompt={x:st.x,y:st.y-34,s:'Du brauchst eine zweite Waffe, solange diese umgebaut wird',c:'#c8c0b8'};return}
+   if(j.ready&&j.pl===pl){if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+WEAPONS[j.k].name+' abholen',c:'#e0b0ff'};if(EP&&auth)papCollect(st,pl);return}
+   if(me)prompt={x:st.x,y:st.y-34,s:j.pl===pl?(j.ready?'':'Umbau läuft …'):j.ready?'Hier wartet die Waffe von '+j.pl.name:'Maschine ist belegt',p:j.ready?0:1-j.t/j.T,c:'#e0b0ff'};return}
+  else{
+   cost=(FAIR?BW_PRICES.pap:3500)*(lv+1);txt=WEAPONS[s.k].name+' aufrüsten (Stufe '+(lv+1)+')';act=()=>{const i=pl.cur;st.job={pl,k:s.k,lv:lv+1,t:5,T:5,sl:s};pl.slots[i]=null;pl.cur=pl.slots.findIndex(Boolean);pl.reloadT=0;pl.papK=s.k;sfx('pap_upgrade',st.x,st.y,1,1,0);return WEAPONS[s.k].name+' wird aufgerüstet …'}}
   if(me)prompt={x:st.x,y:st.y-34,s:'[E] '+txt+' – $'+cost,c:pl.money>=cost?'#fff2a8':'#ff8a7a'};
   if(EP&&auth){if(pl.money<cost)note(pl,'Zu wenig Geld','#ff8a7a'),me&&sfx('no_money');else{pl.money-=cost;const r=act();sfx('cash_register',st.x,st.y,.8,1,0);sfx(st.t==='ammo'?'ammo_refill':'item_pickup',st.x,st.y);ftext(st.x,st.y-30,r.replace('gefunden!','gekauft'),'#9fff9f',1)}}return}
  {let gi=null,gd=14;if(GM!=='gg'&&GM!=='oc')for(const it of GROUND){const d=Math.hypot(it.x-pl.x,it.y-pl.y);if(d<gd){gd=d;gi=it}}
