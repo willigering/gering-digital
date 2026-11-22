@@ -65,6 +65,13 @@ async function make(originalBytes,{company,recipient,street,postal,city,date}){
   rows.set(DATE_ROW,date);
   rows.set(SALUTATION_ROW,SALUTATION);
 
+  // Subset fonts in exported PDFs may omit letters needed by another company.
+  const needsFallback=[...rows.values()].some(text=>[...text].some(char=>!glyphs.has(char)));
+  let fallback=null;
+  if(needsFallback){
+    fallback=await doc.embedFont(window.PDFLib.StandardFonts.Helvetica);
+    page.node.Resources().lookup(key("Font")).set(key("GDMAddress"),fallback.ref);
+  }
   const replaced=new Set();
   const pattern=/(\/F1 14\.720600 Tf\s+1 0 0\.000000 -1 )([\d.]+) ([\d.]+) Tm\s*\[[^\]]*\] TJ/g;
   const updated=source.replace(pattern,(match,prefix,x,y)=>{
@@ -74,15 +81,19 @@ async function make(originalBytes,{company,recipient,street,postal,city,date}){
     replaced.add(baseline);
     const text=rows.get(baseline);
     let hex="",width=0;
-    for(const char of text){
+    for(const char of fallback?"":text){
       const cid=glyphs.get(char);
       if(!cid)throw new Error("Das Zeichen „"+char+"“ fehlt in der eingebetteten Originalschrift. Die Vorschau wurde nicht erstellt.");
       hex+=cid;
       width+=(advances.get(parseInt(cid,16))??1000)*FONT_SIZE/1000;
     }
+    if(fallback){
+      try{hex=fallback.encodeText(text).toString().slice(1,-1);width=fallback.widthOfTextAtSize(text,FONT_SIZE);}
+      catch{throw new Error("Die Firmenanschrift enthält ein nicht unterstütztes Zeichen. Bitte die Schreibweise im Adressfeld anpassen.");}
+    }
     if(width>RIGHT-LEFT)throw new Error("Eine Zeile der Firmenanschrift ist zu lang für das Originalanschreiben.");
     const start=baseline===DATE_ROW?(RIGHT-width).toFixed(6):x;
-    return prefix+start+" "+y+" Tm\n<"+hex+"> Tj";
+    return (fallback?prefix.replace("/F1 ","/GDMAddress "):prefix)+start+" "+y+" Tm\n<"+hex+"> Tj";
   });
   if(replaced.size!==rows.size)throw new Error(LAYOUT_ERROR);
 

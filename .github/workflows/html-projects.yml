@@ -93,7 +93,7 @@ jobs:
       - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
-        run: node tests/bewerbungen_browser.cjs
+        run: node tests/bewerbungen_pdf.cjs && node tests/bewerbungen_browser.cjs
       - name: Check all cheat sheet wallpapers and mobile navigation
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
