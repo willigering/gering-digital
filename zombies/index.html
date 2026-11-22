@@ -70,7 +70,7 @@ function resize(){W=Math.ceil(innerWidth/SCALE);H=Math.ceil(innerHeight/SCALE);D
  fxc.style.width=innerWidth+'px';fxc.style.height=innerHeight+'px';fxc.width=fxl.width=Math.ceil(innerWidth*FXR);fxc.height=fxl.height=Math.ceil(innerHeight*FXR)}
 addEventListener('resize',resize);resize();
 // ===== Kartenauswahl: ?map=fair oder Menü (gespeichert). Gäste übernehmen beim Beitreten die Karte des Hosts.
-const MAPS=[{id:'town',n:'KLEINSTADT'},{id:'fair',n:'BLACKWATER FAIR'}];
+const MAPS=[{id:'town',n:'DEADMOLD'},{id:'fair',n:'BLACKWATER FAIR'}];
 const REJOIN=(()=>{try{const r=JSON.parse(sessionStorage.getItem('zw_rejoin')||'null');sessionStorage.removeItem('zw_rejoin');return r}catch{return null}})();
 const MAPID=(()=>{let m=REJOIN&&REJOIN.map;if(!m)m=new URLSearchParams(location.search).get('map');if(!m)try{m=JSON.parse(localStorage.getItem('dew_map')||'null')}catch{}return MAPS.some(x=>x.id===m)?m:'town'})();
 const FAIR=MAPID==='fair'&&typeof bwDefine==='function';
@@ -79,8 +79,11 @@ const mapName=id=>(MAPS.find(m=>m.id===id)||{n:id}).n;
 function mapCheck(mp){if(!mp||mp===MAPID||NET.mapSwitch)return false;NET.mapSwitch=true;
  try{localStorage.setItem('dew_map',JSON.stringify(mp));sessionStorage.setItem('zw_rejoin',JSON.stringify({map:mp,code:NET.code||null}))}catch{}
  NET.status='Host spielt '+mapName(mp)+' – Karte wird geladen …';try{if(NET.tx)NET.tx({t:'bye'})}catch{}setTimeout(()=>location.reload(),400);return true}
-function cycleMap(d){const i=MAPS.findIndex(m=>m.id===MAPID),n=MAPS[(i+d+MAPS.length)%MAPS.length];try{localStorage.setItem('dew_map',JSON.stringify(n.id));sessionStorage.setItem('zw_menu','play')}catch{}
- const q=new URL(location.href);if(n.id==='town')q.searchParams.delete('map');else q.searchParams.set('map',n.id);location.href=q.toString()}
+// Kartenwahl im Menü ohne Neuladen; erst beim Start wird die gewählte Karte geladen (die Welt wird beim Laden gebaut)
+let MAP_SEL=MAPID;
+function cycleMap(d){const i=MAPS.findIndex(m=>m.id===MAP_SEL),n=MAPS[(i+d+MAPS.length)%MAPS.length];MAP_SEL=n.id;try{localStorage.setItem('dew_map',JSON.stringify(n.id))}catch{}}
+function mapGo(next){if(MAP_SEL===MAPID)return false;try{sessionStorage.setItem('zw_menu',next)}catch{}
+ const q=new URL(location.href);if(MAP_SEL==='town')q.searchParams.delete('map');else q.searchParams.set('map',MAP_SEL);location.href=q.toString();return true}
 const MW=FAIR?BW_W:1400,MH=FAIR?BW_H:1000,WT=4,GS=8;
 let seed=7;const sr=()=>(seed=(seed*16807)%2147483647)/2147483647;
 const rnd=(a,b)=>a+Math.random()*(b-a),srnd=(a,b)=>a+sr()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),lerp=(a,b,t)=>a+(b-a)*t;
@@ -1291,7 +1294,7 @@ function menuItems(){const openN=f=>((NET&&NET.lobbies)||[]).filter(l=>f(l.gm||'
  case'main':return[['SPIELEN',()=>menuGo('play')],['BESTENLISTE',()=>menuGo('scores')],['STEUERUNG',()=>menuGo('keys')],['OPTIONEN',()=>menuGo('options')],['FEEDBACK',openFeedback]];
  case'keys':return[['ZURÜCK',()=>menuGo('main')]];
  case'name':return[['NAME: '+(OPT.name||'—')+(menu.edit==='name'&&menu.t%1<.5?'_':''),()=>{if(menu.edit==='name'){menu.edit=null;nameDone()}else menu.edit='name'}],['WEITER ▶',()=>{menu.edit=null;if(!(OPT.name||'').trim()){menu.edit='name';NET.status='Bitte zuerst einen Namen eingeben';return}nameDone()}],['ZURÜCK',()=>{menu.edit=null;menu.after=null;NET.status='';menuGo('play')}]];
- case'play':return[['SOLO',()=>startGame(false,false)],['KOOP',()=>{if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}},null,{badge:openN(g=>g==='z')}],['MULTIPLAYER',()=>{if(!needName(()=>menuGo('pvp')))menuGo('pvp')},null,{badge:openN(g=>g!=='z')}],['KARTE: ◀ '+mapName(MAPID)+' ▶',()=>cycleMap(1),cycleMap],['ZURÜCK',()=>menuGo('main')]];
+ case'play':return[['SOLO',()=>{if(!mapGo('solo'))startGame(false,false)}],['KOOP',()=>{if(mapGo('koop'))return;if(!needName(()=>{NET.want='z';menuGo('mp')})){NET.want='z';menuGo('mp')}},null,{badge:openN(g=>g==='z')}],['MULTIPLAYER',()=>{if(mapGo('pvp'))return;if(!needName(()=>menuGo('pvp')))menuGo('pvp')},null,{badge:openN(g=>g!=='z')}],['KARTE: ◀ '+mapName(MAP_SEL)+' ▶',()=>cycleMap(1),cycleMap],['ZURÜCK',()=>menuGo('main')]];
  case'pvp':return[['DEATHMATCH',()=>{NET.want='dm';menuGo('mp')},null,{badge:openN(g=>g==='dm')}],['GUNGAME',()=>{NET.want='gg';menuGo('mp')},null,{badge:openN(g=>g==='gg')}],['ONE IN THE CHAMBER',()=>{NET.want='oc';menuGo('mp')},null,{badge:openN(g=>g==='oc')}],['ZURÜCK',()=>menuGo('play')]];
  case'mp':if(MODE==='ws')return[['LOBBY BEITRETEN',()=>{P.name=OPT.name;connect()}],['ZURÜCK',()=>menuGo(mpBack())]];
   return[['NEUES SPIEL HOSTEN',()=>{P.name=OPT.name;rtcHost()}],
@@ -1375,9 +1378,9 @@ function charSprite(look){pcx.setTransform(1,0,0,1,0,0);pcx.clearRect(0,0,40,40)
  drawHuman(20,34,look,Math.PI*.42,now*7,!!look._walk,0,{len:5,lv:0});g=old;return pc_}
 // Vorschaubild der gewählten Karte im Menü (maps/<id>.jpg)
 const MAPPREV={};for(const m of MAPS){const im=new Image();im.src='maps/'+m.id+'.jpg';MAPPREV[m.id]=im}
-function drawMapPreview(x,y,w){const im=MAPPREV[MAPID],h=w*.336;u.fillStyle='rgba(8,6,12,.85)';u.fillRect(x-4,y-4,w+8,h+8+28);
+function drawMapPreview(x,y,w){const im=MAPPREV[MAP_SEL],h=w*.336;u.fillStyle='rgba(8,6,12,.85)';u.fillRect(x-4,y-4,w+8,h+8+28);
  if(im&&im.complete&&im.naturalWidth){u.imageSmoothingEnabled=true;u.drawImage(im,x,y,w,h)}else{u.fillStyle='#1a1424';u.fillRect(x,y,w,h)}
- u.strokeStyle='#e8892e';u.lineWidth=2;u.strokeRect(x-4,y-4,w+8,h+8+28);MT('KARTE: '+mapName(MAPID),x,y+h+18,20,'#ece4d4','left','"VT323",monospace',700)}
+ u.strokeStyle='#e8892e';u.lineWidth=2;u.strokeRect(x-4,y-4,w+8,h+8+28);MT('KARTE: '+mapName(MAP_SEL),x,y+h+18,20,'#ece4d4','left','"VT323",monospace',700)}
 function drawCard(x,y,w,p,status,col,big){const h=w*1.42;
  u.fillStyle='rgba(16,14,20,.86)';u.fillRect(x,y,w,h);u.fillStyle=col;u.fillRect(x,y,w,3);u.fillRect(x,y+h-3,w,3);
  if(p){const spr=charSprite({...charLook(p.char,(p.name||'').length+3),_walk:big}),sc=Math.max(2,Math.floor(w*1.05/40)),sw=40*sc;u.imageSmoothingEnabled=false;
@@ -2476,7 +2479,7 @@ if(FAIR){bwPrerender();bwBuildWalls()}
 buildGround();for(const pc of PIECES)if(pc.horiz){if(pc.t==='window'&&pc.side==='S'&&Math.random()<.15)pc.lit=true;makePiece(pc)}
 for(const b of BUILD)makeRoof(b);for(const c of CARS)makeCar(c);
 if(FAIR)bwInitWorld();
-try{if(sessionStorage.getItem('zw_menu')){sessionStorage.removeItem('zw_menu');menuGo('play')}}catch{}
+try{const zm=sessionStorage.getItem('zw_menu');if(zm){sessionStorage.removeItem('zw_menu');if(zm==='solo')startGame(false,false);else if(zm==='koop'){NET.want='z';if(!needName(()=>menuGo('mp')))menuGo('mp')}else if(zm==='pvp'){if(!needName(()=>menuGo('pvp')))menuGo('pvp')}else menuGo('play')}}catch{}
 if(REJOIN&&!started){OPT.name&&(P.name=OPT.name);menuGo(MODE==='ws'?'play':'mp');if(MODE==='rtc'&&REJOIN.code)rtcJoin(REJOIN.code);else if(MODE==='ws')connect()}
 function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
  if(started&&(PVP()?MATCH.over:!alive().length)&&document.pointerLockElement)document.exitPointerLock();
