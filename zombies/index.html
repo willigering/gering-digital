@@ -730,6 +730,8 @@ function hurt(pl,dmg,force){if(pl.down||pl.dead||pl.zombie||(pl.inCar>=0&&!force
  if(pl.hp<=0){pl.hp=0;if(pl.inCar>=0)exitCar(pl);const mates=standing().filter(o=>o!==pl);
   if(mates.length){pl.downs=(pl.downs||0)+1;pl.down=true;pl.bleed=30;pl.revT=0;pl.reloadT=0;ftext(pl.x,pl.y-26,pl.name+' AM BODEN!','#ff5a4a',1)}
   else{for(const o of alive())die(o)}}}
+// VS-Modus (tote Spieler werden zu Zombies und jagen die anderen) – vorerst aus (Willi, 22.11.2026)
+const VS_MODE=false;
 function becomeZombie(pl){clearPerks(pl);pl.zombie=true;pl.wasZombie=true;pl.down=false;pl.dead=false;pl.max=pl.hp=550+wave*60;pl.hold=null;pl.healT=0;
  if(pl.inCar>=0)exitCar(pl);ftext(pl.x,pl.y-28,pl.name+' ist jetzt ein ZOMBIE!','#8aff6a',1);say(pl.name+' ist als Zombie zurück!');evp('msg',pl.name+' ist als Zombie zurück!');
  for(let i=0;i<20;i++)part({x:pl.x+rnd(-6,6),y:pl.y,z:rnd(0,6),vx:rnd(-20,20),vy:rnd(-10,10),vz:rnd(10,40),g:120,life:1,c:pick(['#5a4a3a','#3a5a2a','#6a1010']),s:2})}
@@ -737,7 +739,7 @@ function zombieDie(pl,killer){pl.zombie=false;pl.dead=true;pl.hp=0;addCorpse({x:
  if(killer){killer.money+=200;ftext(pl.x,pl.y-26,'ZOMBIE-'+pl.name.toUpperCase()+' ERLEDIGT +$200','#ffd23a',1,killer)}evp('msg',pl.name+' ist endgültig erledigt');say(pl.name+' ist endgültig erledigt')}
 function hitPZ(pl,dmg,by){if(!pl.zombie||NET.client)return;pl.hp-=dmg;pl.hurtT=.25;blood(pl.x,pl.y,6);if(by)by.money+=10;if(pl.hp<=0)zombieDie(pl,by)}
 function die(pl){if(pl.dead)return;
- if(!pl.ai&&!pl.wasZombie&&PL.some(o=>o!==pl&&!o.ai&&!o.dead&&!o.zombie)&&alive().filter(o=>o!==pl).length){if(!(pl.turnT>0)){pl.turnT=8;pl.down=true;pl.bleed=0;pl.revT=0;ftext(pl.x,pl.y-26,pl.name+' ist tot …','#ff5a4a',1)}return}pl.dead=true;pl.down=false;clearPerks(pl);addCorpse({x:pl.x,y:pl.y,look:pl.look,face:pl.face,t:0,dir:1});stain(pl.x,pl.y,8);if(pl===P)saveScore()}
+ if(VS_MODE&&!pl.ai&&!pl.wasZombie&&PL.some(o=>o!==pl&&!o.ai&&!o.dead&&!o.zombie)&&alive().filter(o=>o!==pl).length){if(!(pl.turnT>0)){pl.turnT=8;pl.down=true;pl.bleed=0;pl.revT=0;ftext(pl.x,pl.y-26,pl.name+' ist tot …','#ff5a4a',1)}return}pl.dead=true;pl.down=false;clearPerks(pl);addCorpse({x:pl.x,y:pl.y,look:pl.look,face:pl.face,t:0,dir:1});stain(pl.x,pl.y,8);if(pl===P)saveScore()}
 function addCorpse(c,head){corpses.push(c);evp('co',Math.round(c.x),Math.round(c.y),c.look,+c.face.toFixed(2),c.dir,head?1:0)}
 
 // =====================================================================
