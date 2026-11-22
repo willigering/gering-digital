@@ -15,6 +15,46 @@
    return {el,key:base+':'+count};
   });
  }
+ // Convert the imported cloze worksheets before restoring any saved fields.
+ // Keep legacy answer IDs so existing notes remain recoverable.
+ function prepareCloze(){
+  if(!/Lückentext/i.test(document.querySelector('h1')?.textContent||''))return;
+  const intro=document.querySelector('.intro');
+  if(intro)intro.textContent='Trage die fehlenden Begriffe direkt in die Lücken ein.';
+  for(const section of document.querySelectorAll('section.question')){
+   if(section.dataset.hwCloze)continue;
+   const heading=section.querySelector('h2'),text=section.querySelector('.question-text'),old=section.querySelector('textarea');
+   if(!heading||!text||!old)continue;
+   const start=heading.textContent.trim(),rest=text.textContent.trim();
+   const source=rest===start?start:start+'\n'+rest;
+   if(!/_{3,}/.test(source))continue;
+   section.dataset.hwCloze='true';
+   heading.textContent='Aufgabe '+(start.match(/^\d+/)?.[0]||'');
+   text.replaceChildren();text.classList.add('hw-cloze-text');
+   let gap=0;
+   // PDF imports contain line breaks inside sentences. Only actual item numbers,
+   // part headings and word lists start a new paragraph.
+   const blocks=source.split(/\n(?=\d+\s*[A-ZÄÖÜ]|Teil\s+\d|Wortliste:|\([1-3]\))/u);
+   for(const block of blocks){
+    const paragraph=node('p');
+    const chunks=block.split(/(_{3,})/);
+    for(const chunk of chunks){
+     if(/^_{3,}$/.test(chunk)){
+      const input=node('input');input.type='text';input.id='hw-gap-'+old.id+'-'+(++gap);
+      input.className='hw-cloze-gap';input.autocomplete='off';input.spellcheck=false;
+      input.setAttribute('aria-label',heading.textContent+', Lücke '+gap);
+      input.size=chunk.length<=4?8:18;paragraph.append(input);
+     }else paragraph.append(document.createTextNode(chunk.replace(/\n/g,' ')));
+    }
+    text.append(paragraph);
+   }
+   const label=section.querySelector('label[for="'+old.id+'"]');
+   const legacy=node('details');legacy.className='hw-cloze-legacy';legacy.hidden=true;
+   legacy.append(node('summary','Bisherige Antwort (vor der Umstellung)'));
+   if(label)legacy.append(label);legacy.append(old);section.append(legacy);
+  }
+ }
+ prepareCloze();
  function capture(){
   const result={};
   for(const {el,key} of fields()){
@@ -38,6 +78,7 @@
     else if(value.kind==='editable'&&el.isContentEditable)el.textContent=value.value;
     else if(value.kind==='text'&&'value' in el)el.value=value.value;
    }
+   const legacy=el.closest('.hw-cloze-legacy');if(legacy)legacy.hidden=!el.value;
   }
  }
  function node(tag,text){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;}
@@ -104,7 +145,7 @@
   for(const {el} of fields()){
    if(el.matches('[type="checkbox"],[type="radio"]'))continue;
    const answer=node('div',el.tagName==='SELECT'?[...el.selectedOptions].map(o=>o.textContent).join(', '):el.isContentEditable?el.textContent:el.value);
-   answer.className='hw-answer-print';el.dataset.hwPrint='';el.after(answer);
+   answer.className='hw-answer-print'+(el.classList.contains('hw-cloze-gap')?' hw-cloze-print':'');el.dataset.hwPrint='';el.after(answer);
   }
  }
  window.addEventListener('beforeprint',printAnswers);
