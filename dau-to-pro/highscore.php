@@ -1,5 +1,5 @@
 <?php
-// Gäste sehen Einträge mit ausdrücklicher öffentlicher Freigabe.
+// Alle sichtbaren Highscore-Einträge sind auch ohne Anmeldung lesbar.
 declare(strict_types=1);
 require_once __DIR__.'/../dau_lib.php';
 require_once __DIR__.'/../achievements_lib.php';
@@ -51,11 +51,11 @@ $rows=ach_highscore(publicOnly: $publicOnly);
     <div>
       <p class="eyebrow">DAU-TO-PRO</p>
       <h1>Wer ist schon <span>PRO</span>?</h1>
-      <p class="konto-lead">Hier stehen alle Lernenden, die ihre Sichtbarkeit im Highscore selbst eingeschaltet haben. Sortiert nach XP, bei Gleichstand nach Achievements.</p>
+      <p class="konto-lead">Hier stehen alle Lernenden mit eingeschalteter Highscore-Sichtbarkeit – auch ohne Anmeldung. Sortiert nach XP, bei Gleichstand nach Achievements.</p>
     </div>
   </section>
 <?php if ($publicOnly): ?>
-  <p class="hs-public-hint"><?php if ($guestPreview): ?><strong>Gästeansicht.</strong> <?php endif; ?>Hier sehen auch Gäste alle Einträge mit öffentlicher Freigabe. <a href="konto.php?einstellung=highscore#highscore">Eigene Sichtbarkeit einstellen</a><?php if ($guestPreview): ?> · <a href="highscore.php">Rangliste für angemeldete Lernende</a><?php endif; ?></p>
+  <p class="hs-public-hint"><?php if ($guestPreview): ?><strong>Gästeansicht.</strong> <?php endif; ?>Hier sehen Gäste dieselbe Rangliste wie angemeldete Lernende. <a href="konto.php?einstellung=highscore#highscore">Eigene Sichtbarkeit einstellen</a><?php if ($guestPreview): ?> · <a href="highscore.php">Rangliste für angemeldete Lernende</a><?php endif; ?></p>
 <?php else: ?>
   <p class="hs-public-hint"><a href="highscore.php?ansicht=gast">Gästeansicht öffnen</a></p>
 <?php endif; ?>
@@ -64,7 +64,7 @@ $rows=ach_highscore(publicOnly: $publicOnly);
   <?php endif; ?>
   <?php if (!$rows): ?>
   <?php if ($publicOnly): ?>
-  <p class="konto-empty hs-public-empty">Noch hat niemand einen Eintrag für die öffentliche Rangliste freigegeben.</p>
+  <p class="konto-empty hs-public-empty">Noch keine sichtbaren Einträge im Highscore.</p>
   <?php else: ?>
   <p class="konto-empty">Noch hat niemand die Sichtbarkeit eingeschaltet. Sei die erste Person: <a class="text-link" href="konto.php?einstellung=highscore#highscore">Sichtbarkeit einschalten →</a></p>
   <?php endif; ?>

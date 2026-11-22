@@ -112,13 +112,36 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const rect=preview.getBoundingClientRect();
       return rect.width/rect.height;
     }));
-    assert.equal(landscape.length,3,'Rüdiger, DAU TO PRO and Perlenwahn have shared wide preview frames');
-    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All three preview frames are 16:9');
+    assert.equal(landscape.length,5,'Rüdiger, DAU TO PRO, Perlenwahn, Are You Dead Yet? and SharpLab have shared wide preview frames');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All five preview frames are 16:9');
+    assert.equal(await page.locator('#apps .sharplab-portal-card .project-preview-wide').count(),1,'SharpLab uses the same wide 16:9 preview frame');
     const perlenwahnFit=await page.locator('a.html-card-link[href="/perlenwahn/"] + .project-preview-wide > .html-preview-image')
       .evaluate(image=>getComputedStyle(image).objectFit);
-    assert.equal(perlenwahnFit,'contain','Perlenwahn preview must keep its entire headline and CTA visible');
+    assert.equal(perlenwahnFit,'contain','Perlenwahn preview must keep its entire headline, cat and CTA visible');
+    const perlenCard=page.locator('#apps .perlenwahn-project-card');
+    assert.equal(await perlenCard.count(),1,'Perlenwahn must have exactly one dedicated preview card');
+    assert.equal(await perlenCard.locator('.perlenwahn-preview-fill').count(),1,'Perlenwahn uses its original image to fill the 16:9 background');
+    const perlenCover=await perlenCard.evaluate(card=>{
+      const frame=card.querySelector('.project-preview-wide');
+      const main=frame.querySelector('.html-preview-image');
+      const fill=frame.querySelector('.perlenwahn-preview-fill');
+      return {
+        frameRatio:frame.getBoundingClientRect().width/frame.getBoundingClientRect().height,
+        foregroundFit:getComputedStyle(main).objectFit,
+        fillFit:getComputedStyle(fill).objectFit,
+        srcSame:main.getAttribute('src')===fill.getAttribute('src'),
+        frameBackground:getComputedStyle(frame).backgroundImage
+      };
+    });
+    assert.ok(Math.abs(perlenCover.frameRatio-16/9)<.035,'Perlenwahn image frame stays at 16:9');
+    assert.equal(perlenCover.foregroundFit,'contain','Perlenwahn keeps text and cat inside image bounds');
+    assert.equal(perlenCover.fillFit,'cover','Perlenwahn fills letterbox area with a blurred image');
+    assert.ok(perlenCover.srcSame,'Both Perlenwahn layers must use the original preview');
+    assert.match(perlenCover.frameBackground,/gradient/,'Perlenwahn letterbox fill must have a pastel gradient');
     await page.locator('.catalog-filter[data-category="spiele"]').click();
     assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/speed/"]').count(),1);
+    assert.equal(await page.locator('#apps .app-card[data-category="spiele"]:visible a[href="/zombies/"]').count(),1,'Zombie game must have exactly one playable card');
+    assert.equal(await page.locator('a.html-card-link[href="/zombies/"] + .project-preview-wide > .html-preview-image').getAttribute('src'),'zombies/menu_bg.webp','Zombie preview must use the actual game artwork');
     await page.locator('.catalog-filter[data-category="apps"]').click();
     assert.equal(await page.locator('.dtp-portal-card').isVisible(),false,'Category filter should still work');
     await page.locator('.catalog-filter[data-category="alle"]').click();

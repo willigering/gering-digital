@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LAST ROUND</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #111; font-family: system-ui, sans-serif; color: #fff; user-select: none; }
+  canvas { display: block; }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: rgba(255,255,255,.85); box-shadow: 0 0 0 1px rgba(0,0,0,.6); pointer-events: none; }
+  #hurt { position: fixed; inset: 0; background: radial-gradient(transparent 30%, rgba(200,0,0,.6)); opacity: 0; transition: opacity .4s; pointer-events: none; }
+  #lives { position: fixed; left: 20px; bottom: 16px; font-size: 30px; color: #ff6a7a; text-shadow: 0 2px 4px #000; letter-spacing: 3px; }
+  #ammo { position: fixed; right: 20px; bottom: 16px; font-size: 34px; text-shadow: 0 2px 4px #000; letter-spacing: 4px; }
+  #board { position: fixed; right: 14px; top: 12px; font-size: 14px; background: rgba(0,0,0,.4); padding: 8px 10px; border-radius: 8px; line-height: 1.5; }
+  #feed { position: fixed; left: 14px; top: 12px; font-size: 14px; text-shadow: 0 1px 3px #000; line-height: 1.5; }
+  #msg { position: fixed; left: 50%; top: 62%; transform: translateX(-50%); font-size: 22px; font-weight: 600; text-shadow: 0 2px 6px #000; opacity: 0; transition: opacity .3s; pointer-events: none; text-align: center; }
+  #spectate { position: fixed; left: 50%; top: 14%; transform: translateX(-50%); font-size: 20px; display: none; text-shadow: 0 2px 6px #000; }
+  .overlay { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(10,14,20,.88); text-align: center; padding: 20px; }
+  .overlay h1 { margin: 0 0 6px; font-size: 38px; letter-spacing: 1px; }
+  .overlay p { margin: 4px 0; color: #b8c4d4; max-width: 520px; line-height: 1.5; }
+  button { margin-top: 20px; padding: 12px 34px; font-size: 18px; font-weight: 700; border: 0; border-radius: 10px; background: #ffd45e; color: #1b1b1b; cursor: pointer; }
+  button:hover { background: #ffe38f; }
+  kbd { background: #2a3442; padding: 2px 7px; border-radius: 5px; color: #fff; }
+
+  #vig { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,.55)); }
+  #hit { position: fixed; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px; opacity: 0; pointer-events: none; transition: opacity .08s;
+    background: linear-gradient(45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%), linear-gradient(-45deg, transparent 45%, #fff 45%, #fff 55%, transparent 55%); filter: drop-shadow(0 0 3px #000); }
+  #radar { position: fixed; left: 14px; bottom: 62px; width: 150px; height: 150px; border-radius: 50%; box-shadow: 0 2px 10px rgba(0,0,0,.5); }
+  #ammo { display: flex; gap: 5px; align-items: flex-end; font-size: 20px; }
+  .b { display: block; width: 9px; height: 30px; border-radius: 5px 5px 1px 1px; background: linear-gradient(90deg, #f6d36b, #c8952a); box-shadow: 0 2px 4px #000; }
+  .b.empty { background: transparent; border: 2px dashed #ff6a6a; box-shadow: none; opacity: .8; }
+  #board .h { color: #ff6a7a; }
+  #dz { position: fixed; left: 50%; top: 50%; width: 24vmin; height: 24vmin; margin: -12vmin; border: 1px dashed rgba(255,255,255,.22); border-radius: 50%; pointer-events: none; display: none; }
+  canvas { cursor: crosshair; }
+  #gear { position: fixed; right: 14px; top: 150px; width: 34px; height: 34px; margin: 0; padding: 0; font-size: 18px; border-radius: 8px; background: rgba(0,0,0,.45); color: #fff; z-index: 5; }
+  #gear:hover { background: rgba(0,0,0,.7); }
+  button.sec { background: #2a3442; color: #fff; margin-left: 8px; }
+  button.sec:hover { background: #3a4658; }
+  #settings { z-index: 10; }
+  #settings .row { width: min(420px, 86vw); margin-top: 18px; text-align: left; }
+  #settings label { display: flex; justify-content: space-between; font-size: 15px; margin-bottom: 6px; }
+  #settings input[type=range] { width: 100%; accent-color: #ffd45e; }
+</style>
+</head>
+<body>
+<div id="fps" style="position:fixed;left:50%;top:6px;transform:translateX(-50%);font-size:11px;color:#9fb0c6;opacity:.7"></div><div id="vig"></div><button id="gear" title="Einstellungen (Esc)">⚙</button><div id="cross"></div><div id="dz"></div><div id="hit"></div><canvas id="radar" width="150" height="150"></canvas><div id="hurt"></div>
+<div id="lives"></div><div id="ammo"></div><div id="board"></div><div id="feed"></div>
+<div id="msg"></div><div id="spectate">Du bist raus – schau den Bots zu</div>
+
+<div id="menu" class="overlay">
+  <h1>LAST ROUND</h1><p style="color:#9fb0c6;margin-top:-4px">One in the Chamber · Prototyp</p><p style="color:#ffd45e;margin-bottom:10px">Tipp: Über die Kisten kommst du aufs Dach des Bunkers.</p>
+  <p>Jeder startet mit <b>einer Kugel</b> und <b>3 Leben</b>. Wer jemanden erledigt, bekommt eine Kugel dazu. Ohne Kugel bleibt nur der Nahkampf. Der Letzte, der steht, gewinnt.</p>
+  <p><kbd>WASD</kbd> laufen · <kbd>Leertaste</kbd> springen · <kbd>Shift</kbd> sprinten · <kbd>Linksklick</kbd> schießen · <kbd>Rechtsklick</kbd> halten = Kimme &amp; Korn · <kbd>Q</kbd> Nahkampf · <kbd>T</kbd> Waffe prüfen · <kbd>C</kbd> Sliden (beim Sprinten) · <kbd>Tab</kbd> 3rd Person</p>
+  <p style="font-size:13px"><b>Maus:</b> Klick ins Spiel erfasst die Maus. Geht das nicht (z. B. in der Vorschau), steuerst du mit dem frei beweglichen Cursor: Richtung Bildrand = drehen, Mitte = ruhig. <kbd>M</kbd> schaltet zwischen beiden um. <kbd>P</kbd> Schatten an/aus.</p>
+  <p style="font-size:13px;color:#b8e0a0"><b>Zombie-Modus:</b> Wellen von Zombies, 5 Herzen. Munition liegt als grüne Kiste herum, Zombies lassen manchmal welche fallen. Magazin 8 Schuss, <kbd>R</kbd> lädt nach. Das Messer (Q) kostet nichts.</p>
+  <div><button id="start">Spiel starten</button> <button id="startz" class="sec">Zombie-Modus</button> <button id="mpbtn" class="sec">Online-Multiplayer</button> <button id="menucfg" class="sec">Einstellungen</button></div>
+</div>
+<div id="mp" class="overlay" style="display:none">
+  <h1>Online-Multiplayer</h1>
+  <p style="color:#9fb0c6">Bis zu 4 Spieler · Letzter, der steht, gewinnt · 3 Leben, 1 Kugel</p>
+  <div id="mpbrowse" style="display:block;width:min(460px,90vw);text-align:left">
+    <label style="display:block;margin-bottom:10px">Dein Name <input id="mpname" maxlength="14" placeholder="Soldat" style="margin-left:8px;padding:6px 10px;border-radius:8px;border:1px solid #445;background:#141c28;color:#fff"></label>
+    <div style="margin-bottom:10px"><button id="mpcreate">Lobby erstellen</button> <button id="mprefresh" class="sec">Aktualisieren</button></div>
+    <div id="mplist" style="min-height:80px"></div>
+  </div>
+  <div id="mplobby" style="display:none;width:min(460px,90vw);text-align:left">
+    <h3 style="margin:0 0 8px">Lobby</h3><div id="mproster" style="margin-bottom:10px"></div><p id="mpwait" style="color:#ffd45e"></p>
+    <button id="mpgo">Spiel starten</button> <button id="mpleave" class="sec">Verlassen</button>
+  </div>
+  <p id="mpstat" style="min-height:1.4em"></p>
+  <button id="mpback" class="sec">Zurück</button>
+</div>
+<style>.lob{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #2a3442}.lob span{opacity:.7;margin-left:auto}.lob button{margin:0;padding:6px 12px}</style>
+<div id="settings" class="overlay" style="display:none">
+  <h1>Einstellungen</h1>
+  <div class="row"><label>Maus-Empfindlichkeit <b id="sensv"></b></label><input id="sens" type="range" min="0.2" max="3" step="0.05"></div>
+  <div class="row"><label>Effekt-Lautstärke</label><input id="sfxv" type="range" min="0" max="1.5" step="0.05"></div>
+  <div class="row"><label>Sichtfeld (FOV) <b id="fovv"></b></label><input id="fov" type="range" min="90" max="120" step="1"></div>
+  <p style="font-size:13px">Wird im Browser gespeichert. Esc öffnet und schließt dieses Menü, das Spiel pausiert dabei.</p>
+  <div><button id="resume">Weiter</button> <button id="restart" class="sec">Neustart</button> <button id="tomenu" class="sec">Hauptmenü</button></div>
+</div>
+<div id="end" class="overlay" style="display:none">
+  <h1 id="endtitle"></h1><p id="endsub"></p>
+  <button id="again">Nochmal</button> <button id="endmenu" class="sec">Hauptmenü</button>
+</div>
+<script>/*BUNDLE*/</script>
+</body>
+</html>

@@ -164,3 +164,10 @@ h2,.pd-head h2,.inquiry.pd-card h2{font-family:var(--dtp-font);text-transform:up
 .pd-head .eyebrow,.inquiry.pd-card .eyebrow,input,textarea,select{
  border-radius:0!important;
 }
+
+/* SharpLab uses the same wide 16:9 cover + CTA as the DAU TO PRO card. */
+#apps .sharplab-portal-card .project-preview-wide{background:#0B0F0C}
+#apps .sharplab-portal-card .sharplab-matrix{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:screen;
+}
+#apps .sharplab-portal-card .project-preview-wide > .html-preview-image{z-index:2}

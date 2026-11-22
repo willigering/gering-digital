@@ -1223,9 +1223,16 @@ function onMsg(m) {
 // ---------------------------------------------------------------- Menü / Lobby (DOM)
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 function renderList(ls) {
-  $('lobs').hidden = !ls.length; // leere Liste nicht anzeigen
-  $('list').innerHTML = ls.length ? ls.map(l => `<div class="lob"><b>${esc(l.name)}</b><small>${l.n}/20 · ${l.run ? 'läuft' : 'wartet'}</small><button data-id="${esc(l.id)}" ${l.n >= 20 ? 'disabled' : ''}>Beitreten</button></div>`).join('')
-    : '<div class="empty">Noch keine offenen Lobbys – erstelle eine und lade Freunde per Link ein!</div>';
+  const open = ls.filter(l => !l.run).length, run = ls.length - open;
+  const chip = $('lchip');
+  chip.className = 'a ui lchip' + (open ? ' open' : run ? ' run' : '');
+  $('lchipt').textContent = !ls.length ? 'Keine Lobby offen – eröffne eine!' : (open ? open + (open === 1 ? ' offene Lobby' : ' offene Lobbys') : '') + (open && run ? ' · ' : '') + (run ? run + (run === 1 ? ' Spiel läuft' : ' Spiele laufen') : '');
+  $('list').innerHTML = ls.length ? ls.map(l => {
+    const full = l.n >= 20;
+    const st = full ? ['', 'Voll'] : l.run ? ['run', 'Läuft bereits – Mitspielen möglich'] : ['open', 'Offen – beitreten'];
+    return `<div class="lob ${l.run ? 'run' : 'open'}"><div class="info"><b>${esc(l.name)}</b><span class="badge ${st[0]}"><i></i>${st[1]} · ${l.n}/20 Spieler</span></div><button data-id="${esc(l.id)}" ${full ? 'disabled' : ''}>${full ? 'Voll' : l.run ? 'Mitspielen' : 'Beitreten'}</button></div>`;
+  }).join('') : '';
+  $('list').hidden = !ls.length; $('cdesc').hidden = !!ls.length; // offene Lobbys ersetzen die Beschreibung rechts neben „Lobby erstellen“
 }
 function renderLobby() {
   const L = lobby, host = L.host === myId;
@@ -1245,7 +1252,7 @@ $('quick').onclick = async () => {
 $('create').onclick = createLobby;
 // Startbildschirm ↔ Spielauswahl
 const home = on => { $('home').hidden = !on; $('play').hidden = on; if (!on) setTimeout(() => $('name').focus(), 50); };
-$('go').onclick = () => home(false); $('back').onclick = () => home(true);
+$('go').onclick = () => home(false); $('back').onclick = () => home(true); $('lchip').onclick = () => home(false);
 // Alleine üben: Lobby anlegen und sofort starten
 $('solo').onclick = async () => { await createLobby(); if (hosting && lobby) send({ t: 'start' }); };
 $('name').addEventListener('keydown', e => { if (e.key === 'Enter') $('quick').click(); });
@@ -1828,6 +1835,16 @@ function strut(sx, sy, tx, ty) {
   for (let yy = sy + 10; yy < by - 10; yy += 26) { ctx.moveTo(sx - 5, yy); ctx.lineTo(sx + 11, yy + 13); ctx.moveTo(sx + 11, yy); ctx.lineTo(sx - 5, yy + 13); }
   ctx.stroke(); ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.5; ctx.fillRect(sx - 3, by - 3, 12, 3); ctx.globalAlpha = 1;
 }
+// Unterste Reihe (Unterkante in Feldern) einer zusammenhängenden Rampe: von hier aus talwärts laufen
+function rampFoot(tx, ty) {
+  const up = SLOPE_K[tile(tx, ty)] < 0, dir = up ? -1 : 1; let x = tx, y = ty;
+  for (let i = 0; i < 40; i++) {
+    let n = null;
+    for (const by of [y, y + 1]) { const k = SLOPE_K[tile(x + dir, by)]; if (k !== undefined && (k < 0) === up) { n = by; break; } }
+    if (n === null) break; x += dir; y = n;
+  }
+  return y + 1;
+}
 function drawTile(c, tx, ty, x, y, now) {
   if (c === 'K') { if (!crateUp(tx, ty)) return;
     const K = (a, b) => tile(a, b) === 'K' && crateUp(a, b);
@@ -1889,7 +1906,11 @@ function drawTile(c, tx, ty, x, y, now) {
   } else if (SLOPE[c]) {
     const f = SLOPE[c];
     const air = isAir(tx, ty + 1) && !SLOPE[tile(tx, ty + 1)];
-    if (air) { ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill(); ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.fillRect(x, y + T - 2, T + 0.5, 2); ctx.globalAlpha = 1; } // freischwebende Rampe: massiver dunkler Keil
+    if (air) { // freischwebende Rampe: gefülltes Dreieck bis zum Fuß der Rampe (gleiche dunkle Fläche wie die Plattform), ohne Kästchen je Feld
+      const foot = Math.max(y + T, rampFoot(tx, ty) * T - (ty * T - y)); // Fuß der Rampe relativ zu y
+      ctx.fillStyle = mixHex('#0c0b10', theme.tile, 0.18); ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, foot + 0.5); ctx.lineTo(x, foot + 0.5); ctx.fill();
+      ctx.fillStyle = theme.edge; ctx.globalAlpha = 0.8; ctx.fillRect(x, foot - 2, T + 0.5, 2); ctx.globalAlpha = 1;
+    }
     else { ctx.fillStyle = theme.tile; ctx.beginPath(); ctx.moveTo(x, y + f(0)); ctx.lineTo(x + T + 0.5, y + f(T)); ctx.lineTo(x + T + 0.5, y + T + 0.5); ctx.lineTo(x, y + T + 0.5); ctx.fill(); }
     ctx.strokeStyle = theme.edge; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 2.5); ctx.lineTo(x + T + 0.5, y + f(T) + 2.5); ctx.stroke();
     ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - 0.5, y + f(0) + 0.8); ctx.lineTo(x + T + 0.5, y + f(T) + 0.8); ctx.stroke();

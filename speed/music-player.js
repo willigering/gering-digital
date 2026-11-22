@@ -12,7 +12,7 @@ const label = document.getElementById('hj-music-label');
 if (!box || !toggle || !volume || !label) return;
 let index = 0;
 let enabled = true;
-let initial = 0.35;
+let initial = 0.15;
 try { if (localStorage.getItem('hj-music-on') === '0') enabled = false; } catch {}
 try { const v = localStorage.getItem('hj-music-volume'); if (v !== null) initial = Math.max(0,Math.min(1,Number(v)||0)); } catch {}
 audio.volume = initial;
@@ -28,14 +28,20 @@ function update() {
 function save() { try { localStorage.setItem('hj-music-on', enabled ? '1' : '0'); } catch {} }
 function play() {
   const p = audio.play();
-  if (p && typeof p.catch === 'function') p.catch(() => {}); // blockiert: nächste Eingabe versucht es erneut
+  if (p && typeof p.catch === 'function') p.catch(() => {
+    // Autoplay mit Ton blockiert: stumm starten (erlaubt), beim ersten Klick/Tastendruck entmuten.
+    if (!enabled || !audio.paused) return;
+    audio.muted = true;
+    const q = audio.play();
+    if (q && typeof q.catch === 'function') q.catch(() => { audio.muted = false; });
+  });
 }
 function set(on) {
-  enabled = on; save(); update();
+  enabled = on; save(); update(); audio.muted = false;
   if (enabled) play(); else audio.pause();
 }
 // An, aber vom Browser noch blockiert: Ein Klick auf den Schalter startet sie, statt sie auszuschalten.
-function flip() { if (enabled && audio.paused) play(); else set(!enabled); }
+function flip() { if (enabled && audio.muted && !audio.paused) audio.muted = false; else if (enabled && audio.paused) play(); else set(!enabled); }
 toggle.addEventListener('click', flip);
 volume.addEventListener('input', () => {
   audio.volume = Number(volume.value);
@@ -45,8 +51,9 @@ audio.addEventListener('ended', () => { index = (index + 1) % files.length; load
 audio.addEventListener('error', () => { label.textContent = 'Audio nicht verfügbar'; });
 function kick(e) {
   if (e && e.target instanceof Node && box.contains(e.target)) return; // Schalter regelt das selbst
-  if (enabled && audio.paused) play();
-  if (!audio.paused) for (const t of ['pointerdown', 'keydown', 'touchend']) removeEventListener(t, kick, true);
+  if (audio.muted && !audio.paused) audio.muted = false;
+  if (enabled && audio.paused) { audio.muted = false; play(); }
+  if (!audio.paused && !audio.muted) for (const t of ['pointerdown', 'keydown', 'touchend']) removeEventListener(t, kick, true);
 }
 for (const t of ['pointerdown', 'keydown', 'touchend']) addEventListener(t, kick, true);
 window.hjMusic = { toggle: flip, get playing() { return !audio.paused; } };

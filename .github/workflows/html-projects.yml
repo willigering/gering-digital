@@ -14,6 +14,12 @@ jobs:
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
         run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check dau-to-pro/avatare.js && node --check tests/avatare_browser.cjs && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+      - name: Test HomeWork actual login, HTML upload and module navigation
+        run: php tests/homework_smoke.php && php -l homework-storage.php && php -l homework-workbook.php && php -l homework-export.php && node --check assets/homework.js && node --check assets/homework-workbook.js && python3 tests/homework_integration.py
+      - name: Check SharpLab cinema Matrix and download buttons
+        run: php tests/sharplab_ui_test.php && node --check assets/sharplab-matrix.js
+      - name: Test Zombies mouse volume controls and kill rewards
+        run: node tests/zombies_menu_test.cjs
       - name: Test myground game rules and PHP signaling (grab conflicts, riding, falls, time limit, ties, disconnects)
         run: node --check myground/game.js && node --check myground/logic.js && node --check myground/tick.js && node --check myground/server/server.js && node --test myground/server/test/rules.test.js myground/server/test/api.test.js
       - name: Validate private Bewerbungskompass frontend and privacy contract
@@ -79,6 +85,11 @@ jobs:
           mkdir -p assets/lib
           cp "$RUNNER_TEMP/dtp-browser/node_modules/pdf-lib/dist/pdf-lib.min.js" assets/lib/pdf-lib.min.js
 
+      - name: Test HomeWork cards, metadata, filters and reduced motion in desktop and mobile Chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules
+          DTP_SCREENSHOT_DIR: ${{ runner.temp }}/dtp-screenshots/homework
+        run: node tests/homework_browser.cjs && node tests/homework_workbook_browser.cjs
       - name: Test Bewerbungskompass E-Mail composer in desktop and mobile Chromium
         env:
           NODE_PATH: ${{ runner.temp }}/dtp-browser/node_modules

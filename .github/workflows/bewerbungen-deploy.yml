@@ -5,11 +5,23 @@ on:
     branches: [main]
     paths:
       - 'b.html'
+      - 'HA.html'
+      - 'homework-api.php'
+      - 'homework-module.php'
+      - 'homework-storage.php'
+      - 'homework-workbook.php'
+      - 'homework-export.php'
+      - 'assets/homework-workbook.js'
+      - 'assets/homework-workbook.css'
+      - 'assets/homework.js'
+      - 'assets/homework.css'
+      - 'tests/homework_integration.py'
       - 'bewerbungen-*.js'
       - 'bewerbungen-*.php'
       - 'bewerbungen-*.css'
       - 'tests/bewerbungen_*.cjs'
       - 'tests/bewerbungen_*.php'
+      - 'tests/homework_smoke.php'
       - '.github/workflows/bewerbungen-deploy.yml'
   workflow_dispatch:
 
@@ -31,7 +43,17 @@ jobs:
           php -l bewerbungen-mail.php
           php -l bewerbungen-mail-lib.php
           php -l bewerbungen-api.php
+          php -l homework-api.php
+          php -l homework-module.php
+          php -l homework-storage.php
+          php -l homework-workbook.php
+          php -l homework-export.php
+          node --check assets/homework-workbook.js
+          node --check assets/homework.js
           php tests/bewerbungen_mail_test.php
+          php tests/homework_smoke.php
+      - name: Test HomeWork login, chunk upload, reload, status and return link over HTTP
+        run: python3 tests/homework_integration.py
 
   deploy:
     needs: verify

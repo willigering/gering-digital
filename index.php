@@ -2,6 +2,7 @@
 require __DIR__.'/dau_lib.php';
 $db = db();
 $apps = $db->query("SELECT * FROM apps WHERE published=1 ORDER BY sort_order, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+$zombieDescription='Retro-Zombie-Survival im Koop: Runde für Runde überleben, Waffen verbessern und gemeinsam möglichst spät sterben.';
 // DAU-TO-PRO-Lernmodule erscheinen nur auf /dau-to-pro/, hier steht stattdessen die eine DAU-TO-PRO-Karte unter „Sonstiges“.
 $webPages = $db->query("SELECT * FROM html_pages WHERE published=1 AND (IFNULL(category,'')<>'lernen' OR slug='speed') ORDER BY updated_at DESC,id DESC")->fetchAll(PDO::FETCH_ASSOC);
 foreach ($webPages as $page) {
@@ -9,12 +10,16 @@ foreach ($webPages as $page) {
     if ($page['slug']==='speed' && $preview['src']==='') {
         $preview=['src'=>'assets/ruediger-vorschau.webp','fit'=>'contain','x'=>50,'y'=>50];
     }
+    if ($page['slug']==='zombies') {
+        $preview=['src'=>'zombies/menu_bg.webp','fit'=>'cover','x'=>50,'y'=>50];
+    }
     if ($page['slug']==='perlenwahn') {
         $preview['fit']='contain';
         $preview['x']=$preview['y']=50;
     }
-    $apps[]=['is_html'=>true,'name'=>$page['title'],'short_description'=>$page['description'],
-       'category'=>$page['slug']==='speed'?'spiele':$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+    $apps[]=['is_html'=>true,'name'=>$page['slug']==='zombies'?'Are You Dead Yet?':$page['title'],
+       'short_description'=>$page['slug']==='zombies'?$zombieDescription:$page['description'],
+       'category'=>in_array($page['slug'],['speed','zombies'],true)?'spiele':$page['category'],'status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
        'play_url'=>'','apple_url'=>'','slug'=>$page['slug'],'preview_image'=>$preview['src'],
        'preview_fit'=>$preview['fit']==='contain'?'contain':'cover','preview_x'=>$preview['x'],'preview_y'=>$preview['y']];
 }
@@ -27,7 +32,16 @@ if (!in_array('speed', array_column($apps,'slug'), true)) {
         'preview_image'=>'assets/ruediger-vorschau.webp','preview_fit'=>'contain','preview_x'=>50,'preview_y'=>50
     ];
 }
-$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','web'=>'Online im Browser'];
+if (!in_array('zombies', array_column($apps,'slug'), true)) {
+    $apps[]=[
+        'is_html'=>true,'name'=>'Are You Dead Yet?',
+        'short_description'=>$zombieDescription,
+        'category'=>'spiele','status'=>'web','icon'=>'assets/gering-digital-logo-icon.png',
+        'play_url'=>'','apple_url'=>'','slug'=>'zombies',
+        'preview_image'=>'zombies/menu_bg.webp','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
+    ];
+}
+$statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','download'=>'Kostenloser Download','web'=>'Online im Browser'];
 $categories=project_categories();
 unset($categories['lernen']); // kein eigener Filter mehr: DAU TO PRO läuft unter „Sonstiges“
 $categoryCounts=array_fill_keys(array_keys($categories),0);
@@ -156,25 +170,39 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
           <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
           <span class="html-card-cta" aria-hidden="true">Lernplattform öffnen <b>↗</b></span></div>
         </article>
-      <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar'); ?>
-        <article class="card glass-card app-card<?=!empty($app['is_html'])?' html-clickable-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
-          <?php if(!empty($app['is_html'])): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=!empty($app['is_html'])&&!empty($app['preview_image'])?' html-preview-wrap'.(in_array($app['slug'],['speed','perlenwahn'],true)?' project-preview-wide':''):''?>">
-            <?php if(!empty($app['is_html'])&&!empty($app['preview_image'])): ?>
+      <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar');
+        $isSharpLab=(($app['name']??'')==='SharpLab' || ($app['details_url']??'')==='/sharplab/') && is_file(__DIR__.'/assets/sharplab-page-preview.webp');
+        $isHtml=!empty($app['is_html']); $isPortal=$isHtml||$isSharpLab; ?>
+        <article class="card glass-card app-card<?=$isPortal?' html-clickable-card':''?><?=$isSharpLab?' sharplab-portal-card':''?><?=($app['slug']??'')==='perlenwahn'?' perlenwahn-project-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
+          <?php if($isSharpLab): ?><a class="html-card-link" href="<?=e($app['details_url']?:'/sharplab/')?>" aria-label="SharpLab – Windows-App öffnen"></a>
+          <?php elseif($isHtml): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
+          <div class="icon-wrap<?=($isSharpLab||($isHtml&&!empty($app['preview_image'])))?' html-preview-wrap'.($isSharpLab||in_array($app['slug']??'',['speed','perlenwahn','zombies'],true)?' project-preview-wide':''):''?>">
+            <?php if($isSharpLab): ?>
+              <canvas class="sharplab-matrix" width="640" height="360" aria-hidden="true"></canvas>
+              <img class="html-preview-image" loading="lazy" decoding="async" src="assets/sharplab-page-preview.webp" width="640" height="360" alt="Vorschaubild: SharpLab">
+            <?php elseif($isHtml&&!empty($app['preview_image'])): ?>
+              <?php if(($app['slug']??'')==='perlenwahn'): ?>
+              <img class="perlenwahn-preview-fill" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="" aria-hidden="true">
+              <?php endif; ?>
               <img class="html-preview-image" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="Vorschaubild: <?=e($app['name'])?>" style="--thumb-fit:<?=e($app['preview_fit']??'cover')?>;--thumb-x:<?=(int)($app['preview_x']??50)?>%;--thumb-y:<?=(int)($app['preview_y']??0)?>%">
-            <?php elseif(!empty($app['is_html'])): ?>
+            <?php elseif($isHtml): ?>
               <div class="html-project-icon" aria-hidden="true">&lt;/&gt;</div>
             <?php else: ?>
               <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>">
             <?php endif; ?>
           </div>
-          <div class="card-body"><span class="category-badge"><?=e($categories[$app['category']??'apps']??'Android-Apps')?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <div class="card-body"><span class="category-badge"><?=e($isSharpLab?'Windows-Apps':($categories[$app['category']??'apps']??'Android-Apps'))?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
+          <?php if($isSharpLab): ?>
+          <span class="html-card-cta" aria-hidden="true">Windows-App öffnen <b>↗</b></span>
+          <?php elseif(empty($app['is_html'])): ?>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>
-          <?php if(empty($app['is_html'])): ?>
           <button class="app-details" type="button" aria-expanded="true">Details ausblenden <span>−</span></button><div class="store-links">
           <?php if(in_array($st,['google','both'],true) && $app['play_url']): ?><a class="store" href="<?=e($app['play_url'])?>" target="_blank" rel="noopener">Google Play <b>↗</b></a><?php endif; ?>
           <?php if(in_array($st,['apple','both'],true) && !empty($app['apple_url'])): ?><a class="store" href="<?=e($app['apple_url'])?>" target="_blank" rel="noopener">Apple App Store <b>↗</b></a><?php endif; ?>
+          <?php if($st==='download' && !empty($app['play_url'])): ?><a class="store" href="<?=e($app['play_url'])?>">Download für Windows <b>↓</b></a><?php endif; ?>
+          <?php if(!empty($app['source_url'])): ?><a class="store" href="<?=e($app['source_url'])?>" target="_blank" rel="noopener">Quellcode <b>↗</b></a><?php endif; ?>
+          <?php if(!empty($app['details_url'])): ?><a class="store" href="<?=e($app['details_url'])?>">Mehr erfahren</a><?php endif; ?>
           <?php if($st==='bald_verfuegbar'): ?><span class="store muted">Bald verfügbar</span><?php endif; ?>
           <?php if($st==='entwicklung'): ?><span class="store muted">In Entwicklung</span><?php endif; ?>
           </div>
@@ -245,4 +273,5 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
 
 <script src="assets/site.js?v=<?=filemtime(__DIR__.'/assets/site.js')?>" defer></script>
 <script src="assets/home-v3.js?v=<?=filemtime(__DIR__.'/assets/home-v3.js')?>" defer></script>
+<script src="assets/sharplab-matrix.js?v=<?=filemtime(__DIR__.'/assets/sharplab-matrix.js')?>" defer></script>
 </body></html>
