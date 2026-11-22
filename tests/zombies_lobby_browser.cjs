@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),net=require('node:net');
 const {spawn}=require('node:child_process');const assert=require('node:assert/strict');
-const silentWav=Buffer.alloc(46);silentWav.write('RIFF');silentWav.writeUInt32LE(38,4);silentWav.write('WAVEfmt ',8);silentWav.writeUInt32LE(16,16);silentWav.writeUInt16LE(1,20);silentWav.writeUInt16LE(1,22);silentWav.writeUInt32LE(8000,24);silentWav.writeUInt32LE(16000,28);silentWav.writeUInt16LE(2,32);silentWav.writeUInt16LE(16,34);silentWav.write('data',36);silentWav.writeUInt32LE(2,40);
+const silentWav=Buffer.alloc(3244);silentWav.write('RIFF');silentWav.writeUInt32LE(3236,4);silentWav.write('WAVEfmt ',8);silentWav.writeUInt32LE(16,16);silentWav.writeUInt16LE(1,20);silentWav.writeUInt16LE(1,22);silentWav.writeUInt32LE(8000,24);silentWav.writeUInt32LE(16000,28);silentWav.writeUInt16LE(2,32);silentWav.writeUInt16LE(16,34);silentWav.write('data',36);silentWav.writeUInt32LE(3200,40);
 const root=path.resolve(__dirname,'..'),tmp=fs.mkdtempSync(path.join(os.tmpdir(),'zombies-lobby-'));
 async function port(){const s=net.createServer();await new Promise(r=>s.listen(0,'127.0.0.1',r));const p=s.address().port;await new Promise(r=>s.close(r));return p}
 async function clickItem(page,label){await page.waitForFunction(label=>typeof menuRects!=='undefined'&&menu.fade>.95&&menuRects.length===menuItems().length&&menuItems().some((q,i)=>q[0]===label&&menuRects[i]),label);const r=await page.evaluate(label=>menuRects[menuItems().findIndex(q=>q[0]===label)],label);await page.mouse.click(r[0]+r[2]/2,r[1]+r[3]/2);}
