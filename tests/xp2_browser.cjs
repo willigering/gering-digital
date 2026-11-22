@@ -55,14 +55,14 @@ const server=spawn('php',['-S','127.0.0.1:'+port,'-t',root,path.join(root,'tests
      assert.equal(await guest.locator('[data-profile]').count(), 0, route);
    }
  }
- await saveHighscoreScope('members');
+ await saveHighscoreScope('hidden');
  await checkGuestRanking(false);
  await saveHighscoreScope('public');
  assert.equal(page.url(), base+'/dau-to-pro/highscore.php?ansicht=gast#inhalt');
  assert.ok(await page.getByText('Gästeansicht.',{exact:true}).isVisible());
  assert.ok(await page.locator('.arcade-name').getByText('Willi',{exact:true}).isVisible());
  await checkGuestRanking(true);
- await saveHighscoreScope('members');
+ await saveHighscoreScope('hidden');
  await checkGuestRanking(false);
  await anonymous.close();
  // The calculator is positioned in the viewport in the same click that opens it.

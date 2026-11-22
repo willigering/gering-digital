@@ -494,7 +494,7 @@ function ach_item(array $a,array $unlocked): array {
     return $item;
 }
 function ach_public_highscore_enabled(int $learnerId): bool {
-    $q=db()->prepare("SELECT 1 FROM learner_prefs WHERE learner_id=? AND pref_key='highscore_public' AND value='1'");
+    $q=db()->prepare('SELECT 1 FROM learner_stats WHERE learner_id=? AND highscore_visible=1 AND highscore_blocked=0');
     $q->execute([$learnerId]);
     return (bool)$q->fetchColumn();
 }
@@ -503,7 +503,7 @@ function ach_stats(int $learnerId): array {
     return ['level'=>ach_level_info((int)$row['xp']),'visible'=>(int)$row['highscore_visible']===1,'blocked'=>(int)$row['highscore_blocked']===1,'achievements'=>(int)$row['achievements']];
 }
 /** Highscore-Sichtbarkeit (Opt-in): Einschalten ist automatisch öffentlich.
- * Explizites false als drittes Argument erhält eine reine Mitgliederfreigabe. */
+ * Der dritte Parameter bleibt für ältere Aufrufer kompatibel; Sichtbarkeit gilt immer auch für Gäste. */
 function ach_set_visible(int $learnerId,bool $visible,bool $public=true): array {
     ach_stats_row($learnerId);
     $db=db();
@@ -537,11 +537,8 @@ function ach_rarity(): array {
  * Sortierung: XP, dann Anzahl Achievements, dann wer den Stand zuerst erreicht hat.
  */
 function ach_highscore(int $limit=100,bool $publicOnly=false): array {
-    $publicFilter=$publicOnly
-        ? " AND EXISTS (SELECT 1 FROM learner_prefs p WHERE p.learner_id=l.id AND p.pref_key='highscore_public' AND p.value='1')"
-        : '';
     $q=db()->prepare('SELECT l.id,l.username,s.xp,s.level,s.achievements,s.xp_changed_at FROM learner_stats s JOIN learners l ON l.id=s.learner_id
-        WHERE s.highscore_visible=1 AND s.highscore_blocked=0'.$publicFilter.' ORDER BY s.xp DESC,s.achievements DESC,COALESCE(s.xp_changed_at,\'9999\') ASC,l.id ASC LIMIT ?');
+        WHERE s.highscore_visible=1 AND s.highscore_blocked=0 ORDER BY s.xp DESC,s.achievements DESC,COALESCE(s.xp_changed_at,\'9999\') ASC,l.id ASC LIMIT ?');
     $q->execute([$limit]);
     $rows=$q->fetchAll(PDO::FETCH_ASSOC);
     $rarity=$publicOnly?[]:ach_rarity();$catalog=$publicOnly?[]:ach_catalog();
