@@ -179,14 +179,16 @@ ach_admin_block($t,true);
 check(!in_array('tina',array_column(ach_highscore(),'username'),true),'Admin kann ein Konto aus dem Highscore nehmen');
 ach_admin_block($t,false);
 
-check(ach_highscore(publicOnly: true)===[],'Die bisherige Freigabe gilt nur für angemeldete Lernende');
+check(array_column(ach_highscore(publicOnly: true),'username')===['tina','susi'],'Einschalten macht den Highscore automatisch auch für Gäste sichtbar');
+ach_set_visible($t,true,false);ach_set_visible($s,true,false);
+check(ach_highscore(publicOnly: true)===[],'Explizite Mitgliederfreigaben bleiben für Gäste verborgen');
 ach_set_visible($t,true,true);
 check(ach_public_highscore_enabled($t),'Öffentliche Freigabe wird gespeichert');
 check(array_column(ach_highscore(publicOnly: true),'username')===['tina'],'Gäste sehen nur zusätzlich freigegebene Einträge');
 ach_admin_block($t,true);
 check(ach_highscore(publicOnly: true)===[],'Die Sperre gilt auch für die öffentliche Liste');
 ach_admin_block($t,false);
-ach_set_visible($t,true);
+ach_set_visible($t,true,false);
 check(ach_highscore(publicOnly: true)===[] && ach_stats($t)['visible'],'Öffentliche Freigabe ist separat widerrufbar');
 
 // --- Übersicht, Export, Löschen ---

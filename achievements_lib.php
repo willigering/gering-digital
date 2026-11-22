@@ -502,8 +502,9 @@ function ach_stats(int $learnerId): array {
     $row=ach_stats_row($learnerId);
     return ['level'=>ach_level_info((int)$row['xp']),'visible'=>(int)$row['highscore_visible']===1,'blocked'=>(int)$row['highscore_blocked']===1,'achievements'=>(int)$row['achievements']];
 }
-/** Highscore-Sichtbarkeit (Opt-in). Einschalten schaltet „Rampensau“ frei. */
-function ach_set_visible(int $learnerId,bool $visible,bool $public=false): array {
+/** Highscore-Sichtbarkeit (Opt-in): Einschalten ist automatisch öffentlich.
+ * Explizites false als drittes Argument erhält eine reine Mitgliederfreigabe. */
+function ach_set_visible(int $learnerId,bool $visible,bool $public=true): array {
     ach_stats_row($learnerId);
     $db=db();
     $db->beginTransaction();
