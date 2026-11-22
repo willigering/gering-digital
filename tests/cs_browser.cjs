@@ -18,6 +18,7 @@ const {answer}=require('./support/cs1-answer.cjs');
  await page.locator('#practiceGo').click();await page.waitForSelector('dialog.dtp-practice-dialog[open]');
  assert.equal(await page.locator('#practiceTask [data-r="hint"]').isVisible(),true);
  while(!(await page.locator('#practiceTask [data-slot]').count())){await answer(page,'#practiceTask');await page.locator('#practiceTask [data-r="next"]').click()}
+ const histBeforeRef=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0].hist.length);
  await page.locator('#practiceTask [data-slot]').first().click();await page.locator('#practiceTask [data-term]').first().click();const partial=await page.locator('#practiceTask [data-answer]').evaluate(e=>e.value);
  await page.locator('#practiceTask [data-r="ref"]').click();await page.waitForFunction(()=>!document.getElementById('learnView').hidden);
  await page.locator('#backToTask').waitFor();assert.match(await page.locator('#backToTask').innerText(),/ZURÜCK ZUR AUFGABE/);
@@ -27,7 +28,7 @@ const {answer}=require('./support/cs1-answer.cjs');
  // Falsche Antwort: Spruch und Erklärung
  await answer(page,'#practiceTask',false);const bad=await page.locator('#practiceTask [data-r="res"]').innerText();assert.match(bad,/Richtig ist/);assert.doesNotMatch(bad,/Noch nicht/);assert.ok((await page.locator('#practiceTask .why').innerText()).length>10);
  // Mit Nachschlagen zählt die Aufgabe nicht für die 8 von 10
- const hist=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0].hist.length);assert.equal(hist,0);
+ const hist=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0].hist.length);assert.equal(hist,histBeforeRef);
  // Meistern: 3 Aufgaben mit Hinweis zählen nicht, danach 8 von 10
  for(let i=0;i<25;i++){await page.locator('#practiceTask [data-r="next"]').click();await answer(page,'#practiceTask',true);const m=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0]);if(m.mastered){r.masteredAfter=i+1;assert.ok(m.hist.length===10);break}}
  assert.ok(r.masteredAfter);
