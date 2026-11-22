@@ -53,8 +53,9 @@ const BW_PATHS=[
 const BW_PATHW=26;
 const BW_BRIDGE=[2140,1578,370,44]; // Welt-Pixel
 const BW_ZIP={a:{x:2742,y:1600},b:{x:2800,y:650}}; // Leuchtturm-Spitze → Kraftwerkshof
-const BW_LH_TOP={x:2742,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
-const BW_LH_STAIR=[2780,1398,12,206],BW_LH_GAL=[2714,1384,78,24]; // Außentreppe (Ostseite) und Galerie, begehbar
+const BW_LH_TOP={x:2739,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
+const BW_LH_STAIRS=[[2796,1490,14,130,'v'],[2672,1476,138,14,'h'],[2672,1398,14,92,'v']],BW_LH_STAIR=BW_LH_STAIRS[0],BW_LH_GAL=[2672,1384,138,24];
+function bwHigh(x,y){if(typeof BW_LH_GAL==='undefined')return false;for(const [a,b,w,h] of [...BW_LH_STAIRS,BW_LH_GAL])if(x>a-2&&x<a+w+2&&y>b-2&&y<b+h+2)return true;return false} // Außentreppe (Ostseite) und Galerie, begehbar
 
 // ---- Kleiner SVG-Pfad-Leser (nur M, L, C, Z, absolut) → Punktlisten in Welt-Pixeln
 function bwPathPts(d,step=6){const t=d.match(/[MLCZ]|-?[\d.]+/g),out=[];let cur=null,i=0,x=0,y=0,sx=0,sy=0;const num=()=>+t[i++]*BW_S;
@@ -74,7 +75,7 @@ function bwBuildMask(){
  const [c1,x1]=mk2();x1.fillStyle='#fff';x1.strokeStyle='#fff';x1.lineCap='round';x1.lineJoin='round';
  for(const k of BW_ZK)x1.fill(bwP2(BW_ZONES[k].d));
  x1.lineWidth=BW_PATHW;for(const p of BW_PATHS)x1.stroke(bwP2(p.d));
- x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);x1.fillRect(...BW_LH_STAIR);x1.fillRect(...BW_LH_GAL);
+ x1.setTransform(1/BW_G,0,0,1/BW_G,0,0);x1.fillRect(...BW_BRIDGE);for(const s of BW_LH_STAIRS)x1.fillRect(s[0],s[1],s[2],s[3]);x1.fillRect(...BW_LH_GAL);
  const d1=x1.getImageData(0,0,BW_GW,BW_GH).data;BW_MASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_MASK.length;i++)BW_MASK[i]=d1[i*4+3]>140?1:0;
  const [c2,x2]=mk2();BW_ZK.forEach((k,i)=>{x2.fillStyle='rgb('+((i+1)*25)+',0,0)';x2.fill(bwP2(BW_ZONES[k].d))});
  const d2=x2.getImageData(0,0,BW_GW,BW_GH).data;BW_ZMASK=new Uint8Array(BW_GW*BW_GH);for(let i=0;i<BW_ZMASK.length;i++)BW_ZMASK[i]=d2[i*4+3]>200?Math.round(d2[i*4]/25):0;
@@ -139,7 +140,7 @@ function bwBuildings(){const B=[];
  // P: Imbiss auf der Promenade
  B.push(bwStall(1640,1570,72,56,'#c8602a','#ffe0a0','FRIED EVERYTHING','#ffb040',1));
  // L: Leuchtturm
- B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
+ B.push({x:2690,y:1560,w:100,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
  return B}
 
 // ---- Möbeltypen [Breite, Tiefe, Höhe, Oberseite, Front, durchsuchbar]
