@@ -198,6 +198,17 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.ok((await page.locator('.hs-hint').textContent()).includes('unsichtbar'),'Highscore: eigenes Konto ist standardmäßig unsichtbar');
     await page.goto(base+'/dau-to-pro/konto.php#highscore');
     assert.ok(await page.$eval('#highscore',d=>d.open),'Link konto.php#highscore klappt die Einstellung auf');
+    assert.equal(await page.locator('#highscore input[name=scope][value=members]').count(),0,'Neue Freigabe benötigt keine zweite Auswahl');
+    await page.check('#highscore input[name=scope][value=public]');
+    await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
+    const automaticGuest=await browser.newContext();
+    const automaticPage=await automaticGuest.newPage();
+    await automaticPage.goto(base+'/dau-to-pro/');
+    assert.deepEqual(await automaticPage.locator('#highscore .hs-name').allTextContents(),['anna'],'Einmal einschalten macht den Eintrag sofort für Gäste sichtbar');
+    await automaticGuest.close();
+    php("$l=learner_find('anna');ach_set_visible((int)$l['id'],true,false);");
+    await page.goto(base+'/dau-to-pro/konto.php#highscore');
+    await page.reload();
     await page.check('#highscore input[name=scope][value=members]');
     await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
     const highscoreUrl=new URL(page.url());
@@ -206,7 +217,7 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     await page.reload();
     assert.equal(await page.locator('[data-highscore-reveal]').count(),0,'Highscore reveal runs only once');
     assert.ok(unlocked('anna').includes('g.rampensau'),'Sichtbarkeit einschalten: Rampensau');
-    php(`foreach(['bert'=>[0,1],'cleo'=>[0]] as $n=>$st){$l=learner_find($n);$id=(int)$l['id'];learner_progress_apply($id,'subnet-sprint',['subnet-sprint-path-v1'=>json_encode(['stage'=>0,'st'=>array_fill_keys(array_map('strval',$st),['mastered'=>true])]),'subnet-sprint-stats-v1'=>json_encode(['solved'=>300,'correct'=>260])],[]);ach_set_visible($id,true);}`);
+    php(`foreach(['bert'=>[0,1],'cleo'=>[0]] as $n=>$st){$l=learner_find($n);$id=(int)$l['id'];learner_progress_apply($id,'subnet-sprint',['subnet-sprint-path-v1'=>json_encode(['stage'=>0,'st'=>array_fill_keys(array_map('strval',$st),['mastered'=>true])]),'subnet-sprint-stats-v1'=>json_encode(['solved'=>300,'correct'=>260])],[]);ach_set_visible($id,true,false);}`);
     if(shots){
       await page.goto(base+'/dau-to-pro/konto.php');
       await page.screenshot({path:path.join(shots,'konto-level-1366.png'),fullPage:false});
