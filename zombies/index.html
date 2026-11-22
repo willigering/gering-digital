@@ -200,11 +200,10 @@ for(let i=0;i<(FAIR?9000:400)&&TREES.length<(FAIR?520:46);i++){const x=srnd(BL.l
  TREES.push({x,y,v:sr()*4|0,ph:sr()*6})}
 if(!FAIR)for(const t of TREES)solids.push({x:t.x-3,y:t.y-4,w:6,h:5});
 // Wind: globale Böenstärke + Welle, die über die Karte zieht (für Gras, Bäume und Wind-Sound)
-// Wetter (nur Blackwater Fair): Regen, Abendrot, Tageslicht – der Host würfelt, Gäste übernehmen es per Snapshot
+// Wetter (nur Blackwater Fair): Regen, Abendrot oder Tageslicht – einmal pro Spiel vom Host gewürfelt, Gäste übernehmen es per Snapshot
 const WX={k:['rain','dusk','day'][Math.random()*3|0],t:150,dark:.6,col:'rgba(18,8,40,',tint:'#3a2a6a',mix:{}};
 const WX_SET={rain:{dark:.6,c:[18,8,40],tint:[58,42,106]},dusk:{dark:.36,c:[50,20,34],tint:[118,66,58]},day:{dark:.1,c:[30,30,50],tint:[120,110,100]}};
-function updWeather(dt){if(!FAIR)return;if(!NET.client){WX.t-=dt;if(WX.t<=0){WX.t=120+Math.random()*120;const o=Object.keys(WX_SET).filter(k=>k!==WX.k);WX.k=pick(o);say(WX.k==='rain'?'Es fängt an zu regnen …':WX.k==='dusk'?'Die Sonne geht unter …':'Der Himmel klart auf …')}}
- const T=WX_SET[WX.k],m=WX.mix,a=Math.min(1,dt*.25);m.d=m.d==null?T.dark:m.d+(T.dark-m.d)*a;m.c=(m.c||T.c.slice()).map((v,i)=>v+(T.c[i]-v)*a);m.t=(m.t||T.tint.slice()).map((v,i)=>v+(T.tint[i]-v)*a);
+function updWeather(dt){if(!FAIR)return; const T=WX_SET[WX.k],m=WX.mix,a=Math.min(1,dt*.25);m.d=m.d==null?T.dark:m.d+(T.dark-m.d)*a;m.c=(m.c||T.c.slice()).map((v,i)=>v+(T.c[i]-v)*a);m.t=(m.t||T.tint.slice()).map((v,i)=>v+(T.tint[i]-v)*a);
  WX.dark=m.d;WX.col='rgba('+m.c.map(v=>v|0).join(',')+',';WX.tint='rgb('+m.t.map(v=>v|0).join(',')+')'}
 // Regen sichtbar? (in Gebäuden der Kirmes nicht; world=true: Regen in der Welt unabhängig vom Standort)
 function rainOn(world){if(OPT.rain===false)return false;if(!FAIR)return true;if(WX.k!=='rain')return false;return world||!(P&&buildingAt(P.x,P.y))}
