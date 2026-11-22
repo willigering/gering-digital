@@ -15,7 +15,7 @@ const context = vm.createContext({
   MUI: {}, NET: {}, OPT: undefined,
   cv: {addEventListener: on}, addEventListener: on,
   sfx() {}, musApply() {}, openFeedback() {},
-  MAPID: 'town', mapName: () => 'Stadt', cycleMap() {}, mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
+  MAPID: 'town', mapName: () => 'Stadt', MAP_SEL: 'town', mapGo: () => false, cycleMap() {}, mAn: () => ({}), clamp: (v, min, max) => Math.max(min, Math.min(max, v)),
 });
 const run = code => vm.runInContext(code, context);
 run(script.match(/^const OPT=.*$/m)[0]);
