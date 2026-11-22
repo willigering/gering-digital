@@ -139,7 +139,7 @@ shell = shell.replace("(t.fmt||FMT[t.kind]);renderExamNav()", "interactionInstru
 shell = shell.replace("ex.ans[i]===k?' is-right'", "ex.ans[i]===k?' is-selected'")
 shell = shell.replace('</head>', '<style>\n'+(ROOT / 'tools/cs-interactions.css').read_text()+'\n</style>\n</head>', 1)
 
-shell = shell.replace("esc(given)", "esc(readableGiven(t,given))")
+shell = shell.replace("esc(given)", "esc(readableGiven(t,given))", 1)
 shell = shell.replace("esc(p.valid?p.given:a)", "esc(readableGiven(t,p.valid?p.given:a))")
 shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}})", "")
 shell = shell.replace("inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});", "")
