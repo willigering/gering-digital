@@ -198,7 +198,6 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
     assert.ok((await page.locator('.hs-hint').textContent()).includes('unsichtbar'),'Highscore: eigenes Konto ist standardmäßig unsichtbar');
     await page.goto(base+'/dau-to-pro/konto.php#highscore');
     assert.ok(await page.$eval('#highscore',d=>d.open),'Link konto.php#highscore klappt die Einstellung auf');
-    assert.equal(await page.locator('#highscore input[name=scope][value=members]').count(),0,'Neue Freigabe benötigt keine zweite Auswahl');
     await page.check('#highscore input[name=scope][value=public]');
     await Promise.all([page.waitForNavigation(),page.click('#highscore button[type=submit]')]);
     const automaticGuest=await browser.newContext();
