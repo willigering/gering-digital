@@ -12,6 +12,7 @@ for(const sub of ctx.api.SUBS)for(let i=0;i<1000;i++){
  if(t.kind==='mc')continue;
  assert.ok(!/<input|<textarea/.test(ctx.api.interactionHtml(t,'probe',false)),sub.id+': no free text');
  assert.ok(ctx.api.parseAnswer(t,String(t.answer)).ok,sub.id+': reference accepted');
+ if(t.sub==='l_off')assert.ok(!t.bank.includes('!='),'Loop distractor must not offer an equivalent termination condition');
  if(t.slots){
   assert.ok(t.slots.length>0,sub.id);assert.ok(t.slots.every(v=>t.bank.includes(v)),sub.id+': all terms available');
   assert.ok(t.bank.some(v=>!t.slots.includes(v)),sub.id+': distractor available');

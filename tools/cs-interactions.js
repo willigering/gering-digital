@@ -10,6 +10,8 @@ const CLOZE_FACTS=[
 ];
 const TERM_BANK={welt:['Algorithmus','Programm','Programmiersprache','Maschinencode','Syntax','Semantik','Eingabe','Verarbeitung','Ausgabe'],uebersetzen:['Compiler','Interpreter','JIT','CLR','IL','SDK','Runtime','Quelltext','Maschinencode'],grund:['WriteLine','Write','ReadLine','Console','Kommentar','Anweisung','Semikolon'],typen:['int','double','decimal','string','char','bool','float','long'],daten:['Deklaration','Initialisierung','Zuweisung','Konstante','Variable','int','string'],umwandeln:['Parse','TryParse','Convert.ToInt32','ToString','int','double'],rechnen:['&&','||','!','==','!=','<','>','<=','>=','%','/','*','+','-'],wenn:['if','else','switch','case','break','true','false'],schleife:['for','while','do','foreach','break','continue'],liste:['Length','Count','return','void','int','static','Add','Remove']};
 function tokenAlternatives(token){
+ const comparisons={'<':['<=','>'],'<=':['<','>'],'>':['>=','<'],'>=':['>','<'],'==':['=','!='],'!=':['==','=']};
+ if(comparisons[token])return comparisons[token];
  const sets=[['int','double','decimal','string','char','bool','long'],['WriteLine','Write','ReadLine'],['Length','Count','Capacity'],['if','while','for','foreach','switch'],['return','break','continue','void'],['true','false','null'],['==','!=','<=','>=','<','>'],['+','-','*','/','%'],['&&','||','!'],['=','==','+=','-='],['//','/*','*/',';'],['Parse','TryParse','ToString'],['Console','console','CONSOLE'],['(',')','[',']'],[';',':',',']];
  if(/^".*"$/.test(token))return [token.slice(1,-1),"'"+token.slice(1,-1)+"'",'null'];
  if(/^\d+(\.\d+)?$/.test(token))return [String(Number(token)+1),String(Number(token)-1),'0','1'];
