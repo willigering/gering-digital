@@ -72,6 +72,8 @@ if (($_SERVER['REQUEST_METHOD']??'GET')==='POST') {
             case 'highscore':
                 $scope=$_POST['scope']??'';
                 if (!in_array($scope,['public','members','hidden'],true)) throw new LearnerError('Bitte wähle die Sichtbarkeit im Highscore.');
+                // Alte Formular-Tabs mit scope=members aktivieren ebenfalls die öffentliche Rangliste.
+                if ($scope==='members') $scope='public';
                 $visible=$scope!=='hidden';
                 ach_set_visible($id,$visible,$scope==='public');
                 if ($scope==='public') {
@@ -275,7 +277,7 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
         <p class="field-hint">Mit deinem Lernkonto hast du sofort Zugang zum gesamten Unterrichtsmaterial. Kein zusätzliches Passwort erforderlich.</p>
         <a class="secondary-action" href="./?material=1#unterrichtsmaterial">Zum Unterrichtsmaterial →</a>
       </details>
-      <?php $highscoreScope=$achStats['visible'] ? (ach_public_highscore_enabled((int)$learner['id']) ? 'public' : 'members') : 'hidden'; ?>
+      <?php $highscoreScope=$achStats['visible'] ? 'public' : 'hidden'; ?>
       <details class="settings-item" id="highscore"<?=($flash['section']??'')==='highscore'||($_GET['einstellung']??'')==='highscore'?' open':''?>>
         <summary><span><b>Sichtbarkeit im Highscore</b><small><?=match($highscoreScope){'public'=>'Öffentlich, auch ohne Anmeldung','members'=>'Nur für angemeldete Lernende',default=>'Unsichtbar'}?></small></span></summary>
         <form method="post" class="settings-body">
@@ -283,7 +285,6 @@ for(var i=ls.length-1;i>=0;i--){var k=ls.key(i);if(k!==null)ls.removeItem(k);}}c
           <p class="field-hint">In der <a href="highscore.php">öffentlichen Rangliste</a> können Gäste deinen Benutzernamen, dein Level, deine XP, die Anzahl deiner Achievements und deine Vitrine sehen. Wenn du deinen Eintrag einschaltest, ist er automatisch auch ohne Anmeldung sichtbar.</p>
           <?php if($achStats['blocked']): ?><p class="field-hint">Hinweis: Dein Konto wurde vom Betreiber aus dem Highscore genommen.</p><?php endif; ?>
           <label class="confirm-check"><input type="radio" name="scope" value="public"<?=$highscoreScope==='public'?' checked':''?>> Im Highscore anzeigen – öffentlich, auch ohne Anmeldung</label>
-          <label class="confirm-check"><input type="radio" name="scope" value="members"<?=$highscoreScope==='members'?' checked':''?>> Optional einschränken: nur für angemeldete Lernende</label>
           <label class="confirm-check"><input type="radio" name="scope" value="hidden"<?=$highscoreScope==='hidden'?' checked':''?>> Unsichtbar</label>
           <button class="secondary-action" type="submit">Speichern</button>
         </form>
