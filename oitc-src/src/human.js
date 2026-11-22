@@ -101,12 +101,11 @@ export function humanOverlay(h, name, ts = 1.3) { // Schuss/Nahkampf nur auf dem
 }
 // speed: m/s, slideT: <0 = nicht am Rutschen, sprintArms: Sprint-Armhaltung
 export function humanUpdate(h, dt, speed, slideT, sprintArms, ang = 0, air = false) {
-  let rev = false, off = 0;
-  if (h.mode !== 'dead' && slideT < 0 && speed > 0.8) {
-    const aa = Math.abs(ang);
-    if (aa > 1.9) { rev = true; off = (ang - Math.sign(ang) * Math.PI) * 0.5; } else off = THREE.MathUtils.clamp(ang, -1.1, 1.1) * 0.6;
-  }
-  h.off = (h.off || 0) + (off - (h.off || 0)) * Math.min(1, dt * 10);
+  // Beine zeigen (fast) in Laufrichtung: Seitwärts-/Rückwärtslaufen dreht den Körper mit, statt den Lauf-Clip seitlich rutschen oder rückwärts abspielen zu lassen
+  const rev = false; let off = 0;
+  if (h.mode !== 'dead' && slideT < 0 && speed > 0.8) off = ang * 0.85;
+  const wrap = (x) => Math.atan2(Math.sin(x), Math.cos(x));
+  h.off = wrap((h.off || 0) + wrap(off - (h.off || 0)) * Math.min(1, dt * 10));
   h.body.rotation.y = Math.PI + h.off;
   if (h.zombie && h.mode !== 'dead') {
     if (h.mode === 'zatk') { h.ov -= dt; if (h.ov <= 0) { h.mode = ''; h.ov = 0; } }
