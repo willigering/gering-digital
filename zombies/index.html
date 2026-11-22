@@ -119,9 +119,9 @@ const paved=(x,y,m=0)=>[...ROADS,...WALKS,...LOTS].some(r=>inR(r,x,y,m));
 // inner: [x1,y1,x2,y2,[Öffnungen]] lokal · furn: [Typ,x,y]
 // =====================================================================
 const BUILD=FAIR?[]:[
- {x:120,y:150,w:380,h:150,z:50,wall:'#8b4a3a',rc:'#9a948a',roof:'flat',kind:'brick',floor:'tile',inner:'#c9c2a2',group:'school',
+ {x:120,y:150,w:380,h:150,z:NEWSTYLE?122:50,spr:NEWSTYLE?'sprites/school.png':0,wall:'#8b4a3a',rc:'#9a948a',roof:'flat',kind:'brick',floor:'tile',inner:'#c9c2a2',group:'school',
   N:[[20,16,'w'],[60,16,'w'],[147,16,'w'],[187,16,'w'],[274,16,'w'],[314,16,'w']],
-  S:[[60,18,'d'],[180,16,'w'],[215,20,'d'],[260,16,'w'],[300,16,'w'],[340,16,'w']],
+  S:NEWSTYLE?[[30,16,'w'],[90,16,'w'],[168,44,'d'],[260,16,'w'],[320,16,'w']]:[[60,18,'d'],[180,16,'w'],[215,20,'d'],[260,16,'w'],[300,16,'w'],[340,16,'w']],
   W:[[30,16,'w'],[100,16,'w']],E:[[30,16,'w'],[100,18,'d']],
   inner:[[0,90,380,90,[[50,18,'d'],[176,18,'d'],[302,18,'d']]],[127,0,127,90,[]],[254,0,254,90,[]]],
   rooms:[[0,0,127,90,'wood'],[127,0,127,90,'wood'],[254,0,126,90,'wood']],
@@ -1854,7 +1854,7 @@ function render(){
   const zz=lerp(b.z,9,b.cut),za=pc=>pc.side==='N'?b.z:zz;
   const closed=b.roofSpr&&b.cut<.05; // von außen: Inneres gar nicht zeichnen
   for(const pc of b.pieces)if(pc.horiz&&(!closed||pc.side==='S'))L.push({y:pc.r.y+WT,f:()=>drawPiece(pc,za(pc),1)});
-  if(b.roofSpr){const a=1-b.cut;if(a>.02)L.push({y:b.y+b.h-.5,f:()=>{
+  if(b.roofSpr){const a=1-b.cut;if(a>.02)L.push({y:b.sprImg?b.y+b.h+WT+1:b.y+b.h-.5,f:()=>{
    const behind=b.cut<.5&&!P.dead&&P.x>b.x-8&&P.x<b.x+b.w+8&&P.y<b.y+4&&P.y>b.y-b.z-26;g.globalAlpha=a;
    if(!behind)g.drawImage(b.roofSpr,b.rx,b.ry);
    else{rtc.width=b.roofSpr.width;rtc.height=b.roofSpr.height;rtx.drawImage(b.roofSpr,0,0);const hx=P.x-b.rx,hy=P.y-10-b.ry,gr=rtx.createRadialGradient(hx,hy,0,hx,hy,26);
@@ -2138,7 +2138,8 @@ function scoreboard(VW,VH,k,over){
 // =====================================================================
 if(FAIR){bwPrerender();bwBuildWalls()}
 buildGround();for(const pc of PIECES)if(pc.horiz){if(pc.t==='window'&&pc.side==='S'&&Math.random()<(NEWSTYLE&&pc.b.group==='school'?.75:NEWSTYLE?.35:.15))pc.lit=true;makePiece(pc)}
-for(const b of BUILD)makeRoof(b);for(const c of CARS)makeCar(c);
+for(const b of BUILD)makeRoof(b);
+for(const b of BUILD)if(b.spr){const im=new Image();im.onload=()=>{b.sprImg=im;b.roofSpr=im;b.rx=b.x;b.ry=b.y-b.z};im.src=b.spr}for(const c of CARS)makeCar(c);
 if(FAIR)bwInitWorld();
 try{if(sessionStorage.getItem('zw_menu')){sessionStorage.removeItem('zw_menu');menuGo('play')}}catch{}
 if(REJOIN&&!started){OPT.name&&(P.name=OPT.name);menuGo(MODE==='ws'?'play':'mp');if(MODE==='rtc'&&REJOIN.code)rtcJoin(REJOIN.code);else if(MODE==='ws')connect()}
