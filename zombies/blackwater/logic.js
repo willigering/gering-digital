@@ -106,7 +106,7 @@ function bwInteract(pl,me,EP,auth){
   return true}
  if(me&&!pl.bwRide)for(let i=0;i<BW_RIDES.length;i++){const r=BW_RIDES[i];if(!!r.top!==!!pl.bwTop||Math.hypot(r.x-pl.x,r.y-pl.y)>(r.top?30:18))continue;
   if(r.zip&&!bwRideOk(r))break;
-  prompt=bwRideOk(r)?{x:r.x,y:r.y-34,t:r.n,tc:'#ffd23a',d:r.zip?'Runter zum Kraftwerk · [WASD] Treppe runter':r.climb?'Wendeltreppe zur Galerie':'Eine Runde fahren',s:r.climb?'[E] HOCHSTEIGEN':'[E] EINSTEIGEN',c:'#fff2a8'}:{x:r.x,y:r.y-34,t:r.n,tc:'#9a96a8',d:'Braucht Strom',s:'NO POWER',c:'#9a96a8'};
+  prompt=bwRideOk(r)?{x:r.x,y:r.y-34,t:r.n,tc:'#ffd23a',d:r.zip?'Runter zum Kraftwerk':'Eine Runde fahren',s:'[E] EINSTEIGEN',c:'#fff2a8'}:{x:r.x,y:r.y-34,t:r.n,tc:'#9a96a8',d:'Braucht Strom',s:'NO POWER',c:'#9a96a8'};
   if(EP&&bwRideOk(r)){pl.bwRide={i,t0:now};if(!r.zip&&!r.climb)sfx('bw_ride_start',r.x,r.y,.7,1,0);if(!r.climb)sfx(r.zip?'door_hit':'pipe_hit',pl.x,pl.y,.6,r.zip?1.4:.8,0)}return true}
  if(!(pl.inCar>=0))for(const c of CARS){if(BW.looted.has(c.i)||pl.key===c.i||c.driver)continue;const nx=clamp(pl.x,c.x,c.x+c.w),ny=clamp(pl.y,c.y,c.y+c.h);if(Math.hypot(pl.x-nx,pl.y-ny)>8)continue;
   const held=me?keys.e:!!(pl.inp&&pl.inp.e),cs=pl.bwCs&&pl.bwCs.c===c.i?pl.bwCs:null,CT=1.6;
@@ -151,14 +151,12 @@ const BW_RIDES=[
  {k:'carousel',n:'KARUSSELL',x:1884,y:2064,T:12,pw:1,ex:{x:1884,y:2066},pos:t=>{const a=Math.PI/2+t*Math.PI*6;return{x:1884+Math.cos(a)*46,y:2022+Math.sin(a)*16}}},
  {k:'coaster',n:'THE LAST RIDE',x:675,y:578,T:18,pw:1,ex:{x:675,y:580},pos:t=>{const T=BW_COASTER?BW_COASTER.T:null;if(!T)return{x:675,y:578};const p=T[Math.min(T.length-1,Math.floor(t*T.length))];return{x:p.x,y:p.y-p.z-(p.broke?Math.sin((t*T.length%16)/16*Math.PI)*10:0)}}},
  {k:'zip',n:'ZIPLINE',x:BW_LH_TOP.x,y:BW_LH_TOP.y,top:1,T:4.5,zip:1,ex:{x:BW_ZIP.b.x,y:BW_ZIP.b.y+10},pos:t=>{const a=BW_LH_TOP,b=BW_ZIP.b,e=t*t*(3-2*t);return{x:lerp(a.x,b.x,e),y:lerp(a.y,b.y,e)+Math.sin(e*Math.PI)*30}}},
- // Wendeltreppe im Leuchtturm: hoch zur Galerie und wieder runter
- {k:'climb',n:'LEUCHTTURM',x:2730,y:1580,T:2.4,climb:1,ex:BW_LH_TOP,pos:t=>{const a=t*Math.PI*5;return{x:2742+Math.cos(a)*10,y:lerp(1580,BW_LH_TOP.y,t)+Math.sin(a)*4}}},
- {k:'down',n:'',x:-1e4,y:-1e4,T:2,climb:1,down:1,ex:{x:2730,y:1584},pos:t=>{const a=t*Math.PI*5;return{x:2742+Math.cos(a)*10,y:lerp(BW_LH_TOP.y,1584,t)+Math.sin(a)*4}}},
+
 ];
 function bwRideOk(r){if(r.climb)return true;if(r.zip)return BW.barr.some(b=>b.k==='zip'&&b.open);return POWER.on&&now-POWER.at>bwSec(r.x,r.y)}
-function bwRideStep(){if(P.bwTop&&!P.bwRide&&(keys.w||keys.a||keys.s||keys.d||P.dead||P.down)){P.bwRide={i:BW_RIDES.findIndex(r=>r.down),t0:now};P.bwTop=false}
+function bwRideStep(){{const [gx,gy,gw,gh]=BW_LH_GAL;P.bwTop=!P.bwRide&&P.x>gx&&P.x<gx+gw&&P.y>gy&&P.y<gy+gh}
  const R0=P.bwRide;if(!R0)return;const r=BW_RIDES[R0.i],t=(now-R0.t0)/r.T;
- if(t>=1||P.dead||P.down){P.x=r.ex.x;P.y=r.ex.y;P.bwRide=null;P.bwTop=r.climb&&!r.down&&!P.dead&&!P.down;if(r.zip)sfx('door_hit',P.x,P.y,.7,.6,0);return}
+ if(t>=1||P.dead||P.down){P.x=r.ex.x;P.y=r.ex.y;P.bwRide=null;if(r.zip)sfx('door_hit',P.x,P.y,.7,.6,0);return}
  const q=r.pos(t);P.x=q.x;P.y=q.y;P.moving=false}
 
 // ---------------------------------------------------------------------
@@ -203,6 +201,7 @@ function bwRenderGround(cx,cy){
  for(const b of BW.barr)if(b.k==='bridge'&&b.r.x+b.r.w>cx-20&&b.r.x<cx+W+20&&b.r.y+b.r.h>cy-20&&b.r.y<cy+H+20)bwDrawBridge(b)}
 function bwRender(L,vis,cx,cy){
  bwPushWalls(L,vis,cx,cy);
+ if(vis(2700,1370,110,240))L.push({y:1e5-1,f:bwDrawStair});
  for(const b of BW.barr){if(b.k==='bridge')continue;if(b.open&&now-b.t>1.2&&b.k==='debris')continue;if(!vis(b.r.x-10,b.r.y-40,b.r.w+20,b.r.h+50))continue;L.push({y:b.r.y+b.r.h,f:()=>bwDrawBarrier(b)})}
  for(const n of BWN)if(vis(n.x-60,n.y-50,120,60))L.push({y:n.y+(n.post===false?0:.5),f:()=>bwDrawNeon(n)})}
 function bwRenderOver(cx,cy){
@@ -357,3 +356,10 @@ function bwAmbience(dt,pw){if(!started)return;const L=listener();
  if(pw&&(BWA.neon-=dt)<0){BWA.neon=12+Math.random()*25;sfx('bw_neon_flicker',2070,836,.6,1,0)}}
 function bwStepSnd(x,y){const z=bwZoneAt(x,y);if(z==='P'||(x>BW_BRIDGE[0]&&x<BW_BRIDGE[0]+BW_BRIDGE[2]&&y>BW_BRIDGE[1]&&y<BW_BRIDGE[1]+BW_BRIDGE[3]))return 'step_wood';if(z==='K'&&!bwBuildingAt(x,y))return 'step_metal';return null}
 function bwBuildingAt(x,y){return typeof buildingAt==='function'&&buildingAt(x,y)}
+
+// Außentreppe am Leuchtturm + Galerie (über allem anderen gezeichnet, Spieler laufen darauf)
+function bwDrawStair(){const [sx,sy,sw,sh]=BW_LH_STAIR,[gx,gy,gw,gh]=BW_LH_GAL;
+ R(g,sx-2,sy,sw+4,sh,'#2a2422');for(let y=sy;y<sy+sh;y+=5){R(g,sx,y,sw,4,'#6a5848');R(g,sx,y,sw,1,'#8a7660')}
+ R(g,sx-2,sy,1,sh,'#3a3a44');R(g,sx+sw+1,sy,1,sh,'#3a3a44');for(let y=sy;y<sy+sh;y+=12){R(g,sx-3,y-6,2,7,'#4a4a54');R(g,sx+sw+1,y-6,2,7,'#4a4a54')}
+ R(g,gx,gy,gw,gh,'#3a3432');for(let x=gx;x<gx+gw;x+=6)R(g,x,gy,5,gh,'#4a423e');R(g,gx,gy,gw,1,'#6a625e');
+ for(let x=gx;x<=gx+gw;x+=4)R(g,x,gy-7,1,7,'#2a2a30');R(g,gx,gy-7,gw,1,'#5a5a64');R(g,gx,gy+gh-1,gw,2,'#1a1816')}
