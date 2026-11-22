@@ -223,7 +223,7 @@ const FIRES=[];if(!FAIR)for(let y=40;y<MH;y+=38)FIRES.push({x:MW-60+srnd(-4,10),
 for(const c of CARS)if(c.burn)FIRES.push({x:c.x+c.w/2,y:c.y+c.h-4,s:10,ph:sr()*9,lift:12});
 for(const p of PROPS)if(p.fire)FIRES.push({x:p.x,y:p.y,s:5,ph:sr()*9,lift:10});
 if(!FAIR)FIRES.push({x:1120,y:600,s:9,ph:5,lift:66});
-const BOTTOM=[];if(!FAIR)for(let x=0;x<MW;x+=40)BOTTOM.push({x:x+srnd(-6,6),h:srnd(18,46),w:srnd(30,46)});
+const BOTTOM=[];if(!FAIR)for(let x=0;x<MW;x+=40)BOTTOM.push({x:x,h:srnd(18,46),w:srnd(30,46)});
 
 const hit=(list,x,y,r)=>{for(const s of list)if(x>s.x-r&&x<s.x+s.w+r&&y>s.y-r&&y<s.y+s.h+r)return true;return false};
 function blocked(x,y,r,mode){
@@ -2222,8 +2222,7 @@ function render(){
    const sx=t.x-r-3+sw,sy=t.y-14-r*2+2;g.globalAlpha=t.v>=4?1:fadeIf(sx,sy,r*2+6,r*2+6,t.y);g.drawImage(s,sx,sy);g.globalAlpha=1}};
  for(const t of TREES)if(vis(t.x-20,t.y-50,40,60))L.push({y:t.y,f:tree(t,TREESPR[t.v][(t.ph*10|0)%2])});
  for(const t of FOREST)if(vis(t.x-20,t.y-50,40,60))L.push({y:t.y,f:tree(t,TREESPR[t.v][(t.ph*10|0)%2])});
- for(const b of BOTTOM)if(vis(b.x,MH-80,60,80))L.push({y:MH-10,f:()=>{const y=MH-10;R(g,b.x,y-b.h,b.w,b.h,'#6e4a3e');for(let k=y-b.h;k<y;k+=3)R(g,b.x,k,b.w,1,'#5e3e34');
-   R(g,b.x+6,y-b.h+6,8,8,'#111');R(g,b.x,y-b.h,b.w,2,'#8a6a5a');for(let i=0;i<5;i++)R(g,b.x+((i*13+b.w)%b.w),y-b.h-3,5,4,'#7a6a5a')}});
+ for(const b of BOTTOM)if(vis(b.x,MH-80,60,80))L.push({y:MH-10,f:()=>{const y=MH-10;R(g,b.x,y-16,40,2,'#4a4652');R(g,b.x,y-8,40,2,'#4a4652');for(let k=0;k<40;k+=5){R(g,b.x+k,y-22,2,22,'#3a3640');R(g,b.x+k,y-24,2,2,'#6a6676')}}});
  for(const z of zombies)if(vis(z.x-10,z.y-30,20,30))L.push({y:z.y,f:()=>{
   g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(z.x,z.y,5,2,0,0,7);g.fill();
   if(z.rise>0){withOutline(z.x,z.y,()=>{g.save();g.beginPath();g.rect(z.x-12,z.y-34,24,34);g.clip();g.translate(0,z.rise*30);drawHuman(z.x,z.y,z.look,z.face,z.phase,true,0);g.restore()});R(g,z.x-6,z.y-1,12,2,'#3a3026')}
