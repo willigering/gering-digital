@@ -24,7 +24,7 @@ const {pathToFileURL}=require('node:url'),{answer}=require('./support/cs1-answer
   assert.notDeepEqual(await page.locator('#trainTask [data-row] code').allTextContents(),before,'drag reorders cards');
   await page.locator('#tab-exam').click();await page.locator('#examStart').click();
   for(const kind of ['code','cloze','order','set']){
-   const index=await page.evaluate(kind=>{const e=CS1START_TEST.exam();let i=e.tasks.findIndex(t=>t.kind===kind);if(i<0){const id=kind==='code'?'g_fix':kind==='cloze'?'w_frei':kind==='order'?'w_algo':'w_sprache';e.tasks[0]={...CS1START_TEST.genTask(id),pts:5};i=0}e.cur=i;CS1START_TEST.renderExamQ();CS1START_TEST.renderExamNav();return i},kind);
+   const index=await page.evaluate(kind=>{const e=CS1START_TEST.exam();let i=e.tasks.findIndex(t=>t.kind===kind);if(i<0){const id=kind==='code'?'g_fix':kind==='cloze'?'w_frei':kind==='order'?'w_algo':'w_sprache';e.tasks[0]={...CS1START_TEST.genTask(id),pts:5};e.ans[0]=null;i=0}e.cur=i;CS1START_TEST.renderExamQ();CS1START_TEST.renderExamNav();return i},kind);
    const t=await page.evaluate(()=>CS1START_TEST.exam().tasks[CS1START_TEST.exam().cur]);
    if(t.slots){await page.locator('#examQ [data-slot="0"]').click();await page.locator('#examQ [data-term="'+t.bank.indexOf(t.slots[0])+'"]').click()}
    await page.locator('#examNav [data-q="'+((index+1)%20)+'"]').click();await page.locator('#examNav [data-q="'+index+'"]').click();
