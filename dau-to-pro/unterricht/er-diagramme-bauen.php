@@ -9,7 +9,7 @@ $account=(int)(learner_current()['id']??0);
 ?><!doctype html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#08151a"><title>ER-Werkstatt · Diagramme selber bauen · DAU TO PRO</title>
-<link rel="stylesheet" href="db-material.css"><link rel="stylesheet" href="er-werkstatt.css?v=2"></head>
+<link rel="stylesheet" href="db-material.css"><link rel="stylesheet" href="er-werkstatt.css?v=3"></head>
 <body>
 <header class="site-head"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">← UNTERRICHTSMATERIAL</a><strong>DAU <span>TO</span> PRO // ER-WERKSTATT</strong></div></header>
 <div class="wrap"><section class="hero ew-hero">
@@ -33,6 +33,7 @@ $account=(int)(learner_current()['id']??0);
 <section class="part ew-studio" aria-label="ER-Diagramm erstellen">
 <div class="ew-studio-top"><div><span class="eyebrow">02 · DEIN ZEICHENBLATT</span><h2>Aus Text wird Struktur.</h2></div><p>Ziehe direkt von einem Begriff zum anderen. Tippe danach auf die Linie, um 1, n oder m zu setzen.</p></div>
 <div class="ew-workspace">
+<form class="ew-custom-form" id="ew-custom-form" autocomplete="off"><label for="ew-custom-term">Eigener Begriff</label><input id="ew-custom-term" type="text" maxlength="45" placeholder="z. B. PatientenNr, behandelt, Diagnose" required><button type="submit" class="ew-button ew-gold">+ Begriff hinzufügen</button><span>Neue Begriffe kannst du anschließend frei formen und verbinden.</span></form>
 <div class="ew-toolbar" id="ew-toolbar" aria-label="Werkzeuge für markiertes Element">
 <span class="ew-tool-caption" id="ew-selection-label">Klicke einen Begriff an</span>
 <div class="ew-tool-group" id="ew-shape-tools">
@@ -63,5 +64,5 @@ $account=(int)(learner_current()['id']??0);
 </section></main></div>
 <footer class="foot"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">Zurück zum Unterrichtsmaterial</a><a href="er-modelle-interaktiv.php">ER-Modelle nachschlagen</a></div></footer>
 <script>window.__EW_ACCOUNT__=<?=$account?>;</script>
-<script src="er-werkstatt.js?v=2" defer></script>
+<script src="er-werkstatt.js?v=3" defer></script>
 </body></html>
