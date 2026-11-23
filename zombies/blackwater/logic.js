@@ -201,10 +201,12 @@ function bwRenderGround(cx,cy){
  for(const b of BW.barr)if(b.k==='bridge'&&b.r.x+b.r.w>cx-20&&b.r.x<cx+W+20&&b.r.y+b.r.h>cy-20&&b.r.y<cy+H+20)bwDrawBridge(b)}
 function bwRender(L,vis,cx,cy){
  bwPushWalls(L,vis,cx,cy);
- if(vis(2700,1370,110,240))L.push({y:1e5-1,f:bwDrawStair});
+ if(vis(2660,1370,160,260))L.push({y:1e5-1,f:bwDrawStair});
  for(const b of BW.barr){if(b.k==='bridge')continue;if(b.open&&now-b.t>1.2&&b.k==='debris')continue;if(!vis(b.r.x-10,b.r.y-40,b.r.w+20,b.r.h+50))continue;L.push({y:b.r.y+b.r.h,f:()=>bwDrawBarrier(b)})}
  for(const n of BWN)if(vis(n.x-60,n.y-50,120,60))L.push({y:n.y+(n.post===false?0:.5),f:()=>bwDrawNeon(n)})}
 function bwRenderOver(cx,cy){
+ for(const p of PL){if(p.dead||p.bwRide)continue;const [sx,sy,sw,sh]=BW_LH_STAIR;if(!(p.x>sx-3&&p.x<sx+sw+3&&p.y>sy+6&&p.y<sy+sh+2))continue;const ph=Math.floor(p.y/6)%2,x=Math.round(p.x),y=Math.round(p.y);
+  R(g,x-5,y-22-(ph?4:0),2,9,'#d8a47a');R(g,x+3,y-22-(ph?0:4),2,9,'#d8a47a');R(g,x-6,y-24-(ph?4:0),3,2,'#c08a64');R(g,x+3,y-24-(ph?0:4),3,2,'#c08a64')}
  for(const p of PL){const R0=p.bwRide;if(!R0||!BW_RIDES[R0.i].zip)continue;const x=Math.round(p.x),y=Math.round(p.y)-30;
   R(g,x-1,y+4,2,9,'#2a2a30');R(g,x-4,y+10,8,2,'#2a2a30');R(g,x-3,y-2,7,6,'#8a8a96');R(g,x-2,y-1,5,4,'#c8c8d4');R(g,x-1,y,2,2,'#3a3a40');
   if(Math.random()<.6)part({x:x+rnd(-2,2),y:y+2,z:28,vx:rnd(-40,40),vy:rnd(-10,10),vz:rnd(10,50),g:260,life:.35,c:pick(['#ffd23a','#fff2a8','#ff8a3a']),s:1})}
@@ -361,8 +363,8 @@ function bwStepSnd(x,y){const z=bwZoneAt(x,y);if(z==='P'||(x>BW_BRIDGE[0]&&x<BW_
 function bwBuildingAt(x,y){return typeof buildingAt==='function'&&buildingAt(x,y)}
 
 // Außentreppe am Leuchtturm + Galerie (über allem anderen gezeichnet, Spieler laufen darauf)
-function bwDrawStair(){const [sx,sy,sw,sh]=BW_LH_STAIR,[gx,gy,gw,gh]=BW_LH_GAL;
- R(g,sx-2,sy,sw+4,sh,'#2a2422');for(let y=sy;y<sy+sh;y+=5){R(g,sx,y,sw,4,'#6a5848');R(g,sx,y,sw,1,'#8a7660')}
- R(g,sx-2,sy,1,sh,'#3a3a44');R(g,sx+sw+1,sy,1,sh,'#3a3a44');for(let y=sy;y<sy+sh;y+=12){R(g,sx-3,y-6,2,7,'#4a4a54');R(g,sx+sw+1,y-6,2,7,'#4a4a54')}
- R(g,gx,gy,gw,gh,'#3a3432');for(let x=gx;x<gx+gw;x+=6)R(g,x,gy,5,gh,'#4a423e');R(g,gx,gy,gw,1,'#6a625e');
- for(let x=gx;x<=gx+gw;x+=4)R(g,x,gy-7,1,7,'#2a2a30');R(g,gx,gy-7,gw,1,'#5a5a64');R(g,gx,gy+gh-1,gw,2,'#1a1816')}
+function bwDrawStair(){const [gx,gy,gw,gh]=BW_LH_GAL;
+ for(const [sx,sy,sw,sh,o] of BW_LH_STAIRS){
+  if(o==='v'){R(g,sx,sy,2,sh,'#7a7e88');R(g,sx+sw-2,sy,2,sh,'#7a7e88');R(g,sx,sy,1,sh,'#a8acb6');for(let y=sy+3;y<sy+sh;y+=6){R(g,sx+2,y,sw-4,2,'#8a8e98');R(g,sx+2,y+2,sw-4,1,'#3a3c44')}}
+  else{for(let x=sx;x<sx+sw;x+=6){R(g,x,sy,5,sh,'#5a4a3e');R(g,x,sy,5,1,'#7a6a58')}for(let x=sx;x<=sx+sw;x+=6)R(g,x,sy+sh-7,1,7,'#3a3a44');R(g,sx,sy+sh-7,sw,1,'#5a5a64');R(g,sx,sy+sh,sw,2,'#1a1816')}}
+}
