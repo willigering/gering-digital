@@ -53,8 +53,8 @@ const BW_PATHS=[
 const BW_PATHW=26;
 const BW_BRIDGE=[2140,1578,370,44]; // Welt-Pixel
 const BW_ZIP={a:{x:2742,y:1600},b:{x:2800,y:650}}; // Leuchtturm-Spitze → Kraftwerkshof
-const BW_LH_TOP={x:2739,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
-const BW_LH_STAIRS=[[2796,1490,14,130,'v'],[2672,1476,138,14,'h'],[2672,1398,14,92,'v']],BW_LH_STAIR=BW_LH_STAIRS[0],BW_LH_GAL=[2672,1384,138,24];
+const BW_LH_TOP={x:2742,y:1396}; // Galerie oben auf dem Leuchtturm (rup 160)
+const BW_LH_STAIRS=[[2780,1398,12,206,'v']],BW_LH_STAIR=BW_LH_STAIRS[0],BW_LH_GAL=[2714,1384,78,24];
 function bwHigh(x,y){if(typeof BW_LH_GAL==='undefined')return false;for(const [a,b,w,h] of [...BW_LH_STAIRS,BW_LH_GAL])if(x>a-2&&x<a+w+2&&y>b-2&&y<b+h+2)return true;return false} // Außentreppe (Ostseite) und Galerie, begehbar
 
 // ---- Kleiner SVG-Pfad-Leser (nur M, L, C, Z, absolut) → Punktlisten in Welt-Pixeln
@@ -140,7 +140,7 @@ function bwBuildings(){const B=[];
  // P: Imbiss auf der Promenade
  B.push(bwStall(1640,1570,72,56,'#c8602a','#ffe0a0','FRIED EVERYTHING','#ffb040',1));
  // L: Leuchtturm
- B.push({x:2690,y:1560,w:100,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
+ B.push({x:2710,y:1560,w:64,h:56,z:70,wall:'#e0dcd2',rc:'#5a4a46',roof:'flat',kind:'light',floor:'stone',inner:'#c8c4ba',N:[],S:[[22,20,'d']],W:[],E:[],inner:[],furn:[['spiral',20,14]],wallFn:bwWallLighthouse,roofFn:bwRoofLighthouse,rup:160});
  return B}
 
 // ---- Möbeltypen [Breite, Tiefe, Höhe, Oberseite, Front, durchsuchbar]

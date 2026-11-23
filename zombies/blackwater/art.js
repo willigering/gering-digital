@@ -177,8 +177,8 @@ function bwRoofTunnel(c,b){const w=b.w,h=b.h;R(c,0,0,w,h,'#3e3e44');for(let i=0;
 function bwRoofBumper(c,b){const w=b.w,h=b.h;for(let x=0;x<w;x+=4){R(c,x,0,2,h,'#4a5866');R(c,x+2,0,2,h,'#3a4652')}for(let i=0;i<w*h/40;i++)R(c,Math.random()*w,Math.random()*h,2,1,'rgba(140,70,30,.5)');R(c,0,0,w,2,'#6a7886');R(c,0,h-2,w,2,'#20262e');R(c,20,-22,w-40,20,'#100c14');R(c,20,-22,w-40,1,'#3a3040')}
 function bwRoofLighthouse(c,b){const w=b.w,h=b.h;R(c,0,0,w,h,'#5a4a46');for(let y=0;y<h;y+=4)R(c,0,y,w,1,'#4a3a36');R(c,0,0,w,2,'#7a6a66');
  const cx=w/2,base=h*.55,top=base-b.rup+36;
- for(let y=top;y<base;y++){const k=(y-top)/(base-top),r=Math.round(w*.3+k*w*.12);const band=Math.floor((y-top)/22)%2===0;R(c,cx-r,y,r*2,1,band?'#e8e4dc':'#b02a2a');R(c,cx-r,y,3,1,band?'#ffffff':'#d04040');R(c,cx+r-5,y,5,1,band?'#a8a49c':'#7a1a1a')}
- bwEll(c,cx,base,w*.42|0,6,'#3a3432');bwEll(c,cx,top,w*.32|0,5,'#2a2a2e');R(c,cx-(w*.32|0),top-2,(w*.64|0),3,'#3a3a40');for(let x=-(w*.32|0);x<=(w*.32|0);x+=4)R(c,cx+x,top-8,1,7,'#3a3a40');
+ for(let y=top;y<base;y++){const k=(y-top)/(base-top),r=Math.round(18+k*6);const band=Math.floor((y-top)/22)%2===0;R(c,cx-r,y,r*2,1,band?'#e8e4dc':'#b02a2a');R(c,cx-r,y,3,1,band?'#ffffff':'#d04040');R(c,cx+r-5,y,5,1,band?'#a8a49c':'#7a1a1a')}
+ bwEll(c,cx,base,24,6,'#3a3432');bwEll(c,cx,top,24,5,'#2a2a2e');R(c,cx-24,top-2,48,3,'#3a3a40');for(let x=-24;x<=24;x+=4)R(c,cx+x,top-8,1,7,'#3a3a40');
  R(c,cx-12,top-24,24,18,'#1a2028');for(let x=-12;x<12;x+=6)R(c,cx+x,top-24,1,18,'#4a4a50');R(c,cx-12,top-24,24,1,'#5a5a60');
  bwEll(c,cx,top-26,14,6,'#7a1a1a');bwEll(c,cx,top-29,8,4,'#9a2a2a');R(c,cx-1,top-38,2,9,'#2a2a2e');bwCirc(c,cx,top-39,2,'#c8a040');
  for(let y=top+30;y<base-10;y+=36)R(c,cx-4,y,8,10,'#1a2028')}
