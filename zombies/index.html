@@ -2294,7 +2294,7 @@ function render(){
   else if(p.type==='heal'){R(g,x-1,yy-5,3,10,'#fff');R(g,x-5,yy-1,10,3,'#fff')}
   else if(p.type==='insta'){R(g,x-4,yy-4,8,6,'#fff');R(g,x-3,yy-2,2,2,'#c00');R(g,x+1,yy-2,2,2,'#c00');R(g,x-1,yy+2,2,2,'#fff')}
   else if(p.type==='double'){g.fillStyle='#fff';g.font='bold 9px monospace';g.textAlign='center';g.fillText('x2',x,yy+3)}
-  else{R(g,x-4,yy-4,8,6,'#fff');R(g,x-3,yy-2,2,2,'#000');R(g,x+1,yy-2,2,2,'#000');R(g,x-2,yy+2,4,2,'#fff');R(g,x-1,yy+2,1,2,'#000')}}});
+  else{g.fillStyle='#111';g.beginPath();g.arc(x,yy+1,5,0,7);g.fill();R(g,x-2,yy-2,2,2,'#555');R(g,x+2,yy-6,2,3,'#8a6a3a');R(g,x+3,yy-8+((now*12|0)%2),2,2,'#ffd23a')}}});
  for(const it of GROUND)if(vis(it.x-20,it.y-50,40,60))L.push({y:it.y,f:()=>{const x=Math.round(it.x),y=Math.round(it.y),bob=Math.round(Math.sin(now*3+it.id)*1.5),col=it.kind==='med'?'#9fffb0':RAR[it.r||0].c;
   if((it.r||0)===3){g.globalAlpha=.25+Math.sin(now*4)*.1;R(g,x-1,y-46,3,44,col);g.globalAlpha=1}
   g.globalAlpha=.35+Math.sin(now*4+it.id)*.12;g.fillStyle=col;g.beginPath();g.ellipse(x,y,8,3,0,0,7);g.fill();g.globalAlpha=1;
