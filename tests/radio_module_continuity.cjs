@@ -222,7 +222,7 @@ let server,browser;
   await page.mouse.move(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height/2,{steps:10});
   assert.ok(await page.locator('.connectTarget').count(),'Target form is highlighted');await page.mouse.up();
   assert.equal(await page.locator('#lines .connection').count(),1);
-  const edgePoint=await page.locator('#lines .connection path:not(.hit)').evaluate(el=>{const p=el.getPointAtLength(el.getTotalLength()/2),v=new DOMPoint(p.x,p.y).matrixTransform(el.getScreenCTM());return{x:v.x,y:v.y}});
+  const edgePoint=await page.locator('#lines .connection path:not(.hit):not(.selectionHalo)').evaluate(el=>{const p=el.getPointAtLength(el.getTotalLength()/2),v=new DOMPoint(p.x,p.y).matrixTransform(el.getScreenCTM());return{x:v.x,y:v.y}});
   await page.mouse.click(edgePoint.x,edgePoint.y,{button:'right'});
   assert.ok(await page.locator('.connection.selected .selectionHalo').count());
   const cards=page.locator('#editorContext select');await cards.nth(0).selectOption('1');await cards.nth(1).selectOption('n');
