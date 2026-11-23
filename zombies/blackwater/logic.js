@@ -367,5 +367,8 @@ function bwDrawStair(){const [gx,gy,gw,gh]=BW_LH_GAL;
  for(const [sx,sy,sw,sh,o] of BW_LH_STAIRS){
   if(o==='v'){R(g,sx,sy,2,sh,'#7a7e88');R(g,sx+sw-2,sy,2,sh,'#7a7e88');R(g,sx,sy,1,sh,'#a8acb6');for(let y=sy+3;y<sy+sh;y+=6){R(g,sx+2,y,sw-4,2,'#8a8e98');R(g,sx+2,y+2,sw-4,1,'#3a3c44')}}
   else{for(let x=sx;x<sx+sw;x+=6){R(g,x,sy,5,sh,'#5a4a3e');R(g,x,sy,5,1,'#7a6a58')}for(let x=sx;x<=sx+sw;x+=6)R(g,x,sy+sh-7,1,7,'#3a3a44');R(g,sx,sy+sh-7,sw,1,'#5a5a64');R(g,sx,sy+sh,sw,2,'#1a1816')}}
- R(g,gx,gy,gw,gh,'#3a3432');for(let x=gx;x<gx+gw;x+=6)R(g,x,gy,5,gh,'#4a423e');R(g,gx,gy,gw,1,'#6a625e');
- for(let x=gx;x<=gx+gw;x+=4)R(g,x,gy-7,1,7,'#2a2a30');R(g,gx,gy-7,gw,1,'#5a5a64');R(g,gx,gy+gh-1,gw,2,'#1a1816')}
+ {const cx=BW_LH_TOP.x+4,cy=gy+gh/2,rx=gw/2+6,ry=gh/2+3;
+  g.fillStyle='#1a1a20';g.beginPath();g.ellipse(cx,cy+3,rx,ry,0,0,7);g.fill();g.fillStyle='#4a4c56';g.beginPath();g.ellipse(cx,cy,rx,ry,0,0,7);g.fill();
+  g.fillStyle='#5c5e6a';g.beginPath();g.ellipse(cx,cy-1,rx-3,ry-3,0,0,7);g.fill();
+  for(let a=0;a<Math.PI*2;a+=Math.PI/14){const x=Math.round(cx+Math.cos(a)*rx),y=Math.round(cy+Math.sin(a)*ry);R(g,x,y-8,1,8,'#2a2a32')}
+  g.strokeStyle='#8a8c98';g.lineWidth=1;g.beginPath();g.ellipse(cx,cy-8,rx,ry,0,0,7);g.stroke()}}
