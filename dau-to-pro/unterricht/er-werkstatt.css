@@ -71,3 +71,8 @@
 .ew-link-preview{stroke:#f2c679;stroke-dasharray:7 5;pointer-events:none}
 .ew-card-bg{fill:#0b1c26;stroke:#a88049;stroke-width:1.5}
 .ew-card-badge[data-edge]{cursor:pointer}
+
+.ew-custom-form{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;background:#122934;border-bottom:1px solid #395761}
+.ew-custom-form label{font-size:12px;color:#edc887;font-weight:800}
+.ew-custom-form input{min-width:180px;flex:1;padding:11px 12px;border-radius:8px;border:1px solid #53747b;background:#091d27;color:#f6faf6;font:inherit}
+.ew-custom-form span{font-size:11px;color:#b2c9ca}
