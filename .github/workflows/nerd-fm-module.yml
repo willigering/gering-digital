@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'dau-to-pro/index.php'
+      - 'dau-to-pro/unterricht/er-diagramme-bauen.php'
       - 'dau-to-pro/module-shell.js'
       - 'dau-to-pro/module-shell.css'
       - 'tests/radio_module_continuity.cjs'
@@ -27,7 +28,9 @@ jobs:
       - name: Install Playwright
         run: npm install --prefix "$RUNNER_TEMP/radio" --no-package-lock playwright@1.62.1
       - name: Install Chromium
-        run: node "$RUNNER_TEMP/radio/node_modules/playwright/cli.js" install --with-deps chromium
+        env:
+          NODE_PATH: ${{ runner.temp }}/radio/node_modules
+        run: node tests/support/install-chromium.cjs
       - name: Verify continuous playback
         env:
           NODE_PATH: ${{ runner.temp }}/radio/node_modules
