@@ -1,0 +1,14 @@
+name: Deploy Zombies to STRATO
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'zombies/**'
+      - '.github/workflows/zombies-production-deploy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  deploy:
+    uses: ./.github/workflows/deploy-strato.yml
+    secrets: inherit
