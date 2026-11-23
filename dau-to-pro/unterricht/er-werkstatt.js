@@ -21,7 +21,9 @@ const scenarios=[
 ];
 const storeKey='dtp-er-werkstatt-v1-'+String(window.__EW_ACCOUNT__||'session');
 let task=null, placed=[], edges=[], picked=null, selectedEdge=null, connectStart=null, history=[], drag=null, validated=false;
-const currentById=id=>task?.terms.find(t=>t.id===id), nodeById=id=>placed.find(n=>n.id===id);
+let customTerms=[];
+const isCustom=id=>customTerms.some(t=>t.id===id);
+const currentById=id=>task?.terms.find(t=>t.id===id)||customTerms.find(t=>t.id===id), nodeById=id=>placed.find(n=>n.id===id);
 const canonical=(a,b)=>[a,b].sort().join('|');
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 const svgEl=(tag,attrs={},label)=>{const e=document.createElementNS(NS,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,String(v));if(label!==undefined)e.textContent=label;return e};
@@ -34,27 +36,28 @@ const required=[['a','r',s.card[0]],['b','r',s.card[1]]];
 for(const [prefix,attrs] of [['a',s.aAttrs],['b',s.bAttrs],['r',s.rAttrs||[]]]){
 attrs.forEach(([label,key],i)=>{const id=prefix+i;terms.push({id,label,kind:'attribute',key:!!key});required.push([id,prefix,''])});}
 return {...s,terms,required}}
-function persist(){try{localStorage.setItem(storeKey,JSON.stringify({taskId:task.id,level:$('ew-level').value,placed,edges}))}catch(e){}}
-function snapshot(){history.push({placed:structuredClone(placed),edges:structuredClone(edges)});if(history.length>60)history.shift()}
+function persist(){try{localStorage.setItem(storeKey,JSON.stringify({taskId:task.id,level:$('ew-level').value,placed,edges,customTerms}))}catch(e){}}
+function snapshot(){history.push({placed:structuredClone(placed),edges:structuredClone(edges),customTerms:structuredClone(customTerms)});if(history.length>60)history.shift()}
 function change(){validated=false;$('ew-solution-button').disabled=true;$('ew-solution').hidden=true;$('ew-feedback').hidden=true;persist();render()}
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 function seedMissing(){
  const grid=Array.from({length:9},(_,i)=>({x:150+i%3*300,y:85+Math.floor(i/3)*165}));
  for(let i=grid.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[grid[i],grid[j]]=[grid[j],grid[i]]}
- for(const t of task.terms){
+ for(const t of [...task.terms,...customTerms]){
   if(nodeById(t.id))continue;
-  const distance=p=>Math.min(...placed.map(n=>Math.hypot(p.x-n.x,p.y-n.y)));
+  const distance=p=>placed.length?Math.min(...placed.map(n=>Math.hypot(p.x-n.x,p.y-n.y))):999;
   grid.sort((a,b)=>distance(b)-distance(a));
   const point=grid.shift();
   placed.push({id:t.id,...point,shape:'none',underline:false});
  }
 }
 function restore(){try{const val=JSON.parse(localStorage.getItem(storeKey)||'null');if(!val)return false;const s=scenarios.find(x=>x.id===val.taskId);if(!s)return false;task=model(s);$('ew-level').value=s.level;
-if(Array.isArray(val.placed))placed=val.placed.filter(n=>currentById(n.id)&&Number.isFinite(n.x)&&Number.isFinite(n.y)&&['none','entity','relationship','attribute'].includes(n.shape)).slice(0,12).map(n=>({id:n.id,x:Math.max(85,Math.min(815,n.x)),y:Math.max(55,Math.min(445,n.y)),shape:n.shape,underline:!!n.underline}));
+customTerms=Array.isArray(val.customTerms)?val.customTerms.filter(t=>t&&typeof t.id==='string'&&/^custom-\d+$/.test(t.id)&&typeof t.label==='string'&&t.label.trim().length>0).slice(0,35).map(t=>({id:t.id,label:t.label.slice(0,45),kind:'custom'})):[];
+if(Array.isArray(val.placed))placed=val.placed.filter(n=>currentById(n.id)&&Number.isFinite(n.x)&&Number.isFinite(n.y)&&['none','entity','relationship','attribute'].includes(n.shape)).slice(0,55).map(n=>({id:n.id,x:Math.max(85,Math.min(815,n.x)),y:Math.max(55,Math.min(445,n.y)),shape:n.shape,underline:!!n.underline}));
 seedMissing();
-if(Array.isArray(val.edges))edges=val.edges.filter(e=>nodeById(e.a)&&nodeById(e.b)&&e.a!==e.b&&['','1','n','m'].includes(e.card)).slice(0,15).map(e=>({a:e.a,b:e.b,card:e.card}));return true}catch(e){return false}}
+if(Array.isArray(val.edges))edges=val.edges.filter(e=>nodeById(e.a)&&nodeById(e.b)&&e.a!==e.b&&['','1','n','m'].includes(e.card)).slice(0,100).map(e=>({a:e.a,b:e.b,card:e.card}));return true}catch(e){return false}}
 function newTask(){let level=$('ew-level').value;let options=scenarios.filter(t=>t.level===level&&(!task||t.id!==task.id));if(!options.length)options=scenarios.filter(t=>t.level===level);const sample=options[Math.floor(Math.random()*options.length)];
-task=model(sample);placed=[];edges=[];seedMissing();picked=null;selectedEdge=null;connectStart=null;history=[];change();message('Wähle einen Begriff und gib ihm eine Form. Ziehe von Begriff zu Begriff, um eine Linie zu setzen.')}
+task=model(sample);placed=[];edges=[];customTerms=[];seedMissing();picked=null;selectedEdge=null;connectStart=null;history=[];change();message('Wähle einen Begriff und gib ihm eine Form. Ziehe von Begriff zu Begriff, um eine Linie zu setzen.')}
 function coords(ev){const c=board.createSVGPoint();c.x=ev.clientX;c.y=ev.clientY;const m=board.getScreenCTM();return m?c.matrixTransform(m.inverse()):{x:450,y:250}}
 function render(){if(!task)return;$('ew-title').textContent=task.title;$('ew-story').textContent=task.story;renderBoard();renderTools();$('ew-undo').disabled=!history.length}
 function renderTools(){const n=nodeById(picked);$('ew-toolbar').hidden=!!selectedEdge;$('ew-line-toolbar').hidden=!selectedEdge;
@@ -172,8 +175,9 @@ $('ew-connect').addEventListener('click',()=>{if(!nodeById(picked))return;connec
 for(const b of document.querySelectorAll('[data-ew-card]'))b.addEventListener('click',()=>{const e=edges.find(e=>canonical(e.a,e.b)===selectedEdge);if(!e)return;snapshot();e.card=b.dataset.ewCard;change();message('Kardinalität gesetzt.')});
 $('ew-delete').addEventListener('click',()=>{const n=nodeById(picked);if(!n||n.shape==='none')return;snapshot();n.shape='none';n.underline=false;change()});
 $('ew-delete-line').addEventListener('click',()=>{if(!selectedEdge)return;snapshot();edges=edges.filter(e=>canonical(e.a,e.b)!==selectedEdge);selectedEdge=null;change()});
-$('ew-undo').addEventListener('click',()=>{const old=history.pop();if(!old)return;placed=old.placed;edges=old.edges;picked=null;selectedEdge=null;connectStart=null;change();message('Letzter Schritt rückgängig gemacht.')});
+$('ew-undo').addEventListener('click',()=>{const old=history.pop();if(!old)return;placed=old.placed;edges=old.edges;customTerms=old.customTerms||[];picked=null;selectedEdge=null;connectStart=null;change();message('Letzter Schritt rückgängig gemacht.')});
 $('ew-clear').addEventListener('click',()=>{if(!window.confirm('Formen und Verbindungen zurücksetzen?'))return;snapshot();placed=placed.map(n=>({...n,shape:'none',underline:false}));edges=[];picked=null;selectedEdge=null;connectStart=null;change();message('Formen und Verbindungen zurückgesetzt.')});
+$('ew-custom-form').addEventListener('submit',ev=>{ev.preventDefault();const field=$('ew-custom-term'),label=field.value.trim().replace(/\s+/g,' ');if(!label)return;if(customTerms.length>=35){message('Maximal 35 eigene Begriffe pro Aufgabe möglich.');return;}snapshot();const id='custom-'+Date.now();customTerms.push({id,label:label.slice(0,45),kind:'custom'});const i=customTerms.length-1;const x=clamp(170+(i%4)*175,105,795),y=clamp(80+(Math.floor(i/4)%5)*85,54,446);placed.push({id,x,y,shape:'none',underline:false});picked=id;selectedEdge=null;connectStart=null;field.value='';change();message('Eigener Begriff „'+label+'“ hinzugefügt. Wähle jetzt Rechteck, Raute oder Oval.');});
 $('ew-next').addEventListener('click',newTask);
 $('ew-level').addEventListener('change',newTask);
 function grade(){let done=0,max=0;const hints=[];
@@ -181,7 +185,7 @@ for(const t of task.terms){const n=nodeById(t.id);max+=2;if(n)done++;else hints.
 if(t.kind==='attribute'){max++;if(n&&n.shape==='attribute'&&n.underline===!!t.key)done++;else if(n)hints.push('Unterstreichung bei „'+t.label+'“ prüfen.')}}
 const expected=new Set(task.required.map(([a,b])=>canonical(a,b)));
 for(const [a,b,card] of task.required){max++;const e=edges.find(e=>canonical(e.a,e.b)===canonical(a,b));if(e)done++;else hints.push('Eine Verbindung fehlt. Prüfe die Linien.');if(card){max++;if(e&&e.card===card)done++;else hints.push('Kardinalität zwischen „'+currentById(a).label+'“ und „'+currentById(b).label+'“ prüfen.')}else if(e&&e.card)hints.push('Eine Attributlinie sollte keine Kardinalität tragen.')}
-const extras=edges.filter(e=>!expected.has(canonical(e.a,e.b)));if(extras.length){max+=extras.length;hints.push('Es gibt '+extras.length+' überflüssige Verbindung(en).')}
+const extras=edges.filter(e=>!isCustom(e.a)&&!isCustom(e.b)&&!expected.has(canonical(e.a,e.b)));if(extras.length){max+=extras.length;hints.push('Es gibt '+extras.length+' überflüssige Verbindung(en).')}
 if(edges.some(e=>{const x=task.required.find(r=>canonical(r[0],r[1])===canonical(e.a,e.b));return x&&!x[2]&&e.card})){max++;hints.push('An mindestens einer Attributlinie steht eine unnötige 1/n/m-Kardinalität.')}
 const pct=Math.round(done/max*100),panel=$('ew-feedback');panel.hidden=false;panel.replaceChildren();const h=document.createElement('h3');h.textContent=pct+' % richtig · '+done+' / '+max+' Prüfpunkte';if(pct===100)h.classList.add('ew-perfect');panel.appendChild(h);
 const p=document.createElement('p');p.textContent=pct===100?'Alles korrekt! Du hast die Aufgabe richtig modelliert.':'Prüfe die markierten Punkte und versuche es erneut. Die Position der Begriffe spielt für die Bewertung keine Rolle.';panel.appendChild(p);
