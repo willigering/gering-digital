@@ -216,3 +216,11 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Lokale Browserprozesse können in dieser Umgebung nicht starten; PHP ist hier nicht installiert. Browser-/PHP-/Kontotests laufen deshalb über die bestehenden verpflichtenden GitHub-Prüfungen. Visuelle Funktionsprüfung zusätzlich über die bereitgestellte Browservorschau; Merge, Deployment und Liveprüfung werden separat kontrolliert.
 - Browservorschau: Reihenfolge des Messwert-Algorithmus mit Sortierknöpfen korrekt gelöst; EVA-Lücken mit auswählbaren Begriffen bedient; Nachschlagwerk erreichbar; Prüfungsauswahl nach Vor-/Zurück-Navigation erhalten; klare Trennung und Sortierkarten visuell geprüft. Automatisierte vollständige Browser-/PHP-Abnahme steht noch aus.
 - Upload-Ziel und anschließendes STRATO-Deployment wurden nach der anfänglichen automatischen Ablehnung ausdrücklich vom Nutzer bestätigt. PR #325 ist angelegt; vollständige GitHub-Prüfungen laufen. Deployment und Liveabnahme werden erst nach erfolgreichem Abschluss bestätigt.
+
+
+## ER-Werkstatt V8 – Austausch im Werkstattbereich (23.11.2026)
+
+- Ersetzt das alte Zeichenlabor unter `dau-to-pro/unterricht/er-diagramme-bauen.php` durch Willis freigegebene V8. Beide bestehenden Karten behalten ihre Zieladresse; Beschreibung und Funktionsangaben aktualisiert. Das eigenständige ER-Nachschlagemodul bleibt erhalten.
+- Vier unveränderte Aufgaben, Platzierung mit Formvorschau am Zeiger, Inline-Beschriftung, vier leuchtende Verbindungspunkte, formgetreue Auswahl, einheitliche Kardinalitätsposition, Zoom bis 0,1 %, JSON-Import/-Export und PNG/PDF/SVG.
+- Bestehender Lernkonto-Zugang bleibt vorgeschaltet. Browserprojekte sind pro Konto getrennt; alte Zeichenlabor-Daten werden nicht gelöscht. Eigenständige V8-Projekte lassen sich über JSON übernehmen.
+- Lokale Skriptsyntax und gezielte Integrationsprüfung durchgeführt. Browserabnahme und PHP-/Plattformregression über GitHub Actions; Veröffentlichung erst nach erfolgreichen Prüfungen. Kein lokaler Browsernachweis behauptet.

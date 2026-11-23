@@ -227,7 +227,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
       <div class="module-body">
         <span class="module-category">Datenmodellierung</span>
         <h2>ER-Diagramme bauen</h2>
-        <p>Formen zuweisen, Begriffe verbinden und Kardinalitäten setzen. Jede neue Aufgabe startet mit einem vorbereiteten Zeichenblatt.</p>
+        <p>ER-Modelle nach Peter Chen frei zeichnen: Formen platzieren, direkt beschriften und verbinden. Vier Aufgaben sowie Projekt-, PNG-, PDF- und SVG-Export.</p>
         <div class="module-footer"><span>Mit Lernkonto öffnen</span><b aria-hidden="true">↗</b></div>
       </div>
     </a>
@@ -340,7 +340,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <div class="module-footer"><span>5 ABSCHNITTE · 5 TESTFRAGEN</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
-        <a class="module-card unterricht-card" style="--mod:#edbb70" href="unterricht/er-diagramme-bauen.php" aria-label="Eigene ER-Diagramme erstellen und Aufgaben generieren">
+        <a class="module-card unterricht-card" style="--mod:#edbb70" href="unterricht/er-diagramme-bauen.php" aria-label="ER-Werkstatt V8 mit vier Aufgaben und freiem Zeichenblatt öffnen">
           <div class="module-art unterricht-art">
             <span class="unterricht-art-orbit" aria-hidden="true"></span>
             <span class="module-art-symbol" aria-hidden="true">ER<span>↔</span></span>
@@ -349,8 +349,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           <div class="module-body">
             <span class="module-category">UNTERRICHTSMATERIAL · DATENMODELLIERUNG</span>
             <h2>Begriffe rein. Beziehungen klar.</h2>
-            <p>Rechtecke, Rauten oder Ovale zuweisen, Schlüssel unterstreichen, Begriffe verbinden und selbst prüfen. Neue Aufgaben auf Knopfdruck.</p>
-            <div class="module-footer"><span>AUFGABENGENERATOR · DRAG &amp; DROP</span><b aria-hidden="true">↗</b></div>
+            <p>ER-Werkstatt V8: Formen frei platzieren, direkt bearbeiten und verbinden. Bibliothek, Schule, Fitnessstudio und Autovermietung mit getrennten Zeichenflächen.</p>
+            <div class="module-footer"><span>4 AUFGABEN · PNG / PDF / SVG</span><b aria-hidden="true">↗</b></div>
           </div>
         </a>
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
@@ -419,7 +419,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           </div>
         </a>
       </div>
-      <p class="unterricht-account-hint">Alle Lernkonto-Mitglieder können die Unterrichtsmaterialien ohne zusätzliche Freischaltung öffnen. Einige Übungen speichern Fortschritt im Konto, andere nur lokal im Browser. Das neue ER-Zeichenlabor erstellt Aufgaben auf Knopfdruck.</p>
+      <p class="unterricht-account-hint">Alle Lernkonto-Mitglieder können die Unterrichtsmaterialien ohne zusätzliche Freischaltung öffnen. Einige Übungen speichern Fortschritt im Konto, andere nur lokal im Browser. Die ER-Werkstatt enthält vier Aufgaben und frei bearbeitbare Diagramme.</p>
     </div>
     <?php else: ?>
       <div class="unterricht-content">

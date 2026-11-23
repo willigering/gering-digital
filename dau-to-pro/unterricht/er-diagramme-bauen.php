@@ -1,4 +1,5 @@
 <?php
+// ER-Werkstatt V8: same protected URL, account-isolated browser projects.
 declare(strict_types=1);
 require_once __DIR__.'/../material-access.php';
 dtp_material_require_access();
@@ -6,63 +7,483 @@ header('Cache-Control: no-store, private');
 header('X-Robots-Tag: noindex');
 header('X-Content-Type-Options: nosniff');
 $account=(int)(learner_current()['id']??0);
-?><!doctype html>
-<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#08151a"><title>ER-Werkstatt · Diagramme selber bauen · DAU TO PRO</title>
-<link rel="stylesheet" href="db-material.css"><link rel="stylesheet" href="er-werkstatt.css?v=3"></head>
-<body>
-<header class="site-head"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">← UNTERRICHTSMATERIAL</a><strong>DAU <span>TO</span> PRO // ER-WERKSTATT</strong></div></header>
-<div class="wrap"><section class="hero ew-hero">
-<span class="kicker">DATENBANKEN · INTERAKTIVES UNTERRICHTSMATERIAL</span>
-<h1>Begriffe rein.<br><em>Beziehungen klar.</em></h1>
-<p>Deine Aufgabe: Aus einer Beschreibung ein echtes ER-Diagramm bauen. Die Begriffe liegen schon auf dem Blatt. Gib ihnen ihre Form, unterstreiche Schlüssel und verbinde, was zusammengehört.</p>
-<div class="tags"><span>Linien ziehen</span><span>Rechteck · Raute · Oval</span><span>Unterstreichen</span><span>Aufgabengenerator</span></div>
-</section>
-<main id="er-training">
-<div class="ew-task part">
-<div class="ew-task-top">
-<div><span class="eyebrow">01 · DEINE AUFGABE</span><h2 id="ew-title">ER-Modell erstellen</h2></div>
-<div class="ew-generate">
-<label for="ew-level">Schwierigkeit</label>
-<select id="ew-level"><option value="easy">Einfach</option><option value="medium" selected>Normal</option><option value="hard">Knifflig</option></select>
-<button type="button" class="ew-button ew-gold" id="ew-next">↻ Neue Aufgabe</button>
-</div></div>
-<p id="ew-story" class="ew-story" aria-live="polite"></p>
-<div class="ew-step-hint"><span>1 <b>Form geben</b></span><i>›</i><span>2 <b>Verbinden</b></span><i>›</i><span>3 <b>1 / n / m setzen</b></span><i>›</i><span>4 <b>Prüfen</b></span></div>
-</div>
-<section class="part ew-studio" aria-label="ER-Diagramm erstellen">
-<div class="ew-studio-top"><div><span class="eyebrow">02 · DEIN ZEICHENBLATT</span><h2>Aus Text wird Struktur.</h2></div><p>Ziehe direkt von einem Begriff zum anderen. Tippe danach auf die Linie, um 1, n oder m zu setzen.</p></div>
-<div class="ew-workspace">
-<form class="ew-custom-form" id="ew-custom-form" autocomplete="off"><label for="ew-custom-term">Eigener Begriff</label><input id="ew-custom-term" type="text" maxlength="45" placeholder="z. B. PatientenNr, behandelt, Diagnose" required><button type="submit" class="ew-button ew-gold">+ Begriff hinzufügen</button><span>Neue Begriffe kannst du anschließend frei formen und verbinden.</span></form>
-<div class="ew-toolbar" id="ew-toolbar" aria-label="Werkzeuge für markiertes Element">
-<span class="ew-tool-caption" id="ew-selection-label">Klicke einen Begriff an</span>
-<div class="ew-tool-group" id="ew-shape-tools">
-<button type="button" class="ew-tool" data-ew-shape="entity" aria-pressed="false"><svg viewBox="0 0 50 32" aria-hidden="true"><rect x="4" y="5" width="42" height="22" rx="1" stroke="currentColor" fill="none" stroke-width="2"/></svg>Rechteck</button>
-<button type="button" class="ew-tool" data-ew-shape="relationship" aria-pressed="false"><svg viewBox="0 0 50 32" aria-hidden="true"><polygon points="25,2 48,16 25,30 2,16" stroke="currentColor" fill="none" stroke-width="2"/></svg>Raute</button>
-<button type="button" class="ew-tool" data-ew-shape="attribute" aria-pressed="false"><svg viewBox="0 0 50 32" aria-hidden="true"><ellipse cx="25" cy="16" rx="23" ry="13" stroke="currentColor" fill="none" stroke-width="2"/></svg>Oval</button>
-</div>
-<button type="button" class="ew-tool ew-underline" id="ew-underline" aria-pressed="false"><span aria-hidden="true"><u>U</u></span>Unterstreichen</button>
-<button type="button" class="ew-tool ew-link-button" id="ew-connect">Verbinden</button>
-<button type="button" class="ew-tool ew-delete" id="ew-delete" aria-label="Form des markierten Begriffs entfernen">Form entfernen</button>
-</div>
-<div class="ew-toolbar ew-line-toolbar" id="ew-line-toolbar" hidden><span>Kardinalität der markierten Linie</span><div id="ew-card-group" class="ew-cards">
-<button type="button" data-ew-card="">–</button><button type="button" data-ew-card="1">1</button><button type="button" data-ew-card="n">n</button><button type="button" data-ew-card="m">m</button></div><button class="ew-button" type="button" id="ew-delete-line">Linie entfernen</button></div>
-<div id="ew-board-scroller" class="ew-board-scroller"><svg id="ew-board" class="ew-board" viewBox="0 0 900 500" role="group" aria-label="Zeichentafel mit Begriffen zum Formen und Verbinden"><g id="ew-lines"></g><g id="ew-nodes"></g><g id="ew-labels"></g></svg></div>
-<p id="ew-message" class="ew-message" role="status" aria-live="polite">Wähle einen Begriff und gib ihm eine Form.</p>
-</div>
-<div class="ew-actionbar"><button class="ew-button ew-gold" id="ew-check" type="button">Diagramm prüfen</button><button class="ew-button" id="ew-undo" type="button">↶ Rückgängig</button><button class="ew-button ew-quiet" id="ew-clear" type="button">Zurücksetzen</button><button class="ew-button" id="ew-solution-button" type="button" disabled>Lösung ansehen</button></div>
-<div id="ew-feedback" class="ew-feedback" hidden aria-live="polite"></div>
-<div id="ew-solution" class="ew-solution" hidden><h3>Ein mögliches korrektes ER-Diagramm</h3><p>In der Chen-Notation: Rechtecke für Entitätstypen, Rauten für Beziehungen, Ovale für Attribute. Schlüsselattribute sind unterstrichen.</p><svg id="ew-solution-svg" viewBox="0 0 900 500" role="img" aria-label="Korrektes ER-Diagramm für die Aufgabe"></svg></div>
-</section>
-<section class="part ew-help"><span class="eyebrow">KURZ ERKLÄRT</span><h2>Drei Formen. Eine Regel.</h2>
-<div class="grid">
-<div class="tile"><span class="term">RECHTECK</span><h3>Entitätstyp</h3><p>Bezeichnet eine Kategorie von Dingen: Kunde, Auftrag, Mitarbeiter, Projekt.</p></div>
-<div class="tile"><span class="term">RAUTE</span><h3>Beziehung</h3><p>Beschreibt, wie Entitäten verbunden sind: erteilt, arbeitet an, gehört zu.</p></div>
-<div class="tile"><span class="term">OVAL</span><h3>Attribut</h3><p>Beschreibt eine Eigenschaft. Ein eindeutiges Schlüsselattribut wird unterstrichen.</p></div>
-</div><p class="notice">1:n heißt: Ein Datensatz der einen Seite kann mit vielen der anderen Seite verknüpft sein. Die Anzahl sagt noch nicht, ob eine Teilnahme optional ist. Die Aufgaben nennen die jeweilige fachliche Annahme.</p>
-<p class="note-text">Die Aufgaben werden zufällig aus einer redaktionell geprüften Fallsammlung erzeugt. Deine Zeichnung wird nur lokal auf diesem Gerät gespeichert, getrennt nach Lernkonto. Keine zusätzliche Passwortfreischaltung.</p>
-</section></main></div>
-<footer class="foot"><div class="wrap"><a href="../index.php?material=1#unterrichtsmaterial">Zurück zum Unterrichtsmaterial</a><a href="er-modelle-interaktiv.php">ER-Modelle nachschlagen</a></div></footer>
-<script>window.__EW_ACCOUNT__=<?=$account?>;</script>
-<script src="er-werkstatt.js?v=3" defer></script>
-</body></html>
+?>
+<!DOCTYPE html>
+
+<html lang="de"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>ER-Werkstatt V8 · Peter Chen</title><link rel="icon" type="image/svg+xml" href="../../assets/dau-to-pro-pixelpilz.svg">
+<style>
+:root{color-scheme:dark;--bg:#090e19;--panel:#111a2b;--panel2:#172238;--border:#293751;--text:#edf3ff;--muted:#9babca;--blue:#64a9ff;--accent:#7ee8c2;--shadow:0 18px 55px #0005}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 55% -25%,#1a3055 0,transparent 55%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.38;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.app{height:100dvh;min-height:620px;display:flex;flex-direction:column}.header{height:70px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--border);background:#0d1526eb;gap:14px}.brand{display:flex;align-items:center;gap:13px}.logo{width:39px;height:39px;border:1px solid #5eaaff66;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#2862b9,#172b4c);font-weight:850;font-size:15px;letter-spacing:-1px}.brand strong{font-size:17px}.brand small{display:block;color:var(--muted);font-size:11px;letter-spacing:.12em;text-transform:uppercase;margin-top:3px}.header-actions,.row{display:flex;align-items:center;gap:8px}.btn{padding:9px 12px;border:1px solid #344561;border-radius:10px;background:#18253d;color:#dce8ff;font-size:13px;white-space:nowrap}.btn:hover{background:#243856}.btn.primary{background:#276add;border-color:#488df9;color:white}.btn.primary:hover{background:#367bee}.btn.ghost{background:transparent}.workspace{min-height:0;flex:1;display:grid;grid-template-columns:292px minmax(300px,1fr) 276px}.side{min-height:0;overflow:auto;background:#10192a;border-right:1px solid var(--border);padding:19px 16px}.right{border-right:0;border-left:1px solid var(--border)}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.17em;color:#7f96bc;font-weight:800;margin:13px 0 10px}.task-select{width:100%;border-radius:11px;border:1px solid #395072;background:#172740;color:var(--text);padding:12px;margin-bottom:12px}.task-desc{background:#15213a;border:1px solid #2c3f60;padding:14px;border-radius:13px;margin:8px 0 16px}.task-desc h2{font-size:16px;margin:0 0 7px}.task-desc p{font-size:12px;line-height:1.55;color:var(--muted);margin:0}.fact{display:flex;gap:9px;padding:12px 0;border-bottom:1px solid #26354b;font-size:12px;line-height:1.6;color:#cbd7ee}.fact b{color:var(--blue);min-width:18px}.question{font-size:12px;line-height:1.6;color:#cbd7ee;margin:0 0 10px}.note{background:#3e321c;border:1px solid #856638;border-radius:10px;color:#ffe0a4;font-size:12px;padding:10px}.answer{width:100%;resize:vertical;min-height:90px;border:1px solid #354863;background:#0d1627;color:var(--text);border-radius:11px;padding:10px;font-size:12px}.shapes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.shapeBtn{border:1px solid #354661;background:#17243b;border-radius:12px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);font-size:11px}.shapeBtn:hover{background:#223655;border-color:#6699da}.shapeBtn svg{width:72px;height:41px}.helper{font-size:11px;line-height:1.6;color:#8398ba}.center{min-width:0;display:flex;flex-direction:column;background:#0a1220}.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;padding:12px 15px;border-bottom:1px solid var(--border);background:#0e182a;flex-shrink:0}.tool{border:1px solid #354661;background:#1a2940;color:#d8e6ff;border-radius:9px;padding:9px 11px;font-size:12px}.tool.active{border-color:#70aeff;background:#234a83;color:#fff}.tool:hover{background:#28405f}.sep{height:25px;width:1px;background:#32445f;margin:0 4px}.status{margin-left:auto;color:#a9bad5;font-size:12px}.boardwrap{position:relative;flex:1;overflow:hidden;min-height:0;background-color:#101b2e;background-image:radial-gradient(#2a3b57 1px,transparent 1px);background-size:20px 20px}.boardwrap.connecting{cursor:crosshair}.board{width:100%;height:100%;display:block;touch-action:none;user-select:none}.board text{font-family:Inter,system-ui,sans-serif}.board .node{cursor:move}.board .node .body{stroke-width:2.3;filter:drop-shadow(0 5px 10px #0004)}.board .node.selected .body{stroke:#f5c56d!important;stroke-width:3.2}.board .node .caption{fill:#eff6ff;font-weight:650;font-size:16px;pointer-events:none}.board .connection{cursor:pointer}.board .connection.selected path{stroke:#ffcf75}.board .connection path{fill:none;stroke:#9fb3d5;stroke-width:2.4}.board .connection .card{fill:#15213a;stroke:#55749e;stroke-width:1}.board .connection text{fill:#e9f1ff;font-size:13px;font-weight:750}.board .connection .cardinality{fill:#b7dbff;font-size:13px}.board .connection.selected .card{stroke:#ffcf75}.board .node .pk{stroke:#fff;stroke-width:1.6}.modehint{position:absolute;bottom:15px;left:16px;display:flex;align-items:center;gap:9px;background:#121d30e8;border:1px solid #314765;border-radius:10px;padding:10px 13px;color:#b6c8e5;font-size:11px;max-width:calc(100% - 30px);pointer-events:none}.zoomcontrols{position:absolute;bottom:15px;right:15px;display:flex;align-items:center;gap:5px;background:#121d30ec;padding:6px;border:1px solid #3a4a65;border-radius:11px}.zoomcontrols button{background:#233653;border:0;border-radius:7px;color:#e5f1ff;padding:7px 12px}.zoomcontrols span{font-size:12px;color:#cad9f0;min-width:47px;text-align:center}.field{display:block;margin-bottom:14px}.field span{display:block;color:#96aac9;font-size:11px;margin-bottom:6px;font-weight:750}.field input,.field select{width:100%;border:1px solid #3a4c69;border-radius:9px;background:#0d182b;color:#edf3ff;padding:10px}.duo{display:grid;grid-template-columns:1fr 1fr;gap:9px}.panelTitle{font-weight:750;font-size:15px;margin:5px 0 13px}.info{font-size:12px;line-height:1.6;color:var(--muted)}.pill{display:inline-flex;border-radius:6px;padding:3px 8px;background:#233655;color:#a9cfff;font-size:11px}.footer{padding:10px 15px;border-top:1px solid var(--border);color:#8c9cba;font-size:11px;background:#0e182a;display:flex;justify-content:space-between;gap:10px}.divider{height:1px;background:#2d3d59;margin:17px 0}.toast{position:absolute;left:50%;top:20px;transform:translateX(-50%);border:1px solid #428d75;background:#173e39;color:#c3ffec;border-radius:10px;padding:11px 16px;font-size:12px;z-index:10;box-shadow:var(--shadow)}.hidden{display:none!important}.kbd{border:1px solid #49607b;padding:1px 5px;border-radius:4px;color:#a8bad7}.small{font-size:11px}.mobileTabs{display:none}@media(max-width:1050px){.workspace{grid-template-columns:245px minmax(250px,1fr) 226px}.header{padding:0 12px}.header-actions{gap:5px}.btn{padding:8px}.side{padding:13px 11px}}@media(max-width:760px){.app{height:100dvh;min-height:0}.workspace{display:flex;position:relative}.center{flex:1}.side{display:none;position:absolute;inset:0 auto 0 0;width:min(330px,90vw);z-index:15;box-shadow:18px 0 60px #0009}.side.right{inset:0 0 0 auto}.side.show{display:block}.mobileTabs{display:flex;gap:5px}.header{height:63px}.brand small{display:none}.header-actions .optional{display:none}.toolbar{padding:7px;gap:5px}.status{display:none}.modehint{bottom:68px;max-width:70%;font-size:10px}.zoomcontrols{bottom:12px}.footer{font-size:10px}.tool{padding:8px}}
+
+/* diagrams.net-inspired workspace */
+.workspace.twoColumn{grid-template-columns:340px minmax(0,1fr)}
+.tasksSidebar{padding:0;display:flex;flex-direction:column;background:#111a2c;overflow:hidden}
+.paletteArea{flex:none;padding:13px 14px 10px;border-bottom:1px solid var(--border);background:#131f34;box-shadow:0 8px 20px #050b1833;z-index:1}
+.paletteArea .eyebrow{margin:2px 0 9px}.paletteArea .helper{margin:9px 0 0}
+.tasksScroll{overflow:auto;min-height:0;flex:1;padding:15px}
+.palette{grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.palette .shapeBtn{min-width:0;padding:7px 2px;gap:3px;border-radius:8px;font-size:9px;line-height:1.25;min-height:71px;user-select:none;cursor:grab;text-align:center}
+.palette .shapeBtn:active{cursor:grabbing}.palette .shapeBtn svg{width:62px;height:34px;max-width:100%}
+.boardwrap{background-color:#101a2c}.board .node.selected .body{stroke:#60b8ff!important;stroke-width:3}
+.board .resizehandle{fill:#e7f5ff;stroke:#378be8;stroke-width:2;cursor:nwse-resize}.board .resizehandle.alt{cursor:nesw-resize}
+.board .port{fill:#4c9df8;stroke:#e7f4ff;stroke-width:2;cursor:crosshair}.board .port:hover{fill:#7be2bf}
+.board .hoverPort{fill:#70dfac;stroke:#fff;stroke-width:3}
+.board .connection .hit{pointer-events:stroke}
+.inlineEditor{position:absolute;z-index:11;min-width:90px;max-width:350px;min-height:34px;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 11px;background:#edf5ff;color:#14243b;border:2px solid #409aff;border-radius:6px;box-shadow:0 9px 30px #0009;outline:none;font-weight:650;font-size:16px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.25}
+.edgeEditor{position:absolute;z-index:12;min-width:245px;width:275px;padding:13px;background:#17263e;border:1px solid #618bbf;border-radius:12px;box-shadow:0 16px 50px #000a}
+.edgeEditor .popTitle{font-weight:750;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;font-size:13px}
+.edgeEditor .popTitle button{background:transparent;border:0;color:#ddd;font-size:22px}
+.edgeEditor label{display:block;font-size:11px;color:#a8bde0;margin-bottom:9px}.edgeEditor input,.edgeEditor select{display:block;width:100%;padding:8px;margin-top:4px;color:white;background:#0d182b;border:1px solid #47638a;border-radius:7px}
+.edgegrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.edgeEditor .btn{width:100%}
+.dragPreview{position:fixed;z-index:90;pointer-events:none;background:#285189e8;color:white;border:1px solid #81b8ff;border-radius:9px;padding:10px 15px;box-shadow:0 10px 35px #0008;font-size:13px}
+@media(max-width:1050px){.workspace.twoColumn{grid-template-columns:285px minmax(0,1fr)}.palette{grid-template-columns:repeat(4,minmax(0,1fr))}.palette .shapeBtn{font-size:8px}}
+@media(max-width:760px){.workspace.twoColumn{display:flex}.tasksSidebar{display:none;position:absolute;inset:0 auto 0 0;width:min(350px,94vw);z-index:15}.tasksSidebar.show{display:flex}.inlineEditor{font-size:15px}}
+
+/* DAU-to-Pro inspired module styling: dark panels, cyan/violet highlights, restrained depth */
+:root{--bg:#070b16;--panel:#111827;--panel2:#17233a;--border:#354261;--blue:#67c7ff;--accent:#63edcb;--text:#eef5ff;--muted:#aab8d0}
+body{background:radial-gradient(ellipse 60% 45% at 45% -12%,#173b6a 0,transparent 76%),radial-gradient(ellipse 45% 42% at 100% 100%,#271a49 0,transparent 80%),#070b16}
+.header{background:linear-gradient(120deg,#101b32,#0c1426);border-bottom:1px solid #3b5574;box-shadow:0 8px 25px #0005}
+.logo{background:linear-gradient(145deg,#22b6bf,#395cda 58%,#754ab7);border:1px solid #8aebff75;box-shadow:0 0 22px #2d9fe83d}
+.tasksSidebar{background:#0e1729}.paletteArea{background:linear-gradient(145deg,#172440,#101a2d)}
+.task-desc{background:linear-gradient(145deg,#172b47,#151f38);border:1px solid #395f82;border-radius:15px;box-shadow:inset 3px 0 #43cebd,0 7px 20px #0003}
+.fact{border-bottom:1px solid #2a3b55}.fact b{color:#79dfee}.btn.primary{background:linear-gradient(120deg,#2376c9,#4456b3);border-color:#78bbfa}
+.btn,.tool{border-radius:10px;transition:background .14s,border-color .14s,transform .14s}.btn:hover,.tool:hover{border-color:#71bce4}
+.palette .shapeBtn{background:linear-gradient(145deg,#20304e,#17233b);border-color:#394c68;border-radius:12px;transition:transform .12s,border-color .12s,background .12s}
+.palette .shapeBtn:hover{border-color:#70d8e5;transform:translateY(-1px);background:#253e62}
+.center{background:#080f1e}.toolbar{background:linear-gradient(125deg,#152139,#101b2f);border-bottom:1px solid #3b506e}.boardwrap{background-color:#0c1628;background-image:radial-gradient(#345172 1px,transparent 1px)}
+.board .selectionMarquee{fill:rgba(89,202,250,.07);stroke:#59cafa;stroke-dasharray:7 4;stroke-width:1.5;pointer-events:none}
+.board .pkToggle{cursor:pointer;filter:drop-shadow(0 2px 4px #0008)}.board .pkControlText{font-weight:850;fill:white;pointer-events:none}
+.board .node.selected .body{stroke:#6fe2e0!important;stroke-width:3;filter:drop-shadow(0 0 10px #22ceeb42)}
+.board .connection .hit{stroke:transparent!important;stroke-width:20!important;pointer-events:stroke}.board .connection path:not(.hit){pointer-events:none}
+.cardPicker{position:absolute;z-index:14;width:244px;padding:10px;background:linear-gradient(150deg,#1b2b47,#111b2f);border:1px solid #70c8e3;border-radius:13px;box-shadow:0 18px 45px #000b}
+.pickerTitle{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-bottom:9px;font-size:11px;font-weight:800;color:#c6e7ff}
+.pickerTitle button{color:#d3e6fb;border:0;background:transparent;font-size:18px}.pickerChoices{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}.pickerChoices button{padding:8px 1px;border:1px solid #4b698e;background:#243959;color:#e9f6ff;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer}
+.pickerChoices button:hover{background:#197da7;border-color:#74e9e6}.pickerHelp{margin-top:8px;color:#91acc8;font-size:10px}
+
+/* DAU TO PRO Modul-Design — adaptiert anhand des Originalmoduls "Easy OSI for FISI" */
+:root{color-scheme:dark;--bg:#0a080e;--panel:#15111b;--panel2:#1f1929;--border:#d7a43d59;--text:#f5f0df;--muted:#aebabc;--blue:#b49cff;--accent:#eab448;--shadow:0 22px 60px #0008}
+body{background:radial-gradient(ellipse at 82% 7%,#57421c30,transparent 48%),radial-gradient(ellipse at 5% 62%,#b49cff12,transparent 55%),linear-gradient(180deg,#0a080e,#14101a 56%,#100c16);color:#f5f0df}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:5;opacity:.035;background-image:repeating-linear-gradient(120deg,transparent 0 83px,#b49cff 84px,transparent 85px 190px)}
+.app{position:relative;z-index:1;padding:13px 17px 17px;gap:13px;min-height:620px}
+.header{height:86px;min-height:86px;border:1px solid #e8b84a66;background:linear-gradient(115deg,#191320,#0b0b13 70%,#241b13);box-shadow:0 14px 40px #0008;padding:12px 25px;clip-path:polygon(0 0,99% 0,100% 12px,100% 100%,1% 100%,0 calc(100% - 12px))}
+.logo{background:linear-gradient(145deg,#efc261,#a87624);border:1px solid #ffdf91;border-radius:0;color:#110d16;font-weight:950;font-size:16px;box-shadow:0 0 22px #eab44833;width:48px;height:48px;clip-path:polygon(0 0,80% 0,100% 22%,100% 100%,20% 100%,0 78%)}
+.brand strong{font-size:22px;letter-spacing:-.045em;text-transform:uppercase;color:#ffe4a1;font-weight:950}.brand small{color:#b49cff;letter-spacing:.17em;font-weight:850;font-size:10px}
+.header-actions{gap:10px}.btn{border:1px solid #e2af4b55;background:linear-gradient(140deg,#211a28,#110d18);color:#e7dbc5;border-radius:0;font-weight:800;clip-path:polygon(0 0,95% 0,100% 22%,100% 100%,5% 100%,0 78%);padding:11px 15px;transition:transform .15s,border-color .15s}
+.btn:hover{background:#302139;border-color:#eab448;transform:translateY(-1px)}.btn.primary{background:linear-gradient(105deg,#fff1bb,#efc261 58%,#cc8f25);border-color:#eab448;color:#0c0812;box-shadow:0 8px 22px #efbc3f27}.btn.primary:hover{background:linear-gradient(105deg,#fff6d1,#f4cb79,#dfa544)}
+.workspace.twoColumn{grid-template-columns:345px minmax(0,1fr);gap:13px;min-height:0}
+.side,.tasksSidebar{border:1px solid #d7a43d59;background:repeating-linear-gradient(135deg,#ffffff03 0 2px,transparent 3px 10px),linear-gradient(140deg,#211b2a,#0f0b16);box-shadow:0 22px 60px #0006;clip-path:polygon(0 0,98% 0,100% 13px,100% 100%,2% 100%,0 calc(100% - 13px))}
+.paletteArea{background:linear-gradient(130deg,#20182a,#140e1d);border-bottom:1px solid #d7a43d4a;padding:16px}.tasksScroll{padding:18px 17px}
+.eyebrow{color:#b49cff;letter-spacing:.21em;font-size:10px;font-weight:900}.task-select{background:#120f18;border:1px solid #e6b65966;color:#ffe7b0;border-radius:0;font-weight:800;padding:13px}
+.task-desc{background:radial-gradient(ellipse at 100% 0%,#eab44811,transparent),#17111e;border:1px solid #d7a43d67;border-radius:0;box-shadow:inset 3px 0 #eab448}
+.task-desc h2{color:#ffe4a1;font-size:17px;text-transform:uppercase;font-weight:950;letter-spacing:-.025em}.task-desc p{color:#b9c4c5}
+.fact{color:#d6dcdb;border-bottom:1px solid #d7a43d24}.fact b{color:#eab448;font-family:ui-monospace,Consolas,monospace}
+.question{color:#e4e4df}.note{background:#251d17;border-color:#d7a43d6b;color:#ffe4a1;border-radius:0}
+.answer{background:#120d18;border:1px solid #b49cff52;color:#f5f0df;border-radius:0;font-size:13px}
+.shapes.palette{gap:8px}.shapeBtn{border:1px solid #d7a43d55;border-radius:0;background:linear-gradient(145deg,#241b2b,#140f1c);color:#e6dbcb;transition:background .18s,transform .18s,border-color .18s;clip-path:polygon(0 0,93% 0,100% 9px,100% 100%,7% 100%,0 calc(100% - 9px))}
+.shapeBtn:hover{background:#31233a;border-color:#b49cff;transform:translateY(-2px)}.palette .shapeBtn{font-weight:750;min-height:76px}.helper{color:#9eabb2;font-size:11px;line-height:1.65}
+.center{border:1px solid #d7a43d59;box-shadow:0 22px 60px #0006;min-width:0;background:#0f0b16;clip-path:polygon(0 0,99.4% 0,100% 13px,100% 100%,.6% 100%,0 calc(100% - 13px))}
+.toolbar{background:linear-gradient(115deg,#1e1727,#120e1b);border-bottom:1px solid #eab44855;padding:12px 15px;gap:8px}
+.tool{background:#17111f;border:1px solid #d7a43d50;color:#e8dcc8;border-radius:0;padding:10px 13px;font-weight:850;clip-path:polygon(0 0,94% 0,100% 9px,100% 100%,6% 100%,0 calc(100% - 9px))}.tool:hover{background:#2c2035}.tool.active{background:#eab448;border-color:#ffe4a1;color:#100b16}.sep{background:#d7a43d4b}.status{color:#b7a57f}
+.boardwrap{background-color:#100d18;background-image:radial-gradient(#57466c 1px,transparent 1px)!important;background-size:22px 22px;box-shadow:inset 0 0 90px #0005}
+.board .node .body{filter:drop-shadow(0 7px 12px #0009)}.board .node.selected .body{stroke:#eab448!important;stroke-width:3.2}.board .resizehandle{stroke:#a27427;fill:#fff1bb}.board .port{fill:#b49cff;stroke:#f9e6ff}.board .hoverPort{fill:#eab448}.board .connection.selected path{stroke:#eab448}.board .connection .card{fill:#1e1627;stroke:#eab448a8}.board .connection .cardinality{fill:#ffe0a0}
+.modehint{background:#18121feF;border:1px solid #d7a43d66;color:#cdd0cc;border-radius:0;box-shadow:0 10px 30px #0008}.zoomcontrols{background:#18121f;border:1px solid #d7a43d66;border-radius:0}.zoomcontrols button{background:#32253b;color:#f9e2ae;border-radius:0}.zoomcontrols span{color:#ffe4a1}
+.footer{background:#15101b;border-top:1px solid #d7a43d42;color:#9da8a6;padding:11px 16px}
+.edgeEditor,.cardPicker{background:linear-gradient(145deg,#251c2e,#120e1a)!important;border:1px solid #eab44888!important;border-radius:0!important;box-shadow:0 16px 60px #000b!important;color:#f5f0df!important}.edgeEditor label{color:#d6c6ac}.edgeEditor input,.edgeEditor select{border-radius:0;background:#100b17;border-color:#b49cff66}.inlineEditor{background:#f5f0df;color:#1a1022;border:2px solid #eab448;border-radius:0}
+.pickerChoices button{background:#241b2d!important;color:#ffe4a1!important;border:1px solid #d7a43d66!important;border-radius:0!important}.pickerChoices button:hover{background:#493020!important}
+@media(max-width:1050px){.workspace.twoColumn{grid-template-columns:290px minmax(0,1fr)}.header{padding:10px 14px}}
+@media(max-width:760px){.app{padding:6px;gap:7px;min-height:0}.header{height:66px;min-height:66px}.workspace.twoColumn{display:flex;gap:0}.side{border-radius:0}.brand strong{font-size:16px}.logo{width:34px;height:34px}.toolbar{padding:8px}.center{clip-path:none}}
+
+
+/* ER-Werkstatt V4: frei konfigurierbare Darstellung */
+body{font-family:"Space Grotesk", "Trebuchet MS", "Segoe UI",sans-serif}
+.board .node .caption,.board .connection text{font-family:"Space Grotesk","Trebuchet MS",sans-serif;letter-spacing:.015em}
+.boardwrap{background-color:var(--canvas-bg,#100d18)!important;background-image:radial-gradient(var(--grid-dot,#57466c) 1px,transparent 1px)!important}
+.boardwrap.no-grid{background-image:none!important}
+.editorContext{position:absolute;z-index:40;width:266px;padding:14px;background:#1c1425;border:1px solid #eab448a8;box-shadow:0 14px 45px #000c;color:#f5f0df;display:grid;gap:10px}
+.editorContext.hidden{display:none}.editorContext h3{margin:0;color:#ffe4a1;font-size:14px;letter-spacing:.04em}.editorContext label{font-size:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}.editorContext input[type=color]{height:30px;width:55px;padding:2px;border:1px solid #b49cff55;background:#130e19;cursor:pointer}.editorContext input[type=range]{width:125px;accent-color:#eab448}.editorContext button{border:1px solid #eab44877;background:#261a30;color:#ffe4a1;padding:9px;cursor:pointer}.editorContext small{color:#aab8c1}
+.board .alignmentGuide{stroke:#edbb51;stroke-width:1;stroke-dasharray:5 5;opacity:.95;pointer-events:none;vector-effect:non-scaling-stroke}.board .connectPreview{stroke:#f5ca77;stroke-width:2.5;stroke-dasharray:7 4;fill:none;pointer-events:none;vector-effect:non-scaling-stroke}
+.settingsBtn{white-space:nowrap}
+
+/* V6: dezent kariertes, mit der Zeichenfläche synchronisiertes Raster */
+.boardwrap{background-image:linear-gradient(to right,var(--grid-line,rgba(180,156,255,.14)) 1px,transparent 1px),linear-gradient(to bottom,var(--grid-line,rgba(180,156,255,.14)) 1px,transparent 1px)!important;background-size:var(--grid-size,24px) var(--grid-size,24px)!important;background-position:var(--grid-x,0px) var(--grid-y,0px)!important}
+.boardwrap.no-grid{background-image:none!important}
+.board .connection .cardinality{font-size:var(--card-font-size,14px)!important}
+.editorContext{max-height:min(75vh,650px);overflow-y:auto;overscroll-behavior:contain}.editorContext .colorBlock{display:grid;gap:6px;font-size:12px;color:#dfd4bf}
+.editorContext .swatches{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.editorContext .swatches button{width:32px;height:30px;border:2px solid #ffffff22;cursor:pointer;clip-path:none;border-radius:5px;box-shadow:inset 0 0 0 1px #0005}
+.editorContext .swatches button[aria-pressed=true]{outline:2px solid #ffe4a1;outline-offset:1px}
+.editorContext .swatches button:hover{transform:scale(1.08)}
+.editorContext .toggleRow{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px}
+.editorContext .toggleRow input{width:18px;height:18px;accent-color:#eab448}
+
+/* V7 · Direkte Bedienung ohne Werkzeugmodi */
+.quickActions{position:absolute;display:flex;gap:3px;align-items:center;z-index:32;background:linear-gradient(120deg,#2b2034,#17101f);border:1px solid #d4a854;padding:5px;box-shadow:0 12px 35px #000c;max-width:calc(100% - 16px);flex-wrap:wrap}
+.quickActions.hidden,.typeMenu.hidden,.placementGhost.hidden{display:none}
+.quickActions button,.typeMenu button{border:1px solid #a789554a;background:#221829;color:#ffe8bb;padding:7px 9px;font-size:12px;font-weight:750;cursor:pointer}
+.quickActions button:hover,.typeMenu button:hover{background:#473252;border-color:#d7a43d}
+.quickActions button[data-quick=pk].isOn{background:#235d4b;color:#caffec}
+.typeMenu{position:absolute;z-index:35;min-width:185px;max-height:275px;overflow:auto;display:grid;gap:3px;padding:8px;background:#1c1425;border:1px solid #eab448}
+.placementGhost{position:absolute;z-index:30;background:#32243d;border:1px solid #eab448;color:#ffe4a1;font-size:12px;padding:9px 13px;pointer-events:none;box-shadow:0 8px 22px #0008}
+.board .port{r:7;cursor:crosshair}.board .resizehandle{cursor:nwse-resize}
+
+/* V8: interaction states and consistent typography. */
+.boardwrap.context-open .resizehandle,.boardwrap.context-open .port{display:none}
+.board .node .caption{pointer-events:none}.board .node.selected .body{stroke-width:2.4}
+.board .connection.selected path:not(.hit){stroke:#eab448}
+.contextActions{display:grid;gap:7px}.editorContext select,.editorContext input:not([type=range]):not([type=checkbox]){max-width:145px;background:#100d18;color:#f5f0df;border:1px solid #b49cff66;border-radius:4px;padding:7px;min-width:0}
+.editorContext label{flex-wrap:wrap}.editorContext .contextActions label{align-items:center}.editorContext button:focus-visible{outline:2px solid #b49cff}
+.inlineEditor{background:transparent;color:#f5f0df;border:1px solid #b49cff;box-shadow:0 0 0 3px #100d18aa;min-width:40px;white-space:pre-wrap}
+.app{min-height:420px}.boardwrap .modehint{max-width:calc(100% - 230px);font-size:10px}.board{outline-offset:-3px}
+@media(max-width:900px){.header{padding:10px;gap:6px}.brand strong{font-size:16px}.header-actions{gap:4px}.btn{padding:9px;font-size:11px}}
+@media(max-width:760px){.app{padding:5px;min-height:0;gap:5px}.header{height:auto;min-height:72px;flex-wrap:wrap}.logo{display:none}.brand{flex:1}.header-actions{margin-left:auto}.boardwrap .modehint{display:none}.toolbar{gap:4px}.footer{font-size:8px}.tasksSidebar.show .paletteArea{padding:8px}.palette .shapeBtn{min-height:57px}.header-actions .btn{font-size:10px}}
+
+/* Text is edited in the SVG shape itself, with no floating input box. */
+.node.editing .caption,.node.editing .pk,.node.editing .resizehandle,.node.editing .port{visibility:hidden}
+.directTextEditor{overflow:hidden;cursor:text;user-select:text;pointer-events:auto}
+.directTextWrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;padding:0 10px;box-sizing:border-box}
+.node .inlineEditor{position:static;display:block;width:100%;min-width:0;max-width:none;min-height:1.25em;max-height:100%;margin:0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;outline:none;line-height:1.125;letter-spacing:.015em;text-align:center;white-space:pre-wrap;overflow-wrap:anywhere;overflow:auto;user-select:text;font-family:"Space Grotesk","Trebuchet MS",sans-serif;font-weight:650;cursor:text}
+
+/* Selection remains visible even at overview zoom; export keeps original colors. */
+.board .node.selected .body{stroke:#ffe4a1!important;filter:drop-shadow(0 0 5px #eab448) drop-shadow(0 0 12px #b49cff99);vector-effect:non-scaling-stroke}
+
+.board .connection.selected path:not(.hit):not(.selectionHalo){stroke:#ffe4a1!important;filter:drop-shadow(0 0 4px #eab448);pointer-events:none}
+.board .connection .selectionHalo{fill:none;stroke:#eab448!important;stroke-width:11!important;opacity:.3;pointer-events:none}
+.board .selectedEndpoint{fill:#ffe4a1;stroke:#100d18;stroke-width:1.5;pointer-events:none}
+.board .connection .hit{vector-effect:non-scaling-stroke}
+
+/* Four connection handles keep the same screen size at every zoom level. */
+.board .portControl{opacity:0;pointer-events:none;cursor:crosshair}
+.board .node:hover .portControl,.board .node.selected .portControl,.board .node.connectTarget .portControl{opacity:1;pointer-events:auto}
+.board .portControl .port{fill:#9464ee;stroke:#fff1ff;stroke-width:2.5;filter:drop-shadow(0 0 5px #b49cff) drop-shadow(0 0 9px #9464ee);pointer-events:none}
+.board .portControl .portHit{pointer-events:all}
+.board .portControl:hover .port{fill:#eab448;stroke:#fff1bb;r:10px!important;filter:drop-shadow(0 0 7px #eab448)}
+.boardwrap.context-open .portControl,.board .node.editing .portControl{display:none}
+.board .node.connectTarget .body{stroke:#eab448!important;filter:drop-shadow(0 0 8px #eab448) drop-shadow(0 0 15px #b49cff);vector-effect:non-scaling-stroke}
+.header{flex-wrap:wrap;height:auto;min-height:86px}.header-actions{flex-wrap:wrap;justify-content:flex-end}.header-actions .btn{font-size:11px;padding:9px 10px}
+
+/* A picked-up shape follows the pointer until it is placed. */
+.placementGhost{position:fixed;z-index:100;padding:0;border:0;background:transparent;box-shadow:none;pointer-events:none;opacity:.8;overflow:visible}
+.placementGhost .board{overflow:visible}.placementGhost .body{stroke:#eab448!important;filter:drop-shadow(0 0 6px #b49cff)}
+.shapeBtn.placementActive{outline:2px solid #eab448;outline-offset:2px;background:#463150}
+</style></head><body><div class="app"><header class="header"><div class="brand"><div class="logo">DTP</div><div><strong>ER-Werkstatt V8 <span style="color:#b49cff">//</span> Peter Chen</strong><small>DAU TO PRO · WERKSTATT · ER-MODELLIERUNG</small></div></div><div class="mobileTabs"><button class="btn" id="showTasks">Aufgaben</button></div><div class="header-actions"><a class="btn" href="../index.php#werkstatt" style="text-decoration:none">Zur Werkstatt</a><button class="btn optional" id="undoBtn" title="Rückgängig (Strg+Z)">↶ Rückgängig</button><button class="btn optional" id="redoBtn" title="Wiederholen (Strg+Y)">↷</button><button class="btn" id="importProject">Projekt importieren</button><button class="btn" id="exportJson">Projekt exportieren (.json)</button><button class="btn primary" id="exportPng">PNG exportieren</button></div></header><div class="workspace twoColumn"><aside class="side left tasksSidebar" id="taskPanel"><div class="paletteArea"><div class="eyebrow">01 // ELEMENTE · ZIEHEN ODER PLATZIEREN</div><div class="shapes palette" id="shapeButtons"><button class="shapeBtn" data-shape="entity"><svg viewbox="0 0 80 40"><rect fill="#224f8f" height="30" rx="2" stroke="#88beff" stroke-width="2" width="70" x="5" y="5"></rect></svg>Entität</button><button class="shapeBtn" data-shape="weak"><svg viewbox="0 0 80 40"><rect fill="#224f8f" height="30" stroke="#88beff" stroke-width="2" width="70" x="5" y="5"></rect><rect fill="none" height="22" stroke="#88beff" stroke-width="1.5" width="62" x="9" y="9"></rect></svg>Schwache Entität</button><button class="shapeBtn" data-shape="relation"><svg viewbox="0 0 80 40"><polygon fill="#6b4b9d" points="40,2 76,20 40,38 4,20" stroke="#d1a6ff" stroke-width="2"></polygon></svg>Beziehung</button><button class="shapeBtn" data-shape="identifying"><svg viewbox="0 0 80 40"><polygon fill="#6b4b9d" points="40,2 76,20 40,38 4,20" stroke="#d1a6ff" stroke-width="2"></polygon><polygon fill="none" points="40,7 68,20 40,33 12,20" stroke="#d1a6ff" stroke-width="1.5"></polygon></svg>Identifizierende Beziehung</button><button class="shapeBtn" data-shape="attribute"><svg viewbox="0 0 80 40"><ellipse cx="40" cy="20" fill="#176b6b" rx="35" ry="16" stroke="#85e8d7" stroke-width="2"></ellipse></svg>Attribut</button><button class="shapeBtn" data-shape="key"><svg viewbox="0 0 80 40"><ellipse cx="40" cy="20" fill="#176b6b" rx="35" ry="16" stroke="#85e8d7" stroke-width="2"></ellipse><path d="M20 28H60" stroke="#fff" stroke-width="2"></path></svg>Primärschlüssel</button><button class="shapeBtn" data-shape="multivalued"><svg viewbox="0 0 80 40"><ellipse cx="40" cy="20" fill="#176b6b" rx="35" ry="16" stroke="#85e8d7" stroke-width="2"></ellipse><ellipse cx="40" cy="20" fill="none" rx="30" ry="12" stroke="#85e8d7" stroke-width="1.5"></ellipse></svg>Mehrwertig</button><button class="shapeBtn" data-shape="text"><svg viewbox="0 0 80 40"><text fill="#cbd5e1" font-size="29" text-anchor="middle" x="40" y="28">T</text></svg>Freitext</button></div><p class="helper">Form anklicken, mitnehmen und in der Zeichnung ablegen. Escape bricht ab. Ziehen geht ebenfalls. Linksklick: auswählen · Rechtsklick: bearbeiten · Doppelklick: Text. Von einem der vier leuchtenden Punkte auf die Zielform ziehen.</p></div><div class="tasksScroll"><div class="eyebrow">02 // AUFGABENSTELLUNG</div><select class="task-select" aria-label="Aufgabe auswählen" id="taskSelect"></select><div id="taskBody"></div><div class="eyebrow">03 // ARBEIT SICHERN</div><button class="btn" id="importJson" style="width:100%;margin-bottom:8px">Projekt laden (.json)</button><button class="btn" id="exportJsonSide" style="width:100%;margin-bottom:8px">Projekt exportieren (.json)</button><div class="eyebrow">04 // DIAGRAMM EXPORTIEREN</div><button class="btn" id="exportPngSide" style="width:100%;margin-bottom:8px">PNG exportieren</button><button class="btn" id="exportSvg" style="width:100%;margin-bottom:8px">SVG exportieren</button><button class="btn" id="exportPdf" style="width:100%">PDF exportieren</button><input accept=".json,application/json" hidden="" id="fileInput" type="file"/><p class="helper">Wird automatisch in diesem Browser gespeichert. Für die Übertragung auf andere Geräte bitte die Projektdatei exportieren.</p></div></aside><section class="center"><div class="toolbar"><button class="tool" id="duplicate" title="Duplizieren (Strg+D)">⧉</button><button class="tool" id="delete" title="Entfernen (Entf)">⌫</button><div class="sep"></div><button class="tool" id="gridToggle">✓ Raster</button><button class="tool settingsBtn" id="canvasSettings" title="Hintergrund, Linien und Schrift">⚙ Design</button><button class="tool" id="fitBtn">⊞ Einpassen</button><span class="status" role="status" aria-live="polite" id="saveStatus">Automatisch gespeichert</span></div><div class="boardwrap" id="boardwrap"><svg tabindex="0" role="application" aria-label="ER-Diagramm Zeichenfläche" class="board" id="canvas" xmlns="http://www.w3.org/2000/svg"><defs><pattern height="20" id="svgGrid" patternunits="userSpaceOnUse" width="20"><circle cx="1" cy="1" fill="#273a56" r="1"></circle></pattern></defs><g id="scene"><g id="lines"></g><g id="nodes"></g></g></svg><div class="modehint" id="hint">Element anklicken: Menü · Doppelklick: Beschriften · Griff ziehen: Verbinden</div><div class="zoomcontrols"><button id="zoomOut" title="Verkleinern">−</button><span id="zoomLabel">100 %</span><button id="zoomIn" title="Vergrößern">+</button></div><div class="toast hidden" role="status" aria-live="polite" id="toast"></div><div class="quickActions hidden" id="quickActions" aria-label="Element bearbeiten"><button type="button" data-quick="edit" title="Umbenennen">✎ Name</button><button type="button" data-quick="type" title="Formtyp ändern">⬡ Form</button><button type="button" data-quick="color" title="Farben und Schrift">◈ Farbe</button><button type="button" data-quick="pk" title="Primärschlüssel">PK</button><button type="button" data-quick="copy" title="Duplizieren">⧉ Kopie</button><button type="button" data-quick="delete" title="Löschen">⌫</button></div><div class="typeMenu hidden" id="typeMenu" aria-label="Form umwandeln"></div><div class="placementGhost hidden" id="placementGhost">Element platzieren · Esc abbrechen</div><div class="editorContext hidden" id="editorContext" role="dialog" aria-label="Darstellung bearbeiten"></div><div aria-label="Beschriftung direkt bearbeiten" class="inlineEditor hidden" contenteditable="true" id="inlineEditor" role="textbox" spellcheck="false"></div><div class="edgeEditor hidden" id="edgeEditor"><div class="popTitle">Verbindung bearbeiten <button id="edgeClose" title="Schließen">×</button></div><label>Beschriftung<input id="edgeLabel" placeholder="Optionaler Text"/></label><div class="edgegrid"><label>Erste Seite<select id="edgeLeft"><option value="">–</option><option>1</option><option>n</option><option>m</option><option>0..1</option><option>1..n</option><option>0..n</option></select></label><label>Zweite Seite<select id="edgeRight"><option value="">–</option><option>1</option><option>n</option><option>m</option><option>0..1</option><option>1..n</option><option>0..n</option></select></label></div><button class="btn primary" id="edgeDone">Übernehmen</button></div><div class="cardPicker hidden" id="cardPicker"><div class="pickerTitle"><span id="cardSide">Kardinalität wählen</span><button aria-label="Schließen" id="cardClose" type="button">×</button></div><div class="pickerChoices"><button data-card="1">1</button><button data-card="n">n</button><button data-card="m">m</button><button data-card="1..n">1..n</button><button data-card="0..n">0..n</button><button data-card="">–</button></div><div class="pickerHelp">Näher am gewünschten Linienende klicken.</div></div></div><div class="footer"><span>DAU TO PRO · ER-WERKSTATT · LOKALES PROJEKT</span><span id="counts">0 Elemente · 0 Verbindungen</span></div></section></div></div>
+<script>const TASKS=[{"id": "bibliothek", "title": "Bibliotheksverwaltung", "intro": "Erstellen Sie ein ER-Modell nach Peter Chen (mit Entitäten, Attributen, Beziehungen und Kardinalitäten) auf Grundlage der folgenden Beschreibung:", "facts": ["Eine Bibliothek verwaltet ihre Mitglieder. Jedes Mitglied besitzt genau einen Mitgliedsausweis, und jeder Mitgliedsausweis gehört genau einem Mitglied", "Ein Verlag veröffentlicht mehrere Bücher, aber jedes Buch wird von genau einem Verlag veröffentlicht", "Ein Autor kann mehrere Bücher schreiben, und ein Buch kann von mehreren Autoren gemeinsam geschrieben werden", "Ein Mitglied kann mehrere Exemplare ausleihen. Ein Exemplar kann im Laufe der Zeit von verschiedenen Mitgliedern ausgeliehen werden. Zu jeder Ausleihe werden das Ausleihdatum und das Rückgabedatum gespeichert", "Jedes Buch ist in der Bibliothek in mehreren Exemplaren vorhanden, aber jedes Exemplar gehört zu genau einem Buch", "Jedes Exemplar steht in genau einem Regal, und in einem Regal stehen mehrere Exemplare"], "questions": ["a) Bestimmen Sie die Entitäten und ordnen Sie jeder sinnvolle Attribute zu (mit Primärschlüssel).", "b) Zeichnen Sie das ER-Modell nach Chen und tragen Sie die Kardinalitäten (1:1, 1:n, n:m) an den Beziehungen ein.", "c) Begründen Sie für die Beziehung „Mitglied leiht Exemplar“ kurz, warum eine eigene Beziehungsentität bzw. Zwischentabelle beim Übergang ins relationale Modell nötig ist."], "answers": ["c"]}, {"id": "schule", "title": "Schulverwaltung", "intro": "Erstellen Sie ein ER-Modell nach Peter Chen.", "facts": ["Jeder Schüler gehört zu genau einer Klasse, und in einer Klasse sind mehrere Schüler", "Jeder Schüler besitzt genau einen Spind, und jeder Spind wird von genau einem Schüler genutzt", "Jede Klasse hat genau einen Lehrer als Klassenlehrer, aber ein Lehrer kann Klassenlehrer von mehreren Klassen sein", "Ein Lehrer kann mehrere Fächer unterrichten, und ein Fach kann von mehreren Lehrern unterrichtet werden", "Ein Schüler kann in mehreren Fächern eine Note erhalten, und zu einem Fach gibt es Noten von mehreren Schülern. Gespeichert wird zu jeder Note der Notenwert und das Datum"], "questions": ["a) Bestimmen Sie die Entitäten und ordnen Sie jeder sinnvolle Attribute zu (mit Primärschlüssel).", "b) Zeichnen Sie das ER-Modell nach Chen und tragen Sie die Kardinalitäten (1:1, 1:n, n:m) ein.", "c) Welche Beziehung besitzt eigene Attribute, und was bedeutet das für das relationale Modell?"], "answers": ["c"]}, {"id": "fitness", "title": "Fitnessstudio", "intro": "Erstellen Sie ein ER-Modell für die beschriebene Fitnessstudio-Verwaltung.", "facts": ["Ein Fitnessstudio verwaltet seine Kunden. Jeder Kunde besitzt genau einen Mitgliedsvertrag, und jeder Mitgliedsvertrag gehört zu genau einem Kunden", "Ein Standort beschäftigt mehrere Trainer, aber jeder Trainer arbeitet an genau einem Standort", "Ein Trainer kann mehrere Kurse leiten, und ein Kurs kann von mehreren Trainern gemeinsam geleitet werden", "Ein Kunde kann an mehreren Kursterminen teilnehmen, und an einem Kurstermin können mehrere Kunden teilnehmen. Zu jeder Teilnahme werden die Anmeldezeit und der Anwesenheitsstatus gespeichert", "Zu jedem Kurs gibt es mehrere Kurstermine, aber jeder Kurstermin gehört zu genau einem Kurs.", "Jeder Kurstermin findet in genau einem Raum statt, und in einem Raum finden im Laufe der Zeit mehrere Kurstermine statt"], "questions": [], "answers": []}, {"id": "auto", "title": "Autovermietung", "intro": "Erstellen Sie ein ER-Modell nach Peter Chen.", "facts": ["Eine Autovermietung betreibt mehrere Filialen. In jeder Filiale arbeiten mehrere Mitarbeiter, und jeder Mitarbeiter arbeitet in genau einer Filiale", "Jeder Mitarbeiter hat höchstens einen Vorgesetzten, der selbst ein Mitarbeiter ist. Ein Mitarbeiter kann Vorgesetzter von mehreren anderen Mitarbeitern sein", "Jedes Fahrzeug gehört zu genau einer Fahrzeugkategorie (z. B. Kleinwagen, SUV), und zu einer Kategorie gehören mehrere Fahrzeuge", "Jedes Fahrzeug besitzt genau einen Fahrzeugschein, und jeder Fahrzeugschein gehört zu genau einem Fahrzeug", "Jede Miete wird von genau einem Kunden abgeschlossen, bezieht sich auf genau ein Fahrzeug und wird von genau einem Mitarbeiter bearbeitet. Ein Kunde, ein Fahrzeug und ein Mitarbeiter können jeweils an mehreren Mieten beteiligt sein. Zu jeder Miete werden Mietbeginn, Mietende und Gesamtpreis gespeichert", "Zu einer Miete können mehrere Zusatzleistungen (z. B. Kindersitz, Navigationsgerät) gebucht werden, und eine Zusatzleistung kann in mehreren Mieten gebucht werden. Zu jeder Buchung wird die gebuchte Menge gespeichert", "Ein Schaden wird immer zu genau einem Fahrzeug erfasst und innerhalb dieses Fahrzeugs mit einer laufenden Schadensnummer nummeriert. Ein Fahrzeug kann keinen, einen oder mehrere Schäden haben"], "questions": ["a) Bestimmen Sie die Entitäten und ordnen Sie jeder sinnvolle Attribute zu (mit Primärschlüssel).", "b) Zeichnen Sie das ER-Modell nach Chen und tragen Sie die Kardinalitäten (1:1, 1:n, n:m) an den Beziehungen ein. Kennzeichnen Sie die rekursive Beziehung und die schwache Entität.", "c) Begründen Sie, warum „Miete“ als eigene Entität modelliert wird und nicht als Beziehung zwischen Kunde und Fahrzeug.", "d) Wie sieht der Primärschlüssel der Entität „Schaden“ im relationalen Modell aus? (Optional)"], "answers": ["c", "d"], "note": "Vorsicht Info in der Aufgabe beachten c) und nur Optional d)"}];</script>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), svgNS='http://www.w3.org/2000/svg', clone=x=>JSON.parse(JSON.stringify(x));
+const KEY='er-werkstatt-chen-v1:account:'+String(<?=json_encode($account)?>); let state={exercise:'bibliothek',documents:{},answers:{}}; let selected=null,multi=new Set(),mode='select',connectStart=null,drag=null,viewport={x:110,y:95,z:1},history=[],future=[],grid=true,spaceHeld=false,dirty=false;
+let clipboard=null,guideX=null,guideY=null,connectPointer=null;
+const COLORS=['#100d18','#21182d','#363046','#60417f','#b49cff','#214979','#3f86b8','#145b5b','#49a994','#eab448','#f5f0df','#e36d78'];
+const MIN_ZOOM=.001,MAX_ZOOM=3;
+const FIXED_EDGE_WIDTH=2.4;let routeCache=new Map();
+function indexRoutes(){routeCache=new Map();const groups=new Map();for(const e of doc().edges){const key=JSON.stringify([e.from,e.to].sort());if(!groups.has(key))groups.set(key,[]);groups.get(key).push(e)}for(const list of groups.values())list.forEach((e,index)=>routeCache.set(e.id,{index,count:list.length}))}
+const themeDefaults={background:'#100d18',gridDot:'#b49cff',edgeColor:'#b49cff',cardSize:14,gridSize:24,gridOpacity:0.14,snapGrid:true}; function theme(){return doc().theme||(doc().theme={...themeDefaults})}
+const defaults={entity:[150,76,'Entität'],weak:[160,82,'Schwache Entität'],relation:[144,88,'Beziehung'],identifying:[150,94,'Beziehung'],attribute:[154,66,'Attribut'],key:[154,66,'ID'],multivalued:[154,66,'Attribut'],text:[170,52,'Notiz']};
+function doc(){return state.documents[state.exercise]||(state.documents[state.exercise]={nodes:[],edges:[],theme:{...themeDefaults}})}
+function newid(){return 'n'+Math.random().toString(36).slice(2,10)}
+function save(){try{doc().viewport={...viewport};doc().grid=grid;localStorage.setItem(KEY,JSON.stringify({state,viewport,grid}));$('saveStatus').textContent='Automatisch gespeichert'}catch(e){$('saveStatus').textContent='Speichern fehlgeschlagen · JSON sichern';$('saveStatus').title=e.message;toast('Browser konnte nicht speichern. Bitte Projekt als JSON exportieren.')} }
+function checkpoint(){history.push(JSON.stringify({state,selected,multi:[...multi]}));if(history.length>70)history.shift();future=[];dirty=false}
+function restore(s){try{const x=JSON.parse(s);state=x.state;selected=x.selected;multi=new Set(x.multi||[]);renderTask();render();save()}catch(e){toast('Wiederherstellung fehlgeschlagen')}}
+function undo(){if(!history.length)return;closeMenus();finishInlineEditor();future.push(JSON.stringify({state,selected,multi:[...multi]}));restore(history.pop())}
+function redo(){if(!future.length)return;closeMenus();history.push(JSON.stringify({state,selected,multi:[...multi]}));restore(future.pop())}
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.add('hidden'),2400)}
+function val(v,min,max){return Math.max(min,Math.min(max,(Number.isFinite(Number(v))?Number(v):min)))}
+function snap(v){const t=theme();return t.snapGrid?Math.round(v/(t.gridSize||24))*(t.gridSize||24):v}
+
+function center(){const r=$('canvas').getBoundingClientRect();return{x:(r.width/2-viewport.x)/viewport.z,y:(r.height/2-viewport.y)/viewport.z}}
+function freeSpot(x,y,w,h){
+  for(let ring=0;ring<500;ring++)for(let row=-ring;row<=ring;row++)for(let col=-ring;col<=ring;col++){
+ if(ring&&Math.abs(row)!==ring&&Math.abs(col)!==ring)continue;
+ const cx=x+col*(w+48),cy=y+row*(h+48);
+ if(doc().nodes.every(n=>Math.abs(n.x-cx)>=(n.w+w)/2+12||Math.abs(n.y-cy)>=(n.h+h)/2+12))return{x:cx,y:cy};
+ }return{x:x+100000,y};
+}
+function addNode(type,at=null,edit=false){checkpoint();multi.clear();const d=defaults[type],c=at||center(),spot=freeSpot(snap(c.x),snap(c.y),d[0],d[1]);const n={id:newid(),type,x:Math.round(spot.x),y:Math.round(spot.y),w:d[0],h:d[1],text:d[2]};doc().nodes.push(n);selected={type:'node',id:n.id};render();save();if(edit)requestAnimationFrame(()=>editName(n));else requestAnimationFrame(showQuickActions)}
+function addEdge(a,b){checkpoint();multi.clear();const e={id:newid(),from:a,to:b,left:'',right:'',label:'',bend:0};doc().edges.push(e);selected={type:'edge',id:e.id};connectStart=null;render();save()}
+function findNode(id){return doc().nodes.find(n=>n.id===id)}
+function current(){return selected?(selected.type==='node'?findNode(selected.id):doc().edges.find(e=>e.id===selected.id)):null}
+function chosenIds(){return multi.size?[...multi]:(selected?.type==='node'?[selected.id]:[])}
+function deleteSelected(){const ids=chosenIds();if(!ids.length&&!selected)return;checkpoint();if(ids.length){const s=new Set(ids);doc().nodes=doc().nodes.filter(n=>!s.has(n.id));doc().edges=doc().edges.filter(e=>!s.has(e.from)&&!s.has(e.to))}else if(selected?.type==='edge')doc().edges=doc().edges.filter(e=>e.id!==selected.id);selected=null;multi.clear();render();save()}
+function duplicate(){const ids=chosenIds();if(!ids.length)return;checkpoint();const map=new Map();ids.forEach(id=>{const n=findNode(id);if(!n)return;const x={...clone(n),id:newid(),x:n.x+32,y:n.y+32};map.set(id,x.id);doc().nodes.push(x)});const newEdges=doc().edges.filter(e=>map.has(e.from)&&map.has(e.to)).map(e=>({...clone(e),id:newid(),from:map.get(e.from),to:map.get(e.to)}));doc().edges.push(...newEdges);multi=new Set(map.values());selected=multi.size===1?{type:'node',id:[...multi][0]}:null;render();save()}
+function duplicateAtOriginal(){const ids=chosenIds();if(!ids.length)return;const map=new Map();for(const id of ids){const n=findNode(id);if(!n)continue;const c={...clone(n),id:newid()};doc().nodes.push(c);map.set(id,c.id)}const extra=doc().edges.filter(e=>map.has(e.from)&&map.has(e.to)).map(e=>({...clone(e),id:newid(),from:map.get(e.from),to:map.get(e.to)}));doc().edges.push(...extra);multi=new Set(map.values());selected=multi.size===1?{type:'node',id:[...multi][0]}:null;render();save()}
+function copySelected(cut=false){const ids=chosenIds();if(!ids.length)return;clipboard={nodes:doc().nodes.filter(n=>ids.includes(n.id)).map(clone),edges:doc().edges.filter(e=>ids.includes(e.from)&&ids.includes(e.to)).map(clone)};if(cut)deleteSelected();else toast('Elemente kopiert')}
+function pasteSelected(){if(!clipboard?.nodes?.length)return;checkpoint();const map=new Map();for(const n of clipboard.nodes){const id=newid();map.set(n.id,id);doc().nodes.push({...clone(n),id,x:n.x+35,y:n.y+35})}for(const e of clipboard.edges)doc().edges.push({...clone(e),id:newid(),from:map.get(e.from),to:map.get(e.to)});multi=new Set(map.values());selected=multi.size===1?{type:'node',id:[...multi][0]}:null;render();save()}
+function togglePrimary(n){if(!['attribute','key','multivalued'].includes(n.type))return;checkpoint();n.primary=!Boolean(n.primary||n.type==='key');if(n.type==='key')n.type='attribute';render();save()}
+function svg(name,attrs={},parent){const el=document.createElementNS(svgNS,name);for(const[k,v]of Object.entries(attrs))el.setAttribute(k,v);if(parent)parent.append(el);return el}
+function textEl(parent,str,x,y,attrs={}){const el=svg('text',{x,y,'text-anchor':'middle','dominant-baseline':'middle',...attrs},parent);(String(str||'').split('\n')).forEach((line,i,lines)=>{const t=svg('tspan',{x,dy:i===0?-(lines.length-1)*9:18},el);t.textContent=line});return el}
+function captionColor(n){if(n.textColor)return n.textColor;const c=n.fill||'';return ['#eab448','#f5f0df','#b49cff'].includes(c.toLowerCase())?'#100d18':'#f5f0df'}
+function shape(g,n){const w=n.w,h=n.h;const common={'class':'body'};const fill=n.fill,stroke=n.stroke;if(n.type==='entity'||n.type==='weak'){svg('rect',{...common,x:-w/2,y:-h/2,width:w,height:h,rx:3,fill:fill||'#214979',stroke:stroke||'#b49cff'},g);if(n.type==='weak')svg('rect',{x:-w/2+6,y:-h/2+6,width:w-12,height:h-12,rx:1,fill:'none',stroke:stroke||'#b49cff','stroke-width':1.5},g)}else if(n.type==='relation'||n.type==='identifying'){const pts=`0,${-h/2} ${w/2},0 0,${h/2} ${-w/2},0`;svg('polygon',{...common,points:pts,fill:fill||'#60417f',stroke:stroke||'#b49cff'},g);if(n.type==='identifying')svg('polygon',{points:`0,${-h/2+8} ${w/2-13},0 0,${h/2-8} ${-w/2+13},0`,fill:'none',stroke:stroke||'#b49cff','stroke-width':1.5},g)}else if(['attribute','key','multivalued'].includes(n.type)){svg('ellipse',{...common,rx:w/2,ry:h/2,fill:fill||'#145b5b',stroke:stroke||'#49a994'},g);if(n.type==='multivalued')svg('ellipse',{rx:w/2-6,ry:h/2-6,fill:'none',stroke:stroke||'#49a994','stroke-width':1.5},g)}else svg('rect',{...common,x:-w/2,y:-h/2,width:w,height:h,rx:7,fill:fill||(n.type==='text'?'none':'#1c2940'),stroke:stroke||(n.type==='text'?'none':'#657d9e'),'stroke-dasharray':'5 4'},g);
+textEl(g,n.text,0,1,{class:'caption','font-size':n.fontSize||(n.type==='text'?17:16),fill:captionColor(n),style:`fill:${captionColor(n)};font-size:${n.fontSize||(n.type==='text'?17:16)}px;font-weight:650;font-family:Space Grotesk,Trebuchet MS,sans-serif;${n.primary||n.type==='key'?'text-decoration:underline;text-underline-offset:4px;':''}`});if(n.primary||n.type==='key'){const size=n.fontSize||16,width=Math.min(n.w-24,String(n.text).split('\n').at(-1).length*size*.56);svg('line',{class:'pk',x1:-width/2,x2:width/2,y1:size*.62,y2:size*.62,style:`stroke:${captionColor(n)};stroke-width:1.5px`},g)}
+}
+function anchor(n,tx,ty){const dx=tx-n.x,dy=ty-n.y;if(n.type==='relation'||n.type==='identifying'){const denom=Math.abs(dx)/(n.w/2)+Math.abs(dy)/(n.h/2)||1;return{x:n.x+dx/denom,y:n.y+dy/denom}}if(['attribute','key','multivalued'].includes(n.type)){const k=1/Math.sqrt((dx/(n.w/2))**2+(dy/(n.h/2))**2||1);return{x:n.x+dx*k,y:n.y+dy*k}}const k=Math.min((n.w/2)/(Math.abs(dx)||.001),(n.h/2)/(Math.abs(dy)||.001));return{x:n.x+dx*k,y:n.y+dy*k}}
+function nodeAtPoint(p,exclude=null){
+  for(const n of [...doc().nodes].reverse()){
+    if(n.id===exclude)continue;
+    const dx=(p.x-n.x)/(n.w/2),dy=(p.y-n.y)/(n.h/2);
+    const inside=(n.type==='relation'||n.type==='identifying')?Math.abs(dx)+Math.abs(dy)<=1.1:
+      ['attribute','key','multivalued'].includes(n.type)?dx*dx+dy*dy<=1.16:
+      Math.abs(dx)<=1.08&&Math.abs(dy)<=1.08;
+    if(inside)return n;
+  }
+  return null;
+}
+// Edges leave the real outline toward their control point; parallel edges get separate routes.
+function edgeGeometry(e){
+ const a=findNode(e.from),b=findNode(e.to);if(!a||!b)return null;
+ const meta=routeCache.get(e.id)||{index:0,count:1},index=meta.index,offset=(index-(meta.count-1)/2)*70;
+ let p1,p2,c1,c2,mid,path;
+ if(a.id===b.id){c1={x:a.x-a.w*.8,y:a.y-a.h/2-130-index*40};c2={x:a.x+a.w*.8,y:c1.y};p1=anchor(a,c1.x,c1.y);p2=anchor(a,c2.x,c2.y);mid={x:a.x,y:(p1.y+p2.y)/8+(c1.y+c2.y)*3/8};path=`M ${p1.x} ${p1.y} C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${p2.x} ${p2.y}`}
+ else{const dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy)||1,sign=e.from<e.to?1:-1,k=(e.bend||0)+offset*sign;
+ c1={x:(a.x+b.x)/2-dy/len*k,y:(a.y+b.y)/2+dx/len*k};c2=c1;
+ p1=anchor(a,c1.x,c1.y);p2=anchor(b,c1.x,c1.y);mid={x:(p1.x+p2.x)/4+c1.x/2,y:(p1.y+p2.y)/4+c1.y/2};path=`M ${p1.x} ${p1.y} Q ${c1.x} ${c1.y} ${p2.x} ${p2.y}`}
+ return{a,b,p1,p2,c1,c2,mid,path};
+}
+function cardinalPosition(p,c,a,b,text){
+ let dx=c.x-p.x,dy=c.y-p.y,len=Math.hypot(dx,dy)||1;dx/=len;dy/=len;
+ // Use a stable screen-side normal at both endpoints: above horizontal lines, right of vertical lines.
+ let nx=-dy,ny=dx;
+ if(Math.abs(dx)>=Math.abs(dy)){if(ny>0){nx=-nx;ny=-ny}}
+ else if(nx<0){nx=-nx;ny=-ny}
+ const size=theme().cardSize,halfW=String(text).length*size*.32+5,halfH=size*.6+4,offset=size*.65+7;
+ for(let distance=24;distance<300;distance+=6){const q={x:p.x+dx*distance+nx*offset,y:p.y+dy*distance+ny*offset};
+ if([a,b].every(n=>Math.abs(q.x-n.x)>n.w/2+halfW||Math.abs(q.y-n.y)>n.h/2+halfH))return q}
+ return{x:p.x+dx*30+nx*70,y:p.y+dy*30+ny*70};
+}
+function drawEdge(root,e){const geo=edgeGeometry(e);if(!geo)return;const {a,b,p1,p2,c1,c2,mid,path}=geo;
+ const color=e.color||theme().edgeColor,group=svg('g',{class:'connection'+(selected?.type==='edge'&&selected.id===e.id?' selected':''),'data-id':e.id},root);
+ svg('path',{d:path,stroke:'transparent',fill:'none',class:'hit','stroke-width':20,'vector-effect':'non-scaling-stroke'},group);
+ if(root===$('lines')&&selected?.type==='edge'&&selected.id===e.id){svg('path',{d:path,class:'selectionHalo','vector-effect':'non-scaling-stroke'},group);for(const p of [p1,p2])svg('circle',{class:'selectedEndpoint',cx:p.x,cy:p.y,r:4/viewport.z,'vector-effect':'non-scaling-stroke'},group)}
+ svg('path',{d:path,fill:'none','vector-effect':'non-scaling-stroke',style:`stroke:${color};stroke-width:${FIXED_EDGE_WIDTH}px;fill:none`},group);
+ for(const [value,p,c]of [[e.left,p1,c1],[e.right,p2,c2]])if(value){const q=cardinalPosition(p,c,a,b,value);textEl(group,value,q.x,q.y,{class:'cardinality',style:`font-size:${theme().cardSize}px;fill:${color};paint-order:stroke;stroke:${theme().background};stroke-width:5px;stroke-linejoin:round`})}
+ if(e.label){const w=Math.max(40,e.label.length*7.4+16);svg('rect',{class:'card',x:mid.x-w/2,y:mid.y-13,width:w,height:26,rx:7,fill:theme().background,stroke:color},group);textEl(group,e.label,mid.x,mid.y,{style:`fill:${color};font-size:13px`})}
+ group.addEventListener('pointerdown',ev=>{ev.stopPropagation();if(ev.button===1){ev.preventDefault();startPan(ev);return}if(ev.button!==0)return;ev.preventDefault();$('canvas').focus({preventScroll:true});closeMenus();multi.clear();selected={type:'edge',id:e.id};render()});
+ group.addEventListener('contextmenu',ev=>{ev.preventDefault();ev.stopPropagation();multi.clear();selected={type:'edge',id:e.id};render();openContext(ev.clientX,ev.clientY,'edge',e.id)});
+ group.addEventListener('dblclick',ev=>{ev.stopPropagation();selected={type:'edge',id:e.id};openEdgeEditor(e)});
+}
+function render(){if(activeEdit)finishInlineEditor();indexRoutes();const connectTargetId=drag?.kind==='connectPort'&&connectPointer?nodeAtPoint(connectPointer,drag.from)?.id:null;const t=theme();$('boardwrap').style.setProperty('--canvas-bg',t.background);$('boardwrap').style.setProperty('--grid-dot',t.gridDot);
+$('boardwrap').style.setProperty('--grid-opacity',Number(t.gridOpacity??.14));
+const gc=(t.gridDot||'#b49cff').replace('#','');const gr=parseInt(gc.slice(0,2),16),gg=parseInt(gc.slice(2,4),16),gb=parseInt(gc.slice(4,6),16);
+$('boardwrap').style.setProperty('--grid-line',`rgba(${gr},${gg},${gb},${Number(t.gridOpacity??.14)})`);
+$('boardwrap').style.setProperty('--grid-size',((t.gridSize||24)*viewport.z)+'px');
+$('boardwrap').style.setProperty('--grid-x',viewport.x+'px');
+$('boardwrap').style.setProperty('--grid-y',viewport.y+'px');
+$('boardwrap').style.setProperty('--card-font-size',(t.cardSize||14)+'px');$('boardwrap').classList.toggle('no-grid',!grid||(t.gridSize||24)*viewport.z<6);const scene=$('scene');scene.querySelectorAll(':scope > line, :scope > rect').forEach(el=>el.remove());scene.setAttribute('transform',`translate(${viewport.x} ${viewport.y}) scale(${viewport.z})`);const L=$('lines'),N=$('nodes');L.replaceChildren();N.replaceChildren();doc().edges.forEach(e=>drawEdge(L,e));doc().nodes.forEach(n=>{const g=svg('g',{class:'node'+(multi.has(n.id)||selected?.type==='node'&&selected.id===n.id?' selected':'')+(n.id===connectTargetId?' connectTarget':''),'data-id':n.id,transform:`translate(${n.x} ${n.y})`},N);g.setAttribute('tabindex','0');g.setAttribute('role','graphics-symbol');g.setAttribute('aria-label',n.text+' · '+n.type);g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key==='F2'){ev.preventDefault();ev.stopPropagation();selected={type:'node',id:n.id};multi=new Set([n.id]);editName(n)}else if(ev.key==='ContextMenu'||ev.shiftKey&&ev.key==='F10'){ev.preventDefault();ev.stopPropagation();selected={type:'node',id:n.id};multi=new Set([n.id]);render();const r=$('canvas').getBoundingClientRect();openContext(r.left+viewport.x+n.x*viewport.z,r.top+viewport.y+n.y*viewport.z,'node',n.id)}});shape(g,n);
+if((multi.has(n.id)||selected?.type==='node'&&selected.id===n.id)&&multi.size<=1){
+for(const [sx,sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const handle=svg('rect',{class:'resizehandle'+(sx!==sy?' alt':''),x:sx*n.w/2-5,y:sy*n.h/2-5,width:10,height:10,rx:2},g);handle.addEventListener('pointerdown',ev=>resizeDown(ev,n,sx,sy))}
+}
+if(false){
+const pg=svg('g',{class:'pkToggle',transform:`translate(${n.w/2-4} ${-n.h/2-4})`},g);svg('rect',{x:0,y:-16,width:37,height:23,rx:7,fill:(n.primary||n.type==='key')?'#12af83':'#263d5b',stroke:'#8be8ce','stroke-width':1.2},pg);textEl(pg,'PK',18, -4,{class:'pkControlText','font-size':12});pg.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();togglePrimary(n)});
+}
+for(const [px,py,side] of [[n.w/2,0,'rechts'],[-n.w/2,0,'links'],[0,-n.h/2,'oben'],[0,n.h/2,'unten']]){
+ const control=svg('g',{class:'portControl',transform:`translate(${px} ${py}) scale(${1/viewport.z})`,'aria-label':'Verbinden: '+side},g);
+ svg('circle',{class:'portHit',r:16,fill:'transparent'},control);
+ const port=svg('circle',{class:'port',r:8,style:'r:8px'},control);const title=svg('title',{},port);title.textContent='Zur Zielform ziehen';
+ control.addEventListener('pointerdown',ev=>portDown(ev,n));
+}
+g.addEventListener('contextmenu',ev=>{ev.preventDefault();ev.stopPropagation();if(!multi.has(n.id))multi=new Set([n.id]);selected={type:'node',id:n.id};render();openContext(ev.clientX,ev.clientY,'node',n.id)});g.addEventListener('pointerdown',ev=>nodeDown(ev,n));g.addEventListener('dblclick',ev=>{ev.stopPropagation();editName(n)})});if(guideX!==null||guideY!==null){const bounds=doc().nodes;if(guideX!==null)svg('line',{class:'alignmentGuide',x1:guideX,y1:-50000,x2:guideX,y2:50000},$('scene'));if(guideY!==null)svg('line',{class:'alignmentGuide',x1:-50000,y1:guideY,x2:50000,y2:guideY},$('scene'))}if(drag?.kind==='connectPort'&&connectPointer){
+ const n=findNode(drag.from),target=nodeAtPoint(connectPointer,drag.from);
+ if(n){
+  const dest=target?anchor(target,n.x,n.y):connectPointer;
+  const start=anchor(n,dest.x,dest.y);
+  svg('line',{class:'connectPreview',x1:start.x,y1:start.y,x2:dest.x,y2:dest.y},$('scene'));
+ }
+} $('counts').textContent=`${doc().nodes.length} Elemente · ${doc().edges.length} Verbindungen${selected?.type==='edge'?' · Verbindung ausgewählt (Entf: löschen)':chosenIds().length?' · '+chosenIds().length+' ausgewählt':''}`;$('gridToggle').textContent=(grid?'✓ ':'')+'Raster';$('zoomLabel').textContent=(viewport.z<.01?(viewport.z*100).toFixed(1):Math.round(viewport.z*100))+' %';$('boardwrap').classList.remove('connecting');$('hint').textContent='Leere Fläche ziehen: markieren · Strg+Ziehen / Mausrad: schieben · Rechtsklick: Menü · Doppelklick: Text · violetter Punkt: verbinden';$('undoBtn').disabled=!history.length;$('redoBtn').disabled=!future.length}
+let activeEdit=null;
+function editName(n){
+ if(!n)return;closeMenus();closeEdgeEditor();finishInlineEditor();
+ const g=[...$('nodes').children].find(el=>el.dataset.id===n.id);if(!g)return;
+ const ed=$('inlineEditor');ed.removeAttribute('style');ed.style.fontSize=(n.fontSize||(n.type==='text'?17:16))+'px';ed.style.color=captionColor(n);
+ const fo=svg('foreignObject',{class:'directTextEditor',x:-n.w/2,y:-n.h/2,width:n.w,height:n.h},g);
+ const wrap=document.createElementNS('http://www.w3.org/1999/xhtml','div');wrap.className='directTextWrap';fo.append(wrap);wrap.append(ed);
+ g.classList.add('editing');ed.textContent=n.text;ed.classList.remove('hidden');activeEdit=n.id;ed.focus({preventScroll:true});
+ const range=document.createRange();range.selectNodeContents(ed);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);
+}
+function finishInlineEditor(cancel=false){
+ if(!activeEdit)return;const id=activeEdit;activeEdit=null;const ed=$('inlineEditor'),n=findNode(id);
+ const value=(ed.innerText??ed.textContent??'').replace(/\r\n/g,'\n').trim().slice(0,140);
+ let changed=false;if(!cancel&&n&&value!==n.text){checkpoint();n.text=value;changed=true}
+ ed.classList.add('hidden');$('boardwrap').append(ed);document.querySelectorAll('.directTextEditor').forEach(el=>el.remove());
+ ed.blur();render();if(changed)save();$('canvas').focus({preventScroll:true});
+}
+$('inlineEditor').addEventListener('keydown',ev=>{ev.stopPropagation();if(ev.key==='Escape'){finishInlineEditor(true);ev.preventDefault()}if(ev.key==='Enter'&&!ev.shiftKey){finishInlineEditor();ev.preventDefault()}});
+$('inlineEditor').addEventListener('blur',()=>finishInlineEditor());
+for(const event of ['pointerdown','dblclick','contextmenu'])$('inlineEditor').addEventListener(event,ev=>ev.stopPropagation());
+let activeEdge=null;
+function closeEdgeEditor(){activeEdge=null;$('edgeEditor').classList.add('hidden')}
+function openEdgeEditor(e){finishInlineEditor();activeEdge=e.id;const pop=$('edgeEditor');$('edgeLabel').value=e.label;$('edgeLeft').value=e.left;$('edgeRight').value=e.right;const a=findNode(e.from),b=findNode(e.to),r=$('canvas').getBoundingClientRect();const x=viewport.x+(a.x+b.x)/2*viewport.z,y=viewport.y+(a.y+b.y)/2*viewport.z;pop.style.left=Math.max(8,Math.min(r.width-285,x+15))+'px';pop.style.top=Math.max(8,Math.min(r.height-210,y+15))+'px';pop.classList.remove('hidden');$('edgeLabel').focus()}
+$('edgeDone').onclick=()=>{if(!activeEdge)return;const e=doc().edges.find(x=>x.id===activeEdge);if(e){checkpoint();e.label=$('edgeLabel').value.slice(0,80);e.left=$('edgeLeft').value;e.right=$('edgeRight').value;render();save()}closeEdgeEditor()};$('edgeClose').onclick=closeEdgeEditor;
+
+let pickEdge=null,pickSide='left';
+function closePicker(){$('cardPicker').classList.add('hidden');pickEdge=null}
+function showCardinalityPicker(e,clientX,clientY){closeEdgeEditor();const a=findNode(e.from),b=findNode(e.to),r=$('canvas').getBoundingClientRect(),p=pos({clientX,clientY});if(!a||!b)return;
+pickSide=Math.hypot(p.x-a.x,p.y-a.y)<Math.hypot(p.x-b.x,p.y-b.y)?'left':'right';pickEdge=e.id;
+const picker=$('cardPicker');picker.style.left=Math.max(10,Math.min(r.width-250,clientX-r.left+12))+'px';picker.style.top=Math.max(10,Math.min(r.height-95,clientY-r.top+12))+'px';picker.classList.remove('hidden');$('cardSide').textContent=pickSide==='left'?'Kardinalität am ersten Element':'Kardinalität am zweiten Element';
+}
+document.querySelectorAll('[data-card]').forEach(b=>b.addEventListener('click',()=>{const e=doc().edges.find(x=>x.id===pickEdge);if(!e)return;checkpoint();e[pickSide]=b.dataset.card;closePicker();render();save()}));
+$('cardClose').onclick=closePicker;
+function openContext(clientX,clientY,kind,id){closePicker();const pop=$('editorContext');pop.replaceChildren();const title=document.createElement('h3');title.textContent=kind==='node'?'Element gestalten':kind==='edge'?'Verbindung gestalten':'Diagramm gestalten';pop.append(title);
+const addColor=(label,get,set)=>{const wrap=document.createElement('div');wrap.className='colorBlock';const head=document.createElement('span');head.textContent=label;const swatches=document.createElement('div');swatches.className='swatches';
+for(const color of COLORS){const b=document.createElement('button');b.type='button';b.title=color;b.style.backgroundColor=color;b.setAttribute('aria-label',label+' '+color);b.setAttribute('aria-pressed',String(get().toLowerCase()===color));b.onclick=()=>{checkpoint();set(color);swatches.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));render();save()};swatches.append(b)}wrap.append(head,swatches);pop.append(wrap)};
+const addRange=(label,get,set,min,max,step=1)=>{const row=document.createElement('label');const span=document.createElement('span');span.textContent=label;const el=document.createElement('input');el.type='range';el.min=min;el.max=max;el.step=step;el.value=get();const num=document.createElement('b');num.textContent=el.value;let captured=false;el.addEventListener('pointerdown',()=>{checkpoint();captured=true});el.addEventListener('input',()=>{if(!captured){checkpoint();captured=true}num.textContent=el.value;set(+el.value);render();save()});el.addEventListener('change',()=>{captured=false;save()});row.append(span,el,num);pop.append(row)};
+const addToggle=(label,get,set)=>{const row=document.createElement('label');row.className='toggleRow';const span=document.createElement('span');span.textContent=label;const el=document.createElement('input');el.type='checkbox';el.checked=get();el.onchange=()=>{checkpoint();set(el.checked);render();save()};row.append(span,el);pop.append(row)};
+if(kind==='node'){const n=findNode(id);if(!n)return;addColor('Füllfarbe',()=>n.fill||({'entity':'#214979','weak':'#214979','relation':'#60417f','identifying':'#60417f','attribute':'#145b5b','key':'#145b5b','multivalued':'#145b5b','text':'#100d18'}[n.type]),v=>chosenIds().forEach(i=>findNode(i).fill=v));addColor('Kontur',()=>n.stroke||'#214979',v=>chosenIds().forEach(i=>findNode(i).stroke=v));addColor('Schrift',()=>n.textColor||'#f5f0df',v=>chosenIds().forEach(i=>findNode(i).textColor=v));addRange('Schriftgröße',()=>n.fontSize||16,v=>chosenIds().forEach(i=>findNode(i).fontSize=v),10,35)}
+else if(kind==='edge'){const e=doc().edges.find(e=>e.id===id);if(!e)return;addColor('Linienfarbe',()=>e.color||theme().edgeColor,v=>e.color=v)}
+else{const t=theme();addColor('Hintergrund',()=>t.background,v=>t.background=v);addColor('Rasterfarbe',()=>COLORS.includes(t.gridDot)?t.gridDot:'#b49cff',v=>t.gridDot=v);addColor('Standard-Verbindungen',()=>t.edgeColor,v=>t.edgeColor=v);addRange('Karo-Abstand',()=>t.gridSize||24,v=>t.gridSize=v,12,60,2);addRange('Raster-Sichtbarkeit (%)',()=>Math.round((t.gridOpacity??.14)*100),v=>t.gridOpacity=v/100,0,45,1);addToggle('An Rasterpunkten einrasten',()=>t.snapGrid!==false,v=>t.snapGrid=v)}
+addRange('Alle Kardinalitäten',()=>theme().cardSize,v=>theme().cardSize=v,10,30);const note=document.createElement('small');note.textContent='Kardinalitätsgröße wird live für alle Verbindungen geändert. Linienstärke ist fest.';pop.append(note);
+contextActions(pop,kind,id,clientX,clientY);const close=document.createElement('button');close.textContent='Schließen';close.onclick=closeMenus;pop.append(close);const rect=$('boardwrap').getBoundingClientRect();pop.style.left=Math.max(5,Math.min(rect.width-275,clientX-rect.left+6))+'px';pop.style.top=Math.max(5,Math.min(rect.height-350,clientY-rect.top+6))+'px';pop.classList.remove('hidden');$('boardwrap').classList.add('context-open');clampMenu(pop,clientX,clientY)}
+$('canvasSettings').onclick=()=>openContext($('canvas').getBoundingClientRect().right-300,$('canvas').getBoundingClientRect().top+85,'canvas');$('canvas').addEventListener('contextmenu',e=>{if(e.target.closest('.node,.connection'))return;e.preventDefault();openContext(e.clientX,e.clientY,'canvas')});
+function pos(ev){const r=$('canvas').getBoundingClientRect();return{x:(ev.clientX-r.left-viewport.x)/viewport.z,y:(ev.clientY-r.top-viewport.y)/viewport.z}}
+function nodeDown(ev,n){hideQuickActions();if(ev.button===1){ev.preventDefault();ev.stopPropagation();startPan(ev);return}if(ev.button!==0)return;ev.stopPropagation();$('canvas').focus({preventScroll:true});closeMenus();if(ev.ctrlKey&&mode==='select'){startPan(ev);return}closePicker();if(ev.detail>=2){editName(n);return}if(spaceHeld){startPan(ev);return}
+if(ev.metaKey||ev.shiftKey){if(multi.has(n.id))multi.delete(n.id);else {if(selected?.type==='node')multi.add(selected.id);multi.add(n.id)}selected=multi.size===1?{type:'node',id:[...multi][0]}:null;render();return}
+if(!multi.has(n.id)){multi.clear();multi.add(n.id)}selected={type:'node',id:n.id};const altClone=ev.altKey;const startPositions=[...multi].map(id=>{const x=findNode(id);return {id,x:x.x,y:x.y}});drag={kind:'nodes',start:pos(ev),positions:startPositions,altClone,recorded:false,pointer:ev.pointerId};$('canvas').setPointerCapture(ev.pointerId);render()}
+function resizeDown(ev,n,sx,sy){if(ev.button!==0)return;hideQuickActions();ev.stopPropagation();ev.preventDefault();closePicker();checkpoint();selected={type:'node',id:n.id};multi=new Set([n.id]);drag={kind:'resize',id:n.id,sx,sy,p:pos(ev),x:n.x,y:n.y,w:n.w,h:n.h,pointer:ev.pointerId};$('canvas').setPointerCapture(ev.pointerId)}
+function portDown(ev,n){if(ev.button!==0)return;hideQuickActions();ev.stopPropagation();ev.preventDefault();closePicker();selected={type:'node',id:n.id};multi.clear();connectStart=n.id;drag={kind:'connectPort',from:n.id,pointer:ev.pointerId,start:pos(ev)};connectPointer=pos(ev);$('canvas').setPointerCapture(ev.pointerId);render()}
+function startPan(ev){hideQuickActions();drag={kind:'pan',clientX:ev.clientX,clientY:ev.clientY,x:viewport.x,y:viewport.y,pointer:ev.pointerId};$('canvas').setPointerCapture(ev.pointerId)}
+function marqueeRender(){document.querySelectorAll('#scene > .selectionMarquee').forEach(el=>el.remove());if(drag?.kind!=='marquee')return;const x=Math.min(drag.start.x,drag.end.x),y=Math.min(drag.start.y,drag.end.y),w=Math.abs(drag.end.x-drag.start.x),h=Math.abs(drag.end.y-drag.start.y);svg('rect',{class:'selectionMarquee',x,y,width:w,height:h},$('scene'))}
+function marqueeUpdate(){const d=drag;if(!d||d.kind!=='marquee')return;const x1=Math.min(d.start.x,d.end.x),x2=Math.max(d.start.x,d.end.x),y1=Math.min(d.start.y,d.end.y),y2=Math.max(d.start.y,d.end.y);const ids=doc().nodes.filter(n=>n.x+n.w/2>=x1&&n.x-n.w/2<=x2&&n.y+n.h/2>=y1&&n.y-n.h/2<=y2).map(n=>n.id);multi=new Set([...d.base,...ids]);selected=multi.size===1?{type:'node',id:[...multi][0]}:null}
+$('canvas').addEventListener('dblclick',ev=>{if(ev.target.closest('.connection'))return;const n=nodeAtPoint(pos(ev));if(n){ev.preventDefault();drag=null;connectPointer=null;selected={type:'node',id:n.id};multi=new Set([n.id]);editName(n)}});
+$('canvas').addEventListener('auxclick',ev=>{if(ev.button===1)ev.preventDefault()});$('canvas').addEventListener('pointerdown',ev=>{if(ev.button===1){ev.preventDefault();startPan(ev);return}if(ev.button!==0||ev.target.closest('.node,.connection'))return;finishInlineEditor();closeMenus();closeEdgeEditor();closePicker();if(spaceHeld||ev.ctrlKey){startPan(ev);return}const p=pos(ev);const base=ev.shiftKey||ev.ctrlKey||ev.metaKey?[...multi]:[];if(!base.length){multi.clear();selected=null;hideQuickActions()}drag={kind:'marquee',start:p,end:p,base,pointer:ev.pointerId};$('canvas').setPointerCapture(ev.pointerId);render();marqueeRender()});
+$('canvas').addEventListener('pointermove',ev=>{if(!drag)return;if(drag.kind==='resize'){const n=findNode(drag.id),p=pos(ev);if(!n)return;const dx=p.x-drag.p.x,dy=p.y-drag.p.y;const w=Math.max(70,snap(drag.w+drag.sx*dx)),h=Math.max(42,snap(drag.h+drag.sy*dy));n.x=drag.x+(w-drag.w)*drag.sx/2;n.y=drag.y+(h-drag.h)*drag.sy/2;n.w=Math.round(w);n.h=Math.round(h);render()}
+else if(drag.kind==='marquee'){drag.end=pos(ev);marqueeUpdate();render();marqueeRender()}
+else if(drag.kind==='connectPort'){connectPointer=pos(ev);render();const hover=nodeAtPoint(connectPointer,drag.from);$('hint').textContent=hover?'Loslassen, um die Formen zu verbinden':'Auf eine andere Form ziehen und loslassen'}
+else if(drag.kind==='nodes'){const p=pos(ev),dx=p.x-drag.start.x,dy=p.y-drag.start.y;if(!drag.recorded){if(Math.hypot(dx,dy)*viewport.z<3)return;checkpoint();drag.recorded=true;if(drag.altClone){duplicateAtOriginal();drag.positions=[...multi].map(id=>{const n=findNode(id);return{id,x:n.x,y:n.y}})}}guideX=guideY=null;const peers=doc().nodes.filter(n=>!multi.has(n.id));const lead=drag.positions[0];let snapX=0,snapY=0;if(lead){const proposedX=lead.x+dx,proposedY=lead.y+dy;const threshold=9/viewport.z;
+ let bestX=threshold,bestY=threshold;
+ const node=findNode(lead.id);
+ for(const other of peers)for(const f of [-.5,0,.5])for(const g of [-.5,0,.5]){
+ const ax=other.x+other.w*g,bx=proposedX+node.w*f,ay=other.y+other.h*g,by=proposedY+node.h*f;
+ if(Math.abs(ax-bx)<bestX){bestX=Math.abs(ax-bx);snapX=ax-bx;guideX=ax}
+ if(Math.abs(ay-by)<bestY){bestY=Math.abs(ay-by);snapY=ay-by;guideY=ay}
+ }}
+ const deltaX=guideX!==null?dx+snapX:snap(lead.x+dx)-lead.x,deltaY=guideY!==null?dy+snapY:snap(lead.y+dy)-lead.y;
+ for(const item of drag.positions){const n=findNode(item.id);if(!n)continue;n.x=item.x+deltaX;n.y=item.y+deltaY}render()}
+else if(drag.kind==='pan'){viewport.x=drag.x+ev.clientX-drag.clientX;viewport.y=drag.y+ev.clientY-drag.clientY;render()}});
+$('canvas').addEventListener('pointerup',ev=>{if(drag?.kind==='connectPort'){const source=drag.from;const pt=pos(ev);const target=nodeAtPoint(pt,source);drag=null;connectPointer=null;
+ if(target){connectStart=null;addEdge(source,target.id);toast('Verbindung erstellt · Rechtsklick für Kardinalitäten')}
+ else {connectStart=null;render()}
+ save();return}if(drag){const kind=drag.kind;drag=null;guideX=guideY=null;connectPointer=null;render();if(kind!=='marquee'||multi.size)save();if(kind==='nodes'&&selected?.type==='node')showQuickActions();else hideQuickActions()}});
+$('canvas').addEventListener('pointercancel',()=>{drag=null;connectPointer=null;guideX=guideY=null;render();save()});
+$('canvas').addEventListener('wheel',ev=>{ev.preventDefault();const r=$('canvas').getBoundingClientRect(),mx=ev.clientX-r.left,my=ev.clientY-r.top;zoom(ev.deltaY<0?1.1:1/1.1,mx,my)},{passive:false});
+function zoom(k,x,y){const old=viewport.z,z=val(old*k,MIN_ZOOM,MAX_ZOOM),factor=z/old;viewport.x=x-(x-viewport.x)*factor;viewport.y=y-(y-viewport.y)*factor;viewport.z=z;render()}
+function diagramBounds(){
+ indexRoutes();const points=[];for(const n of doc().nodes){points.push({x:n.x-n.w/2,y:n.y-n.h/2},{x:n.x+n.w/2,y:n.y+n.h/2})}
+ for(const e of doc().edges){const g=edgeGeometry(e);if(!g)continue;points.push(g.p1,g.p2,g.c1,g.c2);const half=(e.label||'').length*4+15;points.push({x:g.mid.x-half,y:g.mid.y-20},{x:g.mid.x+half,y:g.mid.y+20});for(const [text,p,c]of [[e.left,g.p1,g.c1],[e.right,g.p2,g.c2]])if(text){const q=cardinalPosition(p,c,g.a,g.b,text),w=text.length*theme().cardSize*.4+10;points.push({x:q.x-w,y:q.y-theme().cardSize},{x:q.x+w,y:q.y+theme().cardSize})}}
+ return points.length?{minX:Math.min(...points.map(p=>p.x))-45,maxX:Math.max(...points.map(p=>p.x))+45,minY:Math.min(...points.map(p=>p.y))-45,maxY:Math.max(...points.map(p=>p.y))+45}:{minX:0,maxX:900,minY:0,maxY:600};
+}
+function fit(){if(!doc().nodes.length){viewport={x:110,y:95,z:1};render();save();return}const r=$('canvas').getBoundingClientRect(),b=diagramBounds(),z=val(Math.min((r.width-30)/(b.maxX-b.minX),(r.height-60)/(b.maxY-b.minY)),MIN_ZOOM,1.5);viewport={z,x:r.width/2-(b.minX+b.maxX)/2*z,y:r.height/2-(b.minY+b.maxY)/2*z};render();save()}
+function setMode(m){mode=m;connectStart=null;render()}
+function renderTask(){$('taskSelect').value=state.exercise;const t=TASKS.find(x=>x.id===state.exercise);const body=$('taskBody');body.replaceChildren();const desc=document.createElement('div');desc.className='task-desc';const h=document.createElement('h2');h.textContent=t.title;const p=document.createElement('p');p.textContent=t.intro;desc.append(h,p);body.append(desc);if(t.note){const n=document.createElement('div');n.className='note';n.textContent=t.note;body.append(n)}const e=document.createElement('div');e.className='eyebrow';e.textContent='Ausgangssituation';body.append(e);t.facts.forEach((f,i)=>{const row=document.createElement('div');row.className='fact';const b=document.createElement('b');b.textContent=String(i+1).padStart(2,'0');const p=document.createElement('span');p.textContent=f;row.append(b,p);body.append(row)});if(t.questions.length){const e=document.createElement('div');e.className='eyebrow';e.textContent='Arbeitsauftrag';body.append(e);t.questions.forEach(q=>{const p=document.createElement('p');p.className='question';p.textContent=q;body.append(p);const key=q[0];if(t.answers.includes(key)){const label=document.createElement('div');label.className='small';label.style.color='#8ba7cd';label.style.marginBottom='6px';label.textContent='Antwort '+key+')';const ta=document.createElement('textarea');ta.className='answer';ta.setAttribute('aria-label','Begründung '+key+' zu '+t.title);ta.placeholder='Hier deine Begründung eingeben …';const a=state.answers[state.exercise]||(state.answers[state.exercise]={});ta.value=a[key]||'';ta.addEventListener('input',()=>{a[key]=ta.value;save()});body.append(label,ta)}})}}
+function switchTask(id){finishInlineEditor();closeMenus();save();cancelPlacement();state.exercise=id;selected=null;multi.clear();closePicker();connectStart=null;history=[];future=[];renderTask();viewport=doc().viewport||{x:110,y:95,z:1};grid=doc().grid!==false;render();save()}
+function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.append(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000)}
+function exportProject(){finishInlineEditor();save();download(new Blob([JSON.stringify({format:'ER-Werkstatt',version:8,state},null,2)],{type:'application/json'}),'ER-Werkstatt-Projekt.json');toast('Projektdatei exportiert')}
+function makeSvg(){const d=doc(),bounds=diagramBounds(),{minX,minY,maxX,maxY}=bounds;const out=svg('svg',{viewBox:`${minX} ${minY} ${Math.max(600,maxX-minX)} ${Math.max(400,maxY-minY)}`,width:Math.max(600,maxX-minX),height:Math.max(400,maxY-minY)});svg('rect',{x:minX,y:minY,width:Math.max(600,maxX-minX),height:Math.max(400,maxY-minY),fill:theme().background},out);const L=svg('g',{},out),N=svg('g',{},out);d.edges.forEach(e=>drawEdge(L,e));d.nodes.forEach(n=>{const g=svg('g',{class:'node',transform:`translate(${n.x} ${n.y})`},N);shape(g,n)});const style=svg('style',{},out);style.textContent='.node .caption{font-family:Trebuchet MS,sans-serif}.connection path{fill:none}.connection .hit{display:none}.connection text{font-family:Trebuchet MS,sans-serif;font-weight:750;text-anchor:middle;dominant-baseline:middle}.connection .cardinality{fill:#b7dbff;font-size:'+theme().cardSize+'px}.connection .card{fill:#15213a;stroke:#55749e}.pk{stroke:#fff;stroke-width:1.6}';return new XMLSerializer().serializeToString(out)}
+function exportSVG(){finishInlineEditor();download(new Blob([makeSvg()],{type:'image/svg+xml;charset=utf-8'}),`ER-${state.exercise}.svg`);toast('SVG exportiert')}
+async function exportPNG(){finishInlineEditor();try{const data=makeSvg(),img=new Image(),url=URL.createObjectURL(new Blob([data],{type:'image/svg+xml;charset=utf-8'}));await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url});const c=document.createElement('canvas');const scale=Math.min(2,16384/img.width,16384/img.height,Math.sqrt(32000000/(img.width*img.height)));c.width=Math.max(1,Math.ceil(img.width*scale));c.height=Math.max(1,Math.ceil(img.height*scale));const ctx=c.getContext('2d');ctx.scale(scale,scale);ctx.drawImage(img,0,0);URL.revokeObjectURL(url);c.toBlob(b=>{if(b)download(b,`ER-${state.exercise}.png`);else toast('PNG konnte nicht erstellt werden')},'image/png')}catch(e){toast('PNG fehlgeschlagen – SVG-Export verwenden')}}
+
+// A local PDF download: rasterize the current diagram, then embed its JPEG in a standard PDF.
+async function exportPDF(){
+ finishInlineEditor();let url;
+ try{
+ const data=makeSvg(),img=new Image();url=URL.createObjectURL(new Blob([data],{type:'image/svg+xml;charset=utf-8'}));
+ await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Diagramm konnte nicht gerendert werden'));img.src=url});
+ const scale=Math.min(2,10000/img.width,10000/img.height,Math.sqrt(12000000/(img.width*img.height)));
+ const c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(img.width*scale));c.height=Math.max(1,Math.ceil(img.height*scale));
+ const ctx=c.getContext('2d');if(!ctx)throw Error('Bildexport nicht verfügbar');ctx.fillStyle=theme().background;ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);
+ const raw=atob(c.toDataURL('image/jpeg',.95).split(',')[1]),jpeg=Uint8Array.from(raw,ch=>ch.charCodeAt(0));
+ download(buildPDF(jpeg,c.width,c.height),`ER-${state.exercise}.pdf`);toast('PDF exportiert');
+ }catch(e){toast('PDF fehlgeschlagen: '+e.message)}finally{if(url)URL.revokeObjectURL(url)}
+}
+function buildPDF(jpeg,width,height){
+ const enc=new TextEncoder(),parts=[],offsets=[0];let length=0;
+ const put=value=>{const bytes=typeof value==='string'?enc.encode(value):value;parts.push(bytes);length+=bytes.length};
+ const pw=width>=height?1190.55:841.89,ph=width>=height?841.89:1190.55,ratio=Math.min((pw-48)/width,(ph-48)/height),dw=width*ratio,dh=height*ratio;
+ const stream=`q ${dw.toFixed(3)} 0 0 ${dh.toFixed(3)} ${((pw-dw)/2).toFixed(3)} ${((ph-dh)/2).toFixed(3)} cm /Im0 Do Q`;
+ put('%PDF-1.4\n');
+ const obj=(id,body)=>{offsets[id]=length;put(`${id} 0 obj\n${body}\nendobj\n`)};
+ obj(1,'<< /Type /Catalog /Pages 2 0 R >>');obj(2,'<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+ obj(3,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Resources << /XObject << /Im0 4 0 R >> >> /Contents 5 0 R >>`);
+ offsets[4]=length;put(`4 0 obj\n<< /Type /XObject /Subtype /Image /Width ${width} /Height ${height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpeg.length} >>\nstream\n`);put(jpeg);put('\nendstream\nendobj\n');
+ obj(5,`<< /Length ${enc.encode(stream).length} >>\nstream\n${stream}\nendstream`);
+ const xref=length;put('xref\n0 6\n0000000000 65535 f \n');for(let id=1;id<=5;id++)put(String(offsets[id]).padStart(10,'0')+' 00000 n \n');
+ put(`trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);return new Blob(parts,{type:'application/pdf'});
+}
+
+let pendingPlacement=null;
+function hideQuickActions(){document.getElementById('quickActions')?.classList.add('hidden');document.getElementById('typeMenu')?.classList.add('hidden')}
+function showQuickActions(){return;
+
+ const n=selected?.type==='node'?findNode(selected.id):null,bar=$('quickActions');if(!n||multi.size>1){hideQuickActions();return}
+ const r=$('canvas').getBoundingClientRect();const x=viewport.x+n.x*viewport.z,y=viewport.y+(n.y-n.h/2)*viewport.z;
+ bar.style.left=Math.max(8,Math.min(r.width-360,x-160))+'px';bar.style.top=Math.max(8,y-55)+'px';
+ const pk=bar.querySelector('[data-quick="pk"]');pk.hidden=!['attribute','key','multivalued'].includes(n.type);pk.classList.toggle('isOn',!!(n.primary||n.type==='key'));
+ bar.classList.remove('hidden');
+}
+const shapeTypes=[['entity','Entität'],['weak','Schwache Entität'],['relation','Beziehung'],['identifying','Identifizierende Beziehung'],['attribute','Attribut'],['key','Primärschlüssel'],['multivalued','Mehrwertig'],['text','Freitext']];
+$('quickActions').addEventListener('pointerdown',ev=>ev.stopPropagation());
+$('quickActions').addEventListener('click',ev=>{
+ const action=ev.target.closest('[data-quick]')?.dataset.quick,n=selected?.type==='node'?findNode(selected.id):null;if(!action||!n)return;
+ if(action==='edit'){hideQuickActions();editName(n)}
+ else if(action==='color'){hideQuickActions();const r=$('canvas').getBoundingClientRect();openContext(r.left+Math.min(r.width-290,viewport.x+n.x*viewport.z),r.top+Math.max(10,viewport.y+n.y*viewport.z),'node',n.id)}
+ else if(action==='type'){const menu=$('typeMenu');menu.replaceChildren();for(const [t,title] of shapeTypes){const b=document.createElement('button');b.textContent=title;b.onclick=()=>{checkpoint();n.type=t;if(t==='key')n.primary=true;render();save();hideQuickActions();showQuickActions()};menu.append(b)}menu.style.left=$('quickActions').style.left;menu.style.top=(parseFloat($('quickActions').style.top)+40)+'px';menu.classList.remove('hidden')}
+ else if(action==='pk'){togglePrimary(n);showQuickActions()}
+ else if(action==='copy'){duplicate();showQuickActions()}
+ else if(action==='delete'){hideQuickActions();deleteSelected()}
+});
+function cancelPlacement(){pendingPlacement=null;$('placementGhost').classList.add('hidden');document.querySelectorAll('[data-shape]').forEach(b=>{b.classList.remove('placementActive');b.setAttribute('aria-pressed','false')})}
+function beginPlacement(type,ev){finishInlineEditor();closeMenus();cancelPlacement();pendingPlacement=type;const b=document.querySelector(`[data-shape="${type}"]`);b.classList.add('placementActive');b.setAttribute('aria-pressed','true');showPlacement(ev);$('taskPanel').classList.remove('show')}
+function showPlacement(ev){
+ if(!pendingPlacement)return;const ghost=$('placementGhost'),r=$('canvas').getBoundingClientRect(),d=defaults[pendingPlacement];
+ let cx=Number.isFinite(ev?.clientX)?ev.clientX:r.left+r.width/2,cy=Number.isFinite(ev?.clientY)?ev.clientY:r.top+r.height/2;
+ const over=cx>=r.left&&cx<=r.right&&cy>=r.top&&cy<=r.bottom;
+ if(over){const p=pos({clientX:cx,clientY:cy}),spot=freeSpot(snap(p.x),snap(p.y),d[0],d[1]);cx=r.left+viewport.x+spot.x*viewport.z;cy=r.top+viewport.y+spot.y*viewport.z}
+ const z=viewport.z,n={type:pendingPlacement,w:d[0],h:d[1],text:d[2]};
+ ghost.replaceChildren();const preview=svg('svg',{class:'board',width:d[0]*z+20,height:d[1]*z+20,viewBox:`${-d[0]/2-10/z} ${-d[1]/2-10/z} ${d[0]+20/z} ${d[1]+20/z}`},ghost);
+ shape(svg('g',{class:'node'},preview),n);ghost.style.width=(d[0]*z+20)+'px';ghost.style.height=(d[1]*z+20)+'px';ghost.style.left=(cx-d[0]*z/2-10)+'px';ghost.style.top=(cy-d[1]*z/2-10)+'px';ghost.classList.remove('hidden');
+}
+document.body.append($('placementGhost'));
+window.addEventListener('pointermove',ev=>{if(pendingPlacement)showPlacement(ev)});
+$('canvas').addEventListener('pointerdown',ev=>{if(!pendingPlacement||ev.button!==0)return;ev.preventDefault();ev.stopImmediatePropagation();const t=pendingPlacement;cancelPlacement();addNode(t,pos(ev),false);$('canvas').focus({preventScroll:true})},true);
+window.addEventListener('keydown',ev=>{if(ev.key==='Escape'&&pendingPlacement)cancelPlacement()},true);
+$('taskSelect').addEventListener('change',e=>switchTask(e.target.value));TASKS.forEach(t=>{const o=document.createElement('option');o.value=t.id;o.textContent=t.title;$('taskSelect').append(o)});document.querySelectorAll('[data-shape]').forEach(b=>{
+let start=null,ghost=null,moved=false;
+b.addEventListener('pointerdown',ev=>{if(ev.button!==0)return;start={x:ev.clientX,y:ev.clientY,id:ev.pointerId};moved=false;b.setPointerCapture(ev.pointerId)});
+b.addEventListener('pointermove',ev=>{if(!start)return;if(!moved&&Math.hypot(ev.clientX-start.x,ev.clientY-start.y)>8){moved=true;ghost=document.createElement('div');ghost.className='dragPreview';ghost.textContent=b.textContent.trim();document.body.append(ghost)}if(ghost){ghost.style.left=(ev.clientX+12)+'px';ghost.style.top=(ev.clientY+12)+'px'}});
+b.addEventListener('pointerup',ev=>{if(!start)return;start=null;ghost?.remove();ghost=null;if(moved){const r=$('canvas').getBoundingClientRect();if(ev.clientX>=r.left&&ev.clientX<=r.right&&ev.clientY>=r.top&&ev.clientY<=r.bottom){addNode(b.dataset.shape,{x:(ev.clientX-r.left-viewport.x)/viewport.z,y:(ev.clientY-r.top-viewport.y)/viewport.z},false)}moved=false}else {beginPlacement(b.dataset.shape,ev)}});
+b.addEventListener('pointercancel',()=>{start=null;ghost?.remove();ghost=null})
+b.addEventListener('click',ev=>{if(ev.detail===0)beginPlacement(b.dataset.shape)});});$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('delete').onclick=deleteSelected;$('duplicate').onclick=duplicate;$('zoomIn').onclick=()=>zoom(1.18,$('canvas').clientWidth/2,$('canvas').clientHeight/2);$('zoomOut').onclick=()=>zoom(1/1.18,$('canvas').clientWidth/2,$('canvas').clientHeight/2);$('fitBtn').onclick=fit;$('gridToggle').onclick=()=>{grid=!grid;$('gridToggle').textContent=(grid?'✓ ':'')+'Raster';render();save()};$('exportJson').onclick=exportProject;$('exportJsonSide').onclick=exportProject;$('exportPngSide').onclick=exportPNG;$('exportSvg').onclick=exportSVG;$('exportPng').onclick=exportPNG;$('exportPdf').onclick=exportPDF;$('importProject').onclick=()=>$('fileInput').click();$('importJson').onclick=()=>$('fileInput').click();$('fileInput').addEventListener('change',async ev=>{const f=ev.target.files?.[0];if(!f)return;try{if(f.size>10*1024*1024)throw Error('Datei über 10 MB');const x=JSON.parse(await f.text());if(x.format!=='ER-Werkstatt'||!x.state?.documents)throw Error('invalid');const clean=validateProject(x.state);finishInlineEditor();closeMenus();checkpoint();state=clean;selected=null;multi.clear();renderTask();fit();save();toast('Projekt erfolgreich geladen')}catch(e){toast('Projekt nicht geladen: '+e.message)}ev.target.value=''});
+window.addEventListener('keydown',ev=>{const target=ev.target;if(ev.key==='Escape'){closeMenus();closeEdgeEditor();closePicker();finishInlineEditor(true);drag=null;connectPointer=null;guideX=guideY=null;render();return}if(['INPUT','TEXTAREA','SELECT'].includes(target?.tagName)||target?.isContentEditable)return;if(ev.code==='Space'){spaceHeld=true;ev.preventDefault()}if((ev.key==='Delete'||ev.key==='Backspace')&&(selected||multi.size)){ev.preventDefault();deleteSelected()}if(ev.key==='Escape'){finishInlineEditor(true);closeEdgeEditor();selected=null;multi.clear();closePicker();connectStart=null;render()}if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(ev.key)&&chosenIds().length){ev.preventDefault();checkpoint();const step=ev.shiftKey?24:1;for(const id of chosenIds()){const n=findNode(id);n.x+=(ev.key==='ArrowRight'?step:ev.key==='ArrowLeft'?-step:0);n.y+=(ev.key==='ArrowDown'?step:ev.key==='ArrowUp'?-step:0)}render();save()}if(ev.key==='F2'&&selected?.type==='node'){ev.preventDefault();editName(findNode(selected.id))}if(ev.key==='F2'&&selected?.type==='edge'){ev.preventDefault();openEdgeEditor(current())}if(ev.key.toLowerCase()==='p'&&chosenIds().length===1){const n=findNode(chosenIds()[0]);if(n)togglePrimary(n)}if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='a'){ev.preventDefault();multi=new Set(doc().nodes.map(n=>n.id));selected=null;render()}if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='c'){ev.preventDefault();copySelected()}if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='x'){ev.preventDefault();copySelected(true)}if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='v'){ev.preventDefault();pasteSelected()}if((ev.ctrlKey||ev.metaKey)&&ev.key.toLowerCase()==='d'){ev.preventDefault();duplicate()}if((ev.ctrlKey||ev.metaKey)&&!ev.shiftKey&&ev.key.toLowerCase()==='z'){ev.preventDefault();undo()}if((ev.ctrlKey||ev.metaKey)&&(ev.key.toLowerCase()==='y'||ev.shiftKey&&ev.key.toLowerCase()==='z')){ev.preventDefault();redo()}});window.addEventListener('keyup',ev=>{if(ev.code==='Space')spaceHeld=false});
+$('showTasks').onclick=()=>{$('taskPanel').classList.toggle('show')};
+// V8: menu lifecycle, project validation and keyboard-safe actions.
+function closeMenus(){ $('editorContext').classList.add('hidden');$('boardwrap').classList.remove('context-open');hideQuickActions() }
+function clampMenu(pop,x,y){const r=$('boardwrap').getBoundingClientRect();pop.style.maxHeight=Math.max(40,r.height-16)+'px';pop.style.width=Math.min(286,r.width-16)+'px';const b=pop.getBoundingClientRect();pop.style.left=Math.max(8,Math.min(r.width-b.width-8,x-r.left+5))+'px';pop.style.top=Math.max(8,Math.min(r.height-b.height-8,y-r.top+5))+'px'}
+function contextActions(pop,kind,id,cx,cy){
+ const actions=document.createElement('div');actions.className='contextActions';pop.insertBefore(actions,pop.children[1]||null);
+ const action=(name,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=name;b.onclick=()=>{closeMenus();fn()};actions.append(b)};
+ if(kind==='node'){
+ const n=findNode(id);action('✎ Text bearbeiten',()=>editName(n));
+ const label=document.createElement('label');label.textContent='Formtyp';const sel=document.createElement('select');for(const [v,t]of shapeTypes){const o=new Option(t,v);sel.add(o)}sel.value=n.type;sel.onchange=()=>{checkpoint();for(const nid of chosenIds()){const x=findNode(nid);x.type=sel.value;x.primary=sel.value==='key'}render();save()};label.append(sel);actions.append(label);
+ if(['attribute','key','multivalued'].includes(n.type))action(n.primary||n.type==='key'?'Primärschlüssel entfernen':'Als Primärschlüssel markieren',()=>togglePrimary(n));
+ action('Kopieren',()=>copySelected());action('Ausschneiden',()=>copySelected(true));action('Duplizieren',duplicate);action('Auswahl löschen',deleteSelected);
+ }else if(kind==='edge'){
+ const e=doc().edges.find(x=>x.id===id);
+ for(const [side,nid]of [['left',e.from],['right',e.to]]){const l=document.createElement('label');l.textContent='Ende: '+findNode(nid).text;const sel=document.createElement('select');for(const v of ['', '1','n','m','0..1','1..n','0..n'])sel.add(new Option(v||'Keine',v));sel.value=e[side];sel.onchange=()=>{checkpoint();e[side]=sel.value;render();save()};l.append(sel);actions.append(l)}
+ const l=document.createElement('label');l.textContent='Rollen / Beschriftung';const input=document.createElement('input');input.value=e.label||'';input.maxLength=80;let recorded=false;input.oninput=()=>{if(!recorded){checkpoint();recorded=true}e.label=input.value;render();save()};l.append(input);actions.append(l);action('Verbindung löschen',deleteSelected);
+ }else{action('Einfügen',()=>{pasteSelected()});action(grid?'Raster ausblenden':'Raster einblenden',()=>{$('gridToggle').click()})}
+}
+function validateProject(input){
+ if(!input||typeof input!=='object'||!input.documents||typeof input.documents!=='object')throw Error('Projektstruktur fehlt');
+ const result={exercise:TASKS.some(t=>t.id===input.exercise)?input.exercise:'bibliothek',documents:{},answers:{}};
+ const safeColor=v=>typeof v==='string'&&/^#[0-9a-f]{6}$/i.test(v)?v:undefined;
+ for(const task of TASKS){const d=input.documents[task.id];if(!d)continue;if(!Array.isArray(d.nodes)||!Array.isArray(d.edges)||d.nodes.length>3000||d.edges.length>10000)throw Error('Diagramm zu groß oder beschädigt');const ids=new Set();
+ const nodes=d.nodes.map(n=>{if(!n||typeof n.id!=='string'||ids.has(n.id)||!defaults[n.type]||!['x','y','w','h'].every(k=>Number.isFinite(n[k]))||Math.abs(n.x)>1e6||Math.abs(n.y)>1e6)throw Error('Ungültiges Element');ids.add(n.id);return{id:n.id,type:n.type,x:n.x,y:n.y,w:val(n.w,70,3000),h:val(n.h,42,3000),text:String(n.text??'').slice(0,140),primary:!!n.primary,fill:safeColor(n.fill),stroke:safeColor(n.stroke),textColor:safeColor(n.textColor),fontSize:val(n.fontSize||16,10,35)}});
+ const edgeIds=new Set();const edges=d.edges.map(e=>{if(!e||!ids.has(e.from)||!ids.has(e.to)||typeof e.id!=='string'||edgeIds.has(e.id))throw Error('Ungültige Verbindung');edgeIds.add(e.id);const card=v=>['','1','n','m','0..1','1..n','0..n'].includes(v)?v:'';return{id:e.id,from:e.from,to:e.to,left:card(e.left),right:card(e.right),label:String(e.label||'').slice(0,80),color:safeColor(e.color),bend:val(e.bend||0,-150,150)}});
+ const t=d.theme||{},nt={...themeDefaults};for(const k of ['background','gridDot','edgeColor'])nt[k]=safeColor(t[k])||nt[k];nt.cardSize=val(t.cardSize||14,10,30);nt.gridSize=val(t.gridSize||24,12,60);nt.gridOpacity=val(t.gridOpacity??.14,0,.45);nt.snapGrid=t.snapGrid!==false;
+ result.documents[task.id]={nodes,edges,theme:nt,grid:d.grid!==false};if(d.viewport&&['x','y','z'].every(k=>Number.isFinite(d.viewport[k])))result.documents[task.id].viewport={x:d.viewport.x,y:d.viewport.y,z:val(d.viewport.z,MIN_ZOOM,MAX_ZOOM)};
+ result.answers[task.id]={};for(const k of task.answers)result.answers[task.id][k]=String(input.answers?.[task.id]?.[k]||'').slice(0,50000);
+ }return result;
+}
+document.addEventListener('pointerdown',ev=>{if(!ev.target.closest('#editorContext,#canvasSettings'))closeMenus();if(!ev.target.closest('#edgeEditor,.connection'))closeEdgeEditor()},true);
+window.addEventListener('resize',()=>{closeMenus();render()});window.addEventListener('blur',()=>{spaceHeld=false;if(drag){drag=null;connectPointer=null;guideX=guideY=null;render();save()}});
+window.addEventListener('pagehide',save);
+$('inlineEditor').addEventListener('paste',ev=>{ev.preventDefault();const text=ev.clipboardData.getData('text/plain');const sel=window.getSelection();if(sel.rangeCount){const range=sel.getRangeAt(0);range.deleteContents();range.insertNode(document.createTextNode(text));range.collapse(false);sel.removeAllRanges();sel.addRange(range)}});
+for(const id of ['duplicate','delete','redoBtn'])$(id).setAttribute('aria-label',$(id).title||'Wiederholen');
+try{const raw=JSON.parse(localStorage.getItem(KEY));if(raw?.state?.documents){state=validateProject(raw.state);viewport=raw.viewport||viewport;grid=raw.grid!==false}}catch(e){toast('Gespeicherte Daten konnten nicht geladen werden. JSON-Sicherung importieren.')}if(!TASKS.some(t=>t.id===state.exercise))state.exercise=TASKS[0].id;renderTask();render();$('gridToggle').textContent=(grid?'✓ ':'')+'Raster';
+})();
+</script></body></html>

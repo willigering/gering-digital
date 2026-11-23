@@ -192,27 +192,58 @@ let server,browser;
   assert.ok(await page.locator('dtp-back #back-module').isVisible(),
     'Unframed modules keep their own Modulauswahl link');
   await page.goto(base+'/dau-to-pro/unterricht/er-diagramme-bauen.php');
-  const board=page.locator('#ew-board');
-  await board.scrollIntoViewIfNeeded();
-  const nodes=board.locator('#ew-nodes [data-id]');
-  assert.ok(await nodes.count() >= 5,'ER terms start on the board');
-  const first=board.locator('[data-id="a"]'), second=board.locator('[data-id="r"]');
-  await first.click();
-  await page.locator('[data-ew-shape="entity"]').click();
-  assert.equal(await first.getAttribute('data-shape'),'entity');
-  await board.scrollIntoViewIfNeeded();
-  const a=await first.boundingBox(), b=await second.boundingBox();
-  await page.mouse.move(a.x+a.width/2,a.y+a.height/2);
-  await page.mouse.down();
-  await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:8});
-  await page.mouse.up();
-  await page.locator('[data-ew-card="1"]').click();
-  const midpoint=await board.evaluate(svg=>{
-    const line=svg.querySelector('.ew-link'),badge=svg.querySelector('#ew-labels text');
-    return ['x','y'].every(axis=>Number(badge.getAttribute(axis))===
-      (Number(line.getAttribute(axis+'1'))+Number(line.getAttribute(axis+'2')))/2);
-  });
-  assert.ok(midpoint,'Kardinalität sitzt mittig auf der sichtbaren Verbindung');
+  const board=page.locator('#canvas');
+  await board.waitFor();
+  assert.equal(await page.locator('#taskSelect option').count(),4,'Four original tasks');
+  assert.equal(await page.locator('#nodes .node').count(),0,'New account starts with a blank diagram');
+  const rect=await board.boundingBox();
+  async function place(type,x,y){
+    await page.locator('[data-shape="'+type+'"]').click();
+    assert.ok(await page.locator('#placementGhost svg').isVisible(),'Picked-up shape is visible');
+    await page.mouse.click(rect.x+x,rect.y+y);
+    assert.equal(await page.locator('#placementGhost').isVisible(),false);
+  }
+  await place('entity',220,260);await place('relation',650,260);
+  assert.equal(await page.locator('#nodes .node').count(),2);
+  assert.equal(await page.locator('#nodes .portControl').count(),8,'Four ports on each shape');
+  assert.equal(await page.locator('.selectionOutline').count(),0,'No rectangular selection frame');
+  const firstId=await page.locator('#nodes .node').first().getAttribute('data-id');
+  const secondId=await page.locator('#nodes .node').last().getAttribute('data-id');
+  const first=()=>page.locator('#nodes .node[data-id="'+firstId+'"]');
+  const second=()=>page.locator('#nodes .node[data-id="'+secondId+'"]');
+  await first().locator('.body').dblclick();
+  assert.equal(await page.locator('#inlineEditor').evaluate(el=>el.closest('.node')?.dataset.id),firstId,'Edit label inside the shape');
+  await page.locator('#inlineEditor').fill('Mitglied');await page.locator('#inlineEditor').press('Enter');
+  assert.equal(await first().locator('.caption').textContent(),'Mitglied');
+  await first().locator('.body').click();
+  const portBox=await first().locator('.portControl').first().boundingBox();
+  const targetBox=await second().locator('.body').boundingBox();
+  await page.mouse.move(portBox.x+portBox.width/2,portBox.y+portBox.height/2);await page.mouse.down();
+  await page.mouse.move(targetBox.x+targetBox.width/2,targetBox.y+targetBox.height/2,{steps:10});
+  assert.ok(await page.locator('.connectTarget').count(),'Target form is highlighted');await page.mouse.up();
+  assert.equal(await page.locator('#lines .connection').count(),1);
+  const edgePoint=await page.locator('#lines .connection path:not(.hit)').evaluate(el=>{const p=el.getPointAtLength(el.getTotalLength()/2),v=new DOMPoint(p.x,p.y).matrixTransform(el.getScreenCTM());return{x:v.x,y:v.y}});
+  await page.mouse.click(edgePoint.x,edgePoint.y,{button:'right'});
+  assert.ok(await page.locator('.connection.selected .selectionHalo').count());
+  const cards=page.locator('#editorContext select');await cards.nth(0).selectOption('1');await cards.nth(1).selectOption('n');
+  await page.keyboard.press('Escape');
+  const positions=await page.locator('.cardinality').evaluateAll(els=>els.map(el=>Number(el.getAttribute('y'))));
+  assert.equal(positions[0],positions[1],'Horizontal cardinalities share the same side');
+  await page.keyboard.press('Delete');assert.equal(await page.locator('#lines .connection').count(),0);
+  await page.keyboard.press('Control+z');assert.equal(await page.locator('#lines .connection').count(),1);
+  for(const task of ['schule','fitness','auto']){await page.locator('#taskSelect').selectOption(task);assert.equal(await page.locator('#nodes .node').count(),0)}
+  await page.locator('#taskSelect').selectOption('bibliothek');assert.equal(await page.locator('#nodes .node').count(),2);
+  async function exported(button,suffix){const [file]=await Promise.all([page.waitForEvent('download'),page.locator(button).click()]);assert.ok(file.suggestedFilename().endsWith(suffix));const name=await file.path();assert.ok(name);return name}
+  const jsonPath=await exported('#exportJson','.json'),project=JSON.parse(fs.readFileSync(jsonPath,'utf8'));
+  assert.equal(project.state.documents.bibliothek.nodes.length,2);
+  assert.equal(Object.keys(project.state.documents).length,4);
+  const svgPath=await exported('#exportSvg','.svg');assert.match(fs.readFileSync(svgPath,'utf8'),/Mitglied/);
+  const pngPath=await exported('#exportPng','.png');assert.equal(fs.readFileSync(pngPath).subarray(1,4).toString(),'PNG');
+  const pdfPath=await exported('#exportPdf','.pdf');assert.equal(fs.readFileSync(pdfPath).subarray(0,5).toString(),'%PDF-');
+  await board.focus();await page.keyboard.press('Control+a');await page.keyboard.press('Delete');assert.equal(await page.locator('#nodes .node').count(),0);
+  await page.locator('#fileInput').setInputFiles(jsonPath);await page.waitForFunction(()=>document.querySelectorAll('#nodes .node').length===2);
+  await page.reload();assert.equal(await page.locator('#nodes .node').count(),2,'Account autosave survives reload');
+  assert.ok(await page.getByRole('link',{name:'Zur Werkstatt',exact:true}).isVisible());
   assert.deepEqual(errors,[],'No uncaught browser errors');
   console.log('PASS: NERD FM continues through module entry, switching, pause/resume and back navigation');
 })().catch(err=>{console.error(err);process.exitCode=1}).finally(async()=>{
