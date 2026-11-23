@@ -2201,7 +2201,7 @@ function drawStation(s){if(s===MB.st){mbDraw(s);return}if(s.t==='perk'){drawPerk
   R(g,x-3,y-40,6,4,'#5a2a7a');R(g,x-1,y-43,2,3,c>.7?'#ffffff':'#e0a0ff'); // Antenne
   if(Math.random()<.35)part({x:x+rnd(-16,16),y:y+rnd(-5,5),z:rnd(0,8),vx:rnd(-4,4),vy:0,vz:rnd(14,34),life:rnd(.8,1.6),c:pick(['#e8a0ff','#c86bff','#ffffff','#b080ff']),s:1,ember:1})}}
 const [rtc,rtx]=mk(1,1);
-function carLootFx(c){if(c.driver)return;const pl=PL.find(p=>(p.bwCs&&p.bwCs.c===c.i)||(p.carS&&p.carS.c===c.i)),done=(FAIR?BW.looted.has(c.i):CAR_LOOT.has(c.i));if(!pl&&!done)return;
+function carLootFx(c){if(c.driver)return;const pl=PL.find(p=>(p.bwCs&&p.bwCs.c===c.i)||(p.carS&&p.carS.c===c.i));if(!pl)return;
  const x=Math.round(c.x),y=Math.round(c.y),w=c.w,h=c.h,searching=!!pl,j=searching?Math.round(Math.sin(now*18)*1):0;
  if(c.v){
   R(g,x-1,y-7,w+2,7,'#0b0a0e');R(g,x+2,y-6,w-4,3,'#343037');
