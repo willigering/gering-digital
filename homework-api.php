@@ -67,9 +67,9 @@ try {
                 $db->commit();
             }
         }
-        $modules=$db->query('SELECT id,title,topic,date,status,category_id FROM modules ORDER BY created DESC')->fetchAll(PDO::FETCH_ASSOC);
+        $modules=$db->query('SELECT id,title,topic,date,status,category_id,background_id FROM modules ORDER BY created DESC')->fetchAll(PDO::FETCH_ASSOC);
         $categories=$db->query('SELECT id,name,is_default FROM categories ORDER BY sort_order,name COLLATE NOCASE')->fetchAll(PDO::FETCH_ASSOC);
-        output(['mode'=>'ready','modules'=>$modules,'categories'=>$categories]);
+        output(['mode'=>'ready','modules'=>$modules,'categories'=>$categories,'backgrounds'=>hw_backgrounds()]);
     }
 
     if (in_array($action,['search','workbook'],true) && $_SERVER['REQUEST_METHOD']==='GET') {
@@ -179,6 +179,15 @@ try {
         $stmt=$db->prepare('UPDATE modules SET title=? WHERE id=?');
         $stmt->execute([$title,$id]);
         output(['ok'=>true,'title'=>$title]);
+    }
+
+    if ($action==='set-background') {
+        $id=(string)($body['id']??'');
+        $background=$body['backgroundId']??null;
+        if(!is_string($background)||($background!==''&&!in_array($background,array_column(hw_backgrounds(),'id'),true))) fail('Ungültiger Hintergrund.');
+        $db=db();require_module($db,$id);
+        $db->prepare('UPDATE modules SET background_id=? WHERE id=?')->execute([$background,$id]);
+        output(['ok'=>true,'backgroundId'=>$background]);
     }
 
     if ($action==='set-category') {

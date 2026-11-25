@@ -1,6 +1,7 @@
 'use strict';
 // HomeWork: browser UI only. Categories and module mutations persist via the private API.
 let csrf='', modules=[], categories=[], activeCategory='all', searchText='', activeStatus='all', searchMatches=null, searchController=null, searchTimer=0;
+let backgrounds=[];
 const $=id=>document.getElementById(id);
 const statuses={offen:'Offen',bearbeitung:'In Bearbeitung',fertig:'Fertig'};
 // Reusable motifs: every category, including new ones, works without an image upload.
@@ -121,6 +122,34 @@ async function deleteModule(module){
     notice('Modul gelöscht.');
   }catch(error){notice('Löschen fehlgeschlagen: '+error.message)}
 }
+function openBackground(module){
+  const dialog=$('backgroundDialog'), grid=$('backgroundChoices');
+  $('backgroundModule').textContent=module.title;
+  $('backgroundError').textContent='';
+  grid.replaceChildren();
+  const choices=[{id:'',title:'Automatisch (Kategorie)',image:motifForCategory(module.category_id).image},...backgrounds];
+  for(const choice of choices){
+    const button=element('button','background-choice');
+    button.type='button';
+    button.setAttribute('aria-pressed',String((module.background_id||'')===choice.id));
+    const img=element('img');img.src='assets/dau-backgrounds/'+choice.image;img.alt='';img.loading='lazy';
+    button.append(img,element('span','',choice.title));
+    button.addEventListener('click',async()=>{
+      for(const item of grid.children)item.disabled=true;
+      $('cancelBackground').disabled=true;
+      try{
+        const result=await api('set-background',{id:module.id,backgroundId:choice.id});
+        module.background_id=result.backgroundId;
+        dialog.close();renderCards();notice('Hintergrund gespeichert.');
+      }catch(error){$('backgroundError').textContent=error.message;}
+      finally{for(const item of grid.children)item.disabled=false;$('cancelBackground').disabled=false;}
+    });
+    grid.append(button);
+  }
+  dialog.showModal();
+}
+$('cancelBackground').addEventListener('click',()=>$('backgroundDialog').close());
+$('backgroundDialog').addEventListener('cancel',event=>{if($('cancelBackground').disabled)event.preventDefault();});
 function renderCards(){
   const grid=$('modules');
   grid.replaceChildren();
@@ -138,7 +167,8 @@ function renderCards(){
     card.dataset.status=statuses[module.status]?module.status:'offen';
     const art=element('div','module-art');
     const motif=motifForCategory(module.category_id);
-    const artUrl=new URL('assets/dau-backgrounds/'+motif.image,document.baseURI).href;
+    const selected=backgrounds.find(b=>b.id===module.background_id);
+    const artUrl=new URL('assets/dau-backgrounds/'+(selected?.image||motif.image),document.baseURI).href;
     art.style.setProperty('--art-image','url("'+artUrl+'")');
     card.style.setProperty('--motif-color',motif.color);
     art.append(motifIcon(motif),element('span','module-status',statuses[module.status]||'Offen'));
@@ -170,7 +200,10 @@ function renderCards(){
     remove.addEventListener('click',()=>{options.open=false;deleteModule(module)});
     const exportButton=element('button','','Exportieren …');exportButton.type='button';
     exportButton.addEventListener('click',()=>{options.open=false;$('exportId').value=module.id;$('exportDialog').showModal()});
-    menu.append(edit,exportButton,element('hr','menu-divider'));
+    const background=element('button','','Hintergrund ändern');
+    background.type='button';
+    background.addEventListener('click',()=>{options.open=false;openBackground(module)});
+    menu.append(edit,background,exportButton,element('hr','menu-divider'));
     const controls=element('div','status-controls');
     controls.setAttribute('role','group');
     controls.setAttribute('aria-label','Status für '+module.title);
@@ -217,6 +250,7 @@ async function refresh(){
     $('app').classList.toggle('hidden',!ready);
     if(ready){
       categories=data.categories||[];
+      backgrounds=data.backgrounds||[];
       modules=data.modules||[];
       if(activeCategory!=='all'&&activeCategory!==''&&!categories.some(c=>c.id===activeCategory))activeCategory='all';
       render();

@@ -145,3 +145,13 @@ h1{font-size:42px}
 
 .heading-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.import-button{cursor:pointer;display:inline-flex;align-items:center}.search-snippet{font-size:13px;color:var(--teal);border-left:2px solid var(--teal);padding-left:10px;overflow-wrap:anywhere;margin:0 0 18px}.export-hint{font-size:14px;color:var(--muted)}
 @media(max-width:760px){.heading-actions{width:100%}.heading-actions>button,.heading-actions>label{flex:1;justify-content:center}}
+
+/* Shared DAU TO PRO background picker */
+.homework-dialog.background-dialog{width:min(780px,calc(100vw - 24px));max-width:780px;max-height:90dvh;overflow:auto}
+.background-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;margin:16px 0}
+.background-choice{background:#142027;color:var(--ink);border:1px solid var(--stroke);border-radius:10px;padding:0;overflow:hidden;cursor:pointer;text-align:left;font:inherit}
+.background-choice img{display:block;width:100%;aspect-ratio:16/9;object-fit:cover}
+.background-choice span{display:block;padding:9px;font-size:.85rem}
+.background-choice[aria-pressed=true]{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.background-choice:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+.background-choice:disabled{opacity:.6;cursor:wait}

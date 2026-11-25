@@ -26,6 +26,9 @@ function hw_db(): PDO {
     if (!in_array('category_id',array_column($columns,'name'),true)) {
         $db->exec("ALTER TABLE modules ADD COLUMN category_id TEXT NOT NULL DEFAULT ''");
     }
+    if (!in_array('background_id',array_column($columns,'name'),true)) {
+        $db->exec("ALTER TABLE modules ADD COLUMN background_id TEXT NOT NULL DEFAULT ''");
+    }
     $db->exec('CREATE TABLE IF NOT EXISTS categories (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -54,4 +57,22 @@ function hw_category_exists(PDO $db,string $categoryId): bool {
 
 function hw_length(string $value): int {
     return function_exists('mb_strlen') ? mb_strlen($value,'UTF-8') : strlen($value);
+}
+
+function hw_backgrounds(): array {
+    $dir=__DIR__.'/assets/dau-backgrounds/';
+    $manifest=json_decode((string)@file_get_contents($dir.'manifest.json'),true);
+    $items=[];
+    foreach(($manifest['assets']??[]) as $asset){
+        $id=$asset['id']??'';
+        if(!is_string($id)||!preg_match('/\\A[a-z0-9-]+\\z/D',$id))continue;
+        foreach(($asset['variants']??[]) as $variant){
+            $path=$variant['path']??'';
+            if($path===$id.'-768.webp' && is_file($dir.$path)){
+                $items[]=['id'=>$id,'title'=>$asset['title']??$id,'image'=>$path];
+                break;
+            }
+        }
+    }
+    return $items;
 }
