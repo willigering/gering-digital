@@ -31,7 +31,7 @@ require_once __DIR__ . '/lib.php';
     <div class="legal-sheet privacy-sheet">
       <div class="legal-sheet-head">
         <span>DATENSCHUTZERKLÄRUNG</span>
-        <small>Stand: 02.11.2026</small>
+        <small>Stand: 26.11.2026</small>
       </div>
 
       <section class="legal-block legal-block-wide">
@@ -86,8 +86,9 @@ require_once __DIR__ . '/lib.php';
 
         <section class="legal-block">
           <div class="legal-label">7 · EXTERNE LINKS</div>
-          <h2>Google Play &amp; Apple App Store</h2>
+          <h2>Google Play, Apple App Store und GitHub</h2>
           <p>Auf dieser Website können Links zu Apps im Google Play Store oder Apple App Store enthalten sein. Diese Dienste werden nicht innerhalb dieser Website eingebettet. Erst beim Aufruf eines solchen Links verlässt du diese Website; für die anschließende Verarbeitung personenbezogener Daten gelten die Datenschutzhinweise des jeweiligen Anbieters.</p>
+          <p style="margin-top:12px">Auf dieser Website können außerdem Links zu Projektseiten und Dateidownloads auf GitHub enthalten sein. Anbieter ist GitHub, Inc., ein Unternehmen der Microsoft Corporation, mit Sitz in den USA. Diese Dienste werden nicht innerhalb dieser Website eingebettet. Erst beim Aufruf eines solchen Links verlässt du diese Website. GitHub kann dabei insbesondere deine IP-Adresse und Verbindungsdaten verarbeiten; eine Datenverarbeitung in den USA ist möglich. Microsoft ist unter dem EU-US Data Privacy Framework zertifiziert. Für die anschließende Verarbeitung personenbezogener Daten gelten die <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">Datenschutzhinweise von GitHub</a>.</p>
         </section>
 
         <section class="legal-block legal-block-wide" id="sharplab">
@@ -97,6 +98,13 @@ require_once __DIR__ . '/lib.php';
           <p style="margin-top:12px"><strong>Feedback:</strong> Nur wenn du in der Windows-App aktiv auf „Senden“ klickst, übermittelt SharpLab deine Nachricht, den Betreff, die App-Version und Informationen über die Windows-Version verschlüsselt per HTTPS an Gering Digital. Eine Antwort-E-Mail-Adresse ist freiwillig. Ein Ausschnitt aus der lokalen Fehlerprotokolldatei (bis zu rund 20 KB) wird nur mitgeschickt, wenn du die entsprechende Option ausdrücklich aktivierst. Dieses Protokoll kann möglicherweise Codeausschnitte, Dateipfade oder andere personenbezogene Informationen enthalten; prüfe es bitte vor der Übertragung. Die Angaben werden zur Bearbeitung der Rückmeldung per E-Mail an das Website-Postfach weitergeleitet und nur so lange aufbewahrt, wie die Bearbeitung und gegebenenfalls anschließende Kommunikation es erfordert. Rechtsgrundlage ist je nach Inhalt Art. 6 Abs. 1 lit. b oder lit. f DSGVO.</p>
           <p style="margin-top:12px"><strong>Missbrauchsschutz:</strong> Der Feedback-Endpunkt bildet einen Hashwert aus der IP-Adresse, um übermäßige Anfragen zu begrenzen, und speichert diesen zusammen mit einem Zeitstempel maximal etwa eine Stunde. Die Verarbeitung erfolgt auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO. Beim Verbindungsaufbau können zudem technische Zugriffsdaten durch den Hostinganbieter verarbeitet werden (siehe „Technischer Betrieb“).</p>
           <p style="margin-top:12px"><strong>Updateprüfung:</strong> Wenn die Updatefunktion aktiviert ist, ruft die Anwendung bei GitHub die Informationen zum neuesten Release ab. Dabei erhält GitHub technisch bedingt insbesondere die IP-Adresse und Verbindungsinformationen. Ein Update wird erst nach deiner Bestätigung heruntergeladen und installiert. Du kannst die Updateprüfung in den App-Einstellungen deaktivieren. Informationen zur Verarbeitung durch GitHub findest du in der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub-Datenschutzerklärung</a>.</p>
+        </section>
+
+        <section class="legal-block legal-block-wide" id="deskrecall">
+          <div class="legal-label">WINDOWS-APP · DESKRECALL</div>
+          <h2>DeskRecall: lokale Daten und Updates</h2>
+          <p><strong>Lokale Daten:</strong> DeskRecall speichert Sitzungsdaten, Profile, Programmregeln und den Verlauf ausschließlich lokal auf deinem Gerät – je nach Einrichtung im Programmordner oder unter %LOCALAPPDATA%\DeskRecall. Es findet keine Telemetrie statt, es gibt keine Registrierung, und es werden keine Daten an Gering Digital übermittelt. Inhalte, Passwörter oder Cookies aus anderen Anwendungen, insbesondere aus Browsern, werden nicht ausgelesen.</p>
+          <p style="margin-top:12px"><strong>Updateprüfung:</strong> Wenn die Updatefunktion aktiviert ist, ruft die Anwendung bei GitHub die Informationen zum neuesten Release ab. Dabei erhält GitHub technisch bedingt insbesondere die IP-Adresse und Verbindungsinformationen; eine Datenverarbeitung in den USA ist möglich (siehe auch „Externe Links“). Ein Update wird erst nach deiner Bestätigung heruntergeladen und installiert. Du kannst die Updateprüfung in den App-Einstellungen deaktivieren. Informationen zur Verarbeitung durch GitHub findest du in der <a href="https://docs.github.com/de/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener">GitHub-Datenschutzerklärung</a>.</p>
         </section>
 
         <section class="legal-block legal-block-wide" id="lernkonten">
