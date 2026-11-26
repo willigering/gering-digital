@@ -2,6 +2,24 @@
 
 Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admin installiert und öffentlich ausgeliefert sind, ist hier **nicht nachgewiesen**. Keine vollständige Überarbeitung oder Live-Prüfung behaupten, bevor sie erfolgt ist.
 
+## 26.11.2026 – B2 Netzwerkgrundlagen: Lehrtexte überarbeitet; Richtig/Falsch-Sprüche seltener
+
+**Auftrag (Willi):** Module sprachlich komplett überarbeiten, beginnend mit einem Modul nach Wahl. Innerhalb der Module sachlich, verständlich, mit anschaulichen Beispielen und guten Erklärungen. Der Witz in der Modulauswahl bleibt. Die Richtig/Falsch-Sprüche sollen nur etwa jedes fünfte Mal kommen. Das Design bleibt unverändert.
+
+**Gewähltes Modul: B2 `netzwerke-sprint.html` („Jetzt ma Router bei die Switche!“).** Die Lektionen lasen sich wie ein Lehrbuch (Definition vor Situation).
+
+Überarbeitet (nur Inhalte, keine Überschriften):
+- Alle 37 Lektionen im Nachschlagwerk (Kapitel 1–9): Jede beginnt mit einem konkreten Beispiel, danach kurze Erklärung (Listen statt Textblöcken), Fachbegriffe an der Stelle erklärt, am Ende „Merke“, Falle oder Hinweis. Tabellen, Rechenbeispiele und Fachaussagen unverändert übernommen.
+- Neun Kapiteleinleitungen sachlich und ohne Gag neu geschrieben.
+- Lernpfad: Einstiegstexte aller zehn Stufen als kurze Absätze (Beispiel, Erklärung, Aufbau). Schritte, Merksätze, Aufgaben und Lösungen unverändert.
+- Der Aufbau in Absätzen ist über einen kleinen Anpassungsschritt im Renderer möglich (Einstieg wird nur dann zusätzlich in `<p>` gesetzt, wenn er nicht schon mit `<p>` beginnt). Kein CSS geändert.
+
+Gemeinsame Rückmeldungen (`tools/module-wrong-answer.js`, in allen 13 Moduldateien eingebettet): Witzige Sprüche erscheinen nur noch mit 20 % Wahrscheinlichkeit (1:5), sonst eine kurze sachliche Zeile („Nicht ganz.“, „Richtig gelöst.“ usw.). Der Spruchvorrat und die Bewertung sind unverändert. Tests angepasst: `module_wrong_answer_test.cjs` (Häufigkeit ≈ 20 %, keine direkt wiederholte Sachzeile), `module_wrong_answer_browser.cjs`.
+
+Geprüft: Skriptsyntax; B2 im Browser bei 1280 und 390 px ohne Konsolenfehler, ohne seitlichen Überlauf, Stufe 1 ohne leere Absätze; `module_wrong_answer_test.cjs`, `module_wrong_answer_browser.cjs`, `module_design_browser.cjs`, `module_entry_test.cjs`, `bundled_module_delivery_test.php`. Fachliche Neuprüfung der umformulierten Lektionen durch Lesen gegen das Original; keine Fachaussage geändert.
+
+**Offen (nicht als erledigt darstellen):** Aufgabentexte, Tooltips, Hinweise, Lösungswege und Laborbeschriftungen von B2 sind noch nicht überarbeitet. Alle anderen Module sind unverändert. Humor-Abnahme durch Willi, Merge und Live-Prüfung stehen aus.
+
 ## 10.11.2026 – Spickzettel: ursprüngliche Klausurvorlage und mobiles Wischen
 
 - Alle zwölf Themenblätter verwenden wieder die kantigen Lesekarten und die dauerhaft erreichbare Sprungleiste der früheren `cheat-sheet.html` (Stand `0a9262c`). Desktop: zweispaltige Abschnitte; Fragen als lesbarer Bereich in zwei/drei Spalten. Mobil bis 900 px: native horizontale Scroll-Snap-Seiten, aktive Navigation, Seitenzähler und passende Höhe je Abschnitt. Die Leiste selbst lässt sich ebenfalls horizontal verschieben.
@@ -224,3 +242,14 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Vier unveränderte Aufgaben, Platzierung mit Formvorschau am Zeiger, Inline-Beschriftung, vier leuchtende Verbindungspunkte, formgetreue Auswahl, einheitliche Kardinalitätsposition, Zoom bis 0,1 %, JSON-Import/-Export und PNG/PDF/SVG.
 - Bestehender Lernkonto-Zugang bleibt vorgeschaltet. Browserprojekte sind pro Konto getrennt; alte Zeichenlabor-Daten werden nicht gelöscht. Eigenständige V8-Projekte lassen sich über JSON übernehmen.
 - Lokale Skriptsyntax und gezielte Integrationsprüfung durchgeführt. Browserabnahme und PHP-/Plattformregression über GitHub Actions; Veröffentlichung erst nach erfolgreichen Prüfungen. Kein lokaler Browsernachweis behauptet.
+
+### Freitext entfernt (26.11.2026)
+- B2 (Netzwerke-Sprint): Trainingsmodus „Freitext“, KI-Freitextprüfung und die zugehörigen 111 Fragen entfernt; Klausurmodus und Reset-Schlüssel bereinigt. Der Eintrag `mesh_freitext` ist aus dem Modul-Rechner gestrichen.
+- CS1: Die beiden Typen `w_frei` und `u_frei` haben im Modul keine Eingabefelder mehr; sie erscheinen als Lückentext mit Wortbank und werden eindeutig ausgewertet. Nur der interne Typname bleibt.
+- Serverseitige KI-Korrektur (`ai.php`) wurde nicht angefasst.
+
+### B2: neue Auswahl-Aufgabentypen (26.11.2026)
+- Neu als Ersatz für Freitext: Lückentext mit Wortbank (inkl. Begriffen, die nicht passen), Zuordnen (Zeile ↔ Auswahl) und Fall-Entscheidung (Multiple Choice mit Szenario). Zehn Lückentext-Typen (je Thema einer), neun Zuordnen-Typen (alle Themen außer Szenarien) und ein Fall-Typ: 20 neue Aufgabentypen, insgesamt 91.
+- Wertung eindeutig: Alle Lücken/Zeilen müssen stimmen, sonst gilt die Aufgabe als falsch; unvollständig wird nicht gewertet. Gilt in Lernpfad, Training und Probeprüfung (Antwort wird als `a|b|c` zwischengespeichert, Prüfung zeigt Auswahl und Lösung).
+- Neues Element: `select.gap` und `.cloze`, Optik angelehnt an die vorhandenen Zuordnen-Zeilen. Keine Änderung an Überschriften, IDs, XP oder Speicherschlüsseln.
+- Noch offen: Wiederholung falscher Aufgaben, Mehr-Schritt-Fälle, Review durch Willi.

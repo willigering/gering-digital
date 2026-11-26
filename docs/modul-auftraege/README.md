@@ -35,7 +35,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 **Aufgaben:**
 
 - Mindestens 45 verschiedene Aufgabentypen (Generatoren mit Zufallswerten oder große Fallpools), jeder mit fester, kurzer ID (z. B. `r_frist`).
-- Echtes Verstehen: rechnen, Fall bewerten, Fehler finden, Reihenfolge, zuordnen, Freitext mit Schlüsselwörtern. Höchstens ein Drittel reines Multiple Choice.
+- Echtes Verstehen: rechnen, Fall bewerten, Fehler finden, Reihenfolge, zuordnen, Lückentext mit Wortbank. Keine Freitextaufgaben: Sie lassen sich nicht zuverlässig auswerten. Höchstens ein Drittel reines Multiple Choice.
 - Fragen im IHK-Prüfungsstil. Direkt hinter jeder Frage ein eingekreistes „?“. Beim Darüberfahren (Handy: Antippen) zeigt ein Tooltip dieselbe Frage in einfachen Worten. Kein extra Button.
 - Fachbegriffe in der Frage kurz erklären. Kurze Sätze, Alltagswörter. Schwer darf das Denken sein, nie die Formulierung.
 - Jede Antwort bekommt eine Erklärung, bei Rechenaufgaben mit Rechenweg.
@@ -98,6 +98,8 @@ Diese Regeln gelten **rückwirkend für jedes fertige/veröffentlichte Modul** u
 ### Rückmeldungen bei falschen Antworten (05.11.2026)
 
 Falsch- und Richtig-Sprüche gelten modulübergreifend in allen Bereichen: Lernpfad, Nachschlagwerk-Kurzcheck, Training, Zuordnen und Prüfungsauswertung. Alle Module verwenden dafür den gemeinsamen Vorrat (`DTPWrongAnswer`, `DTPRightAnswer`), darunter die 50 Sprüche aus der Klausurvorbereitung. Der gemeinsame Baustein `tools/module-wrong-answer.js` wird mit `apply_wrong_answers()` aus `tools/module_theme.py` eingebettet und beim Ausliefern älterer Module über `learner_inject_sync()` erneuert. Aufgabenrenderer rufen `window.DTPWrongAnswer.next()` auf. Die zufällig gemischte Liste wiederholt sich erst nach dem gesamten Vorrat; auch am Übergang gibt es keine direkte Wiederholung.
+
+**Häufigkeit (26.11.2026):** Witzige Sprüche erscheinen nur bei etwa jeder fünften Rückmeldung (1:5, `JOKE_CHANCE` in `tools/module-wrong-answer.js`). Sonst folgt eine kurze sachliche Zeile; Richtig-Zeilen beginnen immer mit „Richtig“. `DTPWrongAnswer.nextJoke()` liefert direkt einen Spruch (Tests).
 
 Sprüche erscheinen nur bei tatsächlich falsch bewerteten Antworten, einschließlich Zuordnungen und der Auswertung nach Prüfungsabgabe. Leere oder ungültige Eingaben behalten sachliche Format-/Auswahlhinweise. Richtige Lösung, Begründung und Rechenweg bleiben erhalten. Bewertungen, IDs, Fortschritt, XP und Achievements bleiben unberührt. Für diese ausdrücklich gewünschten Rückmeldungen ist Willis Ton aus der Klausurvorbereitung die Referenz.
 
