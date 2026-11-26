@@ -41,6 +41,7 @@ if (!in_array('zombies', array_column($apps,'slug'), true)) {
         'preview_image'=>'zombies/menu_bg.webp','preview_fit'=>'cover','preview_x'=>50,'preview_y'=>50
     ];
 }
+foreach($apps as &$app){if(strcasecmp($app['name']??'','DeskRecall')===0 || ($app['details_url']??'')==='/deskrecall/'){$app['category']='windows';}}unset($app);
 $statusLabels=['entwicklung'=>'In Entwicklung','bald_verfuegbar'=>'Bald verfügbar','google'=>'Bei Google Play','apple'=>'Im Apple App Store','both'=>'Google Play & Apple App Store','download'=>'Kostenloser Download','web'=>'Online im Browser'];
 $categories=project_categories();
 unset($categories['lernen']); // kein eigener Filter mehr: DAU TO PRO läuft unter „Sonstiges“
@@ -172,14 +173,18 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
         </article>
       <?php foreach($apps as $app): $preview='assets/app-previews/'.basename($app['icon']).'.webp'; $icon=is_file(__DIR__.'/'.$preview)?$preview:$app['icon']; $st=$app['status']??($app['play_url']?'google':'bald_verfuegbar');
         $isSharpLab=(($app['name']??'')==='SharpLab' || ($app['details_url']??'')==='/sharplab/') && is_file(__DIR__.'/assets/sharplab-page-preview.webp');
-        $isHtml=!empty($app['is_html']); $isPortal=$isHtml||$isSharpLab; ?>
-        <article class="card glass-card app-card<?=$isPortal?' html-clickable-card':''?><?=$isSharpLab?' sharplab-portal-card':''?><?=($app['slug']??'')==='perlenwahn'?' perlenwahn-project-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
+        $isDeskRecall=strcasecmp($app['name']??'','DeskRecall')===0 || ($app['details_url']??'')==='/deskrecall/';
+        $isHtml=!empty($app['is_html']); $isPortal=$isHtml||$isSharpLab||$isDeskRecall; ?>
+        <article class="card glass-card app-card<?=$isPortal?' html-clickable-card':''?><?=$isSharpLab?' sharplab-portal-card':''?><?=$isDeskRecall?' deskrecall-portal-card':''?><?=($app['slug']??'')==='perlenwahn'?' perlenwahn-project-card':''?>" data-category="<?=e(array_key_exists($app['category']??'apps',$categories)?$app['category']:'apps')?>">
           <?php if($isSharpLab): ?><a class="html-card-link" href="<?=e($app['details_url']?:'/sharplab/')?>" aria-label="SharpLab – Windows-App öffnen"></a>
+          <?php elseif($isDeskRecall): ?><a class="html-card-link" href="/deskrecall/" aria-label="DeskRecall – Windows-App öffnen"></a>
           <?php elseif($isHtml): ?><a class="html-card-link" href="/<?=rawurlencode($app['slug'])?>/" aria-label="<?=e($app['name'])?> – im Browser öffnen"></a><?php endif; ?>
-          <div class="icon-wrap<?=($isSharpLab||($isHtml&&!empty($app['preview_image'])))?' html-preview-wrap'.($isSharpLab||in_array($app['slug']??'',['speed','perlenwahn','zombies'],true)?' project-preview-wide':''):''?>">
+          <div class="icon-wrap<?=($isSharpLab||$isDeskRecall||($isHtml&&!empty($app['preview_image'])))?' html-preview-wrap'.($isSharpLab||$isDeskRecall||in_array($app['slug']??'',['speed','perlenwahn','zombies'],true)?' project-preview-wide':''):''?>">
             <?php if($isSharpLab): ?>
               <canvas class="sharplab-matrix" width="640" height="360" aria-hidden="true"></canvas>
               <img class="html-preview-image" loading="lazy" decoding="async" src="assets/sharplab-page-preview.webp" width="640" height="360" alt="Vorschaubild: SharpLab">
+            <?php elseif($isDeskRecall): ?>
+              <img class="html-preview-image deskrecall-cover" loading="lazy" decoding="async" src="<?=e($icon)?>" alt="DeskRecall-Logo">
             <?php elseif($isHtml&&!empty($app['preview_image'])): ?>
               <?php if(($app['slug']??'')==='perlenwahn'): ?>
               <img class="perlenwahn-preview-fill" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="" aria-hidden="true">
@@ -191,9 +196,9 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
               <img loading="lazy" width="164" height="164" class="appicon" src="<?=e($icon)?>" alt="<?=e($app['name'])?>">
             <?php endif; ?>
           </div>
-          <div class="card-body"><span class="category-badge"><?=e($isSharpLab?'Windows-Apps':($categories[$app['category']??'apps']??'Android-Apps'))?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
+          <div class="card-body"><span class="category-badge"><?=e(($isSharpLab||$isDeskRecall)?'Windows-Apps':($categories[$app['category']??'apps']??'Android-Apps'))?></span><h3><?=e($app['name'])?></h3><p><?=e($app['short_description'])?></p>
           <button type="button" class="project-read-more" aria-haspopup="dialog" aria-controls="project-description" hidden>Weiterlesen</button>
-          <?php if($isSharpLab): ?>
+          <?php if($isSharpLab||$isDeskRecall): ?>
           <span class="html-card-cta" aria-hidden="true">Windows-App öffnen <b>↗</b></span>
           <?php elseif(empty($app['is_html'])): ?>
           <div class="app-status status-<?=e($st)?>"><?=e($statusLabels[$st]??$st)?></div>

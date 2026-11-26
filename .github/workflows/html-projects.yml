@@ -17,7 +17,7 @@ jobs:
       - name: Test HomeWork actual login, HTML upload and module navigation
         run: php tests/homework_smoke.php && php -l homework-storage.php && php -l homework-workbook.php && php -l homework-export.php && node --check assets/homework.js && node --check assets/homework-workbook.js && python3 tests/homework_integration.py
       - name: Check SharpLab cinema Matrix and download buttons
-        run: php tests/sharplab_ui_test.php && node --check assets/sharplab-matrix.js
+        run: php tests/sharplab_ui_test.php && node --check assets/sharplab-matrix.js && php tests/deskrecall_ui_test.php
       - name: Test Zombies mouse volume controls and kill rewards
         run: node tests/zombies_menu_test.cjs
       - name: Test myground game rules and PHP signaling (grab conflicts, riding, falls, time limit, ties, disconnects)
