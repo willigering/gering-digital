@@ -277,6 +277,12 @@ table.t tr:hover td{background:#ffffff05}
 .match-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 28px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid #ffffff10}
 .match-row select{height:42px;background:#110b09;border:1px solid #e5b65470;color:#fff;padding:0 8px;font-family:var(--mono);min-width:0;width:100%}
 .match-row .mk{font-weight:900;text-align:center}
+.cloze{font-size:16px;line-height:2.5;margin:10px 0 4px}
+.cloze select.gap{height:38px;margin:0 4px;max-width:100%;background:#110b09;border:1px solid #e5b65470;color:#fff;padding:0 8px;vertical-align:middle}
+.gaprows select.gap{height:42px;width:100%}
+select.gap:focus{border-color:var(--cyan);outline:none;box-shadow:0 0 0 2px #e0977a1e}
+select.gap.correct{border-color:var(--ok);color:var(--ok)}
+select.gap.wrong{border-color:var(--bad);color:#ffb3b3}
 
 /* ---------- Prüfungsmodus ---------- */
 .exam-rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0}
@@ -2117,6 +2123,185 @@ S('scen','x_gw','Gateway oder direkt?',2,lv=>{
 });
 
 /* ================= Kategorien ================= */
+/* ---------- Neue Aufgabentypen: Lückentext mit Wortbank, Zuordnen, Fall-Entscheidung ---------- */
+/* Alle drei sind reine Auswahlaufgaben und werden eindeutig ausgewertet. */
+function cloze(key,prompt,tpl,decoys,why){
+ const gaps=[],parts=[],re=/\[\[(.+?)\]\]/g;let last=0,m;
+ while((m=re.exec(tpl))){parts.push(tpl.slice(last,m.index));gaps.push(m[1]);last=re.lastIndex}
+ parts.push(tpl.slice(last));
+ const bank=shuffle([...new Set([...gaps,...(decoys||[])])]);
+ return {kind:'cloze',key,prompt,parts,answer:gaps,bank,why,show:parts.map((p,i)=>p+(i<gaps.length?'<b>'+esc(gaps[i])+'</b>':'')).join('')};
+}
+function pairsTask(key,prompt,rows,bankAll,why){
+ const bank=shuffle([...new Set([...rows.map(r=>r[1]),...(bankAll||[])])]);
+ return {kind:'cloze',rows:true,key,prompt,parts:rows.map(r=>esc(r[0])),answer:rows.map(r=>r[1]),bank,why,show:rows.map(r=>esc(r[0])+' → <b>'+esc(r[1])+'</b>').join('<br>')};
+}
+const CLZ_P=P('Vervollständigen Sie den Text. Wählen Sie für jede Lücke den passenden Begriff aus der Wortbank.','Ergänze den Text. Die Wortbank enthält auch Begriffe, die nicht passen.');
+function clzSub(cat,id,label,min,items){
+ S(cat,id,label,min,lv=>{const i=rnd(items.length),x=items[i];return cloze(id+i,CLZ_P,x[0],x[1],x[2])})
+}
+function pairSub(cat,id,label,min,pool,n,bankAll,head,plain){
+ S(cat,id,label,min,lv=>{const rows=shuffle(pool).slice(0,n);
+  return pairsTask(id+rows.map(r=>r[0].slice(0,5)).join('|'),P(head,plain),rows,bankAll,'<ul class="fixlist">'+rows.map(r=>'<li><b>'+esc(r[0])+'</b> → '+esc(r[1])+(r[2]?': '+r[2]:'')+'</li>').join('')+'</ul>')})
+}
+
+/* 1 · Netzwerkarten */
+clzSub('basics','b_luecke','Lückentext: Netzgrundlagen',1,[
+ ['Ein [[LAN]] verbindet Geräte in einem Gebäude oder auf einem Campus. Ein [[WAN]] überbrückt große Entfernungen und läuft meist über einen Provider.',['PAN','MAN','VLAN'],'LAN = Local Area Network (Raum, Gebäude, Campus), WAN = Wide Area Network (Standorte, Länder). Ein PAN reicht nur wenige Meter, ein MAN umfasst eine Stadt.'],
+ ['Im [[Client-Server]]-Modell stellt ein zentraler Server Dienste bereit, die Clients abrufen. Im [[Peer-to-Peer]]-Netz sind alle Teilnehmer gleichberechtigt.',['Mesh','Stern','Ring'],'Client-Server: zentrale Dienste und zentrale Verwaltung. Peer-to-Peer: jeder kann Dienste anbieten und nutzen, typisch für kleine Netze oder Dateitausch.'],
+ ['Die [[Latenz]] ist die Verzögerung eines Pakets auf dem Weg zum Ziel. Der [[Jitter]] beschreibt, wie stark diese Verzögerung schwankt.',['Datenrate','Paketverlust','Reichweite'],'Latenz = Wie lange dauert es? Jitter = Wie unterschiedlich dauert es? Besonders bei Telefonie und Video stört Jitter.'],
+ ['Die [[Datenrate]] gibt an, wie viele Daten pro Sekunde übertragen werden. Bei [[Paketverlust]] kommen einzelne Pakete gar nicht beim Empfänger an.',['Latenz','Jitter','Reichweite'],'Datenrate = Menge pro Zeit (z. B. Mbit/s). Paketverlust = Pakete gehen unterwegs verloren und müssen ggf. wiederholt werden.']]);
+pairSub('basics','b_zuord','Zuordnen: Netzart und Architektur',1,[
+ ['Smartphone und Bluetooth-Kopfhörer','PAN','Nur wenige Meter um eine Person.'],
+ ['Alle PCs und Drucker in einem Bürogebäude','LAN','Ein Gebäude oder Campus.'],
+ ['Standorte in Köln und Berlin über einen Provider verbunden','WAN','Große Entfernung, Provider-Strecke.'],
+ ['Netz einer Stadtverwaltung über mehrere Gebäude der Stadt','MAN','Stadt oder Region.'],
+ ['Ein Server verwaltet Benutzerkonten zentral','Client-Server','Zentraler Dienstanbieter.'],
+ ['Jeder Rechner gibt Ordner frei und nutzt die Freigaben der anderen','Peer-to-Peer','Alle Teilnehmer gleichberechtigt.']],
+ 4,['PAN','LAN','WAN','MAN','Client-Server','Peer-to-Peer'],'Ordnen Sie jedem Beispiel die passende Netzart oder Architektur zu.','Welche Netzart oder Architektur passt zu welchem Beispiel?');
+
+/* 2 · Topologien */
+clzSub('topo','t_luecke','Lückentext: Topologien',1,[
+ ['Beim [[Stern]] hängt jedes Endgerät mit einem eigenen Kabel an einer Zentrale. Fällt die Zentrale aus, ist das ganze Netz betroffen.',['Bus','Ring','Vollmesh'],'Stern: ein Kabelschaden trifft nur ein Gerät, die Zentrale ist aber der kritische Punkt.'],
+ ['Ein [[Vollmesh]] mit n Knoten braucht n·(n−1)/2 Leitungen. Bei 5 Knoten sind das [[10]] Leitungen.',['Stern','5','15','20'],'5 · 4 / 2 = 10. Jeder der 5 Knoten verbindet sich mit den 4 anderen, jede Leitung wird dabei doppelt gezählt, daher geteilt durch 2.'],
+ ['Die [[physische]] Topologie beschreibt, wie Geräte und Kabel tatsächlich verlegt sind. Die [[logische]] Topologie beschreibt, wie die Daten fließen.',['virtuelle','analoge'],'Beispiel: Ein Netz kann physisch als Stern verkabelt sein, aber logisch wie ein Bus arbeiten.'],
+ ['Beim [[Bus]] teilen sich alle Geräte eine gemeinsame Leitung. Beim [[Ring]] hat jeder Knoten genau zwei Nachbarn.',['Stern','Baum'],'Bus = ein Strang für alle. Ring = geschlossener Kreis, jeder Knoten mit zwei Nachbarn.'],
+ ['Eine [[Baum]]-Topologie entsteht, wenn mehrere Sterne hierarchisch über übergeordnete Switches verbunden werden.',['Bus','Ring','Vollmesh'],'Typisch im Firmennetz: Endgeräte → Etagenswitch → Core-Switch.']]);
+pairSub('topo','t_zuord','Zuordnen: Topologie und Beschreibung',1,[
+ ['Alle Geräte hängen an einer gemeinsamen Leitung','Bus','Gemeinsames Medium.'],
+ ['Jeder Knoten hat genau zwei Nachbarn im Kreis','Ring','Geschlossener Kreis.'],
+ ['Jedes Endgerät hat ein eigenes Kabel zum Switch in der Mitte','Stern','Zentrale mit Einzelanschlüssen.'],
+ ['Jeder Knoten ist direkt mit jedem anderen verbunden','Vollmesh','Maximale Ausfallsicherheit, hoher Aufwand.'],
+ ['Mehrere Sterne sind über übergeordnete Switches verbunden','Baum','Hierarchischer Aufbau.']],
+ 4,['Bus','Ring','Stern','Vollmesh','Baum'],'Ordnen Sie jeder Beschreibung die passende Topologie zu.','Welche Topologie ist gemeint?');
+
+/* 3 · Komponenten & Verkabelung */
+clzSub('comp','c_luecke','Lückentext: Komponenten',1,[
+ ['Ein [[Switch]] leitet Frames anhand der [[MAC-Adresse]] gezielt an den richtigen Port. Ein [[Hub]] sendet jeden Frame dagegen an alle Ports.',['Router','IP-Adresse','Access Point'],'Der Switch lernt, welche MAC-Adresse an welchem Port hängt. Der Hub kennt das nicht und wiederholt alles an allen Ports.'],
+ ['Ein [[Router]] verbindet unterschiedliche IP-Netze und arbeitet auf Schicht [[3]] des OSI-Modells.',['Switch','2','4'],'Router entscheiden anhand der IP-Adresse (Schicht 3), wohin ein Paket als Nächstes geht.'],
+ ['Ein [[Access Point]] bindet WLAN-Geräte an das kabelgebundene Netz an.',['Router','Medienkonverter','Patchpanel'],'Der Access Point ist die Brücke zwischen Funk und Kabel-LAN.'],
+ ['Bei Kupfer-Ethernet beträgt die maximale Länge einer Strecke [[100]] Meter. Ein [[Medienkonverter]] wandelt zwischen Kupfer und Glasfaser um.',['50','1000','Access Point'],'Standard: 90 m Permanent Link plus bis zu 10 m Patchkabel, zusammen 100 m. Für weitere Strecken nimmt man Glasfaser.'],
+ ['Glasfaser überträgt [[Licht]] statt elektrischer Signale und ist daher unempfindlich gegen [[elektromagnetische]] Störungen.',['Strom','Funkwellen','thermische'],'Lichtimpulse werden nicht von Motoren, Starkstromleitungen oder Funk beeinflusst.']]);
+pairSub('comp','c_zuord','Zuordnen: Komponente und Aufgabe',1,[
+ ['Verbindet zwei IP-Netze und leitet Pakete zwischen ihnen weiter','Router','Schicht 3, Routingtabelle.'],
+ ['Verbindet Endgeräte im selben Netz und lernt MAC-Adressen','Switch','Schicht 2, MAC-Tabelle.'],
+ ['Bindet WLAN-Geräte an das Kabelnetz an','Access Point','Brücke zwischen Funk und Kabel.'],
+ ['Wandelt zwischen Kupfer und Glasfaser um','Medienkonverter','Verbindet unterschiedliche Medien.'],
+ ['Filtert Verkehr zwischen Netzen anhand von Regeln','Firewall','Erlaubt oder blockiert nach Regeln.'],
+ ['Bündelt die Kabel im Serverschrank und macht sie patchbar','Patchpanel','Passive Verteilung, keine aktive Technik.']],
+ 4,['Router','Switch','Access Point','Medienkonverter','Firewall','Patchpanel'],'Ordnen Sie jeder Aufgabe die passende Komponente zu.','Welches Gerät erledigt welche Aufgabe?');
+
+/* 4 · Switch & MAC-Tabelle */
+clzSub('switch','s_luecke','Lückentext: Switch',1,[
+ ['Ein Switch lernt anhand der [[Quell-MAC-Adresse]] eingehender Frames, an welchem Port ein Gerät hängt, und speichert das in der [[MAC-Tabelle]].',['Ziel-MAC-Adresse','ARP-Tabelle','Routingtabelle'],'Gelernt wird immer von der Absenderadresse. Die Ziel-MAC-Adresse dient dem Nachschlagen.'],
+ ['Ist die Ziel-MAC-Adresse nicht in der MAC-Tabelle, sendet der Switch den Frame an alle Ports außer dem Eingangsport. Das nennt man [[Flooding]].',['Trunking','Tagging','Routing'],'Antwortet das Ziel, lernt der Switch dessen Port, und weitere Frames gehen gezielt dorthin.'],
+ ['Ein [[VLAN]] teilt einen Switch logisch in getrennte Broadcastdomänen. Verkehr zwischen VLANs braucht einen [[Router]] oder Layer-3-Switch.',['Trunk','Hub','Repeater'],'VLANs trennen Netze auf Schicht 2. Der Übergang zwischen ihnen ist Routing, also Schicht 3.'],
+ ['Jeder Switchport ist eine eigene [[Kollisionsdomäne]]. Alle Ports im selben VLAN bilden zusammen eine [[Broadcastdomäne]].',['Routingdomäne','Active-Directory-Domäne'],'Moderne Switches arbeiten vollduplex, Kollisionen kommen praktisch nicht mehr vor. Broadcasts erreichen alle Ports im VLAN.'],
+ ['Ein [[Trunk]]-Port transportiert mehrere VLANs über eine Leitung und kennzeichnet die Frames mit einem [[VLAN-Tag]].',['Access-Port','Spiegelport','MAC-Tag'],'Ein Access-Port gehört dagegen genau einem VLAN und überträgt Frames ohne Tag.']]);
+pairSub('switch','s_zuord','Zuordnen: Switch-Begriff und Bedeutung',1,[
+ ['Eintrag, der eine MAC-Adresse mit einem Port verbindet','MAC-Tabelle','Wird aus Quelladressen gelernt.'],
+ ['Frame wird an alle Ports außer dem Eingangsport gesendet','Flooding','Passiert bei unbekanntem Ziel.'],
+ ['Logische Trennung in mehrere Netze auf einem Switch','VLAN','Trennt Broadcastdomänen.'],
+ ['Port, der mehrere VLANs transportiert','Trunk','Frames tragen ein VLAN-Tag.'],
+ ['Port, der genau einem VLAN angehört','Access-Port','Endgeräte hängen meist an Access-Ports.']],
+ 4,['MAC-Tabelle','Flooding','VLAN','Trunk','Access-Port'],'Ordnen Sie jedem Satz den passenden Fachbegriff zu.','Welcher Begriff passt zu welcher Beschreibung?');
+
+/* 5 · OSI & TCP/IP */
+clzSub('layers','l_luecke','Lückentext: Schichtenmodelle',1,[
+ ['Das OSI-Modell hat [[7]] Schichten. Das TCP/IP-Modell fasst sie zu [[4]] Schichten zusammen.',['5','6','3'],'OSI: Bitübertragung, Sicherung, Vermittlung, Transport, Sitzung, Darstellung, Anwendung. TCP/IP: Netzzugang, Internet, Transport, Anwendung.'],
+ ['Auf Schicht 2 heißen die Dateneinheiten [[Frames]], auf Schicht 3 [[Pakete]] und auf Schicht 4 [[Segmente]].',['Bits','Nachrichten'],'Merkhilfe von unten nach oben: Bits, Frames, Pakete, Segmente, Daten.'],
+ ['Beim Senden ergänzt jede Schicht einen Header. Diesen Vorgang nennt man [[Kapselung]]. Beim Empfangen werden die Header wieder entfernt.',['Verschlüsselung','Segmentierung','Fragmentierung'],'Kapselung: Daten werden Schicht für Schicht verpackt, der Empfänger packt in umgekehrter Reihenfolge aus.'],
+ ['Die [[Vermittlungsschicht]] (Schicht 3) ist für IP-Adressen und Routing zuständig, die [[Sicherungsschicht]] (Schicht 2) für MAC-Adressen.',['Transportschicht','Bitübertragungsschicht','Anwendungsschicht'],'Schicht 3 findet den Weg durch mehrere Netze. Schicht 2 liefert den Frame im einzelnen Netzsegment aus.'],
+ ['Die [[Transportschicht]] (Schicht 4) unterscheidet über [[Ports]] verschiedene Anwendungen auf demselben Gerät.',['Vermittlungsschicht','MAC-Adressen','VLANs'],'Die IP-Adresse findet den Rechner, der Port findet die Anwendung (z. B. 443 für HTTPS).']]);
+pairSub('layers','l_zuord','Zuordnen: Protokoll und OSI-Schicht',1,[
+ ['IP','3 · Vermittlung','Adressierung und Routing.'],
+ ['Ethernet (Frames, MAC-Adressen)','2 · Sicherung','Lokale Zustellung im Segment.'],
+ ['TCP','4 · Transport','Verbindungsorientiert mit Ports.'],
+ ['UDP','4 · Transport','Verbindungslos mit Ports.'],
+ ['HTTP','7 · Anwendung','Protokoll der Anwendung.'],
+ ['Kabel, Stecker, Signale','1 · Bitübertragung','Physische Übertragung der Bits.']],
+ 4,['1 · Bitübertragung','2 · Sicherung','3 · Vermittlung','4 · Transport','5 · Sitzung','7 · Anwendung'],'Ordnen Sie jedem Begriff die passende OSI-Schicht zu.','In welcher OSI-Schicht arbeitet das?');
+
+/* 6 · Protokolle & Ports */
+clzSub('proto','p_luecke','Lückentext: Protokolle',1,[
+ ['[[DHCP]] vergibt IP-Adressen automatisch. Der Ablauf heißt DORA: Discover, Offer, Request und [[Acknowledge]].',['DNS','ARP','Accept'],'Der Client sucht (Discover), der Server bietet an (Offer), der Client fordert an (Request), der Server bestätigt (Acknowledge).'],
+ ['[[DNS]] übersetzt Namen wie www.example.org in IP-Adressen.',['DHCP','ARP','NAT'],'Ohne DNS müsste man sich IP-Adressen statt Namen merken.'],
+ ['[[ARP]] ermittelt im lokalen Netz zu einer IPv4-Adresse die passende [[MAC-Adresse]].',['DNS','ICMP','Portnummer'],'Frames brauchen im Segment eine MAC-Adresse. ARP fragt per Broadcast: „Wer hat diese IP?“'],
+ ['[[TCP]] baut vor der Übertragung eine Verbindung auf und sichert die Zustellung. [[UDP]] verzichtet darauf und ist dadurch schneller und schlanker.',['ICMP','IP'],'TCP für Webseiten, Mail, Dateien. UDP für Echtzeit wie Sprache, DNS-Anfragen oder Streaming.'],
+ ['HTTPS nutzt standardmäßig Port [[443]], HTTP Port [[80]].',['8080','22','53'],'Merkregel: 80 = unverschlüsselt, 443 = verschlüsselt (TLS).'],
+ ['Der Three-Way-Handshake von TCP besteht aus [[SYN]], SYN-ACK und [[ACK]].',['FIN','RST'],'Client: SYN → Server: SYN-ACK → Client: ACK. Danach ist die Verbindung aufgebaut.']]);
+pairSub('proto','p_zuord','Zuordnen: Dienst und Standardport',1,[
+ ['HTTP','Port 80','Unverschlüsseltes Web.'],
+ ['HTTPS','Port 443','Web mit TLS.'],
+ ['SSH','Port 22','Verschlüsselter Fernzugriff.'],
+ ['DNS','Port 53','Namensauflösung.'],
+ ['SMTP','Port 25','Mailversand zwischen Servern.'],
+ ['RDP','Port 3389','Remotedesktop unter Windows.']],
+ 4,['Port 22','Port 25','Port 53','Port 80','Port 443','Port 3389'],'Ordnen Sie jedem Dienst den Standardport zu.','Welcher Standardport gehört zu welchem Dienst?');
+
+/* 7 · WLAN */
+clzSub('wifi','w_luecke','Lückentext: WLAN',1,[
+ ['Im 2,4-GHz-Band überlappen sich fast alle Kanäle. Als überlappungsarm gilt das Drei-Kanal-Schema mit den Kanälen 1, 6 und [[11]].',['2','3','13','4'],'Jeder Kanal ist 20 MHz breit, die Abstände sind aber nur 5 MHz. Erst bei 5 Kanälen Abstand stören sich zwei Kanäle kaum noch.'],
+ ['Das [[5-GHz]]-Band bietet mehr überlappungsfreie Kanäle, hat aber eine geringere Reichweite als [[2,4 GHz]].',['Bluetooth','LTE'],'Höhere Frequenzen dringen schlechter durch Wände. Dafür ist das 5-GHz-Band weniger überlastet.'],
+ ['Die [[SSID]] ist der Name eines WLANs. Der einzelne Access Point wird über die [[BSSID]] eindeutig gekennzeichnet, das ist seine MAC-Adresse.',['VLAN-ID','PSK'],'Mehrere Access Points können dieselbe SSID senden, jeder hat aber seine eigene BSSID.'],
+ ['[[WPA3]] ist der aktuelle Sicherheitsstandard für WLAN. [[WEP]] gilt als unsicher und sollte nicht mehr verwendet werden.',['WPS','SSID'],'WEP lässt sich in Minuten knacken. WPA3 bietet bessere Verschlüsselung und Schutz gegen Passwort-Raten.'],
+ ['Beim [[Roaming]] wechselt ein Gerät von einem Access Point zum nächsten, ohne dass die Verbindung abreißt.',['Tethering','Kapselung','Flooding'],'Wichtig in großen Gebäuden: Alle Access Points nutzen dieselbe SSID, das Gerät wählt den besten.']]);
+pairSub('wifi','w_zuord','Zuordnen: WLAN-Band und Eigenschaft',1,[
+ ['Größere Reichweite, aber meist stark überlastet','2,4 GHz','Viele Geräte, nur wenige freie Kanäle.'],
+ ['Mehr überlappungsfreie Kanäle, geringere Reichweite','5 GHz','Besser bei hoher Dichte und hohen Datenraten.'],
+ ['Wird auch von Bluetooth-Geräten und Mikrowellen genutzt','2,4 GHz','Typische Störquellen im Band.'],
+ ['Kanäle 36 und höher','5 GHz','Kanalnummern des 5-GHz-Bands.'],
+ ['Wi-Fi 6E: zusätzliche Kanäle oberhalb von 5,9 GHz','6 GHz','Neues Band mit vielen freien Kanälen.']],
+ 4,['2,4 GHz','5 GHz','6 GHz'],'Ordnen Sie jeder Eigenschaft das passende WLAN-Band zu.','Welches Band passt zu welcher Eigenschaft?');
+
+/* 8 · IPv6 */
+clzSub('ipv6','v_luecke','Lückentext: IPv6',1,[
+ ['Eine IPv6-Adresse besteht aus [[128]] Bit. Man schreibt sie als [[8]] Gruppen mit je vier Hexadezimalstellen.',['32','4','16'],'8 Gruppen × 16 Bit = 128 Bit. IPv4 hat nur 32 Bit.'],
+ ['Eine zusammenhängende Folge aus Null-Gruppen darf einmal durch [[::]] ersetzt werden.',[':','...','--'],'Zweimal geht nicht, weil dann unklar wäre, wie viele Null-Gruppen an welcher Stelle fehlen.'],
+ ['Die Adresse [[::1]] ist die Loopback-Adresse. Adressen mit dem Präfix [[fe80::/10]] sind Link-Local und gelten nur im lokalen Segment.',['2001:db8::/32','fc00::/7','::/0'],'::1 entspricht 127.0.0.1 bei IPv4. Link-Local-Adressen werden nicht geroutet.'],
+ ['Ein IPv6-Endnetz hat typischerweise ein [[/64]]-Präfix. Die ersten 64 Bit bilden das Netz, die letzten 64 Bit die [[Interface-ID]].',['/48','/128','Subnetzmaske'],'Das /64-Präfix ist die Regel, weil z. B. SLAAC genau 64 Bit für die Interface-ID erwartet.'],
+ ['IPv6 kennt keinen [[Broadcast]]. Stattdessen werden [[Multicast]]-Adressen verwendet.',['Unicast','ARP'],'Statt ARP-Broadcast nutzt IPv6 das Neighbor Discovery Protocol mit Multicast.']]);
+pairSub('ipv6','v_zuord','Zuordnen: IPv6-Adresse und Typ',1,[
+ ['::1','Loopback','Das eigene Gerät, wie 127.0.0.1.'],
+ ['fe80::1c2b:3a4d','Link-Local','Beginnt mit fe80, nur im lokalen Segment gültig.'],
+ ['ff02::1','Multicast','Beginnt mit ff, Adresse einer Gruppe.'],
+ ['fd12:3456:789a::1','Unique Local (ULA)','Beginnt mit fd, privat und nicht im Internet gültig.'],
+ ['2a00:1450:4001::1','Global Unicast (GUA)','Beginnt mit 2 oder 3, global routbar.'],
+ ['::','Unspecified','Nur Nullen: noch keine Adresse.']],
+ 4,['Loopback','Link-Local','Multicast','Unique Local (ULA)','Global Unicast (GUA)','Unspecified'],'Ordnen Sie jeder IPv6-Adresse den passenden Adresstyp zu.','Schau auf den Anfang der Adresse: fe80 = Link-Local, ff = Multicast, fd = privat, 2 oder 3 = global.');
+
+/* 9 · Fehleranalyse */
+clzSub('trouble','tr_luecke','Lückentext: Fehlersuche',1,[
+ ['[[ping]] prüft mit ICMP-Echo, ob ein Ziel antwortet. [[tracert]] zeigt zusätzlich alle Router auf dem Weg dorthin.',['nslookup','ipconfig','netstat'],'Unter Linux heißt der zweite Befehl traceroute. Bei beiden sieht man, wo der Weg endet.'],
+ ['[[ipconfig /all]] zeigt IP-Adresse, Maske, Gateway und DNS-Server. [[nslookup]] fragt gezielt einen DNS-Server ab.',['ping','arp -a','tracert'],'Erst die eigene Konfiguration ansehen, dann Namensauflösung testen.'],
+ ['Eine Adresse aus 169.254.0.0/16 weist darauf hin, dass kein [[DHCP]]-Server geantwortet hat.',['DNS','ARP','NAT'],'Windows vergibt sich dann selbst eine Link-Local-Adresse (APIPA). Link, VLAN und DHCP-Server prüfen.'],
+ ['Klappt ping auf eine IP-Adresse, aber nicht auf den Namen, liegt der Fehler beim [[DNS]]. Klappt schon ping auf das [[Standardgateway]] nicht, sollte man zuerst die lokale Verbindung prüfen.',['DHCP','Webserver','Switch'],'IP-Ping ohne Namen = Namensauflösung. Kein Ping zum Gateway = Problem im eigenen Segment.'],
+ ['Eine systematische Fehlersuche geht meist von unten nach oben. Zuerst prüft man [[Schicht 1]] (Kabel, Link-LED), zuletzt die [[Anwendung]].',['Schicht 7','Transport'],'Wenn das Kabel nicht funktioniert, helfen DNS- oder Firewall-Einstellungen nicht.']]);
+pairSub('trouble','tr_zuord','Zuordnen: Symptom und erster Prüfschritt',1,[
+ ['Die Link-LED am Port ist aus','Kabel und Stecker prüfen','Ohne Link keine Kommunikation. Schicht 1 zuerst.'],
+ ['ping auf die IP klappt, auf den Namen nicht','DNS prüfen (nslookup)','Erreichbarkeit ist da, nur die Namensauflösung fehlt.'],
+ ['Der PC hat die Adresse 169.254.8.21','DHCP-Server und Link prüfen','APIPA: Es kam keine DHCP-Antwort.'],
+ ['ping auf das Standardgateway schlägt fehl','Lokale Verbindung und Gateway-Adresse prüfen','Fehler liegt im eigenen Segment.'],
+ ['Webseite lädt nicht, ping auf den Server klappt','Webdienst und Port 80/443 prüfen','Der Server ist erreichbar, nur der Dienst antwortet nicht.']],
+ 4,['Kabel und Stecker prüfen','DNS prüfen (nslookup)','DHCP-Server und Link prüfen','Lokale Verbindung und Gateway-Adresse prüfen','Webdienst und Port 80/443 prüfen'],'Ordnen Sie jedem Symptom den sinnvollsten ersten Prüfschritt zu.','Was prüfst du bei welchem Fehlerbild zuerst?');
+
+/* 10 · Endgegner: Szenarien */
+clzSub('scen','x_luecke','Lückentext: Szenario durchspielen',2,[
+ ['Der PC 192.168.1.20/24 will den Server 192.168.2.5 erreichen. Das Ziel liegt in einem [[anderen]] Netz, also sendet der PC das Paket an das [[Standardgateway]]. Der Router leitet es anhand seiner [[Routingtabelle]] weiter.',['gleichen','MAC-Tabelle','DNS-Server','Switch'],'Liegt das Ziel außerhalb des eigenen Subnetzes, geht das Paket zum Gateway. Der Router sucht in der Routingtabelle den nächsten Hop.'],
+ ['Beim Aufruf einer Webseite fragt der PC zuerst den [[DNS]]-Server nach der IP-Adresse. Danach baut er mit [[TCP]] eine Verbindung zum Webserver auf und sendet die [[HTTP]]-Anfrage.',['DHCP','UDP','ARP'],'Reihenfolge: Name auflösen → Verbindung aufbauen → Anfrage senden.'],
+ ['Im selben Netz ermittelt der PC die MAC-Adresse des Ziels per [[ARP]]. Für ein Ziel in einem fremden Netz braucht er die MAC-Adresse des [[Gateways]].',['DNS','Zielservers'],'Der Frame geht im lokalen Segment immer an eine MAC-Adresse im selben Segment: entweder direkt zum Ziel oder zum Router.'],
+ ['Läuft ein Frame über einen Router, ändern sich in jedem Segment die [[MAC-Adressen]]. Die [[IP-Adressen]] von Quelle und Ziel bleiben gleich.',['Ports','VLAN-IDs'],'MAC-Adressen gelten nur im Segment, IP-Adressen gelten Ende zu Ende (ohne NAT).']]);
+S('scen','x_fall','Fall: Was prüfen Sie zuerst?',1,lv=>{
+ const x=pick([
+  ['Ein neuer PC im Büro bekommt die Adresse 169.254.8.21 und erreicht nichts.','Link und Erreichbarkeit des DHCP-Servers prüfen (Kabel, VLAN, DHCP-Dienst)',['Den Browser-Cache leeren','Die Subnetzmaske des Servers ändern','Den DNS-Eintrag der Webseite korrigieren'],'169.254.x.x bedeutet: Es kam keine DHCP-Antwort. Also Link, VLAN und DHCP-Server prüfen, danach <code>ipconfig /renew</code>.'],
+  ['Seit dem Umzug zeigt ein Laptop „Netzwerkkabel getrennt“.','Patchkabel, Netzwerkdose und Switchport prüfen (Schicht 1)',['Den DNS-Server neu eintragen','Das Standardgateway ändern','Die Firewall-Regeln für Port 443 prüfen'],'Ohne Link gibt es keine Kommunikation. Erst die physische Verbindung prüfen, dann höhere Schichten.'],
+  ['ping 192.168.1.1 (Gateway) klappt, ping 8.8.8.8 nicht.','Standardgateway-Konfiguration und die Verbindung des Routers zum Provider prüfen',['Das Patchkabel tauschen','Den DNS-Server wechseln','Die MAC-Tabelle des Switches löschen'],'Der Weg zum Gateway funktioniert, das Kabel ist also in Ordnung. Das Problem liegt hinter dem Gateway. DNS ist nicht beteiligt, weil mit einer IP-Adresse gepingt wurde.'],
+  ['Zwei PCs liegen in verschiedenen VLANs und sollen sich erreichen.','Das Routing zwischen den VLANs prüfen (Router oder Layer-3-Switch)',['Die Duplex-Einstellung ändern','Einen Hub dazwischenschalten','Beide PCs auf dieselbe WLAN-Frequenz stellen'],'VLANs sind getrennte Broadcastdomänen. Verkehr zwischen ihnen muss geroutet werden.'],
+  ['Die Intranet-Webseite lädt nicht. ping auf den Server klappt, die Dateifreigabe funktioniert.','Den Webdienst auf dem Server und Port 80/443 prüfen',['Den Switch tauschen','Das Subnetz neu planen','Das WLAN-Passwort ändern'],'Server und Netz sind erreichbar. Nur ein Dienst ist betroffen: Dienst, Port oder Firewall-Regel für genau diesen Dienst prüfen.'],
+  ['Im WLAN bricht die Verbindung nur im Besprechungsraum ab, sonst ist alles stabil.','Signalstärke und Kanalbelegung vor Ort messen (Abdeckung, Störquellen)',['Den DNS-Server tauschen','Die Subnetzmaske ändern','Die Windows-Firewall abschalten'],'Nur an einem Ort betroffen: Das spricht für Funkprobleme wie schwaches Signal, Störungen oder Kanalüberlagerung.']]);
+ return mc(P('Beurteilen Sie den Fall und wählen Sie den sinnvollsten ersten Prüfschritt: '+sc(x[0]),'Was prüfst du als Erstes? '+sc(x[0])),x[1],x[2],x[3],{key:'xf'+x[0].slice(0,24)});
+});
+
 const CATS=[['basics','Netzwerkarten & Architektur'],['topo','Topologien'],['comp','Komponenten & Verkabelung'],['switch','Switch & MAC-Tabelle'],['layers','OSI & TCP/IP'],['proto','Protokolle & Ports'],['wifi','WLAN'],['ipv6','IPv6'],['trouble','Fehleranalyse & Tools'],['scen','Endgegner: Szenarien']];
 const CATNAME=Object.fromEntries(CATS);
 const HINT={
@@ -2247,6 +2432,14 @@ function parseAnswer(t,raw){
  }
  return {valid:false,msg:'Unbekannter Aufgabentyp.'};
 }
+const clozeOk=(t,v)=>t.answer.every((a,i)=>v[i]===a);
+function clozeHTML(t,vals){
+ vals=vals||[];
+ const sel=i=>'<select class="gap" data-g="'+i+'" aria-label="'+(t.rows?'Zuordnung ':'Lücke ')+(i+1)+'"><option value="">– wählen –</option>'+t.bank.map(b=>'<option value="'+esc(b)+'"'+(b===vals[i]?' selected':'')+'>'+esc(b)+'</option>').join('')+'</select>';
+ if(t.rows)return '<div class="gaprows">'+t.parts.map((p,i)=>'<div class="match-row nw"><span>'+p+'</span>'+sel(i)+'<span class="mk" data-mk="'+i+'"></span></div>').join('')+'</div>';
+ return '<p class="cloze">'+t.parts.map((p,i)=>p+(i<t.answer.length?sel(i):'')).join('')+'</p>';
+}
+const CLZFMT=t=>t.rows?'Wähle zu jeder Zeile die passende Zuordnung.':'Wähle für jede Lücke einen Begriff. In der Wortbank stehen auch Begriffe, die nicht passen.';
 function showAnswer(t){
  if(t.kind==='mc')return esc(t.options[t.answer]);
  if(t.show)return t.show;
@@ -2264,6 +2457,7 @@ function renderTask(host,t,o){
  let h='<p class="task-prompt">'+t.prompt+qhelp(t,id)+'</p>';
  h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+'</div>';
  if(t.kind==='mc')h+='<div class="options" role="group" aria-label="Antwort wählen">'+t.options.map((x,i)=>'<button type="button" class="opt" data-v="'+i+'"><span class="key">'+'ABCD'[i]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div>';
+ else if(t.kind==='cloze')h+='<div data-r="cloze">'+clozeHTML(t)+'<div class="ans-row" style="margin-top:12px"><button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+CLZFMT(t)+'</p></div>';
  else h+='<div class="ans-row" data-r="form"><label class="sr-only" for="'+id+'">Deine Antwort</label><input id="'+id+'" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+esc(t.ph||PH[t.kind])+'"><button type="button" class="btn primary" data-r="check">Prüfen ↗</button></div><p class="fmt">'+(t.fmt||FMT[t.kind])+'</p>';
  h+='<div class="result" data-r="res" role="status" aria-live="polite"></div>';
  h+='<div class="task-actions">'+(o.noTip?'':'<button type="button" class="btn ghost" data-r="tip"'+(o.hint?' hidden':'')+'>Hinweis anzeigen</button>')+(o.noNext?'':'<button type="button" class="btn primary" data-r="next" hidden>'+(o.nextLabel||'Nächste Aufgabe →')+'</button>')+'</div>';
@@ -2289,7 +2483,12 @@ function renderTask(host,t,o){
   if(!p.valid){const res=q('res');res.className='result info';res.innerHTML='<strong>Format prüfen:</strong> '+p.msg;inp.focus();return}
   finish(p.ok,p.given,p)};
   q('check').addEventListener('click',check);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}})}
- if(o.focus&&!o.noFocus){const f=host.querySelector('input,.opt');if(f)f.focus({preventScroll:true})}
+ const cz=q('cloze');
+ if(cz)q('check').addEventListener('click',()=>{if(done)return;const sels=[...cz.querySelectorAll('select.gap')],vals=sels.map(x=>x.value);
+  if(vals.some(v=>!v)){const res=q('res');res.className='result info';res.innerHTML='<strong>Noch nicht fertig:</strong> '+(t.rows?'Bitte wähle für jede Zeile eine Zuordnung.':'Bitte fülle alle Lücken.')+' Nichts wurde gewertet.';return}
+  sels.forEach((x,i)=>{x.disabled=true;const g=vals[i]===t.answer[i];x.classList.add(g?'correct':'wrong');const mk=cz.querySelector('[data-mk="'+i+'"]');if(mk){mk.textContent=g?'✓':'✗';mk.style.color=g?'var(--ok)':'var(--bad)'}});
+  q('check').disabled=true;const ok=clozeOk(t,vals);finish(ok,vals.join(' · '),{valid:true,ok})});
+ if(o.focus&&!o.noFocus){const f=host.querySelector('input,select.gap,.opt');if(f)f.focus({preventScroll:true})}
  return {isDone:()=>done};
 }
 
@@ -2493,12 +2692,14 @@ function renderExamQ(){
  $('examPos').textContent='AUFGABE '+String(i+1).padStart(2,'0')+' / '+ex.tasks.length;$('examPts').textContent=CATNAME[t.cat].toUpperCase()+' · '+t.pts+' PUNKTE';
  let h='<p class="task-prompt">'+t.prompt+'</p>';
  if(t.kind==='mc')h+='<div class="options" role="radiogroup" aria-label="Antwort wählen">'+t.options.map((x,k)=>'<button type="button" class="opt'+(ex.ans[i]===k?' is-right':'')+'" role="radio" aria-checked="'+(ex.ans[i]===k)+'" data-k="'+k+'"><span class="key">'+'ABCD'[k]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div><p class="fmt">Auswahl wird erst bei Abgabe bewertet. Du kannst sie bis dahin ändern.</p>';
+ else if(t.kind==='cloze')h+=clozeHTML(t,String(ex.ans[i]||'').split('|'))+'<p class="fmt" id="exFmt">'+CLZFMT(t)+'</p>';
  else h+='<div class="ans-row"><label class="sr-only" for="exIn">Deine Antwort</label><input id="exIn" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="'+IM[t.kind]+'" placeholder="'+esc(t.ph||PH[t.kind])+'" value="'+esc(ex.ans[i]||'')+'"></div><p class="fmt" id="exFmt">'+(t.fmt||FMT[t.kind])+'</p>';
  $('examQ').innerHTML=h;
  window.dtpMountCalculator?.($('examQ'),t,'netzwerke');
  $('examPrev').disabled=i===0;$('examNext').disabled=i===ex.tasks.length-1;$('examFlag').textContent=ex.flags[i]?'Markierung entfernen ⚑':'Markieren ⚑';
  const inp=$('exIn');
  if(inp){const chk=()=>{const v=inp.value;ex.ans[i]=v.trim()?v:null;const p=v.trim()&&t.kind!=='txt'?parseAnswer(t,v):null;$('exFmt').innerHTML=p&&!p.valid?'<span style="color:var(--warn)">⚠ '+esc(p.msg)+' So würde die Antwort als falsch gewertet.</span>':(t.fmt||FMT[t.kind]);renderExamNav()};inp.addEventListener('input',chk);inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();if(i<ex.tasks.length-1){ex.cur++;renderExamQ();renderExamNav()}}});inp.focus({preventScroll:true});if(inp.value)chk()}
+ $('examQ').querySelectorAll('select.gap').forEach(x=>x.addEventListener('change',()=>{const vals=[...$('examQ').querySelectorAll('select.gap')].map(y=>y.value);ex.ans[i]=vals.some(Boolean)?vals.join('|'):null;renderExamNav()}));
  $('examQ').querySelectorAll('[data-k]').forEach(b=>b.addEventListener('click',()=>{ex.ans[i]=Number(b.dataset.k);renderExamQ();renderExamNav()}));
 }
 $('examNav').addEventListener('click',e=>{const b=e.target.closest('[data-q]');if(b){ex.cur=Number(b.dataset.q);renderExamQ();renderExamNav()}});
@@ -2516,6 +2717,7 @@ function submitExam(reason){
  let got=0,total=0;const per={};
  const rows=ex.tasks.map((t,i)=>{total+=t.pts;const a=ex.ans[i];let ok=false,given='–',p=null;
   if(t.kind==='mc'){if(a!=null){ok=a===t.answer;given=esc(t.options[a])}}
+  else if(t.kind==='cloze'){if(a!=null){const v=String(a).split('|');ok=clozeOk(t,v);given=v.map(x=>x?esc(x):'–').join(' · ')}}
   else if(a!=null&&a!==''){p=parseAnswer(t,a);ok=!!(p.valid&&p.ok);given=esc(p.valid?p.given:a)+(p.valid?'':' <span class="subtle">(ungültiges Format)</span>')}
   if(ok)got+=t.pts;per[t.cat]=per[t.cat]||{g:0,t:0};per[t.cat].t+=t.pts;if(ok)per[t.cat].g+=t.pts;
   stats.solved++;if(ok)stats.correct++;countSub(ok,t.sub);
@@ -2625,7 +2827,7 @@ renderStats();renderHistory();setMode('free');selectStage(path.stage,false,true)
  if(hero)hero.addEventListener('mouseleave',()=>{mx=0;my=0;req()});
  frame();
 })();
-window.NETZ_TEST={last:()=>lastTask,exam:()=>ex,SUBS,genTask,parseAnswer,showAnswer,CATS,STAGES,EXAM_PLAN,buildExam,gradeOf,MSETS,v6parse,v6canon};
+window.NETZ_TEST={renderTask,last:()=>lastTask,exam:()=>ex,SUBS,genTask,parseAnswer,showAnswer,CATS,STAGES,EXAM_PLAN,buildExam,gradeOf,MSETS,v6parse,v6canon};
 })();
 </script>
 

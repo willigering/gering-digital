@@ -247,3 +247,9 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - B2 (Netzwerke-Sprint): Trainingsmodus „Freitext“, KI-Freitextprüfung und die zugehörigen 111 Fragen entfernt; Klausurmodus und Reset-Schlüssel bereinigt. Der Eintrag `mesh_freitext` ist aus dem Modul-Rechner gestrichen.
 - CS1: Die beiden Typen `w_frei` und `u_frei` haben im Modul keine Eingabefelder mehr; sie erscheinen als Lückentext mit Wortbank und werden eindeutig ausgewertet. Nur der interne Typname bleibt.
 - Serverseitige KI-Korrektur (`ai.php`) wurde nicht angefasst.
+
+### B2: neue Auswahl-Aufgabentypen (26.11.2026)
+- Neu als Ersatz für Freitext: Lückentext mit Wortbank (inkl. Begriffen, die nicht passen), Zuordnen (Zeile ↔ Auswahl) und Fall-Entscheidung (Multiple Choice mit Szenario). Je Thema ein Lückentext-Typ, sieben Zuordnen-Typen, ein Fall-Typ, ein Szenario-Lückentext: 20 neue Aufgabentypen, insgesamt 91.
+- Wertung eindeutig: Alle Lücken/Zeilen müssen stimmen, sonst gilt die Aufgabe als falsch; unvollständig wird nicht gewertet. Gilt in Lernpfad, Training und Probeprüfung (Antwort wird als `a|b|c` zwischengespeichert, Prüfung zeigt Auswahl und Lösung).
+- Neues Element: `select.gap` und `.cloze`, Optik angelehnt an die vorhandenen Zuordnen-Zeilen. Keine Änderung an Überschriften, IDs, XP oder Speicherschlüsseln.
+- Noch offen: Wiederholung falscher Aufgaben, Mehr-Schritt-Fälle, Review durch Willi.
