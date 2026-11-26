@@ -35,7 +35,7 @@ DAU TO PRO ist eine Lernplattform für die Umschulung Fachinformatiker Systemint
 **Aufgaben:**
 
 - Mindestens 45 verschiedene Aufgabentypen (Generatoren mit Zufallswerten oder große Fallpools), jeder mit fester, kurzer ID (z. B. `r_frist`).
-- Echtes Verstehen: rechnen, Fall bewerten, Fehler finden, Reihenfolge, zuordnen, Freitext mit Schlüsselwörtern. Höchstens ein Drittel reines Multiple Choice.
+- Echtes Verstehen: rechnen, Fall bewerten, Fehler finden, Reihenfolge, zuordnen, Lückentext mit Wortbank. Keine Freitextaufgaben: Sie lassen sich nicht zuverlässig auswerten. Höchstens ein Drittel reines Multiple Choice.
 - Fragen im IHK-Prüfungsstil. Direkt hinter jeder Frage ein eingekreistes „?“. Beim Darüberfahren (Handy: Antippen) zeigt ein Tooltip dieselbe Frage in einfachen Worten. Kein extra Button.
 - Fachbegriffe in der Frage kurz erklären. Kurze Sätze, Alltagswörter. Schwer darf das Denken sein, nie die Formulierung.
 - Jede Antwort bekommt eine Erklärung, bei Rechenaufgaben mit Rechenweg.

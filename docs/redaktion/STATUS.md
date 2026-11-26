@@ -18,7 +18,7 @@ Gemeinsame Rückmeldungen (`tools/module-wrong-answer.js`, in allen 13 Moduldate
 
 Geprüft: Skriptsyntax; B2 im Browser bei 1280 und 390 px ohne Konsolenfehler, ohne seitlichen Überlauf, Stufe 1 ohne leere Absätze; `module_wrong_answer_test.cjs`, `module_wrong_answer_browser.cjs`, `module_design_browser.cjs`, `module_entry_test.cjs`, `bundled_module_delivery_test.php`. Fachliche Neuprüfung der umformulierten Lektionen durch Lesen gegen das Original; keine Fachaussage geändert.
 
-**Offen (nicht als erledigt darstellen):** Aufgabentexte, Tooltips, Hinweise, Lösungswege, Freitextfragen und Laborbeschriftungen von B2 sind noch nicht überarbeitet. Alle anderen Module sind unverändert. Humor-Abnahme durch Willi, Merge und Live-Prüfung stehen aus.
+**Offen (nicht als erledigt darstellen):** Aufgabentexte, Tooltips, Hinweise, Lösungswege und Laborbeschriftungen von B2 sind noch nicht überarbeitet. Alle anderen Module sind unverändert. Humor-Abnahme durch Willi, Merge und Live-Prüfung stehen aus.
 
 ## 10.11.2026 – Spickzettel: ursprüngliche Klausurvorlage und mobiles Wischen
 
@@ -242,3 +242,8 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Vier unveränderte Aufgaben, Platzierung mit Formvorschau am Zeiger, Inline-Beschriftung, vier leuchtende Verbindungspunkte, formgetreue Auswahl, einheitliche Kardinalitätsposition, Zoom bis 0,1 %, JSON-Import/-Export und PNG/PDF/SVG.
 - Bestehender Lernkonto-Zugang bleibt vorgeschaltet. Browserprojekte sind pro Konto getrennt; alte Zeichenlabor-Daten werden nicht gelöscht. Eigenständige V8-Projekte lassen sich über JSON übernehmen.
 - Lokale Skriptsyntax und gezielte Integrationsprüfung durchgeführt. Browserabnahme und PHP-/Plattformregression über GitHub Actions; Veröffentlichung erst nach erfolgreichen Prüfungen. Kein lokaler Browsernachweis behauptet.
+
+### Freitext entfernt (26.11.2026)
+- B2 (Netzwerke-Sprint): Trainingsmodus „Freitext“, KI-Freitextprüfung und die zugehörigen 111 Fragen entfernt; Klausurmodus und Reset-Schlüssel bereinigt. Der Eintrag `mesh_freitext` ist aus dem Modul-Rechner gestrichen.
+- CS1: Die beiden Typen `w_frei` und `u_frei` haben im Modul keine Eingabefelder mehr; sie erscheinen als Lückentext mit Wortbank und werden eindeutig ausgewertet. Nur der interne Typname bleibt.
+- Serverseitige KI-Korrektur (`ai.php`) wurde nicht angefasst.
