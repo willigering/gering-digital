@@ -608,11 +608,15 @@ function updThrown(dt,sim){
   // Rohrbombe piept immer schneller
   if(t.type==='bomb'){t.blink=(t.blink||0)-dt;t.nb-=dt;if(t.nb<=0&&t.t>0){t.nb=clamp(t.t/10,.1,1)*.9;t.blink=.08;beep(t.x,t.y)}}}
  if(sim)for(let i=THROWN.length-1;i>=0;i--)if(THROWN[i].t<=0){explode(THROWN[i]);THROWN.splice(i,1)}}
-function explode(t){const R=t.type==='gas'?80:t.type==='bomb'?60:48,dm=t.type==='gas'?800:t.type==='bomb'?650:480;
+// Rohrbombe: lockt nur Zombies in der Nähe (BOMB_LURE) und trifft kleiner und schwächer als früher
+const BOMB_LURE=230,BOMB_R=46,BOMB_DMG=320,BOMB_MAX=3,BOMB_HITS=8;
+function explode(t){const R=t.type==='gas'?80:t.type==='bomb'?BOMB_R:48,dm=t.type==='gas'?800:t.type==='bomb'?BOMB_DMG:480;
  // Kettenreaktion: andere explosive Objekte in Reichweite gehen kurz danach hoch
  for(const p of PROPS)if(p.expl&&!p.broken&&p!==t.src&&Math.hypot(p.x-t.x,p.y-t.y)<R*.9)setTimeout(()=>hitExplosive(p,999,t.own),180+Math.random()*250);
  if(t.type==='gas')for(const o of alive())if(!o.down&&!(o.inCar>=0)){const d=Math.hypot(o.x-t.x,o.y-t.y);if(d<R*.8)hurt(o,Math.round(70*(1-d/(R*.8))+15),true)}
- for(const z of zombies){if(z.hp<=0)continue;const d=Math.hypot(z.x-t.x,z.y-t.y);if(d>R||(t.type!=='gas'&&!los(t.x,t.y,z.x,z.y)))continue;
+ // Rohrbombe trifft nur die BOMB_HITS nächsten Zombies (kein Massen-Kill)
+ let hitSet=null;if(t.type==='bomb')hitSet=new Set(zombies.filter(z=>z.hp>0&&Math.hypot(z.x-t.x,z.y-t.y)<=R&&los(t.x,t.y,z.x,z.y)).sort((q,r)=>Math.hypot(q.x-t.x,q.y-t.y)-Math.hypot(r.x-t.x,r.y-t.y)).slice(0,BOMB_HITS));
+ for(const z of zombies){if(z.hp<=0)continue;const d=Math.hypot(z.x-t.x,z.y-t.y);if(d>R||(t.type!=='gas'&&!los(t.x,t.y,z.x,z.y))||(hitSet&&!hitSet.has(z)))continue;
   z.hp-=dm*(1-d/R*.6);z.hit=.1;z.stag=.3;z.aware=true;z.last={own:t.own,head:false,expl:true};const a=Math.atan2(z.y-t.y,z.x-t.x);move(z,Math.cos(a)*14,Math.sin(a)*14)}
  for(const o of PL)if(o.zombie&&Math.hypot(o.x-t.x,o.y-t.y)<R)hitPZ(o,dm*.5,t.own);
  if(PVP())for(const o of PL){if(o.dead)continue;const d=Math.hypot(o.x-t.x,o.y-t.y);if(d<R)pvpHurt(o,Math.round(110*(1-d/R)+20),t.own,false)}
@@ -717,7 +721,7 @@ function takePowerup(p,by){PUPS.splice(PUPS.indexOf(p),1);const I=PU_INFO[p.type
  if(p.type==='double')DP_T=now+30;
  else if(p.type==='insta')IK_T=now+30;
  else if(p.type==='ammo')for(const o of alive()){refillAmmo(o);o.gren=Math.max(o.gren||0,4)}
- else if(p.type==='heal')for(const o of alive()){o.hp=o.max;if(o.down){o.down=false;o.revT=0;o.hop=.7}}
+ else if(p.type==='heal')for(const o of alive()){if(o.down)continue;o.hp=o.max}
  else{const n=zombies.filter(z=>z.hp>0).length,share=Math.round(n*60/Math.max(1,alive().length));
   for(const z of zombies){if(z.hp<=0)continue;for(let j=0;j<14;j++)part({x:z.x,y:z.y,z:rnd(6,18),vx:rnd(-70,70),vy:rnd(-50,50),vz:rnd(30,110),g:220,life:1.6,c:pick(['#7a1010','#9a1a1a','#5e0c0c',z.look.skin]),s:2,stain:1});
    addCorpse({x:z.x,y:z.y,look:{...z.look,headless:true},face:z.face,t:0,dir:Math.random()<.5?1:-1},true);stain(z.x,z.y,8)}
@@ -916,7 +920,7 @@ const BOX_COST=1000;
 const BOX_POOL=[['shotgun',26],['ashotgun',22],['lmg',18],['smg',15],['sniper',11],['wunder',8]];
 const BOX_NAME=k=>k==='bomb'?'2 Rohrbomben':WEAPONS[k].name;
 function boxRoll(pl){const pool=BOX_POOL.filter(([k])=>k==='bomb'||!pl.slots.some(s=>s&&s.k===k));let t=0;for(const [,w] of pool)t+=w;let r=Math.random()*t;for(const [k,w] of pool){r-=w;if(r<=0)return k}return pool[0][0]}
-function boxGive(pl,k){if(k==='bomb'){pl.bomb=Math.min(5,(pl.bomb||0)+2);return'2 Rohrbomben eingesteckt [F]'}
+function boxGive(pl,k){if(k==='bomb'){pl.bomb=Math.min(BOMB_MAX,(pl.bomb||0)+2);return'2 Rohrbomben eingesteckt [F]'}
  const have=pl.slots.find(s=>s&&s.k===k);if(have){if(!isMelee(k)){const st=wStats(pl,k);have.ammo=st.mag;have.res=st.maxRes}return WEAPONS[k].name+': Munition voll'}
  return giveWeapon(pl,k).replace('gefunden!','gezogen!')}
 function updBox(dt){for(const st of STATIONS){if(st.t!=='box'||!st.bx)continue;const b=st.bx;b.t-=dt;
@@ -1742,7 +1746,7 @@ function update(dt){if(P.needSpawn)joinNearTeam();
   // Wahrnehmung: Wenn sich Spieler im Gebäude verstecken, müssen Zombies sie erst bemerken
   if(!anyInside)z.aware=true;
   else if(!z.aware&&(td<100||(noise_&&Math.hypot(noise_.x-z.x,noise_.y-z.y)<noise_.r))){z.aware=true;z.alertT=1.2}
-  let tx=T.x,ty=T.y;let bomb=null;if(td>12)for(const t of THROWN)if(t.type==='bomb'&&t.land&&(!bomb||Math.hypot(t.x-z.x,t.y-z.y)<Math.hypot(bomb.x-z.x,bomb.y-z.y)))bomb=t;
+  let tx=T.x,ty=T.y;let bomb=null;if(td>12)for(const t of THROWN)if(t.type==='bomb'&&t.land&&Math.hypot(t.x-z.x,t.y-z.y)<BOMB_LURE&&(!bomb||Math.hypot(t.x-z.x,t.y-z.y)<Math.hypot(bomb.x-z.x,bomb.y-z.y)))bomb=t;
   if(bomb){z.aware=true;const bd=Math.hypot(bomb.x-z.x,bomb.y-z.y);if(bd<20){tx=z.x+Math.cos(now*2+z.look.seed)*4;ty=z.y+Math.sin(now*2+z.look.seed)*4}
    else{tx=bomb.x;ty=bomb.y;if(bd>26||!los(z.x,z.y,bomb.x,bomb.y)){const t=fieldStep(distZ,z);if(t){tx=t.x;ty=t.y}}}}
   else if(trapped){z.aware=true;const t=fieldStep(distOut,z);if(t){tx=t.x;ty=t.y}} // im leeren Haus: auf direktem Weg hinaus
