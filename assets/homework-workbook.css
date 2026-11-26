@@ -1,7 +1,16 @@
-#hw-workbook-toolbar{position:fixed!important;left:16px!important;right:16px!important;bottom:12px!important;z-index:2147483000!important;display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;padding:12px 16px!important;border:1px solid #90c9be66!important;border-radius:14px!important;background:#102129f5!important;color:#eef5f1!important;font:14px/1.5 system-ui,sans-serif!important;box-shadow:0 8px 30px #0006!important}
-#hw-workbook-toolbar a,#hw-workbook-toolbar button,#hw-workbook-toolbar select{font:600 14px/1.4 system-ui,sans-serif!important;min-height:40px!important;padding:8px 12px!important;border-radius:8px!important;border:1px solid #ffffff30!important;background:#192e38!important;color:#eef5f1!important;cursor:pointer!important;text-decoration:none!important;width:auto!important;position:static!important}
-#hw-workbook-toolbar a{margin-right:auto!important}#hw-workbook-toolbar #hw-save-state{color:#abdbc8!important;font-weight:500!important}#hw-return{display:none!important}
-body:has(#hw-workbook-toolbar){padding-bottom:110px!important}
+#hw-workbook-toolbar{z-index:2147483000!important;display:flex!important;gap:9px!important;padding:12px!important;border:1px solid #90c9be66!important;border-radius:0!important;background:#102129!important;color:#eef5f1!important;font:14px/1.5 system-ui,sans-serif!important;box-shadow:0 8px 30px #0006!important;box-sizing:border-box!important}
+#hw-workbook-toolbar a,#hw-workbook-toolbar button,#hw-workbook-toolbar select{font:600 14px/1.4 system-ui,sans-serif!important;min-height:40px!important;padding:8px 12px!important;border-radius:0!important;border:1px solid #ffffff30!important;background:#192e38!important;color:#eef5f1!important;cursor:pointer!important;text-decoration:none!important;position:static!important;box-sizing:border-box!important;max-width:100%!important;text-align:left!important;white-space:normal!important}
+#hw-workbook-toolbar #hw-save-state{color:#abdbc8!important;font-weight:500!important;overflow-wrap:anywhere!important}#hw-return{display:none!important}
+@media screen and (min-width:1100px){
+ body:has(#hw-workbook-toolbar){padding-right:236px!important;box-sizing:border-box!important}
+ #hw-workbook-toolbar{position:fixed!important;left:auto!important;right:12px!important;top:90px!important;bottom:auto!important;width:212px!important;max-height:calc(100dvh - 102px)!important;overflow:auto!important;flex-direction:column!important;align-items:stretch!important;flex-wrap:nowrap!important}
+ #hw-workbook-toolbar a,#hw-workbook-toolbar button,#hw-workbook-toolbar select{width:100%!important;margin:0!important;flex:none!important}
+}
+@media screen and (max-width:1099px){
+ #hw-workbook-toolbar{position:relative!important;inset:auto!important;width:auto!important;max-width:100%!important;margin:16px auto!important;flex-direction:row!important;align-items:center!important;flex-wrap:wrap!important}
+ #hw-workbook-toolbar a,#hw-workbook-toolbar button,#hw-workbook-toolbar select{width:auto!important;margin:0!important}
+}
+
 .hw-print-actions{padding:16px;font:16px/1.5 system-ui,sans-serif;background:#fff;color:#111;border:1px solid #ccc}
 .hw-print-actions button,.hw-print-actions a{margin:8px;padding:10px}
 .hw-answer-print{display:block;white-space:pre-wrap;overflow-wrap:anywhere;color:inherit;border:1px solid #888;padding:8px;min-height:3em;font:inherit;line-height:1.5}
