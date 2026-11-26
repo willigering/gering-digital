@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bomb Voyage</title>
   <link rel="icon" href="assets/weapons/grenade.webp" />
-  <script type="module" crossorigin src="./assets/index-mFUXd9E-.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DwCXT08c.css">
+  <script type="module" crossorigin src="./assets/index-HTNof3OW.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-G_C8oBFN.css">
 </head>
 <body>
   <canvas id="game"></canvas>
@@ -18,17 +18,36 @@
   </div>
 
   <section id="menu" class="screen" hidden>
-    <div class="plaque panel">
-      <p class="eyebrow">Artillerie auf Bummuda</p>
-      <h1 class="logo">BOMB VOYAGE</h1>
-      <p class="tag">Have a blast. It's your last.</p>
-      <div class="stack">
-        <button class="btn big" data-go="solo">Gegen den Computer</button>
-        <button class="btn big" data-go="local">Lokal an einem Gerät</button>
-        <button class="btn big" data-go="online">Online spielen</button>
-        <button class="btn ghost" data-go="help">Anleitung</button>
-      </div>
-      <p class="version">Version 1.0</p>
+    <div class="menu-logo"><span class="l1">BOMB</span><span class="l2">VOYAGE</span></div>
+    <nav class="board">
+      <i class="rope r1"></i><i class="rope r2"></i><i class="lantern"></i>
+      <button class="play" data-go="solo"><span class="tri"></span>Spielen</button>
+      <button class="note" data-go="local"><b>👥</b>Lokaler Mehrspieler</button>
+      <button class="note" data-go="online"><b>🌐</b>Online</button>
+      <button class="note" data-go="help"><b>📦</b>Waffenkammer &amp; Hilfe</button>
+      <button class="note" data-go="settings"><b>⚙️</b>Einstellungen</button>
+      <button class="note" data-go="credits"><b>🎬</b>Credits</button>
+    </nav>
+    <p class="version">Have a blast. It's your last. · v1.1</p>
+  </section>
+
+  <section id="settings" class="screen" hidden>
+    <div class="parch">
+      <h2>⚙️ Einstellungen</h2>
+      <label class="srow">Effektlautstärke <input id="set-sfx" type="range" min="0" max="100" /><output id="set-sfx-o"></output></label>
+      <label class="srow">Kamerawackeln <input id="set-shake" type="checkbox" class="sw" /></label>
+      <label class="srow">Partikeleffekte <input id="set-part" type="checkbox" class="sw" /></label>
+      <label class="srow">Windanzeige <input id="set-wind" type="checkbox" class="sw" /></label>
+      <label class="srow">Vollbild <input id="set-full" type="checkbox" class="sw" /></label>
+      <div class="actions"><button class="btn big" data-go="back">Fertig</button></div>
+    </div>
+  </section>
+
+  <section id="credits" class="screen" hidden>
+    <div class="parch">
+      <h2>🎬 Credits</h2>
+      <p>Bomb Voyage – gebaut von Willi (Gering Digital).<br>Figuren, Kulissen und Props: eigene KI-Grafiken.<br>Schrift: Lilita One. Alle Effekte und Töne entstehen live im Browser.</p>
+      <div class="actions"><button class="btn big" data-go="back">Zurück</button></div>
     </div>
   </section>
 
