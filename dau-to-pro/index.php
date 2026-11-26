@@ -295,7 +295,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
         <span class="unterricht-headline" id="unterricht-title">UNTERRICHTS<em>MATERIAL</em></span>
         <span class="unterricht-summary-desc">Unterrichtsmaterialien aufklappen und gezielt öffnen – ohne endlos zu scrollen.</span>
       </span>
-      <span class="unterricht-count">09 <small>MATERIALIEN</small></span>
+      <span class="unterricht-count">10 <small>MATERIALIEN</small></span>
       <span class="unterricht-arrow" aria-hidden="true">⌄</span>
     </summary>
     <?php if (dtp_material_unlocked($learnerRow)): ?>
@@ -352,6 +352,10 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
             <p>ER-Werkstatt V8: Formen frei platzieren, direkt bearbeiten und verbinden. Bibliothek, Schule, Fitnessstudio und Autovermietung mit getrennten Zeichenflächen.</p>
             <div class="module-footer"><span>4 AUFGABEN · PNG / PDF / SVG</span><b aria-hidden="true">↗</b></div>
           </div>
+        </a>
+        <a class="module-card unterricht-card" style="--mod:#a9bd94" href="unterricht/it-vi-ek-wiederholung.php" aria-label="IT VI EK Wiederholung öffnen">
+          <div class="module-art unterricht-art"><span class="unterricht-art-orbit" aria-hidden="true"></span><span class="unterricht-art-label">EK TRAINING <b>10</b></span></div>
+          <div class="module-body"><span class="module-category">UNTERRICHTSMATERIAL · IT VI</span><h3>EK Wiederholung</h3><p>18 Lernkarten mit Musterlösungen, Supportpraxis und SLA-Rechnungen.</p></div>
         </a>
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
           <div class="module-art unterricht-art">
