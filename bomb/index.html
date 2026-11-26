@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bomb Voyage</title>
+  <link rel="icon" href="assets/weapons/grenade.webp" />
+  <script type="module" crossorigin src="./assets/index-mFUXd9E-.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DwCXT08c.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="boot" class="screen">
+    <div class="logo">BOMB VOYAGE</div>
+    <p id="boot-msg">Die Lunten werden gelegt …</p>
+    <div class="bar"><i id="boot-bar"></i></div>
+  </div>
+
+  <section id="menu" class="screen" hidden>
+    <div class="plaque panel">
+      <p class="eyebrow">Artillerie auf Bummuda</p>
+      <h1 class="logo">BOMB VOYAGE</h1>
+      <p class="tag">Have a blast. It's your last.</p>
+      <div class="stack">
+        <button class="btn big" data-go="solo">Gegen den Computer</button>
+        <button class="btn big" data-go="local">Lokal an einem Gerät</button>
+        <button class="btn big" data-go="online">Online spielen</button>
+        <button class="btn ghost" data-go="help">Anleitung</button>
+      </div>
+      <p class="version">Version 1.0</p>
+    </div>
+  </section>
+
+  <section id="setup" class="screen" hidden>
+    <div class="plaque panel wide">
+      <h2 id="setup-title">Neues Spiel</h2>
+      <div id="team-rows" class="rows"></div>
+      <div class="grid">
+        <label>Figuren je Team<select id="opt-per"><option>2</option><option selected>3</option><option>4</option></select></label>
+        <label>Zugzeit<select id="opt-time"><option value="20">20 s</option><option value="30">30 s</option><option value="45" selected>45 s</option><option value="60">60 s</option></select></label>
+        <label>Landschaft<select id="opt-map"><option value="random">Zufall</option><option value="islands">Inseln</option><option value="hills">Hügel</option><option value="caves">Höhlen</option></select></label>
+        <label class="chk"><input id="opt-wind" type="checkbox" checked /> Wind</label>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" data-go="menu">Zurück</button>
+        <button class="btn big" id="setup-go">Los geht’s!</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="online" class="screen" hidden>
+    <div class="plaque panel wide">
+      <h2>Online spielen</h2>
+      <label class="line">Dein Name <input id="net-name" maxlength="16" placeholder="Name" /></label>
+      <div id="lobby-list" class="list"><p class="muted">Suche Lobbys …</p></div>
+      <p id="net-status" class="status"></p>
+      <div class="actions">
+        <button class="btn ghost" data-go="menu">Zurück</button>
+        <button class="btn big" id="net-create">Eigene Lobby erstellen</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="lobby" class="screen" hidden>
+    <div class="plaque panel wide">
+      <h2 id="lobby-title">Lobby</h2>
+      <div id="lobby-players" class="rows"></div>
+      <div id="lobby-host" class="grid">
+        <label>Computer-Mitspieler<select id="lb-bots"><option value="0">keine</option><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option></select></label>
+        <label>Figuren je Team<select id="lb-per"><option>2</option><option selected>3</option><option>4</option></select></label>
+        <label>Zugzeit<select id="lb-time"><option value="20">20 s</option><option value="30">30 s</option><option value="45" selected>45 s</option><option value="60">60 s</option></select></label>
+        <label>Landschaft<select id="lb-map"><option value="random">Zufall</option><option value="islands">Inseln</option><option value="hills">Hügel</option><option value="caves">Höhlen</option></select></label>
+      </div>
+      <p id="lobby-status" class="status"></p>
+      <div class="actions">
+        <button class="btn ghost" id="lobby-leave">Verlassen</button>
+        <button class="btn big" id="lobby-start">Spiel starten</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="help" class="screen" hidden>
+    <div class="plaque panel wide">
+      <h2>Anleitung</h2>
+      <div class="helpgrid">
+        <div><b>A / D</b> oder Pfeile</div><div>laufen</div>
+        <div><b>Leertaste</b> · <b>Q</b></div><div>springen · Rückwärtssalto</div>
+        <div><b>Maus</b></div><div>zielen (Fadenkreuz)</div>
+        <div><b>Linke Taste halten</b> · <b>Enter</b></div><div>Kraft aufladen, loslassen = Feuer</div>
+        <div><b>1–9</b> · <b>Tab</b></div><div>Waffe wählen</div>
+        <div><b>Ninja-Seil</b></div><div>Klick = Haken · A/D schwingen · W/S Länge · Leertaste lösen</div>
+        <div><b>Luftschlag / Teleporter</b></div><div>Ziel anklicken</div>
+        <div><b>Mausrad</b> · <b>Rechte Taste ziehen</b></div><div>Zoom · Karte verschieben (<b>C</b> zurück zur Figur)</div>
+        <div><b>Esc</b></div><div>Pause</div>
+      </div>
+      <p class="muted">Wer ins Wasser fällt, geht verloren. Nach einigen Runden steigt der Wasserspiegel. Kisten bringen Waffen und Lebenspunkte. Fässer explodieren!</p>
+      <div class="actions"><button class="btn big" data-go="back">Verstanden</button></div>
+    </div>
+  </section>
+
+  <div id="hud" hidden>
+    <div id="teams"></div>
+    <div id="turnbox" class="plaque">
+      <div class="who"><i id="who-dot"></i><b id="who-name">Bummbert</b><span id="who-sub"></span></div>
+      <div class="clock"><span id="clock">45</span></div>
+      <div class="fuse"><i id="fuse-fill"></i></div>
+    </div>
+    <div id="windbox" class="plaque"><span>Wind</span><div class="windbar"><i id="wind-l"></i><b></b><i id="wind-r"></i></div></div>
+    <div id="toasts"></div>
+    <div id="weapons" class="plaque"></div>
+    <div id="hint"></div>
+    <div id="topbtns"><button class="btn tiny" id="btn-skip" title="Zug beenden">⏭</button><button class="btn tiny" id="btn-mute" title="Ton">🔊</button><button class="btn tiny" id="btn-pause" title="Pause">☰</button></div>
+  </div>
+
+  <section id="pause" class="screen" hidden>
+    <div class="plaque panel">
+      <h2>Pause</h2>
+      <div class="stack">
+        <button class="btn big" id="pause-resume">Weiter</button>
+        <button class="btn ghost" id="pause-help">Anleitung</button>
+        <button class="btn ghost" id="pause-quit">Zum Hauptmenü</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="over" class="screen" hidden>
+    <div class="plaque panel">
+      <p class="eyebrow">Spiel vorbei</p>
+      <h1 id="over-title" class="logo">Rot gewinnt!</h1>
+      <div class="stack">
+        <button class="btn big" id="over-again">Revanche</button>
+        <button class="btn ghost" id="over-menu">Hauptmenü</button>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
