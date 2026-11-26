@@ -522,3 +522,8 @@ body{
   object-position:center;
   background:transparent;
 }
+
+
+/* DeskRecall: identical Windows portal frame, with its own artwork. */
+#apps .gdv3-project-grid .deskrecall-portal-card .project-preview-wide{background:#1b1729;}
+#apps .gdv3-project-grid .deskrecall-portal-card .project-preview-wide>.deskrecall-cover{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center;border-radius:0;box-shadow:none;}
