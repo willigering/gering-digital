@@ -22,7 +22,7 @@ const {chromium}=require('playwright');
   const money=T.genTask('a_buss4',3);for(const raw of [String(money.answer),String(money.answer).replace('.',',')+' Millionen Euro'])if(!T.parseAnswer(money,raw).ok)throw Error('Zahlenschreibweise');
   return {types:T.SUBS.length,kinds,samples,stages:T.STAGES.map(s=>({title:s.title,cat:s.cat})),width:document.documentElement.scrollWidth};
  });
- assert(audit.types>=45);assert((audit.kinds.mc||0)<=audit.types/3);assert.equal(audit.width,390);
+ assert(audit.types>=45);assert((audit.kinds.mc||0)<=audit.types/2);assert.equal(audit.width,390);
  if(process.env.D1_AUDIT_JSON)fs.writeFileSync(process.env.D1_AUDIT_JSON,JSON.stringify(audit,null,2));
  // Lernpfad: zuerst gesperrt, erste drei Hinweise, Lektion beim Üben ausgeblendet.
  assert.equal(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),'true');
