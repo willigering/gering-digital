@@ -354,8 +354,8 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
           </div>
         </a>
         <a class="module-card unterricht-card" style="--mod:#a9bd94" href="unterricht/it-vi-ek-wiederholung.php" aria-label="IT VI EK Wiederholung öffnen">
-          <div class="module-art unterricht-art"><span class="unterricht-art-orbit" aria-hidden="true"></span><span class="unterricht-art-label">EK TRAINING <b>10</b></span></div>
-          <div class="module-body"><span class="module-category">UNTERRICHTSMATERIAL · IT VI</span><h3>EK Wiederholung</h3><p>18 Lernkarten mit Musterlösungen, Supportpraxis und SLA-Rechnungen.</p></div>
+          <div class="module-art unterricht-art"><span class="unterricht-art-orbit" aria-hidden="true"></span><span class="module-art-symbol" aria-hidden="true">EK<span>//</span>VI</span><span class="unterricht-art-label">EK TRAINING <b>10</b></span></div>
+          <div class="module-body"><span class="module-category">UNTERRICHTSMATERIAL · IT VI</span><h2>EK Wiederholung</h2><p>18 Lernkarten mit Musterlösungen, Supportpraxis und SLA-Rechnungen.</p><div class="module-footer"><span>18 AUFGABEN · SWIPE TRAINING</span><b aria-hidden="true">↗</b></div></div>
         </a>
         <a class="module-card unterricht-card" style="--mod:#7fdbdb" href="unterricht/it-vi-01.php" aria-label="IT VI.01 – IT-Support und ITSM Unterrichtsmaterial öffnen">
           <div class="module-art unterricht-art">
