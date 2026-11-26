@@ -2,6 +2,24 @@
 
 Dieser Stand beschreibt die Repository-Fassungen. Ob dieselben Fassungen im Admin installiert und öffentlich ausgeliefert sind, ist hier **nicht nachgewiesen**. Keine vollständige Überarbeitung oder Live-Prüfung behaupten, bevor sie erfolgt ist.
 
+## 26.11.2026 – B2 Netzwerkgrundlagen: Lehrtexte überarbeitet; Richtig/Falsch-Sprüche seltener
+
+**Auftrag (Willi):** Module sprachlich komplett überarbeiten, beginnend mit einem Modul nach Wahl. Innerhalb der Module sachlich, verständlich, mit anschaulichen Beispielen und guten Erklärungen. Der Witz in der Modulauswahl bleibt. Die Richtig/Falsch-Sprüche sollen nur etwa jedes fünfte Mal kommen. Das Design bleibt unverändert.
+
+**Gewähltes Modul: B2 `netzwerke-sprint.html` („Jetzt ma Router bei die Switche!“).** Die Lektionen lasen sich wie ein Lehrbuch (Definition vor Situation).
+
+Überarbeitet (nur Inhalte, keine Überschriften):
+- Alle 37 Lektionen im Nachschlagwerk (Kapitel 1–9): Jede beginnt mit einem konkreten Beispiel, danach kurze Erklärung (Listen statt Textblöcken), Fachbegriffe an der Stelle erklärt, am Ende „Merke“, Falle oder Hinweis. Tabellen, Rechenbeispiele und Fachaussagen unverändert übernommen.
+- Neun Kapiteleinleitungen sachlich und ohne Gag neu geschrieben.
+- Lernpfad: Einstiegstexte aller zehn Stufen als kurze Absätze (Beispiel, Erklärung, Aufbau). Schritte, Merksätze, Aufgaben und Lösungen unverändert.
+- Der Aufbau in Absätzen ist über einen kleinen Anpassungsschritt im Renderer möglich (Einstieg wird nur dann zusätzlich in `<p>` gesetzt, wenn er nicht schon mit `<p>` beginnt). Kein CSS geändert.
+
+Gemeinsame Rückmeldungen (`tools/module-wrong-answer.js`, in allen 13 Moduldateien eingebettet): Witzige Sprüche erscheinen nur noch mit 20 % Wahrscheinlichkeit (1:5), sonst eine kurze sachliche Zeile („Nicht ganz.“, „Richtig gelöst.“ usw.). Der Spruchvorrat und die Bewertung sind unverändert. Tests angepasst: `module_wrong_answer_test.cjs` (Häufigkeit ≈ 20 %, keine direkt wiederholte Sachzeile), `module_wrong_answer_browser.cjs`.
+
+Geprüft: Skriptsyntax; B2 im Browser bei 1280 und 390 px ohne Konsolenfehler, ohne seitlichen Überlauf, Stufe 1 ohne leere Absätze; `module_wrong_answer_test.cjs`, `module_wrong_answer_browser.cjs`, `module_design_browser.cjs`, `module_entry_test.cjs`, `bundled_module_delivery_test.php`. Fachliche Neuprüfung der umformulierten Lektionen durch Lesen gegen das Original; keine Fachaussage geändert.
+
+**Offen (nicht als erledigt darstellen):** Aufgabentexte, Tooltips, Hinweise, Lösungswege, Freitextfragen und Laborbeschriftungen von B2 sind noch nicht überarbeitet. Alle anderen Module sind unverändert. Humor-Abnahme durch Willi, Merge und Live-Prüfung stehen aus.
+
 ## 10.11.2026 – Spickzettel: ursprüngliche Klausurvorlage und mobiles Wischen
 
 - Alle zwölf Themenblätter verwenden wieder die kantigen Lesekarten und die dauerhaft erreichbare Sprungleiste der früheren `cheat-sheet.html` (Stand `0a9262c`). Desktop: zweispaltige Abschnitte; Fragen als lesbarer Bereich in zwei/drei Spalten. Mobil bis 900 px: native horizontale Scroll-Snap-Seiten, aktive Navigation, Seitenzähler und passende Höhe je Abschnitt. Die Leiste selbst lässt sich ebenfalls horizontal verschieben.

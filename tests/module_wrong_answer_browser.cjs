@@ -3,7 +3,7 @@ const {chromium}=require('playwright'),fs=require('node:fs'),path=require('node:
 const {pathToFileURL}=require('node:url');
 const root=path.resolve(__dirname,'..'),modules=JSON.parse(fs.readFileSync(path.join(root,'lernmodule/manifest.json'))).modules;
 const quipSource=fs.readFileSync(path.join(root,'tools/module-wrong-answer.js'),'utf8');
-const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1]),...JSON.parse(quipSource.match(/const newQuips = (\[[\s\S]*?\]);/)[1])];
+const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1]),...JSON.parse(quipSource.match(/const newQuips = (\[[\s\S]*?\]);/)[1]),...JSON.parse(quipSource.match(/const plainWrong = (\[[\s\S]*?\]);/)[1])];
 (async()=>{
  const browser=await chromium.launch();
  try{
