@@ -249,7 +249,7 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Serverseitige KI-Korrektur (`ai.php`) wurde nicht angefasst.
 
 ### B2: neue Auswahl-Aufgabentypen (26.11.2026)
-- Neu als Ersatz für Freitext: Lückentext mit Wortbank (inkl. Begriffen, die nicht passen), Zuordnen (Zeile ↔ Auswahl) und Fall-Entscheidung (Multiple Choice mit Szenario). Je Thema ein Lückentext-Typ, sieben Zuordnen-Typen, ein Fall-Typ, ein Szenario-Lückentext: 20 neue Aufgabentypen, insgesamt 91.
+- Neu als Ersatz für Freitext: Lückentext mit Wortbank (inkl. Begriffen, die nicht passen), Zuordnen (Zeile ↔ Auswahl) und Fall-Entscheidung (Multiple Choice mit Szenario). Zehn Lückentext-Typen (je Thema einer), neun Zuordnen-Typen (alle Themen außer Szenarien) und ein Fall-Typ: 20 neue Aufgabentypen, insgesamt 91.
 - Wertung eindeutig: Alle Lücken/Zeilen müssen stimmen, sonst gilt die Aufgabe als falsch; unvollständig wird nicht gewertet. Gilt in Lernpfad, Training und Probeprüfung (Antwort wird als `a|b|c` zwischengespeichert, Prüfung zeigt Auswahl und Lösung).
 - Neues Element: `select.gap` und `.cloze`, Optik angelehnt an die vorhandenen Zuordnen-Zeilen. Keine Änderung an Überschriften, IDs, XP oder Speicherschlüsseln.
 - Noch offen: Wiederholung falscher Aufgaben, Mehr-Schritt-Fälle, Review durch Willi.
