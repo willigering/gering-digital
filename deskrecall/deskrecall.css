@@ -8,13 +8,10 @@
 .deskrecall-page .sl-runtime-action:hover{background:#34234e;color:#eee8ff;border-color:#c3afff}
 .deskrecall-page .step,.deskrecall-page .sl-scan-card{background:linear-gradient(160deg,#2c234050,#10111dcc)}
 .deskrecall-page .sl-back-button:hover{border-color:#a98bfa99}
-.dr-illustration{max-width:430px;margin:auto;padding:20px;display:grid;gap:12px;border:1px solid #9a7ce566;border-radius:16px;background:#1d1929;box-shadow:0 28px 60px #0009,0 0 40px #9566ff20;color:#f5f1ff;}
-.dr-brand{display:flex;align-items:center;gap:15px;font-size:25px;font-weight:800}
-.dr-brand img{display:block;width:72px;height:72px;object-fit:contain}
-.dr-status{display:flex;align-items:center;gap:9px;padding:12px;border:1px solid #ffffff15;background:#282335;border-radius:8px;font-size:13px}
-.dr-status span{width:8px;height:8px;border-radius:50%;background:#32d894;box-shadow:0 0 10px #32d89477}
-.dr-desktop{display:grid;gap:10px;padding:16px;border:1px solid #ffffff15;background:#282335;border-radius:9px}
-.dr-desktop b{font-size:14px}.dr-desktop span{font-size:13px;color:#c9c1db}
-.dr-desktop.dr-active{border-color:#a98bfa;background:#32284a}
-.dr-illustration-foot{text-align:center;color:#b29ae8;font-size:15px;letter-spacing:4px;padding-top:5px}
-@media(max-width:480px){.dr-illustration{padding:14px}.dr-brand{font-size:21px}}
+
+.deskrecall-page .hero-art-wrap{border-color:#a98bfa55;background:#1a1626;box-shadow:0 28px 60px #0008,0 0 0 1px #a98bfa14;}
+.deskrecall-page .hero-art-wrap:hover,.deskrecall-page .dr-preview{border-color:#a98bfa99;}
+.deskrecall-page .sl-window-bar{background:#211c2d;border-color:#a98bfa44;color:#d9cce9;}
+.deskrecall-page .dr-preview{background:#1a1626;}
+.deskrecall-page .dr-preview::backdrop{background:#110d1bd9;}
+.deskrecall-page .sl-scan-card h3{overflow-wrap:anywhere;}

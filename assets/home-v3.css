@@ -523,6 +523,7 @@ body{
   background:transparent;
 }
 
-/* DeskRecall: same landscape frame as SharpLab, no Android icon inset. */
-#apps .gdv3-project-grid .deskrecall-portal-card .project-preview-wide{background:radial-gradient(ellipse at 50% 45%,#40355f,#191624 72%);}
+
+/* DeskRecall: identical Windows portal frame, with its own artwork. */
+#apps .gdv3-project-grid .deskrecall-portal-card .project-preview-wide{background:#1b1729;}
 #apps .gdv3-project-grid .deskrecall-portal-card .project-preview-wide>.deskrecall-cover{width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center;border-radius:0;box-shadow:none;}

@@ -184,7 +184,7 @@ $categoryCounts['sonstiges']++; // DAU-TO-PRO-Karte
               <canvas class="sharplab-matrix" width="640" height="360" aria-hidden="true"></canvas>
               <img class="html-preview-image" loading="lazy" decoding="async" src="assets/sharplab-page-preview.webp" width="640" height="360" alt="Vorschaubild: SharpLab">
             <?php elseif($isDeskRecall): ?>
-              <img class="html-preview-image deskrecall-cover" loading="lazy" decoding="async" src="<?=e($icon)?>" alt="DeskRecall-Logo">
+              <img class="html-preview-image deskrecall-cover" loading="lazy" decoding="async" src="assets/deskrecall-page-preview.svg" width="1600" height="900" alt="DeskRecall – Vorschau der Desktop-Verwaltung">
             <?php elseif($isHtml&&!empty($app['preview_image'])): ?>
               <?php if(($app['slug']??'')==='perlenwahn'): ?>
               <img class="perlenwahn-preview-fill" loading="lazy" decoding="async" src="<?=e($app['preview_image'])?>" alt="" aria-hidden="true">

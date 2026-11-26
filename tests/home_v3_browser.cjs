@@ -112,9 +112,14 @@ assert.match(src,/foreach\(\$apps as \$app\)/,'All database apps must remain dyn
       const rect=preview.getBoundingClientRect();
       return rect.width/rect.height;
     }));
-    assert.equal(landscape.length,5,'Rüdiger, DAU TO PRO, Perlenwahn, Are You Dead Yet? and SharpLab have shared wide preview frames');
-    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All five preview frames are 16:9');
+    assert.equal(landscape.length,6,'DeskRecall and SharpLab share the landscape Windows portal frame with the other wide projects');
+    assert.ok(landscape.every(ratio=>Math.abs(ratio-16/9)<.035),'All six preview frames are 16:9');
     assert.equal(await page.locator('#apps .sharplab-portal-card .project-preview-wide').count(),1,'SharpLab uses the same wide 16:9 preview frame');
+    const desk=page.locator('#apps .deskrecall-portal-card');
+    assert.equal(await desk.count(),1,'One DeskRecall portal');
+    assert.equal(await desk.getAttribute('data-category'),'windows');
+    assert.equal(await desk.locator('a.html-card-link').getAttribute('href'),'/deskrecall/');
+    assert.equal(await desk.locator('.project-preview-wide > .html-preview-image').getAttribute('src'),'assets/deskrecall-page-preview.svg');
     const perlenwahnFit=await page.locator('a.html-card-link[href="/perlenwahn/"] + .project-preview-wide > .html-preview-image')
       .evaluate(image=>getComputedStyle(image).objectFit);
     assert.equal(perlenwahnFit,'contain','Perlenwahn preview must keep its entire headline, cat and CTA visible');
