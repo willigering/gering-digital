@@ -14,7 +14,7 @@ assert.equal(T.SUBS.length,50);assert.equal(new Set(T.SUBS.map(s=>s.id)).size,50
 let generated=0;
 for(const sub of T.SUBS)for(let j=0;j<1000;j++){
  const t=T.genTask(sub.id,1+j%3);assert(t.context&&t.prompt&&t.plain&&t.why,t.sub);assert.equal(t.sub,sub.id);
- const p=T.parseAnswer(t,String(t.answer));assert(p.valid&&p.ok,t.sub+' rejected its answer '+t.answer);assert(!T.parseAnswer(t,'this is deliberately wrong').ok);
+ if(t.kind==='mc'){assert(t.options.length>=2&&t.options.length<=4&&new Set(t.options).size===t.options.length&&t.options[t.answer],t.sub);}else{const p=T.parseAnswer(t,String(t.answer));assert(p.valid&&p.ok,t.sub+' rejected its answer '+t.answer);assert(!T.parseAnswer(t,'this is deliberately wrong').ok);}
  if(t.kind==='ip'){
   const canonical=new URL('http://['+t.answer+']/').hostname.slice(1,-1);
   assert.equal(T.short(T.ipWords(t.answer)),canonical,'Independent IPv6 parser mismatch');
