@@ -77,6 +77,7 @@ $topicLabels=['subnet'=>'IP & Subnetting','netzwerk'=>'Netzwerke','sicherheit'=>
   <link rel="stylesheet" href="nerd-radio/layout.css?v=<?=filemtime(__DIR__.'/nerd-radio/layout.css')?>">
   <script src="nerd-radio.js?v=<?=filemtime(__DIR__.'/nerd-radio.js')?>" defer></script>
   <link rel="stylesheet" href="module-shell.css?v=<?=filemtime(__DIR__.'/module-shell.css')?>">
+  <link rel="stylesheet" href="portal-mobile.css?v=<?=filemtime(__DIR__.'/portal-mobile.css')?>">
   <script src="module-shell.js?v=<?=filemtime(__DIR__.'/module-shell.js')?>" defer></script>
 <?php if ($fx!==''): ?>  <link rel="stylesheet" href="hero-fx.css?v=<?=filemtime(__DIR__.'/hero-fx.css')?>">
   <script src="achievement-toast.js?v=<?=filemtime(__DIR__.'/achievement-toast.js')?>" defer></script>

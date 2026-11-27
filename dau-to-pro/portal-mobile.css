@@ -1,0 +1,47 @@
+/* Portal mobil: weniger Scrollen, weniger Rendering-Last. Gilt nur für schmale Bildschirme. */
+@media (max-width:899px){
+  /* Bereiche unterhalb des sichtbaren Bereichs erst beim Heranscrollen rendern */
+  .hs-section,.bonus-collection,.cheat-collection,.unterricht-collection,.method-section,.end-cap,.dtp-footer{content-visibility:auto;contain-intrinsic-size:auto 600px}
+
+  /* Modulkarten: kompakte Zeile statt Bildschirmfüllender Karte */
+  .module-grid{gap:12px}
+  .module-card{display:grid;grid-template-columns:96px minmax(0,1fr);align-items:stretch}
+  .module-card .module-art,.module-card .module-art.has-image{aspect-ratio:auto;height:100%;min-height:104px;border-bottom:0;border-right:1px solid #ffffff12}
+  .module-card .module-art-symbol{font-size:22px}
+  .module-card .module-body{padding:12px 14px}
+  .module-card .module-body h2{font-size:17px;line-height:1.25;margin:6px 0 4px}
+  .module-card .module-body p{font-size:12.5px;line-height:1.5;margin:0 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .module-card .module-body p.module-subtitle,.module-card .module-body p.module-song{-webkit-line-clamp:unset;display:block}
+  .module-card .module-subtopic{margin-top:4px;font-size:12px}
+  a.module-card>.module-body>.module-footer{display:none}
+  .module-card .module-footer{padding-top:8px;font-size:11px}
+  .module-card .module-footer b{font-size:17px}
+  .module-card:hover{transform:none;box-shadow:none}
+
+  /* Werkstatt + Unterrichtsmaterial nutzen dieselben Karten */
+  .bonus-collection,.unterricht-collection{padding-top:28px}
+
+  /* Spickzettel: seitlich wischen statt endlos untereinander */
+  #cheat-mini-grid{display:flex;grid-template-columns:none;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;padding:2px 0 14px;scrollbar-width:none}
+  #cheat-mini-grid::-webkit-scrollbar{display:none}
+  #cheat-mini-grid>.cheat-mini{position:relative;top:auto;flex:0 0 min(72vw,260px);min-height:0;scroll-snap-align:start;box-shadow:none;transition:none}
+  #cheat-mini-grid>.cheat-mini:hover{transform:none}
+  .cheat-mini-icon{height:30px;min-width:0;font-size:26px}
+  .cheat-mini-title{font-size:18px;margin:6px 0}
+  .cheat-mini-desc{font-size:11.5px;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+
+  /* Highscore: Kopf der Liste reicht, der Rest steht auf der Highscore-Seite */
+  .arcade-runner:nth-child(n+5):not(.is-self){display:none}
+  .hs-section{padding:24px 0 28px}
+
+  /* Rendering-Last senken: keine Schlagschatten-Orgie, keine Dauer-Hover-Effekte */
+  .step,.hs-board,.unterricht-accordion{box-shadow:none}
+}
+@media (max-width:899px) and (hover:none){
+  *,*:before,*:after{-webkit-tap-highlight-color:transparent}
+  .module-card,.cheat-mini,.step{transition:none}
+}
+@media (max-width:480px){
+  .unterricht-headline{font-size:clamp(20px,6.4vw,26px);overflow-wrap:anywhere}
+  .unterricht-count small{display:none}
+}
