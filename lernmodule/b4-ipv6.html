@@ -1423,7 +1423,24 @@ const SUBS=[];
 function S(cat,id,label,min,f){SUBS.push({cat,id,label,min,f})}
 function task(kind,context,question,plain,answer,why,extra={}){return {kind,context,prompt:question,plain,answer,why,key:context+'|'+question,...extra}}
 const N=(ctx,q,p,a,w)=>task('dec',ctx,q,p,a,w);
-const X=(ctx,q,p,a,w,extra)=>task('text',ctx,q,p,a,w,extra);
+const B4_POOLS=[['Multicast','Unicast','Anycast','Broadcast'],['DAD','SLAAC','NDP','DHCPv6'],['Solicit','Advertise','Request','Reply'],['Dual Stack','Tunnel','NAT64','Proxy'],['RS','RA','NS','NA']];
+function b4Options(ctx,q,a){
+ if(a==='ja'||a==='nein')return ['Ja','Nein'];
+ let m=(ctx+' '+q).match(/(?:Mögliche Typen:|Zur Auswahl stehen) ([^.]+)\./);
+ if(m){const o=m[1].split(/, | oder /).map(x=>x.trim()).filter(Boolean);if(o.includes(a))return o}
+ m=q.match(/: ([^?:]+? oder [^?:]+)\?$/);
+ if(m){const o=m[1].split(/, | oder /).map(x=>x.trim()).filter(Boolean);if(o.some(x=>x.toLowerCase()===a.toLowerCase()))return o.map(x=>x.toLowerCase()===a.toLowerCase()?a:x)}
+ const p=B4_POOLS.find(x=>x.includes(a));return p||null;
+}
+const B4_KEEP=/Interface-ID|ID als|Hex-Ziffer|Schnittstellennummer|ursprüngliche MAC|erstes Byte|vier Hex-Ziffern/;
+const X=(ctx,q,p,a,w,extra)=>{
+ const opts=B4_KEEP.test(q)?null:b4Options(ctx,q,a);
+ if(!opts)return task('text',ctx,q,p,a,w,extra);
+ const clean=q.replace(/ Antworte mit (?:ja oder nein|dem Kürzel)\./,'').replace(/: [^?:]+ oder [^?:]+\?$/,'?').replace(/\?\?$/,'?');
+ const right=a==='ja'?'Ja':a==='nein'?'Nein':a;
+ const t=mc(clean,right,opts.filter(x=>x!==right),w,{});
+ const o=Object.assign(task('mc',ctx,clean,p,right,w,{}),{options:t.options,answer:t.answer,show:t.show});delete o.aliases;return o;
+};
 const A=(ctx,q,p,a,w,mode='equiv')=>task('ip',ctx,q,p,a,w,{ipMode:mode,fmt:mode==='canonical'?'Kanonische Kurzform nach RFC 5952, Kleinbuchstaben.':mode==='full'?'Alle acht Blöcke mit je vier Hex-Ziffern.':'IPv6-Adresse; gleichwertige Schreibweisen sind erlaubt.'});
 const CASES={
  types:[['fe80::abcd','Link-Local','Nur auf dem lokalen Link gültig. Router leiten Link-Local-Pakete nicht auf andere Links weiter.'],['fd12:3456:789a::5','ULA','Unique Local Address: für interne Kommunikation, nicht global im Internet geroutet.'],['2606:4700:4700::1111','Global Unicast','Liegt im Global-Unicast-Bereich 2000::/3. Der Typ allein garantiert keine Erreichbarkeit.'],['ff02::1','Multicast','ff00::/8 bezeichnet Empfängergruppen; ff02 hat Link-Scope.'],['::1','Loopback','Verweist auf den eigenen Rechner.'],['::','Unspecified','Noch keine zugewiesene Adresse, zum Beispiel als Quelle bei DAD.']],
