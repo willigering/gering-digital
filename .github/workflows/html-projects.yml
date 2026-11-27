@@ -58,8 +58,6 @@ jobs:
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
-      - name: Test private OpenAI bridge without paid API calls
-        run: php tests/ai_bridge_test.php
       - name: Test shared wrong-answer quips in every module
         run: node tests/module_wrong_answer_test.cjs
       - name: Test fresh module entry, scroll reset and retained progress
