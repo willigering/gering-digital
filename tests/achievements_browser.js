@@ -44,6 +44,10 @@ async function answer(page,hook,host,right){
       const v=right?t.answer:(t.answer%7)+1;
       box.querySelector(`.chip[data-v="${v}"]`).click();return t.sub;
     }
+    if(t.kind==='cloze'){
+      [...box.querySelectorAll('select.gap')].forEach((x,i)=>{x.value=right?t.answer[i]:t.bank.find(b=>b!==t.answer[i])});
+      box.querySelector('[data-r="check"]').click();return t.sub;
+    }
     const plain=String(T.showAnswer(t)).replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ');
     const a=t.answer;
     const cands=[plain,String(a),plain.split(' ')[0]];
