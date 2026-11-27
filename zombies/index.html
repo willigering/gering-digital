@@ -802,6 +802,13 @@ const alive=()=>PL.filter(p=>!p.dead&&!p.zombie&&!p.away),standing=()=>PL.filter
 let bossPending=false;
 function nextWave(){wave++;if(wave>=10&&wave%5===0)bossPending=true;toSpawn=Math.round((6+wave*4)*(1+.6*(alive().length-1)));say('WELLE '+wave);evp('msg','WELLE '+wave);waveBell();for(const p of PL)if(!p.dead)p.gren=Math.min(4,(p.gren||0)+2);}
 const ZSKIN=['#8aa070','#9aa88a','#7f9468','#a3a68a'],ZSHIRT=['#4a6b3a','#6b3a3a','#3a4f6b','#6b5d3a','#5a5a5a','#7a6a5a','#3a3a3a'];
+// Blender-Zombies (Test): mit ?gfx=blender in der Adresse aktivieren. Fallback: bisherige Pixelfigur.
+const BS={on:/[?&]gfx=blender/.test(location.search),img:null,flash:null,meta:null};
+if(BS.on)fetch('zombie_atlas.json').then(r=>r.json()).then(m=>{BS.meta=m;const i=new Image();i.onload=()=>{BS.img=i;const [c,x]=mk(i.width,i.height);x.drawImage(i,0,0);x.globalCompositeOperation='source-in';x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);BS.flash=c};i.src='zombie_atlas.png'}).catch(()=>{BS.on=false});
+function drawZSprite(z){if(!BS.img)return false;const m=BS.meta,F=m.frame,L=z.look,vi=Math.max(0,ZSHIRT.indexOf(L.shirt))+(L.fat?7:0);
+ const k=((Math.round((Math.PI/2-z.face)/(Math.PI/4))%8)+8)%8;let an=0,f;
+ if(z.lunge>0){an=1;f=Math.min(m.attack-1,Math.max(0,Math.floor((1-z.lunge/.5)*m.attack)))}else f=Math.floor((((z.phase/(Math.PI*2))%1)+1)%1*m.walk)%m.walk;
+ g.drawImage(z.hit>0&&BS.flash?BS.flash:BS.img,(vi*m.cols+f)*F,(an*m.dirs+k)*F,F,F,Math.round(z.x)-m.anchor[0],Math.round(z.y-(z.hz||0))-m.anchor[1],F,F);return true}
 function spawnZombie(){
  for(let tries=0;tries<12;tries++){const s=FAIR?bwPickSpawn():pick(SPAWNS),x=s.x+rnd(-14,14),y=s.y+rnd(-14,14);
   if(blocked(x,y,5)||PL.some(p=>Math.hypot(x-p.x,y-p.y)<120))continue;
@@ -2284,7 +2291,7 @@ function render(){
   if(z.rise>0){withOutline(z.x,z.y,()=>{g.save();g.beginPath();g.rect(z.x-12,z.y-34,24,34);g.clip();g.translate(0,z.rise*30);drawHuman(z.x,z.y,z.look,z.face,z.phase,true,0);g.restore()});R(g,z.x-6,z.y-1,12,2,'#3a3026')}
   else if(z.boss&&(z.slam>0&&(g.globalAlpha=.35+Math.sin(now*30)*.2,g.strokeStyle='#ff3a2a',g.lineWidth=2,g.beginPath(),g.ellipse(z.x,z.y,BOSS_SLAM_R*(1-z.slam),BOSS_SLAM_R*.55*(1-z.slam),0,0,7),g.stroke(),g.globalAlpha=1,g.beginPath(),g.ellipse(z.x,z.y,BOSS_SLAM_R,BOSS_SLAM_R*.55,0,0,7),g.stroke()),false)){}
   else if(z.boss){const by=z.y-z.hz,ps=bossPose(z);withOutline(z.x,by,()=>{g.save();g.translate(z.x,by);g.scale(1.6*ps.sx,1.6*ps.sy);g.translate(-z.x,-by);drawHuman(z.x,by,z.look,z.face,z.phase,!ps.arm,z.hit>0,null,{lunge:ps.arm?0:z.lunge,stag:z.stag,bossArm:ps.arm,bossK:ps.k});g.restore()});drawBossFists(z)}
-  else withOutline(z.x,z.y,()=>drawHuman(z.x,z.y-z.hz,z.look,z.face,z.phase,true,z.hit>0,null,{lunge:z.lunge,stag:z.stag}))}});
+  else withOutline(z.x,z.y,()=>{if(!(BS.on&&drawZSprite(z)))drawHuman(z.x,z.y-z.hz,z.look,z.face,z.phase,true,z.hit>0,null,{lunge:z.lunge,stag:z.stag})})}});
  for(const pl of PL)if(!pl.dead&&!(pl.inCar>=0))L.push({y:FAIR&&bwHigh(pl.x,pl.y)?1e5:pl.y,f:()=>{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(pl.x,pl.y,5,2,0,0,7);g.fill();withOutline(pl.x,pl.y,()=>drawPlayer(pl))}});
  for(const f of FIRES)if(vis(f.x-20,f.y-60,40,60))L.push({y:f.y+1,f:()=>drawFire(f)});
  for(const p of PUPS)if(vis(p.x-20,p.y-50,40,60)&&(p.t>5||(now*6|0)%2))L.push({y:p.y,f:()=>{const x=Math.round(p.x),y=Math.round(p.y),b=Math.round(Math.sin(now*3+p.id)*2),col=PU_INFO[p.type].c;
