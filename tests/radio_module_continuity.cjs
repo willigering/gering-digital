@@ -234,7 +234,7 @@ let server,browser;
   for(const task of ['schule','fitness','auto']){await page.locator('#taskSelect').selectOption(task);assert.equal(await page.locator('#nodes .node').count(),0)}
   await page.locator('#taskSelect').selectOption('bibliothek');assert.equal(await page.locator('#nodes .node').count(),2);
   async function exported(button,suffix){const [file]=await Promise.all([page.waitForEvent('download'),page.locator(button).click()]);assert.ok(file.suggestedFilename().endsWith(suffix));const name=await file.path();assert.ok(name);return name}
-  const jsonPath=await exported('#exportJson','.json'),project=JSON.parse(fs.readFileSync(jsonPath,'utf8'));
+  const jsonPath=await exported('#exportJsonSide','.json'),project=JSON.parse(fs.readFileSync(jsonPath,'utf8'));
   assert.equal(project.state.documents.bibliothek.nodes.length,2);
   assert.equal(Object.keys(project.state.documents).length,4);
   const svgPath=await exported('#exportSvg','.svg');assert.match(fs.readFileSync(svgPath,'utf8'),/Mitglied/);

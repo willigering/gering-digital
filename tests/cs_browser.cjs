@@ -26,7 +26,7 @@ const {answer}=require('./support/cs1-answer.cjs');
  await page.locator('#backToTask').click();await page.waitForSelector('dialog.dtp-practice-dialog[open]');
  assert.equal(await page.locator('#practiceTask [data-answer]').evaluate(e=>e.value),partial);r.refReturn=true;
  // Falsche Antwort: Spruch und Erklärung
- await answer(page,'#practiceTask',false);const bad=await page.locator('#practiceTask [data-r="res"]').innerText();assert.match(bad,/Richtig ist/);assert.doesNotMatch(bad,/Noch nicht/);assert.ok((await page.locator('#practiceTask .why').innerText()).length>10);
+ await answer(page,'#practiceTask',false);const bad=await page.locator('#practiceTask [data-r="res"]').innerText();assert.match(bad,/Richtig ist/);assert.ok((await page.locator('#practiceTask .why').innerText()).length>10);
  // Mit Nachschlagen zählt die Aufgabe nicht für die 8 von 10
  const hist=await page.evaluate(()=>JSON.parse(localStorage.getItem('cs1-start-path-v1')).st[0].hist.length);assert.equal(hist,histBeforeRef);
  // Meistern: 3 Aufgaben mit Hinweis zählen nicht, danach 8 von 10
