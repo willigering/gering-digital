@@ -1565,7 +1565,7 @@ function showAnswer(t){
 function questionHTML(t,id){return (t.context?'<div class="hint situation"><strong>Ausgangslage</strong><p>'+esc(t.context)+'</p></div>':'')+'<p class="task-prompt">'+t.prompt+' <span class="qhelp" tabindex="0" role="button" aria-label="Frage einfach erklärt" aria-describedby="'+id+'"><span class="qmark" aria-hidden="true">?</span><span class="qtip" role="tooltip" id="'+id+'"><strong>Einfach gesagt:</strong> '+t.plain+'</span></span></p>'}
 let uid=0,lastTask=null;
 function renderTask(host,t,o){
- o=o||{};lastTask=t;const id='in'+(++uid);
+ o=o||{};lastTask=t;host.__task=t;const id='in'+(++uid);
  let h=questionHTML(t,id+'tip');
  h+='<div class="hint'+(o.hint?'':' hidden')+'" data-r="hint"><strong>Hinweis:</strong> '+HINT[t.cat]+'</div>';
  if(t.kind==='mc')h+='<div class="options" role="group" aria-label="Antwort wählen">'+t.options.map((x,i)=>'<button type="button" class="opt" data-v="'+i+'"><span class="key">'+'ABCD'[i]+'</span><span>'+esc(x)+'</span></button>').join('')+'</div>';
