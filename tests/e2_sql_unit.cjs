@@ -41,7 +41,7 @@ for(const type of api.SUBS){
  for(let i=0;i<1000;i++){
   const t=api.genTask(type.id);
   assert.ok(t.scenario&&t.prompt&&t.plain&&t.why&&!/\{\w+\}/.test(t.scenario+t.prompt+t.plain+t.answer),type.id);
-  if(t.kind==='mc')assert.equal(new Set(t.options).size,4,type.id);
+  if(t.kind==='mc'){assert.equal(new Set(t.options).size,t.options.length,type.id);assert.ok(t.options.length>=2&&t.options.length<=4&&t.options[t.answer],type.id)}
   else assert.equal(api.parseAnswer(t,t.answer).ok,true,type.id);
   if(t.sub==='sel_out'){
    const [a,b]=Array.from(t.scenario.matchAll(/hat (\d+) Minuten/g),m=>Number(m[1]));
