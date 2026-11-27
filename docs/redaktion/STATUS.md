@@ -261,3 +261,8 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Lehrtexte: B2 und D1 vollständig überarbeitet; B5 mit Auf-einen-Blick-Blöcken; W4, F2 waren bereits strukturiert.
 - Testanpassungen: Optionszahl 2–4 statt fest 4 (d2, e2, w4), B4-Browser-/Unit-Test klicken Auswahl, wenn eine Aufgabe MC ist.
 - Offen: Review durch Willi (Humor, Texte), Wiederholung falscher Aufgaben, serverseitige KI unverändert.
+
+### Nachtrag 27.11.2026
+- Lerntexte der übrigen Module geprüft (D2, OSI, B4, E2, CS1, A1): bereits im Aufbau Fall, Erklärung, Merke; keine Überarbeitung nötig. Subnetz-Sprint nicht gesondert geprüft.
+- B2 Freies Training und Baustellen: zuletzt falsch beantwortete Aufgaben kommen nach ein paar Aufgaben noch einmal („Nochmal versuchen“). Pilot in B2, andere Module noch ohne.
+- Mehr-Schritt-Fälle: nicht umgesetzt.
