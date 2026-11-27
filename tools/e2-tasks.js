@@ -40,10 +40,13 @@ function toTask(row){
   return {...common,kind:'order',answer:steps.map((_,i)=>letters[indexes.indexOf(i)]).join(''),
    scenario:scenario+'<ol class="sql-order">'+indexes.map((i,n)=>'<li><b>'+letters[n]+'</b> '+steps[i]+'</li>').join('')+'</ol>'};
  }
+ if(!['mc','order','write','fix'].includes(form)&&E2_WRONGS[id]){const a2=id==='key_null'?'Nein':answer;return {...mc(E2_CLEAN(prompt),a2,E2_WRONGS[id].filter(x=>x!==a2),why),...common,prompt:E2_CLEAN(prompt),plain:E2_CLEAN(plain)};}
  const kind=['write','fix'].includes(form)?'sql':'text';
  const accept=id==='norm_3'?[answer,'transitive Abhängigkeit']:undefined;
  return {...common,kind,answer,accept};
 }
+const E2_WRONGS={"sys_dbms": ["SQL", "ORM", "API", "ERP"], "sys_codd": ["hierarchische", "objektorientierte", "netzwerkartige"], "sys_ims": ["Oracle", "Redis", "SQLite", "MySQL"], "mod_local": ["Redis", "PostgreSQL", "IMS", "MySQL"], "mod_graph": ["Zeilen", "Spalten", "Schlüssel", "Tabellen"], "mod_cache": ["SQLite", "PostgreSQL", "IMS", "MongoDB"], "mod_olap": ["OLTP", "CRUD", "ER"], "key_pk": ["Fremdschlüssel", "Index", "Sortierschlüssel"], "key_fk": ["PRIMARY KEY", "UNIQUE", "CHECK"], "key_null": ["Ja", "Nein"], "er_card": ["n:1", "1:1", "n:m"], "er_nm": ["1", "0", "k"], "er_11": ["NOT NULL", "CHECK", "DEFAULT"], "norm_atom": ["2NF", "3NF", "BCNF"], "norm_2": ["1NF", "3NF", "BCNF"], "norm_3": ["partiell", "zyklisch", "redundant"], "sel_clause": ["HAVING", "GROUP BY", "ORDER BY"], "sel_sort": ["ASC", "TOP", "LIMIT"], "grp_having": ["WHERE", "GROUP BY", "ORDER BY"], "join_left": ["INNER", "CROSS", "SELF"], "write_insert": ["UPDATE", "CREATE", "SELECT", "DELETE"], "write_rollback": ["COMMIT", "DROP", "TRUNCATE", "SAVEPOINT"], "schema_create": ["ALTER", "DROP", "INSERT", "SELECT"], "schema_index": ["View", "Trigger", "Constraint"], "schema_rights": ["UPDATE", "DELETE"]};
+const E2_CLEAN=t=>t.replace(/ ?(Nenne die Abkürzung|Gib die Abkürzung an|Verwende die Abkürzung[^.]*|Antworte mit Ja oder Nein|Verwende die Schreibweise mit Doppelpunkt)\./g,'').trim();
 const TASK_LABELS=__LABELS__;
 const SUBS=__TASKS__.map((row,i)=>({id:row[0],form:row[1],cat:LESSONS[Math.floor(i/6)].cat,
  label:TASK_LABELS[i], min:Math.floor(i/6)+1,f:()=>toTask(row)}));
