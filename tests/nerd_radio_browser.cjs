@@ -88,7 +88,9 @@ let server, browser;
     await page.goto(base + '/dau-to-pro/', { waitUntil: 'networkidle' });
     const g = await layout(page);
     if (mobile) {
-      for (const selector of ['#module-grid', '#cheat-mini-grid']) {
+      const strip = await page.locator('#cheat-mini-grid').evaluate(grid => ({scrolls: grid.scrollWidth > grid.clientWidth + 20, oneRow: new Set([...grid.children].map(c => Math.round(c.getBoundingClientRect().top))).size === 1}));
+      assert.ok(strip.scrolls && strip.oneRow, '#cheat-mini-grid ist mobil eine wischbare Leiste');
+      for (const selector of ['#module-grid']) {
         const overlap = await page.locator(selector).evaluate(grid => {
           const [first, second] = grid.children;
           const top = parseFloat(getComputedStyle(first).top);
