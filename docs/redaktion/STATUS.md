@@ -264,5 +264,5 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 
 ### Nachtrag 27.11.2026
 - Lerntexte der übrigen Module geprüft (D2, OSI, B4, E2, CS1, A1): bereits im Aufbau Fall, Erklärung, Merke; keine Überarbeitung nötig. Subnetz-Sprint nicht gesondert geprüft.
-- B2 Freies Training und Baustellen: zuletzt falsch beantwortete Aufgaben kommen nach ein paar Aufgaben noch einmal („Nochmal versuchen“). Pilot in B2, andere Module noch ohne.
+- „Nochmal versuchen“ (Wiederholung falscher Aufgaben) wurde in B2 ausprobiert und auf Wunsch wieder entfernt.
 - Mehr-Schritt-Fälle: nicht umgesetzt.
