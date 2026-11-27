@@ -5,7 +5,7 @@
 @font-face{font-family:'VT323';src:url(fonts/vt323.ttf) format('truetype');font-weight:400;font-display:swap}
 
 html,body{margin:0;height:100%;background:#0e0c10;overflow:hidden}
-canvas{display:block;position:absolute;left:0;top:0}#fx{pointer-events:none}
+canvas{display:block;position:absolute;left:0;top:0}#fx,#hd{pointer-events:none}#hd{display:none}
 #c{image-rendering:pixelated;cursor:none}
 #ui{pointer-events:none}
 #fb{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(6,4,10,.78);z-index:9;font-family:'VT323',monospace}
@@ -18,7 +18,7 @@ canvas{display:block;position:absolute;left:0;top:0}#fx{pointer-events:none}
 #fb button.go{background:linear-gradient(90deg,#d6621e,#a84a14);color:#fff}#fb button:hover{filter:brightness(1.2)}#fb button:disabled{opacity:.5;cursor:default}
 #touchhint{position:fixed;left:50%;top:16px;transform:translateX(-50%);z-index:8;display:none;max-width:calc(100vw - 32px);box-sizing:border-box;padding:10px 16px;background:#120f17;border:2px solid #c8561e;color:#f2ece4;font:400 20px 'VT323',monospace;text-align:center;pointer-events:none}
 #fb .m{min-height:20px;margin-top:10px;font-size:15px;font-weight:700}#fb .c{color:#8a8290;font-size:13px;text-align:right;margin-top:4px}
-</style></head><body><canvas id="c"></canvas><canvas id="fx"></canvas><canvas id="ui"></canvas>
+</style></head><body><canvas id="c"></canvas><canvas id="hd"></canvas><canvas id="fx"></canvas><canvas id="ui"></canvas>
 <div id="touchhint">Dieses Spiel braucht PC mit Tastatur und Maus.</div>
 <div id="fb"><div class="p"><h2>FEEDBACK</h2><p class="s">Was gefällt dir, was nervt, was fehlt? Deine Nachricht geht direkt an den Entwickler.</p>
 <textarea id="fbt" maxlength="2000" placeholder="Schreib hier …"></textarea><div class="c" id="fbc">0 / 2000</div>
@@ -32,11 +32,28 @@ canvas{display:block;position:absolute;left:0;top:0}#fx{pointer-events:none}
 // =====================================================================
 const cv=document.getElementById('c');let g=cv.getContext('2d');
 const uc=document.getElementById('ui'),u=uc.getContext('2d');
+// HD-Figuren (Test): mit ?gfx=hd aktivieren. Zombies und Spieler werden hochaufgelöst auf einer eigenen Ebene über der Pixelwelt gezeichnet.
+const hdc=document.getElementById('hd'),hdg=hdc.getContext('2d'),HDF={on:/[?&]gfx=hd/.test(location.search),imgs:{},meta:null,ok:false,S:.56},RC={cx:0,cy:0,ox:0,oy:0};
 const fxc=document.getElementById('fx'),fxg=fxc.getContext('2d'),fxl=document.createElement('canvas'),fxlg=fxl.getContext('2d');const FXR=.6;const HD=()=>OPT.hd===true;
 let SCALE=3;let W,H,DPR=1;const BASE_SCALE=3;let camZoom=1;
 function mk(w,h){const c=document.createElement('canvas');c.width=Math.max(1,Math.ceil(w));c.height=Math.max(1,Math.ceil(h));const x=c.getContext('2d');x.imageSmoothingEnabled=false;return[c,x]}
 const [light,lg]=mk(1,1),[bloomC,bc]=mk(1,1);
 // ===== HD-Ebene: weiches Licht, Glühen, Rauch, Funken, Regen über der Pixel-Welt
+if(HDF.on)fetch('hd_meta.json').then(r=>r.json()).then(m=>{HDF.meta=m;let n=0;for(const v of m.variants){const i=new Image();i.onload=()=>{if(++n===m.variants.length)HDF.ok=true};i.src='hd_'+v+'.png';HDF.imgs[v]=i}}).catch(()=>{HDF.on=false;hdc.style.display='none'});
+function hdPlayerOK(pl){const sl=pl.slots&&pl.slots[pl.cur];return !!sl&&!pl.down&&!pl.dead&&!pl.zombie&&!pl.away&&!(pl.inCar>=0)&&!pl.reviving&&!pl.vault&&!pl.hold&&!pl.play&&!pl.search&&!pl.rummF&&!(pl.jumpT>0)&&!(pl.swing>0)&&!(pl.stab>0)&&!(pl.thrT>0)&&!isMelee(sl.k)}
+const hdTmp=document.createElement('canvas');hdTmp.width=hdTmp.height=192;const hdTg=hdTmp.getContext('2d');
+function drawHD(){if(!HDF.on)return;const c=hdg,w=hdc.width,h=hdc.height;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,w,h);if(!HDF.ok)return;
+ const m=HDF.meta,F=m.frame,k=innerWidth/W*DPR,ds=F*HDF.S*(innerWidth/W/3)*DPR,ax=m.anchor[0]/F*ds,ay=m.anchor[1]/F*ds,list=[];
+ const dirOf=f=>((Math.round((Math.PI/2-f)/(Math.PI/4))%8)+8)%8;
+ for(const z of zombies){if(z.hp<=0||z.boss||z.rise>0)continue;let an=0,f;if(z.lunge>0){an=1;f=Math.min(5,Math.max(0,Math.floor((1-z.lunge/.5)*6)))}else f=Math.floor((((z.phase/(Math.PI*2))%1)+1)%1*8)%8;
+  list.push({y:z.y,x:z.x,yy:z.y-(z.hz||0),img:HDF.imgs[z.look.fat?'zombie_fat':ZSHIRT.indexOf(z.look.shirt)%2?'zombie_b':'zombie_a'],f,row:an*8+dirOf(z.face),flash:z.hit>0})}
+ for(const pl of PL){if(!hdPlayerOK(pl)||pl.inCar>=0)continue;let an,f;if(pl.moving){an=0;f=Math.floor((((pl.phase/(Math.PI*2))%1)+1)%1*8)%8}else{an=1;f=(pl.recoil||0)>.2?0:1+Math.floor(now*3)%5}
+  list.push({y:pl.y,x:pl.x,yy:pl.y,img:HDF.imgs.player,f,row:an*8+dirOf(pl.face),flash:pl.hurtT>.2})}
+ list.sort((a,b)=>a.y-b.y);c.imageSmoothingEnabled=true;c.imageSmoothingQuality='high';
+ for(const o of list){const sx=(o.x-RC.cx+RC.ox)*k,sy=(o.yy-RC.cy+RC.oy)*k;if(sx<-ds||sx>w+ds||sy<-ds||sy>h+ds)continue;
+  if(o.flash){hdTg.clearRect(0,0,F,F);hdTg.globalCompositeOperation='source-over';hdTg.drawImage(o.img,o.f*F,o.row*F,F,F,0,0,F,F);hdTg.globalCompositeOperation='source-atop';hdTg.fillStyle='rgba(255,255,255,.8)';hdTg.fillRect(0,0,F,F);c.drawImage(hdTmp,0,0,F,F,sx-ax,sy-ay,ds,ds)}
+  else c.drawImage(o.img,o.f*F,o.row*F,F,F,sx-ax,sy-ay,ds,ds)}
+ if(!HD()){c.globalCompositeOperation='source-atop';c.drawImage(light,0,0,w,h);c.globalCompositeOperation='source-over'}}
 function drawFX(){const F=window.FXS,c=fxg,w=fxc.width,h=fxc.height;if(!HD()||!F){if(fxc.dataset.on){c.clearRect(0,0,w,h);delete fxc.dataset.on}return}fxc.dataset.on=1;
  const k=w/W,tx=x=>(x-F.cx)*k,ty=y=>(y-F.cy)*k;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';c.clearRect(0,0,w,h);
  // Dunkelheit mit weich ausgeschnittenen Lichtkegeln
@@ -67,7 +84,8 @@ function resize(){W=Math.ceil(innerWidth/SCALE);H=Math.ceil(innerHeight/SCALE);D
  cv.width=light.width=W;cv.height=light.height=H;bloomC.width=Math.ceil(W/3);bloomC.height=Math.ceil(H/3);
  cv.style.width=uc.style.width=innerWidth+'px';cv.style.height=uc.style.height=innerHeight+'px';
  uc.width=innerWidth*DPR;uc.height=innerHeight*DPR;g.imageSmoothingEnabled=false;
- fxc.style.width=innerWidth+'px';fxc.style.height=innerHeight+'px';fxc.width=fxl.width=Math.ceil(innerWidth*FXR);fxc.height=fxl.height=Math.ceil(innerHeight*FXR)}
+ fxc.style.width=innerWidth+'px';fxc.style.height=innerHeight+'px';fxc.width=fxl.width=Math.ceil(innerWidth*FXR);fxc.height=fxl.height=Math.ceil(innerHeight*FXR);
+ if(HDF.on){hdc.style.display='block';hdc.style.width=innerWidth+'px';hdc.style.height=innerHeight+'px';hdc.width=Math.ceil(innerWidth*DPR);hdc.height=Math.ceil(innerHeight*DPR)}}
 addEventListener('resize',resize);resize();
 // ===== Kartenauswahl: ?map=fair oder Menü (gespeichert). Gäste übernehmen beim Beitreten die Karte des Hosts.
 const MAPS=[{id:'town',n:'DEADMOLD'},{id:'fair',n:'BLACKWATER FAIR'}];
@@ -2247,6 +2265,7 @@ let shotsFlash=[];
 function render(){
  g.setTransform(1,0,0,1,0,0);g.globalAlpha=1;g.globalCompositeOperation='source-over';g.filter='none';R(g,0,0,W,H,'#0e0c10');
  const cx=Math.round(cam.x),cy=Math.round(cam.y);let ox=0,oy=0;if(shake>0){ox=Math.round(rnd(-shake,shake));oy=Math.round(rnd(-shake,shake))}
+ RC.cx=cx;RC.cy=cy;RC.ox=ox;RC.oy=oy;
  g.translate(-cx+ox,-cy+oy);g.drawImage(ground,0,0);
  if(FAIR)bwRenderGround(cx,cy);else{
  for(let x=0;x<MW;x+=4)R(g,x,24,1,18,'rgba(170,170,170,.35)');for(let y=24;y<42;y+=4)R(g,0,y,MW,1,'rgba(170,170,170,.35)');
@@ -2284,8 +2303,8 @@ function render(){
   if(z.rise>0){withOutline(z.x,z.y,()=>{g.save();g.beginPath();g.rect(z.x-12,z.y-34,24,34);g.clip();g.translate(0,z.rise*30);drawHuman(z.x,z.y,z.look,z.face,z.phase,true,0);g.restore()});R(g,z.x-6,z.y-1,12,2,'#3a3026')}
   else if(z.boss&&(z.slam>0&&(g.globalAlpha=.35+Math.sin(now*30)*.2,g.strokeStyle='#ff3a2a',g.lineWidth=2,g.beginPath(),g.ellipse(z.x,z.y,BOSS_SLAM_R*(1-z.slam),BOSS_SLAM_R*.55*(1-z.slam),0,0,7),g.stroke(),g.globalAlpha=1,g.beginPath(),g.ellipse(z.x,z.y,BOSS_SLAM_R,BOSS_SLAM_R*.55,0,0,7),g.stroke()),false)){}
   else if(z.boss){const by=z.y-z.hz,ps=bossPose(z);withOutline(z.x,by,()=>{g.save();g.translate(z.x,by);g.scale(1.6*ps.sx,1.6*ps.sy);g.translate(-z.x,-by);drawHuman(z.x,by,z.look,z.face,z.phase,!ps.arm,z.hit>0,null,{lunge:ps.arm?0:z.lunge,stag:z.stag,bossArm:ps.arm,bossK:ps.k});g.restore()});drawBossFists(z)}
-  else withOutline(z.x,z.y,()=>drawHuman(z.x,z.y-z.hz,z.look,z.face,z.phase,true,z.hit>0,null,{lunge:z.lunge,stag:z.stag}))}});
- for(const pl of PL)if(!pl.dead&&!(pl.inCar>=0))L.push({y:FAIR&&bwHigh(pl.x,pl.y)?1e5:pl.y,f:()=>{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(pl.x,pl.y,5,2,0,0,7);g.fill();withOutline(pl.x,pl.y,()=>drawPlayer(pl))}});
+  else if(!HDF.on)withOutline(z.x,z.y,()=>drawHuman(z.x,z.y-z.hz,z.look,z.face,z.phase,true,z.hit>0,null,{lunge:z.lunge,stag:z.stag}))}});
+ for(const pl of PL)if(!pl.dead&&!(pl.inCar>=0))L.push({y:FAIR&&bwHigh(pl.x,pl.y)?1e5:pl.y,f:()=>{g.fillStyle='rgba(0,0,0,.3)';g.beginPath();g.ellipse(pl.x,pl.y,5,2,0,0,7);g.fill();if(!(HDF.on&&hdPlayerOK(pl)))withOutline(pl.x,pl.y,()=>drawPlayer(pl))}});
  for(const f of FIRES)if(vis(f.x-20,f.y-60,40,60))L.push({y:f.y+1,f:()=>drawFire(f)});
  for(const p of PUPS)if(vis(p.x-20,p.y-50,40,60)&&(p.t>5||(now*6|0)%2))L.push({y:p.y,f:()=>{const x=Math.round(p.x),y=Math.round(p.y),b=Math.round(Math.sin(now*3+p.id)*2),col=PU_INFO[p.type].c;
   g.globalAlpha=.25+Math.sin(now*5)*.1;R(g,x-1,y-50,3,48,col);g.globalAlpha=.45;g.fillStyle=col;g.beginPath();g.ellipse(x,y,10,4,0,0,7);g.fill();g.globalAlpha=1;
@@ -2612,7 +2631,7 @@ function loop(t){const dt=Math.min(.05,(t-last)/1000);last=t;now=t/1000;
   {let fd=1e9;for(const f of FIRES){const dd=Math.hypot(f.x-P.x,f.y-P.y);if(dd<fd)fd=dd}const fv=clamp(1-fd/160,0,1);{const FL=FAIR&&SFXB.bw_fire_loop?'bw_fire_loop':'fire_loop';sfxLoop(FL,fv>0,0);if(LOOPS[FL])LOOPS[FL].gn.gain.value=OPT.svol*SFX_MASTER*fv*fv*.9}}
   for(const z of zombies)if(z.hp>0&&!(z.rise>0)&&Math.random()<dt*.05&&Math.hypot(z.x-P.x,z.y-P.y)<200)sfx('zombie_groan',z.x,z.y,.55,.85+Math.random()*.3,.5);sfxLoop('heartbeat_loop',P.down&&!P.dead,.9);sfxLoop('search_loop',!!(P.search||P.sp>0),.6);
   if(!PVP()&&!alive().length&&!goPlayed){goPlayed=true;saveScore();sfx('game_over',null,null,1,1,0)}}
- if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render();drawFX()}else{drawMenu(dt);if(fxc.dataset.on){fxg.clearRect(0,0,fxc.width,fxc.height);delete fxc.dataset.on}}
+ if(started){if(!(PAUSE.on&&isSolo()))update(dt);if(NET.host)hostNet(dt);if(shake>0)shake=Math.max(0,shake-dt*20);render();drawHD();drawFX()}else{drawMenu(dt);if(HDF.on)hdg.clearRect(0,0,hdc.width,hdc.height);if(fxc.dataset.on){fxg.clearRect(0,0,fxc.width,fxc.height);delete fxc.dataset.on}}
  requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
 </script></body></html>
