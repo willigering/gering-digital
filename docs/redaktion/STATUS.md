@@ -246,7 +246,7 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 ### Freitext entfernt (26.11.2026)
 - B2 (Netzwerke-Sprint): Trainingsmodus „Freitext“, KI-Freitextprüfung und die zugehörigen 111 Fragen entfernt; Klausurmodus und Reset-Schlüssel bereinigt. Der Eintrag `mesh_freitext` ist aus dem Modul-Rechner gestrichen.
 - CS1: Die beiden Typen `w_frei` und `u_frei` haben im Modul keine Eingabefelder mehr; sie erscheinen als Lückentext mit Wortbank und werden eindeutig ausgewertet. Nur der interne Typname bleibt.
-- Serverseitige KI-Korrektur (`ai.php`) wurde nicht angefasst.
+- Serverseitige KI-Korrektur (`api/ai.php`, Bridge, Test, Skripte, Doku) am 27.11.2026 vollständig entfernt; kein Modul nutzte sie noch.
 
 ### B2: neue Auswahl-Aufgabentypen (26.11.2026)
 - Neu als Ersatz für Freitext: Lückentext mit Wortbank (inkl. Begriffen, die nicht passen), Zuordnen (Zeile ↔ Auswahl) und Fall-Entscheidung (Multiple Choice mit Szenario). Zehn Lückentext-Typen (je Thema einer), neun Zuordnen-Typen (alle Themen außer Szenarien) und ein Fall-Typ: 20 neue Aufgabentypen, insgesamt 91.

@@ -13,7 +13,7 @@ jobs:
       - name: Lint PHP files
         run: find . -name '*.php' -not -path './data/*' -print0 | xargs -0 -n1 php -l
       - name: Validate JavaScript syntax
-        run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check dau-to-pro/avatare.js && node --check tests/avatare_browser.cjs && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs && node --check tools/ai-bridge-tampermonkey.user.js
+        run: node --check assets/home-v3.js && node --check tests/home_v3_browser.cjs && node --check dau-to-pro/site.js && node --check dau-to-pro/nerd-radio.js && node --check tests/nerd_radio_browser.cjs && node --check dau-to-pro/feedback.js && node --check dau-to-pro/sync.js && node --check dau-to-pro/achievement-toast.js && node --check dau-to-pro/hero-fx.js && node --check tests/achievements_browser.js && node --check dau-to-pro/avatare.js && node --check tests/avatare_browser.cjs && node --check assets/site.js && node --check tools/dau-previews/motifs.mjs && node --check tools/dau-previews/render.mjs
       - name: Test HomeWork actual login, HTML upload and module navigation
         run: php tests/homework_smoke.php && php -l homework-storage.php && php -l homework-workbook.php && php -l homework-export.php && node --check assets/homework.js && node --check assets/homework-workbook.js && python3 tests/homework_integration.py
       - name: Check SharpLab cinema Matrix and download buttons
@@ -58,8 +58,6 @@ jobs:
         run: php tests/bundled_module_delivery_test.php
       - name: Test progress sync in modules
         run: node tests/learner_sync.js
-      - name: Test private OpenAI bridge without paid API calls
-        run: php tests/ai_bridge_test.php
       - name: Test shared wrong-answer quips in every module
         run: node tests/module_wrong_answer_test.cjs
       - name: Test fresh module entry, scroll reset and retained progress
