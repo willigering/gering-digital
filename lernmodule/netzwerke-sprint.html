@@ -2594,7 +2594,7 @@ function renderWeak(){const w=weakSubs().slice(0,5);$('weakList').innerHTML=w.ma
 const fmtTime=s=>{s=Math.max(0,Math.ceil(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
 
 /* ================= Trainingsraum ================= */
-let mode='free',cat='all',taskNo=0,trRecent=[],missed=[];
+let mode='free',cat='all',taskNo=0,trRecent=[];
 $('catBar').innerHTML='<button type="button" class="filter-btn active" data-cat="all">Alle Themen</button>'+CATS.map(c=>'<button type="button" class="filter-btn" data-cat="'+c[0]+'">'+esc(c[1])+'</button>').join('');
 $('catBar').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b||b.disabled)return;cat=b.dataset.cat;$('catBar').querySelectorAll('.filter-btn').forEach(x=>x.classList.toggle('active',x===b));taskNo=0;trRecent=[];trNext()});
 function trNext(){
@@ -2603,11 +2603,10 @@ function trNext(){
  if(mode==='weak'){const w=weakSubs().slice(0,4);if(w.length){const s=pick(w);t=genTask(null,2,trRecent,s.id);$('trainKicker').textContent='BAUSTELLE · '+SUBLABEL[s.id].toUpperCase()}else{t=genTask(pick(CATS)[0],2,trRecent);$('trainKicker').textContent='NOCH KEINE BAUSTELLEN · GEMISCHT'}}
  else if(mode==='sprint'){t=genTask(null,1,trRecent,pick(SPRINT_SUBS))}
  else{t=genTask(cat==='all'?pick(CATS)[0]:cat,2,trRecent);$('trainKicker').textContent='AKTUELLE MISSION'+(cat==='all'?'':' · '+CATNAME[cat].toUpperCase())}
- if(mode!=='sprint'&&missed.length&&taskNo>2&&taskNo%3===0){t=missed.shift();t.__retry=true;$('trainKicker').textContent='NOCHMAL VERSUCHEN · DAS HAT ZULETZT NICHT GEKLAPPT'}
  trRecent.push(t.key);if(trRecent.length>14)trRecent.shift();
  if(mode==='sprint'){
   renderTask($('trainTask'),t,{noTip:true,noNext:true,short:true,focus:true,onAnswer:ok=>{if(!sprint.running)return;count(ok,t.sub);if(ok){sprint.points++;$('sprintPts').textContent=sprint.points}setTimeout(()=>{if(sprint.running)trNext()},ok?700:1900)}});
- }else renderTask($('trainTask'),t,{focus:taskNo>1,onNext:trNext,onAnswer:(ok,h,tt)=>{count(ok,tt.sub);if(!ok&&!tt.__retry&&mode!=='match'&&!missed.includes(tt)){missed.push(tt);if(missed.length>6)missed.shift()}}});
+ }else renderTask($('trainTask'),t,{focus:taskNo>1,onNext:trNext,onAnswer:(ok,h,tt)=>count(ok,tt.sub)});
 }
 const SPRINT_SUBS=['b_kurz','b_kenn','t_mesh','t_ports','c_akt','c_layer','c_addr','c_len','s_flood','l_num','l_item','l_pdu','l_tcpip','p_port','p_portr','p_tcpudp','p_dora','p_dns','p_hs','w_band','w_ssid','v_zero','v_type','v_bits','tr_cmd'];
 function renderTimer(){$('timer').textContent='0'+Math.floor(sprint.left/60)+':'+String(sprint.left%60).padStart(2,'0');$('timerFill').style.width=(sprint.left/90*100)+'%';$('timer').style.color=sprint.left<=20?'var(--bad)':'var(--cyan)'}
