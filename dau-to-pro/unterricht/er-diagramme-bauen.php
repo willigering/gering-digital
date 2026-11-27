@@ -203,7 +203,7 @@ function current(){return selected?(selected.type==='node'?findNode(selected.id)
 function chosenIds(){return multi.size?[...multi]:(selected?.type==='node'?[selected.id]:[])}
 function selectAllNodes(){finishInlineEditor();closeMenus();multi=new Set(doc().nodes.map(n=>n.id));selected=null;render()}
 function arrangeNodes(action){
- const ns=chosenIds().map(findNode).filter(Boolean);if(ns.length<2){toast('Bitte mindestens zwei Elemente markieren');return}
+ const ns=(action==='tidy'&&!chosenIds().length?doc().nodes:chosenIds().map(findNode).filter(Boolean));if(ns.length<2){toast('Bitte mindestens zwei Elemente markieren');return}
  if((action==='dx'||action==='dy')&&ns.length<3){toast('Zum Verteilen mindestens drei Elemente markieren');return}
  checkpoint();const minX=Math.min(...ns.map(n=>n.x-n.w/2)),maxX=Math.max(...ns.map(n=>n.x+n.w/2)),minY=Math.min(...ns.map(n=>n.y-n.h/2)),maxY=Math.max(...ns.map(n=>n.y+n.h/2));
  if(action==='dx'||action==='dy'){
@@ -211,10 +211,48 @@ function arrangeNodes(action){
   const sorted=ns.slice().sort((a,b)=>a[axis]-b[axis]),gap=Math.max(24,(end-start-sorted.reduce((sum,n)=>sum+n[dim],0))/(sorted.length-1));let cursor=start;
   for(const n of sorted){n[axis]=cursor+n[dim]/2;cursor+=n[dim]+gap}
  }else if(action==='tidy'){
-  // Preserve the approximate layout: cluster existing horizontal rows, then space shapes without overlap.
-  const sorted=ns.slice().sort((a,b)=>a.y-b.y||a.x-b.x),rows=[];
-  for(const n of sorted){let row=rows[rows.length-1];if(!row||Math.abs(n.y-row.center)>Math.max(28,Math.min(row.height,n.h)*.55)){row={center:n.y,height:n.h,nodes:[]};rows.push(row)}row.nodes.push(n);row.height=Math.max(row.height,n.h)}
-  let bottom=-Infinity;for(const row of rows){const y=Math.max(snap(row.center),bottom+48+row.height/2);row.nodes.sort((a,b)=>a.x-b.x);let right=-Infinity;for(const n of row.nodes){n.y=y;n.x=Math.max(snap(n.x),right+48+n.w/2);right=n.x+n.w/2}bottom=y+row.height/2}
+  // Keep the original layout; classify connections before moving any node.
+  const grid=Math.max(1,Number(theme().gridSize)||24),round=v=>Math.round(v/grid)*grid;
+  const all=doc().nodes,active=new Set(ns.map(n=>n.id)),original=new Map(all.map(n=>[n.id,{x:n.x,y:n.y}]));
+  const tolerance=Math.tan(Math.PI/12),constraints=[];
+  for(const e of doc().edges){
+   const a=original.get(e.from),b=original.get(e.to);
+   if(!a||!b||e.from===e.to||e.bend||!active.has(e.from)||!active.has(e.to))continue;
+   const dx=Math.abs(a.x-b.x),dy=Math.abs(a.y-b.y);
+   if(dx&&dy<=dx*tolerance)constraints.push({a:e.from,b:e.to,axis:'y'});
+   else if(dy&&dx<=dy*tolerance)constraints.push({a:e.from,b:e.to,axis:'x'});
+  }
+  const pos=new Map(all.map(n=>[n.id,{...original.get(n.id)}]));
+  const overlap=(a,b,p)=>{const u=p.get(a.id),v=p.get(b.id);return Math.abs(u.x-v.x)<(a.w+b.w)/2&&Math.abs(u.y-v.y)<(a.h+b.h)/2};
+  const safe=trial=>all.every((a,i)=>all.slice(i+1).every(b=>!overlap(a,b,trial)||overlap(a,b,original)));
+  // Merge near-axis connected nodes into groups; move each group atomically.
+  for(const axis of ['x','y']){
+   const groups=ns.map(n=>new Set([n.id]));
+   for(const e of constraints.filter(e=>e.axis===axis)){
+    const a=groups.find(g=>g.has(e.a)),b=groups.find(g=>g.has(e.b));
+    if(a!==b){for(const id of b)a.add(id);groups.splice(groups.indexOf(b),1)}
+   }
+   for(const group of groups.sort((a,b)=>b.size-a.size)){
+    const ids=[...group],mean=ids.reduce((sum,id)=>sum+original.get(id)[axis],0)/ids.length;
+    const trial=new Map([...pos].map(([id,p])=>[id,{...p}]));
+    for(const id of ids)trial.get(id)[axis]=round(mean);
+    if(safe(trial))for(const id of ids)pos.get(id)[axis]=trial.get(id)[axis];
+   }
+  }
+  // Never turn an originally diagonal straight connection into an axial one.
+  // If snapping would do so, retain the original layout of the affected component.
+  const preserve=new Set();
+  for(const e of doc().edges){
+   const a=original.get(e.from),b=original.get(e.to),u=pos.get(e.from),v=pos.get(e.to);
+   if(!a||!b||e.from===e.to||e.bend)continue;
+   const dx=Math.abs(a.x-b.x),dy=Math.abs(a.y-b.y);
+   if(dx&&dy&&dy>dx*tolerance&&dx>dy*tolerance&&(u.x===v.x||u.y===v.y)){preserve.add(e.from);preserve.add(e.to)}
+  }
+  if(preserve.size){
+   let changed=true;while(changed){changed=false;for(const e of constraints)if(preserve.has(e.a)!==preserve.has(e.b)){preserve.add(e.a);preserve.add(e.b);changed=true}}
+   for(const id of preserve)pos.set(id,{...original.get(id)});
+  }
+  if(safe(pos))for(const n of ns){n.x=pos.get(n.id).x;n.y=pos.get(n.id).y}
  }else for(const n of ns){if(action==='left')n.x=minX+n.w/2;if(action==='right')n.x=maxX-n.w/2;if(action==='cx')n.x=(minX+maxX)/2;if(action==='top')n.y=minY+n.h/2;if(action==='bottom')n.y=maxY-n.h/2;if(action==='cy')n.y=(minY+maxY)/2}
  render();save();toast('Auswahl angeordnet · Strg+Z macht rückgängig')
 }
