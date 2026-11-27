@@ -19,6 +19,7 @@ const quips=[...JSON.parse(quipSource.match(/const quips = (\[[\s\S]*?\]);/)[1])
      const hook=Object.entries(window).find(([k,v])=>/_TEST$/.test(k)&&v&&typeof v.last==='function')[1],t=hook.last(),box=document.querySelector('#practiceTask');
      if(t.kind==='layer'){box.querySelector('[data-v="'+(t.answer===1?2:1)+'"]').click();return;}
      if(t.kind==='mc'){box.querySelector('[data-v="'+((t.answer+1)%t.options.length)+'"]').click();return;}
+     if(t.kind==='cloze'){[...box.querySelectorAll('select.gap')].forEach((s,i)=>{s.value=t.bank.find(b=>b!==t.answer[i])});box.querySelector('[data-r="check"]').click();return;}
      const input=box.querySelector('[data-r="form"] input');
      const selects=[...box.querySelectorAll('[data-r="form"] select')];
      let candidate;
