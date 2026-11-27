@@ -153,9 +153,9 @@ body{font-family:"Space Grotesk", "Trebuchet MS", "Segoe UI",sans-serif}
 /* Four connection handles keep the same screen size at every zoom level. */
 .board .portControl{opacity:0;pointer-events:none;cursor:crosshair}
 .board .node:hover .portControl,.board .node.selected .portControl,.board .node.connectTarget .portControl{opacity:1;pointer-events:auto}
-.board .portControl .port{fill:#9464ee;stroke:#fff1ff;stroke-width:2.5;filter:drop-shadow(0 0 5px #b49cff) drop-shadow(0 0 9px #9464ee);pointer-events:none}
-.board .portControl .portHit{pointer-events:all}
-.board .portControl:hover .port{fill:#eab448;stroke:#fff1bb;r:10px!important;filter:drop-shadow(0 0 7px #eab448)}
+.board .portControl .port{fill:#9464ee;stroke:#fff1ff;stroke-width:1.4;filter:drop-shadow(0 0 2px #b49cff);pointer-events:none}
+.board .portControl .portHit{pointer-events:none}.board .node:hover .portHit,.board .node.selected .portHit,.board .node.connectTarget .portHit{pointer-events:all}
+.board .portControl:hover .port{fill:#eab448;stroke:#fff1bb;r:5.5px!important;filter:drop-shadow(0 0 3px #eab448)}
 .boardwrap.context-open .portControl,.board .node.editing .portControl{display:none}
 .board .node.connectTarget .body{stroke:#eab448!important;filter:drop-shadow(0 0 8px #eab448) drop-shadow(0 0 15px #b49cff);vector-effect:non-scaling-stroke}
 .header{flex-wrap:wrap;height:auto;min-height:86px}.header-actions{flex-wrap:wrap;justify-content:flex-end}.header-actions .btn{font-size:11px;padding:9px 10px}
@@ -269,7 +269,7 @@ function cardinalPosition(p,c,a,b,text){
 function drawEdge(root,e){const geo=edgeGeometry(e);if(!geo)return;const {a,b,p1,p2,c1,c2,mid,path}=geo;
  const color=e.color||theme().edgeColor,group=svg('g',{class:'connection'+(selected?.type==='edge'&&selected.id===e.id?' selected':''),'data-id':e.id},root);
  svg('path',{d:path,stroke:'transparent',fill:'none',class:'hit','stroke-width':20,'vector-effect':'non-scaling-stroke'},group);
- if(root===$('lines')&&selected?.type==='edge'&&selected.id===e.id){svg('path',{d:path,class:'selectionHalo','vector-effect':'non-scaling-stroke'},group);for(const p of [p1,p2])svg('circle',{class:'selectedEndpoint',cx:p.x,cy:p.y,r:4/viewport.z,'vector-effect':'non-scaling-stroke'},group)}
+ if(root===$('lines')&&selected?.type==='edge'&&selected.id===e.id){svg('path',{d:path,class:'selectionHalo','vector-effect':'non-scaling-stroke'},group);if(viewport.z>=.25)for(const p of [p1,p2])svg('circle',{class:'selectedEndpoint',cx:p.x,cy:p.y,r:2.5*Math.min(1,viewport.z/.75)/viewport.z,'vector-effect':'non-scaling-stroke'},group)}
  svg('path',{d:path,fill:'none','vector-effect':'non-scaling-stroke',style:`stroke:${color};stroke-width:${FIXED_EDGE_WIDTH}px;fill:none`},group);
  for(const [value,p,c]of [[e.left,p1,c1],[e.right,p2,c2]])if(value){const q=cardinalPosition(p,c,a,b,value);textEl(group,value,q.x,q.y,{class:'cardinality',style:`font-size:${theme().cardSize}px;fill:${color};paint-order:stroke;stroke:${theme().background};stroke-width:5px;stroke-linejoin:round`})}
  if(e.label){const w=Math.max(40,e.label.length*7.4+16);svg('rect',{class:'card',x:mid.x-w/2,y:mid.y-13,width:w,height:26,rx:7,fill:theme().background,stroke:color},group);textEl(group,e.label,mid.x,mid.y,{style:`fill:${color};font-size:13px`})}
@@ -291,10 +291,10 @@ for(const [sx,sy] of [[-1,-1],[1,-1],[-1,1],[1,1]]){const handle=svg('rect',{cla
 if(false){
 const pg=svg('g',{class:'pkToggle',transform:`translate(${n.w/2-4} ${-n.h/2-4})`},g);svg('rect',{x:0,y:-16,width:37,height:23,rx:7,fill:(n.primary||n.type==='key')?'#12af83':'#263d5b',stroke:'#8be8ce','stroke-width':1.2},pg);textEl(pg,'PK',18, -4,{class:'pkControlText','font-size':12});pg.addEventListener('pointerdown',ev=>{ev.preventDefault();ev.stopPropagation();togglePrimary(n)});
 }
-for(const [px,py,side] of [[n.w/2,0,'rechts'],[-n.w/2,0,'links'],[0,-n.h/2,'oben'],[0,n.h/2,'unten']]){
- const control=svg('g',{class:'portControl',transform:`translate(${px} ${py}) scale(${1/viewport.z})`,'aria-label':'Verbinden: '+side},g);
- svg('circle',{class:'portHit',r:16,fill:'transparent'},control);
- const port=svg('circle',{class:'port',r:8,style:'r:8px'},control);const title=svg('title',{},port);title.textContent='Zur Zielform ziehen';
+if(viewport.z>=.25)for(const [px,py,side] of [[n.w/2,0,'rechts'],[-n.w/2,0,'links'],[0,-n.h/2,'oben'],[0,n.h/2,'unten']]){
+ const control=svg('g',{class:'portControl',transform:`translate(${px} ${py}) scale(${Math.min(1,viewport.z/.75)/viewport.z})`,'aria-label':'Verbinden: '+side},g);
+ svg('circle',{class:'portHit',r:9,fill:'transparent'},control);
+ const port=svg('circle',{class:'port',r:4.5,style:'r:4.5px'},control);const title=svg('title',{},port);title.textContent='Zur Zielform ziehen';
  control.addEventListener('pointerdown',ev=>portDown(ev,n));
 }
 g.addEventListener('contextmenu',ev=>{ev.preventDefault();ev.stopPropagation();if(!multi.has(n.id))multi=new Set([n.id]);selected={type:'node',id:n.id};render();openContext(ev.clientX,ev.clientY,'node',n.id)});g.addEventListener('pointerdown',ev=>nodeDown(ev,n));g.addEventListener('dblclick',ev=>{ev.stopPropagation();editName(n)})});if(guideX!==null||guideY!==null){const bounds=doc().nodes;if(guideX!==null)svg('line',{class:'alignmentGuide',x1:guideX,y1:-50000,x2:guideX,y2:50000},$('scene'));if(guideY!==null)svg('line',{class:'alignmentGuide',x1:-50000,y1:guideY,x2:50000,y2:guideY},$('scene'))}if(drag?.kind==='connectPort'&&connectPointer){
