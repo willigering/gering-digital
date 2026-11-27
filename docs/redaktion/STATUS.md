@@ -253,3 +253,11 @@ Neue Unterrichtseinheit mit vier schrittweisen Simulationen und acht Übungen. D
 - Wertung eindeutig: Alle Lücken/Zeilen müssen stimmen, sonst gilt die Aufgabe als falsch; unvollständig wird nicht gewertet. Gilt in Lernpfad, Training und Probeprüfung (Antwort wird als `a|b|c` zwischengespeichert, Prüfung zeigt Auswahl und Lösung).
 - Neues Element: `select.gap` und `.cloze`, Optik angelehnt an die vorhandenen Zuordnen-Zeilen. Keine Änderung an Überschriften, IDs, XP oder Speicherschlüsseln.
 - Noch offen: Wiederholung falscher Aufgaben, Mehr-Schritt-Fälle, Review durch Willi.
+
+### Begriffs-Freitext durch Auswahl ersetzt (27.11.2026)
+- Umgestellt auf Multiple Choice mit themenbezogenen falschen Antworten: D1 (Datenschutz), W4 (21 Typen), F2 (2), D2 (ca. 30), OSI-Sprint (2), B4 (Begriffe und Ja/Nein), E2 (25), CS1 (Begriffe, Operatoren, Schlüsselwörter, Methodenteile).
+- Bewusst getippt geblieben: exakt auswertbare Rechen- und Formatantworten (Zahlen, IP-/Binär-/Hex-Eingaben, B4-Interface-ID/MAC, E2-Zeilenanzahlen) sowie SQL- und Codeaufgaben mit Normalisierung.
+- Ohne Änderung: Subnetz-Sprint und A1 (nur Rechenaufgaben, kein Begriffs-Freitext) und Klausurvorbereitung (auf Wunsch ausgenommen).
+- Lehrtexte: B2 und D1 vollständig überarbeitet; B5 mit Auf-einen-Blick-Blöcken; W4, F2 waren bereits strukturiert.
+- Testanpassungen: Optionszahl 2–4 statt fest 4 (d2, e2, w4), B4-Browser-/Unit-Test klicken Auswahl, wenn eine Aufgabe MC ist.
+- Offen: Review durch Willi (Humor, Texte), Wiederholung falscher Aufgaben, serverseitige KI unverändert.

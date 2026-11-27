@@ -12,7 +12,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
  await page.screenshot({path:path.join(out,'b4-desktop.png'),fullPage:true});
  await page.locator('#practiceGo').click();
  for(let i=0;i<13;i++){
-  const tt=await page.evaluate(()=>B4IPV6_TEST.last());
+  await page.locator('#practiceTask input:not([disabled]), #practiceTask .opt:not([disabled])').first().waitFor();const tt=await page.evaluate(()=>document.querySelector('#practiceTask').__task);
   if(tt.kind==='mc')await page.locator('#practiceTask .opt').nth(tt.answer).click();else{await page.locator('#practiceTask input').fill(String(tt.answer));await page.locator('#practiceTask [data-r="check"]').click();}
   if(i===2)assert.equal(await page.locator('[data-stage="1"]').getAttribute('aria-disabled'),'true','Hinted tasks do not unlock');
   if(i<12)await page.locator('#practiceTask [data-r="next"]').click();
@@ -23,7 +23,7 @@ const root=path.resolve(__dirname,'..'),out=process.env.DTP_SCREENSHOT_DIR||path
 await page.locator('#backToLesson').click();await page.locator('.dtp-practice-dialog').waitFor({state:'hidden'});
  await page.locator('#tab-train').click();
  for(let i=0;i<20;i++){
-  const t=await page.evaluate(()=>B4IPV6_TEST.last());if(t.kind==='mc')await page.locator('#trainTask .opt').nth(t.answer).click();else{await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();}
+  await page.locator('#trainTask input:not([disabled]), #trainTask .opt:not([disabled])').first().waitFor();const t=await page.evaluate(()=>document.querySelector('#trainTask').__task);if(t.kind==='mc')await page.locator('#trainTask .opt').nth(t.answer).click();else{await page.locator('#trainTask input').fill(String(t.answer));await page.locator('#trainTask [data-r="check"]').click();}
   assert.match(await page.locator('#trainTask [data-r="res"]').innerText(),/Richtig/);assert(await page.locator('#trainTask .why').innerText());
   if(i<19)await page.locator('#trainTask [data-r="next"]').click();
  }
@@ -82,7 +82,7 @@ await page.locator('#backToLesson').click();await page.locator('.dtp-practice-di
   const web=await browser.newContext(),p=await web.newPage();
   let ready=false;for(let i=0;i<50;i++){try{await p.goto('http://127.0.0.1:'+port+'/fixture/');ready=true;break}catch(e){await new Promise(r=>setTimeout(r,100))}}assert(ready,'PHP fixture started');
   await p.waitForFunction(()=>!!window.B4IPV6_TEST);
-  await p.locator('#tab-train').click();const t85=await p.evaluate(()=>B4IPV6_TEST.last());if(t85.kind!=='mc')await p.locator('#trainTask input').fill(String(t85.answer));
+  await p.locator('#tab-train').click();await p.locator('#trainTask input:not([disabled]), #trainTask .opt:not([disabled])').first().waitFor();const t85=await p.evaluate(()=>document.querySelector('#trainTask').__task);if(t85.kind!=='mc')await p.locator('#trainTask input').fill(String(t85.answer));
   const persisted=p.waitForResponse(r=>r.url().includes('/api/progress.php')&&r.request().method()==='POST'&&JSON.parse(r.request().postData()||'{}').set?.['b4-ipv6-stats-v1']&&r.status()===200);
   if(t85.kind==='mc')await p.locator('#trainTask .opt').nth(t85.answer).click();else await p.locator('#trainTask [data-r="check"]').click();await persisted;
   await p.waitForFunction(()=>typeof window.__dtpSyncStatus==='function'&&window.__dtpSyncStatus().state==='saved');
