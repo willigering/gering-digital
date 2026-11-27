@@ -12,7 +12,23 @@ function task(scenario,prompt,plain,answer,why,unit='€',d){
  return {kind:'num',scenario,prompt,plain,answer:round(answer,dd),why,unit,d:dd,key:scenario+'|'+prompt};
 }
 function choice(scenario,prompt,plain,right,wrongs,why){const w=[...new Set(wrongs.filter(x=>x!==right))];return {...mc(prompt,right,w,why),scenario,plain,key:scenario+'|'+prompt+'|'+right};}
-function textTask(scenario,prompt,plain,answer,accept,why){return {kind:'text',scenario,prompt,plain,answer,accept:[answer,...(accept||[])],why,key:scenario+'|'+prompt};}
+const W4_ZUSATZ=['e.K.','GbR','eGbR','OHG','KG','GmbH & Co. KG','GmbH','UG (haftungsbeschränkt)','AG','KGaA','eG','e.V.'];
+const W4_NOT={'KG':['GmbH & Co. KG','KGaA'],'GmbH & Co. KG':['KG','GmbH'],'GbR':['eGbR'],'eGbR':['GbR'],'GmbH':['GmbH & Co. KG','UG (haftungsbeschränkt)'],'UG (haftungsbeschränkt)':['GmbH'],'AG':['KGaA'],'KGaA':['AG']};
+function textOptions(prompt,answer){
+ const norm=x=>x==='ja'?'Ja':x==='nein'?'Nein':x;
+ const m=prompt.match(/ Antworte mit ([^.?]+)\.?$/);
+ if(m){const o=m[1].split(/, | oder /).map(x=>x.trim()).filter(Boolean);if(o.includes(answer))return {prompt:prompt.slice(0,m.index),opts:o.map(norm)};}
+ if(/Komplementär oder Kommanditist/.test(prompt))return {prompt,opts:['Komplementär','Kommanditist']};
+ if(/Personengesellschaft oder eine Kapitalgesellschaft/.test(prompt))return {prompt,opts:['Personengesellschaft','Kapitalgesellschaft']};
+ if(/Marktform/.test(prompt)){const names=[...new Set(Object.values(MF).flatMap(r=>Object.values(r)))];return {prompt,opts:names};}
+ if(/persönlich haftende/.test(prompt))return {prompt:prompt.replace(' Nenne die Rechtsform.',''),opts:['GmbH','AG','OHG','GbR','UG (haftungsbeschränkt)']};
+ if(/Rechtsformzusatz/.test(prompt)){const bad=W4_NOT[answer]||[];return {prompt:prompt.replace(' Nenne die übliche Abkürzung.',''),opts:W4_ZUSATZ.filter(x=>x===answer||!bad.includes(x))};}
+ throw new Error('Keine Auswahl für: '+prompt);
+}
+function textTask(scenario,prompt,plain,answer,accept,why){
+ const t=textOptions(prompt,answer),right=answer==='ja'?'Ja':answer==='nein'?'Nein':answer;
+ return choice(scenario,t.prompt,plain,right,t.opts.filter(x=>x!==right),why);
+}
 function S(cat,id,f){const stage=LESSONS.findIndex(c=>c.cat===cat);const label=LESSONS[stage].types.find(t=>t[0]===id)[1];SUBS.push({id,cat,label,min:stage+1,f});}
 function pathCalc(lines){return '<ol class="steps-list">'+lines.map(l=>'<li>'+l+'</li>').join('')+'</ol>';}
 function scenarioHtml(t){return '<div class="scenario"><strong>AUSGANGSLAGE</strong>'+t.scenario+'</div>';}

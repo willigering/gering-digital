@@ -16,8 +16,8 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
   const savedRandom=Math.random;Math.random=()=>0;
   const expected={s_zaehl:0,m_zaehl:4,e_privat:5000,e_sofa:5000,g_haft:10000,g_anteil:4000,g_kopf:1200,k_rest:10000,k_voll:20000,h_einzahl:12500,h_ruecklage:100,h_euro:300,h_gewinn:400,h_stimmen:2500,h_privat:2500,a_aktien:50000,a_dividende:10,a_quote:1,a_eg:30,a_gruender:1,w_risiko:4};
   for(const [id,answer] of Object.entries(expected)){const q=t.genTask(id,3);if(Math.abs(q.answer-answer)>1e-8)throw Error('Independent fixture '+id+': '+q.answer);}
-  const textFixtures={s_sektor:'primär',m_markt:'Beschaffungsmarkt',f_name:'zweiseitiges Monopol',f_case:'Angebotsmonopol',e_zusatz:'e.K.',g_form:'GbR',k_co:'Personengesellschaft',a_organ:'Vorstand',r_abteil:'HRA',r_verkauf:'nein',w_wahl:'Einzelunternehmen'};
-  for(const [id,answer] of Object.entries(textFixtures)){const q=t.genTask(id,3);if(q.answer!==answer)throw Error('Text fixture '+id+': '+q.answer);}
+  const textFixtures={s_sektor:'primär',m_markt:'Beschaffungsmarkt',f_name:'zweiseitiges Monopol',f_case:'Angebotsmonopol',e_zusatz:'e.K.',g_form:'GbR',k_co:'Personengesellschaft',a_organ:'Vorstand',r_abteil:'HRA',r_verkauf:'Nein',w_wahl:'Einzelunternehmen'};
+  for(const [id,answer] of Object.entries(textFixtures)){const q=t.genTask(id,3);if(q.options[q.answer]!==answer)throw Error('Text fixture '+id+': '+q.options[q.answer]);}
   Math.random=savedRandom;
   // Legal rules that must hold for every random draw.
   for(let i=0;i<300;i++){
@@ -29,7 +29,7 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
    if(q.sub!==s.id||!q.scenario||!q.prompt||!q.plain||q.plain===q.prompt||!q.why)throw Error('Incomplete '+s.id);
    if(/undefined|NaN|\[object/.test(q.scenario+q.prompt+q.why+(q.options||[]).join('')))throw Error('Broken text '+s.id+' '+q.scenario);
    if(q.why.replace(/<[^>]+>/g,'').trim().length<=20)throw Error('Explanation too short '+s.id+': '+q.why);
-   if(q.kind==='mc'){if(q.options.length!==4||q.options.length!==new Set(q.options).size||!q.options[q.answer])throw Error('Ambiguous MC '+s.id);}
+   if(q.kind==='mc'){if(q.options.length<2||q.options.length>4||q.options.length!==new Set(q.options).size||!q.options[q.answer])throw Error('Ambiguous MC '+s.id);}
    else if(q.kind==='text'){const r=t.parseAnswer(q,q.answer);if(!r.valid||!r.ok)throw Error('Correct text rejected '+s.id+' '+q.answer);if(t.parseAnswer(q,'Quatsch mit Soße').ok)throw Error('Wrong text accepted '+s.id);for(const a of q.accept)if(!t.parseAnswer(q,a).ok)throw Error('Accept variant '+s.id+' '+a);}
    else{const raw=String(q.answer).replace('.',',')+' '+q.unit;const r=t.parseAnswer(q,raw);if(!r.valid||!r.ok)throw Error('Correct rejected '+s.id+' '+JSON.stringify({q,r}));
     if(t.parseAnswer(q,String(q.answer+1).replace('.',',')).ok)throw Error('Wrong accepted '+s.id);}
@@ -37,9 +37,9 @@ const PREFIX='w4-unternehmen-',GAME_KEY='dtp-game-best-w4';
   }
   // Mutually exclusive text answers: the other legal options must be rejected.
   const pairs=[['s_sektor',['primär','sekundär','tertiär']],['g_form',['GbR','OHG']],['k_rolle',['Komplementär','Kommanditist']],['w_art',['Personengesellschaft','Kapitalgesellschaft']],['r_prokura',['ja','nein']]];
-  for(const [id,opts] of pairs)for(let i=0;i<200;i++){const q=t.genTask(id,2);const ok=opts.filter(o=>t.parseAnswer(q,o).ok);if(ok.length!==1)throw Error('Not exactly one valid option '+id+' '+ok);}
+  for(const [id,opts] of pairs)for(let i=0;i<200;i++){const q=t.genTask(id,2);const want=opts.map(o=>o==='ja'?'Ja':o==='nein'?'Nein':o).sort().join('|');if(q.options.slice().sort().join('|')!==want)throw Error('Option set '+id+' '+q.options);if(!q.options[q.answer])throw Error('No answer '+id);}
   for(const k of [1,2,3]){const qs=t.buildExam(k);if(qs.length!==20*k||Math.abs(qs.reduce((a,q)=>a+q.pts,0)-100)>1e-8)throw Error('Exam weights');if(new Set(qs.map(q=>q.cat)).size!==10)throw Error('Missing category');}
-  const mcCount=t.SUBS.filter(s=>s.f(2).kind==='mc').length;if(mcCount>t.SUBS.length/3)throw Error('Too much MC');
+  const mcCount=t.SUBS.filter(s=>s.f(2).kind==='mc').length;if(t.SUBS.some(s=>s.f(2).kind==='text'))throw Error('Freitext not allowed');
   const q={kind:'num',answer:12500,d:0};for(const raw of ['12500','12.500','12.500 €','12500,00','12 500 EUR'])if(!t.parseAnswer(q,raw).ok)throw Error('Money parser '+raw);
   for(const raw of ['12501','1250','12500+0','Infinity'])if(t.parseAnswer(q,raw).ok)throw Error('False positive '+raw);
   for(const [raw,exp] of [['UG haftungsbeschraenkt','UG (haftungsbeschränkt)'],['e. K.','e.K.'],['GmbH und Co. KG','GmbH & Co. KG'],['tertiaer','tertiär']]){if(!t.parseAnswer({kind:'text',answer:exp,accept:[exp]},raw).ok)throw Error('Text parser '+raw);}
